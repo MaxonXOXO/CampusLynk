@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Carmel Linx - Tutor Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <?!= include('Common_CSS'); ?>
+  <style>
+    /* Styling to hide dashboard wrapper during printing of PTM reports */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printablePTMCard, #printablePTMCard * {
+        visibility: visible;
+      }
+      #printablePTMCard {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: none !important;
+        box-shadow: none !important;
+        background: white !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col md:flex-row">
+
+  <!-- Sidebar Navigation -->
+  <aside class="w-full md:w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col border-r border-slate-800 print:hidden">
+    <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+      <div class="bg-blue-600 text-white font-bold rounded-lg w-8 h-8 flex items-center justify-center text-sm">CL</div>
+      <div>
+        <h2 class="font-extrabold text-sm tracking-wide">Carmel Linx</h2>
+        <span class="text-[10px] text-slate-400 font-bold uppercase">Tutor Panel</span>
+      </div>
+    </div>
+
+    <!-- Profile -->
+    <div class="p-4 bg-slate-950/40 border-b border-slate-800/60 flex items-center gap-3">
+      <img id="tutorProfilePic" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" class="w-10 h-10 rounded-full border border-slate-700 object-cover">
+      <div>
+        <span id="tutorNameText" class="font-bold text-xs block truncate text-slate-200">Mathew Philip</span>
+        <span id="tutorBranchText" class="text-[10px] font-bold text-green-400 block uppercase">ECE Tutor</span>
+      </div>
+    </div>
+
+    <!-- Navigation links -->
+    <nav class="flex-grow p-4 space-y-1">
+      <button onclick="switchTutorView('students')" id="tutorNav-students" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 bg-blue-600/15 text-blue-400 transition-premium">
+        <span class="material-symbols-rounded text-lg">group</span> My Supervised Class
+      </button>
+      <button onclick="switchBackToBaseDashboard()" id="tutorNav-switchBack" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium">
+        <span class="material-symbols-rounded text-lg">dashboard</span> Academic Dashboard
+      </button>
+      <button onclick="switchTutorView('profile')" id="tutorNav-profile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium">
+        <span class="material-symbols-rounded text-lg">settings</span> My Profile
+      </button>
+    </nav>
+
+    <!-- Logout -->
+    <div class="p-4 border-t border-slate-800 mt-auto">
+      <button onclick="handleLogout()" class="w-full py-2 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-xs transition-premium flex items-center justify-center gap-2">
+        <span class="material-symbols-rounded text-lg">logout</span> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Workspace -->
+  <main class="flex-grow p-6 md:p-8 overflow-y-auto max-h-screen print:p-0">
+    
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5 mb-6 print:hidden">
+      <div>
+        <h1 id="tutorViewTitle" class="text-2xl font-black text-slate-800 tracking-tight">My Supervised Class</h1>
+        <p id="tutorViewSubtext" class="text-sm text-slate-500 font-medium">Generate Parent-Teacher Meeting (PTM) progress cards and track student OBE outcomes.</p>
+      </div>
+      <div id="tutorViewActions"></div>
+    </div>
+
+    <!-- View Area -->
+    <div id="tutorViewContainer" class="fade-in">
+      <!-- Loaded dynamically -->
+    </div>
+
+  </main>
+
+  <!-- Modal: Create/Edit Student -->
+  <div id="studentCrudModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 p-6 md:p-8 slide-up max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6 border-b pb-3">
+        <h3 id="studentModalTitle" class="text-lg font-black text-slate-800 tracking-tight">Add New Student</h3>
+        <button onclick="closeStudentModal()" class="text-slate-400 hover:text-slate-600 font-black text-lg">✕</button>
+      </div>
+      
+      <form onsubmit="handleStudentCrudSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
+          <input type="text" id="mStudentName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address</label>
+          <input type="email" id="mStudentEmail" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Register No</label>
+            <input type="text" id="mStudentReg" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Admission No</label>
+            <input type="text" id="mStudentAdm" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Branch</label>
+            <input type="text" id="mStudentBranch" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-500 cursor-not-allowed">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Adm Year</label>
+            <input type="number" id="mStudentYear" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-500 cursor-not-allowed">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Semester</label>
+            <input type="text" id="mStudentSem" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-500 cursor-not-allowed">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Password</label>
+          <input type="text" id="mStudentPassword" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" value="password123">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Profile Image</label>
+          <input type="file" id="mStudentPhoto" accept="image/*" onchange="convertStudentPhotoToBase64()" class="w-full text-[10px] text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700">
+          <div id="mPhotoPreviewContainer" class="hidden mt-2 flex justify-center">
+            <img id="mPhotoPreview" src="" class="w-16 h-16 rounded-full object-cover border">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg transition-premium text-xs">
+          Save Student Profile
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Assign Mentors (Manual Checkboxes Mapping) -->
+  <div id="mentorAllocationModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 p-6 md:p-8 slide-up max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4 border-b pb-3">
+        <h3 class="text-lg font-black text-slate-800 tracking-tight">Assign Class Mentor</h3>
+        <button onclick="closeMentorAllocationModal()" class="text-slate-400 hover:text-slate-600 font-black text-lg">✕</button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Mentor</label>
+          <select id="allocationMentorSelect" onchange="loadMentorStudentCheckboxes()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Select Students to Assign</label>
+          <div class="border rounded-2xl bg-slate-50 p-4 max-h-[300px] overflow-y-auto space-y-2" id="allocationStudentList">
+            <!-- Dynamically populated checkboxes -->
+          </div>
+        </div>
+
+        <button onclick="submitMentorAllocation()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg transition-premium text-xs">
+          Save Mentor Assignments
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tutorMobile = sessionStorage.getItem("userId");
+    let tutorName = sessionStorage.getItem("userName");
+    if (!tutorName || tutorName === "null" || tutorName.trim() === "") {
+      tutorName = "Class Tutor";
+    }
+    const tutorBranch = sessionStorage.getItem("userBranch");
+    const tutorPhoto = sessionStorage.getItem("userPhoto");
+    
+    let activeTutorView = "students";
+    let classroomId = "";
+    let batchYear = "";
+    let classroomStudents = [];
+    let classroomSubjects = [];
+    let isClassTutor = false;
+    let branchStaffRoster = [];
+    
+    let crudMode = "create";
+    let mStudentBase64Photo = "";
+    let selfProfileBase64Photo = "";
+
+    // Guard login
+    if (!tutorMobile) {
+      navigateToPage("Login");
+    }
+
+    // Init profile
+    document.getElementById("tutorNameText").innerText = tutorName;
+    document.getElementById("tutorBranchText").innerText = getBranchFullName(tutorBranch) + " Tutor";
+    if (tutorPhoto) {
+      document.getElementById("tutorProfilePic").src = tutorPhoto;
+    }
+
+    window.addEventListener("load", function() {
+      fetchTutorClassroomRoster();
+    });
+
+    function fetchTutorClassroomRoster() {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            classroomId = response.classroomId;
+            batchYear = response.batchYear;
+            classroomStudents = response.students;
+            classroomSubjects = response.subjects;
+            isClassTutor = response.isClassTutor;
+            
+            // Set header action subtitle
+            document.getElementById("tutorViewSubtext").innerText = `Assigned Group: ${classroomId} | Batch: ${batchYear}`;
+            
+            // Fetch branch staff roster to populate mentor selection dropdown
+            fetchBranchStaff();
+          } else {
+            document.getElementById("tutorViewContainer").innerHTML = `
+              <div class="bg-white rounded-3xl p-8 border border-slate-200 text-center max-w-md mx-auto">
+                <span class="material-symbols-rounded text-5xl block text-slate-400 mb-3">mail_outline</span>
+                <h3 class="font-black text-slate-800 text-lg">No Classroom Assigned</h3>
+                <p class="text-slate-400 text-sm mt-1 font-semibold">${response.message}</p>
+              </div>
+            `;
+          }
+        })
+        .withFailureHandler(function(err) {
+          alert("Error: " + err.message);
+        })
+        .getTutorClassroomRoster(tutorMobile);
+    }
+
+    function fetchBranchStaff() {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            branchStaffRoster = response.staff || [];
+          }
+          renderTutorView();
+        })
+        .withFailureHandler(function(err) {
+          console.error("Error fetching staff roster: ", err);
+          renderTutorView();
+        })
+        .getHODStaffRoster(tutorBranch);
+    }
+
+    function switchTutorView(viewName) {
+      activeTutorView = viewName;
+      
+      const navStudents = document.getElementById("tutorNav-students");
+      const navProfile = document.getElementById("tutorNav-profile");
+      
+      if (viewName === "students") {
+        navStudents.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 bg-blue-600/15 text-blue-400 transition-premium";
+        navProfile.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium";
+      } else {
+        navProfile.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 bg-blue-600/15 text-blue-400 transition-premium";
+        navStudents.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium";
+      }
+      
+      renderTutorView();
+    }
+
+    function renderTutorView() {
+      const container = document.getElementById("tutorViewContainer");
+      const actions = document.getElementById("tutorViewActions");
+      actions.innerHTML = "";
+      
+      if (activeTutorView === "students") {
+        document.getElementById("tutorViewTitle").innerText = "My Supervised Class";
+        
+        if (isClassTutor) {
+          actions.innerHTML = `
+            <button onclick="openAddStudentModal()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium shadow-md shadow-blue-500/10 flex items-center justify-center gap-1">
+              <span class="material-symbols-rounded text-sm">add</span> Add Student
+            </button>
+            <button onclick="openMentorAllocationModal('${classroomId}')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-premium shadow-md shadow-emerald-500/10 flex items-center justify-center gap-1">
+              <span class="material-symbols-rounded text-sm">supervisor_account</span> Assign Mentors
+            </button>
+          `;
+        } else {
+          actions.innerHTML = "";
+        }
+
+        if (classroomStudents.length === 0) {
+          container.innerHTML = `<p class="text-slate-400 text-xs font-bold py-6 text-center bg-white border rounded-3xl">No students enrolled in your classroom yet.</p>`;
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Students List Side -->
+            <div class="bg-white border rounded-3xl p-6 shadow-sm lg:col-span-1 h-fit">
+              <h3 class="text-base font-black text-slate-800 mb-4 tracking-tight border-b pb-2">Student Profiles</h3>
+              <div class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                ${classroomStudents.map(s => `
+                  <div class="flex items-center gap-2 p-3 rounded-2xl hover:bg-slate-50 border border-slate-100 hover:border-slate-200 transition-premium font-bold">
+                    <img src="${s.Photo_Drive_Link}" class="w-10 h-10 rounded-full object-cover border">
+                    <div class="flex-grow cursor-pointer" onclick="loadStudentPTMCard('${s.Reg_No}')">
+                      <span class="text-xs text-slate-800 block">${s.Name}</span>
+                      <span class="text-[10px] text-slate-400 font-mono">${s.Reg_No}</span>
+                    </div>
+                    ${isClassTutor ? `
+                    <div class="flex gap-1">
+                      <button onclick="openEditStudentModal('${s.Reg_No}')" class="p-1 text-[10px] text-blue-600 hover:underline">Edit</button>
+                      <button onclick="deleteStudent('${s.Reg_No}')" class="p-1 text-[10px] text-red-600 hover:underline">Del</button>
+                    </div>
+                    ` : ""}
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+
+            <!-- Report Details Side -->
+            <div class="lg:col-span-2 space-y-6">
+              <!-- Selector to choose Subject to generate PTM -->
+              <div class="bg-white border rounded-3xl p-6 shadow-sm flex items-center justify-between gap-4 print:hidden">
+                <div class="flex-grow">
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Evaluation Subject</label>
+                  <select id="ptmSubjectSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                    ${classroomSubjects.map(sub => `<option value="${sub.code}">${sub.code} - ${sub.name}</option>`).join("")}
+                  </select>
+                </div>
+                <div class="text-xs font-bold text-slate-400">
+                  Choose subject first, then click student profile.
+                </div>
+              </div>
+
+              <!-- Printable PTM Roster report -->
+              <div id="ptmReportCardWrapper" class="hidden">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+        `;
+      } 
+      else if (activeTutorView === "profile") {
+        document.getElementById("tutorViewTitle").innerText = "My Profile Settings";
+        document.getElementById("tutorViewSubtext").innerText = "Modify your name, password, email, and avatar.";
+        
+        container.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm max-w-lg mx-auto">
+            <h3 class="text-base font-black text-slate-800 mb-4 tracking-tight border-b pb-2">Edit Staff Profile</h3>
+            
+            <form onsubmit="handleSelfProfileUpdate(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
+                <input type="text" id="selfName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" value="${tutorName}">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address</label>
+                <input type="email" id="selfEmail" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">New Password (leave empty to keep current)</label>
+                <input type="password" id="selfPassword" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" placeholder="••••••••">
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Replace Avatar Photo</label>
+                <input type="file" id="selfPhoto" accept="image/*" onchange="convertSelfPhotoToBase64()" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700">
+                <div class="mt-2 flex justify-center">
+                  <img id="selfPhotoPreview" src="${tutorPhoto || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}" class="w-20 h-20 rounded-full object-cover border">
+                </div>
+              </div>
+
+              <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg transition-premium text-xs">
+                Save Changes
+              </button>
+            </form>
+          </div>
+        `;
+        
+        // Fetch current email
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              const selfData = response.allApprovedStaff.find(s => s.Mobile_No === tutorMobile);
+              if (selfData) {
+                document.getElementById("selfEmail").value = selfData.Email;
+              }
+            }
+          })
+          .getPendingAccounts();
+      }
+    }
+
+    function loadStudentPTMCard(regNo) {
+      const subjectCode = document.getElementById("ptmSubjectSelect").value;
+      const wrapper = document.getElementById("ptmReportCardWrapper");
+      
+      wrapper.innerHTML = `<p class="text-slate-400 text-xs font-bold py-6 text-center bg-white border rounded-3xl">Fetching progress marks...</p>`;
+      wrapper.classList.remove("hidden");
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            const data = response;
+            const quiz = data.onlineQuiz;
+            const marks = data.academicMarks;
+
+            // Renders academic marks
+            const filteredMarksRows = marks.map(m => `
+              <tr class="border-b">
+                <td class="p-3 font-semibold text-slate-800">${m.Assessment_Category} - ${m.Assessment_Name}</td>
+                <td class="p-3 text-center text-slate-500">${m.CO_Tag}</td>
+                <td class="p-3 text-center font-mono font-bold text-slate-800">${m.Marks_Obtained} / ${m.Max_Marks}</td>
+                <td class="p-3 text-center text-[10px] text-slate-400">${new Date(m.Timestamp).toLocaleDateString()}</td>
+              </tr>
+            `).join("");
+
+            wrapper.innerHTML = `
+              <div class="space-y-6">
+                <!-- PRINTABLE PTM REPORT CARD -->
+                <div id="printablePTMCard" class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col gap-6 relative">
+                  
+                  <button onclick="window.print()" class="absolute right-6 top-6 px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-bold transition-premium print:hidden flex items-center justify-center gap-1">
+                    <span class="material-symbols-rounded text-sm">print</span> Print PTM Progress Card
+                  </button>
+
+                  <div class="text-center border-b pb-4">
+                    <h2 class="text-xl font-extrabold text-slate-800 uppercase tracking-wide">Carmel Polytechnic College</h2>
+                    <span class="text-xs text-slate-400 font-bold uppercase tracking-wider block mt-1">Student Academic Progress Report Card</span>
+                  </div>
+
+                  <div class="flex flex-col md:flex-row items-center gap-4 bg-slate-50 rounded-2xl p-4 border">
+                    <img src="${data.student.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}" class="w-16 h-16 rounded-xl border object-cover">
+                    <div class="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs font-bold text-slate-700 w-full">
+                      <div>Student Name: <span class="text-slate-900 font-extrabold block text-sm">${data.student.name}</span></div>
+                      <div>Register No: <span class="text-slate-900 block font-mono text-sm">${data.student.regNo}</span></div>
+                      <div>Classroom ID: <span class="text-slate-500 block">${data.student.classroom}</span></div>
+                      <div>Subject Code: <span class="text-slate-500 block">${subjectCode}</span></div>
+                      <div>Class Attendance: <span class="text-blue-600 block text-sm font-black">${data.attendance.percentage}% (${data.attendance.present}/${data.attendance.total} hours)</span></div>
+                    </div>
+                  </div>
+
+                  <!-- CO-PO percentages outcomes summary -->
+                  <div>
+                    <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-2">Subject CO Progress scores</h4>
+                    <div class="grid grid-cols-4 gap-4">
+                      ${['CO1', 'CO2', 'CO3', 'CO4'].map(co => {
+                        const pct = data.coPercentages[co] || 0;
+                        return `
+                          <div class="border rounded-2xl p-3 bg-slate-50/50 text-center font-bold">
+                            <span class="text-[10px] text-slate-400 uppercase tracking-wider block">${co}</span>
+                            <span class="text-base text-slate-800 block mt-1">${pct}%</span>
+                          </div>
+                        `;
+                      }).join("")}
+                    </div>
+                  </div>
+
+                  <!-- Detailed marks list -->
+                  <div>
+                    <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-2">Manual Marks Register</h4>
+                    <div class="overflow-x-auto border rounded-2xl">
+                      <table class="w-full text-left border-collapse text-xs font-bold">
+                        <thead>
+                          <tr class="bg-slate-100 border-b border-slate-200 text-slate-600 uppercase">
+                            <th class="p-3">Assessment Element</th>
+                            <th class="p-3 text-center">CO Tag</th>
+                            <th class="p-3 text-center">Score obtained</th>
+                            <th class="p-3 text-center font-normal">Date Entered</th>
+                          </tr>
+                        </thead>
+                        <tbody class="text-slate-700">
+                          ${filteredMarksRows || `<tr><td colspan="4" class="p-4 text-center italic text-slate-400">No manual assessment marks logged yet.</td></tr>`}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <!-- Signoff Section -->
+                  <div class="grid grid-cols-2 gap-10 mt-8 pt-8 border-t border-slate-100 text-xs font-bold text-slate-500 text-center">
+                    <div>
+                      <div class="h-10 border-b border-slate-300 w-44 mx-auto mb-2"></div>
+                      <span>Class Tutor Signature</span>
+                    </div>
+                    <div>
+                      <div class="h-10 border-b border-slate-300 w-44 mx-auto mb-2"></div>
+                      <span>Parent / Guardian Signature</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- TUTOR DIARY COUNSELING SECTION (PRINT-HIDDEN) -->
+                <div class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col gap-6 print:hidden">
+                  <div class="border-b pb-3">
+                    <h3 class="text-base font-black text-slate-800 tracking-tight">Mentoring Diary & Counselor Log</h3>
+                    <p class="text-xs text-slate-400 font-bold uppercase mt-1">Record counselor discussions, parent meetings, and behavioral marks.</p>
+                  </div>
+
+                  <!-- New entry form -->
+                  <form onsubmit="submitTutorDiaryLog(event, '${data.student.regNo}')" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Category</label>
+                        <select id="diaryCategorySelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                          <option value="Academic">Academic progress</option>
+                          <option value="Absenteeism">Absenteeism & Attendance</option>
+                          <option value="Discipline">Discipline & Behavior</option>
+                          <option value="PTM Meeting">PTM Meeting</option>
+                          <option value="Personal Counseling">Personal counseling</option>
+                          <option value="Other">Other remarks</option>
+                        </select>
+                      </div>
+                      <div class="col-span-2">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Discussion Notes / Remarks</label>
+                        <input type="text" id="diaryNotesInput" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800" placeholder="Summarize counseling points...">
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Action Taken / Resolution</label>
+                      <input type="text" id="diaryActionInput" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800" placeholder="e.g. Warned student, parents contacted, advised remediation">
+                    </div>
+                    <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium shadow-md shadow-blue-500/10">
+                      Save counseling entry
+                    </button>
+                  </form>
+
+                  <!-- Counseling history list -->
+                  <div>
+                    <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-3">Behavioral Log History</h4>
+                    <div class="space-y-3">
+                      ${data.counselingLogs.map(log => `
+                        <div class="border border-slate-200 bg-slate-50/50 rounded-2xl p-4 text-xs font-semibold text-slate-700">
+                          <div class="flex justify-between items-center border-b pb-1 mb-2">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full text-[9px] font-black uppercase">${log.Category}</span>
+                            <span class="text-slate-400 text-[10px]">${log.Date}</span>
+                          </div>
+                          <p class="text-slate-850"><b class="text-slate-500 font-bold uppercase text-[9px] block mb-0.5">Notes:</b> ${log.Discussion_Notes}</p>
+                          ${log.Action_Taken ? `<p class="text-slate-850 mt-2"><b class="text-slate-500 font-bold uppercase text-[9px] block mb-0.5">Action Taken:</b> ${log.Action_Taken}</p>` : ''}
+                        </div>
+                      `).join("")}
+                      ${data.counselingLogs.length === 0 ? `<p class="text-xs italic text-slate-400 font-medium py-3 text-center bg-slate-50 rounded-2xl border">No counselor notes recorded for this student.</p>` : ''}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- CLASS LOGS & ATTENDANCE MATRIX (PRINT-HIDDEN) -->
+                <div id="classroomLogsMatrixCard" class="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm flex flex-col gap-6 print:hidden">
+                  <div class="border-b pb-3">
+                    <h3 class="text-base font-black text-slate-800 tracking-tight">Classroom Hour Log Records</h3>
+                    <p class="text-xs text-slate-400 font-bold uppercase mt-1">Review completed syllabus periods for the classroom.</p>
+                  </div>
+                  <div id="classroomLogsProgressArea">
+                    <p class="text-xs font-bold text-slate-400 text-center py-4">Loading matrix log data...</p>
+                  </div>
+                </div>
+
+              </div>
+            `;
+            
+            // Load classroom logs details
+            fetchClassroomLogsForTutor();
+          } else {
+            wrapper.innerHTML = `<p class="text-red-500 font-bold p-6 text-center border rounded-3xl bg-red-50">${response.message}</p>`;
+          }
+        })
+        .withFailureHandler(function(err) {
+          wrapper.innerHTML = `<p class="text-red-500 font-bold p-6 text-center border rounded-3xl bg-red-50">API failure: ${err.message}</p>`;
+        })
+        .getStudentPTMReport(regNo, subjectCode);
+    }
+
+    function submitTutorDiaryLog(e, regNo) {
+      e.preventDefault();
+      const category = document.getElementById("diaryCategorySelect").value;
+      const notes = document.getElementById("diaryNotesInput").value.trim();
+      const actionTaken = document.getElementById("diaryActionInput").value.trim();
+      
+      const entry = { classroomId, regNo, category, notes, actionTaken, remarks: "", loggedBy: tutorName };
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            alert("Counseling remark saved successfully.");
+            loadStudentPTMCard(regNo); // Reload card
+          } else {
+            alert("Error: " + response.message);
+          }
+        })
+        .saveDiaryEntry(entry);
+    }
+
+    function fetchClassroomLogsForTutor() {
+      const area = document.getElementById("classroomLogsProgressArea");
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            const logs = response.logs || [];
+            if (logs.length === 0) {
+              area.innerHTML = `<p class="text-xs text-slate-400 font-medium text-center py-3 border rounded-2xl">No hourly lesson logs compiled for this classroom yet.</p>`;
+              return;
+            }
+            area.innerHTML = `
+              <div class="overflow-x-auto border rounded-2xl">
+                <table class="w-full text-left border-collapse text-xs font-bold">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-650 uppercase">
+                      <th class="p-3">Date</th>
+                      <th class="p-3 text-center">Period</th>
+                      <th class="p-3">Subject Code</th>
+                      <th class="p-3">Syllabus Topic Completed</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-slate-700">
+                    ${logs.map(log => `
+                      <tr class="border-b hover:bg-slate-50">
+                        <td class="p-3 font-semibold">${new Date(log.Date).toLocaleDateString()}</td>
+                        <td class="p-3 text-center">Hour ${log.Hour}</td>
+                        <td class="p-3 font-mono">${log.Subject_Code}</td>
+                        <td class="p-3 text-slate-800">${log.Topic_Covered}</td>
+                      </tr>
+                    `).join("")}
+                  </tbody>
+                </table>
+              </div>
+            `;
+          }
+        })
+        .getStudentAttendanceAndLogs("", classroomId); // pass empty regNo to get class logs
+    }
+
+    // ============================================================================
+    // STUDENT CRUD ACTIONS (TUTOR LEVEL)
+    // ============================================================================
+    function openAddStudentModal() {
+      crudMode = "create";
+      document.getElementById("studentModalTitle").innerText = "Add Classroom Student";
+      
+      document.getElementById("mStudentName").value = "";
+      document.getElementById("mStudentEmail").value = "";
+      document.getElementById("mStudentReg").value = "";
+      document.getElementById("mStudentReg").disabled = false;
+      document.getElementById("mStudentAdm").value = "";
+      document.getElementById("mStudentAdm").disabled = false;
+      
+      // Auto-extract branch, year, sem from classroomId (e.g. ECE_2024_S3)
+      const parts = classroomId.split("_");
+      document.getElementById("mStudentBranch").value = parts[0] || tutorBranch;
+      document.getElementById("mStudentYear").value = parts[1] || "2024";
+      document.getElementById("mStudentSem").value = parts[2] || "S3";
+      document.getElementById("mStudentPassword").value = "password123";
+      mStudentBase64Photo = "";
+      document.getElementById("mPhotoPreviewContainer").classList.add("hidden");
+      
+      document.getElementById("studentCrudModal").classList.remove("hidden");
+      document.getElementById("studentCrudModal").classList.add("flex");
+    }
+
+    function openEditStudentModal(regNo) {
+      crudMode = "edit";
+      document.getElementById("studentModalTitle").innerText = `Edit Classroom Student (${regNo})`;
+      
+      const s = classroomStudents.find(stud => stud.Reg_No === regNo);
+      if (!s) return;
+      
+      document.getElementById("mStudentName").value = s.Name;
+      document.getElementById("mStudentEmail").value = s.Email;
+      document.getElementById("mStudentReg").value = s.Reg_No;
+      document.getElementById("mStudentReg").disabled = true;
+      document.getElementById("mStudentAdm").value = s.Adm_No;
+      document.getElementById("mStudentAdm").disabled = true;
+      document.getElementById("mStudentBranch").value = s.Branch;
+      document.getElementById("mStudentYear").value = s.Year_Of_Admission;
+      document.getElementById("mStudentSem").value = s.Semester;
+      document.getElementById("mStudentPassword").value = s.Password;
+      mStudentBase64Photo = s.Photo_Drive_Link;
+      
+      const preview = document.getElementById("mPhotoPreview");
+      preview.src = s.Photo_Drive_Link;
+      document.getElementById("mPhotoPreviewContainer").classList.remove("hidden");
+
+      document.getElementById("studentCrudModal").classList.remove("hidden");
+      document.getElementById("studentCrudModal").classList.add("flex");
+    }
+
+    function closeStudentModal() {
+      document.getElementById("studentCrudModal").classList.add("hidden");
+      document.getElementById("studentCrudModal").classList.remove("flex");
+    }
+
+    function convertStudentPhotoToBase64() {
+      const file = document.getElementById("mStudentPhoto").files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        mStudentBase64Photo = reader.result;
+        document.getElementById("mPhotoPreview").src = mStudentBase64Photo;
+        document.getElementById("mPhotoPreviewContainer").classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleStudentCrudSubmit(e) {
+      e.preventDefault();
+      
+      const studentData = {
+        name: document.getElementById("mStudentName").value.trim(),
+        email: document.getElementById("mStudentEmail").value.trim(),
+        regNo: document.getElementById("mStudentReg").value.trim().toUpperCase(),
+        admNo: document.getElementById("mStudentAdm").value.trim().toUpperCase(),
+        branch: document.getElementById("mStudentBranch").value,
+        admissionYear: document.getElementById("mStudentYear").value,
+        semester: document.getElementById("mStudentSem").value,
+        password: document.getElementById("mStudentPassword").value.trim(),
+        photoUrl: mStudentBase64Photo
+      };
+
+      if (crudMode === "create") {
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              alert(response.message);
+              closeStudentModal();
+              fetchTutorClassroomRoster();
+            } else {
+              alert("Error: " + response.message);
+            }
+          })
+          .createStudentDirectly(studentData);
+      } else {
+        const updateData = {
+          Name: studentData.name,
+          Email: studentData.email,
+          Password: studentData.password,
+          Branch: studentData.branch,
+          Year_Of_Admission: studentData.admissionYear,
+          Semester: studentData.semester,
+          Photo_Drive_Link: studentData.photoUrl
+        };
+        
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              alert("Student profile updated.");
+              closeStudentModal();
+              fetchTutorClassroomRoster();
+            } else {
+              alert("Error: " + response.message);
+            }
+          })
+          .updateStudentProfile(studentData.regNo, updateData);
+      }
+    }
+
+    function deleteStudent(regNo) {
+      if (confirm(`Are you sure you want to remove student ${regNo} from your classroom roster?`)) {
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              alert("Student removed successfully.");
+              fetchTutorClassroomRoster();
+            }
+          })
+          .deleteStudentProfile(regNo);
+      }
+    }
+
+    // ============================================================================
+    // PROFILE SELF SERVICE
+    // ============================================================================
+    function convertSelfPhotoToBase64() {
+      const file = document.getElementById("selfPhoto").files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        selfProfileBase64Photo = reader.result;
+        document.getElementById("selfPhotoPreview").src = selfProfileBase64Photo;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleSelfProfileUpdate(e) {
+      e.preventDefault();
+      
+      const name = document.getElementById("selfName").value.trim();
+      const email = document.getElementById("selfEmail").value.trim();
+      const password = document.getElementById("selfPassword").value.trim();
+      
+      const profileData = { name, email };
+      if (password) {
+        profileData.password = password;
+      }
+      if (selfProfileBase64Photo) {
+        profileData.photoUrl = selfProfileBase64Photo;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            alert("Your profile has been updated successfully.");
+            sessionStorage.setItem("userName", name);
+            if (selfProfileBase64Photo) {
+              sessionStorage.setItem("userPhoto", selfProfileBase64Photo);
+            }
+            window.location.reload();
+          } else {
+            alert("Error updating profile: " + response.message);
+          }
+        })
+        .updateStaffProfileSelf(tutorMobile, profileData);
+    }
+
+    // ============================================================================
+    // MENTOR ALLOCATION & DASHBOARD SWITCHBACK CONTROLLERS
+    // ============================================================================
+    let currentAllocationClassId = "";
+    let allocationClassStudents = [];
+
+    function openMentorAllocationModal(classId) {
+      currentAllocationClassId = classId;
+      
+      const eligibleMentors = branchStaffRoster.filter(s => s.Designation === "Lecturer" || s.Designation === "Demonstrator" || s.Designation === "HOD");
+      const mentorSelect = document.getElementById("allocationMentorSelect");
+      mentorSelect.innerHTML = `<option value="">Select Mentor</option>` + eligibleMentors.map(m => `
+        <option value="${m.Mobile_No}">${m.Name} (${m.Designation})</option>
+      `).join("");
+      
+      document.getElementById("allocationStudentList").innerHTML = `<p class="text-[10px] text-slate-400 font-bold">Select a mentor first.</p>`;
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            allocationClassStudents = response.students || [];
+            allocationClassStudents.sort((a, b) => {
+              const regA = (a.Reg_No || "").toString().toUpperCase();
+              const regB = (b.Reg_No || "").toString().toUpperCase();
+              return regA.localeCompare(regB, undefined, { numeric: true, sensitivity: 'base' });
+            });
+            
+            document.getElementById("mentorAllocationModal").classList.remove("hidden");
+            document.getElementById("mentorAllocationModal").classList.add("flex");
+          } else {
+            alert("Error loading students: " + response.message);
+          }
+        })
+        .getStudentsInClass(classId);
+    }
+
+    function closeMentorAllocationModal() {
+      document.getElementById("mentorAllocationModal").classList.add("hidden");
+      document.getElementById("mentorAllocationModal").classList.remove("flex");
+    }
+
+    function loadMentorStudentCheckboxes() {
+      const mentorMobile = document.getElementById("allocationMentorSelect").value;
+      const listDiv = document.getElementById("allocationStudentList");
+      if (!mentorMobile) {
+        listDiv.innerHTML = `<p class="text-[10px] text-slate-400 font-bold">Select a mentor first.</p>`;
+        return;
+      }
+      
+      if (allocationClassStudents.length === 0) {
+        listDiv.innerHTML = `<p class="text-[10px] text-slate-400 font-bold">No students in this class.</p>`;
+        return;
+      }
+      
+      listDiv.innerHTML = allocationClassStudents.map(s => {
+        const isChecked = s.Mentor_Mobile_No === mentorMobile;
+        const hasOtherMentor = s.Mentor_Mobile_No && s.Mentor_Mobile_No !== mentorMobile;
+        let labelSuffix = "";
+        if (hasOtherMentor) {
+          const mInfo = branchStaffRoster.find(st => st.Mobile_No === s.Mentor_Mobile_No);
+          labelSuffix = ` <span class="text-[9px] text-amber-600 font-bold">(Assigned to ${mInfo ? mInfo.Name : s.Mentor_Mobile_No})</span>`;
+        }
+        
+        return `
+          <label class="flex items-center gap-3 p-2 rounded-xl hover:bg-white cursor-pointer text-xs font-bold text-slate-700">
+            <input type="checkbox" name="allocStudentCheckbox" value="${s.Reg_No}" ${isChecked ? 'checked' : ''} class="w-4 h-4 text-blue-600 rounded border-slate-300">
+            <span>${s.Name} (${s.Reg_No})${labelSuffix}</span>
+          </label>
+        `;
+      }).join("");
+    }
+
+    function submitMentorAllocation() {
+      const mentorMobile = document.getElementById("allocationMentorSelect").value;
+      if (!mentorMobile) {
+        alert("Please select a mentor first.");
+        return;
+      }
+      
+      const checkboxes = document.getElementsByName("allocStudentCheckbox");
+      const selectedRegNos = [];
+      for (let cb of checkboxes) {
+        if (cb.checked) {
+          selectedRegNos.push(cb.value);
+        }
+      }
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            alert(response.message);
+            closeMentorAllocationModal();
+            fetchTutorClassroomRoster();
+          } else {
+            alert("Error: " + response.message);
+          }
+        })
+        .assignMentorToStudents(currentAllocationClassId, mentorMobile, selectedRegNos);
+    }
+
+    function switchBackToBaseDashboard() {
+      const userRole = sessionStorage.getItem("userRole");
+      if (userRole === "HOD") {
+        navigateToPage("hod");
+      } else {
+        navigateToPage("faculty");
+      }
+    }
+
+    function handleLogout() {
+      sessionStorage.clear();
+      navigateToPage("Login");
+    }
+  </script>
+</body>
+</html>

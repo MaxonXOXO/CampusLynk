@@ -1,0 +1,204 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+<style>
+  .material-symbols-rounded {
+    font-family: 'Material Symbols Rounded';
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-flex;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20;
+    font-size: 20px;
+    vertical-align: middle;
+    align-items: center;
+    justify-content: center;
+  }
+  :root {
+    /* Theme Colors */
+    --color-primary: #1e3a8a; /* Deep Royal Blue for Admins */
+    --color-secondary: #0d9488; /* Teal for Students */
+    --color-success: #10b981; /* Emerald for OBE */
+    --color-warning: #f59e0b; /* Amber for Timer */
+    --color-danger: #ef4444; /* Crimson for Alerts */
+    
+    /* Background & Surfaces */
+    --bg-main: #f8fafc;
+    --surface-card: #ffffff;
+    --border-color: #e2e8f0;
+    
+    /* Typography */
+    --font-heading: 'Outfit', 'Inter', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--bg-main);
+    color: #0f172a;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
+  /* Micro-animations */
+  .transition-premium {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-scale {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .hover-scale:hover {
+    transform: translateY(-2px);
+  }
+
+  .fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+  .slide-up {
+    animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Glassmorphism Styles */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .glass-dark {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  /* Status Colors */
+  .status-badge-approved {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+  
+  .status-badge-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+
+  /* Custom Loading Overlay */
+  .loader-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--color-primary);
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .sidebar-layout {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Helper to handle redirection seamlessly across both local Express simulator
+   * and live Google Apps Script web app environments (using target _top).
+   */
+  function navigateToPage(pageName) {
+    const hostname = window.location.hostname;
+    if (hostname === "localhost" || hostname === "127.0.0.1" || hostname.indexOf("localhost") !== -1) {
+      window.location.href = "/?page=" + pageName;
+    } else {
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler(function(url) {
+          if (url) {
+            window.open(url + "?page=" + pageName, "_top");
+          } else {
+            // Fallback relative redirect
+            window.location.href = "/?page=" + pageName;
+          }
+        }).withFailureHandler(function(err) {
+          console.error("Failed to retrieve script URL: ", err);
+          window.location.href = "/?page=" + pageName;
+        }).getScriptUrl();
+      } else {
+        // Fallback relative redirect
+        window.location.href = "/?page=" + pageName;
+      }
+    }
+  }
+
+  /**
+   * Helper to translate a branch code (abbreviation) to its full title.
+   */
+  function getBranchFullName(branchCode) {
+    if (!branchCode) return "";
+    const cleanCode = branchCode.toString().trim().toUpperCase();
+    const branchMap = {
+      "CE": "Civil Engineering",
+      "ME": "Mechanical Engineering",
+      "EEE": "Electrical & Electronics Engineering",
+      "AU": "Automobile Engineering",
+      "CT": "Computer Engineering",
+      "EL": "Electronics Engineering",
+      "ADMIN": "Administration"
+    };
+    return branchMap[cleanCode] || branchCode;
+  }
+</script>
+

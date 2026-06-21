@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Carmel Linx - HOD Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <?!= include('Common_CSS'); ?>
+  <style>
+    /* Styling to hide dashboard wrapper during printing of PTM reports */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printablePTMCard, #printablePTMCard * {
+        visibility: visible;
+      }
+      #printablePTMCard {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: none !important;
+        box-shadow: none !important;
+        background: white !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col md:flex-row">
+
+  <!-- Sidebar Navigation -->
+  <aside class="w-full md:w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col border-r border-slate-800">
+    <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+      <div class="bg-blue-600 text-white font-bold rounded-lg w-8 h-8 flex items-center justify-center text-sm">CL</div>
+      <div>
+        <h2 class="font-extrabold text-sm tracking-wide">Carmel Linx</h2>
+        <span class="text-[10px] text-slate-400 font-bold uppercase">HOD Console</span>
+      </div>
+    </div>
+
+    <!-- Active Profile -->
+    <div class="p-4 bg-slate-950/40 border-b border-slate-800/60 flex items-center gap-3">
+      <img id="hodProfilePic" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100" class="w-10 h-10 rounded-full border border-slate-700 object-cover">
+      <div>
+        <span id="hodNameText" class="font-bold text-xs block truncate text-slate-200">HOD Name</span>
+        <span id="hodBranchText" class="text-[10px] font-bold text-teal-400 block uppercase">Department HOD</span>
+      </div>
+    </div>
+
+    <!-- Menu Links -->
+    <nav class="flex-grow p-4 space-y-1">
+      <button onclick="switchHODView('approvals')" id="hodNav-approvals" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 bg-blue-600/15 text-blue-400 transition-premium">
+        <span class="material-symbols-rounded text-lg">check_circle</span> Pending Approvals
+        <span id="hodPendingBadge" class="ml-auto bg-blue-500 text-white font-extrabold text-[9px] px-1.5 py-0.5 rounded-full hidden">0</span>
+      </button>
+      <button onclick="switchHODView('classes')" id="hodNav-classes" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium">
+        <span class="material-symbols-rounded text-lg">school</span> Class Allocation
+      </button>
+      <button onclick="switchHODView('mapping')" id="hodNav-mapping" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium">
+        <span class="material-symbols-rounded text-lg">link</span> Faculty Mapping
+      </button>
+      <button onclick="switchHODView('students')" id="hodNav-students" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium">
+        <span class="material-symbols-rounded text-lg">group</span> Student Manager
+      </button>
+      <button onclick="switchHODView('staff')" id="hodNav-staff" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium">
+        <span class="material-symbols-rounded text-lg">work</span> Staff Manager
+      </button>
+      <button onclick="switchHODView('studentReport')" id="hodNav-studentReport" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium">
+        <span class="material-symbols-rounded text-lg">description</span> Student Report Card
+      </button>
+      <button onclick="switchHODView('obeSetup')" id="hodNav-obeSetup" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium">
+        <span class="material-symbols-rounded text-lg">school</span> Branch OBE Setup
+      </button>
+      <button onclick="navigateToPage('tutor')" id="hodNav-tutorPanel" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-emerald-400 hover:bg-slate-800 hover:text-white transition-premium hidden">
+        <span class="material-symbols-rounded text-lg">supervisor_account</span> Tutor / Mentor Panel
+      </button>
+      <button onclick="switchHODView('profile')" id="hodNav-profile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium">
+        <span class="material-symbols-rounded text-lg">settings</span> My Profile
+      </button>
+    </nav>
+
+    <!-- Logout -->
+    <div class="p-4 border-t border-slate-800 mt-auto">
+      <button onclick="handleLogout()" class="w-full py-2 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-xs transition-premium flex items-center justify-center gap-2">
+        <span class="material-symbols-rounded text-lg">logout</span> Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Workspace -->
+  <main class="flex-grow p-6 md:p-8 overflow-y-auto max-h-screen">
+    
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5 mb-6">
+      <div>
+        <h1 id="hodViewTitle" class="text-2xl font-black text-slate-800 tracking-tight">Pending Approvals</h1>
+        <p id="hodViewSubtext" class="text-sm text-slate-500 font-medium">Verify and approve new registrations for your branch.</p>
+      </div>
+      <div id="hodViewActions"></div>
+    </div>
+
+    <!-- Active View Area -->
+    <div id="hodViewContainer" class="fade-in">
+      <!-- Loaded dynamically -->
+    </div>
+
+  </main>
+
+  <!-- Modal: Create/Edit Student -->
+  <div id="studentCrudModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 p-6 md:p-8 slide-up max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6 border-b pb-3">
+        <h3 id="studentModalTitle" class="text-lg font-black text-slate-800 tracking-tight">Add New Student</h3>
+        <button onclick="closeStudentModal()" class="text-slate-400 hover:text-slate-600 font-black text-lg">✕</button>
+      </div>
+      
+      <form onsubmit="handleStudentCrudSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
+          <input type="text" id="mStudentName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address</label>
+          <input type="email" id="mStudentEmail" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Register No</label>
+            <input type="text" id="mStudentReg" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Admission No</label>
+            <input type="text" id="mStudentAdm" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Branch</label>
+            <input type="text" id="mStudentBranch" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-500 cursor-not-allowed">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Adm Year</label>
+            <input type="number" id="mStudentYear" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" value="2024">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Semester</label>
+            <select id="mStudentSem" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+              <option value="S1">S1</option>
+              <option value="S2">S2</option>
+              <option value="S3" selected>S3</option>
+              <option value="S4">S4</option>
+              <option value="S5">S5</option>
+              <option value="S6">S6</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Password</label>
+          <input type="text" id="mStudentPassword" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" value="password123">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Profile Image</label>
+          <input type="file" id="mStudentPhoto" accept="image/*" onchange="convertStudentPhotoToBase64()" class="w-full text-[10px] text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700">
+          <div id="mPhotoPreviewContainer" class="hidden mt-2 flex justify-center">
+            <img id="mPhotoPreview" src="" class="w-16 h-16 rounded-full object-cover border">
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg transition-premium text-xs">
+          Save Student Profile
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add Staff Member -->
+  <div id="staffCrudModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 p-6 md:p-8 slide-up max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-6 border-b pb-3">
+        <h3 id="staffModalTitle" class="text-lg font-black text-slate-800 tracking-tight">Add Staff Member</h3>
+        <button onclick="closeStaffModal()" class="text-slate-400 hover:text-slate-600 font-black text-lg">✕</button>
+      </div>
+
+      <!-- Add Option Selector -->
+      <div class="flex bg-slate-100 p-1 rounded-xl mb-6">
+        <button type="button" onclick="setStaffModalMode('register')" id="staffTab-register" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-800 bg-white shadow-sm transition-premium">
+          Register New Staff
+        </button>
+        <button type="button" onclick="setStaffModalMode('link')" id="staffTab-link" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition-premium">
+          Link Existing (Class Sharing)
+        </button>
+      </div>
+      
+      <form onsubmit="handleStaffCrudSubmit(event)" class="space-y-4">
+        <!-- Section A: Register New Staff -->
+        <div id="staffSec-register" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
+            <input type="text" id="mStaffName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address</label>
+            <input type="email" id="mStaffEmail" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500" placeholder="user@carmelpoly.in">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Mobile No / ID</label>
+              <input type="text" id="mStaffMobile" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Designation</label>
+              <select id="mStaffDesig" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                <option value="Lecturer">Lecturer</option>
+                <option value="Demonstrator">Demonstrator</option>
+                <option value="Trade_Instructor">Trade Instructor</option>
+                <option value="HOD">Head of Department (HOD)</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Password</label>
+            <input type="text" id="mStaffPassword" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" value="password123">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Passport Photo</label>
+            <input type="file" id="mStaffPhoto" accept="image/*" onchange="convertStaffPhotoToBase64()" class="w-full text-[10px] text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700">
+            <div id="mStaffPhotoPreviewContainer" class="hidden mt-2 flex justify-center">
+              <img id="mStaffPhotoPreview" src="" class="w-16 h-16 rounded-full object-cover border">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section B: Link Existing Staff -->
+        <div id="staffSec-link" class="space-y-4 hidden">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select College Staff</label>
+            <select id="mLinkStaffSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg transition-premium text-xs">
+          Confirm Staff Addition
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Assign Mentors (Manual Checkboxes Mapping) -->
+  <div id="mentorAllocationModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 p-6 md:p-8 slide-up max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4 border-b pb-3">
+        <h3 class="text-lg font-black text-slate-800 tracking-tight">Assign Class Mentor</h3>
+        <button onclick="closeMentorAllocationModal()" class="text-slate-400 hover:text-slate-600 font-black text-lg">✕</button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Mentor</label>
+          <select id="allocationMentorSelect" onchange="loadMentorStudentCheckboxes()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Select Students to Assign</label>
+          <div class="border rounded-2xl bg-slate-50 p-4 max-h-[300px] overflow-y-auto space-y-2" id="allocationStudentList">
+            <!-- Dynamically populated checkboxes -->
+          </div>
+        </div>
+
+        <button onclick="submitMentorAllocation()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg transition-premium text-xs">
+          Save Mentor Assignments
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <?!= include('HOD_JS'); ?>
+</body>
+</html>

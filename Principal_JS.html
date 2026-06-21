@@ -1,0 +1,1935 @@
+  <script>
+    // State variables
+    const principalMobile = sessionStorage.getItem("userId");
+    let principalName = sessionStorage.getItem("userName");
+    if (!principalName || principalName === "null" || principalName.trim() === "") {
+      principalName = "College Principal";
+    }
+    const principalPhoto = sessionStorage.getItem("userPhoto");
+
+    let activeMainView = "adminDesk";
+    let activeAdminSubView = "staffApp";
+    let activeHODSubView = "classes";
+    let activeFacultySubView = "subjects";
+
+    // Dynamic Lists loaded from server
+    let pendingStudents = [];
+    let pendingStaff = [];
+    let allApprovedStaff = [];
+    let auditLogs = [];
+    let collegeClasses = [];
+
+    // HOD desk selections
+    let selectedBranch = "EL";
+    let branchStudentRoster = [];
+    let branchStaffRoster = [];
+    let classroomData = [];
+
+    // Faculty desk selections
+    let selectedClassroomId = "";
+    let selectedSubjectCode = "";
+    let selectedCourseType = "Theory";
+    let activeClassRoster = [];
+    let activeMarksRoster = [];
+    let activeClassLogRoster = [];
+    let pendingAIReviews = [];
+    let activeAttainmentThreshold = 50;
+
+    // CRUD state helpers
+    let crudMode = "create";
+    let mStudentBase64Photo = "";
+    let mStaffBase64Photo = "";
+    let staffModalMode = "register";
+    let selfProfileBase64Photo = "";
+
+    // Guard login
+    if (!principalMobile) {
+      navigateToPage("Login");
+    }
+
+    document.getElementById("principalNameText").innerText = principalName;
+    if (principalPhoto) {
+      document.getElementById("principalProfilePic").src = principalPhoto;
+    }
+
+    window.addEventListener("load", function() {
+      fetchPrincipalData();
+    });
+
+    function fetchPrincipalData() {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            pendingStudents = response.pendingStudents || [];
+            pendingStaff = response.pendingStaff || [];
+            allApprovedStaff = response.allApprovedStaff || [];
+            auditLogs = response.logs || [];
+            collegeClasses = response.classes || [];
+
+            // Set badge alert count
+            const badge = document.getElementById("principalPendingBadge");
+            const total = pendingStudents.length + pendingStaff.length;
+            if (total > 0) {
+              badge.innerText = total;
+              badge.classList.remove("hidden");
+            } else {
+              badge.classList.add("hidden");
+            }
+
+            // Sync selectors and render default views
+            populateFacultyClassSelector();
+            handlePrincipalBranchChange();
+            renderActiveView();
+          }
+        })
+        .getPrincipalDashboardData();
+    }
+
+    function switchMainView(viewId) {
+      activeMainView = viewId;
+      const navs = ["adminDesk", "hodDesk", "facultyDesk", "profile"];
+      navs.forEach(n => {
+        const btn = document.getElementById(`nav-${n}`);
+        if (n === viewId) {
+          btn.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 bg-blue-600/15 text-blue-400 transition-premium";
+        } else {
+          btn.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition-premium";
+        }
+      });
+      renderActiveView();
+    }
+
+    function renderActiveView() {
+      const title = document.getElementById("viewTitle");
+      const subtext = document.getElementById("viewSubtext");
+      const actions = document.getElementById("viewActions");
+      actions.innerHTML = "";
+
+      if (activeMainView === "adminDesk") {
+        title.innerText = "Administrative Desk";
+        subtext.innerText = "Verify approvals queue, student database, password resets, and activity logs.";
+        renderAdminDesk();
+      } else if (activeMainView === "hodDesk") {
+        title.innerText = "Academic Departments Console";
+        subtext.innerText = "Manage departments, linked inter-branch faculties, syllabus mappings, and student records.";
+        renderHODDesk();
+      } else if (activeMainView === "facultyDesk") {
+        title.innerText = "Faculty Subject Rooms";
+        subtext.innerText = "Inspect class lesson plans, daily logs, outcome attainment reports, and student portfolios.";
+        renderFacultyDesk();
+      } else if (activeMainView === "profile") {
+        title.innerText = "My Profile Settings";
+        subtext.innerText = "Update your credentials, administrator email, or password.";
+        renderProfileDesk();
+      }
+    }
+
+    // ============================================================================
+    // ADMINISTRATIVE DESK
+    // ============================================================================
+    function renderAdminDesk() {
+      const container = document.getElementById("viewContainer");
+      
+      container.innerHTML = `
+        <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-6 border border-slate-200 max-w-lg">
+          <button onclick="switchAdminSubView('staffApp')" id="adminSubNav-staffApp" class="flex-1 py-2 rounded-xl font-bold text-xs transition-premium">Staff Approvals (${pendingStaff.length})</button>
+          <button onclick="switchAdminSubView('students')" id="adminSubNav-students" class="flex-1 py-2 rounded-xl font-bold text-xs transition-premium">Student Master</button>
+          <button onclick="switchAdminSubView('passReset')" id="adminSubNav-passReset" class="flex-1 py-2 rounded-xl font-bold text-xs transition-premium">Password Reset</button>
+          <button onclick="switchAdminSubView('audit')" id="adminSubNav-audit" class="flex-1 py-2 rounded-xl font-bold text-xs transition-premium">Audit Logs</button>
+        </div>
+        <div id="adminDeskContent" class="fade-in"></div>
+      `;
+
+      switchAdminSubView(activeAdminSubView);
+    }
+
+    function switchAdminSubView(subViewId) {
+      activeAdminSubView = subViewId;
+      const subTabs = ["staffApp", "students", "passReset", "audit"];
+      subTabs.forEach(tab => {
+        const btn = document.getElementById(`adminSubNav-${tab}`);
+        if (!btn) return;
+        if (tab === subViewId) {
+          btn.className = "flex-1 py-2 rounded-xl font-bold text-xs text-blue-600 bg-white shadow-sm transition-premium";
+        } else {
+          btn.className = "flex-1 py-2 rounded-xl font-bold text-xs text-slate-500 hover:text-slate-800 transition-premium";
+        }
+      });
+
+      const content = document.getElementById("adminDeskContent");
+      if (subViewId === "staffApp") {
+        if (pendingStaff.length === 0) {
+          content.innerHTML = `
+            <div class="bg-white rounded-3xl p-8 border border-slate-200 text-center max-w-md mx-auto">
+              <span class="material-symbols-rounded text-5xl text-emerald-500 block mb-3">check_circle</span>
+              <h3 class="font-black text-slate-800 text-lg">No Pending Registrations</h3>
+              <p class="text-slate-400 text-sm mt-1 font-semibold">All staff registrations are approved.</p>
+            </div>
+          `;
+          return;
+        }
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm">
+            <h3 class="text-base font-black text-slate-800 mb-4 tracking-tight border-b pb-2">Pending Staff Approvals</h3>
+            <div class="space-y-4">
+              ${pendingStaff.map(staff => `
+                <div class="flex flex-col md:flex-row items-center justify-between p-4 border rounded-2xl bg-slate-50 gap-4">
+                  <div class="flex items-center gap-3">
+                    <img src="${staff.Photo_Drive_Link}" class="w-12 h-12 rounded-full border object-cover">
+                    <div>
+                      <span class="font-bold text-sm block text-slate-800">${staff.Name}</span>
+                      <span class="text-xs text-slate-400 font-semibold">Mobile ID: ${staff.Mobile_No} | Email: ${staff.Email}</span>
+                      <span class="text-xs text-blue-600 font-bold block uppercase mt-0.5">Role: ${staff.Designation} | Branch: ${staff.Branch}</span>
+                    </div>
+                  </div>
+                  <button onclick="approveStaffUser('${staff.Mobile_No}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-premium shadow-md shadow-emerald-500/10">Approve Access</button>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        `;
+      } 
+      else if (subViewId === "students") {
+        document.getElementById("viewActions").innerHTML = `
+          <button onclick="openAddStudentModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium">➕ Add Student</button>
+        `;
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b">
+              <h3 class="text-base font-black text-slate-800 tracking-tight">Student Database Registry</h3>
+              <input type="text" id="principalStudentSearch" onkeyup="filterStudentTable()" placeholder="Search registry..." class="bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs font-bold" id="principalStudentsTable">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider">
+                    <th class="p-3 w-16">Photo</th>
+                    <th class="p-3">Register No</th>
+                    <th class="p-3">Admission No</th>
+                    <th class="p-3">Student Name</th>
+                    <th class="p-3">Branch</th>
+                    <th class="p-3">Classroom Group</th>
+                    <th class="p-3">Status</th>
+                    <th class="p-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="text-slate-600" id="principalStudentListRows">
+                  <tr><td colspan="8" class="p-6 text-center text-slate-400">Loading Student Registry data...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        loadStudentsMasterList();
+      }
+      else if (subViewId === "passReset") {
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm max-w-md mx-auto">
+            <h3 class="text-base font-black text-slate-800 mb-4 tracking-tight border-b pb-2">Force Reset User Credentials</h3>
+            <form onsubmit="handleForceReset(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Target Account ID (Register No / Mobile No)</label>
+                <input type="text" id="resetTargetId" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" placeholder="e.g. REG24EC01">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Target Account Type</label>
+                <select id="resetTargetType" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                  <option value="student">Student</option>
+                  <option value="staff">Staff Member</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">New Password</label>
+                <input type="text" id="resetNewPassword" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" value="Welcome@123">
+              </div>
+              <button type="submit" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold shadow-lg transition-premium text-xs">Override & Save Credentials</button>
+            </form>
+          </div>
+        `;
+      }
+      else if (subViewId === "audit") {
+        if (auditLogs.length === 0) {
+          content.innerHTML = `<p class="text-slate-400 text-xs font-bold py-6 text-center bg-white border rounded-3xl">No logs recorded in the system yet.</p>`;
+          return;
+        }
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm">
+            <h3 class="text-base font-black text-slate-800 mb-4 border-b pb-2 tracking-tight">Security Audit Trail</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs font-bold">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider">
+                    <th class="p-3">Log ID</th>
+                    <th class="p-3">User ID</th>
+                    <th class="p-3">Action</th>
+                    <th class="p-3">Details</th>
+                    <th class="p-3">Timestamp</th>
+                  </tr>
+                </thead>
+                <tbody class="text-slate-600">
+                  ${auditLogs.map(log => {
+                    let actionBadge = "bg-slate-100 text-slate-700";
+                    if (log.Action === "Tab_Switch_Warning") actionBadge = "bg-red-100 text-red-700";
+                    else if (log.Action === "Manual_Submit") actionBadge = "bg-green-100 text-green-700";
+                    else if (log.Action === "Login") actionBadge = "bg-blue-100 text-blue-700";
+
+                    return `
+                      <tr class="border-b hover:bg-slate-50">
+                        <td class="p-3 font-mono text-slate-400">${log.Log_ID}</td>
+                        <td class="p-3 font-mono">${log.Reg_No}</td>
+                        <td class="p-3">
+                          <span class="px-2 py-0.5 rounded-md ${actionBadge} text-[9px] uppercase font-black">${log.Action}</span>
+                        </td>
+                        <td class="p-3 font-medium text-slate-800">${log.Details}</td>
+                        <td class="p-3 text-slate-400 font-mono">${new Date(log.Timestamp).toLocaleString()}</td>
+                      </tr>
+                    `;
+                  }).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    function approveStaffUser(mobileNo) {
+      if (confirm("Are you sure you want to approve this faculty account?")) {
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              alert("Staff account approved successfully!");
+              fetchPrincipalData();
+            } else {
+              alert("Error: " + response.message);
+            }
+          })
+          .approveAccount(mobileNo, "staff");
+      }
+    }
+
+    function loadStudentsMasterList() {
+      // Loop over branches and construct roster
+      const rowsContainer = document.getElementById("principalStudentListRows");
+      if (!rowsContainer) return;
+
+      google.script.run
+        .withSuccessHandler(function(res) {
+          if (res.status === "SUCCESS") {
+            const list = res.students || [];
+            if (list.length === 0) {
+              rowsContainer.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-400">No student profiles registered in system yet.</td></tr>`;
+              return;
+            }
+            rowsContainer.innerHTML = list.map(s => `
+              <tr class="border-b hover:bg-slate-50 student-row">
+                <td class="p-3">
+                  <img src="${s.Photo_Drive_Link}" class="w-10 h-10 rounded-full object-cover border">
+                </td>
+                <td class="p-3 font-mono student-reg">${s.Reg_No}</td>
+                <td class="p-3 font-mono">${s.Adm_No}</td>
+                <td class="p-3 text-slate-800 student-name">${s.Name}</td>
+                <td class="p-3 uppercase text-blue-600">${s.Branch}</td>
+                <td class="p-3 text-slate-400">${s.Classroom_ID}</td>
+                <td class="p-3">
+                  <span class="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-green-100 text-green-700">Approved</span>
+                </td>
+                <td class="p-2 text-center space-x-1 whitespace-nowrap">
+                  <button onclick="openEditStudentModal('${s.Reg_No}', '${s.Branch}')" class="px-2.5 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-premium">Edit</button>
+                  <button onclick="deleteStudent('${s.Reg_No}')" class="px-2.5 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-premium">Delete</button>
+                </td>
+              </tr>
+            `).join("");
+          }
+        })
+        .getPendingAccounts(); // In Gas, pending accounts loader resolves approved staff list as well
+    }
+
+    function filterStudentTable() {
+      const q = document.getElementById("principalStudentSearch").value.toLowerCase();
+      const rows = document.querySelectorAll(".student-row");
+      rows.forEach(r => {
+        const name = r.querySelector(".student-name").innerText.toLowerCase();
+        const reg = r.querySelector(".student-reg").innerText.toLowerCase();
+        if (name.includes(q) || reg.includes(q)) {
+          r.style.display = "";
+        } else {
+          r.style.display = "none";
+        }
+      });
+    }
+
+    function handleForceReset(e) {
+      e.preventDefault();
+      const targetId = document.getElementById("resetTargetId").value.trim();
+      const type = document.getElementById("resetTargetType").value;
+      const pw = document.getElementById("resetNewPassword").value.trim();
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            alert("Password updated successfully!");
+            document.getElementById("resetTargetId").value = "";
+          } else {
+            alert("Error: " + response.message);
+          }
+        })
+        .overrideUserPassword(targetId, type, pw);
+    }
+
+    // ============================================================================
+    // ACADEMIC DEPARTMENTS DESK (HOD REPLICATION)
+    // ============================================================================
+    function renderHODDesk() {
+      const container = document.getElementById("viewContainer");
+      
+      container.innerHTML = `
+        <div class="bg-white border rounded-3xl p-6 shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Branch/Department:</span>
+            <select id="principalBranchSelector" onchange="handlePrincipalBranchChange()" class="bg-slate-100 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:border-blue-500">
+              <option value="EL">Electronics Engineering (EL)</option>
+              <option value="ME">Mechanical Engineering (ME)</option>
+              <option value="CE">Civil Engineering (CE)</option>
+              <option value="EEE">Electrical & Electronics Engineering (EEE)</option>
+              <option value="CT">Computer Engineering (CT)</option>
+              <option value="AU">Automobile Engineering (AU)</option>
+            </select>
+          </div>
+          
+          <div class="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+            <button onclick="switchHODSubView('classes')" id="hodSubNav-classes" class="py-2 px-4 rounded-xl font-bold text-xs transition-premium">Class Allocations</button>
+            <button onclick="switchHODSubView('mapping')" id="hodSubNav-mapping" class="py-2 px-4 rounded-xl font-bold text-xs transition-premium">Faculty Mapping</button>
+            <button onclick="switchHODSubView('students')" id="hodSubNav-students" class="py-2 px-4 rounded-xl font-bold text-xs transition-premium">Students</button>
+            <button onclick="switchHODSubView('staff')" id="hodSubNav-staff" class="py-2 px-4 rounded-xl font-bold text-xs transition-premium">Staff</button>
+            <button onclick="switchHODSubView('studentReport')" id="hodSubNav-studentReport" class="py-2 px-4 rounded-xl font-bold text-xs transition-premium">Report Cards</button>
+            <button onclick="switchHODSubView('obeSetup')" id="hodSubNav-obeSetup" class="py-2 px-4 rounded-xl font-bold text-xs transition-premium">OBE Setup</button>
+          </div>
+        </div>
+
+        <div id="hodDeskContent" class="fade-in"></div>
+      `;
+
+      switchHODSubView(activeHODSubView);
+    }
+
+    function handlePrincipalBranchChange() {
+      const select = document.getElementById("principalBranchSelector");
+      if (select) selectedBranch = select.value;
+      
+      // Update UI and rosters for this branch
+      classroomData = collegeClasses.filter(c => c.branch === selectedBranch);
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            branchStudentRoster = response.roster;
+            
+            google.script.run
+              .withSuccessHandler(function(res) {
+                if (res.status === "SUCCESS") {
+                  branchStaffRoster = res.staff;
+                  if (activeMainView === "hodDesk") {
+                    renderHODSubViewContent();
+                  }
+                }
+              })
+              .getHODStaffRoster(selectedBranch);
+          }
+        })
+        .getHODStudentRoster(selectedBranch);
+    }
+
+    function switchHODSubView(subViewId) {
+      activeHODSubView = subViewId;
+      const subTabs = ["classes", "mapping", "students", "staff", "studentReport", "obeSetup"];
+      subTabs.forEach(tab => {
+        const btn = document.getElementById(`hodSubNav-${tab}`);
+        if (!btn) return;
+        if (tab === subViewId) {
+          btn.className = "py-2 px-4 rounded-xl font-bold text-xs text-blue-600 bg-white shadow-sm transition-premium";
+        } else {
+          btn.className = "py-2 px-4 rounded-xl font-bold text-xs text-slate-500 hover:text-slate-800 transition-premium";
+        }
+      });
+      renderHODSubViewContent();
+    }
+
+    function renderHODSubViewContent() {
+      const content = document.getElementById("hodDeskContent");
+      const actions = document.getElementById("viewActions");
+      actions.innerHTML = "";
+      if (!content) return;
+
+      if (activeHODSubView === "classes") {
+        actions.innerHTML = `
+          <button onclick="openCreateClassModal()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium">Create Classroom Group</button>
+        `;
+        if (classroomData.length === 0) {
+          content.innerHTML = `<p class="text-slate-400 text-xs font-bold py-6 text-center bg-white border rounded-3xl">No classroom containers configured for ${selectedBranch} branch.</p>`;
+          return;
+        }
+        content.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            ${classroomData.map(c => `
+              <div class="bg-white border rounded-3xl p-6 shadow-sm space-y-4 hover:border-slate-350 transition-premium">
+                <div class="flex justify-between items-start border-b pb-3">
+                  <div>
+                    <h3 class="text-base font-extrabold text-slate-800 tracking-tight">${c.classroomId}</h3>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase block mt-0.5">Admission Batch: ${c.batchYear}</span>
+                  </div>
+                  <button onclick="openMentorAllocationModal('${c.classroomId}')" class="px-2.5 py-1.5 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 text-[10px] font-black uppercase">Assign Mentors</button>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-xs font-semibold text-slate-700">
+                  <div>Tutor Assigned: <span class="text-slate-900 font-bold block">${c.tutorName}</span></div>
+                  <div>Mentor Assigned: <span class="text-slate-900 font-bold block">${c.mentorName}</span></div>
+                </div>
+                <form onsubmit="handleTutorAllocation(event, '${c.classroomId}')" class="flex gap-2 items-center bg-slate-50 border rounded-2xl p-3">
+                  <div class="flex-grow">
+                    <select id="tutorSelect-${c.classroomId}" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-800">
+                      <option value="">Select Tutor</option>
+                      ${branchStaffRoster.map(s => `<option value="${s.Mobile_No}" ${c.tutorMobile === s.Mobile_No ? 'selected' : ''}>${s.Name}</option>`).join("")}
+                    </select>
+                  </div>
+                  <div class="flex-grow">
+                    <select id="mentorSelect-${c.classroomId}" class="w-full bg-white border border-slate-200 rounded-xl px-2.5 py-1.5 text-[10px] font-bold text-slate-800">
+                      <option value="">Select Mentor</option>
+                      ${branchStaffRoster.map(s => `<option value="${s.Mobile_No}" ${c.mentorMobile === s.Mobile_No ? 'selected' : ''}>${s.Name}</option>`).join("")}
+                    </select>
+                  </div>
+                  <button type="submit" class="px-3 py-1.5 bg-blue-600 text-white rounded-xl text-[10px] font-bold">Assign</button>
+                </form>
+                <div>
+                  <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-2">Mapped Subjects</h4>
+                  <div class="space-y-1.5 text-[11px] font-semibold text-slate-600">
+                    ${c.subjects.map(s => `
+                      <div class="flex justify-between border-b pb-1">
+                        <span>${s.code} - ${s.name}</span>
+                        <span class="text-blue-600">${s.facultyName}</span>
+                      </div>
+                    `).join("")}
+                    ${c.subjects.length === 0 ? `<p class="italic text-slate-400">No subject mapping set for this class container.</p>` : ""}
+                  </div>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        `;
+      }
+      else if (activeHODSubView === "mapping") {
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm max-w-lg mx-auto">
+            <h3 class="text-base font-black text-slate-800 mb-4 tracking-tight border-b pb-2">Faculty Subject Mapper</h3>
+            <form onsubmit="handleFacultyMapping(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Target Classroom Container</label>
+                <select id="mapClassSelect" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                  ${classroomData.map(c => `<option value="${c.classroomId}">${c.classroomId}</option>`).join("")}
+                </select>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Subject Code</label>
+                  <input type="text" id="mapSubCode" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" placeholder="e.g. EC301">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Subject Name</label>
+                  <input type="text" id="mapSubName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" placeholder="e.g. Solid State Devices">
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Faculty Member</label>
+                  <select id="mapFacultySelect" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                    ${branchStaffRoster.map(s => `<option value="${s.Mobile_No}">${s.Name} (${s.Designation})</option>`).join("")}
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Course Type</label>
+                  <select id="mapCourseType" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                    <option value="Theory">Theory</option>
+                    <option value="Laboratory">Laboratory</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg transition-premium text-xs">Link Faculty to Subject</button>
+            </form>
+          </div>
+        `;
+      }
+      else if (activeHODSubView === "students") {
+        actions.innerHTML = `
+          <button onclick="openAddStudentModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium">➕ Add Student</button>
+        `;
+        if (branchStudentRoster.length === 0) {
+          content.innerHTML = `<p class="text-slate-400 text-xs font-bold py-6 text-center bg-white border rounded-3xl">No students registered in ${selectedBranch} branch.</p>`;
+          return;
+        }
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm">
+            <h3 class="text-base font-black text-slate-800 mb-4 tracking-tight border-b pb-2">${selectedBranch} Students</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs font-bold">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider">
+                    <th class="p-3 w-16">Photo</th>
+                    <th class="p-3">Register No</th>
+                    <th class="p-3">Admission No</th>
+                    <th class="p-3">Student Name</th>
+                    <th class="p-3">Classroom Group</th>
+                    <th class="p-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="text-slate-600">
+                  ${branchStudentRoster.map(s => `
+                    <tr class="border-b hover:bg-slate-50">
+                      <td class="p-3"><img src="${s.Photo_Drive_Link}" class="w-10 h-10 rounded-full object-cover border"></td>
+                      <td class="p-3 font-mono">${s.Reg_No}</td>
+                      <td class="p-3 font-mono">${s.Adm_No}</td>
+                      <td class="p-3 text-slate-800">${s.Name}</td>
+                      <td class="p-3 text-slate-400">${s.Classroom_ID}</td>
+                      <td class="p-2 text-center space-x-1 whitespace-nowrap">
+                        <button onclick="openEditStudentModal('${s.Reg_No}', '${s.Branch}')" class="px-2.5 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-premium">Edit</button>
+                        <button onclick="deleteStudent('${s.Reg_No}')" class="px-2.5 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-premium">Delete</button>
+                      </td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+      else if (activeHODSubView === "staff") {
+        actions.innerHTML = `
+          <button onclick="openAddStaffModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium">➕ Add Staff Member</button>
+        `;
+        if (branchStaffRoster.length === 0) {
+          content.innerHTML = `<p class="text-slate-400 text-xs font-bold py-6 text-center bg-white border rounded-3xl">No staff registered in ${selectedBranch} branch.</p>`;
+          return;
+        }
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm">
+            <h3 class="text-base font-black text-slate-800 mb-4 tracking-tight border-b pb-2">${selectedBranch} Academic Staff</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs font-bold">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider">
+                    <th class="p-3 w-16">Photo</th>
+                    <th class="p-3">Mobile ID</th>
+                    <th class="p-3">Staff Name</th>
+                    <th class="p-3">Email Address</th>
+                    <th class="p-3">Designation</th>
+                    <th class="p-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="text-slate-600">
+                  ${branchStaffRoster.map(s => `
+                    <tr class="border-b hover:bg-slate-50">
+                      <td class="p-3"><img src="${s.Photo_Drive_Link}" class="w-10 h-10 rounded-full object-cover border"></td>
+                      <td class="p-3 font-mono">${s.Mobile_No}</td>
+                      <td class="p-3 text-slate-800">${s.Name}</td>
+                      <td class="p-3 text-slate-400">${s.Email}</td>
+                      <td class="p-3 text-blue-600 uppercase font-black">${s.Designation}</td>
+                      <td class="p-2 text-center">
+                        <button onclick="deregisterStaff('${s.Mobile_No}')" class="px-2.5 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-premium">Deregister</button>
+                      </td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }
+      else if (activeHODSubView === "studentReport") {
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm mb-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Classroom</label>
+              <select id="rptClassSelect" onchange="handleRptClassChange()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                <option value="">Select Classroom</option>
+                ${classroomData.map(c => `<option value="${c.classroomId}">${c.classroomId}</option>`).join("")}
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Subject</label>
+              <select id="rptSubjectSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                <option value="">Select Subject</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Student</label>
+              <select id="rptStudentSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                <option value="">Select Student</option>
+              </select>
+            </div>
+            <button onclick="generateHODStudentReportCard()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium">Fetch Report</button>
+          </div>
+          <div id="hodReportWrapper" class="hidden"></div>
+        `;
+      }
+      else if (activeHODSubView === "obeSetup") {
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm max-w-2xl mx-auto">
+            <h3 class="text-base font-black text-slate-800 mb-4 tracking-tight border-b pb-2">Branch OBE Setup</h3>
+            <form onsubmit="handleSaveBranchOBE(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Branch Vision</label>
+                <textarea id="brVision" required rows="3" class="w-full bg-slate-50 border rounded-xl px-4 py-3 text-xs font-bold text-slate-800 focus:outline-none"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Branch Mission</label>
+                <textarea id="brMission" required rows="3" class="w-full bg-slate-50 border rounded-xl px-4 py-3 text-xs font-bold text-slate-800 focus:outline-none"></textarea>
+              </div>
+              <div class="grid grid-cols-2 gap-4 border-t pt-4">
+                <div>
+                  <h4 class="text-xs font-black text-slate-800 uppercase mb-2">Program Educational Objectives (PEOs)</h4>
+                  <div class="space-y-2">
+                    <input type="text" id="peo1" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-700" placeholder="PEO 1">
+                    <input type="text" id="peo2" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-700" placeholder="PEO 2">
+                    <input type="text" id="peo3" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-700" placeholder="PEO 3">
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-xs font-black text-slate-800 uppercase mb-2">Program Specific Outcomes (PSOs)</h4>
+                  <div class="space-y-2">
+                    <input type="text" id="pso1" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-700" placeholder="PSO 1">
+                    <input type="text" id="pso2" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-700" placeholder="PSO 2">
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg transition-premium text-xs">Save Branch OBE Configs</button>
+            </form>
+          </div>
+        `;
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              const c = response.config;
+              document.getElementById("brVision").value = c.Vision || "";
+              document.getElementById("brMission").value = c.Mission || "";
+              let peos = [];
+              let psos = [];
+              try { peos = JSON.parse(c.PEOs || "[]"); } catch(e){}
+              try { psos = JSON.parse(c.PSOs || "[]"); } catch(e){}
+              for (let i = 1; i <= 3; i++) {
+                document.getElementById(`peo${i}`).value = peos[i - 1] || "";
+              }
+              for (let i = 1; i <= 2; i++) {
+                document.getElementById(`pso${i}`).value = psos[i - 1] || "";
+              }
+            }
+          })
+          .getBranchConfig(selectedBranch);
+      }
+    }
+
+    function openCreateClassModal() {
+      const year = prompt("Enter Batch Year range (e.g. 2024-27):", "2024-27");
+      if (!year) return;
+      const sem = prompt("Enter target Semester Code (S1-S6):", "S3");
+      if (!sem) return;
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            alert("Classroom group generated successfully!");
+            fetchPrincipalData();
+          } else {
+            alert("Error: " + response.message);
+          }
+        })
+        .createClassroom(selectedBranch, year, sem);
+    }
+
+    function handleTutorAllocation(e, classroomId) {
+      e.preventDefault();
+      const tutor = document.getElementById(`tutorSelect-${classroomId}`).value;
+      const mentor = document.getElementById(`mentorSelect-${classroomId}`).value;
+      if (!tutor || !mentor) {
+        alert("Please select both a Tutor and a Mentor.");
+        return;
+      }
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            alert("Tutor and Mentor assigned successfully!");
+            fetchPrincipalData();
+          } else {
+            alert("Error: " + response.message);
+          }
+        })
+        .assignTutorAndMentor(classroomId, tutor, mentor);
+    }
+
+    function handleFacultyMapping(e) {
+      e.preventDefault();
+      const classroomId = document.getElementById("mapClassSelect").value;
+      const code = document.getElementById("mapSubCode").value.trim().toUpperCase();
+      const name = document.getElementById("mapSubName").value.trim();
+      const faculty = document.getElementById("mapFacultySelect").value;
+      const type = document.getElementById("mapCourseType").value;
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            alert("Faculty assigned to subject successfully!");
+            document.getElementById("mapSubCode").value = "";
+            document.getElementById("mapSubName").value = "";
+            fetchPrincipalData();
+          } else {
+            alert("Error: " + response.message);
+          }
+        })
+        .mapFacultySubject(classroomId, code, name, faculty, type);
+    }
+
+    function deregisterStaff(mobileNo) {
+      if (confirm(`Are you sure you want to delete staff member with mobile ID ${mobileNo}? They will lose dashboard access immediately.`)) {
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              alert("Staff member deleted successfully.");
+              fetchPrincipalData();
+            } else {
+              alert("Error: " + response.message);
+            }
+          })
+          .deregisterStaffMember(mobileNo);
+      }
+    }
+
+    function handleSaveBranchOBE(e) {
+      e.preventDefault();
+      const vision = document.getElementById("brVision").value.trim();
+      const mission = document.getElementById("brMission").value.trim();
+      const peos = [
+        document.getElementById("peo1").value.trim(),
+        document.getElementById("peo2").value.trim(),
+        document.getElementById("peo3").value.trim()
+      ].filter(Boolean);
+      const psos = [
+        document.getElementById("pso1").value.trim(),
+        document.getElementById("pso2").value.trim()
+      ].filter(Boolean);
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            alert("OBE setup configuration saved successfully.");
+          } else {
+            alert("Error: " + response.message);
+          }
+        })
+        .saveBranchConfig(selectedBranch, { Vision: vision, Mission: mission, PEOs: peos, PSOs: psos });
+    }
+
+    function handleRptClassChange() {
+      const classId = document.getElementById("rptClassSelect").value;
+      const subSelect = document.getElementById("rptSubjectSelect");
+      const studSelect = document.getElementById("rptStudentSelect");
+      subSelect.innerHTML = `<option value="">Loading...</option>`;
+      studSelect.innerHTML = `<option value="">Loading...</option>`;
+
+      if (!classId) return;
+      const matched = classroomData.find(c => c.classroomId === classId);
+      if (matched) {
+        subSelect.innerHTML = matched.subjects.map(s => `<option value="${s.code}">${s.code} - ${s.name}</option>`).join("");
+      }
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            studSelect.innerHTML = response.students.map(s => `<option value="${s.Reg_No}">${s.Name} (${s.Reg_No})</option>`).join("");
+          }
+        })
+        .getStudentsInClass(classId);
+    }
+
+    function generateHODStudentReportCard() {
+      const regNo = document.getElementById("rptStudentSelect").value;
+      const subjectCode = document.getElementById("rptSubjectSelect").value;
+      const wrapper = document.getElementById("hodReportWrapper");
+      if (!regNo || !subjectCode) {
+        alert("Please select both a student and a subject.");
+        return;
+      }
+      wrapper.innerHTML = `<p class="p-6 text-center text-slate-400 font-bold">Compiling PTM Progress scorecard details...</p>`;
+      wrapper.classList.remove("hidden");
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            const quiz = response.onlineQuiz;
+            const marks = response.academicMarks;
+
+            wrapper.innerHTML = `
+              <div id="printablePTMCard" class="bg-white border rounded-3xl p-6 md:p-8 shadow-sm flex flex-col gap-6 relative">
+                <button onclick="window.print()" class="absolute right-6 top-6 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold print:hidden">Print Report</button>
+                <div class="text-center border-b pb-4">
+                  <h2 class="text-xl font-extrabold text-slate-800 uppercase tracking-wide">Carmel Polytechnic College</h2>
+                  <span class="text-xs text-slate-400 font-bold uppercase tracking-wider block">Parent-Teacher Progress Scorecard</span>
+                </div>
+                <div class="flex items-center gap-4 bg-slate-50 border rounded-2xl p-4">
+                  <img src="${response.student.photo}" class="w-16 h-16 rounded-xl border object-cover">
+                  <div class="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs font-bold text-slate-700 flex-grow">
+                    <div>Student Name: <span class="text-slate-900 block font-extrabold">${response.student.name}</span></div>
+                    <div>Register No: <span class="text-slate-900 block font-mono">${response.student.regNo}</span></div>
+                    <div>Classroom: <span class="text-slate-500 block">${response.student.classroom}</span></div>
+                    <div>Attendance: <span class="text-blue-600 block">${response.attendance.percentage}% (${response.attendance.present}/${response.attendance.total} Hours)</span></div>
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-2">Outcome Attainment scores</h4>
+                  <table class="w-full text-left border-collapse text-xs font-bold border rounded-2xl">
+                    <thead>
+                      <tr class="bg-slate-100 border-b text-slate-600 uppercase">
+                        <th class="p-3">Course Outcome</th>
+                        <th class="p-3 text-center">Online Quiz</th>
+                        <th class="p-3 text-center">Combined Attainment %</th>
+                        <th class="p-3 text-center">OBE Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${['CO1', 'CO2', 'CO3', 'CO4'].map(co => {
+                        const qPct = quiz[co] !== -1 ? quiz[co] + "%" : "-";
+                        const combPct = response.coPercentages[co] || 0;
+                        const ok = combPct >= 50;
+                        return `
+                          <tr class="border-b">
+                            <td class="p-3 text-slate-800 font-extrabold">${co}</td>
+                            <td class="p-3 text-center font-mono">${qPct}</td>
+                            <td class="p-3 text-center font-mono ${ok ? 'text-green-600' : 'text-red-500'}">${combPct}%</td>
+                            <td class="p-3 text-center">${ok ? '<span class="text-green-600">Target Met</span>' : '<span class="text-red-600">Critical</span>'}</td>
+                          </tr>
+                        `;
+                      }).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            `;
+          } else {
+            wrapper.innerHTML = `<p class="p-6 text-center text-red-500">${response.message}</p>`;
+          }
+        })
+        .getStudentPTMReport(regNo, subjectCode);
+    }
+
+    // ============================================================================
+    // FACULTY ROOMS DESK (FACULTY REPLICATION)
+    // ============================================================================
+    function renderFacultyDesk() {
+      const container = document.getElementById("viewContainer");
+      
+      container.innerHTML = `
+        <div class="bg-white border rounded-3xl p-6 shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div class="flex flex-col md:flex-row gap-4 items-center">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-slate-700 uppercase">Classroom:</span>
+              <select id="principalClassSelector" onchange="handlePrincipalClassChange()" class="bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none"></select>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-slate-700 uppercase">Subject:</span>
+              <select id="principalSubjectSelector" onchange="handlePrincipalSubjectChange()" class="bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none">
+                <option value="">-- Select Subject --</option>
+              </select>
+            </div>
+          </div>
+          
+          <div id="facultySubNavWrapper" class="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 hidden overflow-x-auto">
+            <button onclick="switchFacultySubView('subjects')" id="facSubNav-subjects" class="py-2 px-3 rounded-xl font-bold text-[10px] uppercase transition-premium">OBE Matrix</button>
+            <button onclick="switchFacultySubView('lessonPlan')" id="facSubNav-lessonPlan" class="py-2 px-3 rounded-xl font-bold text-[10px] uppercase transition-premium">Lesson Plan</button>
+            <button onclick="switchFacultySubView('attendance')" id="facSubNav-attendance" class="py-2 px-3 rounded-xl font-bold text-[10px] uppercase transition-premium">Hourly Log</button>
+            <button onclick="switchFacultySubView('copoMap')" id="facSubNav-copoMap" class="py-2 px-3 rounded-xl font-bold text-[10px] uppercase transition-premium">CO-PO Map</button>
+            <button onclick="switchFacultySubView('attainment')" id="facSubNav-attainment" class="py-2 px-3 rounded-xl font-bold text-[10px] uppercase transition-premium">Thresholds</button>
+            <button onclick="switchFacultySubView('studentReport')" id="facSubNav-studentReport" class="py-2 px-3 rounded-xl font-bold text-[10px] uppercase transition-premium">PTM Report</button>
+            <button onclick="switchFacultySubView('courseFile')" id="facSubNav-courseFile" class="py-2 px-3 rounded-xl font-bold text-[10px] uppercase transition-premium">Course Booklet</button>
+          </div>
+        </div>
+
+        <div id="facDeskContent" class="fade-in">
+          <p class="text-slate-400 text-xs font-bold py-12 text-center bg-white border rounded-3xl">Select a Classroom container and Subject Room from dropdowns above to inspect records.</p>
+        </div>
+      `;
+
+      populateFacultyClassSelector();
+    }
+
+    function populateFacultyClassSelector() {
+      const select = document.getElementById("principalClassSelector");
+      if (!select) return;
+      select.innerHTML = `<option value="">-- Select Classroom --</option>` + collegeClasses.map(c => `
+        <option value="${c.classroomId}">${c.classroomId} (Batch: ${c.batchYear})</option>
+      `).join("");
+    }
+
+    function handlePrincipalClassChange() {
+      const classSelect = document.getElementById("principalClassSelector");
+      if (classSelect) selectedClassroomId = classSelect.value;
+      selectedSubjectCode = "";
+      
+      const subSelect = document.getElementById("principalSubjectSelector");
+      subSelect.innerHTML = `<option value="">-- Select Subject --</option>`;
+      document.getElementById("facultySubNavWrapper").classList.add("hidden");
+      document.getElementById("facDeskContent").innerHTML = `<p class="text-slate-400 text-xs font-bold py-12 text-center bg-white border rounded-3xl">Select a Subject Room to initialize console.</p>`;
+      
+      if (!selectedClassroomId) return;
+      
+      const matched = collegeClasses.find(c => c.classroomId === selectedClassroomId);
+      if (matched && matched.subjects) {
+        subSelect.innerHTML = `<option value="">-- Select Subject --</option>` + matched.subjects.map(s => `
+          <option value="${s.code}|${s.courseType}">${s.code} - ${s.name}</option>
+        `).join("");
+      }
+    }
+
+    function handlePrincipalSubjectChange() {
+      const subSelect = document.getElementById("principalSubjectSelector");
+      if (!subSelect || !subSelect.value) {
+        selectedSubjectCode = "";
+        document.getElementById("facultySubNavWrapper").classList.add("hidden");
+        document.getElementById("facDeskContent").innerHTML = `<p class="text-slate-400 text-xs font-bold py-12 text-center bg-white border rounded-3xl">Select a Subject Room to initialize console.</p>`;
+        return;
+      }
+      const parts = subSelect.value.split("|");
+      selectedSubjectCode = parts[0];
+      selectedCourseType = parts[1] || "Theory";
+
+      document.getElementById("facultySubNavWrapper").classList.remove("hidden");
+      switchFacultySubView(activeFacultySubView);
+    }
+
+    function switchFacultySubView(subViewId) {
+      activeFacultySubView = subViewId;
+      const subTabs = ["subjects", "lessonPlan", "attendance", "copoMap", "attainment", "studentReport", "courseFile"];
+      subTabs.forEach(tab => {
+        const btn = document.getElementById(`facSubNav-${tab}`);
+        if (!btn) return;
+        if (tab === subViewId) {
+          btn.className = "py-2 px-3 rounded-xl font-bold text-[10px] uppercase text-blue-600 bg-white shadow-sm transition-premium";
+        } else {
+          btn.className = "py-2 px-3 rounded-xl font-bold text-[10px] uppercase text-slate-500 hover:text-slate-800 transition-premium";
+        }
+      });
+      loadFacultyRoomData();
+    }
+
+    function loadFacultyRoomData() {
+      const content = document.getElementById("facDeskContent");
+      if (!content) return;
+
+      if (activeFacultySubView === "subjects") {
+        content.innerHTML = `<p class="p-6 text-center text-slate-400 font-bold">Calculating outcome attainment indices...</p>`;
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              const summary = response.attainmentSummary;
+              content.innerHTML = `
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  ${['CO1', 'CO2', 'CO3', 'CO4'].map(co => {
+                    const coData = summary[co] || { attainmentPct: 0, level: 0 };
+                    let c = "text-slate-400 bg-slate-50";
+                    if (coData.level === 3) c = "text-emerald-700 bg-emerald-50 border border-emerald-250";
+                    else if (coData.level === 2) c = "text-blue-700 bg-blue-50 border border-blue-250";
+                    else if (coData.level === 1) c = "text-amber-700 bg-amber-50 border border-amber-250";
+                    return `
+                      <div class="bg-white border rounded-3xl p-5 shadow-sm text-center">
+                        <span class="text-[10px] font-black uppercase text-slate-400 block">${co} Performance</span>
+                        <span class="text-3xl font-black text-slate-800 inline-block my-2">${coData.attainmentPct}%</span>
+                        <span class="block text-[10px] font-bold rounded-lg py-1 ${c}">Level ${coData.level}</span>
+                      </div>
+                    `;
+                  }).join("")}
+                </div>
+                <div class="bg-white border rounded-3xl p-6 shadow-sm">
+                  <h3 class="text-base font-black text-slate-800 border-b pb-2 mb-4 tracking-tight">Student Performance Matrix</h3>
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs font-bold">
+                      <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase">
+                          <th class="p-3">Register No</th>
+                          <th class="p-3">Student Name</th>
+                          <th class="p-3">CO1</th>
+                          <th class="p-3">CO2</th>
+                          <th class="p-3">CO3</th>
+                          <th class="p-3">CO4</th>
+                        </tr>
+                      </thead>
+                      <tbody class="text-slate-700">
+                        ${response.studentDetails.map(s => `
+                          <tr class="border-b hover:bg-slate-50">
+                            <td class="p-3 font-mono">${s.regNo}</td>
+                            <td class="p-3 text-slate-800">${s.name}</td>
+                            <td class="p-3 ${s.scores.CO1 >= activeAttainmentThreshold ? 'text-emerald-600' : 'text-slate-400'}">${s.scores.CO1}%</td>
+                            <td class="p-3 ${s.scores.CO2 >= activeAttainmentThreshold ? 'text-emerald-600' : 'text-slate-400'}">${s.scores.CO2}%</td>
+                            <td class="p-3 ${s.scores.CO3 >= activeAttainmentThreshold ? 'text-emerald-600' : 'text-slate-400'}">${s.scores.CO3}%</td>
+                            <td class="p-3 ${s.scores.CO4 >= activeAttainmentThreshold ? 'text-emerald-600' : 'text-slate-400'}">${s.scores.CO4}%</td>
+                          </tr>
+                        `).join("")}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              `;
+            }
+          })
+          .getSubjectCOAttainment(selectedClassroomId, selectedSubjectCode, activeAttainmentThreshold);
+      }
+      else if (activeFacultySubView === "lessonPlan") {
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm mb-6">
+            <h3 class="text-base font-black text-slate-800 border-b pb-2 mb-4 tracking-tight">Plan New Curriculum Entry</h3>
+            <form onsubmit="addLessonPlanTopic(event)" class="space-y-4">
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Unit / Module No</label>
+                  <input type="text" id="planUnitInput" required class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-800" placeholder="e.g. Unit 1">
+                </div>
+                <div class="col-span-2">
+                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Topic details</label>
+                  <input type="text" id="planTopicInput" required class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-800" placeholder="e.g. Topic description details">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Hours Required</label>
+                <input type="number" id="planHoursInput" required min="1" max="10" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-800" value="2">
+              </div>
+              <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Add Topic row</button>
+            </form>
+          </div>
+          <div class="bg-white border rounded-3xl p-6 shadow-sm">
+            <h3 class="text-base font-black text-slate-800 border-b pb-2 mb-4">Curriculum Topics List</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs font-bold">
+                <thead>
+                  <tr class="bg-slate-50 border-b text-slate-500 uppercase">
+                    <th class="p-3 w-20">Unit</th>
+                    <th class="p-3">Topic Details</th>
+                    <th class="p-3 w-28 text-center">Hours</th>
+                    <th class="p-3 w-28 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="principalPlanListRows"></tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        loadLessonPlanListPrincipal();
+      }
+      else if (activeFacultySubView === "attendance") {
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm mb-6">
+            <h3 class="text-base font-black text-slate-800 border-b pb-2 mb-4 tracking-tight">Record Daily Period Log & Attendance</h3>
+            <form onsubmit="submitClassLogAndAttendance(event)" class="space-y-4">
+              <div class="grid grid-cols-3 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Date</label>
+                  <input type="date" id="logDateInput" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-800" value="${new Date().toISOString().substring(0, 10)}">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Hour / Period</label>
+                  <select id="logHourSelect" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-800">
+                    <option value="1">Period 1</option><option value="2">Period 2</option>
+                    <option value="3">Period 3</option><option value="4">Period 4</option>
+                    <option value="5">Period 5</option><option value="6">Period 6</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Syllabus Mapping Reference</label>
+                  <select id="logSyllabusSuggestion" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-800">
+                    <option value="">-- Choose Topic --</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Topic covered details</label>
+                  <input type="text" id="logTopicInput" required class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-800" placeholder="e.g. PN Junction operation">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Remarks</label>
+                  <input type="text" id="logRemarksInput" class="w-full bg-slate-50 border rounded-xl px-3 py-2 text-xs font-semibold text-slate-800" placeholder="e.g. Interactive session">
+                </div>
+              </div>
+              <div class="border rounded-2xl p-4 bg-slate-50">
+                <h4 class="text-xs font-black text-slate-800 mb-2">Student Attendance List</h4>
+                <div class="overflow-x-auto max-h-[300px] overflow-y-auto pr-1">
+                  <table class="w-full text-left border-collapse text-xs font-bold">
+                    <thead>
+                      <tr class="bg-slate-100 border-b">
+                        <th class="p-2 w-16">Present</th>
+                        <th class="p-2">Register No</th>
+                        <th class="p-2">Student Name</th>
+                      </tr>
+                    </thead>
+                    <tbody id="principalAttendanceRows"></tbody>
+                  </table>
+                </div>
+              </div>
+              <button type="submit" class="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold shadow-lg transition-premium">Save Period Log & Attendance</button>
+            </form>
+          </div>
+        `;
+        loadAttendanceRosterPrincipal();
+      }
+      else if (activeFacultySubView === "copoMap") {
+        content.innerHTML = `
+          <div class="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b">
+              <div>
+                <h3 class="text-base font-black text-slate-800 tracking-tight">NBA Correlation Weights</h3>
+                <span class="text-[10px] text-slate-400 font-bold uppercase block">Scale: 0 (None), 1 (Low), 2 (Medium), 3 (High correlation)</span>
+              </div>
+              <button onclick="submitCOPOMappings()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-premium">Save Matrix Config</button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse border border-slate-200 text-xs font-bold text-slate-800 text-center">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 uppercase">
+                    <th class="p-3 border border-slate-200">Outcome</th>
+                    ${Array.from({ length: 12 }, (_, i) => `<th class="p-2 border border-slate-200">PO${i + 1}</th>`).join("")}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${['CO1', 'CO2', 'CO3', 'CO4'].map(co => `
+                    <tr class="border-b">
+                      <td class="p-3 border border-slate-200 bg-slate-50 font-black">${co}</td>
+                      ${Array.from({ length: 12 }, (_, i) => `
+                        <td class="p-1 border border-slate-200">
+                          <select id="copo-${co}-PO${i + 1}" class="w-12 bg-white border rounded px-1.5 py-1 text-center font-extrabold focus:outline-none">
+                            <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                          </select>
+                        </td>
+                      `).join("")}
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+        loadCOPOMappingsPrincipal();
+      }
+      else if (activeFacultySubView === "attainment") {
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm max-w-md mx-auto">
+            <h3 class="text-base font-black text-slate-800 border-b pb-2 mb-4 tracking-tight">OBE Attainment Targets</h3>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Target Score Threshold (%)</label>
+                <input type="number" id="principalAttThreshold" class="w-full bg-slate-50 border rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" value="${activeAttainmentThreshold}">
+              </div>
+              <button onclick="saveAttThresholdPrincipal()" class="w-full py-3 bg-blue-600 text-white rounded-xl text-xs font-bold transition-premium">Update Target benchmarks</button>
+            </div>
+          </div>
+        `;
+      }
+      else if (activeFacultySubView === "studentReport") {
+        content.innerHTML = `
+          <div class="bg-white border rounded-3xl p-6 shadow-sm mb-6 flex flex-col md:flex-row gap-4 items-end">
+            <div class="flex-grow">
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Student</label>
+              <select id="principalFacStudentSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none">
+                <option value="">Loading...</option>
+              </select>
+            </div>
+            <button onclick="generatePTMReportPrincipal()" class="px-5 py-2.5 bg-blue-600 text-white rounded-xl text-xs font-bold transition-premium">Fetch scorecard</button>
+          </div>
+          <div id="facReportWrapper" class="hidden"></div>
+        `;
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              const select = document.getElementById("principalFacStudentSelect");
+              select.innerHTML = response.students.map(s => `<option value="${s.Reg_No}">${s.Name} (${s.Reg_No})</option>`).join("");
+            }
+          })
+          .getStudentsInClass(selectedClassroomId);
+      }
+      else if (activeFacultySubView === "courseFile") {
+        content.innerHTML = `
+          <button onclick="compileCourseFilePrincipal()" class="w-full py-3 bg-blue-600 text-white rounded-xl text-xs font-bold transition-premium mb-6">Compile OBE Course booklet</button>
+          <div id="courseBookletWrapper" class="hidden bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm"></div>
+        `;
+      }
+    }
+
+    function loadLessonPlanListPrincipal() {
+      google.script.run
+        .withSuccessHandler(res => {
+          const rows = document.getElementById("principalPlanListRows");
+          if (!rows) return;
+          rows.innerHTML = res.plans.map(p => `
+            <tr class="border-b">
+              <td class="p-3 font-bold">${p.Unit_No}</td>
+              <td class="p-3 text-slate-800">${p.Topic}</td>
+              <td class="p-3 text-center">${p.Planned_Hours} hrs</td>
+              <td class="p-3 text-center"><span class="${p.Status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-700'} px-2 py-0.5 rounded text-[9px] font-black uppercase">${p.Status}</span></td>
+            </tr>
+          `).join("");
+          
+          // Suggestions select in daily log
+          const sugSelect = document.getElementById("logSyllabusSuggestion");
+          if (sugSelect) {
+            sugSelect.innerHTML = `<option value="">-- Choose Topic --</option>` + res.plans.filter(p => p.Status === 'Planned').map(p => `
+              <option value="${p.Plan_ID}|${p.Topic}">${p.Unit_No}: ${p.Topic}</option>
+            `).join("");
+          }
+        })
+        .getLessonPlans(selectedClassroomId, selectedSubjectCode);
+    }
+
+    function addLessonPlanTopic(e) {
+      e.preventDefault();
+      const unit = document.getElementById("planUnitInput").value.trim();
+      const topic = document.getElementById("planTopicInput").value.trim();
+      const hours = document.getElementById("planHoursInput").value;
+      google.script.run
+        .withSuccessHandler(() => {
+          alert("Lesson plan topic added!");
+          document.getElementById("planUnitInput").value = "";
+          document.getElementById("planTopicInput").value = "";
+          loadLessonPlanListPrincipal();
+        })
+        .saveLessonPlan({ classroomId: selectedClassroomId, subjectCode: selectedSubjectCode, unitNo: unit, topic: topic, hours: hours });
+    }
+
+    function loadAttendanceRosterPrincipal() {
+      google.script.run
+        .withSuccessHandler(function(response) {
+          activeClassLogRoster = response.students;
+          const rows = document.getElementById("principalAttendanceRows");
+          if (!rows) return;
+          rows.innerHTML = activeClassLogRoster.map(s => `
+            <tr class="border-b">
+              <td class="p-2"><input type="checkbox" id="attendanceCheck-${s.Reg_No}" checked class="w-4 h-4 rounded text-teal-650 cursor-pointer"></td>
+              <td class="p-2 font-mono">${s.Reg_No}</td>
+              <td class="p-2 text-slate-800">${s.Name}</td>
+            </tr>
+          `).join("");
+        })
+        .getStudentsInClass(selectedClassroomId);
+    }
+
+    function submitClassLogAndAttendance(e) {
+      e.preventDefault();
+      const date = document.getElementById("logDateInput").value;
+      const hour = document.getElementById("logHourSelect").value;
+      const topic = document.getElementById("logTopicInput").value.trim();
+      const remarks = document.getElementById("logRemarksInput").value.trim();
+      const grid = activeClassLogRoster.map(s => ({
+        regNo: s.Reg_No,
+        status: document.getElementById(`attendanceCheck-${s.Reg_No}`).checked ? "Present" : "Absent"
+      }));
+
+      google.script.run
+        .withSuccessHandler(res => {
+          alert(res.message);
+          document.getElementById("logTopicInput").value = "";
+          document.getElementById("logRemarksInput").value = "";
+          loadFacultyRoomData();
+        })
+        .saveAttendanceAndClassLog(selectedClassroomId, selectedSubjectCode, date, hour, topic, remarks, grid, "");
+    }
+
+    function loadCOPOMappingsPrincipal() {
+      google.script.run
+        .withSuccessHandler(res => {
+          res.mappings.forEach(m => {
+            ['CO1', 'CO2', 'CO3', 'CO4'].forEach(co => {
+              if (m.CO === co) {
+                for (let i = 1; i <= 12; i++) {
+                  const el = document.getElementById(`copo-${co}-PO${i}`);
+                  if (el) el.value = m[`PO${i}`] || 0;
+                }
+              }
+            });
+          });
+        })
+        .getCOPOMappings(selectedClassroomId, selectedSubjectCode);
+    }
+
+    function submitCOPOMappings() {
+      const maps = ['CO1', 'CO2', 'CO3', 'CO4'].map(co => {
+        const obj = { CO: co };
+        for (let i = 1; i <= 12; i++) {
+          obj[`PO${i}`] = document.getElementById(`copo-${co}-PO${i}`).value;
+        }
+        return obj;
+      });
+
+      google.script.run
+        .withSuccessHandler(res => alert(res.message))
+        .saveCOPOMappings(selectedClassroomId, selectedSubjectCode, maps);
+    }
+
+    function saveAttThresholdPrincipal() {
+      const th = document.getElementById("principalAttThreshold").value;
+      google.script.run
+        .withSuccessHandler(res => {
+          alert(res.message);
+          activeAttainmentThreshold = parseFloat(th) || 50;
+        })
+        .updateSubjectAttainmentThreshold(selectedClassroomId, selectedSubjectCode, th);
+    }
+
+    function generatePTMReportPrincipal() {
+      const regNo = document.getElementById("principalFacStudentSelect").value;
+      const wrapper = document.getElementById("facReportWrapper");
+      if (!regNo) return;
+      wrapper.innerHTML = `<p class="p-6 text-center text-slate-400 font-bold">Compiling PTM Progress scorecard details...</p>`;
+      wrapper.classList.remove("hidden");
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            const quiz = response.onlineQuiz;
+            const marks = response.academicMarks;
+
+            wrapper.innerHTML = `
+              <div id="printablePTMCard" class="bg-white border rounded-3xl p-6 md:p-8 shadow-sm flex flex-col gap-6 relative">
+                <button onclick="window.print()" class="absolute right-6 top-6 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold print:hidden">Print Report</button>
+                <div class="text-center border-b pb-4">
+                  <h2 class="text-xl font-extrabold text-slate-800 uppercase tracking-wide">Carmel Polytechnic College</h2>
+                  <span class="text-xs text-slate-400 font-bold uppercase tracking-wider block">Parent-Teacher Progress Scorecard</span>
+                </div>
+                <div class="flex items-center gap-4 bg-slate-50 border rounded-2xl p-4">
+                  <img src="${response.student.photo}" class="w-16 h-16 rounded-xl border object-cover">
+                  <div class="grid grid-cols-2 gap-x-6 gap-y-1.5 text-xs font-bold text-slate-700 flex-grow">
+                    <div>Student Name: <span class="text-slate-900 block font-extrabold">${response.student.name}</span></div>
+                    <div>Register No: <span class="text-slate-900 block font-mono">${response.student.regNo}</span></div>
+                    <div>Classroom: <span class="text-slate-500 block">${response.student.classroom}</span></div>
+                    <div>Attendance: <span class="text-blue-600 block">${response.attendance.percentage}% (${response.attendance.present}/${response.attendance.total} Hours)</span></div>
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-2">Outcome Attainment scores</h4>
+                  <table class="w-full text-left border-collapse text-xs font-bold border rounded-2xl">
+                    <thead>
+                      <tr class="bg-slate-100 border-b text-slate-600 uppercase">
+                        <th class="p-3">Course Outcome</th>
+                        <th class="p-3 text-center">Online Quiz</th>
+                        <th class="p-3 text-center">Combined Attainment %</th>
+                        <th class="p-3 text-center">OBE Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${['CO1', 'CO2', 'CO3', 'CO4'].map(co => {
+                        const qPct = quiz[co] !== -1 ? quiz[co] + "%" : "-";
+                        const combPct = response.coPercentages[co] || 0;
+                        const ok = combPct >= 50;
+                        return `
+                          <tr class="border-b">
+                            <td class="p-3 text-slate-800 font-extrabold">${co}</td>
+                            <td class="p-3 text-center font-mono">${qPct}</td>
+                            <td class="p-3 text-center font-mono ${ok ? 'text-green-600' : 'text-red-500'}">${combPct}%</td>
+                            <td class="p-3 text-center">${ok ? '<span class="text-green-600">Target Met</span>' : '<span class="text-red-600">Critical</span>'}</td>
+                          </tr>
+                        `;
+                      }).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            `;
+          } else {
+            wrapper.innerHTML = `<p class="p-6 text-center text-red-500">${response.message}</p>`;
+          }
+        })
+        .getStudentPTMReport(regNo, selectedSubjectCode);
+    }
+
+    function compileCourseFilePrincipal() {
+      const wrapper = document.getElementById("courseBookletWrapper");
+      wrapper.innerHTML = `<p class="p-6 text-center text-slate-400 font-bold">Compiling course logs and compiling files...</p>`;
+      wrapper.classList.remove("hidden");
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            const data = response;
+            const lpRows = data.lessonPlans.map(lp => `
+              <tr class="border-b">
+                <td class="p-2 border-r font-bold">${lp.Unit_No}</td>
+                <td class="p-2 border-r">${lp.Topic}</td>
+                <td class="p-2 border-r text-center">${lp.Planned_Hours} hrs</td>
+                <td class="p-2 text-center uppercase font-black text-[9px]">${lp.Status}</td>
+              </tr>
+            `).join("");
+            const clRows = data.classLogs.map(cl => `
+              <tr class="border-b">
+                <td class="p-2 border-r font-bold">${new Date(cl.Date).toLocaleDateString()}</td>
+                <td class="p-2 border-r text-center">Period ${cl.Hour}</td>
+                <td class="p-2 border-r">${cl.Topic_Covered}</td>
+                <td class="p-2 text-slate-500 italic">${cl.Remarks || "-"}</td>
+              </tr>
+            `).join("");
+            const attRows = data.attendance.map(att => `
+              <tr class="border-b">
+                <td class="p-2 border-r font-mono">${att.regNo}</td>
+                <td class="p-2 border-r">${att.name}</td>
+                <td class="p-2 border-r text-center">${att.present} / ${att.total}</td>
+                <td class="p-2 text-center font-bold ${att.percentage < 75 ? 'text-red-650' : 'text-slate-700'}">${att.percentage}%</td>
+              </tr>
+            `).join("");
+
+            wrapper.innerHTML = `
+              <div id="printableCourseFile" class="flex flex-col gap-8 relative text-xs">
+                <button onclick="window.print()" class="absolute right-0 top-0 px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-bold print:hidden">Print Booklet</button>
+                <div class="text-center flex flex-col justify-center items-center h-[80vh] border-4 border-double p-8 page-break">
+                  <h1 class="text-2xl font-black text-slate-900 tracking-wider">CARMEL POLYTECHNIC COLLEGE</h1>
+                  <span class="text-slate-400 font-bold uppercase text-[9px] mt-1">Department of ${selectedBranch} Engineering</span>
+                  <div class="h-24"></div>
+                  <h2 class="text-lg font-black text-slate-800 uppercase border-y-2 py-4 my-4">OBE COURSE FILE COMPILATION</h2>
+                  <p class="font-bold text-slate-500 mt-1">Subject: ${selectedSubjectCode}</p>
+                </div>
+                <div class="page-break pt-8">
+                  <h3 class="text-sm font-black text-slate-800 uppercase mb-3 border-b pb-1">1. Curriculum syllabus plans</h3>
+                  <table class="w-full text-left border text-[11px] font-bold">
+                    <thead>
+                      <tr class="bg-slate-50 border-b">
+                        <th class="p-2 border-r">Unit</th>
+                        <th class="p-2 border-r">Topic details</th>
+                        <th class="p-2 border-r">Hours</th>
+                        <th class="p-2">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>${lpRows || '<tr><td colspan="4" class="p-2 text-center">No syllabus logs mapped.</td></tr>'}</tbody>
+                  </table>
+                </div>
+                <div class="page-break pt-8">
+                  <h3 class="text-sm font-black text-slate-800 uppercase mb-3 border-b pb-1">2. Class hourly logs</h3>
+                  <table class="w-full text-left border text-[11px] font-bold">
+                    <thead>
+                      <tr class="bg-slate-50 border-b">
+                        <th class="p-2 border-r">Date</th>
+                        <th class="p-2 border-r">Period</th>
+                        <th class="p-2 border-r">Topics Covered</th>
+                        <th class="p-2">Remarks</th>
+                      </tr>
+                    </thead>
+                    <tbody>${clRows || '<tr><td colspan="4" class="p-2 text-center">No hour logs found.</td></tr>'}</tbody>
+                  </table>
+                </div>
+                <div class="page-break pt-8">
+                  <h3 class="text-sm font-black text-slate-800 uppercase mb-3 border-b pb-1">3. Student attendance grid</h3>
+                  <table class="w-full text-left border text-[11px] font-bold">
+                    <thead>
+                      <tr class="bg-slate-50 border-b">
+                        <th class="p-2 border-r">Reg No</th>
+                        <th class="p-2 border-r">Name</th>
+                        <th class="p-2 border-r">Present hours</th>
+                        <th class="p-2">Percentage</th>
+                      </tr>
+                    </thead>
+                    <tbody>${attRows || '<tr><td colspan="4" class="p-2 text-center">No attendance data found.</td></tr>'}</tbody>
+                  </table>
+                </div>
+              </div>
+            `;
+          } else {
+            wrapper.innerHTML = `<p class="p-6 text-center text-red-500">${response.message}</p>`;
+          }
+        })
+        .getCourseFileCompileData(selectedClassroomId, selectedSubjectCode);
+    }
+
+    // ============================================================================
+    // PROFILE SERVICE & SETTINGS
+    // ============================================================================
+    function renderProfileDesk() {
+      const container = document.getElementById("viewContainer");
+      container.innerHTML = `
+        <div class="bg-white border rounded-3xl p-6 shadow-sm max-w-lg mx-auto">
+          <h3 class="text-base font-black text-slate-800 mb-4 tracking-tight border-b pb-2">Edit Principal Profile</h3>
+          <form onsubmit="handleSelfProfileUpdate(event)" class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
+              <input type="text" id="selfName" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" value="${principalName}">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Email Address</label>
+              <input type="email" id="selfEmail" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" placeholder="principal@carmelpoly.in">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">New Password (leave empty to keep current)</label>
+              <input type="password" id="selfPassword" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-800 focus:outline-none" placeholder="••••••••">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Replace Avatar Photo</label>
+              <input type="file" id="selfPhoto" accept="image/*" onchange="convertSelfPhotoToBase64()" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700">
+              <div class="mt-2 flex justify-center">
+                <img id="selfPhotoPreview" src="${principalPhoto || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100'}" class="w-20 h-20 rounded-full object-cover border">
+              </div>
+            </div>
+            <button type="submit" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg transition-premium text-xs">Save Changes</button>
+          </form>
+        </div>
+      `;
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            const selfData = response.allApprovedStaff.find(s => {
+              if (!s.Mobile_No) return false;
+              return s.Mobile_No.toString().replace(/[^0-9]/g, '') === principalMobile.toString().replace(/[^0-9]/g, '');
+            });
+            if (selfData) {
+              document.getElementById("selfEmail").value = selfData.Email || "";
+            }
+          }
+        })
+        .getPendingAccounts();
+    }
+
+    function handleSelfProfileUpdate(e) {
+      e.preventDefault();
+      const name = document.getElementById("selfName").value.trim();
+      const email = document.getElementById("selfEmail").value.trim();
+      const password = document.getElementById("selfPassword").value.trim();
+
+      const profileData = { name, email };
+      if (password) profileData.password = password;
+      if (selfProfileBase64Photo) profileData.photoUrl = selfProfileBase64Photo;
+
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            alert("Your profile has been updated successfully.");
+            sessionStorage.setItem("userName", name);
+            if (selfProfileBase64Photo) {
+              sessionStorage.setItem("userPhoto", selfProfileBase64Photo);
+            }
+            navigateToPage("principal");
+          } else {
+            alert("Error updating profile: " + response.message);
+          }
+        })
+        .updateStaffProfileSelf(principalMobile, profileData);
+    }
+
+    function convertSelfPhotoToBase64() {
+      const file = document.getElementById("selfPhoto").files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        selfProfileBase64Photo = reader.result;
+        document.getElementById("selfPhotoPreview").src = selfProfileBase64Photo;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // ============================================================================
+    // MODALS ACTIONS
+    // ============================================================================
+
+    // Student Modal controllers
+    function openAddStudentModal() {
+      crudMode = "create";
+      document.getElementById("studentModalTitle").innerText = "Add New Student Record";
+      document.getElementById("mStudentName").value = "";
+      document.getElementById("mStudentEmail").value = "";
+      document.getElementById("mStudentReg").value = "";
+      document.getElementById("mStudentReg").disabled = false;
+      document.getElementById("mStudentAdm").value = "";
+      document.getElementById("mStudentAdm").disabled = false;
+      document.getElementById("mStudentBranch").value = selectedBranch;
+      document.getElementById("mStudentYear").value = "2024";
+      document.getElementById("mStudentSem").value = "S3";
+      document.getElementById("mStudentPassword").value = "password123";
+      mStudentBase64Photo = "";
+      document.getElementById("mPhotoPreviewContainer").classList.add("hidden");
+      document.getElementById("studentCrudModal").classList.remove("hidden");
+      document.getElementById("studentCrudModal").classList.add("flex");
+    }
+
+    function openEditStudentModal(regNo, branch) {
+      crudMode = "edit";
+      document.getElementById("studentModalTitle").innerText = `Edit Student Profile (${regNo})`;
+      
+      const roster = activeMainView === "adminDesk" ? masterStudentsList : branchStudentRoster;
+      const s = roster.find(stud => stud.Reg_No === regNo);
+      if (!s) return;
+      
+      document.getElementById("mStudentName").value = s.Name;
+      document.getElementById("mStudentEmail").value = s.Email;
+      document.getElementById("mStudentReg").value = s.Reg_No;
+      document.getElementById("mStudentReg").disabled = true;
+      document.getElementById("mStudentAdm").value = s.Adm_No;
+      document.getElementById("mStudentAdm").disabled = true;
+      document.getElementById("mStudentBranch").value = s.Branch;
+      document.getElementById("mStudentYear").value = s.Year_Of_Admission || s.Admission_Year || "2024";
+      document.getElementById("mStudentSem").value = s.Semester || "S3";
+      document.getElementById("mStudentPassword").value = s.Password || "password123";
+      mStudentBase64Photo = s.Photo_Drive_Link;
+      
+      const preview = document.getElementById("mPhotoPreview");
+      preview.src = s.Photo_Drive_Link;
+      document.getElementById("mPhotoPreviewContainer").classList.remove("hidden");
+      
+      document.getElementById("studentCrudModal").classList.remove("hidden");
+      document.getElementById("studentCrudModal").classList.add("flex");
+    }
+
+    function closeStudentModal() {
+      document.getElementById("studentCrudModal").classList.add("hidden");
+      document.getElementById("studentCrudModal").classList.remove("flex");
+    }
+
+    function convertStudentPhotoToBase64() {
+      const file = document.getElementById("mStudentPhoto").files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        mStudentBase64Photo = reader.result;
+        document.getElementById("mPhotoPreview").src = mStudentBase64Photo;
+        document.getElementById("mPhotoPreviewContainer").classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleStudentCrudSubmit(e) {
+      e.preventDefault();
+      const studentData = {
+        name: document.getElementById("mStudentName").value.trim(),
+        email: document.getElementById("mStudentEmail").value.trim(),
+        regNo: document.getElementById("mStudentReg").value.trim().toUpperCase(),
+        admNo: document.getElementById("mStudentAdm").value.trim().toUpperCase(),
+        branch: document.getElementById("mStudentBranch").value,
+        admissionYear: document.getElementById("mStudentYear").value.trim(),
+        semester: document.getElementById("mStudentSem").value,
+        password: document.getElementById("mStudentPassword").value.trim(),
+        photoUrl: mStudentBase64Photo
+      };
+
+      if (crudMode === "create") {
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              alert(response.message);
+              closeStudentModal();
+              fetchPrincipalData();
+            } else {
+              alert("Error: " + response.message);
+            }
+          })
+          .createStudentDirectly(studentData);
+      } else {
+        const updateData = {
+          Name: studentData.name,
+          Email: studentData.email,
+          Password: studentData.password,
+          Branch: studentData.branch,
+          Year_Of_Admission: studentData.admissionYear,
+          Semester: studentData.semester,
+          Photo_Drive_Link: studentData.photoUrl
+        };
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              alert("Student profile updated successfully.");
+              closeStudentModal();
+              fetchPrincipalData();
+            } else {
+              alert("Error: " + response.message);
+            }
+          })
+          .updateStudentProfile(studentData.regNo, updateData);
+      }
+    }
+
+    function deleteStudent(regNo) {
+      if (confirm(`Are you sure you want to permanently delete student ${regNo}?`)) {
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              alert("Student record deleted successfully.");
+              fetchPrincipalData();
+            } else {
+              alert("Error: " + response.message);
+            }
+          })
+          .deleteStudentProfile(regNo);
+      }
+    }
+
+    // Staff Modal controllers
+    function openAddStaffModal() {
+      staffModalMode = "register";
+      mStaffBase64Photo = "";
+      document.getElementById("staffSec-register").classList.remove("hidden");
+      document.getElementById("staffSec-link").classList.add("hidden");
+      document.getElementById("staffTab-register").className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-800 bg-white shadow-sm transition-premium";
+      document.getElementById("staffTab-link").className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition-premium";
+      
+      document.getElementById("mStaffName").value = "";
+      document.getElementById("mStaffEmail").value = "";
+      document.getElementById("mStaffMobile").value = "";
+      document.getElementById("mStaffDesig").value = "Lecturer";
+      document.getElementById("mStaffPassword").value = "password123";
+      document.getElementById("mStaffPhoto").value = "";
+      document.getElementById("mStaffPhotoPreviewContainer").classList.add("hidden");
+      
+      const otherStaff = allApprovedStaff.filter(s => s.Branch !== selectedBranch && s.Designation !== "Super_Admin");
+      const select = document.getElementById("mLinkStaffSelect");
+      select.innerHTML = `<option value="">Select Faculty Member</option>` + otherStaff.map(s => `
+        <option value="${s.Mobile_No}">${s.Name} (${s.Designation} - ${s.Branch})</option>
+      `).join("");
+
+      document.getElementById("staffCrudModal").classList.remove("hidden");
+      document.getElementById("staffCrudModal").classList.add("flex");
+    }
+
+    function closeStaffModal() {
+      document.getElementById("staffCrudModal").classList.add("hidden");
+      document.getElementById("staffCrudModal").classList.remove("flex");
+    }
+
+    function setStaffModalMode(mode) {
+      staffModalMode = mode;
+      if (mode === "register") {
+        document.getElementById("staffSec-register").classList.remove("hidden");
+        document.getElementById("staffSec-link").classList.add("hidden");
+        document.getElementById("staffTab-register").className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-800 bg-white shadow-sm transition-premium";
+        document.getElementById("staffTab-link").className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition-premium";
+      } else {
+        document.getElementById("staffSec-register").classList.add("hidden");
+        document.getElementById("staffSec-link").classList.remove("hidden");
+        document.getElementById("staffTab-register").className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-800 transition-premium";
+        document.getElementById("staffTab-link").className = "flex-1 py-2 text-xs font-bold rounded-lg text-slate-800 bg-white shadow-sm transition-premium";
+      }
+    }
+
+    function convertStaffPhotoToBase64() {
+      const file = document.getElementById("mStaffPhoto").files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        mStaffBase64Photo = reader.result;
+        document.getElementById("mStaffPhotoPreviewContainer").classList.remove("hidden");
+        document.getElementById("mStaffPhotoPreview").src = mStaffBase64Photo;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleStaffCrudSubmit(e) {
+      e.preventDefault();
+      if (staffModalMode === "register") {
+        const staffData = {
+          name: document.getElementById("mStaffName").value.trim(),
+          email: document.getElementById("mStaffEmail").value.trim(),
+          mobileNo: document.getElementById("mStaffMobile").value.trim(),
+          designation: document.getElementById("mStaffDesig").value,
+          password: document.getElementById("mStaffPassword").value.trim(),
+          branch: selectedBranch,
+          photoUrl: mStaffBase64Photo
+        };
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              alert(response.message);
+              closeStaffModal();
+              fetchPrincipalData();
+            } else {
+              alert("Error: " + response.message);
+            }
+          })
+          .createStaffDirectly(staffData);
+      } else {
+        const staffMobile = document.getElementById("mLinkStaffSelect").value;
+        if (!staffMobile) return;
+        google.script.run
+          .withSuccessHandler(function(response) {
+            if (response.status === "SUCCESS") {
+              alert("Staff assigned to branch successfully!");
+              closeStaffModal();
+              fetchPrincipalData();
+            } else {
+              alert("Error: " + response.message);
+            }
+          })
+          .assignStaffToBranch(staffMobile, selectedBranch);
+      }
+    }
+
+    // Mentor Allocation controllers
+    let currentAllocationClassId = "";
+    let allocationClassStudents = [];
+
+    function openMentorAllocationModal(classroomId) {
+      currentAllocationClassId = classroomId;
+      const eligible = branchStaffRoster.filter(s => s.Designation !== "Super_Admin");
+      const select = document.getElementById("allocationMentorSelect");
+      select.innerHTML = `<option value="">Select Mentor</option>` + eligible.map(m => `
+        <option value="${m.Mobile_No}">${m.Name} (${m.Designation})</option>
+      `).join("");
+
+      document.getElementById("allocationStudentList").innerHTML = `<p class="text-xs text-slate-400">Select a mentor first.</p>`;
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            allocationClassStudents = response.students || [];
+            document.getElementById("mentorAllocationModal").classList.remove("hidden");
+            document.getElementById("mentorAllocationModal").classList.add("flex");
+          }
+        })
+        .getStudentsInClass(classroomId);
+    }
+
+    function closeMentorAllocationModal() {
+      document.getElementById("mentorAllocationModal").classList.add("hidden");
+      document.getElementById("mentorAllocationModal").classList.remove("flex");
+    }
+
+    function loadMentorStudentCheckboxes() {
+      const mentorMobile = document.getElementById("allocationMentorSelect").value;
+      const list = document.getElementById("allocationStudentList");
+      if (!mentorMobile) {
+        list.innerHTML = `<p class="text-xs text-slate-400">Select a mentor first.</p>`;
+        return;
+      }
+      list.innerHTML = allocationClassStudents.map(s => {
+        const checked = s.Mentor_Mobile_No === mentorMobile;
+        return `
+          <label class="flex items-center gap-2 p-1.5 hover:bg-white rounded cursor-pointer text-xs font-semibold">
+            <input type="checkbox" name="allocStudentCheckbox" value="${s.Reg_No}" ${checked ? 'checked' : ''} class="w-4 h-4 text-blue-600 rounded">
+            <span>${s.Name} (${s.Reg_No})</span>
+          </label>
+        `;
+      }).join("");
+    }
+
+    function submitMentorAllocation() {
+      const mentor = document.getElementById("allocationMentorSelect").value;
+      const checkboxes = document.getElementsByName("allocStudentCheckbox");
+      const selected = [];
+      for (let cb of checkboxes) {
+        if (cb.checked) selected.push(cb.value);
+      }
+      google.script.run
+        .withSuccessHandler(function(response) {
+          if (response.status === "SUCCESS") {
+            alert(response.message);
+            closeMentorAllocationModal();
+            fetchPrincipalData();
+          } else {
+            alert("Error: " + response.message);
+          }
+        })
+        .assignMentorToStudents(currentAllocationClassId, mentor, selected);
+    }
+
+    // Helper functions
+    let masterStudentsList = [];
+    // Approved students list used in admin desk view
+    function getPendingAccounts() {
+      // Stub matching GAS schema
+    }
+
+    function handleLogout() {
+      sessionStorage.clear();
+      navigateToPage("Login");
+    }
+  </script>
+</body>
+</html>
