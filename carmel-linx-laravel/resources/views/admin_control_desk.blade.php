@@ -22,7 +22,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col md:flex-row overflow-hidden">
+<body class="bg-slate-900 text-slate-100 h-screen flex flex-col md:flex-row overflow-hidden">
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -154,6 +154,42 @@
             </div>
           </div>
         </div>
+
+        @if(session('userRole') === 'Principal' || session('userRole') === 'Super_Admin')
+        <!-- General Department Coordinator Assignment Console -->
+        <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl">
+          <h3 class="text-sm font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2">
+            <span class="material-symbols-rounded text-blue-400 text-lg">assignment_ind</span> General Coordinator Allocation Console
+          </h3>
+          <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+            Select and assign a general department coordinator from among the registered academic staff in General Department Aided or Self Finance.
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Aided -->
+            <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-3">
+              <span class="text-[10px] text-blue-400 uppercase font-black tracking-wider block">Aided General Department Coordinator</span>
+              <div>
+                <label class="block text-[9px] text-slate-400 font-bold mb-1">Select Aided Coordinator</label>
+                <select id="selectAidedCoord" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white outline-none">
+                  <option value="">-- Select Registered Aided Staff --</option>
+                </select>
+              </div>
+              <button onclick="assignGeneralCoordinator('Aided')" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-premium cursor-pointer">Assign Coordinator (Aided)</button>
+            </div>
+            <!-- Self Finance -->
+            <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-3">
+              <span class="text-[10px] text-teal-400 uppercase font-black tracking-wider block">Self Finance General Department Coordinator</span>
+              <div>
+                <label class="block text-[9px] text-slate-400 font-bold mb-1">Select Self Finance Coordinator</label>
+                <select id="selectSfCoord" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-xs text-white outline-none">
+                  <option value="">-- Select Registered SF Staff --</option>
+                </select>
+              </div>
+              <button onclick="assignGeneralCoordinator('SF')" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-lg transition-premium cursor-pointer">Assign Coordinator (Self Finance)</button>
+            </div>
+          </div>
+        </div>
+        @endif
       </div>
 
       <!-- PANEL 2: USER DIRECTORY -->
@@ -188,7 +224,10 @@
               <option value="EEE">Electrical Engineering (EEE)</option>
               <option value="CT">Computer Engineering (CT)</option>
               <option value="AU">Automobile Engineering (AU)</option>
+              <option value="GEN_AIDED">General Department Aided (GEN_AIDED)</option>
+              <option value="GEN_SF">General Department Self Finance (GEN_SF)</option>
               <option value="GEN">General Science (GEN)</option>
+              <option value="Administration">Administration</option>
             </select>
           </div>
           <!-- Role filter -->
@@ -201,9 +240,14 @@
               <option value="Admin">Admin</option>
               <option value="Principal">Principal</option>
               <option value="HOD">Head of Department (HOD)</option>
-              <option value="Faculty">Faculty</option>
-              <option value="Demonstrator">Demonstrator</option>
-              <option value="Trade_Instructor">Trade Instructor</option>
+              <option value="Gen_Dept_Coordinator_Aided">Gen Dept Coordinator Aided</option>
+              <option value="Gen_Dept_Coordinator_Self_Finance">Gen Dept Coordinator Self Finance</option>
+              <option value="Lecturer">Lecturers</option>
+              <option value="Demonstrator">Demonstrators</option>
+              <option value="Trade_Instructor">Trade Instructors</option>
+              <option value="Tradesman">Tradesmen</option>
+              <option value="Laboratory_Assistant">Laboratory Assistants</option>
+              <option value="Workshop_Instructor">Workshop Instructors</option>
               <option value="Workshop_Superintendent">Workshop Superintendent</option>
             </select>
           </div>
@@ -469,9 +513,14 @@
               <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Designation</label>
               <select id="directRegStaffDesig" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
                 <option value="HOD">Head of Department (HOD)</option>
-                <option value="Faculty" selected>Faculty</option>
+                <option value="Gen_Dept_Coordinator_Aided">Gen Dept Coordinator Aided</option>
+                <option value="Gen_Dept_Coordinator_Self_Finance">Gen Dept Coordinator Self Finance</option>
+                <option value="Lecturer" selected>Lecturer</option>
                 <option value="Demonstrator">Demonstrator</option>
                 <option value="Trade_Instructor">Trade Instructor</option>
+                <option value="Tradesman">Tradesman</option>
+                <option value="Laboratory_Assistant">Laboratory Assistant</option>
+                <option value="Workshop_Instructor">Workshop Instructor</option>
                 <option value="Workshop_Superintendent">Workshop Superintendent</option>
                 <option value="Principal">Principal</option>
               </select>
@@ -487,6 +536,8 @@
               <option value="EEE">Electrical & Electronics Engineering (EEE)</option>
               <option value="CT">Computer Engineering (CT)</option>
               <option value="AU">Automobile Engineering (AU)</option>
+              <option value="GEN_AIDED">General Department Aided (GEN_AIDED)</option>
+              <option value="GEN_SF">General Department Self Finance (GEN_SF)</option>
               <option value="Admin">Administration</option>
             </select>
           </div>
@@ -521,7 +572,66 @@
       loadStats();
       loadUsers();
       if (activePanel === 'audit') loadAuditTrail();
+      if (document.getElementById('selectAidedCoord')) {
+        loadGeneralStaffOptions();
+      }
     });
+
+    function loadGeneralStaffOptions() {
+      // Fetch all staff members to populate coordinator selectors
+      fetch('/api/admin/users?role=Lecturer')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            const aidedSelect = document.getElementById('selectAidedCoord');
+            const sfSelect = document.getElementById('selectSfCoord');
+            
+            // Clear but keep first option
+            aidedSelect.innerHTML = '<option value="">-- Select Registered Aided Staff --</option>';
+            sfSelect.innerHTML = '<option value="">-- Select Registered SF Staff --</option>';
+
+            data.users.forEach(u => {
+              if (u.type === 'staff') {
+                if (u.branch === 'GEN_AIDED') {
+                  aidedSelect.innerHTML += `<option value="${u.id}">${u.name} (${u.id})</option>`;
+                } else if (u.branch === 'GEN_SF') {
+                  sfSelect.innerHTML += `<option value="${u.id}">${u.name} (${u.id})</option>`;
+                }
+              }
+            });
+          }
+        });
+    }
+
+    function assignGeneralCoordinator(type) {
+      const selectId = type === 'Aided' ? 'selectAidedCoord' : 'selectSfCoord';
+      const staffId = document.getElementById(selectId).value;
+      if (!staffId) {
+        showGlobalMessage('Please select a staff member first.', true);
+        return;
+      }
+
+      const newRole = type === 'Aided' ? 'Gen_Dept_Coordinator_Aided' : 'Gen_Dept_Coordinator_Self_Finance';
+
+      fetch('/api/admin/user/change-role', {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ userId: staffId, newRole: newRole })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          showGlobalMessage(`Coordinator assigned for General Department ${type} successfully.`);
+          loadUsers();
+          loadGeneralStaffOptions();
+        } else {
+          showGlobalMessage(data.message, true);
+        }
+      })
+      .catch(() => {
+        showGlobalMessage('Network error occurred while assigning coordinator.', true);
+      });
+    }
 
     // CSRF Token Helper
     function getHeaders() {
@@ -677,9 +787,15 @@
               <option value="Admin" ${user.role === 'Admin' ? 'selected' : ''}>Admin</option>
               <option value="Principal" ${user.role === 'Principal' ? 'selected' : ''}>Principal</option>
               <option value="HOD" ${user.role === 'HOD' ? 'selected' : ''}>HOD</option>
-              <option value="Faculty" ${user.role === 'Faculty' ? 'selected' : ''}>Faculty</option>
+              <option value="Gen_Dept_Coordinator_Aided" ${user.role === 'Gen_Dept_Coordinator_Aided' ? 'selected' : ''}>Gen Dept Coordinator Aided</option>
+              <option value="Gen_Dept_Coordinator_Self_Finance" ${user.role === 'Gen_Dept_Coordinator_Self_Finance' ? 'selected' : ''}>Gen Dept Coordinator Self Finance</option>
+              <option value="Tutor" ${user.role === 'Tutor' ? 'selected' : ''}>Tutor</option>
+              <option value="Lecturer" ${user.role === 'Lecturer' ? 'selected' : ''}>Lecturer</option>
               <option value="Demonstrator" ${user.role === 'Demonstrator' ? 'selected' : ''}>Demonstrator</option>
               <option value="Trade_Instructor" ${user.role === 'Trade_Instructor' ? 'selected' : ''}>Trade Instructor</option>
+              <option value="Tradesman" ${user.role === 'Tradesman' ? 'selected' : ''}>Tradesman</option>
+              <option value="Laboratory_Assistant" ${user.role === 'Laboratory_Assistant' ? 'selected' : ''}>Laboratory Assistant</option>
+              <option value="Workshop_Instructor" ${user.role === 'Workshop_Instructor' ? 'selected' : ''}>Workshop Instructor</option>
               <option value="Workshop_Superintendent" ${user.role === 'Workshop_Superintendent' ? 'selected' : ''}>Workshop Superintendent</option>
             </select>
           `;

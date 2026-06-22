@@ -56,10 +56,10 @@
       <div id="loginSection">
         <!-- Login Role Tabs -->
         <div class="flex bg-slate-950/60 p-1.5 rounded-2xl mb-6 border border-slate-800/60">
-          <button id="tabStudent" onclick="toggleRoleTab('student')" class="flex-1 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-500 to-sky-600 shadow-md shadow-blue-500/15 transition-premium flex items-center justify-center gap-1.5 cursor-pointer">
+          <button id="tabStudent" onclick="toggleRoleTab('student')" class="flex-1 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-900/30 transition-premium flex items-center justify-center gap-1.5 cursor-pointer">
             <span class="material-symbols-rounded text-lg">school</span> Student
           </button>
-          <button id="tabStaff" onclick="toggleRoleTab('staff')" class="flex-1 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-900/30 transition-premium flex items-center justify-center gap-1.5 cursor-pointer">
+          <button id="tabStaff" onclick="toggleRoleTab('staff')" class="flex-1 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-500 to-sky-600 shadow-md shadow-blue-500/15 transition-premium flex items-center justify-center gap-1.5 cursor-pointer">
             <span class="material-symbols-rounded text-lg">badge</span> Staff Portal
           </button>
         </div>
@@ -74,10 +74,12 @@
           </div>
 
           <!-- Staff Login Fields -->
-          <div id="staffLoginFields" class="space-y-4 hidden">
+          <div id="staffLoginFields" class="space-y-4">
             <div>
-              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Mobile Number (ID)</label>
-              <input type="text" id="loginMobileId" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-white font-medium transition-premium" placeholder="e.g. 9845000001">
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Mobile Number (Login ID)</label>
+              <input type="text" id="loginMobileId" inputmode="numeric" maxlength="10"
+                class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-white font-medium transition-premium" placeholder="e.g. 9845000001">
+              <p class="text-[10px] text-slate-600 mt-1">Enter your 10-digit registered mobile number</p>
             </div>
           </div>
 
@@ -182,6 +184,8 @@
                   <option value="EEE">Electrical & Electronics Engineering (EEE)</option>
                   <option value="CT">Computer Engineering (CT)</option>
                   <option value="AU">Automobile Engineering (AU)</option>
+                  <option value="GEN_AIDED">General Department Aided (GEN_AIDED)</option>
+                  <option value="GEN_SF">General Department Self Finance (GEN_SF)</option>
                   <option value="Admin">Administration</option>
                 </select>
               </div>
@@ -189,9 +193,14 @@
                 <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Designation</label>
                 <select id="regStaffDesig" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950 text-white focus:ring-2 focus:ring-blue-500/20 outline-none font-medium transition-premium">
                   <option value="HOD">Head of the Department (HOD)</option>
-                  <option value="Faculty">Faculty</option>
+                  <option value="Gen_Dept_Coordinator_Aided">Gen Dept Coordinator Aided</option>
+                  <option value="Gen_Dept_Coordinator_Self_Finance">Gen Dept Coordinator Self Finance</option>
+                  <option value="Lecturer">Lecturer</option>
                   <option value="Demonstrator">Demonstrator</option>
                   <option value="Trade_Instructor">Trade Instructor</option>
+                  <option value="Tradesman">Tradesman</option>
+                  <option value="Laboratory_Assistant">Laboratory Assistant</option>
+                  <option value="Workshop_Instructor">Workshop Instructor</option>
                   <option value="Workshop_Superintendent">Workshop Superintendent</option>
                   <option value="Principal">Principal</option>
                 </select>
@@ -231,7 +240,13 @@
   </div>
 
   <script>
-    let activeRole = "student";
+    let activeRole = "staff";
+
+    // Default to Staff tab on load
+    document.addEventListener('DOMContentLoaded', () => {
+      toggleRoleTab('staff');
+      document.getElementById('loginMobileId').focus();
+    });
 
     function toggleRoleTab(role) {
       activeRole = role;
@@ -245,11 +260,13 @@
         tabStaff.className = "flex-1 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-900/30 transition-premium flex items-center justify-center gap-1.5 cursor-pointer";
         sFields.classList.remove('hidden');
         fFields.classList.add('hidden');
+        setTimeout(() => document.getElementById('loginUserId').focus(), 50);
       } else {
         tabStaff.className = "flex-1 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-500 to-sky-600 shadow-md shadow-blue-500/15 transition-premium flex items-center justify-center gap-1.5 cursor-pointer";
         tabStudent.className = "flex-1 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-900/30 transition-premium flex items-center justify-center gap-1.5 cursor-pointer";
         fFields.classList.remove('hidden');
         sFields.classList.add('hidden');
+        setTimeout(() => document.getElementById('loginMobileId').focus(), 50);
       }
     }
 

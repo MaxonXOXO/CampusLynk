@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\BackupController;
+use App\Http\Controllers\MentoringController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 
@@ -21,11 +22,13 @@ Route::get('/', function () {
         if ($role === 'Admin') return redirect('/dashboard/admin');
         if ($role === 'Principal') return redirect('/dashboard/principal');
         if ($role === 'HOD') return redirect('/dashboard/hod');
-        if ($role === 'Faculty') return redirect('/dashboard/faculty');
+        if ($role === 'Gen_Dept_Coordinator_Aided') return redirect('/dashboard/general-coordinator-aided');
+        if ($role === 'Gen_Dept_Coordinator_Self_Finance') return redirect('/dashboard/general-coordinator-sf');
+        if ($role === 'Lecturer') return redirect('/dashboard/lecturer');
         if ($role === 'Demonstrator') return redirect('/dashboard/demonstrator');
         if ($role === 'Trade_Instructor') return redirect('/dashboard/tradeinstructor');
         if ($role === 'Workshop_Superintendent') return redirect('/dashboard/workshop');
-        return redirect('/dashboard/faculty');
+        return redirect('/dashboard/lecturer');
     }
     return view('login');
 })->name('login');
@@ -65,9 +68,19 @@ Route::middleware(['web'])->group(function () {
         return view('hod_dashboard');
     });
 
-    Route::get('/dashboard/faculty', function () {
-        if (Session::get('userRole') !== 'Faculty') return redirect('/');
-        return view('faculty_dashboard');
+    Route::get('/dashboard/general-coordinator-aided', function () {
+        if (Session::get('userRole') !== 'Gen_Dept_Coordinator_Aided') return redirect('/');
+        return view('general_coordinator_aided_dashboard');
+    });
+
+    Route::get('/dashboard/general-coordinator-sf', function () {
+        if (Session::get('userRole') !== 'Gen_Dept_Coordinator_Self_Finance') return redirect('/');
+        return view('general_coordinator_sf_dashboard');
+    });
+
+    Route::get('/dashboard/lecturer', function () {
+        if (Session::get('userRole') !== 'Lecturer') return redirect('/');
+        return view('lecturer_dashboard');
     });
 
     Route::get('/dashboard/demonstrator', function () {
@@ -106,5 +119,43 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/admin/user/change-role', [DataController::class, 'changeUserRole']);
     Route::post('/api/admin/user/delete', [DataController::class, 'deleteUser']);
     Route::get('/api/audit-logs', [DataController::class, 'getAuditLogs']);
-});
 
+    // HOD Batch Management
+    Route::get('/api/hod/batches', [DataController::class, 'getHodBatches']);
+    Route::post('/api/hod/batches', [DataController::class, 'createHodBatch']);
+    Route::post('/api/hod/batches/assign-tutor', [DataController::class, 'assignBatchTutor']);
+    Route::post('/api/hod/batches/assign-mentor', [DataController::class, 'assignBatchMentor']);
+    Route::get('/api/hod/batches/{classroomId}/students', [DataController::class, 'getBatchStudents']);
+    Route::get('/api/hod/dept-staff', [DataController::class, 'getDeptStaff']);
+
+    // HOD Subject Allocation
+    Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);
+    Route::post('/api/hod/batches/subjects/create', [DataController::class, 'createBatchSubject']);
+    Route::post('/api/hod/batches/subjects/{subjectId}/assign-staff', [DataController::class, 'assignSubjectStaff']);
+    Route::delete('/api/hod/batches/subjects/{subjectId}', [DataController::class, 'deleteBatchSubject']);
+
+    // Lecturer Endpoints
+    Route::get('/api/lecturer/my-batches', [DataController::class, 'getLecturerBatches']);
+    Route::post('/api/classroom/{subjectId}/syllabus', [App\Http\Controllers\ClassroomController::class, 'uploadSyllabus']);
+    Route::get('/api/classroom/{subjectId}/details', [App\Http\Controllers\ClassroomController::class, 'getCourseDetails']);
+    Route::get('/api/classroom/{subjectId}/generate-questions', [App\Http\Controllers\ClassroomController::class, 'generateAssignmentQuestions']);
+    Route::post('/api/classroom/{subjectId}/save-assignment-deadline', [App\Http\Controllers\ClassroomController::class, 'saveAssignmentDeadline']);
+    Route::post('/api/classroom/{subjectId}/save-assignment-marks', [App\Http\Controllers\ClassroomController::class, 'saveAssignmentMarks']);
+    Route::post('/api/classroom/{subjectId}/generate-summative-paper', [App\Http\Controllers\ClassroomController::class, 'generateSummativePaper']);
+    Route::post('/api/classroom/{subjectId}/save-summative-config', [App\Http\Controllers\ClassroomController::class, 'saveSummativeConfig']);
+    Route::post('/api/classroom/{subjectId}/save-written-test-marks', [App\Http\Controllers\ClassroomController::class, 'saveWrittenTestMarks']);
+
+    // Mentoring Endpoints
+    Route::get('/api/mentoring/my-batches', [MentoringController::class, 'getMyBatches']);
+    Route::get('/api/mentoring/students/{classroomId}', [MentoringController::class, 'getClassroomStudents']);
+    Route::post('/api/mentoring/assign-batch', [MentoringController::class, 'assignBatch']);
+    Route::post('/api/mentoring/assign-mentor2', [MentoringController::class, 'assignMentor2']);
+    Route::get('/api/mentoring/diary/{regNo}', [MentoringController::class, 'getStudentDiary']);
+    Route::post('/api/mentoring/diary/add', [MentoringController::class, 'addDiaryEntry']);
+    Route::post('/api/mentoring/diary/approve', [MentoringController::class, 'approveDiaryEntry']);
+    Route::get('/api/mentoring/report/{classroomId}', [MentoringController::class, 'getMentoringReport']);
+
+    // Student Self-Service Mentoring
+    Route::post('/api/student/mentoring/self-entry', [MentoringController::class, 'studentSelfEntry']);
+    Route::get('/api/student/mentoring/diary', [MentoringController::class, 'studentViewDiary']);
+});

@@ -56,6 +56,23 @@
       <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
         <span class="material-symbols-rounded text-lg">settings</span> My Profile
       </button>
+      <button id="navMentoring" onclick="switchPanel('mentoring')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+        <span class="material-symbols-rounded text-lg">diversity_3</span> Mentoring Batches
+      </button>
+
+      @php
+        $role = session('userRole');
+        $backLink = '/dashboard/lecturer';
+        if ($role === 'HOD') $backLink = '/dashboard/hod';
+        if ($role === 'Demonstrator') $backLink = '/dashboard/demonstrator';
+        if ($role === 'Trade_Instructor') $backLink = '/dashboard/tradeinstructor';
+        if ($role === 'Workshop_Superintendent') $backLink = '/dashboard/workshop';
+        if ($role === 'Gen_Dept_Coordinator_Aided') $backLink = '/dashboard/general-coordinator-aided';
+        if ($role === 'Gen_Dept_Coordinator_Self_Finance') $backLink = '/dashboard/general-coordinator-sf';
+      @endphp
+      <a href="{{ $backLink }}" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block mt-4 border border-sky-900/50">
+        <span class="material-symbols-rounded text-lg">arrow_back</span> Back to Staff Console
+      </a>
     </nav>
 
     <!-- Logout -->
@@ -225,6 +242,107 @@
         </div>
       </div>
 
+      <!-- PANEL 4: MENTORING BATCHES -->
+      <div id="panelMentoring" class="hidden space-y-6">
+        <!-- Dashboard Header -->
+        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 class="font-black text-slate-200 text-sm">Mentoring Batches & Splitter</h3>
+            <p class="text-xs text-slate-400 mt-1">Split students between yourself and the second mentor.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="mentorClassroomSelect" onchange="loadMentoringData()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none">
+              <option value="">Loading classrooms...</option>
+            </select>
+            <button onclick="loadMentoringData()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[11px] font-bold transition-premium cursor-pointer flex items-center gap-2">
+              <span class="material-symbols-rounded text-sm">sync</span> Refresh
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Unassigned Students -->
+          <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-slate-800/60 bg-slate-900/40 flex justify-between items-center">
+              <div>
+                <h4 class="font-black text-sm text-slate-200 flex items-center gap-2"><span class="material-symbols-rounded text-amber-400 text-base">person_off</span> Unassigned Students</h4>
+                <p class="text-[10px] text-slate-500">Students without a mentor.</p>
+              </div>
+              <span id="unassignedCountBadge" class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-bold text-xs">0</span>
+            </div>
+            <div class="flex-grow max-h-[500px] overflow-y-auto scrollbar-hidden">
+              <table class="w-full text-left text-xs">
+                <tbody id="unassignedList">
+                  <tr><td class="p-4 text-center text-slate-500">Select a classroom to view.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Mentors Split View -->
+          <div class="space-y-6">
+            <!-- Mentor A (Tutor) -->
+            <div class="bg-slate-950/30 border border-sky-900/40 rounded-2xl flex flex-col overflow-hidden">
+              <div class="p-4 border-b border-sky-900/60 bg-sky-950/20 flex justify-between items-center">
+                <div>
+                  <h4 class="font-black text-sm text-sky-400 flex items-center gap-2"><span class="material-symbols-rounded text-base">person_pin</span> Batch A (Tutor)</h4>
+                  <p id="mentorAInfo" class="text-[10px] text-slate-400">Loading...</p>
+                </div>
+                <span id="batchACountBadge" class="bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded font-bold text-xs">0</span>
+              </div>
+              <div class="flex-grow max-h-[220px] overflow-y-auto scrollbar-hidden">
+                <table class="w-full text-left text-xs">
+                  <tbody id="batchAList"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Mentor B -->
+            <div class="bg-slate-950/30 border border-emerald-900/40 rounded-2xl flex flex-col overflow-hidden">
+              <div class="p-4 border-b border-emerald-900/60 bg-emerald-950/20 flex justify-between items-center">
+                <div>
+                  <h4 class="font-black text-sm text-emerald-400 flex items-center gap-2"><span class="material-symbols-rounded text-base">supervisor_account</span> Batch B (Mentor)</h4>
+                  <p id="mentorBInfo" class="text-[10px] text-slate-400">Loading...</p>
+                </div>
+                <span id="batchBCountBadge" class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold text-xs">0</span>
+              </div>
+              <div class="flex-grow max-h-[220px] overflow-y-auto scrollbar-hidden">
+                <table class="w-full text-left text-xs">
+                  <tbody id="batchBList"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mentoring Caseload -->
+        <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl space-y-4">
+          <div class="flex items-center gap-3 border-b border-slate-800/60 pb-3 justify-between">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-rounded text-indigo-400 text-xl">school</span>
+              <h3 class="text-base font-black text-slate-200">Mentoring Caseload (Data View)</h3>
+            </div>
+            <p class="text-[10px] text-slate-400">Tutors see the full class; Mentors see only their batch.</p>
+          </div>
+          <div class="overflow-x-auto scrollbar-hidden">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-900/60 border-b border-slate-800 text-slate-400 font-bold">
+                  <th class="p-3">Student</th>
+                  <th class="p-3">Reg No</th>
+                  <th class="p-3">Batch Assigned</th>
+                  <th class="p-3">Diary Logs</th>
+                  <th class="p-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="myMentoringStudentsList">
+                <tr><td colspan="5" class="p-4 text-center text-slate-500">Select a classroom to view.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -295,19 +413,16 @@
     </div>
   </div>
 
-  <!-- DIRECT REGISTRATION MODAL (STUDENT ONLY FOR TUTOR) -->
+  <!-- REGISTER MODAL -->
   <div id="registerModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-lg">person_add</span> Register Student Profile
+          <span class="material-symbols-rounded text-blue-400 text-lg">person_add</span> Direct Register Student
         </h3>
         <button onclick="closeRegisterModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-lg">close</span></button>
       </div>
-
       <form id="directRegisterForm" onsubmit="handleDirectRegister(event)" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hidden">
-        
-        <!-- Common Fields -->
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Full Name</label>
@@ -315,20 +430,6 @@
           </div>
           <div>
             <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Email Address</label>
-            <input type="email" id="directRegEmail" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="name@carmelpoly.edu.in">
-          </div>
-        </div>
-
-        <!-- Student-Specific Fields -->
-        <div class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Register No</label>
-              <input type="text" id="directRegStudentId" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="e.g. 25EL1001">
-            </div>
-            <div>
-              <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Admission No</label>
-              <input type="text" id="directRegStudentAdm" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="e.g. ADM25EL01">
             </div>
           </div>
 
@@ -380,9 +481,18 @@
     let selectedUserForReset = null;
 
     document.addEventListener("DOMContentLoaded", () => {
-      loadUsers();
+      // Check if routed directly to mentoring
+      if (sessionStorage.getItem('openMentoring') === 'true') {
+        sessionStorage.removeItem('openMentoring');
+        activePanel = 'mentoring';
+      }
+
+      if (activePanel === 'roster') loadUsers();
       if (activePanel === 'audit') loadAuditTrail();
       if (activePanel === 'profile') loadSelfSecurityLogs();
+      if (activePanel === 'mentoring') {
+        switchPanel('mentoring'); // Ensures UI is updated
+      }
     });
 
     function getHeaders() {
@@ -395,7 +505,7 @@
     function switchPanel(panelId) {
       activePanel = panelId;
       
-      const panels = ['roster', 'audit', 'profile'];
+      const panels = ['roster', 'audit', 'profile', 'mentoring'];
       panels.forEach(id => {
         const el = document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1));
         const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
@@ -412,13 +522,15 @@
       const titles = {
         'roster': 'Supervised Class Roster',
         'audit': 'Classroom Audit Trail',
-        'profile': 'My Tutor Profile'
+        'profile': 'My Tutor Profile',
+        'mentoring': 'Mentoring Batches'
       };
       document.getElementById('panelTitle').innerText = titles[panelId];
 
       if (panelId === 'roster') loadUsers();
       if (panelId === 'audit') loadAuditTrail();
       if (panelId === 'profile') loadSelfSecurityLogs();
+      if (panelId === 'mentoring') initMentoringPanel();
     }
 
     function showGlobalMessage(msg, isError = false) {
@@ -817,8 +929,258 @@
         })
         .catch(() => {
           tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-400 font-bold">Error querying logs.</td></tr>`;
+    // ==========================================
+    // MENTORING BATCHES LOGIC
+    // ==========================================
+
+    let mentoringDataCache = null;
+    let selectedMentoringClassroomId = null;
+
+    function initMentoringPanel() {
+      const select = document.getElementById('mentorClassroomSelect');
+      select.innerHTML = '<option value="">Loading...</option>';
+      
+      fetch('/api/mentoring/my-batches')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            select.innerHTML = '';
+            if (data.batches.length === 0) {
+              select.innerHTML = '<option value="">No mentored classrooms</option>';
+              document.getElementById('unassignedList').innerHTML = `<tr><td class="p-4 text-center text-slate-500">You are not assigned as a Mentor to any classroom.</td></tr>`;
+              return;
+            }
+
+            data.batches.forEach(b => {
+              const opt = document.createElement('option');
+              opt.value = b.classroom_id;
+              opt.innerText = `${b.classroom_id} (Admission ${b.batch_year})`;
+              select.appendChild(opt);
+            });
+            
+            selectedMentoringClassroomId = select.value;
+            loadMentoringData();
+          } else {
+            select.innerHTML = '<option value="">Failed to load</option>';
+          }
+        })
+        .catch(() => {
+          select.innerHTML = '<option value="">Error</option>';
         });
+    }
+
+    function loadMentoringData() {
+      const select = document.getElementById('mentorClassroomSelect');
+      selectedMentoringClassroomId = select.value;
+      if (!selectedMentoringClassroomId) return;
+
+      const indicator = document.getElementById('loadingIndicator');
+      indicator.classList.remove('hidden');
+
+      fetch(`/api/mentoring/report/${selectedMentoringClassroomId}`)
+        .then(res => res.json())
+        .then(data => {
+          indicator.classList.add('hidden');
+          if (data.status === 'SUCCESS') {
+            mentoringDataCache = data;
+            renderMentoringUI(data);
+          } else {
+            showGlobalMessage(data.message, true);
+          }
+        })
+        .catch(() => {
+          indicator.classList.add('hidden');
+          showGlobalMessage('Failed to load mentoring data.', true);
+        });
+    }
+
+    function renderMentoringUI(data) {
+      document.getElementById('mentorAInfo').innerText = data.mentor1.name + ' (' + data.mentor1.mobile + ')';
+      document.getElementById('mentorBInfo').innerText = data.mentor2.name + ' (' + data.mentor2.mobile + ')';
+
+      const unassignedList = document.getElementById('unassignedList');
+      const batchAList = document.getElementById('batchAList');
+      const batchBList = document.getElementById('batchBList');
+      const myList = document.getElementById('myMentoringStudentsList');
+
+      document.getElementById('unassignedCountBadge').innerText = data.unassigned.length;
+      document.getElementById('batchACountBadge').innerText = data.batch_a.length;
+      document.getElementById('batchBCountBadge').innerText = data.batch_b.length;
+
+      // Check if current user is Tutor (Mentor 1)
+      const isTutor = (data.mentor1.mobile == '{{ session('userId') }}');
+      const isMentor2 = (data.mentor2.mobile == '{{ session('userId') }}');
+
+      // Helper to create assignment buttons
+      const getActionButtons = (regNo, currentBatch) => {
+        if (!isTutor) return ''; // Only Tutor can reassign
+        
+        if (currentBatch === null) {
+          return `
+            <button onclick="assignStudentBatch('${regNo}', 'A')" class="px-2 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded text-[10px] font-bold mr-1">To A</button>
+            <button onclick="assignStudentBatch('${regNo}', 'B')" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[10px] font-bold">To B</button>
+          `;
+        } else if (currentBatch === 'A') {
+          return `<button onclick="assignStudentBatch('${regNo}', 'B')" class="px-2 py-1 border border-emerald-600 text-emerald-400 hover:bg-emerald-950 rounded text-[10px] font-bold">Move to B</button>`;
+        } else if (currentBatch === 'B') {
+          return `<button onclick="assignStudentBatch('${regNo}', 'A')" class="px-2 py-1 border border-sky-600 text-sky-400 hover:bg-sky-950 rounded text-[10px] font-bold">Move to A</button>`;
+        }
+      };
+
+      // Unassigned List
+      unassignedList.innerHTML = '';
+      if (data.unassigned.length === 0) unassignedList.innerHTML = '<tr><td class="p-4 text-center text-slate-500">No unassigned students.</td></tr>';
+      data.unassigned.forEach(s => {
+        unassignedList.innerHTML += `
+          <tr class="border-b border-slate-800/40 hover:bg-slate-800/40">
+            <td class="p-3 font-bold text-slate-200">${s.name}</td>
+            <td class="p-3 font-mono text-slate-500">${s.reg_no}</td>
+            <td class="p-3 text-right whitespace-nowrap">${getActionButtons(s.reg_no, null)}</td>
+          </tr>
+        `;
+      });
+
+      // Batch A List
+      batchAList.innerHTML = '';
+      if (data.batch_a.length === 0) batchAList.innerHTML = '<tr><td class="p-4 text-center text-slate-500">Empty batch.</td></tr>';
+      data.batch_a.forEach(s => {
+        batchAList.innerHTML += `
+          <tr class="border-b border-sky-900/40 hover:bg-sky-900/20">
+            <td class="p-3 font-bold text-sky-100">${s.name}</td>
+            <td class="p-3 font-mono text-sky-500">${s.reg_no}</td>
+            <td class="p-3 text-right whitespace-nowrap">${getActionButtons(s.reg_no, 'A')}</td>
+          </tr>
+        `;
+      });
+
+      // Batch B List
+      batchBList.innerHTML = '';
+      if (data.batch_b.length === 0) batchBList.innerHTML = '<tr><td class="p-4 text-center text-slate-500">Empty batch.</td></tr>';
+      data.batch_b.forEach(s => {
+        batchBList.innerHTML += `
+          <tr class="border-b border-emerald-900/40 hover:bg-emerald-900/20">
+            <td class="p-3 font-bold text-emerald-100">${s.name}</td>
+            <td class="p-3 font-mono text-emerald-500">${s.reg_no}</td>
+            <td class="p-3 text-right whitespace-nowrap">${getActionButtons(s.reg_no, 'B')}</td>
+          </tr>
+        `;
+      });
+
+      // Mentoring Caseload
+      myList.innerHTML = '';
+      let myStudents = [];
+      if (isTutor) {
+        // Tutor sees everyone
+        myStudents = [...data.batch_a, ...data.batch_b, ...data.unassigned];
+      } else if (isMentor2) {
+        // Mentor 2 sees only Batch B
+        myStudents = data.batch_b;
+      }
+      
+      if (myStudents.length === 0) {
+        myList.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">You have no students in your caseload.</td></tr>';
+      } else {
+        myStudents.forEach(s => {
+          let batchName = s.batch_label ? `Batch ${s.batch_label}` : 'Unassigned';
+          let batchColor = s.batch_label === 'A' ? 'sky' : (s.batch_label === 'B' ? 'emerald' : 'amber');
+          
+          myList.innerHTML += `
+            <tr class="border-b border-slate-800/40 hover:bg-slate-800/20">
+              <td class="p-3 font-bold text-slate-200">${s.name}</td>
+              <td class="p-3 font-mono text-slate-400">${s.reg_no}</td>
+              <td class="p-3">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-${batchColor}-500/10 text-${batchColor}-400 border border-${batchColor}-500/20">
+                  ${batchName}
+                </span>
+              </td>
+              <td class="p-3 font-bold text-slate-300">
+                ${s.diary_count || 0} entries
+              </td>
+              <td class="p-3 text-right">
+                <button onclick="viewStudentDiary('${s.reg_no}', '${s.name}')" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[11px] font-bold transition-premium cursor-pointer shadow-md">
+                  View Data
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+    }
+
+    function viewStudentDiary(regNo, name) {
+      document.getElementById('diaryModalName').innerText = name;
+      document.getElementById('diaryModalReg').innerText = regNo;
+      const tbody = document.getElementById('diaryTableBody');
+      tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-500">Loading diary entries...</td></tr>';
+      
+      const modal = document.getElementById('diaryModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      fetch(`/api/mentoring/diary/${regNo}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            tbody.innerHTML = '';
+            if (data.entries.length === 0) {
+              tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-500">No diary entries recorded for this student yet.</td></tr>';
+              return;
+            }
+            data.entries.forEach(entry => {
+              const tr = document.createElement('tr');
+              tr.className = 'border-b border-slate-800/40 text-xs';
+              
+              let statusBadge = entry.approval_status === 'Approved' 
+                ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Approved</span>`
+                : `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">${entry.approval_status}</span>`;
+
+              tr.innerHTML = `
+                <td class="p-3 font-mono text-slate-400">${entry.date}</td>
+                <td class="p-3 font-bold text-slate-300">${entry.category}<br><span class="text-[9px] font-mono text-slate-500">By: ${entry.logged_by_name}</span></td>
+                <td class="p-3 text-slate-300">
+                  <div class="mb-1"><strong class="text-slate-500">Notes:</strong> ${entry.discussion_notes}</div>
+                  ${entry.action_taken ? `<div><strong class="text-slate-500">Action:</strong> ${entry.action_taken}</div>` : ''}
+                </td>
+                <td class="p-3 text-right">${statusBadge}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+          } else {
+            tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-red-400">Failed to load entries.</td></tr>';
+          }
+        })
+        .catch(() => {
+          tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-red-400">Error loading entries.</td></tr>';
+        });
+    }
+
+    function closeDiaryModal() {
+      const modal = document.getElementById('diaryModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function assignStudentBatch(regNo, batchLabel) {
+      fetch('/api/mentoring/assign-batch', {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          classroom_id: selectedMentoringClassroomId,
+          reg_no: regNo,
+          batch_label: batchLabel
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          loadMentoringData(); // Refresh UI
+        } else {
+          showGlobalMessage(data.message, true);
+        }
+      })
+      .catch(() => showGlobalMessage('Failed to assign student.', true));
     }
   </script>
 </body>
 </html>
+

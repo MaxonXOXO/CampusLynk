@@ -82,7 +82,7 @@ class AuthController extends Controller
                 ]);
 
                 // Determine redirect route based on role
-                $route = '/dashboard/faculty';
+                $route = '/dashboard/lecturer';
                 if ($staff->designation === 'Super_Admin') {
                     $route = '/dashboard/superadmin';
                 } elseif ($staff->designation === 'Admin') {
@@ -91,8 +91,14 @@ class AuthController extends Controller
                     $route = '/dashboard/principal';
                 } elseif ($staff->designation === 'HOD') {
                     $route = '/dashboard/hod';
-                } elseif ($staff->designation === 'Faculty') {
-                    $route = '/dashboard/faculty';
+                } elseif ($staff->designation === 'Tutor') {
+                    $route = '/dashboard/tutor';
+                } elseif ($staff->designation === 'Gen_Dept_Coordinator_Aided') {
+                    $route = '/dashboard/general-coordinator-aided';
+                } elseif ($staff->designation === 'Gen_Dept_Coordinator_Self_Finance') {
+                    $route = '/dashboard/general-coordinator-sf';
+                } elseif ($staff->designation === 'Lecturer') {
+                    $route = '/dashboard/lecturer';
                 } elseif ($staff->designation === 'Demonstrator') {
                     $route = '/dashboard/demonstrator';
                 } elseif ($staff->designation === 'Trade_Instructor') {
@@ -152,6 +158,14 @@ class AuthController extends Controller
         $startYear = $isLET ? ($admYear - 1) : $admYear;
         $endYear = $startYear + 3;
         $classroomId = "{$branchCode}_{$startYear}_{$endYear}";
+
+        // Only assign if the batch has been created by the HOD.
+        // If the HOD hasn't created the batch yet, leave classroom_id as null.
+        // The student will be backfilled when the HOD creates the batch later.
+        $batchExists = \App\Models\ClassManagement::where('classroom_id', $classroomId)->exists();
+        if (!$batchExists) {
+            $classroomId = null;
+        }
 
         // Save Photo if uploaded
         $photoPath = null;
