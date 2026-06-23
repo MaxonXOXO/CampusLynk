@@ -114,30 +114,68 @@
         </div>
 
         <!-- Exam Area -->
-        <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl p-8 text-center fade-up">
+        <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl p-8 text-center fade-up" id="examAreaIdle">
           <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500/10 text-blue-400 mb-4">
             <span class="material-symbols-rounded text-3xl">school</span>
           </div>
           <h3 class="font-black text-slate-200 text-base mb-2">Online Exam Module</h3>
-          <p class="text-xs text-slate-400 leading-relaxed max-w-md mx-auto">
-            Your active online tests from the <strong class="text-slate-300">{{ session('classroomId', 'your class') }}</strong> will appear here when scheduled by your Tutor or Faculty. Check back when an exam is announced.
+          <p class="text-xs text-slate-400 leading-relaxed max-w-md mx-auto mb-6">
+            Your active online tests from the <strong class="text-slate-300">{{ session('classroomId', 'your class') }}</strong> will appear here when scheduled by your Tutor or Faculty.
           </p>
-          <div class="mt-6 p-4 bg-slate-900/60 border border-slate-800/60 rounded-xl text-left max-w-sm mx-auto">
-            <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2">Your Details</p>
-            <div class="space-y-1.5">
-              <div class="flex justify-between text-xs">
-                <span class="text-slate-500">Register No</span>
-                <span class="font-mono font-bold text-slate-200">{{ session('userId') }}</span>
-              </div>
-              <div class="flex justify-between text-xs">
-                <span class="text-slate-500">Branch</span>
-                <span class="font-bold text-slate-200">{{ session('userBranch') }}</span>
-              </div>
-              <div class="flex justify-between text-xs">
-                <span class="text-slate-500">Classroom</span>
-                <span class="font-mono font-bold text-slate-200">{{ session('classroomId', '—') }}</span>
+
+          <!-- List Active Tests here -->
+          <div id="studentActiveTestsList" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto text-left">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- LIVE TEST ENGINE MODAL (Hidden by default) -->
+        <div id="testEngineModal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col">
+          <!-- Top Bar -->
+          <div class="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 shrink-0">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-rounded text-purple-500 text-2xl">devices</span>
+              <div>
+                <h3 id="liveTestName" class="font-bold text-sm text-white leading-tight">Test Name</h3>
+                <span class="text-[10px] text-slate-400 font-mono" id="liveTestReg">{{ session('userId') }}</span>
               </div>
             </div>
+            <div class="flex items-center gap-4">
+              <div class="bg-slate-950 border border-slate-800 px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold shadow-inner">
+                <span class="material-symbols-rounded text-red-400 text-lg">timer</span>
+                <span id="liveTimer" class="text-red-400 font-mono tracking-widest">00:00:00</span>
+              </div>
+              <button onclick="submitTest()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-1.5 rounded-full font-bold text-xs transition-premium shadow-lg shadow-purple-600/20">Submit Final</button>
+            </div>
+          </div>
+
+          <!-- Question Area -->
+          <div class="flex-grow overflow-y-auto p-6 md:p-12" id="testQuestionsContainer">
+             <!-- Render questions here -->
+          </div>
+        </div>
+
+        <!-- TEST RESULT MODAL (Hidden by default) -->
+        <div id="testResultModal" class="hidden fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex items-center justify-center p-4">
+          <div class="bg-slate-950 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center transform scale-95 transition-premium" id="resultModalBox">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/10 text-emerald-400 mb-4 border border-emerald-500/20">
+              <span class="material-symbols-rounded text-4xl">verified</span>
+            </div>
+            <h2 class="text-2xl font-black text-white mb-1">Test Completed!</h2>
+            <p class="text-sm text-slate-400 mb-6">Your responses have been saved securely.</p>
+            
+            <div class="grid grid-cols-2 gap-4 mb-8">
+              <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
+                <span class="text-[10px] uppercase font-black tracking-wider text-slate-500 block mb-1">Total Score</span>
+                <span class="text-3xl font-black text-emerald-400" id="resultScore">0/0</span>
+              </div>
+              <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
+                <span class="text-[10px] uppercase font-black tracking-wider text-slate-500 block mb-1">Percentage</span>
+                <span class="text-3xl font-black text-blue-400" id="resultPercent">0%</span>
+              </div>
+            </div>
+
+            <button onclick="closeResultModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-sm transition-premium">Return to Dashboard</button>
           </div>
         </div>
       </div>
@@ -293,12 +331,174 @@
       });
     }
 
-    // Init stub stats
+    // Init stub stats and load tests
     document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('statActiveTests').innerText = '0';
-      document.getElementById('statSubmitted').innerText = '0';
-      document.getElementById('statPending').innerText = '0';
+      loadStudentTests();
     });
+
+    // TEST ENGINE LOGIC
+    let currentTestId = null;
+    let timerInterval = null;
+    let endTimeMs = null;
+
+    function loadStudentTests() {
+      fetch('/api/student/online-tests')
+        .then(res => res.json())
+        .then(data => {
+          let statPending = 0;
+          let statSubmitted = 0;
+          let container = document.getElementById('studentActiveTestsList');
+          if (data.status === 'SUCCESS' && data.data.length > 0) {
+            let html = '';
+            data.data.forEach(t => {
+              if (t.my_attempts > 0) statSubmitted++;
+              if (t.can_take) statPending++;
+
+              let actionHtml = '';
+              if (t.can_take) {
+                actionHtml = `<button onclick="startOnlineTest('${t.test_id}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded font-bold text-xs transition-premium">Start Test</button>`;
+              } else {
+                actionHtml = `<div class="w-full py-2 bg-emerald-900/40 text-emerald-400 rounded font-bold text-xs text-center border border-emerald-800/50">Best Score: ${t.best_score}</div>`;
+              }
+
+              html += `
+                <div class="bg-slate-900/80 border border-slate-700/60 p-4 rounded-xl flex flex-col justify-between">
+                  <div>
+                    <h4 class="font-black text-sm text-slate-200 mb-1">${t.test_name}</h4>
+                    <p class="text-[10px] text-slate-400 mb-3 font-mono">Subject: ${t.subject_code} | Duration: ${t.duration}m</p>
+                    <div class="flex gap-2 mb-4 text-[9px] font-bold">
+                      <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">MCQs: ${t.mcq_count}</span>
+                      <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">Attempts: ${t.my_attempts}/${t.max_attempts}</span>
+                    </div>
+                  </div>
+                  ${actionHtml}
+                </div>
+              `;
+            });
+            container.innerHTML = html;
+          } else {
+            container.innerHTML = `<div class="col-span-full p-4 bg-slate-900/60 border border-slate-800/60 rounded-xl text-center text-sm text-slate-500">No active tests available right now.</div>`;
+          }
+
+          document.getElementById('statActiveTests').innerText = data.data.length || '0';
+          document.getElementById('statPending').innerText = statPending;
+          document.getElementById('statSubmitted').innerText = statSubmitted;
+        });
+    }
+
+    function startOnlineTest(testId) {
+      if(!confirm("Are you sure you want to start this test? The timer will begin immediately.")) return;
+      
+      fetch(`/api/student/online-tests/${testId}/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          currentTestId = testId;
+          renderTestEngine(data.questions, data.duration);
+        } else {
+          alert(data.message || "Could not start test.");
+        }
+      });
+    }
+
+    function renderTestEngine(questions, durationMins) {
+      document.getElementById('examAreaIdle').classList.add('hidden');
+      document.getElementById('testEngineModal').classList.remove('hidden');
+
+      let html = '<div class="max-w-3xl mx-auto space-y-6 pb-20">';
+      questions.forEach((q, idx) => {
+        let optionsHtml = '';
+        q.options.forEach((opt, oIdx) => {
+          optionsHtml += `
+            <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-700/50 bg-slate-900/50 cursor-pointer hover:border-purple-500/50 hover:bg-slate-800 transition-premium">
+              <input type="radio" name="q_${idx}" value="${opt}" class="w-4 h-4 text-purple-500 bg-slate-950 border-slate-600 focus:ring-purple-600">
+              <span class="text-sm text-slate-300">${opt}</span>
+            </label>
+          `;
+        });
+        html += `
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-lg">
+             <div class="flex items-start gap-4 mb-4">
+               <span class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center font-black text-sm border border-purple-500/20">${idx+1}</span>
+               <h4 class="text-base font-bold text-slate-100 mt-1">${q.q}</h4>
+             </div>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-12">
+               ${optionsHtml}
+             </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      document.getElementById('testQuestionsContainer').innerHTML = html;
+
+      // Start Timer
+      endTimeMs = Date.now() + (durationMins * 60 * 1000);
+      timerInterval = setInterval(updateTimer, 1000);
+      updateTimer();
+    }
+
+    function updateTimer() {
+      let now = Date.now();
+      let diff = endTimeMs - now;
+      if (diff <= 0) {
+        clearInterval(timerInterval);
+        document.getElementById('liveTimer').innerText = "00:00:00";
+        alert("Time is up! Auto-submitting your test.");
+        submitTest();
+        return;
+      }
+      
+      let h = Math.floor(diff / (1000 * 60 * 60));
+      let m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      let s = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      document.getElementById('liveTimer').innerText = 
+        (h < 10 ? '0'+h : h) + ':' + 
+        (m < 10 ? '0'+m : m) + ':' + 
+        (s < 10 ? '0'+s : s);
+    }
+
+    function submitTest() {
+      if(!currentTestId) return;
+      if(timerInterval) clearInterval(timerInterval);
+
+      // Collect answers
+      const formContainers = document.getElementById('testQuestionsContainer').querySelectorAll('.bg-slate-950');
+      let answers = {};
+      formContainers.forEach((container, idx) => {
+        let checked = container.querySelector(`input[name="q_${idx}"]:checked`);
+        answers[idx] = checked ? checked.value : null;
+      });
+
+      fetch(`/api/student/online-tests/${currentTestId}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({ answers })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          // Hide engine, show result modal
+          document.getElementById('testEngineModal').classList.add('hidden');
+          document.getElementById('testResultModal').classList.remove('hidden');
+          setTimeout(() => document.getElementById('resultModalBox').classList.remove('scale-95'), 50);
+
+          document.getElementById('resultScore').innerText = `${data.summary.score}/${data.summary.total}`;
+          document.getElementById('resultPercent').innerText = `${data.summary.percentage}%`;
+        } else {
+          alert(data.message || "Submission failed.");
+        }
+      });
+    }
+
+    function closeResultModal() {
+      document.getElementById('testResultModal').classList.add('hidden');
+      document.getElementById('examAreaIdle').classList.remove('hidden');
+      loadStudentTests(); // refresh the list
+    }
   </script>
 
 </body>

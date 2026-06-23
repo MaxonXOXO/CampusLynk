@@ -509,27 +509,61 @@ class ClassroomController extends Controller
             return response()->json(['status' => 'ERROR', 'message' => 'This paper is locked and cannot be regenerated.']);
         }
 
-        // Mock Question Pools (categorized by type and implicit difficulty)
+        // Mock Question Pools with Answer Points
         $pools = [
             'CO1' => [
-                'short' => ['Define embedded systems.', 'List two applications of embedded systems.', 'What is a microcontroller?', 'Define power constraints.', 'What is real-time performance?', 'State the role of memory in embedded systems.', 'Mention two types of sensors.', 'What is an actuator?'],
-                'medium' => ['Explain the components of an embedded system.', 'Compare microprocessors and microcontrollers.', 'Discuss the classification of embedded systems.', 'Explain the memory architecture of a generic microcontroller.', 'Discuss the role of communication interfaces.'],
-                'long' => ['Describe the design challenges and metrics in embedded systems with real-world automotive examples.', 'Provide a comprehensive overview of the hardware and software architecture of a typical embedded system.', 'Analyze the evolution of embedded systems and their impact on modern industrial automation.']
+                'short' => [
+                    ['q' => 'Define embedded systems.', 'ans' => ['A microprocessor-based system designed to perform a dedicated function.', 'Contains both hardware and software tightly coupled.']],
+                    ['q' => 'List two applications of embedded systems.', 'ans' => ['Automotive engine control units (ECU).', 'Home appliances like washing machines or microwaves.']],
+                    ['q' => 'What is a microcontroller?', 'ans' => ['A compact integrated circuit designed to govern a specific operation.', 'Includes a processor, memory, and I/O peripherals on a single chip.']]
+                ],
+                'medium' => [
+                    ['q' => 'Explain the components of an embedded system.', 'ans' => ['Hardware: Processor, Memory, Timers, I/O ports.', 'Software: Application code, RTOS (optional), device drivers.', 'Mechanical components: Packaging, cooling.']],
+                    ['q' => 'Compare microprocessors and microcontrollers.', 'ans' => ['Microprocessor: CPU only, external memory/IO, high power, general purpose.', 'Microcontroller: CPU + Memory + IO on chip, low power, application specific.']]
+                ],
+                'long' => [
+                    ['q' => 'Describe the design challenges and metrics in embedded systems.', 'ans' => ['Power consumption: Must be optimized for battery life.', 'Size and weight constraints for portability.', 'Real-time performance: Strict deadlines for task completion.', 'Cost constraints for mass production.', 'Reliability and safety, especially in medical or automotive fields.']]
+                ]
             ],
             'CO2' => [
-                'short' => ['What is the AVR family?', 'List the ports in Atmega32.', 'Define watchdog timer.', 'What is an interrupt?', 'State the size of the EEPROM in Atmega32.', 'What is a status register?', 'List two timer modes.', 'Define clock frequency.'],
-                'medium' => ['Explain the timer operations in AVR.', 'Discuss the memory organization of Atmega32.', 'Explain the criteria for selecting a microcontroller.', 'Describe the interrupt handling mechanism in AVR.', 'Discuss the I/O port structure in AVR.'],
-                'long' => ['Draw and explain the complete internal architecture and block diagram of the Atmega32 microcontroller.', 'Detail the register-level configuration required for setting up a 16-bit timer with interrupts in Atmega32.', 'Compare the architecture of Atmega32 with the 8051 microcontroller in detail.']
+                'short' => [
+                    ['q' => 'What is the AVR family?', 'ans' => ['A family of 8-bit RISC microcontrollers developed by Atmel.', 'Features a modified Harvard architecture.']],
+                    ['q' => 'List the ports in Atmega32.', 'ans' => ['PORTA, PORTB, PORTC, PORTD.', 'Each port is 8-bit wide and bidirectional.']],
+                    ['q' => 'Define watchdog timer.', 'ans' => ['A hardware timer that automatically resets the microcontroller if the software hangs or fails to execute properly.']]
+                ],
+                'medium' => [
+                    ['q' => 'Discuss the memory organization of Atmega32.', 'ans' => ['32KB of In-System Programmable Flash (for program code).', '1KB EEPROM (for non-volatile data storage).', '2KB Internal SRAM (for variables and stack).']],
+                    ['q' => 'Explain the criteria for selecting a microcontroller.', 'ans' => ['Processing power (8-bit vs 32-bit, clock speed).', 'Memory requirements (Flash, RAM size).', 'Number of I/O pins and specific peripherals (ADC, Timers, UART).', 'Power consumption and cost.']]
+                ],
+                'long' => [
+                    ['q' => 'Draw and explain the complete internal architecture and block diagram of the Atmega32.', 'ans' => ['Draw block diagram showing ALU, Registers, Flash, SRAM, EEPROM, and Peripherals.', 'Explain the Harvard architecture (separate data and instruction buses).', 'Detail the role of the General Purpose Working Registers (R0-R31).', 'Explain the status register (SREG) and its flags (C, Z, N, V, S, H, T, I).']]
+                ]
             ],
             'CO3' => [
-                'short' => ['What is a Seven Segment Display?', 'Define PWM.', 'What is an optocoupler?', 'List two motor types.', 'What is an LCD?', 'Why use a relay?', 'Define debouncing.', 'What is a stepper motor?'],
-                'medium' => ['Explain the working of an optocoupler.', 'Discuss how to interface a push button.', 'Explain the principle of a stepper motor.', 'Write an algorithm to interface an LCD.', 'Discuss the use of PWM for motor control.'],
-                'long' => ['Design a complete system to interface a 4x4 keypad and a 16x2 LCD with an AVR microcontroller, including the schematic.', 'Explain the detailed working principle and interfacing of a DC motor using an L293D driver with AVR.', 'Provide a comprehensive guide on interfacing multiple high-power relays using opto-isolators.']
+                'short' => [
+                    ['q' => 'What is a Seven Segment Display?', 'ans' => ['An electronic display device for displaying decimal numerals.', 'Comprises seven LED segments arranged in a figure-8 pattern.']],
+                    ['q' => 'Define PWM.', 'ans' => ['Pulse Width Modulation.', 'A technique used to encode a message into a pulsing signal, controlling average power delivered to a load (e.g., motor speed).']]
+                ],
+                'medium' => [
+                    ['q' => 'Explain the working of an optocoupler.', 'ans' => ['An electronic component that transfers electrical signals between two isolated circuits using light.', 'Prevents high voltages from affecting the system receiving the signal.', 'Contains an LED and a phototransistor.']],
+                    ['q' => 'Write an algorithm to interface an LCD.', 'ans' => ['Initialize the LCD by sending commands (e.g., 8-bit mode, 2 lines).', 'Set RS=0, RW=0, and send command data to data lines, pulse EN.', 'Set RS=1, RW=0, and send character data to data lines, pulse EN to write text.']]
+                ],
+                'long' => [
+                    ['q' => 'Explain the detailed working principle and interfacing of a DC motor using an L293D driver with AVR.', 'ans' => ['Explain the need for a motor driver (microcontroller cannot provide enough current).', 'Describe the L293D dual H-bridge motor driver IC.', 'Draw the circuit diagram connecting AVR, L293D, and the DC Motor.', 'Explain how setting IN1 and IN2 controls the direction (forward, reverse, stop).', 'Explain how PWM on the EN pin controls the speed.']]
+                ]
             ],
             'CO4' => [
-                'short' => ['Define RTOS.', 'What is a task?', 'Define semaphore.', 'What is priority inversion?', 'List two scheduling algorithms.', 'What is shared memory?', 'Define mutex.', 'What is context switching?'],
-                'medium' => ['Explain preemptive scheduling.', 'Discuss inter-process communication.', 'Explain priority inheritance.', 'Describe task states in RTOS.', 'Discuss memory management in RTOS.'],
-                'long' => ['Explain the concepts of tasks, threads, and scheduling in a Real-Time Operating System in detail with diagrams.', 'Analyze the priority inversion problem and explain how the Priority Inheritance Protocol solves it.', 'Compare hard, firm, and soft real-time systems with examples and their respective scheduling constraints.']
+                'short' => [
+                    ['q' => 'Define RTOS.', 'ans' => ['Real-Time Operating System.', 'An OS intended to serve real-time applications that process data as it comes in, with strict timing constraints.']],
+                    ['q' => 'What is a task?', 'ans' => ['A basic unit of execution in an RTOS.', 'Has its own context (registers, stack) and state (running, ready, blocked).']]
+                ],
+                'medium' => [
+                    ['q' => 'Explain preemptive scheduling.', 'ans' => ['A scheduling method where a higher priority task can interrupt and take CPU control from a lower priority running task.', 'Ensures critical tasks meet their deadlines.']],
+                    ['q' => 'Describe task states in RTOS.', 'ans' => ['Running: Task is currently executing on the CPU.', 'Ready: Task is ready to execute but waiting for CPU time.', 'Blocked/Waiting: Task is waiting for an event (timer, semaphore, etc.).']]
+                ],
+                'long' => [
+                    ['q' => 'Analyze the priority inversion problem and explain how the Priority Inheritance Protocol solves it.', 'ans' => ['Priority Inversion occurs when a high-priority task is blocked waiting for a resource held by a low-priority task, while a medium-priority task preempts the low-priority task.', 'This unbounded delay violates real-time constraints.', 'Priority Inheritance solves this by temporarily elevating the priority of the low-priority task holding the resource to match the high-priority task waiting for it.', 'Once the resource is released, the low-priority task returns to its original priority.']]
+                ]
             ]
         ];
 
@@ -549,13 +583,50 @@ class ClassroomController extends Controller
             }
             $selected = array_slice($shuffled, 0, $qCount);
 
+            // Rubric builder based on marks and cognitive level
+            $buildRubric = function($marks, $level) {
+                $rubricLines = [];
+                if ($marks <= 2) {
+                    $rubricLines = [
+                        ['desc' => 'Correct definition / answer', 'mark' => $marks]
+                    ];
+                } elseif ($marks <= 4) {
+                    $rubricLines = [
+                        ['desc' => 'Key definition / concept', 'mark' => 1],
+                        ['desc' => 'Explanation / relevant points (' . ($marks - 1) . ' points @ 1 mark each)', 'mark' => ($marks - 1)]
+                    ];
+                } elseif ($marks <= 7) {
+                    $half = (int)floor($marks / 2);
+                    $rest = $marks - $half - 1;
+                    $rubricLines = [
+                        ['desc' => 'Definition / Concept statement', 'mark' => 1],
+                        ['desc' => 'Explanation with supporting points (' . $half . ' points)', 'mark' => $half],
+                        ['desc' => $level === 'A' ? 'Application / Analysis / Design (' . $rest . ' pts)' : 'Diagram / Example (' . $rest . ' pts)', 'mark' => $rest]
+                    ];
+                } else {
+                    // High marks (8+)
+                    $defMark = 1;
+                    $diagMark = (int)floor($marks * 0.35);
+                    $expMark = $marks - $defMark - $diagMark;
+                    $rubricLines = [
+                        ['desc' => 'Definition / Introduction', 'mark' => $defMark],
+                        ['desc' => 'Diagram / Block diagram / Schematic (labeled)', 'mark' => $diagMark],
+                        ['desc' => 'Explanation of working / points (' . ceil($expMark / 2) . ' pts @ 1 each)', 'mark' => ceil($expMark / 2)],
+                        ['desc' => 'Advantages / Applications / Conclusion (' . floor($expMark / 2) . ' pts)', 'mark' => floor($expMark / 2)]
+                    ];
+                }
+                return $rubricLines;
+            };
+
             $questions = [];
-            foreach ($selected as $q) {
+            foreach ($selected as $qObj) {
                 $level = $levels[array_rand($levels)];
                 $questions[] = [
-                    'q' => $q,
+                    'q' => $qObj['q'],
+                    'ans' => $qObj['ans'] ?? [],
                     'level' => $level,
-                    'marks' => $marksPerQ
+                    'marks' => $marksPerQ,
+                    'rubric' => $buildRubric($marksPerQ, $level)
                 ];
             }
             return [
@@ -671,12 +742,15 @@ class ClassroomController extends Controller
                     foreach ($testData[$partKey]['questions'] as $q) {
                         QuestionBank::create([
                             'department' => $dept,
+                            'branch_code' => session('userBranch', 'EL'),
                             'semester' => 'N/A', // Semester not directly in Classroom ctx
                             'subject_code' => $subjectCode,
                             'part_type' => $partType,
                             'cognitive_level' => $q['level'] ?? 'U',
                             'question_text' => $q['q'],
-                            'marks' => $q['marks'] ?? 0
+                            'marks' => $q['marks'] ?? 0,
+                            'rubric' => $q['rubric'] ?? null,
+                            'correct_answer' => isset($q['ans']) ? json_encode($q['ans']) : null
                         ]);
                     }
                 }

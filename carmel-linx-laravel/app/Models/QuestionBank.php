@@ -23,15 +23,19 @@ class QuestionBank extends Model
         'branch_code',
         'subject_code',
         'type',
+        'part_type',
+        'cognitive_level',
         'question_text',
         'options',
         'correct_answer',
         'co_tag',
         'marks',
+        'rubric',
     ];
 
     protected $casts = [
-        'options' => 'array', // Automatically serialize/deserialize JSON arrays from DB
+        'options' => 'array',
+        'rubric'  => 'array',
     ];
 
     /**

@@ -9,6 +9,11 @@
   <!-- Google Icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   
+  <!-- Flatpickr for premium Date/Time selection -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  
   <style>
     .transition-premium {
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -915,6 +920,56 @@
             <p class="text-[10px] text-slate-500 mt-1">Configure and generate precise Cognitive Level based question papers for each CO.</p>
           </div>
         </div>
+      `;
+
+      // Build the marks entry table FIRST so it's at the top
+      let marksEntryHtml = `
+        <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner no-print mb-6">
+          <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-premium" onclick="document.getElementById('manualMarksWrapper').classList.toggle('hidden'); document.getElementById('marksToggleIcon').innerText = document.getElementById('manualMarksWrapper').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
+            <div class="font-bold text-[11px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
+              <span class="material-symbols-rounded text-sm text-emerald-400">edit_document</span> Enter Manual Marks
+              <span id="marksToggleIcon" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
+            </div>
+            <button onclick="event.stopPropagation(); saveSummativeMarks('${currentSubjectId}')" class="px-3 py-1.5 bg-emerald-600/80 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-premium">
+              Save Written Marks
+            </button>
+          </div>
+          <div id="manualMarksWrapper" class="hidden overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[600px]">
+              <thead>
+                <tr class="bg-slate-900/40 text-[9px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800/60">
+                  <th class="p-3 w-16">Reg No</th>
+                  <th class="p-3">Student Name</th>
+                  <th class="p-3 text-center w-24">CO1</th>
+                  <th class="p-3 text-center w-24">CO2</th>
+                  <th class="p-3 text-center w-24">CO3</th>
+                  <th class="p-3 text-center w-24">CO4</th>
+                </tr>
+              </thead>
+              <tbody id="summativeMarkEntryTbody">
+      `;
+
+      if (students && students.length > 0) {
+        students.forEach(student => {
+          marksEntryHtml += `
+            <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[11px]" data-reg="${student.reg_no}">
+              <td class="p-3 font-mono text-slate-500">${student.reg_no}</td>
+              <td class="p-3 font-bold text-slate-300">${student.name}</td>
+              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO1"></td>
+              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO2"></td>
+              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO3"></td>
+              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO4"></td>
+            </tr>
+          `;
+        });
+      } else {
+        marksEntryHtml += `<tr><td colspan="6" class="p-6 text-center text-slate-500 text-xs font-bold">No students found.</td></tr>`;
+      }
+      marksEntryHtml += `</tbody></table></div></div>`;
+
+      html += marksEntryHtml;
+
+      html += `
         <div id="summativePapersContainer" class="grid-cols-1 md:grid-cols-2 gap-4 mb-6 no-print" style="display: grid;">
       `;
 
@@ -931,8 +986,15 @@
             generatedContent = `
               <div class="mt-4 pt-4 border-t border-slate-800/60" id="paper-${co.id}">
                 <div class="flex justify-between items-center mb-2">
-                  <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Generated Paper</span>
-                  <button onclick="printSummativePaper('${co.id}', ${testData.total_marks})" class="text-[10px] bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded border border-slate-700 text-slate-300 transition-premium">Print Paper</button>
+                  <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Generated Question Paper</span>
+                  <div class="flex items-center gap-2">
+                    <button onclick="printSummativePaper('${co.id}', ${testData.total_marks})" class="flex items-center gap-1 text-[10px] bg-blue-700/30 hover:bg-blue-600 border border-blue-600/40 px-2 py-1 rounded text-blue-300 hover:text-white transition-premium">
+                      <span class="material-symbols-rounded text-[12px]">print</span> Print Q Paper
+                    </button>
+                    <button onclick="printAnswerKey('${co.id}', ${testData.total_marks})" class="flex items-center gap-1 text-[10px] bg-amber-700/30 hover:bg-amber-600 border border-amber-600/40 px-2 py-1 rounded text-amber-300 hover:text-white transition-premium">
+                      <span class="material-symbols-rounded text-[12px]">assignment</span> Print Answer Key
+                    </button>
+                  </div>
                 </div>
                 <div class="text-[10px] text-slate-300 bg-slate-950/50 p-3 rounded-lg border border-slate-800/40">
                   ${partAStr ? `<div class="font-bold mb-1 text-slate-400">PART A (Short Answers)</div><ul class="list-decimal pl-4 mb-3">${partAStr}</ul>` : ''}
@@ -976,15 +1038,18 @@
 
           html += `
             <div class="bg-slate-900/50 border border-slate-800/60 p-4 rounded-xl relative ${isLocked ? 'ring-1 ring-amber-500/30' : ''}">
-              <div class="flex items-center justify-between mb-3 border-b border-slate-800/60 pb-2">
+              <div class="flex items-center justify-between mb-3 border-b border-slate-800/60 pb-2 cursor-pointer hover:opacity-80 transition-premium" onclick="document.getElementById('co_body_${co.id}').classList.toggle('hidden'); document.getElementById('co_icon_${co.id}').innerText = document.getElementById('co_body_${co.id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
                 <h5 class="text-xs font-black text-blue-400 flex items-center gap-1">
+                  <span id="co_icon_${co.id}" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
                   ${co.id} Written Test ${lockStr}
                 </h5>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2" onclick="event.stopPropagation()">
                   ${dateInputStr}
                   ${lockBtn}
                 </div>
               </div>
+
+              <div id="co_body_${co.id}" class="hidden pt-2">
 
               <div class="flex items-center gap-3 mb-3 mt-1 text-[9px] font-bold text-slate-500 bg-slate-950/50 p-1.5 rounded-lg border border-slate-800/40 w-max">
                  <label class="flex items-center gap-1 cursor-pointer hover:text-blue-400 transition-premium">
@@ -1032,60 +1097,92 @@
               ${genBtn}
 
               ${generatedContent}
+              </div> <!-- close co_body -->
             </div>
           `;
         });
       }
 
-      html += `</div>
-        <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner no-print mt-6">
-          <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 flex items-center justify-between">
+      html += `</div>`;
+
+      // Online MCQ Test Setup (Collapsible)
+      let onlineTestHtml = `
+        <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner no-print mb-6">
+          <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-premium" onclick="document.getElementById('onlineTestWrapper').classList.toggle('hidden'); document.getElementById('onlineTestIcon').innerText = document.getElementById('onlineTestWrapper').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
             <div class="font-bold text-[11px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-sm text-sky-400">edit_document</span> Enter Manual Marks
+              <span class="material-symbols-rounded text-sm text-purple-400">devices</span> Online MCQ Tests Setup
+              <span id="onlineTestIcon" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
             </div>
-            <button onclick="saveSummativeMarks('${currentSubjectId}')" class="px-3 py-1.5 bg-emerald-600/80 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-premium">
-              Save Written Marks
-            </button>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[600px]">
-              <thead>
-                <tr class="bg-slate-900/40 text-[9px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800/60">
-                  <th class="p-3 w-16">Reg No</th>
-                  <th class="p-3">Student Name</th>
-                  <th class="p-3 text-center w-24">CO1</th>
-                  <th class="p-3 text-center w-24">CO2</th>
-                  <th class="p-3 text-center w-24">CO3</th>
-                  <th class="p-3 text-center w-24">CO4</th>
-                </tr>
-              </thead>
-              <tbody id="summativeMarkEntryTbody">
+          <div id="onlineTestWrapper" class="hidden p-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Configuration Form -->
+              <div class="col-span-2 bg-slate-900/50 p-4 rounded-lg border border-slate-800/50">
+                <h5 class="text-xs font-bold text-slate-300 mb-3 border-b border-slate-800/60 pb-2">Publish New Online Test</h5>
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                  <div>
+                    <label class="block text-[9px] text-slate-500 font-bold mb-1 uppercase">Target COs (Multiple)</label>
+                    <select id="online_test_cos" multiple class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500 h-[60px]">
+                      ${cos ? cos.map(co => `<option value="${co.id}">${co.id}</option>`).join('') : ''}
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-[9px] text-slate-500 font-bold mb-1 uppercase">Max Attempts</label>
+                    <input type="number" id="online_test_attempts" value="1" min="1" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
+                    <label class="block text-[9px] text-slate-500 font-bold mt-2 mb-1 uppercase">Duration (Minutes)</label>
+                    <input type="number" id="online_test_duration" value="30" min="5" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                  <div>
+                    <label class="block text-[9px] text-slate-500 font-bold mb-1 uppercase">Start Time</label>
+                    <input type="text" id="online_test_start" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500" placeholder="Select Date & Time">
+                  </div>
+                  <div>
+                    <label class="block text-[9px] text-slate-500 font-bold mb-1 uppercase">End Time (Deadline)</label>
+                    <input type="text" id="online_test_end" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500" placeholder="Select Date & Time">
+                  </div>
+                </div>
+                <button onclick="publishOnlineTest('${currentSubjectId}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded-lg text-xs font-bold transition-premium flex items-center justify-center gap-2">
+                  <span class="material-symbols-rounded text-sm">rocket_launch</span> Generate & Publish to Students
+                </button>
+              </div>
+              
+              <!-- Active Tests Dashboard -->
+              <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-800/50">
+                <h5 class="text-xs font-bold text-slate-300 mb-3 border-b border-slate-800/60 pb-2">Active Online Tests</h5>
+                <div id="activeOnlineTestsList" class="space-y-2 text-[10px] text-slate-400">
+                   <div class="p-3 bg-slate-950 border border-slate-800 rounded text-center border-dashed">No active online tests found.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       `;
 
-      if (students && students.length > 0) {
-        students.forEach(student => {
-          let m = student.written_test_marks || {}; // Need backend to supply this or just leave empty for now
-          // actually getCourseDetails only supplied assignment_marks. For now let's just make inputs.
-          html += `
-            <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[11px]" data-reg="${student.reg_no}">
-              <td class="p-3 font-mono text-slate-500">${student.reg_no}</td>
-              <td class="p-3 font-bold text-slate-300">${student.name}</td>
-              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO1"></td>
-              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO2"></td>
-              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO3"></td>
-              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO4"></td>
-            </tr>
-          `;
-        });
-      } else {
-        html += `<tr><td colspan="6" class="p-6 text-center text-slate-500 text-xs font-bold">No students found.</td></tr>`;
-      }
+      html += onlineTestHtml;
 
-      html += `</tbody></table></div></div>
+      html += `
         <div id="printableExamArea" class="hidden no-print"></div>
       `;
 
       document.getElementById('summativeAssessmentContent').innerHTML = html;
+
+      // Initialize Flatpickr
+      if (typeof flatpickr !== 'undefined') {
+        flatpickr("#online_test_start", { 
+          enableTime: true, 
+          dateFormat: "Y-m-d H:i", 
+          time_24hr: false, 
+          minDate: "today" 
+        });
+        flatpickr("#online_test_end", { 
+          enableTime: true, 
+          dateFormat: "Y-m-d H:i", 
+          time_24hr: false, 
+          minDate: "today" 
+        });
+      }
     }
 
     function syncSummativeInputs(sourceCoId) {
@@ -1316,6 +1413,160 @@
       });
     }
 
+    function loadActiveOnlineTests(subjectId) {
+      fetch(`/api/classroom/${subjectId}/active-online-tests`)
+        .then(res => res.json())
+        .then(data => {
+          let listDiv = document.getElementById('activeOnlineTestsList');
+          if (!listDiv) return;
+          if (data.status === 'SUCCESS' && data.data && data.data.length > 0) {
+            let html = '';
+            data.data.forEach(t => {
+              html += `
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/80 mb-2">
+                  <div class="flex justify-between items-start mb-1">
+                    <h6 class="font-bold text-purple-400 text-[11px]">${t.test_name}</h6>
+                    <span class="bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded text-[9px] font-bold">${t.duration} Mins</span>
+                  </div>
+                  <div class="text-[9px] text-slate-500 mb-2">
+                    Start: ${t.start_time ? new Date(t.start_time).toLocaleString() : 'Now'}<br>
+                    Live Students: <span class="text-emerald-400 font-bold">${t.student_count || 0}</span> | Completed: <span class="text-blue-400 font-bold">${t.completed_count || 0}</span>
+                  </div>
+                  <button onclick="generateOnlineTestReport('${t.test_id}')" class="w-full py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700/50 flex items-center justify-center gap-1 transition-premium">
+                    <span class="material-symbols-rounded text-[11px]">download</span> Download Report PDF
+                  </button>
+                </div>
+              `;
+            });
+            listDiv.innerHTML = html;
+          } else {
+            listDiv.innerHTML = `<div class="p-3 bg-slate-950 border border-slate-800 rounded text-center border-dashed">No active online tests found.</div>`;
+          }
+        });
+    }
+
+    function publishOnlineTest(subjectId) {
+      const selectElement = document.getElementById('online_test_cos');
+      const selectedCos = Array.from(selectElement.selectedOptions).map(opt => opt.value);
+      const attempts = document.getElementById('online_test_attempts').value;
+      const duration = document.getElementById('online_test_duration').value;
+      const start = document.getElementById('online_test_start').value;
+      const end = document.getElementById('online_test_end').value;
+
+      if (selectedCos.length === 0) {
+        alert("Please select at least one CO.");
+        return;
+      }
+
+      fetch(`/api/classroom/${subjectId}/publish-online-test`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({ cos: selectedCos, attempts, duration, start, end })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert("Online Test successfully published!");
+          loadActiveOnlineTests(subjectId);
+          
+          // Clear inputs
+          selectElement.selectedIndex = -1;
+          if (document.getElementById('online_test_start')._flatpickr) document.getElementById('online_test_start')._flatpickr.clear();
+          if (document.getElementById('online_test_end')._flatpickr) document.getElementById('online_test_end')._flatpickr.clear();
+        } else {
+          alert(data.message || "Failed to publish test.");
+        }
+      });
+    }
+
+    function generateOnlineTestReport(testId) {
+      fetch(`/api/test-engine/report/${testId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            const test = data.test_info;
+            const attempts = data.report;
+            
+            let tableRows = '';
+            if(attempts && attempts.length > 0) {
+              attempts.forEach(a => {
+                 let start = new Date(a.start_time);
+                 let end = new Date(a.end_time);
+                 let timeTakenStr = '-';
+                 if(a.start_time && a.end_time) {
+                    let diffMs = end - start;
+                    let diffMins = Math.floor(diffMs / 60000);
+                    let diffSecs = Math.floor((diffMs % 60000) / 1000);
+                    timeTakenStr = `${diffMins}m ${diffSecs}s`;
+                 }
+                 
+                 tableRows += `
+                   <tr>
+                     <td style="padding: 8px; border: 1px solid #ddd; font-family: monospace;">${a.reg_no}</td>
+                     <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">${a.name}</td>
+                     <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${a.attempt_number}</td>
+                     <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${timeTakenStr}</td>
+                     <td style="padding: 8px; border: 1px solid #ddd; text-align: center; font-weight: bold; font-size: 14px;">${a.total_score}</td>
+                   </tr>
+                 `;
+              });
+            } else {
+              tableRows = `<tr><td colspan="5" style="padding: 16px; text-align: center; border: 1px solid #ddd;">No completed attempts yet.</td></tr>`;
+            }
+
+            const html = `<!DOCTYPE html>
+            <html>
+            <head>
+              <title>${test.test_name} - Report</title>
+              <style>
+                body { font-family: system-ui, -apple-system, sans-serif; padding: 40px; color: #111; }
+                h2 { text-align: center; margin-bottom: 5px; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 10px; display: inline-block; }
+                .meta { text-align: center; font-size: 14px; color: #555; margin-bottom: 30px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+                th { background: #f0f0f0; padding: 10px 8px; border: 1px solid #ddd; text-align: left; }
+                .center { text-align: center; }
+              </style>
+            </head>
+            <body>
+              <div style="text-align: center;">
+                <h2>Online Test Evaluation Report</h2>
+                <div class="meta">
+                  <strong>Test Name:</strong> ${test.test_name} <br>
+                  <strong>Subject Code:</strong> ${test.subject_code} <br>
+                  <strong>Total MCQs:</strong> ${test.mcq_count} | <strong>Duration:</strong> ${test.duration} Mins<br>
+                  <strong>Generated On:</strong> ${new Date().toLocaleString()}
+                </div>
+              </div>
+              
+              <table>
+                <thead>
+                  <tr>
+                    <th>Reg No</th>
+                    <th>Student Name</th>
+                    <th class="center">Attempts Used</th>
+                    <th class="center">Time Taken</th>
+                    <th class="center">Marks Obtained</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${tableRows}
+                </tbody>
+              </table>
+              <script>
+                window.onload = () => { window.print(); window.close(); }
+              <\/script>
+            </body>
+            </html>`;
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(html);
+            printWindow.document.close();
+          } else {
+            alert(data.message || "Failed to generate report.");
+          }
+        });
+    }
+
     function saveSummativeMarks(subjectId) {
       let marksPayload = [];
       const rows = document.querySelectorAll('#summativeMarkEntryTbody tr[data-reg]');
@@ -1436,6 +1687,150 @@
     <div class="dept-name">Department of ${deptName}</div>
     <div class="subject-info">${subjectName ? subjectName : 'Subject'} ${subjectCode ? '&nbsp;&mdash;&nbsp;<strong>' + subjectCode + '</strong>' : ''}</div>
     <div style="margin-top:6px;"><span class="exam-title">&nbsp;${coTag} &ndash; Written Test&nbsp;</span></div>
+    <div class="meta-row">
+      <span><strong>Time:</strong> 1.5 Hours</span>
+      <span><strong>Date:</strong> ${examDate}</span>
+      <span><strong>Max Marks:</strong> ${totalMarks}</span>
+    </div>
+  </div>
+  ${bodyHtml}
+</body>
+</html>`;
+
+      const pw = window.open('', '_blank', 'width=900,height=700');
+      pw.document.write(fullHtml);
+      pw.document.close();
+      pw.focus();
+      setTimeout(() => { pw.print(); }, 400);
+    }
+
+    function printAnswerKey(coTag, totalMarks) {
+      const data = currentSummativeTests[coTag];
+      if(!data) return;
+
+      const deptMap = {
+        'EL': 'ELECTRONICS ENGINEERING',
+        'CS': 'COMPUTER SCIENCE AND ENGINEERING',
+        'CE': 'CIVIL ENGINEERING',
+        'ME': 'MECHANICAL ENGINEERING',
+        'EE': 'ELECTRICAL AND ELECTRONICS ENGINEERING',
+        'IT': 'INFORMATION TECHNOLOGY',
+        'ECE': 'ELECTRONICS AND COMMUNICATION ENGINEERING'
+      };
+      const sessionBranch = "{{ session('userBranch', 'ENGINEERING') }}";
+      const subjectName = currentSubjectName;
+      const subjectCode = currentSubjectCode;
+      const deptName = deptMap[sessionBranch.toUpperCase()] || sessionBranch;
+      const examDate = data.date_of_exam
+        ? new Date(data.date_of_exam).toLocaleDateString('en-IN', {day:'2-digit', month:'long', year:'numeric'})
+        : 'TBA';
+
+      const buildRubricHtml = (rubric, marks) => {
+        // Fallback for older generated papers that don't have a rubric saved
+        if (!rubric || rubric.length === 0) {
+            if (marks <= 2) rubric = [{desc: 'Correct definition / answer', mark: marks}];
+            else if (marks <= 4) rubric = [{desc: 'Key definition / concept', mark: 1}, {desc: 'Explanation / relevant points', mark: marks - 1}];
+            else rubric = [{desc: 'Definition / Concept statement', mark: 1}, {desc: 'Explanation with supporting points', mark: Math.floor(marks/2)}, {desc: 'Diagram / Application', mark: marks - Math.floor(marks/2) - 1}];
+        }
+
+        return `<table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 4px; background: #fafafa;">
+          ${rubric.map(r => `<tr>
+            <td style="padding: 3px 6px; border: 1px solid #ddd;">${r.desc}</td>
+            <td style="padding: 3px 6px; text-align: center; width: 50px; border: 1px solid #ddd; font-weight: bold; color: #444;">${r.mark}</td>
+          </tr>`).join('')}
+        </table>`;
+      };
+
+      const buildRows = (part) => {
+        if (!part || !part.q_count || !part.questions) return '';
+        return part.questions.map((q, i) => {
+          let ansHtml = '';
+          if (q.ans && q.ans.length > 0) {
+            ansHtml = `<div style="margin-bottom: 8px; font-size: 12px; color: #333;">
+              <ul style="margin: 0; padding-left: 16px;">
+                ${q.ans.map(a => `<li style="margin-bottom: 3px;">${a}</li>`).join('')}
+              </ul>
+            </div>`;
+          }
+          
+          return `<tr>
+            <td style="width: 40px; text-align: center; vertical-align: top; padding: 10px 5px; border: 1px solid #000; font-weight: bold;">${i+1}</td>
+            <td style="vertical-align: top; padding: 10px; border: 1px solid #000;">
+              <div style="font-weight: 500; margin-bottom: 6px; font-size: 13px;">${q.q}</div>
+              ${ansHtml}
+              <div style="font-size: 11px; font-weight: bold; color: #555; margin-bottom: 2px; margin-top: 6px;">Marking Scheme / Answer Pointers:</div>
+              ${buildRubricHtml(q.rubric, q.marks)}
+            </td>
+            <td style="width: 80px; text-align: center; vertical-align: middle; padding: 10px 5px; border: 1px solid #000; font-size: 14px; font-weight: bold;">${q.marks}</td>
+            <td style="width: 60px; text-align: center; vertical-align: middle; padding: 10px 5px; border: 1px solid #000; font-size: 11px;">[${q.level}]</td>
+          </tr>`;
+        }).join('');
+      };
+
+      let bodyHtml = '';
+
+      const tableHeader = `
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <thead>
+            <tr>
+              <th style="padding: 8px; border: 1px solid #000; background: #eee; width: 40px;">Q.No</th>
+              <th style="padding: 8px; border: 1px solid #000; background: #eee;">Question & Expected Answer Key</th>
+              <th style="padding: 8px; border: 1px solid #000; background: #eee; width: 80px;">Marks</th>
+              <th style="padding: 8px; border: 1px solid #000; background: #eee; width: 60px;">Level</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      if (data.part_a && data.part_a.q_count > 0) {
+        bodyHtml += `
+          <h4 style="font-weight:bold; margin: 15px 0 8px; text-transform: uppercase; border-bottom: 2px solid #000; display: inline-block;">PART A <small style="font-weight:normal; font-size:12px;">(${data.part_a.q_count} × ${data.part_a.marks_per_q} = ${data.part_a.total_marks} Marks)</small></h4>
+          ${tableHeader}${buildRows(data.part_a)}</tbody></table>`;
+      }
+      if (data.part_b && data.part_b.q_count > 0) {
+        bodyHtml += `
+          <h4 style="font-weight:bold; margin: 15px 0 8px; text-transform: uppercase; border-bottom: 2px solid #000; display: inline-block;">PART B <small style="font-weight:normal; font-size:12px;">(${data.part_b.q_count} × ${data.part_b.marks_per_q} = ${data.part_b.total_marks} Marks)</small></h4>
+          ${tableHeader}${buildRows(data.part_b)}</tbody></table>`;
+      }
+      if (data.part_c && data.part_c.q_count > 0) {
+        bodyHtml += `
+          <h4 style="font-weight:bold; margin: 15px 0 8px; text-transform: uppercase; border-bottom: 2px solid #000; display: inline-block;">PART C <small style="font-weight:normal; font-size:12px;">(${data.part_c.q_count} × ${data.part_c.marks_per_q} = ${data.part_c.total_marks} Marks)</small></h4>
+          ${tableHeader}${buildRows(data.part_c)}</tbody></table>`;
+      }
+
+      const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Answer Key - ${coTag}</title>
+  <style>
+    @page { size: A4 portrait; margin: 1.5cm 2cm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13px;
+      color: #000;
+      background: #fff;
+    }
+    h2, h3, h4, p { margin: 0; padding: 0; }
+    .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px; }
+    .college-name { font-size: 21px; font-weight: bold; letter-spacing: 1px; }
+    .dept-name { font-size: 14px; font-weight: bold; text-transform: uppercase; margin-top: 3px; }
+    .subject-info { font-size: 12px; margin-top: 4px; color: #222; }
+    .exam-title { font-size: 14px; margin-top: 6px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #888; border-bottom: 1px solid #888; padding: 4px 0; display: inline-block; background-color: #f0f0f0; }
+    .meta-row { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 5px 3px; vertical-align: top; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="college-name">CARMEL ENGINEERING COLLEGE</div>
+    <div class="dept-name">Department of ${deptName}</div>
+    <div class="subject-info">${subjectName ? subjectName : 'Subject'} ${subjectCode ? '&nbsp;&mdash;&nbsp;<strong>' + subjectCode + '</strong>' : ''}</div>
+    <div style="margin-top:6px;"><span class="exam-title">&nbsp;${coTag} &ndash; ANSWER KEY & RUBRIC&nbsp;</span></div>
     <div class="meta-row">
       <span><strong>Time:</strong> 1.5 Hours</span>
       <span><strong>Date:</strong> ${examDate}</span>
