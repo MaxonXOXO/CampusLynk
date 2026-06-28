@@ -29,10 +29,10 @@
   <!-- Sidebar Navigation -->
   <aside class="w-full md:w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl">
     <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
-      <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center text-lg shadow-lg shadow-blue-500/20">CL</div>
+      <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-blue-500/20 text-lg">CL</div>
       <div>
-        <h2 class="font-extrabold text-sm tracking-wide">Carmel Linx</h2>
-        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Coordinator (SF)</span>
+        <h2 class="font-extrabold text-[10px] tracking-wide text-sm">Carmel Linx</h2>
+        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Coordinator (SF)</span>
       </div>
     </div>
 
@@ -40,17 +40,17 @@
     <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3">
       <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
       <div class="overflow-hidden">
-        <span class="font-bold text-xs block truncate text-slate-200">{{ session('userName') }}</span>
-        <span class="text-[9px] font-bold text-teal-400 block uppercase tracking-wider">General SF Coordinator</span>
+        <span class="font-bold text-[10px] block truncate text-slate-200 text-[10px] text-xs">{{ session('userName') }}</span>
+        <span class="text-[10px] font-bold text-teal-400 block uppercase tracking-wider">General SF Coordinator</span>
       </div>
     </div>
 
     <!-- Navigation Menus -->
     <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500">
+      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-[10px] flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-[10px] text-xs">
         <span class="material-symbols-rounded text-lg">dashboard</span> Overview
       </button>
-      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-[10px] text-xs">
         <span class="material-symbols-rounded text-lg">group</span> User Directory
       </button>
 
@@ -61,13 +61,13 @@
       @endphp
 
       @if($isTutor)
-      <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block">
+      <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block text-[10px] text-xs">
         <span class="material-symbols-rounded text-lg">admin_panel_settings</span> Tutor Console
       </a>
       @endif
 
       @if($isTutor || $isMentor)
-      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block mt-4">
+      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block mt-4 text-[10px] text-xs">
         <span class="material-symbols-rounded text-lg">diversity_3</span> My Mentoring
       </a>
       @endif
@@ -76,8 +76,8 @@
 
     <!-- Logout -->
     <div class="p-4 border-t border-slate-800/80">
-      <a href="/logout" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-xs flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium">
-        <span class="material-symbols-rounded text-base">logout</span> Sign Out
+      <a href="{{ url('/logout') }}" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-[10px] flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-[10px] text-xs">
+        <span class="material-symbols-rounded text-[10px] text-base">logout</span> Sign Out
       </a>
     </div>
   </aside>
@@ -87,8 +87,8 @@
     
     <!-- Top Header -->
     <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-10">
-      <h1 id="panelTitle" class="text-lg font-extrabold text-slate-100 tracking-tight">Overview</h1>
-      <div id="loadingIndicator" class="hidden items-center gap-2 text-xs text-slate-400">
+      <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Overview</h1>
+      <div id="loadingIndicator" class="hidden items-center gap-2 text-[10px] text-slate-400 text-[10px] text-xs">
         <div class="w-4 h-4 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin"></div>
         <span>Syncing...</span>
       </div>
@@ -100,9 +100,9 @@
       <!-- PANEL 1: OVERVIEW -->
       <div id="panelDashboard" class="space-y-6">
         <div class="bg-slate-950/40 border border-slate-800/60 p-8 rounded-2xl text-center shadow-sm max-w-2xl mx-auto">
-          <span class="material-symbols-rounded text-5xl text-teal-400 block mb-3">verified_user</span>
+          <span class="material-symbols-rounded text-teal-400 block mb-3 text-5xl">verified_user</span>
           <h3 class="font-black text-slate-200 text-lg">General Department Coordinator (Self Finance) Console Connected</h3>
-          <p class="text-slate-400 text-sm mt-2 font-medium">
+          <p class="text-slate-400 text-[10px] mt-2 font-medium text-sm">
             Welcome! As the selected Self Finance General Department Coordinator, you have HOD-like coordinates over academic staff assigned to General Department Self Finance.
           </p>
         </div>
@@ -114,11 +114,11 @@
         <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Search User</label>
-            <input type="text" id="filterSearch" oninput="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="Search staff name...">
+            <input type="text" id="filterSearch" oninput="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-[10px] text-white focus:border-blue-500 outline-none text-[10px] text-xs" placeholder="Search staff name...">
           </div>
           <div>
             <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Role Designation</label>
-            <select id="filterRole" onchange="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+            <select id="filterRole" onchange="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-[10px] text-white focus:border-blue-500 outline-none text-[10px] text-xs">
               <option value="">All Roles</option>
               <option value="Lecturer">Lecturer</option>
               <option value="Demonstrator">Demonstrator</option>
@@ -129,7 +129,7 @@
 
         <!-- Users Table -->
         <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
-          <table class="w-full text-left text-xs border-collapse">
+          <table class="w-full text-left text-[10px] border-collapse text-[10px] text-xs">
             <thead>
               <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
                 <th class="p-4">Profile</th>
@@ -165,9 +165,9 @@
         
         if (id === panelId) {
           if (el) el.classList.remove('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
+          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-[10px] flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
         } else {
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
+          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
           if (el) el.classList.add('hidden');
         }
       });

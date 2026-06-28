@@ -29,10 +29,10 @@
   <!-- Sidebar Navigation -->
   <aside class="w-full md:w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl">
     <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
-      <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center text-lg shadow-lg shadow-blue-500/20">CL</div>
+      <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-blue-500/20 text-lg">CL</div>
       <div>
-        <h2 class="font-extrabold text-sm tracking-wide">Carmel Linx</h2>
-        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">HOD Console</span>
+        <h2 class="font-extrabold text-sm tracking-wide text-sm">Carmel Linx</h2>
+        <span class="text-sm text-slate-400 font-bold uppercase tracking-wider">HOD Console</span>
       </div>
     </div>
 
@@ -40,34 +40,34 @@
     <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3">
       <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
       <div class="overflow-hidden">
-        <span class="font-bold text-xs block truncate text-slate-200">{{ session('userName') }}</span>
-        <span class="text-[9px] font-bold text-blue-400 block uppercase tracking-wider">{{ session('userBranch') }} HOD</span>
+        <span class="font-bold text-sm block truncate text-slate-200 text-sm">{{ session('userName') }}</span>
+        <span class="text-sm font-bold text-blue-400 block uppercase tracking-wider">{{ session('userBranch') }} HOD</span>
       </div>
     </div>
 
     <!-- Navigation Menus -->
     <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
         <span class="material-symbols-rounded text-lg">group</span> User Directory
       </button>
-      <button id="navBatches" onclick="switchPanel('batches')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500">
+      <button id="navBatches" onclick="switchPanel('batches')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 ">
         <span class="material-symbols-rounded text-lg">school</span> Batch Management
       </button>
-      <button id="navSubjects" onclick="switchPanel('subjects')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+      <button id="navSubjects" onclick="switchPanel('subjects')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
         <span class="material-symbols-rounded text-lg">library_books</span> Subject Allocation
       </button>
-      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
         <span class="material-symbols-rounded text-lg">receipt_long</span> Department Audit Trail
       </button>
-      <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+      <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
         <span class="material-symbols-rounded text-lg">settings</span> My Profile
       </button>
     </nav>
 
     <!-- Logout -->
     <div class="p-4 border-t border-slate-800/80">
-      <a href="/logout" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-xs flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium">
-        <span class="material-symbols-rounded text-base">logout</span> Sign Out
+      <a href="{{ url('/logout') }}" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
+        <span class="material-symbols-rounded text-sm text-base">logout</span> Sign Out
       </a>
     </div>
   </aside>
@@ -77,8 +77,8 @@
     
     <!-- Top Header -->
     <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-10">
-      <h1 id="panelTitle" class="text-lg font-extrabold text-slate-100 tracking-tight">Batch & Class Management</h1>
-      <div id="loadingIndicator" class="hidden items-center gap-2 text-xs text-slate-400">
+      <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Batch & Class Management</h1>
+      <div id="loadingIndicator" class="hidden items-center gap-2 text-sm text-slate-400 text-sm">
         <div class="w-4 h-4 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin"></div>
         <span>Syncing...</span>
       </div>
@@ -88,7 +88,7 @@
     <div class="flex-grow overflow-y-auto p-6 md:p-8 space-y-6">
       
       <!-- Alert Banner -->
-      <div id="globalAlert" class="hidden p-4 rounded-xl text-xs font-bold transition-premium border"></div>
+      <div id="globalAlert" class="hidden p-4 rounded-xl text-sm font-bold transition-premium border text-sm"></div>
 
       <!-- PANEL 1: USER DIRECTORY -->
       <div id="panelDirectory" class="hidden space-y-6">
@@ -96,11 +96,11 @@
         <!-- Directory Header -->
         <div class="flex justify-between items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl">
           <div>
-            <h3 class="text-xs font-black text-slate-200">Department Registered Accounts ({{ session('userBranch') }})</h3>
-            <p class="text-[10px] text-slate-400 mt-0.5">Filter, search, audit, and manage profile lifecycle states for students and staff in your branch.</p>
+            <h3 class="text-sm font-black text-slate-200 text-sm">Department Registered Accounts ({{ session('userBranch') }})</h3>
+            <p class="text-sm text-slate-400 mt-0.5">Filter, search, audit, and manage profile lifecycle states for students and staff in your branch.</p>
           </div>
-          <button onclick="openRegisterModal()" class="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/10">
-            <span class="material-symbols-rounded text-sm">person_add</span> Register User
+          <button onclick="openRegisterModal()" class="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/10 text-sm">
+            <span class="material-symbols-rounded text-base">person_add</span> Register User
           </button>
         </div>
 
@@ -108,13 +108,13 @@
         <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
           <!-- Search input -->
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Search User</label>
-            <input type="text" id="filterSearch" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Name, Register No, Mobile...">
+            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Search User</label>
+            <input type="text" id="filterSearch" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm" placeholder="Name, Register No, Mobile...">
           </div>
           <!-- Role filter -->
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Designation / Role</label>
-            <select id="filterRole" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Designation / Role</label>
+            <select id="filterRole" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none text-sm">
               <option value="">All Roles</option>
               <option value="student">Students Only</option>
               <option value="Lecturer">Lecturers Only</option>
@@ -127,8 +127,8 @@
           </div>
           <!-- Status select -->
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Account Status</label>
-            <select id="filterStatus" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Account Status</label>
+            <select id="filterStatus" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none text-sm">
               <option value="">All Statuses</option>
               <option value="Approved">Approved</option>
               <option value="Pending">Pending</option>
@@ -137,8 +137,8 @@
           </div>
           <!-- Search Button -->
           <div>
-            <button onclick="loadUsers()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center justify-center gap-2 h-[38px]">
-              <span class="material-symbols-rounded text-sm">search</span> Load Directory
+            <button onclick="loadUsers()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center justify-center gap-2 h-[38px] text-sm">
+              <span class="material-symbols-rounded text-base">search</span> Load Directory
             </button>
           </div>
         </div>
@@ -146,7 +146,7 @@
         <!-- Users Table Grid -->
         <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse">
+            <table class="w-full text-left text-sm border-collapse text-sm">
               <thead>
                 <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
                   <th class="p-4">Profile</th>
@@ -158,7 +158,7 @@
                 </tr>
               </thead>
               <tbody id="usersTableBody">
-                <tr><td colspan="6" class="p-8 text-center text-slate-500 font-medium text-xs">Use the filters and click "Load Directory" to view accounts.</td></tr>
+                <tr><td colspan="6" class="p-8 text-center text-slate-500 font-medium text-base">Use the filters and click "Load Directory" to view accounts.</td></tr>
               </tbody>
             </table>
           </div>
@@ -169,18 +169,24 @@
       <div id="panelBatches" class="space-y-6">
 
         <!-- Panel Header -->
-        <div class="flex justify-between items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl">
-          <div>
-            <h3 class="text-xs font-black text-slate-200">Batch & Class Management ({{ session('userBranch') }})</h3>
-            <p class="text-[10px] text-slate-400 mt-0.5">Create admission-year batches, assign a Tutor (class teacher) and Mentor for each batch. Students auto-assign on registration.</p>
+          <div class="flex justify-between items-start md:items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <h3 class="text-sm font-black text-slate-200 text-lg">Batch & Class Management ({{ session('userBranch') }})</h3>
+              <p class="text-sm text-slate-400 mt-0.5">Create admission-year batches, assign a Tutor (class teacher) and Mentor for each batch.<br>Students auto-assign on registration.</p>
+            </div>
+            <div class="flex items-center gap-4 ml-auto">
+            <div class="flex bg-slate-900 rounded-xl p-1 border border-slate-800">
+              <button id="btnHodFilterActive" onclick="loadBatches('active')" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-premium bg-violet-600/20 text-violet-400 text-sm">Current Batches</button>
+              <button id="btnHodFilterHistorical" onclick="loadBatches('historical')" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-premium text-slate-500 hover:text-slate-300 text-sm">Previous Batches</button>
+            </div>
+            <button onclick="openCreateBatchModal()" class="px-4 py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-violet-500/10 text-sm">
+              <span class="material-symbols-rounded text-base">add</span> Create Batch
+            </button>
           </div>
-          <button onclick="openCreateBatchModal()" class="px-4 py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-violet-500/10">
-            <span class="material-symbols-rounded text-sm">add</span> Create Batch
-          </button>
         </div>
 
         <!-- Batch Alert -->
-        <div id="batchGlobalAlert" class="hidden p-4 rounded-xl text-xs font-bold border"></div>
+        <div id="batchGlobalAlert" class="hidden p-4 rounded-xl text-sm font-bold border text-sm"></div>
 
         <!-- Batch Cards Grid -->
         <div id="batchCardsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -189,48 +195,49 @@
 
         <!-- Empty state -->
         <div id="batchEmptyState" class="hidden flex flex-col items-center justify-center py-16 text-center">
-          <span class="material-symbols-rounded text-5xl text-slate-700 mb-3">folder_open</span>
-          <p class="text-slate-500 font-bold text-sm">No batches created yet.</p>
-          <p class="text-slate-600 text-xs mt-1">Click "Create Batch" to set up your first admission year cohort.</p>
+          <span class="material-symbols-rounded text-slate-700 mb-3 text-5xl">folder_open</span>
+          <p class="text-slate-500 font-bold text-base">No batches created yet.</p>
+          <p class="text-slate-600 text-sm mt-1 text-sm">Click "Create Batch" to set up your first admission year cohort.</p>
         </div>
 
       </div>
 
       <!-- PANEL: SUBJECT ALLOCATION -->
       <div id="panelSubjects" class="hidden space-y-6">
-        <div class="flex justify-between items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl">
-          <div>
-            <h3 class="text-xs font-black text-slate-200">Subject & Staff Allocation</h3>
-            <p class="text-[10px] text-slate-400 mt-0.5">Map curriculum subjects to batches per semester and assign staff across departments.</p>
+        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl">
+          <div class="mb-4 pb-4 border-b border-slate-800/60">
+            <h3 class="text-sm font-black text-slate-200 text-sm">Subject & Staff Allocation</h3>
+            <p class="text-sm text-slate-400 mt-0.5">Map curriculum subjects to batches per semester and assign staff across departments.</p>
           </div>
-          <button onclick="openSubjectModal()" class="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
-            <span class="material-symbols-rounded text-sm">add_box</span> Add Subject
-          </button>
-        </div>
-
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Select Target Batch</label>
-            <select id="subjectBatchSelect" onchange="loadSubjects()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
-              <option value="">-- Choose a Classroom --</option>
-              <!-- Loaded via JS -->
-            </select>
-          </div>
-          <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Select Semester</label>
-            <select id="subjectSemesterSelect" onchange="loadSubjects()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
-              <option value="1">Semester 1</option>
-              <option value="2">Semester 2</option>
-              <option value="3" selected>Semester 3</option>
-              <option value="4">Semester 4</option>
-              <option value="5">Semester 5</option>
-              <option value="6">Semester 6</option>
-            </select>
+          <div class="flex flex-col sm:flex-row gap-4 items-end">
+            <div class="flex-1">
+              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Select Target Batch</label>
+              <select id="subjectBatchSelect" onchange="loadSubjects()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+                <option value="">-- Choose a Classroom --</option>
+                <!-- Loaded via JS -->
+              </select>
+            </div>
+            <div class="flex-1">
+              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Select Semester</label>
+              <select id="subjectSemesterSelect" onchange="loadSubjects()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3" selected>Semester 3</option>
+                <option value="4">Semester 4</option>
+                <option value="5">Semester 5</option>
+                <option value="6">Semester 6</option>
+              </select>
+            </div>
+            <div>
+              <button onclick="openSubjectModal()" class="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/10 h-[34px]">
+                <span class="material-symbols-rounded text-sm">add_box</span> Add Subject
+              </button>
+            </div>
           </div>
         </div>
 
         <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
-          <table class="w-full text-left text-xs border-collapse">
+          <table class="w-full text-left text-sm border-collapse">
             <thead>
               <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
                 <th class="p-4">Subject Code</th>
@@ -253,9 +260,9 @@
         <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
           <div>
             <h3 class="font-black text-slate-200 text-sm">Department Audit Trail</h3>
-            <p class="text-xs text-slate-400 mt-1">Lifecycle events, status updates, registrations, and actions performed within the {{ session('userBranch') }} branch.</p>
+            <p class="text-sm text-slate-400 mt-1">Lifecycle events, status updates, registrations, and actions performed within the {{ session('userBranch') }} branch.</p>
           </div>
-          <button onclick="loadAuditTrail()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-[11px] font-bold transition-premium cursor-pointer flex items-center gap-2">
+          <button onclick="loadAuditTrail()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-premium cursor-pointer flex items-center gap-2">
             <span class="material-symbols-rounded text-sm">sync</span> Refresh Log
           </button>
         </div>
@@ -263,7 +270,7 @@
         <!-- Audit Table -->
         <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
           <div class="overflow-x-auto scrollbar-hidden">
-            <table class="w-full text-left text-xs border-collapse">
+            <table class="w-full text-left text-sm border-collapse">
               <thead>
                 <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
                   <th class="p-4">Timestamp</th>
@@ -290,11 +297,11 @@
             <div class="flex flex-col items-center text-center space-y-3">
               <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-24 h-24 rounded-full border border-slate-700 object-cover shadow-lg">
               <div>
-                <h3 class="text-base font-black text-white">{{ session('userName') }}</h3>
-                <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">{{ session('userBranch') }} Department HOD</span>
+                <h3 class="text-sm font-black text-white">{{ session('userName') }}</h3>
+                <span class="text-sm font-bold text-blue-400 uppercase tracking-wider">{{ session('userBranch') }} Department HOD</span>
               </div>
             </div>
-            <div class="border-t border-slate-800/60 pt-4 space-y-2.5 text-xs">
+            <div class="border-t border-slate-800/60 pt-4 space-y-2.5 text-sm">
               <div class="flex justify-between">
                 <span class="text-slate-400">Mobile ID:</span>
                 <span class="font-bold text-slate-200">{{ session('userId') }}</span>
@@ -313,10 +320,10 @@
           <!-- Self Security Logs -->
           <div class="lg:col-span-2 bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl flex flex-col">
             <h3 class="text-sm font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2">
-              <span class="material-symbols-rounded text-blue-400 text-lg">security</span> My Security Log
+              <span class="material-symbols-rounded text-blue-400 text-xs">security</span> My Security Log
             </h3>
             <div class="flex-grow max-h-[300px] overflow-y-auto scrollbar-hidden border border-slate-850 rounded-xl">
-              <table class="w-full text-left text-xs border-collapse">
+              <table class="w-full text-left text-sm border-collapse">
                 <thead>
                   <tr class="bg-slate-900/40 border-b border-slate-800 text-slate-400 font-bold">
                     <th class="p-3">Time</th>
@@ -341,51 +348,51 @@
     <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-violet-400 text-lg">school</span> Create New Batch
+          <span class="material-symbols-rounded text-violet-400 text-xs">school</span> Create New Batch
         </h3>
-        <button onclick="closeCreateBatchModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-lg">close</span></button>
+        <button onclick="closeCreateBatchModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
       </div>
 
       <div class="space-y-4">
         <!-- Admission Year -->
         <div>
-          <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Admission Year</label>
+          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Admission Year</label>
           <input type="number" id="batchAdmYear" min="2000" max="2100" value="2025"
             oninput="updateBatchPreview()"
-            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none">
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none">
         </div>
 
         <!-- Preview -->
         <div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 flex items-center gap-3">
-          <span class="material-symbols-rounded text-violet-400 text-base">info</span>
+          <span class="material-symbols-rounded text-violet-400 text-sm">info</span>
           <div>
-            <p class="text-[10px] text-slate-400">Classroom ID that will be created:</p>
+            <p class="text-sm text-slate-400">Classroom ID that will be created:</p>
             <p id="batchIdPreview" class="font-mono font-bold text-violet-300 text-sm">{{ session('userBranch') }}_2025_2028</p>
           </div>
         </div>
 
         <!-- Optional Tutor -->
         <div>
-          <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Assign Tutor (Optional)</label>
-          <select id="batchTutorSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-violet-500 outline-none">
-            <option value="">— Select Tutor (optional) —</option>
+          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Assign Tutor (Optional)</label>
+          <select id="batchTutorSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 outline-none">
+            <option value=""> Select Tutor (optional) </option>
           </select>
         </div>
 
         <!-- Optional Mentor -->
         <div>
-          <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Assign Mentor (Optional)</label>
-          <select id="batchMentorSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-violet-500 outline-none">
-            <option value="">— Select Mentor (optional) —</option>
+          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Assign Mentor (Optional)</label>
+          <select id="batchMentorSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 outline-none">
+            <option value="">Select Mentor (optional) </option>
           </select>
         </div>
       </div>
 
-      <div id="createBatchAlert" class="hidden p-3 rounded-xl text-xs font-bold border"></div>
+      <div id="createBatchAlert" class="hidden p-3 rounded-xl text-sm font-bold border"></div>
 
       <div class="flex gap-3 pt-2">
-        <button onclick="closeCreateBatchModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-xs text-slate-300 transition-premium cursor-pointer">Cancel</button>
-        <button onclick="submitCreateBatch()" class="flex-1 py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl font-bold text-xs transition-premium cursor-pointer flex items-center justify-center gap-1.5">
+        <button onclick="closeCreateBatchModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Cancel</button>
+        <button onclick="submitCreateBatch()" class="flex-1 py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
           <span>Create Batch</span>
           <div id="createBatchSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
         </button>
@@ -395,17 +402,26 @@
 
   <!-- BATCH DETAIL MODAL -->
   <div id="batchDetailModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-3xl shadow-2xl flex flex-col max-h-[90vh]">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-6xl shadow-2xl flex flex-col max-h-[90vh]">
       <!-- Modal Header -->
       <div class="flex justify-between items-center border-b border-slate-800 p-5 flex-shrink-0">
         <div>
           <h3 id="batchDetailTitle" class="font-black text-slate-100 text-sm">Batch Detail</h3>
-          <p id="batchDetailSubtitle" class="text-[10px] text-slate-400 mt-0.5">Manage tutor, mentor, and enrolled students</p>
+          <p id="batchDetailSubtitle" class="text-sm text-slate-400 mt-0.5">Manage tutor, mentor, subjects, and enrolled students</p>
         </div>
-        <button onclick="closeBatchDetailModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-lg">close</span></button>
+        <button onclick="closeBatchDetailModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
       </div>
 
-      <div class="flex-grow overflow-y-auto p-5 space-y-5">
+      <!-- Tabs Navigation -->
+      <div class="flex border-b border-slate-800/60 px-5 pt-3 gap-6">
+         <button onclick="switchBatchTab('tutorMentor')" id="tabBtn_tutorMentor" class="pb-3 text-sm font-bold border-b-2 border-violet-500 text-white transition-premium cursor-pointer">Tutor & Mentor</button>
+         <button onclick="switchBatchTab('subjects')" id="tabBtn_subjects" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Allocated Subjects</button>
+         <button onclick="switchBatchTab('students')" id="tabBtn_students" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Enrolled Students</button>
+      </div>
+
+      <div class="flex-grow overflow-y-auto p-5 relative">
+        <!-- Tab: Tutor & Mentor -->
+        <div id="batchTab_tutorMentor" class="block space-y-4 fade-up">
 
         <!-- Assignment Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -413,64 +429,105 @@
           <!-- Tutor Card -->
           <div class="bg-slate-950/60 border border-slate-800/60 rounded-2xl p-4 space-y-3">
             <div class="flex items-center gap-2">
-              <span class="material-symbols-rounded text-sky-400 text-lg">person_pin</span>
-              <h4 class="font-black text-slate-200 text-xs">Class Tutor</h4>
+              <span class="material-symbols-rounded text-sky-400 text-xs">person_pin</span>
+              <h4 class="font-black text-slate-200 text-sm">Class Tutor</h4>
             </div>
-            <div id="tutorCurrentDisplay" class="text-xs text-slate-400">Not assigned</div>
+            <div id="tutorCurrentDisplay" class="text-sm text-slate-400">Not assigned</div>
             <div class="space-y-2">
-              <select id="detailTutorSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-sky-500 outline-none">
-                <option value="">— None (Remove) —</option>
+              <select id="detailTutorSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-sky-500 outline-none">
+                <option value="">â None (Remove) â</option>
               </select>
-              <button onclick="submitAssignTutor()" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-xs transition-premium cursor-pointer flex items-center justify-center gap-1.5">
+              <button onclick="submitAssignTutor()" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
                 <span class="material-symbols-rounded text-sm">how_to_reg</span> Update Tutor
                 <div id="assignTutorSpinner" class="hidden w-3 h-3 border-2 border-sky-200 border-t-white rounded-full animate-spin"></div>
               </button>
             </div>
-            <div id="assignTutorAlert" class="hidden p-2 rounded-lg text-[10px] font-bold border"></div>
+            <div id="assignTutorAlert" class="hidden p-2 rounded-lg text-sm font-bold border"></div>
           </div>
 
           <!-- Mentor Card -->
           <div class="bg-slate-950/60 border border-slate-800/60 rounded-2xl p-4 space-y-3">
             <div class="flex items-center gap-2">
-              <span class="material-symbols-rounded text-emerald-400 text-lg">supervisor_account</span>
-              <h4 class="font-black text-slate-200 text-xs">Class Mentor</h4>
+              <span class="material-symbols-rounded text-emerald-400 text-xs">supervisor_account</span>
+              <h4 class="font-black text-slate-200 text-sm">Class Mentor</h4>
             </div>
-            <div id="mentorCurrentDisplay" class="text-xs text-slate-400">Not assigned</div>
+            <div id="mentorCurrentDisplay" class="text-sm text-slate-400">Not assigned</div>
             <div class="space-y-2">
-              <select id="detailMentorSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 outline-none">
-                <option value="">— None (Remove) —</option>
+              <select id="detailMentorSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
+                <option value="">â None (Remove) â</option>
               </select>
-              <button onclick="submitAssignMentor()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition-premium cursor-pointer flex items-center justify-center gap-1.5">
+              <button onclick="submitAssignMentor()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
                 <span class="material-symbols-rounded text-sm">group_add</span> Update Mentor
                 <div id="assignMentorSpinner" class="hidden w-3 h-3 border-2 border-emerald-200 border-t-white rounded-full animate-spin"></div>
               </button>
             </div>
-            <div id="assignMentorAlert" class="hidden p-2 rounded-lg text-[10px] font-bold border"></div>
+            <div id="assignMentorAlert" class="hidden p-2 rounded-lg text-sm font-bold border"></div>
+          </div>
+        </div>
+        </div>
+
+        <!-- Tab: Subjects -->
+        <div id="batchTab_subjects" class="hidden space-y-4 fade-up">
+          <div class="flex items-center gap-4 mb-2">
+            <div class="flex items-center gap-2">
+              <label class="text-sm text-slate-400 font-bold uppercase tracking-wider">Select Semester:</label>
+              <select id="modalSubjectSemester" onchange="loadModalSubjects()" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-sm text-white focus:border-violet-500 outline-none">
+                <option value="1">Semester 1</option>
+                <option value="2">Semester 2</option>
+                <option value="3" selected>Semester 3</option>
+                <option value="4">Semester 4</option>
+                <option value="5">Semester 5</option>
+                <option value="6">Semester 6</option>
+              </select>
+            </div>
+            <button onclick="openSubjectModalFromDetail()" class="ml-auto px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg font-bold text-sm transition-premium cursor-pointer flex items-center gap-1">
+              <span class="material-symbols-rounded text-sm">add</span> Allocate Subject
+            </button>
+          </div>
+          <div class="overflow-x-auto max-h-[350px] overflow-y-auto bg-slate-950/40 border border-slate-800/40 rounded-2xl">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold sticky top-0 z-10">
+                  <th class="p-3">Code</th>
+                  <th class="p-3">Rev</th>
+                  <th class="p-3">Subject Name</th>
+                  <th class="p-3">Type</th>
+                  <th class="p-3">Assigned Staff</th>
+                  <th class="p-3">Course File</th>
+                </tr>
+              </thead>
+              <tbody id="modalSubjectsTableBody">
+                <tr><td colspan="6" class="p-6 text-center text-slate-500">Select a semester to view subjects.</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <!-- Students Roster -->
+        <!-- Tab: Enrolled Students -->
+        <div id="batchTab_students" class="hidden fade-up">
         <div class="bg-slate-950/40 border border-slate-800/40 rounded-2xl overflow-hidden">
           <div class="p-4 border-b border-slate-800/60 flex items-center justify-between">
-            <h4 class="font-black text-slate-200 text-xs flex items-center gap-2">
-              <span class="material-symbols-rounded text-slate-400 text-base">groups</span>
+            <h4 class="font-black text-slate-200 text-sm flex items-center gap-2">
+              <span class="material-symbols-rounded text-slate-400 text-sm">groups</span>
               Enrolled Students
-              <span id="rosterCountBadge" class="px-2 py-0.5 bg-slate-800 text-slate-400 rounded-full text-[10px] font-mono">0</span>
+              <span id="rosterCountBadge" class="px-2 py-0.5 bg-slate-800 text-slate-400 rounded-full text-sm font-mono">0</span>
             </h4>
           </div>
           <div class="overflow-x-auto max-h-[280px] overflow-y-auto">
-            <table class="w-full text-left text-xs border-collapse">
+            <table class="w-full text-left text-sm border-collapse">
               <thead>
                 <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold sticky top-0">
                   <th class="p-3">Name</th>
                   <th class="p-3">Reg No</th>
                   <th class="p-3">Adm No</th>
+                  <th class="p-3">SBTE No</th>
                   <th class="p-3">Type</th>
                   <th class="p-3">Status</th>
+                  <th class="p-3"></th>
                 </tr>
               </thead>
               <tbody id="batchRosterTableBody">
-                <tr><td colspan="5" class="p-6 text-center text-slate-500">Loading...</td></tr>
+                <tr><td colspan="7" class="p-6 text-center text-slate-500">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -484,26 +541,26 @@
     <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-lg">lock_reset</span> Password Reset
+          <span class="material-symbols-rounded text-blue-400 text-xs">lock_reset</span> Password Reset
         </h3>
-        <button onclick="closePasswordModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-lg">close</span></button>
+        <button onclick="closePasswordModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
       </div>
 
       <div class="space-y-3">
-        <p class="text-xs text-slate-400">
+        <p class="text-sm text-slate-400">
           Set a new password for <span id="pwdResetName" class="font-bold text-slate-200"></span> (<span id="pwdResetId" class="text-blue-400 font-mono"></span>).
         </p>
         <div>
-          <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">New Password</label>
-          <input type="text" id="newPasswordInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Minimum 4 characters">
+          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">New Password</label>
+          <input type="text" id="newPasswordInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Minimum 4 characters">
         </div>
       </div>
 
-      <div id="pwdAlert" class="hidden p-3 rounded-xl text-xs font-bold border"></div>
+      <div id="pwdAlert" class="hidden p-3 rounded-xl text-sm font-bold border"></div>
 
       <div class="flex gap-3 pt-2">
-        <button onclick="closePasswordModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-xs text-slate-300 transition-premium cursor-pointer">Cancel</button>
-        <button onclick="submitPasswordReset()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition-premium cursor-pointer">Save Changes</button>
+        <button onclick="closePasswordModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Cancel</button>
+        <button onclick="submitPasswordReset()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer">Save Changes</button>
       </div>
     </div>
   </div>
@@ -515,18 +572,18 @@
     <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-lg">receipt_long</span> Profile Audit Trail
+          <span class="material-symbols-rounded text-blue-400 text-xs">receipt_long</span> Profile Audit Trail
         </h3>
-        <button onclick="closeAuditModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-lg">close</span></button>
+        <button onclick="closeAuditModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
       </div>
 
       <div class="space-y-3">
-        <p class="text-xs text-slate-400">
+        <p class="text-sm text-slate-400">
           History log for <span id="auditProfileName" class="font-bold text-slate-200"></span> (<span id="auditProfileId" class="text-blue-400 font-mono"></span>).
         </p>
 
         <div class="max-h-[300px] overflow-y-auto scrollbar-hidden border border-slate-800/60 rounded-xl">
-          <table class="w-full text-left text-xs border-collapse">
+          <table class="w-full text-left text-sm border-collapse">
             <thead>
               <tr class="bg-slate-955/80 border-b border-slate-800 text-slate-400 font-bold">
                 <th class="p-3">Time</th>
@@ -543,7 +600,7 @@
       </div>
 
       <div class="flex pt-2">
-        <button onclick="closeAuditModal()" class="w-full py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-xs text-slate-300 transition-premium cursor-pointer">Close Window</button>
+        <button onclick="closeAuditModal()" class="w-full py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Close Window</button>
       </div>
     </div>
   </div>
@@ -553,16 +610,16 @@
     <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-lg">person_add</span> Register New Profile
+          <span class="material-symbols-rounded text-blue-400 text-xs">person_add</span> Register New Profile
         </h3>
-        <button onclick="closeRegisterModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-lg">close</span></button>
+        <button onclick="closeRegisterModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
       </div>
 
       <form id="directRegisterForm" onsubmit="handleDirectRegister(event)" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hidden">
         <!-- Type Selection -->
         <div>
-          <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">User Type</label>
-          <select id="regType" onchange="toggleDirectRegisterFields(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">User Type</label>
+          <select id="regType" onchange="toggleDirectRegisterFields(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
             <option value="student">Student Profile</option>
             <option value="staff">Staff Profile</option>
           </select>
@@ -571,12 +628,12 @@
         <!-- Common Fields -->
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Full Name</label>
-            <input type="text" id="directRegName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Full Name</label>
+            <input type="text" id="directRegName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
           </div>
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Email Address</label>
-            <input type="email" id="directRegEmail" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="name@carmelpoly.edu.in">
+            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Email Address</label>
+            <input type="email" id="directRegEmail" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" placeholder="name@carmelpoly.edu.in">
           </div>
         </div>
 
@@ -584,37 +641,37 @@
         <div id="directStudentFields" class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Admission Type</label>
-              <select id="directRegAdmType" onchange="handleAdmTypeChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Admission Type</label>
+              <select id="directRegAdmType" onchange="handleAdmTypeChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
                 <option value="Regular">Regular</option>
                 <option value="LET">Lateral Entry (LET)</option>
               </select>
             </div>
             <div>
-              <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Adm Year</label>
-              <input type="number" id="directRegStudentYear" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" value="2026">
+              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Adm Year</label>
+              <input type="number" id="directRegStudentYear" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" value="2026">
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Register No</label>
-              <input type="text" id="directRegStudentId" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="e.g. 25EL1001">
+              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Register No</label>
+              <input type="text" id="directRegStudentId" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" placeholder="e.g. 25EL1001">
             </div>
             <div>
-              <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Admission No</label>
-              <input type="text" id="directRegStudentAdm" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="e.g. ADM25EL01">
+              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Admission No</label>
+              <input type="text" id="directRegStudentAdm" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" placeholder="e.g. ADM25EL01">
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch</label>
-              <input type="text" id="directRegStudentBranch" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400 focus:outline-none" value="{{ session('userBranch') }}">
+              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch</label>
+              <input type="text" id="directRegStudentBranch" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-400 focus:outline-none" value="{{ session('userBranch') }}">
             </div>
             <div>
-              <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Semester</label>
-              <select id="directRegStudentSem" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Semester</label>
+              <select id="directRegStudentSem" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
                 <option value="S1">S1</option>
                 <option value="S2">S2</option>
                 <option value="S3" selected>S3</option>
@@ -630,12 +687,12 @@
         <div id="directStaffFields" class="space-y-4 hidden">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Mobile No (Login ID)</label>
-              <input type="text" id="directRegStaffMobile" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="10-digit number">
+              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Mobile No (Login ID)</label>
+              <input type="text" id="directRegStaffMobile" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" placeholder="10-digit number">
             </div>
             <div>
-              <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Designation</label>
-              <select id="directRegStaffDesig" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Designation</label>
+              <select id="directRegStaffDesig" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
                 <option value="Lecturer" selected>Lecturer</option>
                 <option value="Demonstrator">Demonstrator</option>
                 <option value="Trade_Instructor">Trade Instructor</option>
@@ -647,22 +704,22 @@
           </div>
 
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch</label>
-            <input type="text" id="directRegStaffBranch" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400 focus:outline-none" value="{{ session('userBranch') }}">
+            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch</label>
+            <input type="text" id="directRegStaffBranch" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-400 focus:outline-none" value="{{ session('userBranch') }}">
           </div>
         </div>
 
         <!-- Password -->
         <div>
-          <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Password</label>
-          <input type="text" id="directRegPassword" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="e.g. 12345">
+          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Password</label>
+          <input type="text" id="directRegPassword" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" placeholder="e.g. 12345">
         </div>
 
-        <div id="directRegAlert" class="hidden p-3 rounded-xl text-xs font-bold border"></div>
+        <div id="directRegAlert" class="hidden p-3 rounded-xl text-sm font-bold border"></div>
 
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeRegisterModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-xs text-slate-300 transition-premium cursor-pointer">Cancel</button>
-          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition-premium cursor-pointer flex items-center justify-center gap-1.5">
+          <button type="button" onclick="closeRegisterModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
             <span>Register Profile</span>
             <div id="directRegSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
           </button>
@@ -675,28 +732,28 @@
     <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-emerald-400 text-lg">add_box</span> Add Curriculum Subject
+          <span class="material-symbols-rounded text-emerald-400 text-xs">add_box</span> Add Curriculum Subject
         </h3>
-        <button onclick="closeSubjectModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-lg">close</span></button>
+        <button onclick="closeSubjectModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
       </div>
 
       <form id="subjectForm" onsubmit="createSubject(event)" class="space-y-4">
         <input type="hidden" id="modalSubjectBatch">
         <input type="hidden" id="modalSubjectSemester">
         
-        <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl mb-2 flex justify-between items-center text-xs">
+        <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl mb-2 flex justify-between items-center text-sm">
           <span class="text-slate-400">Target Batch: <span id="displaySubjectBatch" class="font-bold text-slate-200"></span></span>
           <span class="text-slate-400">Semester: <span id="displaySubjectSemester" class="font-bold text-slate-200"></span></span>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Subject Code</label>
-            <input type="text" id="subjectCode" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 outline-none" placeholder="e.g. ENG101">
+            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Subject Code</label>
+            <input type="text" id="subjectCode" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none" placeholder="e.g. ENG101">
           </div>
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Subject Type</label>
-            <select id="subjectType" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 outline-none">
+            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Subject Type</label>
+            <select id="subjectType" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
               <option value="Theory">Theory</option>
               <option value="Practical / Lab">Practical / Lab</option>
               <option value="Practicum">Practicum</option>
@@ -708,15 +765,25 @@
         </div>
 
         <div>
-          <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Subject Name</label>
-          <input type="text" id="subjectName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-500 outline-none" placeholder="e.g. Engineering Mathematics">
+          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Subject Name</label>
+          <input type="text" id="subjectName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none" placeholder="e.g. Engineering Mathematics">
         </div>
 
-        <div id="subjectAlert" class="hidden p-3 rounded-xl text-xs font-bold border"></div>
+        <div>
+          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Syllabus Revision</label>
+          <select id="subjectRevisionYear" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
+            <option value="REV2026">REV2026 (Current)</option>
+            <option value="REV2021">REV2021</option>
+            <option value="REV2015">REV2015</option>
+            <option value="REV2010">REV2010</option>
+          </select>
+        </div>
+
+        <div id="subjectAlert" class="hidden p-3 rounded-xl text-sm font-bold border"></div>
 
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeSubjectModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-xs text-slate-300 transition-premium cursor-pointer">Cancel</button>
-          <button type="submit" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition-premium cursor-pointer flex items-center justify-center gap-1.5">
+          <button type="button" onclick="closeSubjectModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
             <span>Add Subject</span>
             <div id="subjectSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
           </button>
@@ -730,19 +797,19 @@
     <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-lg">group_add</span> Assign Teaching Staff
+          <span class="material-symbols-rounded text-blue-400 text-xs">group_add</span> Assign Teaching Staff
         </h3>
-        <button onclick="closeAssignStaffModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-lg">close</span></button>
+        <button onclick="closeAssignStaffModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
       </div>
 
       <form id="assignStaffForm" onsubmit="assignStaff(event)" class="space-y-4">
         <input type="hidden" id="assignSubjectId">
         
-        <p class="text-xs text-slate-400">Select one or more staff members to assign to <strong id="assignSubjectName" class="text-slate-200"></strong>.</p>
+        <p class="text-sm text-slate-400">Select one or more staff members to assign to <strong id="assignSubjectName" class="text-slate-200"></strong>.</p>
         
         <div>
-          <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch Filter (For Inter-Department)</label>
-          <select id="staffBranchFilter" onchange="renderAssignStaffList()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
+          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch Filter (For Inter-Department)</label>
+          <select id="staffBranchFilter" onchange="renderAssignStaffList()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
             <option value="">All Branches</option>
             <option value="EL">Electronics (EL)</option>
             <option value="ME">Mechanical (ME)</option>
@@ -759,11 +826,11 @@
           <!-- Populated by JS -->
         </div>
 
-        <div id="assignStaffAlert" class="hidden p-3 rounded-xl text-xs font-bold border"></div>
+        <div id="assignStaffAlert" class="hidden p-3 rounded-xl text-sm font-bold border"></div>
 
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeAssignStaffModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-xs text-slate-300 transition-premium cursor-pointer">Cancel</button>
-          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition-premium cursor-pointer flex items-center justify-center gap-1.5">
+          <button type="button" onclick="closeAssignStaffModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
             <span>Save Assignments</span>
             <div id="assignStaffSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
           </button>
@@ -801,9 +868,9 @@
         
         if (id === panelId) {
           if (el) el.classList.remove('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
+          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
         } else {
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
+          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
           if (el) el.classList.add('hidden');
         }
       });
@@ -848,9 +915,9 @@
       const alert = document.getElementById('globalAlert');
       alert.classList.remove('hidden');
       if (isError) {
-        alert.className = "p-4 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border-red-900 block shadow-sm";
+        alert.className = "p-4 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border-red-900 block shadow-sm";
       } else {
-        alert.className = "p-4 rounded-xl text-xs font-bold bg-green-950/40 text-green-400 border-green-900 block shadow-sm";
+        alert.className = "p-4 rounded-xl text-sm font-bold bg-green-950/40 text-green-400 border-green-900 block shadow-sm";
       }
       alert.innerText = msg;
       setTimeout(() => alert.classList.add('hidden'), 5000);
@@ -897,30 +964,30 @@
         const tr = document.createElement('tr');
         tr.className = "border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium";
 
-        let statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>`;
+        let statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-sm font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>`;
         if (user.status === 'Approved') {
-          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Approved</span>`;
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-sm font-bold bg-green-500/10 text-green-400 border border-green-500/20">Approved</span>`;
         } else if (user.status === 'Suspended') {
-          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">Suspended</span>`;
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-sm font-bold bg-red-500/10 text-red-400 border border-red-500/20">Suspended</span>`;
         }
 
         let toggleButton = '';
         if (user.id !== "{{ session('userId') }}") {
           if (user.status === 'Pending') {
             toggleButton = `
-              <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-[10px] font-bold text-white transition-premium cursor-pointer">
+              <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-sm font-bold text-white transition-premium cursor-pointer">
                 Approve
               </button>
             `;
           } else if (user.status === 'Approved') {
             toggleButton = `
-              <button onclick="changeStatus('${user.id}', '${user.type}', 'Suspended')" class="px-2 py-1 bg-red-950 hover:bg-red-900 border border-red-800 rounded text-[10px] font-bold text-red-300 transition-premium cursor-pointer">
+              <button onclick="changeStatus('${user.id}', '${user.type}', 'Suspended')" class="px-2 py-1 bg-red-950 hover:bg-red-900 border border-red-800 rounded text-sm font-bold text-red-300 transition-premium cursor-pointer">
                 Suspend
               </button>
             `;
           } else if (user.status === 'Suspended') {
             toggleButton = `
-              <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-[10px] font-bold text-white transition-premium cursor-pointer">
+              <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm font-bold text-white transition-premium cursor-pointer">
                 Activate
               </button>
             `;
@@ -935,23 +1002,23 @@
             <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-8 h-8 rounded-full object-cover border border-slate-800 shadow">
             <div>
               <span class="font-bold text-slate-100 block">${user.name}</span>
-              <span class="text-[10px] text-slate-500 block">${user.email}</span>
+              <span class="text-sm text-slate-500 block">${user.email}</span>
             </div>
           </td>
           <td class="p-4 font-mono font-bold text-slate-300">${user.id}</td>
-          <td class="p-4"><span class="font-bold font-mono text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
+          <td class="p-4"><span class="font-bold font-mono text-sm bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
           <td class="p-4">${roleCol}</td>
           <td class="p-4">${statusBadge}</td>
           <td class="p-4 text-right space-x-1">
             ${toggleButton}
-            <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] font-bold transition-premium cursor-pointer">
+            <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-sm font-bold transition-premium cursor-pointer">
               Reset Pwd
             </button>
-            <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-blue-900 border border-slate-800 text-slate-300 rounded text-[10px] font-bold transition-premium cursor-pointer" title="View Audit Trail">
+            <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-blue-900 border border-slate-800 text-slate-300 rounded text-sm font-bold transition-premium cursor-pointer" title="View Audit Trail">
               Audit
             </button>
             ${user.id !== "{{ session('userId') }}" ? `
-            <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded text-[10px] font-bold transition-premium cursor-pointer" title="Delete User">
+            <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded text-sm font-bold transition-premium cursor-pointer" title="Delete User">
               Delete
             </button>` : ''}
           </td>
@@ -1009,7 +1076,7 @@
       const pwdAlert = document.getElementById('pwdAlert');
       
       if (pwd.length < 4) {
-        pwdAlert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900 block";
+        pwdAlert.className = "p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block";
         pwdAlert.innerText = "Password must be at least 4 characters long.";
         pwdAlert.classList.remove('hidden');
         return;
@@ -1030,13 +1097,13 @@
           showGlobalMessage('Password reset successfully.');
           closePasswordModal();
         } else {
-          pwdAlert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900 block";
+          pwdAlert.className = "p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block";
           pwdAlert.innerText = data.message;
           pwdAlert.classList.remove('hidden');
         }
       })
       .catch(() => {
-        pwdAlert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900 block";
+        pwdAlert.className = "p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block";
         pwdAlert.innerText = "Request failed.";
         pwdAlert.classList.remove('hidden');
       });
@@ -1062,9 +1129,9 @@
               const date = new Date(log.created_at).toLocaleString();
               tr.innerHTML = `
                 <td class="p-4 text-slate-400 font-mono">${date}</td>
-                <td class="p-4 font-bold text-slate-300">${log.performed_by_name || 'System'}<br><span class="text-[10px] text-slate-500 font-mono">${log.performed_by || ''}</span></td>
-                <td class="p-4 font-bold text-white">${log.target_name}<br><span class="text-[10px] text-blue-400 font-mono">${log.target_id}</span></td>
-                <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
+                <td class="p-4 font-bold text-slate-300">${log.performed_by_name || 'System'}<br><span class="text-sm text-slate-500 font-mono">${log.performed_by || ''}</span></td>
+                <td class="p-4 font-bold text-white">${log.target_name}<br><span class="text-sm text-blue-400 font-mono">${log.target_id}</span></td>
+                <td class="p-4"><span class="px-2 py-0.5 rounded text-sm font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
                 <td class="p-4 font-mono text-slate-400">${log.ip_address || '-'}</td>
                 <td class="p-4 text-slate-300 font-sans leading-relaxed">${log.details || ''}</td>
               `;
@@ -1101,12 +1168,12 @@
             }
             data.logs.forEach(log => {
               const tr = document.createElement('tr');
-              tr.className = "border-b border-slate-800/40 text-xs";
+              tr.className = "border-b border-slate-800/40 text-sm";
               const date = new Date(log.created_at).toLocaleString();
               tr.innerHTML = `
                 <td class="p-3 text-slate-400 font-mono">${date}</td>
                 <td class="p-3 font-semibold text-slate-300">${log.performed_by_name || 'System'}</td>
-                <td class="p-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
+                <td class="p-3"><span class="px-1.5 py-0.5 rounded text-sm font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
                 <td class="p-3 text-slate-300">${log.details || ''}</td>
               `;
               tbody.appendChild(tr);
@@ -1236,7 +1303,7 @@
       .then(data => {
         spinner.classList.add('hidden');
         if (data.status === 'SUCCESS') {
-          alert.className = "p-3 rounded-xl text-xs font-bold bg-green-950/40 text-green-400 border border-green-900/60 block";
+          alert.className = "p-3 rounded-xl text-sm font-bold bg-green-950/40 text-green-400 border border-green-900/60 block";
           alert.innerText = "User registered successfully.";
           alert.classList.remove('hidden');
           setTimeout(() => {
@@ -1244,14 +1311,14 @@
             loadUsers();
           }, 1500);
         } else {
-          alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
+          alert.className = "p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
           alert.innerText = data.message;
           alert.classList.remove('hidden');
         }
       })
       .catch(() => {
         spinner.classList.add('hidden');
-        alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
+        alert.className = "p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
         alert.innerText = "Request failed.";
         alert.classList.remove('hidden');
       });
@@ -1292,19 +1359,19 @@
     function showBatchMessage(msg, isError = false) {
       const el = document.getElementById('batchGlobalAlert');
       el.className = isError
-        ? 'p-4 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900 block'
-        : 'p-4 rounded-xl text-xs font-bold bg-green-950/40 text-green-400 border border-green-900 block';
+        ? 'p-4 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block'
+        : 'p-4 rounded-xl text-sm font-bold bg-green-950/40 text-green-400 border border-green-900 block';
       el.innerText = msg;
       el.classList.remove('hidden');
       setTimeout(() => el.classList.add('hidden'), 5000);
     }
 
-    function loadBatches() {
+    function loadBatches(status = 'active') {
       const grid = document.getElementById('batchCardsGrid');
       const empty = document.getElementById('batchEmptyState');
       grid.innerHTML = `
-        <div class="col-span-full flex items-center justify-center py-12">
-          <div class="flex items-center gap-3 text-slate-500 text-xs font-bold">
+        <div class="col-span-full flex items-center justify-center py-12 text-sm">
+          <div class="flex items-center gap-3 text-slate-500 text-sm font-bold">
             <div class="w-5 h-5 border-2 border-slate-700 border-t-violet-400 rounded-full animate-spin"></div>
             Loading batches...
           </div>
@@ -1312,7 +1379,16 @@
       `;
       empty.classList.add('hidden');
 
-      fetch('/api/hod/batches')
+      // Update toggle UI
+      if (status === 'active') {
+        document.getElementById('btnHodFilterActive').className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-premium bg-violet-600/20 text-violet-400';
+        document.getElementById('btnHodFilterHistorical').className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-premium text-slate-500 hover:text-slate-300';
+      } else {
+        document.getElementById('btnHodFilterHistorical').className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-premium bg-slate-800 text-slate-300';
+        document.getElementById('btnHodFilterActive').className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-premium text-slate-500 hover:text-slate-300';
+      }
+
+      fetch(`/api/hod/batches?status=${status}`)
         .then(r => r.json())
         .then(data => {
           grid.innerHTML = '';
@@ -1323,7 +1399,7 @@
           data.batches.forEach(batch => renderBatchCard(batch));
         })
         .catch(() => {
-          grid.innerHTML = `<div class="col-span-full p-8 text-center text-red-400 font-bold text-xs">Failed to load batches.</div>`;
+          grid.innerHTML = `<div class="col-span-full p-8 text-center text-red-400 font-bold text-sm">Failed to load batches.</div>`;
         });
     }
 
@@ -1334,7 +1410,7 @@
       card.onclick = () => openBatchDetail(batch);
 
       const tutorHtml = batch.tutor_name
-        ? `<div class="flex items-center gap-1.5"><span class="material-symbols-rounded text-sky-400 text-sm">person_pin</span><span class="text-slate-300">${batch.tutor_name}</span></div>`
+        ? `<div class="flex items-center gap-1.5"><span class="material-symbols-rounded text-sky-400 text-xs">person_pin</span><span class="text-slate-300">${batch.tutor_name}</span></div>`
         : `<div class="flex items-center gap-1.5"><span class="material-symbols-rounded text-slate-600 text-sm">person_off</span><span class="text-slate-600 italic">No tutor assigned</span></div>`;
 
       const mentorHtml = batch.mentor_name
@@ -1345,21 +1421,21 @@
         <div class="flex items-start justify-between">
           <div>
             <div class="flex items-center gap-2 mb-1">
-              <span class="px-2 py-0.5 bg-violet-500/10 text-violet-400 border border-violet-500/20 rounded-lg font-mono text-[10px] font-bold">${batch.classroom_id}</span>
+              <span class="px-2 py-0.5 bg-violet-500/10 text-violet-400 border border-violet-500/20 rounded-lg font-mono text-base font-bold">${batch.classroom_id}</span>
             </div>
-            <h4 class="font-black text-slate-100 text-sm">Admission ${batch.batch_year}</h4>
-            <p class="text-[10px] text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} Cohort</p>
+            <h4 class="font-black text-slate-100 text-base">Admission ${batch.batch_year}</h4>
+            <p class="text-xs text-slate-500">${batch.batch_year} â ${batch.batch_year + 3} Cohort</p>
           </div>
           <div class="text-right">
-            <span class="text-2xl font-black text-slate-200">${batch.student_count}</span>
-            <p class="text-[10px] text-slate-500">students</p>
+            <span class="text-base font-black text-slate-200">${batch.student_count}</span>
+            <p class="text-sm text-slate-500">students</p>
           </div>
         </div>
-        <div class="border-t border-slate-800/60 pt-3 space-y-1.5 text-xs">
+        <div class="border-t border-slate-800/60 pt-3 space-y-1.5 text-sm">
           ${tutorHtml}
           ${mentorHtml}
         </div>
-        <div class="text-[10px] text-violet-400 font-bold group-hover:text-violet-300 transition-premium flex items-center gap-1">
+        <div class="text-sm text-violet-400 font-bold group-hover:text-violet-300 transition-premium flex items-center gap-1">
           <span class="material-symbols-rounded text-sm">open_in_new</span> Manage Batch
         </div>
       `;
@@ -1404,7 +1480,7 @@
       const mentor = document.getElementById('batchMentorSelect').value;
 
       if (!year) {
-        alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900 block';
+        alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
         alertEl.innerText = 'Please enter an admission year.';
         alertEl.classList.remove('hidden');
         return;
@@ -1426,7 +1502,7 @@
       .then(data => {
         spinner.classList.add('hidden');
         if (data.status === 'SUCCESS') {
-          alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-green-950/40 text-green-400 border border-green-900 block';
+          alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-green-950/40 text-green-400 border border-green-900 block';
           alertEl.innerText = data.message;
           alertEl.classList.remove('hidden');
           setTimeout(() => {
@@ -1434,14 +1510,14 @@
             loadBatches();
           }, 1800);
         } else {
-          alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900 block';
+          alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
           alertEl.innerText = data.message;
           alertEl.classList.remove('hidden');
         }
       })
       .catch(() => {
         spinner.classList.add('hidden');
-        alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900 block';
+        alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
         alertEl.innerText = 'Request failed.';
         alertEl.classList.remove('hidden');
       });
@@ -1449,17 +1525,18 @@
 
     function openBatchDetail(batch) {
       activeBatchId = batch.classroom_id;
+      switchBatchTab('tutorMentor'); // Reset to default tab
 
       document.getElementById('batchDetailTitle').innerText = `Batch ${batch.classroom_id}`;
-      document.getElementById('batchDetailSubtitle').innerText = `Admission ${batch.batch_year} · ${batch.batch_year}–${batch.batch_year + 3} Cohort`;
+      document.getElementById('batchDetailSubtitle').innerText = `Admission ${batch.batch_year} Â· ${batch.batch_year}â${batch.batch_year + 3} Cohort`;
 
       // Show current tutor/mentor
       document.getElementById('tutorCurrentDisplay').innerHTML = batch.tutor_name
-        ? `<span class="font-bold text-sky-300">${batch.tutor_name}</span> <span class="text-slate-600 text-[10px]">(${batch.tutor_mobile_no})</span>`
+        ? `<span class="font-bold text-sky-300">${batch.tutor_name}</span> <span class="text-slate-600 text-sm">(${batch.tutor_mobile_no})</span>`
         : '<span class="italic text-slate-600">Not assigned yet</span>';
 
       document.getElementById('mentorCurrentDisplay').innerHTML = batch.mentor_name
-        ? `<span class="font-bold text-emerald-300">${batch.mentor_name}</span> <span class="text-slate-600 text-[10px]">(${batch.mentor_mobile_no})</span>`
+        ? `<span class="font-bold text-emerald-300">${batch.mentor_name}</span> <span class="text-slate-600 text-sm">(${batch.mentor_mobile_no})</span>`
         : '<span class="italic text-slate-600">Not assigned yet</span>';
 
       // Clear alerts
@@ -1488,6 +1565,83 @@
       activeBatchId = null;
     }
 
+    function switchBatchTab(tab) {
+      const tabs = ['tutorMentor', 'subjects', 'students'];
+      tabs.forEach(t => {
+        document.getElementById('batchTab_' + t).classList.add('hidden');
+        document.getElementById('batchTab_' + t).classList.remove('block');
+        document.getElementById('tabBtn_' + t).className = "pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer";
+      });
+      document.getElementById('batchTab_' + tab).classList.remove('hidden');
+      document.getElementById('batchTab_' + tab).classList.add('block');
+      document.getElementById('tabBtn_' + tab).className = "pb-3 text-sm font-bold border-b-2 border-violet-500 text-white transition-premium cursor-pointer";
+      
+      if (tab === 'subjects') {
+        loadModalSubjects();
+      }
+    }
+
+    function loadModalSubjects() {
+      if (!activeBatchId) return;
+      const sem = document.getElementById('modalSubjectSemester').value;
+      const tbody = document.getElementById('modalSubjectsTableBody');
+      tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Loading subjects...</td></tr>`;
+
+      fetch(`/api/hod/batches/${encodeURIComponent(activeBatchId)}/subjects?semester=${sem}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            allCollegeStaffCache = data.all_staff || [];
+            tbody.innerHTML = '';
+            if (data.subjects.length === 0) {
+              tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">No subjects allocated for this semester yet.</td></tr>`;
+              return;
+            }
+
+            data.subjects.forEach(subj => {
+              let staffList = subj.staff.map(s => `<span class="block text-sm text-slate-400"><span class="font-bold text-slate-300">${s.name}</span> (${s.branch})</span>`).join('');
+              if (subj.staff.length === 0) staffList = `<span class="text-red-400 text-sm font-bold">Unassigned</span>`;
+              
+              let courseFileBadge = subj.course_file_status === 'Submitted' 
+                ? '<span class="px-2 py-0.5 rounded text-sm font-bold bg-green-500/10 text-green-400 border border-green-500/20">Submitted</span>'
+                : '<span class="px-2 py-0.5 rounded text-sm font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>';
+
+              const tr = document.createElement('tr');
+              tr.className = 'border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium';
+              tr.innerHTML = `
+                <td class="p-4 font-mono text-slate-300 font-bold">${subj.subject_code}</td>
+                <td class="p-4 font-mono text-slate-500 text-sm">${subj.syllabus_revision_code || '2021'}</td>
+                <td class="p-4 font-bold text-slate-200">${subj.subject_name}</td>
+                <td class="p-4 text-slate-400 text-sm">${subj.subject_type}</td>
+                <td class="p-4">${staffList}</td>
+                <td class="p-4">${courseFileBadge}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+          } else {
+            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-400">Failed to load subjects.</td></tr>`;
+          }
+        })
+        .catch(() => {
+          tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-400">Error fetching subjects.</td></tr>`;
+        });
+    }
+
+    function openSubjectModalFromDetail() {
+      const sem = document.getElementById('modalSubjectSemester').value;
+      document.getElementById('modalSubjectBatch').value = activeBatchId;
+      document.getElementById('displaySubjectBatch').innerText = activeBatchId;
+      document.getElementById('modalSubjectSemester').value = sem;
+      document.getElementById('displaySubjectSemester').innerText = 'Semester ' + sem;
+      
+      document.getElementById('subjectForm').reset();
+      document.getElementById('subjectAlert').classList.add('hidden');
+      
+      const modal = document.getElementById('subjectModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
     function submitAssignTutor() {
       const spinner = document.getElementById('assignTutorSpinner');
       const alertEl = document.getElementById('assignTutorAlert');
@@ -1505,7 +1659,7 @@
       .then(data => {
         spinner.classList.add('hidden');
         if (data.status === 'SUCCESS') {
-          alertEl.className = 'p-2 rounded-lg text-[10px] font-bold bg-green-950/40 text-green-400 border border-green-900 block';
+          alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-green-950/40 text-green-400 border border-green-900 block';
           alertEl.innerText = data.message;
           alertEl.classList.remove('hidden');
           document.getElementById('tutorCurrentDisplay').innerHTML = data.tutor_name 
@@ -1513,14 +1667,14 @@
             : '<span class="italic text-slate-600">Not assigned</span>';
           loadBatches();
         } else {
-          alertEl.className = 'p-2 rounded-lg text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900 block';
+          alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
           alertEl.innerText = data.message;
           alertEl.classList.remove('hidden');
         }
       })
       .catch(() => {
         spinner.classList.add('hidden');
-        alertEl.className = 'p-2 rounded-lg text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900 block';
+        alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
         alertEl.innerText = 'Request failed.';
         alertEl.classList.remove('hidden');
       });
@@ -1543,7 +1697,7 @@
       .then(data => {
         spinner.classList.add('hidden');
         if (data.status === 'SUCCESS') {
-          alertEl.className = 'p-2 rounded-lg text-[10px] font-bold bg-green-950/40 text-green-400 border border-green-900 block';
+          alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-green-950/40 text-green-400 border border-green-900 block';
           alertEl.innerText = data.message;
           alertEl.classList.remove('hidden');
           document.getElementById('mentorCurrentDisplay').innerHTML = data.mentor_name
@@ -1551,14 +1705,14 @@
             : '<span class="italic text-slate-600">Not assigned</span>';
           loadBatches();
         } else {
-          alertEl.className = 'p-2 rounded-lg text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900 block';
+          alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
           alertEl.innerText = data.message;
           alertEl.classList.remove('hidden');
         }
       })
       .catch(() => {
         spinner.classList.add('hidden');
-        alertEl.className = 'p-2 rounded-lg text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900 block';
+        alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
         alertEl.innerText = 'Request failed.';
         alertEl.classList.remove('hidden');
       });
@@ -1567,26 +1721,28 @@
     function loadBatchRoster(classroomId) {
       const tbody = document.getElementById('batchRosterTableBody');
       const countBadge = document.getElementById('rosterCountBadge');
-      tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 text-xs">Loading students...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 text-sm">Loading students...</td></tr>`;
 
       fetch(`/api/hod/batches/${encodeURIComponent(classroomId)}/students`)
         .then(r => r.json())
         .then(data => {
           tbody.innerHTML = '';
           if (data.status !== 'SUCCESS' || data.students.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-600 text-xs font-bold">No students enrolled in this batch yet.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-600 text-sm font-bold">No students enrolled in this batch yet.</td></tr>`;
             countBadge.innerText = '0';
             return;
           }
           countBadge.innerText = data.students.length;
           data.students.forEach(s => {
-            let statusBadge = `<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>`;
-            if (s.status === 'Approved') statusBadge = `<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Approved</span>`;
-            else if (s.status === 'Suspended') statusBadge = `<span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">Suspended</span>`;
+            let statusBadge = `<span class="px-2 py-0.5 rounded-full text-sm font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>`;
+            if (s.status === 'Approved') statusBadge = `<span class="px-2 py-0.5 rounded-full text-sm font-bold bg-green-500/10 text-green-400 border border-green-500/20">Approved</span>`;
+            else if (s.status === 'Suspended') statusBadge = `<span class="px-2 py-0.5 rounded-full text-sm font-bold bg-red-500/10 text-red-400 border border-red-500/20">Suspended</span>`;
 
             const admTypeBadge = s.admission_type === 'LET'
-              ? `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">LET</span>`
-              : `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-700 text-slate-400">Regular</span>`;
+              ? `<span class="px-1.5 py-0.5 rounded text-sm font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">LET</span>`
+              : `<span class="px-1.5 py-0.5 rounded text-sm font-bold bg-slate-700 text-slate-400">Regular</span>`;
+              
+            const sbteBadge = s.sbte_reg_no ? `<span class="font-mono text-slate-300 font-bold">${s.sbte_reg_no}</span>` : `<span class="text-sm text-slate-500 italic">Pending</span>`;
 
             const tr = document.createElement('tr');
             tr.className = 'border-b border-slate-800/40 hover:bg-slate-900/20 transition-premium';
@@ -1594,14 +1750,20 @@
               <td class="p-3 font-bold text-slate-200">${s.name}</td>
               <td class="p-3 font-mono text-slate-400">${s.reg_no}</td>
               <td class="p-3 font-mono text-slate-500">${s.adm_no}</td>
+              <td class="p-3">${sbteBadge}</td>
               <td class="p-3">${admTypeBadge}</td>
               <td class="p-3">${statusBadge}</td>
+              <td class="p-3 text-right">
+                <button onclick="openFullMentoringDiaryModal('${s.reg_no}', '${s.name.replace(/'/g, "\\'")}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/20 text-teal-400 rounded-lg text-sm font-bold transition-premium cursor-pointer">
+                  <span class="material-symbols-rounded text-sm">menu_book</span> Diary
+                </button>
+              </td>
             `;
             tbody.appendChild(tr);
           });
         })
         .catch(() => {
-          tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-red-400 font-bold text-xs">Failed to load students.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-red-400 font-bold text-sm">Failed to load students.</td></tr>`;
         });
     }
 
@@ -1640,8 +1802,8 @@
             }
 
             data.subjects.forEach(subj => {
-              let staffList = subj.staff.map(s => `<span class="block text-[10px] text-slate-400"><span class="font-bold text-slate-300">${s.name}</span> (${s.branch})</span>`).join('');
-              if (subj.staff.length === 0) staffList = `<span class="text-red-400 text-[10px] font-bold">Unassigned</span>`;
+              let staffList = subj.staff.map(s => `<span class="block text-sm text-slate-400"><span class="font-bold text-slate-300">${s.name}</span> (${s.branch})</span>`).join('');
+              if (subj.staff.length === 0) staffList = `<span class="text-red-400 text-sm font-bold">Unassigned</span>`;
               
               const currentStaffIds = subj.staff.map(s => s.mobile_no).join(',');
 
@@ -1650,11 +1812,11 @@
               tr.innerHTML = `
                 <td class="p-4 font-mono text-slate-300 font-bold">${subj.subject_code}</td>
                 <td class="p-4 font-bold text-slate-200">${subj.subject_name}</td>
-                <td class="p-4 text-slate-400 text-xs">${subj.subject_type}</td>
+                <td class="p-4 text-slate-400 text-sm">${subj.subject_type}</td>
                 <td class="p-4">${staffList}</td>
                 <td class="p-4 text-right space-x-2">
-                  <button onclick="openAssignStaffModal(${subj.id}, '${subj.subject_name.replace(/'/g, "\\'")}', '${currentStaffIds}')" class="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-[10px] font-bold transition-premium border border-blue-500/20">Assign Staff</button>
-                  <button onclick="deleteSubject(${subj.id})" class="px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-[10px] font-bold transition-premium border border-red-500/20">Delete</button>
+                  <button onclick="openAssignStaffModal(${subj.id}, '${subj.subject_name.replace(/'/g, "\\'")}', '${currentStaffIds}')" class="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-bold transition-premium border border-blue-500/20">Assign Staff</button>
+                  <button onclick="deleteSubject(${subj.id})" class="px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-sm font-bold transition-premium border border-red-500/20">Delete</button>
                 </td>
               `;
               tbody.appendChild(tr);
@@ -1707,7 +1869,8 @@
         semester: document.getElementById('modalSubjectSemester').value,
         subject_code: document.getElementById('subjectCode').value,
         subject_name: document.getElementById('subjectName').value,
-        subject_type: document.getElementById('subjectType').value
+        subject_type: document.getElementById('subjectType').value,
+        syllabus_revision_code: document.getElementById('subjectRevisionYear').value
       };
 
       fetch('/api/hod/batches/subjects/create', {
@@ -1722,13 +1885,13 @@
           closeSubjectModal();
           loadSubjects(); // refresh
         } else {
-          alertEl.className = 'p-2 rounded-lg text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
+          alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
           alertEl.innerText = data.message;
         }
       })
       .catch(() => {
         spinner.classList.add('hidden');
-        alertEl.className = 'p-2 rounded-lg text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
+        alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
         alertEl.innerText = 'Request failed.';
       });
     }
@@ -1783,7 +1946,7 @@
       }
 
       if (filteredStaff.length === 0) {
-        container.innerHTML = '<div class="p-3 text-slate-500 text-xs text-center">No staff found for this branch.</div>';
+        container.innerHTML = '<div class="p-3 text-slate-500 text-sm text-center">No staff found for this branch.</div>';
         return;
       }
 
@@ -1794,8 +1957,8 @@
         div.innerHTML = `
           <input type="checkbox" name="assignStaffCb" value="${staff.mobile_no}" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-blue-600 focus:ring-blue-500" ${isChecked}>
           <div class="flex-grow flex justify-between items-center">
-            <span class="text-xs font-bold text-slate-200">${staff.name}</span>
-            <span class="text-[9px] text-slate-500 font-mono">${staff.branch} - ${staff.designation}</span>
+            <span class="text-sm font-bold text-slate-200">${staff.name}</span>
+            <span class="text-sm text-slate-500 font-mono">${staff.branch} - ${staff.designation}</span>
           </div>
         `;
         container.appendChild(div);
@@ -1825,13 +1988,13 @@
           closeAssignStaffModal();
           loadSubjects(); // refresh
         } else {
-          alertEl.className = 'p-2 rounded-lg text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
+          alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
           alertEl.innerText = data.message;
         }
       })
       .catch(() => {
         spinner.classList.add('hidden');
-        alertEl.className = 'p-2 rounded-lg text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
+        alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
         alertEl.innerText = 'Request failed.';
       });
     }
@@ -1855,11 +2018,11 @@
             }
             data.logs.forEach(log => {
               const tr = document.createElement('tr');
-              tr.className = "border-b border-slate-800 text-xs";
+              tr.className = "border-b border-slate-800 text-sm";
               const date = new Date(log.created_at).toLocaleString();
               tr.innerHTML = `
                 <td class="p-3 text-slate-400 font-mono">${date}</td>
-                <td class="p-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
+                <td class="p-3"><span class="px-1.5 py-0.5 rounded text-sm font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
                 <td class="p-3 text-slate-300">${log.details || ''}</td>
               `;
               tbody.appendChild(tr);
@@ -1873,5 +2036,8 @@
         });
     }
   </script>
+
+  @include('mentoring_diary_modal')
+
 </body>
 </html>

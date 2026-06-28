@@ -12,6 +12,7 @@ use App\Models\BatchSubject;
 use App\Models\SubjectStaffAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 
 class DataController extends Controller
 {
@@ -63,6 +64,30 @@ class DataController extends Controller
     /**
      * Admin/HOD: update a student profile.
      */
+    public function updateSbteRegNo(Request $request)
+    {
+        $request->validate([
+            'sbteRegNo' => 'required|string|max:50',
+        ]);
+
+        $regNo = Session::get('userId');
+        $student = Student::where('reg_no', $regNo)->first();
+
+        if (!$student) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Student not found.']);
+        }
+
+        try {
+            $student->sbte_reg_no = strtoupper(trim($request->sbteRegNo));
+            $student->save();
+            Session::put('sbteRegNo', $student->sbte_reg_no);
+            
+            return response()->json(['status' => 'SUCCESS', 'message' => 'SBTE register number updated successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed to save SBTE register number.']);
+        }
+    }
+
     public function updateStudentProfile(Request $request, $regNo)
     {
         $student = Student::where('reg_no', strtoupper($regNo))->first();
@@ -293,8 +318,11 @@ class DataController extends Controller
                         'role' => 'Student',
                         'branch' => $s->branch,
                         'status' => $s->status,
+                        'academic_status' => $s->academic_status,
+                        'status_notes' => $s->status_notes,
                         'photo_url' => $s->photo_url,
                         'type' => 'student',
+                        'sbte_reg_no' => $s->sbte_reg_no,
                     ];
                 })->toArray();
 
@@ -440,6 +468,83 @@ class DataController extends Controller
             return response()->json(['status' => 'SUCCESS', 'message' => 'User status updated successfully.']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Failed to toggle status: ' . $e->getMessage()]);
+        }
+    }
+
+    public function updateAcademicStatus(Request $request)
+    {
+        $request->validate([
+            'userId' => 'required|string',
+            'academicStatus' => 'required|string',
+            'statusNotes' => 'nullable|string'
+        ]);
+
+        $userId = $request->input('userId');
+        
+        if (!$this->checkUserManagementPermission($userId, 'student')) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized action on this profile.']);
+        }
+
+        try {
+            $student = Student::where('reg_no', strtoupper($userId))->first();
+            if (!$student) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Student record not found.']);
+            }
+
+            $student->update([
+                'academic_status' => $request->input('academicStatus'),
+                'status_notes' => $request->input('statusNotes')
+            ]);
+
+            AuditLog::create([
+                'performed_by' => Session::get('userId'),
+                'performed_by_name' => Session::get('userName'),
+                'target_id' => $userId,
+                'target_name' => $student->name,
+                'action' => 'Academic Status Update',
+                'details' => "Status: {$request->input('academicStatus')}. Notes: {$request->input('statusNotes')}",
+                'ip_address' => $request->ip(),
+            ]);
+
+            return response()->json(['status' => 'SUCCESS']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed: ' . $e->getMessage()]);
+        }
+    }
+
+    public function promoteBatch(Request $request)
+    {
+        $currentUserId = Session::get('userId');
+        
+        $supervisedClass = ClassManagement::where('tutor_mobile_no', $currentUserId)->first();
+        if (!$supervisedClass) {
+            return response()->json(['status' => 'ERROR', 'message' => 'You must be a tutor to promote a batch.']);
+        }
+
+        try {
+            if ($supervisedClass->current_semester >= 6) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Batch is already at Semester 6 and cannot be promoted further.']);
+            }
+
+            $supervisedClass->current_semester += 1;
+            $supervisedClass->save();
+
+            AuditLog::create([
+                'performed_by' => Session::get('userId'),
+                'performed_by_name' => Session::get('userName'),
+                'target_id' => $supervisedClass->classroom_id,
+                'target_name' => "Classroom {$supervisedClass->classroom_id}",
+                'action' => 'Batch Promoted',
+                'details' => "Promoted to Semester {$supervisedClass->current_semester}",
+                'ip_address' => $request->ip(),
+            ]);
+
+            return response()->json([
+                'status' => 'SUCCESS', 
+                'new_semester' => $supervisedClass->current_semester
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed: ' . $e->getMessage()]);
         }
     }
 
@@ -685,7 +790,7 @@ class DataController extends Controller
     /**
      * HOD: List all batches/classrooms for this HOD's department branch.
      */
-    public function getHodBatches()
+    public function getHodBatches(Request $request)
     {
         $currentUserId = Session::get('userId');
         $currentRole   = Session::get('userRole');
@@ -695,9 +800,18 @@ class DataController extends Controller
             return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD access required.']);
         }
 
+        $filterStatus = $request->query('status', 'active');
+
         try {
-            $batches = ClassManagement::where('branch', strtoupper($currentBranch))
-                ->orderBy('batch_year', 'desc')
+            $query = ClassManagement::where('branch', strtoupper($currentBranch));
+            
+            if ($filterStatus === 'historical') {
+                $query->where('current_semester', '>', 6);
+            } else {
+                $query->where('current_semester', '<=', 6);
+            }
+
+            $batches = $query->orderBy('batch_year', 'desc')
                 ->get()
                 ->map(function ($cls) {
                     $tutorName  = null;
@@ -1064,7 +1178,7 @@ class DataController extends Controller
 
         $semester = $request->query('semester');
         try {
-            $query = BatchSubject::with('staffAssignments.staffProfile')->where('classroom_id', $classroomId);
+            $query = BatchSubject::with(['staffAssignments.staffProfile', 'courseFile'])->where('classroom_id', $classroomId);
             if ($semester) {
                 $query->where('semester', $semester);
             }
@@ -1074,8 +1188,10 @@ class DataController extends Controller
                     'id' => $subj->id,
                     'semester' => $subj->semester,
                     'subject_code' => $subj->subject_code,
+                    'syllabus_revision_code' => $subj->syllabus_revision_code,
                     'subject_name' => $subj->subject_name,
                     'subject_type' => $subj->subject_type,
+                    'course_file_status' => $subj->courseFile ? 'Submitted' : 'Pending',
                     'staff' => $subj->staffAssignments->map(function ($sa) {
                         return [
                             'mobile_no' => $sa->staff_mobile_no,
@@ -1140,7 +1256,8 @@ class DataController extends Controller
                 'semester' => $request->semester,
                 'subject_code' => strtoupper($request->subject_code),
                 'subject_name' => $request->subject_name,
-                'subject_type' => $request->subject_type
+                'subject_type' => $request->subject_type,
+                'syllabus_revision_code' => $request->syllabus_revision_code ?? 'REV2021'
             ]);
 
             return response()->json(['status' => 'SUCCESS', 'message' => 'Subject created successfully.']);
@@ -1209,18 +1326,31 @@ class DataController extends Controller
     /**
      * LECTURER: Get all batches assigned to the lecturer (Tutor, Mentor, Subject Staff)
      */
-    public function getLecturerBatches()
+    public function getLecturerBatches(Request $request)
     {
         $userId = \Illuminate\Support\Facades\Session::get('userId');
         if (!$userId) {
             return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
         }
 
+        $filterStatus = $request->query('status', 'active'); // 'active' or 'historical'
+
         try {
             // 1. Get batches where user is Tutor or Mentor
-            $managedBatches = \App\Models\ClassManagement::where('tutor_mobile_no', $userId)
-                ->orWhere('mentor_mobile_no', $userId)
-                ->get();
+            // For Tutor/Mentor, 'active' means classroom current_semester <= 6 (not yet graduated/fully completed)
+            // If historical, we could show completed ones. Or maybe Tutor/Mentor always sees the batch?
+            // To be precise: If active, show batches where current_semester <= 6. If historical, current_semester > 6.
+            $managedQuery = \App\Models\ClassManagement::where(function($q) use ($userId) {
+                $q->where('tutor_mobile_no', $userId)
+                  ->orWhere('mentor_mobile_no', $userId);
+            });
+
+            if ($filterStatus === 'historical') {
+                $managedQuery->where('current_semester', '>', 6);
+            } else {
+                $managedQuery->where('current_semester', '<=', 6);
+            }
+            $managedBatches = $managedQuery->get();
 
             // 2. Get batches where user is assigned to a subject
             $subjectAssignments = \App\Models\SubjectStaffAssignment::with(['batchSubject.classroom'])
@@ -1236,6 +1366,7 @@ class DataController extends Controller
                     $batchesMap[$cid] = [
                         'classroom_id' => $batch->classroom_id,
                         'batch_year' => $batch->batch_year,
+                        'current_semester' => $batch->current_semester,
                         'branch' => $batch->branch,
                         'roles' => [],
                         'subjects' => []
@@ -1249,11 +1380,28 @@ class DataController extends Controller
             foreach ($subjectAssignments as $sa) {
                 if ($sa->batchSubject && $sa->batchSubject->classroom) {
                     $batch = $sa->batchSubject->classroom;
+                    $subjectSem = (int) $sa->batchSubject->semester;
+                    $currentSem = (int) $batch->current_semester;
+                    
+                    // Filter based on status
+                    if ($filterStatus === 'historical') {
+                        // Historical means the subject was taught in a previous semester OR the whole batch is completed (>6)
+                        if ($subjectSem >= $currentSem && $currentSem <= 6) {
+                            continue; // Skip active subjects when requesting historical
+                        }
+                    } else {
+                        // Active means the subject is for the current semester (or future), AND batch is not completed
+                        if ($subjectSem < $currentSem || $currentSem > 6) {
+                            continue; // Skip historical subjects when requesting active
+                        }
+                    }
+
                     $cid = $batch->classroom_id;
                     if (!isset($batchesMap[$cid])) {
                         $batchesMap[$cid] = [
                             'classroom_id' => $batch->classroom_id,
                             'batch_year' => $batch->batch_year,
+                            'current_semester' => $batch->current_semester,
                             'branch' => $batch->branch,
                             'roles' => [],
                             'subjects' => []
@@ -1282,6 +1430,549 @@ class DataController extends Controller
             return response()->json(['status' => 'SUCCESS', 'batches' => array_values($batchesMap)]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * LECTURER: Fetch students of a specific classroom.
+     */
+    public function getClassroomStudents($classroomId)
+    {
+        $userId = \Illuminate\Support\Facades\Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        $students = \App\Models\Student::where('classroom_id', $classroomId)
+            ->where('status', 'Approved')
+            ->orderBy('name')
+            ->get(['reg_no', 'name', 'email', 'phone', 'photo_url', 'branch']);
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'students' => $students
+        ]);
+    }
+
+    /**
+     * STUDENT: Get academic report (semester wise)
+     */
+    public function getAcademicReport()
+    {
+        $regNo = Session::get('userId');
+        if (!$regNo) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        try {
+            $student = \App\Models\Student::where('reg_no', $regNo)->first();
+            if (!$student) throw new \Exception("Student not found");
+
+            // Summaries
+            $summaries = DB::table('student_semester_summary')
+                ->where('reg_no', $regNo)
+                ->orderBy('semester', 'asc')
+                ->get();
+
+            $classroomId = $student->classroom_id;
+            $classroom = DB::table('class_management')->where('classroom_id', $classroomId)->first();
+            $currentSem = $classroom ? $classroom->current_semester : 1;
+
+            $batchSubjects = \App\Models\BatchSubject::where('classroom_id', $classroomId)
+                ->orderBy('semester', 'asc')
+                ->get();
+
+            $academicMarks = DB::table('academic_marks')
+                ->where('reg_no', $regNo)
+                ->get()
+                ->groupBy('subject_code');
+
+            // Attendance
+            $attendanceRecords = DB::table('student_attendance')
+                ->where('reg_no', $regNo)
+                ->select('subject_code', 'status', DB::raw('count(*) as count'))
+                ->groupBy('subject_code', 'status')
+                ->get();
+
+            $attendanceMap = [];
+            foreach ($attendanceRecords as $rec) {
+                $attendanceMap[$rec->subject_code][$rec->status] = $rec->count;
+            }
+
+            // Build Report grouped by semester
+            $report = [];
+            foreach ($batchSubjects as $subj) {
+                $sem = $subj->semester;
+                if (!isset($report[$sem])) {
+                    $summary = $summaries->firstWhere('semester', $sem);
+                    $report[$sem] = [
+                        'semester' => $sem,
+                        'sgpa' => $summary ? $summary->sgpa : null,
+                        'cgpa' => $summary ? $summary->cgpa : null,
+                        'activity_points' => $summary ? $summary->activity_points : 0,
+                        'subjects' => []
+                    ];
+                }
+
+                $subjCode = $subj->subject_code;
+                $subjMarks = $academicMarks->get($subjCode, collect());
+                
+                // Parse marks
+                $parsedMarks = [
+                    'CO1' => null, 'CO2' => null, 'CO3' => null, 'CO4' => null,
+                    'Assg1' => null, 'Assg2' => null, 'Assg3' => null, 'Assg4' => null,
+                    'WT1' => null, 'WT2' => null, 'WT3' => null, 'WT4' => null,
+                    'OT1' => null, 'OT2' => null, 'OT3' => null, 'OT4' => null,
+                ];
+
+                foreach ($subjMarks as $m) {
+                    if ($m->category === 'Assignment') {
+                        if ($m->co_tag === 'CO1') { $parsedMarks['Assg1'] = $m->marks_obtained; $parsedMarks['CO1'] = ($parsedMarks['CO1'] ?? 0) + $m->marks_obtained; }
+                        if ($m->co_tag === 'CO2') { $parsedMarks['Assg2'] = $m->marks_obtained; $parsedMarks['CO2'] = ($parsedMarks['CO2'] ?? 0) + $m->marks_obtained; }
+                        if ($m->co_tag === 'CO3') { $parsedMarks['Assg3'] = $m->marks_obtained; $parsedMarks['CO3'] = ($parsedMarks['CO3'] ?? 0) + $m->marks_obtained; }
+                        if ($m->co_tag === 'CO4') { $parsedMarks['Assg4'] = $m->marks_obtained; $parsedMarks['CO4'] = ($parsedMarks['CO4'] ?? 0) + $m->marks_obtained; }
+                    }
+                    if ($m->category === 'Written Test') {
+                        if ($m->co_tag === 'CO1') { $parsedMarks['WT1'] = $m->marks_obtained; $parsedMarks['CO1'] = ($parsedMarks['CO1'] ?? 0) + $m->marks_obtained; }
+                        if ($m->co_tag === 'CO2') { $parsedMarks['WT2'] = $m->marks_obtained; $parsedMarks['CO2'] = ($parsedMarks['CO2'] ?? 0) + $m->marks_obtained; }
+                        if ($m->co_tag === 'CO3') { $parsedMarks['WT3'] = $m->marks_obtained; $parsedMarks['CO3'] = ($parsedMarks['CO3'] ?? 0) + $m->marks_obtained; }
+                        if ($m->co_tag === 'CO4') { $parsedMarks['WT4'] = $m->marks_obtained; $parsedMarks['CO4'] = ($parsedMarks['CO4'] ?? 0) + $m->marks_obtained; }
+                    }
+                    if ($m->category === 'Online Test') {
+                        if ($m->co_tag === 'CO1') { $parsedMarks['OT1'] = $m->marks_obtained; $parsedMarks['CO1'] = ($parsedMarks['CO1'] ?? 0) + $m->marks_obtained; }
+                        if ($m->co_tag === 'CO2') { $parsedMarks['OT2'] = $m->marks_obtained; $parsedMarks['CO2'] = ($parsedMarks['CO2'] ?? 0) + $m->marks_obtained; }
+                        if ($m->co_tag === 'CO3') { $parsedMarks['OT3'] = $m->marks_obtained; $parsedMarks['CO3'] = ($parsedMarks['CO3'] ?? 0) + $m->marks_obtained; }
+                        if ($m->co_tag === 'CO4') { $parsedMarks['OT4'] = $m->marks_obtained; $parsedMarks['CO4'] = ($parsedMarks['CO4'] ?? 0) + $m->marks_obtained; }
+                    }
+                }
+
+                // Parse attendance
+                $attData = $attendanceMap[$subjCode] ?? [];
+                $present = $attData['Present'] ?? 0;
+                $late = $attData['Late'] ?? 0;
+                $absent = $attData['Absent'] ?? 0;
+                $totalDays = $present + $late + $absent;
+                $attPercent = $totalDays > 0 ? round((($present + ($late*0.5)) / $totalDays) * 100, 1) : 0;
+
+                $report[$sem]['subjects'][] = array_merge([
+                    'subject_code' => $subjCode,
+                    'subject_name' => $subj->subject_name,
+                    'attendance_percentage' => $attPercent
+                ], $parsedMarks);
+            }
+
+            // Calculate global stats for tasks (all semesters)
+            $assignmentsGraded = DB::table('academic_marks')
+                ->where('reg_no', $regNo)
+                ->where('category', 'Assignment')
+                ->select('subject_code', 'co_tag')
+                ->distinct()
+                ->get()
+                ->map(function($m) { return $m->subject_code . '-' . $m->co_tag; })
+                ->toArray();
+            
+            $assignmentsManuallySubmitted = DB::table('student_task_submissions')
+                ->where('reg_no', $regNo)
+                ->where('category', 'Assignment')
+                ->select('subject_code', 'co_tag')
+                ->distinct()
+                ->get()
+                ->map(function($m) { return $m->subject_code . '-' . $m->co_tag; })
+                ->toArray();
+
+            $uniqueAssignmentsDone = array_unique(array_merge($assignmentsGraded, $assignmentsManuallySubmitted));
+
+            $writtenTestsGraded = DB::table('academic_marks')
+                ->where('reg_no', $regNo)
+                ->where('category', 'Written Test')
+                ->select('subject_code', 'co_tag')
+                ->distinct()
+                ->get()
+                ->map(function($m) { return $m->subject_code . '-' . $m->co_tag; })
+                ->toArray();
+                
+            $writtenTestsSubmittedManually = DB::table('student_task_submissions')
+                ->where('reg_no', $regNo)
+                ->where('category', 'Written Test')
+                ->select('subject_code', 'co_tag')
+                ->distinct()
+                ->get()
+                ->map(function($m) { return $m->subject_code . '-' . $m->co_tag; })
+                ->toArray();
+
+            $uniqueAssignmentsDone = array_unique(array_merge($assignmentsGraded, $assignmentsManuallySubmitted));
+            $uniqueWrittenTestsDone = array_unique(array_merge($writtenTestsGraded, $writtenTestsSubmittedManually));
+
+            // Fetch Active Assignments and Exams for current semester
+            $activeTasks = [];
+            $stats = [
+                'assignments_active' => 0,
+                'assignments_submitted' => count($uniqueAssignmentsDone),
+                'written_tests_active' => 0,
+                'written_tests_submitted' => count($uniqueWrittenTestsDone)
+            ];
+
+            if ($currentSem <= 6) {
+                $currentSubjects = $batchSubjects->where('semester', $currentSem);
+                
+                $taskSubmissions = DB::table('student_task_submissions')
+                    ->where('reg_no', $regNo)
+                    ->get();
+                
+                $allMarks = DB::table('academic_marks')
+                    ->where('reg_no', $regNo)
+                    ->get();
+
+                foreach ($currentSubjects as $subj) {
+                    $courseFile = \App\Models\CourseFile::where('batch_subject_id', $subj->id)->first();
+                    if ($courseFile) {
+                        // assignment
+                        $deadlines = $courseFile->assignment_deadlines ?? [];
+                        $questions = $courseFile->assignment_questions ?? [];
+                        foreach ($deadlines as $co => $dData) {
+                            if (!empty($dData['locked']) && $dData['locked'] === true) {
+                                // Filter by graded in academic_marks
+                                $isGraded = $allMarks->where('subject_code', $subj->subject_code)->where('co_tag', $co)->where('category', 'Assignment')->isNotEmpty();
+                                if ($isGraded) {
+                                    continue;
+                                }
+
+                                // Filter by manual submission
+                                $isSubmitted = $taskSubmissions->where('subject_code', $subj->subject_code)->where('co_tag', $co)->where('category', 'Assignment')->isNotEmpty();
+                                if ($isSubmitted) {
+                                    continue;
+                                }
+
+                                $start = $dData['start'] ?? null;
+                                $due = $dData['due'] ?? null;
+                                
+                                if ($due && strtotime($due . ' 23:59:59') < time()) continue; // Skip expired assignments
+                                
+                                $stats['assignments_active']++;
+                                $activeTasks[] = [
+                                    'type' => 'Assignment',
+                                    'subject' => $subj->subject_name,
+                                    'subject_code' => $subj->subject_code,
+                                    'co_tag' => $co,
+                                    'start' => $start,
+                                    'deadline' => $due,
+                                    'status' => 'Active',
+                                    'questions' => $questions[$co] ?? []
+                                ];
+                            }
+                        }
+                        // summative tests
+                        $tests = $courseFile->summative_manual_tests ?? [];
+                        foreach ($tests as $co => $tData) {
+                            if (!empty($tData['is_locked']) && $tData['is_locked'] === true && !empty($tData['date_of_exam'])) {
+                                // Filter by graded in academic_marks
+                                $isGraded = $allMarks->where('subject_code', $subj->subject_code)->where('co_tag', $co)->where('category', 'Written Test')->isNotEmpty();
+                                if ($isGraded) continue;
+
+                                if (strtotime($tData['date_of_exam'] . ' 23:59:59') < time()) continue; // Skip expired tests
+                                
+                                $stats['written_tests_active']++;
+                                $activeTasks[] = [
+                                    'type' => 'Written Test',
+                                    'subject' => $subj->subject_name,
+                                    'subject_code' => $subj->subject_code,
+                                    'co_tag' => $co,
+                                    'start' => null,
+                                    'deadline' => $tData['date_of_exam'],
+                                    'status' => 'Upcoming',
+                                    'questions' => []
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Removed online tests from active_tasks as they are now handled exclusively by TestEngineController in the UI
+
+            // Pull activity points from activity_point_claims (Verified) since semester summary may be empty
+            $activityClaims = DB::table('activity_point_claims')
+                ->where('reg_no', $regNo)
+                ->where('status', 'Verified')
+                ->select('semester', DB::raw('SUM(points_awarded) as total'))
+                ->groupBy('semester')
+                ->get()
+                ->keyBy('semester');
+
+            $totalActivityPoints = $activityClaims->sum('total');
+
+            // If summaries have points, prefer them; otherwise fallback to claims
+            if ($summaries->sum('activity_points') > 0) {
+                $totalActivityPoints = $summaries->sum('activity_points');
+            }
+
+            // Inject per-semester activity points from claims into report
+            foreach ($report as $sem => &$semData) {
+                if ($semData['activity_points'] == 0 && isset($activityClaims[$sem])) {
+                    $semData['activity_points'] = $activityClaims[$sem]->total;
+                }
+            }
+            unset($semData);
+
+            $latestSummary = $summaries->last();
+            $currentCgpa = $latestSummary ? $latestSummary->cgpa : null;
+
+            ksort($report);
+
+            return response()->json([
+                'status' => 'SUCCESS',
+                'overall' => [
+                    'cgpa' => $currentCgpa,
+                    'activity_points' => $totalActivityPoints,
+                    'current_semester' => $currentSem,
+                ],
+                'semesters' => array_values($report),
+                'active_tasks' => $activeTasks,
+                'stats' => $stats
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * TUTOR: Fetch dynamic semester tracking data (subjects + grades matrix).
+     */
+    public function getTutorSemesterData(Request $request)
+    {
+        $userId = Session::get('userId');
+        $role = Session::get('userRole');
+        
+        $semester = $request->query('semester', 1);
+
+        $supervisedClass = \App\Models\ClassManagement::where('tutor_mobile_no', $userId)
+            ->orWhere('mentor_mobile_no', $userId)
+            ->first();
+
+        if (!$supervisedClass) {
+            return response()->json(['status' => 'ERROR', 'message' => 'No supervised classroom found.']);
+        }
+
+        $classroomId = $supervisedClass->classroom_id;
+
+        // Get all students in this classroom
+        $students = Student::where('classroom_id', $classroomId)->get();
+
+        // Get subjects for this batch & semester
+        $subjects = \App\Models\BatchSubject::where('classroom_id', $classroomId)
+            ->where('semester', $semester)
+            ->get();
+
+        // Get all marks for these students for this semester
+        $regNos = $students->pluck('reg_no');
+        $marks = \App\Models\StudentSemesterMarks::whereIn('reg_no', $regNos)
+            ->where('semester', $semester)
+            ->get();
+
+        $summaries = \App\Models\StudentSemesterSummary::whereIn('reg_no', $regNos)
+            ->where('semester', $semester)
+            ->get()->keyBy('reg_no');
+
+        $result = [];
+        foreach ($students as $student) {
+            $studentMarks = $marks->where('reg_no', $student->reg_no)->keyBy('subject_code');
+            $summary = $summaries->get($student->reg_no);
+
+            $subjectGrades = [];
+            foreach ($subjects as $sub) {
+                $m = $studentMarks->get($sub->subject_code);
+                if ($m) {
+                    $gradeStr = $m->board_marks ? $m->board_marks . ' (' . $m->grade . ')' : $m->grade;
+                    $subjectGrades[$sub->subject_code] = $gradeStr;
+                } else {
+                    $subjectGrades[$sub->subject_code] = '-';
+                }
+            }
+
+            $result[] = [
+                'reg_no' => $student->reg_no,
+                'name' => $student->name,
+                'status' => $student->status,
+                'photo_url' => $student->photo_url,
+                'subjects' => $subjectGrades,
+                'sgpa' => $summary ? $summary->sgpa : '-',
+                'attendance' => $summary ? $summary->attendance_percentage : '-',
+                'activity_points' => $summary ? $summary->activity_points : '-',
+            ];
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'semester' => $semester,
+            'subjects' => $subjects->map(function($s) { 
+                return ['code' => $s->subject_code, 'name' => $s->subject_name]; 
+            }),
+            'students' => $result
+        ]);
+    }
+
+    /**
+     * TUTOR: Fetch detailed student profile.
+     */
+    public function getTutorStudentProfile($regNo)
+    {
+        $userId = Session::get('userId');
+
+        // Check authorization
+        $supervisedClass = \App\Models\ClassManagement::where('tutor_mobile_no', $userId)
+            ->orWhere('mentor_mobile_no', $userId)
+            ->first();
+
+        if (!$supervisedClass) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        $student = Student::where('reg_no', $regNo)->where('classroom_id', $supervisedClass->classroom_id)->first();
+        if (!$student) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Student not found in your class.']);
+        }
+
+        $summaries = \App\Models\StudentSemesterSummary::where('reg_no', $regNo)->orderBy('semester')->get();
+        
+        return response()->json([
+            'status' => 'SUCCESS',
+            'student' => $student,
+            'semesters' => $summaries
+        ]);
+    }
+
+    /**
+     * TUTOR: Update student remarks (higher studies/placement context).
+     */
+    public function updateTutorStudentRemarks(Request $request, $regNo)
+    {
+        $userId = Session::get('userId');
+
+        $supervisedClass = \App\Models\ClassManagement::where('tutor_mobile_no', $userId)
+            ->orWhere('mentor_mobile_no', $userId)
+            ->first();
+
+        if (!$supervisedClass) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        $student = Student::where('reg_no', $regNo)->where('classroom_id', $supervisedClass->classroom_id)->first();
+        if (!$student) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Student not found in your class.']);
+        }
+
+        $request->validate([
+            'higher_studies_remark' => 'nullable|string'
+        ]);
+
+        $student->update([
+            'higher_studies_remark' => $request->input('higher_studies_remark')
+        ]);
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Remarks updated successfully.']);
+    }
+
+    public function getTutorActiveStudents(Request $request)
+    {
+        $userId = Session::get('userId');
+
+        $supervisedClass = \App\Models\ClassManagement::where('tutor_mobile_no', $userId)->first();
+
+        if (!$supervisedClass) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized or no assigned class.']);
+        }
+
+        $students = Student::where('classroom_id', $supervisedClass->classroom_id)
+            ->where('status', 'Approved')
+            ->where('academic_status', 'Active')
+            ->orderBy('name')
+            ->get(['reg_no', 'name']);
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'data' => $students
+        ]);
+    }
+
+    public function submitTutorPromotion(Request $request)
+    {
+        $userId = Session::get('userId');
+        $supervisedClass = \App\Models\ClassManagement::where('tutor_mobile_no', $userId)->first();
+
+        if (!$supervisedClass) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized or no assigned class.']);
+        }
+
+        $promotions = $request->input('promotions', []);
+
+        DB::beginTransaction();
+        try {
+            // First, update the academic_status of students who are NOT promoted
+            foreach ($promotions as $promo) {
+                if ($promo['action'] !== 'Promote') {
+                    Student::where('reg_no', $promo['reg_no'])
+                        ->where('classroom_id', $supervisedClass->classroom_id)
+                        ->update([
+                            'academic_status' => $promo['action'],
+                            'status_notes' => $promo['remarks']
+                        ]);
+                } else if (!empty($promo['remarks'])) {
+                     Student::where('reg_no', $promo['reg_no'])
+                        ->where('classroom_id', $supervisedClass->classroom_id)
+                        ->update([
+                            'status_notes' => $promo['remarks']
+                        ]);
+                }
+            }
+
+            // Increment the semester for the classroom
+            $currentSem = (int) $supervisedClass->current_semester;
+            $newSem = $currentSem < 8 ? $currentSem + 1 : $currentSem;
+
+            $supervisedClass->update(['current_semester' => $newSem]);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'SUCCESS',
+                'new_semester' => 'Semester ' . $newSem
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'ERROR', 'message' => 'Promotion failed: ' . $e->getMessage()]);
+        }
+    }
+
+    public function submitManualTask(Request $request)
+    {
+        $regNo = Session::get('userId');
+        if (!$regNo) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        $request->validate([
+            'subject_code' => 'required|string',
+            'category' => 'required|string',
+            'co_tag' => 'required|string',
+            'status' => 'required|string'
+        ]);
+
+        try {
+            DB::table('student_task_submissions')->insert([
+                'reg_no' => $regNo,
+                'subject_code' => $request->input('subject_code'),
+                'category' => $request->input('category'),
+                'co_tag' => $request->input('co_tag'),
+                'status' => $request->input('status'),
+                'submitted_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Task marked as submitted successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed to submit task: ' . $e->getMessage()]);
         }
     }
 }

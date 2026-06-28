@@ -30,6 +30,108 @@
         display: none !important;
       }
     }
+
+    /* Clean overrides to enlarge fonts in the virtual classroom and related containers to normal readable sizes */
+    #panelClassroom, 
+    #panelClassroom button,
+    #panelClassroom select,
+    #panelClassroom input,
+    #panelClassroom table,
+    #panelClassroom th,
+    #panelClassroom td,
+    #panelClassroom div,
+    #panelClassroom p,
+    #panelClassroom h3,
+    #panelClassroom h4,
+    #panelClassroom h5,
+    #panelClassroom span {
+      font-size: 13px !important;
+    }
+    
+    #panelClassroom h3#vcTitle,
+    #panelClassroom h3#vcTitle span {
+      font-size: 18px !important;
+      font-weight: 900 !important;
+    }
+    
+    #panelClassroom #vcSubtitle,
+    #panelClassroom #vcSubtitle span {
+      font-size: 14px !important;
+    }
+    
+    #panelClassroom #vcViewStudentsBtn,
+    #panelClassroom #vcViewStudentsBtn span {
+      font-size: 13px !important;
+      font-weight: bold !important;
+    }
+
+    #panelClassroom #tabStructure,
+    #panelClassroom #tabPlanner,
+    #panelClassroom #tabAssessment,
+    #panelClassroom #tabSummative {
+      font-size: 14px !important;
+      font-weight: 900 !important;
+    }
+
+    #panelClassroom #tabStructure span,
+    #panelClassroom #tabPlanner span,
+    #panelClassroom #tabAssessment span,
+    #panelClassroom #tabSummative span {
+      font-size: 16px !important;
+    }
+
+    /* Course structure, lesson planner, formative, summative & online test setup container headings */
+    #panelClassroom h4, 
+    #panelClassroom h5 {
+      font-size: 15px !important;
+      font-weight: bold !important;
+    }
+
+    /* Manual mark entry table title, names, and internal grid data font sizes */
+    #manualMarksWrapper table th,
+    #manualMarksWrapper table td,
+    #manualMarksWrapper input,
+    #manualMarksWrapper span {
+      font-size: 13px !important;
+    }
+    
+    #manualMarksWrapper table td {
+      padding: 12px 10px !important;
+    }
+
+    /* Flatpickr date picker calendar visibility in dark background */
+    .flatpickr-calendar {
+      background: #0f172a !important;
+      border: 1px solid #334155 !important;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+      color: #f1f5f9 !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-month,
+    .flatpickr-calendar .flatpickr-weekdays,
+    .flatpickr-calendar .flatpickr-weekday,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day {
+      color: #f1f5f9 !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.prevMonthDay:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.nextMonthDay:hover {
+      background: #1e293b !important;
+      color: #38bdf8 !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.selected {
+      background: #2563eb !important;
+      color: white !important;
+    }
+    .flatpickr-calendar .flatpickr-current-month span.cur-month,
+    .flatpickr-calendar .numInputWrapper span,
+    .flatpickr-calendar input.numInput {
+      color: #f1f5f9 !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-prev-month, 
+    .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+      color: #38bdf8 !important;
+      fill: #38bdf8 !important;
+    }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col md:flex-row">
@@ -39,10 +141,10 @@
   <!-- Sidebar Navigation -->
   <aside class="w-full md:w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl">
     <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
-      <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center text-lg shadow-lg shadow-blue-500/20">CL</div>
+      <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg">
       <div>
-        <h2 class="font-extrabold text-sm tracking-wide">Carmel Linx</h2>
-        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Lecturer Console</span>
+        <h2 class="font-extrabold text-[10px] tracking-wide text-sm">Carmel Linx</h2>
+        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Lecturer Console</span>
       </div>
     </div>
 
@@ -50,14 +152,14 @@
     <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3">
       <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
       <div class="overflow-hidden">
-        <span class="font-bold text-xs block truncate text-slate-200">{{ session('userName') }}</span>
-        <span class="text-[9px] font-bold text-teal-400 block uppercase tracking-wider">{{ session('userBranch') }} Lecturer</span>
+        <span class="font-bold text-[10px] block truncate text-slate-200 text-[10px] text-xs">{{ session('userName') }}</span>
+        <span class="text-[10px] font-bold text-teal-400 block uppercase tracking-wider">{{ session('userBranch') }} Lecturer</span>
       </div>
     </div>
 
     <!-- Navigation Menus -->
     <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500">
+      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 ">
         <span class="material-symbols-rounded text-lg">grid_view</span> My Batches
       </button>
 
@@ -68,26 +170,34 @@
       @endphp
 
       @if($isTutor)
-      <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block">
+      <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block ">
         <span class="material-symbols-rounded text-lg">admin_panel_settings</span> Tutor Console
       </a>
       @endif
 
       @if($isTutor || $isMentor)
-      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block">
+      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block ">
         <span class="material-symbols-rounded text-lg">diversity_3</span> My Mentoring
       </a>
       @endif
+      
+      <a href="/course-files" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-amber-400 hover:bg-amber-900/30 hover:text-amber-300 cursor-pointer no-underline ">
+         <span class="material-symbols-rounded text-lg">folder_open</span> Course Files
+      </a>
 
-      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4">
-        <span class="material-symbols-rounded text-lg">security</span> My Security Log
+      <a href="/remedial-sessions" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 hover:text-purple-300 cursor-pointer no-underline">
+         <span class="material-symbols-rounded text-xs">health_and_safety</span> Remedial Sessions
+      </a>
+
+      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4">
+        <span class="material-symbols-rounded text-lg">settings</span> My Profile
       </button>
     </nav>
 
     <!-- Logout -->
     <div class="p-4 border-t border-slate-800/80">
-      <a href="/logout" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-xs flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium">
-        <span class="material-symbols-rounded text-base">logout</span> Sign Out
+      <a href="{{ url('/logout') }}" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium">
+        <span class="material-symbols-rounded text-sm">logout</span> Sign Out
       </a>
     </div>
   </aside>
@@ -97,7 +207,7 @@
     
     <!-- Top Header -->
     <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-10">
-      <h1 id="panelTitle" class="text-lg font-extrabold text-slate-100 tracking-tight">My Batches</h1>
+      <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-2xl">My Batches</h1>
     </header>
 
     <!-- Panel Container -->
@@ -107,13 +217,13 @@
       <div id="panelDashboard" class="space-y-6">
         <div class="flex justify-between items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl">
           <div>
-            <h3 class="text-xs font-black text-slate-200">My Assigned Batches & Classrooms</h3>
-            <p class="text-[10px] text-slate-400 mt-0.5">Select a subject to enter the virtual classroom for assignments and assessments.</p>
+            <h3 class="text-lg font-black text-slate-200">My Assigned Batches & Classrooms</h3>
+            <p class="text-sm text-slate-400 mt-0.5">Select a subject to enter the virtual classroom for assignments and assessments.</p>
           </div>
         </div>
         
         <div id="lecturerBatchGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div class="col-span-full py-12 text-center text-slate-500 font-bold text-xs animate-pulse">Loading batches...</div>
+          <div class="col-span-full py-12 text-center text-slate-500 font-bold text-[10px] animate-pulse">Loading batches...</div>
         </div>
       </div>
 
@@ -122,15 +232,15 @@
         <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex items-center justify-between">
           <div>
             <button onclick="switchPanel('dashboard')" class="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider flex items-center gap-1 transition-premium mb-1 cursor-pointer">
-              <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Dashboard
+              <span class="material-symbols-rounded text-[10px]">arrow_back</span> Back to Dashboard
             </button>
-            <h3 id="vcTitle" class="text-sm font-black text-slate-200 flex items-center gap-2 mt-1">
-              <span class="material-symbols-rounded text-blue-400 text-lg">meeting_room</span> Virtual Classroom
+            <h3 id="vcTitle" class="text-[10px] font-black text-slate-200 flex items-center gap-2 mt-1">
+              <span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> Virtual Classroom
             </h3>
             <p id="vcSubtitle" class="text-[10px] text-slate-400 mt-0.5 font-mono">Loading...</p>
           </div>
-          <button id="vcViewStudentsBtn" onclick="alert('Student list coming soon for this classroom!')" class="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-md border border-slate-700/60">
-            <span class="material-symbols-rounded text-sm">groups</span> View Students
+          <button id="vcViewStudentsBtn" onclick="showVcStudentsList()" class="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl text-[10px] font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-md border border-slate-700/60">
+            <span class="material-symbols-rounded text-[10px]">groups</span> View Students
           </button>
         </div>
 
@@ -140,10 +250,10 @@
              <div class="flex-grow bg-slate-950/40 border border-slate-800/60 p-4 rounded-2xl relative overflow-hidden group flex items-center justify-between">
                 <div class="flex items-center gap-4">
                   <div id="syllabusUploadBox" class="border border-dashed border-slate-700/60 rounded-xl px-4 py-2 text-center hover:border-blue-500/50 hover:bg-slate-900/40 transition-premium cursor-pointer relative z-10 flex items-center gap-3" onclick="document.getElementById('syllabusFileInput').click()">
-                    <span class="material-symbols-rounded text-3xl text-slate-500">picture_as_pdf</span>
+                    <span class="material-symbols-rounded text-base text-slate-500">picture_as_pdf</span>
                     <div class="text-left">
-                      <p class="text-xs font-bold text-slate-300">Upload Syllabus PDF</p>
-                      <p class="text-[9px] text-slate-500">Max 10MB</p>
+                      <p class="text-[10px] font-bold text-slate-300">Upload Syllabus PDF</p>
+                      <p class="text-[10px] text-slate-500">Max 10MB</p>
                     </div>
                     <input type="file" id="syllabusFileInput" class="hidden" accept="application/pdf" onchange="handleSyllabusUpload(this)">
                   </div>
@@ -164,31 +274,31 @@
              <!-- Download Active Syllabus Card -->
              <div id="activeSyllabusCard" class="hidden bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl flex items-center gap-4 transition-premium border-l-2 border-l-emerald-500 min-w-[250px]">
                 <div class="bg-emerald-500/10 p-2 rounded-lg flex-shrink-0">
-                  <span class="material-symbols-rounded text-emerald-400 text-lg block">check_circle</span>
+                  <span class="material-symbols-rounded text-emerald-400 text-xs block">check_circle</span>
                 </div>
                 <div class="flex-grow">
-                  <h4 class="text-xs font-black text-slate-200">Active Syllabus</h4>
-                  <p class="text-[9px] text-slate-400">Parsed & ready</p>
+                  <h4 class="text-[10px] font-black text-slate-200">Active Syllabus</h4>
+                  <p class="text-[10px] text-slate-400">Parsed & ready</p>
                 </div>
                 <a id="downloadSyllabusBtn" href="#" target="_blank" class="text-slate-400 hover:text-blue-400 transition-premium bg-slate-900/50 p-1.5 rounded-lg border border-slate-800 hover:border-blue-500/50">
-                  <span class="material-symbols-rounded text-base block">download</span>
+                  <span class="material-symbols-rounded text-[10px] block">download</span>
                 </a>
              </div>
         </div>
         
         <!-- Toggle Buttons -->
         <div class="flex items-center gap-4 border-b border-slate-800/60 pb-3 mb-4">
-            <button onclick="toggleClassroomTab('structure')" id="tabStructure" class="text-sm font-black text-blue-400 flex items-center gap-1.5 transition-premium border-b-2 border-blue-500 pb-1">
-              <span class="material-symbols-rounded text-lg">account_tree</span> Course Structure
+            <button onclick="toggleClassroomTab('structure')" id="tabStructure" class="text-[10px] font-black text-blue-400 flex items-center gap-1.5 transition-premium border-b-2 border-blue-500 pb-1">
+              <span class="material-symbols-rounded text-xs">account_tree</span> Course Structure
             </button>
-            <button onclick="toggleClassroomTab('planner')" id="tabPlanner" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-              <span class="material-symbols-rounded text-lg">calendar_month</span> Lesson Planner
+            <button onclick="toggleClassroomTab('planner')" id="tabPlanner" class="text-[10px] font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
+              <span class="material-symbols-rounded text-xs">calendar_month</span> Lesson Planner
             </button>
-            <button onclick="toggleClassroomTab('assessment')" id="tabAssessment" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-              <span class="material-symbols-rounded text-lg">assignment_turned_in</span> Formative Assessment
+            <button onclick="toggleClassroomTab('assessment')" id="tabAssessment" class="text-[10px] font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
+              <span class="material-symbols-rounded text-xs">assignment_turned_in</span> Formative Assessment
             </button>
-            <button onclick="toggleClassroomTab('summative')" id="tabSummative" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-              <span class="material-symbols-rounded text-lg">school</span> Summative Assessment
+            <button onclick="toggleClassroomTab('summative')" id="tabSummative" class="text-[10px] font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
+              <span class="material-symbols-rounded text-xs">school</span> Summative Assessment
             </button>
         </div>
 
@@ -197,9 +307,9 @@
             <div id="courseStructureContent" class="space-y-6 flex-grow overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
                 <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
-                  <span class="material-symbols-rounded text-4xl text-slate-600">inventory_2</span>
+                  <span class="material-symbols-rounded text-xl text-slate-600">inventory_2</span>
                 </div>
-                <p class="text-xs font-bold text-slate-400">No syllabus loaded.</p>
+                <p class="text-[10px] font-bold text-slate-400">No syllabus loaded.</p>
                 <p class="text-[10px] mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus PDF to automatically populate Course Outcomes, Modules, and Textbooks.</p>
               </div>
             </div>
@@ -207,9 +317,9 @@
             <div id="coursePlannerContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
                 <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
-                  <span class="material-symbols-rounded text-4xl text-slate-600">event_note</span>
+                  <span class="material-symbols-rounded text-xl text-slate-600">event_note</span>
                 </div>
-                <p class="text-xs font-bold text-slate-400">Planner not generated.</p>
+                <p class="text-[10px] font-bold text-slate-400">Planner not generated.</p>
                 <p class="text-[10px] mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to automatically generate the lesson plan.</p>
               </div>
             </div>
@@ -217,9 +327,9 @@
             <div id="formativeAssessmentContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
                 <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
-                  <span class="material-symbols-rounded text-4xl text-slate-600">quiz</span>
+                  <span class="material-symbols-rounded text-xl text-slate-600">quiz</span>
                 </div>
-                <p class="text-xs font-bold text-slate-400">No students or COs available.</p>
+                <p class="text-[10px] font-bold text-slate-400">No students or COs available.</p>
                 <p class="text-[10px] mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to activate formative assessment tasks.</p>
               </div>
             </div>
@@ -227,33 +337,61 @@
             <div id="summativeAssessmentContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
                 <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
-                  <span class="material-symbols-rounded text-4xl text-slate-600">school</span>
+                  <span class="material-symbols-rounded text-xl text-slate-600">school</span>
                 </div>
-                <p class="text-xs font-bold text-slate-400">Loading summative assessments...</p>
+                <p class="text-[10px] font-bold text-slate-400">Loading summative assessments...</p>
               </div>
             </div>
         </div>
       </div>
 
-      <!-- PANEL 2: SECURITY LOG -->
-      <div id="panelSecurity" class="hidden space-y-6">
-        <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl">
-          <h3 class="text-sm font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2">
-            <span class="material-symbols-rounded text-blue-400 text-lg">security</span> My Profile Security Audit trail
-          </h3>
-          <div class="overflow-x-auto scrollbar-hidden border border-slate-800 rounded-xl">
-            <table class="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr class="bg-slate-900/60 border-b border-slate-800 text-slate-400 font-bold">
-                  <th class="p-4">Time</th>
-                  <th class="p-4">Action</th>
-                  <th class="p-4">Details</th>
-                </tr>
-              </thead>
-              <tbody id="securityLogsTable">
-                <!-- Loaded dynamically -->
-              </tbody>
-            </table>
+      <!-- PANEL 2: SECURITY LOG / MY PROFILE -->
+      <div id="panelSecurity" class="hidden space-y-6 animate-fade-in">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Profile Card -->
+          <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
+            <div class="flex flex-col items-center text-center space-y-3">
+              <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100' }}" class="w-24 h-24 rounded-full border border-slate-700 object-cover shadow-lg">
+              <div>
+                <h3 class="font-black text-white text-base">{{ session('userName') }}</h3>
+                <span class="font-bold text-teal-400 uppercase tracking-wider text-xs">{{ session('userBranch') }} Lecturer</span>
+              </div>
+            </div>
+            <div class="border-t border-slate-800/60 pt-4 space-y-2.5 text-xs">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Mobile ID:</span>
+                <span class="font-bold text-slate-200">{{ session('userId') }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Branch:</span>
+                <span class="font-bold text-slate-200">{{ session('userBranch') }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-400">Role Designation:</span>
+                <span class="font-bold text-slate-200">Lecturer / Academic Staff</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Self Security Logs -->
+          <div class="lg:col-span-2 bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl flex flex-col">
+            <h3 class="font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-sm">
+              <span class="material-symbols-rounded text-blue-400 text-lg">security</span> My Profile Security Audit Trail
+            </h3>
+            <div class="flex-grow max-h-[300px] overflow-y-auto scrollbar-hidden border border-slate-800 rounded-xl">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-900/40 border-b border-slate-800 text-slate-400 font-bold">
+                    <th class="p-3">Time</th>
+                    <th class="p-3">Action</th>
+                    <th class="p-3">Details</th>
+                  </tr>
+                </thead>
+                <tbody id="securityLogsTable">
+                  <!-- Loaded dynamically -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -278,9 +416,9 @@
         
         if (id === panelId) {
           if (el) el.classList.remove('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
+          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
         } else {
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
+          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
           if (el) el.classList.add('hidden');
         }
       });
@@ -298,7 +436,7 @@
 
     function loadLecturerBatches() {
       const grid = document.getElementById('lecturerBatchGrid');
-      grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-500 font-bold text-xs animate-pulse">Loading batches...</div>';
+      grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-500 font-bold text-[10px] animate-pulse">Loading batches...</div>';
 
       fetch('/api/lecturer/my-batches', {
         headers: { 'Content-Type': 'application/json' }
@@ -308,11 +446,11 @@
         if (data.status === 'SUCCESS') {
           renderBatchCards(data.batches);
         } else {
-          grid.innerHTML = `<div class="col-span-full p-4 bg-red-950/40 text-red-400 border border-red-900 rounded-xl text-xs">${data.message}</div>`;
+          grid.innerHTML = `<div class="col-span-full p-4 bg-red-950/40 text-red-400 border border-red-900 rounded-xl text-[10px]">${data.message}</div>`;
         }
       })
       .catch(() => {
-        grid.innerHTML = `<div class="col-span-full p-4 bg-red-950/40 text-red-400 border border-red-900 rounded-xl text-xs">Error loading batches.</div>`;
+        grid.innerHTML = `<div class="col-span-full p-4 bg-red-950/40 text-red-400 border border-red-900 rounded-xl text-[10px]">Error loading batches.</div>`;
       });
     }
 
@@ -338,17 +476,17 @@
           if (r === 'Tutor') color = 'sky';
           if (r === 'Mentor') color = 'emerald';
           if (r === 'Subject Staff') color = 'violet';
-          rolesHtml += `<span class="px-2 py-0.5 rounded text-[9px] font-bold bg-${color}-500/10 text-${color}-400 border border-${color}-500/20">${r}</span>`;
+          rolesHtml += `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-${color}-500/10 text-${color}-400 border border-${color}-500/20">${r}</span>`;
         });
 
         let subjectsHtml = '';
         if (b.subjects && b.subjects.length > 0) {
           b.subjects.forEach(s => {
             subjectsHtml += `
-              <button onclick="openClassroom('${b.classroom_id}', '${s.id}', '${s.name} (${s.code})')" class="w-full text-left px-3 py-2 bg-slate-900/60 hover:bg-slate-800 border border-slate-800/60 hover:border-blue-500/50 rounded-xl transition-premium cursor-pointer group flex justify-between items-center">
+              <button onclick="openClassroom('${b.classroom_id}', '${s.id}', '${s.name} (${s.code})')" class="w-full text-left px-3.5 py-2.5 bg-slate-900/60 hover:bg-slate-800 border border-slate-800/60 hover:border-blue-500/50 rounded-xl transition-premium cursor-pointer group flex justify-between items-center">
                 <div>
-                  <div class="text-xs font-bold text-slate-200 group-hover:text-blue-400 transition-premium">${s.name}</div>
-                  <div class="text-[9px] text-slate-500 font-mono">Sem ${s.semester} • ${s.type} • ${s.code}</div>
+                  <div class="text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-premium">${s.name}</div>
+                  <div class="text-xs text-slate-400 font-mono mt-0.5">Sem ${s.semester} • ${s.type} • ${s.code}</div>
                 </div>
                 <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-500 text-sm transition-premium">open_in_new</span>
               </button>
@@ -364,8 +502,8 @@
           <div class="p-4 border-b border-slate-800/60 bg-slate-900/40">
             <div class="flex justify-between items-start mb-2">
               <div>
-                <h4 class="font-black text-slate-200 text-sm tracking-tight">${b.classroom_id}</h4>
-                <div class="text-[10px] text-slate-400 font-mono mt-0.5">${b.branch} • Year ${b.batch_year}</div>
+                <h4 class="font-black text-slate-200 text-xl tracking-tight">${b.classroom_id}</h4>
+                <div class="text-sm text-slate-400 font-mono mt-0.5">${b.branch} • Year ${b.batch_year}</div>
               </div>
               <div class="flex flex-wrap gap-1 justify-end max-w-[50%]">
                 ${rolesHtml}
@@ -374,7 +512,7 @@
           </div>
           
           <div class="p-4 flex-grow space-y-3 bg-slate-950/20">
-            <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><span class="material-symbols-rounded text-xs">book</span> Assigned Subjects</h5>
+            <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><span class="material-symbols-rounded text-xs">book</span> Assigned Subjects</h5>
             <div class="space-y-2">
               ${subjectsHtml}
             </div>
@@ -388,7 +526,7 @@
 
     function openClassroom(batchId, subjectId, subjectName) {
       currentSubjectId = subjectId;
-      document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-blue-400 text-lg">meeting_room</span> ${subjectName}`;
+      document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> ${subjectName}`;
       document.getElementById('vcSubtitle').innerText = `Batch: ${batchId}`;
       switchPanel('classroom');
       loadCourseDetails(subjectId);
@@ -406,7 +544,7 @@
       document.getElementById('syllabusUploadBox').classList.add('hidden');
       document.getElementById('syllabusUploadProgress').classList.remove('hidden');
       document.getElementById('parseStatusBadge').innerText = 'Extracting...';
-      document.getElementById('parseStatusBadge').className = 'text-[9px] font-bold px-2.5 py-1 rounded-md bg-blue-900/30 text-blue-400 border border-blue-500/30';
+      document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-blue-900/30 text-blue-400 border border-blue-500/30';
 
       fetch(`/api/classroom/${currentSubjectId}/syllabus`, {
         method: 'POST',
@@ -424,7 +562,7 @@
         } else {
           alert(data.message);
           document.getElementById('parseStatusBadge').innerText = 'Upload Failed';
-          document.getElementById('parseStatusBadge').className = 'text-[9px] font-bold px-2.5 py-1 rounded-md bg-red-900/30 text-red-400 border border-red-500/30';
+          document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-red-900/30 text-red-400 border border-red-500/30';
         }
       })
       .catch(err => {
@@ -472,18 +610,18 @@
       document.getElementById('courseStructureContent').innerHTML = `
         <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
           <div class="w-6 h-6 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-          <p class="text-xs font-bold text-slate-400">Loading course data...</p>
+          <p class="text-[10px] font-bold text-slate-400">Loading course data...</p>
         </div>
       `;
       document.getElementById('coursePlannerContent').innerHTML = `
         <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
           <div class="w-6 h-6 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin mb-4"></div>
-          <p class="text-xs font-bold text-slate-400">Loading planner...</p>
+          <p class="text-[10px] font-bold text-slate-400">Loading planner...</p>
         </div>
       `;
       document.getElementById('activeSyllabusCard').classList.add('hidden');
       document.getElementById('parseStatusBadge').innerText = 'Syncing...';
-      document.getElementById('parseStatusBadge').className = 'text-[9px] font-bold px-2.5 py-1 rounded-md bg-blue-900/30 text-blue-400 border border-blue-500/30';
+      document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-blue-900/30 text-blue-400 border border-blue-500/30';
 
       fetch(`/api/classroom/${subjectId}/details`)
       .then(res => res.json())
@@ -494,11 +632,13 @@
           currentSummativeTests = data.data.summative_manual_tests || {};
           currentSubjectName = data.data.subject_name || '';
           currentSubjectCode = data.data.subject_code || '';
+          window.currentVirtualStudents = data.data.students || [];
           
           renderCourseStructure(data.data.cos, data.data.modules, data.data.textbooks, data.data.copo);
           renderCoursePlanner(data.data.lesson_plans);
           renderFormativeAssessment(data.data.students || []);
           renderSummativeAssessment(data.data.cos, data.data.students || []);
+          loadActiveOnlineTests(subjectId);
           
           if (Object.keys(currentQuestions).length > 0) {
             renderAIQuestionsList(currentQuestions, subjectId);
@@ -510,22 +650,22 @@
           }
         } else {
           document.getElementById('parseStatusBadge').innerText = 'Waiting for upload';
-          document.getElementById('parseStatusBadge').className = 'text-[9px] font-bold px-2.5 py-1 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/50';
+          document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/50';
           document.getElementById('courseStructureContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
               <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
-                <span class="material-symbols-rounded text-4xl text-slate-600">inventory_2</span>
+                <span class="material-symbols-rounded text-xl text-slate-600">inventory_2</span>
               </div>
-              <p class="text-xs font-bold text-slate-400">No syllabus loaded.</p>
+              <p class="text-[10px] font-bold text-slate-400">No syllabus loaded.</p>
               <p class="text-[10px] mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus PDF to automatically populate Course Outcomes, Modules, and Textbooks.</p>
             </div>
           `;
           document.getElementById('coursePlannerContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
               <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
-                <span class="material-symbols-rounded text-4xl text-slate-600">event_note</span>
+                <span class="material-symbols-rounded text-xl text-slate-600">event_note</span>
               </div>
-              <p class="text-xs font-bold text-slate-400">Planner not generated.</p>
+              <p class="text-[10px] font-bold text-slate-400">Planner not generated.</p>
               <p class="text-[10px] mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to automatically generate the lesson plan.</p>
             </div>
           `;
@@ -540,11 +680,11 @@
       let html = `
         <div class="flex justify-between items-end mb-4">
           <div>
-            <h4 class="text-sm font-black text-slate-200">Interactive Lesson Planner</h4>
+            <h4 class="text-[10px] font-black text-slate-200">Interactive Lesson Planner</h4>
             <p class="text-[10px] text-slate-500 mt-1">Set proposed dates and pedagogy. Remarks can be added after class completion.</p>
           </div>
           <div class="text-[10px] font-bold text-slate-400 bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-800/50">
-            Total Est. Hours: <span class="text-emerald-400 ml-1 text-xs">${totalHours}</span>
+            Total Est. Hours: <span class="text-emerald-400 ml-1 text-[10px]">${totalHours}</span>
           </div>
         </div>
         
@@ -552,7 +692,7 @@
           <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse min-w-[800px]">
                 <thead>
-                  <tr class="bg-slate-900/80 text-[9px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/60">
+                  <tr class="bg-slate-900/80 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/60">
                     <th class="p-3 w-12 text-center">Day No</th>
                     <th class="p-3 w-32">Proposed Date</th>
                     <th class="p-3">Topic / Content</th>
@@ -566,7 +706,7 @@
       `;
 
       lessonPlans.forEach((lp, index) => {
-        let coBadge = lp.co_id ? `<span class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[9px] ml-2">${lp.co_id}</span>` : '';
+        let coBadge = lp.co_id ? `<span class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] ml-2">${lp.co_id}</span>` : '';
         let proposed = lp.proposed_date ? lp.proposed_date : '';
         let actual = lp.actual_date ? `<span class="text-emerald-400 font-mono">${lp.actual_date}</span>` : `<span class="text-slate-600 font-mono italic">Pending</span>`;
         let pedagogy = lp.pedagogy || 'Lecture';
@@ -574,7 +714,7 @@
         let dayNo = lp.day_no || (index + 1);
         
         html += `
-          <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[11px]">
+          <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[10px]">
             <td class="p-3 text-center font-bold text-slate-500">${dayNo}</td>
             <td class="p-3">
               <input type="date" value="${proposed}" class="w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 font-mono" onchange="updateProposedDate(${lp.id}, this.value)">
@@ -607,55 +747,64 @@
         <div class="flex items-center justify-between mb-4">
           <div>
             <h4 class="text-sm font-black text-slate-200">Formative Assessment (Assignments)</h4>
-            <p class="text-[10px] text-slate-500 mt-1">Generate AI questions for each CO and record 10-mark evaluations.</p>
+            <p class="text-sm text-slate-500 mt-1">Generate AI questions for each CO and record 10-mark evaluations.</p>
           </div>
-          <button onclick="generateAIQuestions('${currentSubjectId}')" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white rounded-xl text-xs font-bold transition-premium flex items-center gap-2 shadow-lg shadow-blue-900/20">
-            <span class="material-symbols-rounded text-sm">smart_toy</span> AI Generate Questions
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="printAssignmentReport('${currentSubjectId}')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-2 shadow-lg shadow-blue-500/10 cursor-pointer">
+              <span class="material-symbols-rounded text-sm">print</span> Print Assignment Report
+            </button>
+            <button onclick="generateAIQuestions('${currentSubjectId}')" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-2 shadow-lg shadow-blue-900/20 cursor-pointer">
+              <span class="material-symbols-rounded text-sm">smart_toy</span> AI Generate Questions
+            </button>
+          </div>
         </div>
 
         <div id="aiQuestionsContainer" class="hidden grid-cols-1 md:grid-cols-2 gap-4 mb-6"></div>
 
         <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner">
           <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 flex items-center justify-between">
-            <div class="font-bold text-[11px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
+            <div class="font-bold text-sm text-slate-400 flex items-center gap-2 tracking-wider uppercase">
               <span class="material-symbols-rounded text-sm text-sky-400">group</span> Enrolled Students
             </div>
-            <button onclick="saveAssignmentMarks('${currentSubjectId}')" class="px-3 py-1.5 bg-emerald-600/80 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-premium">
+            <button onclick="saveAssignmentMarks('${currentSubjectId}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer">
               Save Marks
             </button>
           </div>
           <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[600px]">
+            <table class="w-full text-left border-collapse min-w-[700px]">
               <thead>
-                <tr class="bg-slate-900/40 text-[9px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800/60">
-                  <th class="p-3 w-16">Reg No</th>
+                <tr class="bg-slate-900/40 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/60">
+                  <th class="p-3 w-12">S.No.</th>
                   <th class="p-3">Student Name</th>
-                  <th class="p-3 text-center w-24">CO1 (10)</th>
-                  <th class="p-3 text-center w-24">CO2 (10)</th>
-                  <th class="p-3 text-center w-24">CO3 (10)</th>
-                  <th class="p-3 text-center w-24">CO4 (10)</th>
+                  <th class="p-3 w-28">Admission No</th>
+                  <th class="p-3 w-32">SBTE Reg No</th>
+                  <th class="p-3 text-center w-20">CO1 (10)</th>
+                  <th class="p-3 text-center w-20">CO2 (10)</th>
+                  <th class="p-3 text-center w-20">CO3 (10)</th>
+                  <th class="p-3 text-center w-20">CO4 (10)</th>
                 </tr>
               </thead>
               <tbody id="markEntryTbody">
       `;
 
       if (students && students.length > 0) {
-        students.forEach(student => {
+        students.forEach((student, index) => {
           let m = student.assignment_marks || {};
           html += `
-            <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[11px]" data-reg="${student.reg_no}">
-              <td class="p-3 font-mono text-slate-500">${student.reg_no}</td>
-              <td class="p-3 font-bold text-slate-300">${student.name}</td>
-              <td class="p-3"><input type="number" max="10" min="0" value="${m.CO1 !== null ? m.CO1 : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO1"></td>
-              <td class="p-3"><input type="number" max="10" min="0" value="${m.CO2 !== null ? m.CO2 : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO2"></td>
-              <td class="p-3"><input type="number" max="10" min="0" value="${m.CO3 !== null ? m.CO3 : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO3"></td>
-              <td class="p-3"><input type="number" max="10" min="0" value="${m.CO4 !== null ? m.CO4 : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO4"></td>
+            <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-sm" data-reg="${student.reg_no}">
+              <td class="p-3 text-slate-400 font-bold">${index + 1}</td>
+              <td class="p-3 font-bold text-slate-200">${student.name}</td>
+              <td class="p-3 font-mono text-slate-400">${student.reg_no}</td>
+              <td class="p-3 font-mono text-slate-400">${student.sbte_reg_no || '-'}</td>
+              <td class="p-3"><input type="number" step="1" max="10" min="0" value="${m.CO1 !== null ? Math.round(m.CO1) : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO1"></td>
+              <td class="p-3"><input type="number" step="1" max="10" min="0" value="${m.CO2 !== null ? Math.round(m.CO2) : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO2"></td>
+              <td class="p-3"><input type="number" step="1" max="10" min="0" value="${m.CO3 !== null ? Math.round(m.CO3) : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO3"></td>
+              <td class="p-3"><input type="number" step="1" max="10" min="0" value="${m.CO4 !== null ? Math.round(m.CO4) : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO4"></td>
             </tr>
           `;
         });
       } else {
-        html += `<tr><td colspan="6" class="p-6 text-center text-slate-500 text-xs font-bold">No students found in this classroom.</td></tr>`;
+        html += `<tr><td colspan="8" class="p-6 text-center text-slate-500 text-sm font-bold">No students found in this classroom.</td></tr>`;
       }
 
       html += `</tbody></table></div></div>`;
@@ -666,7 +815,20 @@
       document.getElementById('aiQuestionsContainer').classList.remove('hidden');
       let html = '';
       for (const [co, qs] of Object.entries(questionsData)) {
-        let qList = qs.map(q => `<li class="text-[10px] text-slate-400 mb-1 leading-relaxed">${q}</li>`).join('');
+        let qList = qs.map(q => {
+          let cog = '';
+          let lower = q.toLowerCase();
+          if (!lower.includes('[remember]') && !lower.includes('[u]') && !lower.includes('[a]') && !lower.includes('[r]') && !lower.includes('cognitive')) {
+            if (lower.includes('define') || lower.includes('list') || lower.includes('what is') || lower.includes('state') || lower.includes('name')) {
+              cog = ' <span class="text-blue-400 font-bold">[Remember - R]</span>';
+            } else if (lower.includes('design') || lower.includes('solve') || lower.includes('calculate') || lower.includes('write') || lower.includes('implement') || lower.includes('apply') || lower.includes('draw')) {
+              cog = ' <span class="text-emerald-400 font-bold">[Apply - A]</span>';
+            } else {
+              cog = ' <span class="text-indigo-400 font-bold">[Understand - U]</span>';
+            }
+          }
+          return `<li class="text-sm text-slate-300 mb-2 leading-relaxed font-medium">${q}${cog}</li>`;
+        }).join('');
         let schedule = currentDeadlines[co] || { start: '', due: '', locked: false };
         if (typeof schedule === 'string') schedule = { start: '', due: schedule, locked: false }; // Legacy fallback
         
@@ -689,17 +851,17 @@
             <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-premium pointer-events-none"></div>
             
             <div class="flex items-center justify-between mb-3 border-b border-slate-800/60 pb-2 relative z-10">
-              <h5 class="text-xs font-black text-blue-400 flex items-center gap-1">
-                <span class="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[9px] mr-1">${co}</span> Assignment ${lockStr}
+              <h5 class="text-[10px] font-black text-blue-400 flex items-center gap-1">
+                <span class="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[10px] mr-1">${co}</span> Assignment ${lockStr}
               </h5>
               <div class="flex items-center gap-2">
                 <div class="flex items-center gap-1 bg-slate-950/80 px-2 py-1 rounded border border-slate-700/50">
-                  <span class="text-[9px] text-slate-500 font-bold uppercase">Start</span>
-                  <input type="date" value="${schedule.start || ''}" ${disabledAttr} class="bg-transparent text-[9px] text-slate-300 font-mono outline-none w-20" onchange="updateAssignmentSchedule('${subjectId}', '${co}', 'start', this.value)">
+                  <span class="text-[10px] text-slate-500 font-bold uppercase">Start</span>
+                  <input type="date" value="${schedule.start || ''}" ${disabledAttr} class="bg-transparent text-[10px] text-slate-300 font-mono outline-none w-20" onchange="updateAssignmentSchedule('${subjectId}', '${co}', 'start', this.value)">
                 </div>
                 <div class="flex items-center gap-1 bg-slate-950/80 px-2 py-1 rounded border border-slate-700/50">
-                  <span class="text-[9px] text-slate-500 font-bold uppercase">Due</span>
-                  <input type="date" value="${schedule.due || ''}" ${disabledAttr} class="bg-transparent text-[9px] text-slate-300 font-mono outline-none w-20" onchange="updateAssignmentSchedule('${subjectId}', '${co}', 'due', this.value)">
+                  <span class="text-[10px] text-slate-500 font-bold uppercase">Due</span>
+                  <input type="date" value="${schedule.due || ''}" ${disabledAttr} class="bg-transparent text-[10px] text-slate-300 font-mono outline-none w-20" onchange="updateAssignmentSchedule('${subjectId}', '${co}', 'due', this.value)">
                 </div>
                 ${regenBtn}
                 ${lockBtn}
@@ -716,7 +878,7 @@
     function generateAIQuestions(subjectId, coTag = null) {
       if (!coTag) {
         document.getElementById('aiQuestionsContainer').classList.remove('hidden');
-        document.getElementById('aiQuestionsContainer').innerHTML = `<div class="col-span-full text-center py-4 text-xs font-bold text-blue-400 animate-pulse">AI is generating questions...</div>`;
+        document.getElementById('aiQuestionsContainer').innerHTML = `<div class="col-span-full text-center py-4 text-[10px] font-bold text-blue-400 animate-pulse">AI is generating questions...</div>`;
       } else {
         const ul = document.getElementById(`questions-list-${coTag}`);
         if(ul) ul.innerHTML = `<li class="text-[10px] text-blue-400 animate-pulse">Regenerating...</li>`;
@@ -827,13 +989,13 @@
 
     function renderCourseStructure(cos, modules, textbooks, copo) {
       document.getElementById('parseStatusBadge').innerText = 'Parsed Successfully';
-      document.getElementById('parseStatusBadge').className = 'text-[9px] font-bold px-2.5 py-1 rounded-md bg-emerald-900/30 text-emerald-400 border border-emerald-500/30';
+      document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-emerald-900/30 text-emerald-400 border border-emerald-500/30';
       
       let html = '';
 
       if (cos && cos.length > 0) {
         let cosList = cos.map(co => `
-          <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[11px]">
+          <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[10px]">
             <td class="p-3 font-bold text-blue-400 whitespace-nowrap">${co.id}</td>
             <td class="p-3 text-slate-300 leading-relaxed">${co.description}</td>
             <td class="p-3 text-center text-slate-400">${co.duration ? co.duration + ' hrs' : '-'}</td>
@@ -842,12 +1004,12 @@
         `).join('');
         html += `
           <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner mb-6">
-            <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 font-bold text-[11px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-sm text-sky-400">target</span> Course Outcomes
+            <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 font-bold text-[10px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
+              <span class="material-symbols-rounded text-[10px] text-sky-400">target</span> Course Outcomes
             </div>
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-slate-900/40 text-[9px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800/60">
+                <tr class="bg-slate-900/40 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800/60">
                   <th class="p-3 w-16">CO</th>
                   <th class="p-3">Description</th>
                   <th class="p-3 text-center w-20">Duration</th>
@@ -871,7 +1033,7 @@
                 poCells += `<td class="p-2 text-center text-slate-400 ${val !== '-' ? 'font-bold text-emerald-400' : ''}">${val}</td>`;
             }
             return `
-              <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[11px]">
+              <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[10px]">
                 <td class="p-2 font-bold text-blue-400 whitespace-nowrap border-r border-slate-800/60">${coKey}</td>
                 ${poCells}
               </tr>
@@ -885,13 +1047,13 @@
 
         html += `
           <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner mb-6">
-            <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 font-bold text-[11px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-sm text-amber-400">grid_on</span> CO-PO Mapping Matrix
+            <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 font-bold text-[10px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
+              <span class="material-symbols-rounded text-[10px] text-amber-400">grid_on</span> CO-PO Mapping Matrix
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                   <thead>
-                    <tr class="bg-slate-900/40 text-[9px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800/60">
+                    <tr class="bg-slate-900/40 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800/60">
                       <th class="p-2 w-16 border-r border-slate-800/60">CO</th>
                       ${poHeaders}
                     </tr>
@@ -906,7 +1068,7 @@
       }
 
       if (html === '') {
-        html = `<div class="p-6 text-center text-xs text-slate-500 border border-dashed border-slate-700/50 rounded-xl">Could not extract structured data. The syllabus might have an unparseable format.</div>`;
+        html = `<div class="p-6 text-center text-[10px] text-slate-500 border border-dashed border-slate-700/50 rounded-xl">Could not extract structured data. The syllabus might have an unparseable format.</div>`;
       }
 
       document.getElementById('courseStructureContent').innerHTML = html;
@@ -916,7 +1078,7 @@
       let html = `
         <div class="flex items-center justify-between mb-4 no-print">
           <div>
-            <h4 class="text-sm font-black text-slate-200">Summative Assessment (Manual Tests)</h4>
+            <h4 class="text-[10px] font-black text-slate-200">Summative Assessment (Manual Tests)</h4>
             <p class="text-[10px] text-slate-500 mt-1">Configure and generate precise Cognitive Level based question papers for each CO.</p>
           </div>
         </div>
@@ -926,44 +1088,54 @@
       let marksEntryHtml = `
         <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner no-print mb-6">
           <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-premium" onclick="document.getElementById('manualMarksWrapper').classList.toggle('hidden'); document.getElementById('marksToggleIcon').innerText = document.getElementById('manualMarksWrapper').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
-            <div class="font-bold text-[11px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
+            <div class="font-bold text-sm text-slate-400 flex items-center gap-2 tracking-wider uppercase">
               <span class="material-symbols-rounded text-sm text-emerald-400">edit_document</span> Enter Manual Marks
               <span id="marksToggleIcon" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
             </div>
-            <button onclick="event.stopPropagation(); saveSummativeMarks('${currentSubjectId}')" class="px-3 py-1.5 bg-emerald-600/80 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-premium">
-              Save Written Marks
-            </button>
+            <div class="flex items-center gap-2">
+              <button onclick="event.stopPropagation(); printSummativeReport('${currentSubjectId}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer">
+                Print Written Report
+              </button>
+              <button onclick="event.stopPropagation(); saveSummativeMarks('${currentSubjectId}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer">
+                Save Written Marks
+              </button>
+            </div>
           </div>
           <div id="manualMarksWrapper" class="hidden overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[600px]">
+            <table class="w-full text-left border-collapse min-w-[700px]">
               <thead>
-                <tr class="bg-slate-900/40 text-[9px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800/60">
-                  <th class="p-3 w-16">Reg No</th>
+                <tr class="bg-slate-900/40 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/60">
+                  <th class="p-3 w-12">S.No.</th>
                   <th class="p-3">Student Name</th>
-                  <th class="p-3 text-center w-24">CO1</th>
-                  <th class="p-3 text-center w-24">CO2</th>
-                  <th class="p-3 text-center w-24">CO3</th>
-                  <th class="p-3 text-center w-24">CO4</th>
+                  <th class="p-3 w-28">Admission No</th>
+                  <th class="p-3 w-32">SBTE Reg No</th>
+                  <th class="p-3 text-center w-20">CO1</th>
+                  <th class="p-3 text-center w-20">CO2</th>
+                  <th class="p-3 text-center w-20">CO3</th>
+                  <th class="p-3 text-center w-20">CO4</th>
                 </tr>
               </thead>
               <tbody id="summativeMarkEntryTbody">
       `;
 
       if (students && students.length > 0) {
-        students.forEach(student => {
+        students.forEach((student, index) => {
+          let sm = student.summative_marks || {};
           marksEntryHtml += `
-            <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[11px]" data-reg="${student.reg_no}">
-              <td class="p-3 font-mono text-slate-500">${student.reg_no}</td>
-              <td class="p-3 font-bold text-slate-300">${student.name}</td>
-              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO1"></td>
-              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO2"></td>
-              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO3"></td>
-              <td class="p-3"><input type="number" min="0" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 text-center" data-co="CO4"></td>
+            <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-sm" data-reg="${student.reg_no}">
+              <td class="p-3 text-slate-400 font-bold">${index + 1}</td>
+              <td class="p-3 font-bold text-slate-200">${student.name}</td>
+              <td class="p-3 font-mono text-slate-400">${student.reg_no}</td>
+              <td class="p-3 font-mono text-slate-400">${student.sbte_reg_no || '-'}</td>
+              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO1 !== null ? Math.round(sm.CO1) : ''}" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO1"></td>
+              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO2 !== null ? Math.round(sm.CO2) : ''}" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO2"></td>
+              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO3 !== null ? Math.round(sm.CO3) : ''}" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO3"></td>
+              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO4 !== null ? Math.round(sm.CO4) : ''}" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO4"></td>
             </tr>
           `;
         });
       } else {
-        marksEntryHtml += `<tr><td colspan="6" class="p-6 text-center text-slate-500 text-xs font-bold">No students found.</td></tr>`;
+        marksEntryHtml += `<tr><td colspan="8" class="p-6 text-center text-slate-500 text-sm font-bold">No students found.</td></tr>`;
       }
       marksEntryHtml += `</tbody></table></div></div>`;
 
@@ -979,9 +1151,9 @@
           let generatedContent = '';
           
           if (testData) {
-            let partAStr = testData.part_a ? testData.part_a.questions.map(q => `<li class="mb-1"><span class="font-mono text-[9px] text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-[9px] text-slate-500">(${q.marks})</span></li>`).join('') : '';
-            let partBStr = testData.part_b ? testData.part_b.questions.map(q => `<li class="mb-1"><span class="font-mono text-[9px] text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-[9px] text-slate-500">(${q.marks})</span></li>`).join('') : '';
-            let partCStr = testData.part_c ? testData.part_c.questions.map(q => `<li class="mb-1"><span class="font-mono text-[9px] text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-[9px] text-slate-500">(${q.marks})</span></li>`).join('') : '';
+            let partAStr = testData.part_a ? testData.part_a.questions.map(q => `<li class="mb-1"><span class="font-mono text-[10px] text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-[10px] text-slate-500">(${q.marks})</span></li>`).join('') : '';
+            let partBStr = testData.part_b ? testData.part_b.questions.map(q => `<li class="mb-1"><span class="font-mono text-[10px] text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-[10px] text-slate-500">(${q.marks})</span></li>`).join('') : '';
+            let partCStr = testData.part_c ? testData.part_c.questions.map(q => `<li class="mb-1"><span class="font-mono text-[10px] text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-[10px] text-slate-500">(${q.marks})</span></li>`).join('') : '';
 
             generatedContent = `
               <div class="mt-4 pt-4 border-t border-slate-800/60" id="paper-${co.id}">
@@ -1031,7 +1203,7 @@
           
           let dateInputStr = `
             <div class="flex items-center gap-1 bg-slate-800 px-2 py-1 rounded border border-slate-700/80 shadow-inner">
-              <span class="text-[9px] text-slate-400 font-bold uppercase"><span class="material-symbols-rounded text-[10px] align-middle mr-0.5">calendar_today</span>Date</span>
+              <span class="text-[10px] text-slate-400 font-bold uppercase"><span class="material-symbols-rounded text-[10px] align-middle mr-0.5">calendar_today</span>Date</span>
               <input type="date" id="summ_date_${co.id}" value="${dateStr}" ${disabledAttr} onchange="saveSummativeConfig('${currentSubjectId}', '${co.id}')" class="bg-slate-900 text-[10px] text-slate-200 font-mono outline-none w-[90px] px-1 py-0.5 rounded border border-slate-700 focus:border-blue-500">
             </div>
           `;
@@ -1039,8 +1211,8 @@
           html += `
             <div class="bg-slate-900/50 border border-slate-800/60 p-4 rounded-xl relative ${isLocked ? 'ring-1 ring-amber-500/30' : ''}">
               <div class="flex items-center justify-between mb-3 border-b border-slate-800/60 pb-2 cursor-pointer hover:opacity-80 transition-premium" onclick="document.getElementById('co_body_${co.id}').classList.toggle('hidden'); document.getElementById('co_icon_${co.id}').innerText = document.getElementById('co_body_${co.id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
-                <h5 class="text-xs font-black text-blue-400 flex items-center gap-1">
-                  <span id="co_icon_${co.id}" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
+                <h5 class="text-[10px] font-black text-blue-400 flex items-center gap-1">
+                  <span id="co_icon_${co.id}" class="material-symbols-rounded text-[10px] text-slate-500">expand_more</span>
                   ${co.id} Written Test ${lockStr}
                 </h5>
                 <div class="flex items-center gap-2" onclick="event.stopPropagation()">
@@ -1051,7 +1223,7 @@
 
               <div id="co_body_${co.id}" class="hidden pt-2">
 
-              <div class="flex items-center gap-3 mb-3 mt-1 text-[9px] font-bold text-slate-500 bg-slate-950/50 p-1.5 rounded-lg border border-slate-800/40 w-max">
+              <div class="flex items-center gap-3 mb-3 mt-1 text-[10px] font-bold text-slate-500 bg-slate-950/50 p-1.5 rounded-lg border border-slate-800/40 w-max">
                  <label class="flex items-center gap-1 cursor-pointer hover:text-blue-400 transition-premium">
                    <input type="radio" name="summ_mode_${co.id}" value="ai" checked onchange="toggleSummativeMode('${co.id}')" class="text-blue-500 focus:ring-blue-500 bg-slate-900 border-slate-700" ${disabledAttr}>
                    AI Generation
@@ -1067,25 +1239,25 @@
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-[10px] text-slate-500 font-bold w-16">PART A</span>
                   <input type="number" id="summ_q_A_${co.id}" value="${qA}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
-                  <span class="text-slate-600 text-xs font-bold">x</span>
+                  <span class="text-slate-600 text-[10px] font-bold">x</span>
                   <input type="number" id="summ_m_A_${co.id}" value="${mA}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
                 </div>
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-[10px] text-slate-500 font-bold w-16">PART B</span>
                   <input type="number" id="summ_q_B_${co.id}" value="${qB}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
-                  <span class="text-slate-600 text-xs font-bold">x</span>
+                  <span class="text-slate-600 text-[10px] font-bold">x</span>
                   <input type="number" id="summ_m_B_${co.id}" value="${mB}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
                 </div>
                 <div class="flex items-center justify-between gap-2">
                   <span class="text-[10px] text-slate-500 font-bold w-16">PART C</span>
                   <input type="number" id="summ_q_C_${co.id}" value="${qC}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
-                  <span class="text-slate-600 text-xs font-bold">x</span>
+                  <span class="text-slate-600 text-[10px] font-bold">x</span>
                   <input type="number" id="summ_m_C_${co.id}" value="${mC}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
                 </div>
               </div>
 
               <div class="flex items-center justify-between mb-3 border-t border-slate-800/40 pt-2">
-                <label class="flex items-center gap-1.5 cursor-pointer text-[9px] text-slate-400 hover:text-slate-200 transition-premium">
+                <label class="flex items-center gap-1.5 cursor-pointer text-[10px] text-slate-400 hover:text-slate-200 transition-premium">
                   <input type="checkbox" id="sync_pattern_${co.id}" ${disabledAttr} onchange="if(this.checked) applySummativePatternToAll('${co.id}')" class="rounded border-slate-700 bg-slate-900 text-blue-500 focus:ring-blue-500/30">
                   <span>Apply pattern to all COs</span>
                 </label>
@@ -1109,48 +1281,58 @@
       let onlineTestHtml = `
         <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner no-print mb-6">
           <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-premium" onclick="document.getElementById('onlineTestWrapper').classList.toggle('hidden'); document.getElementById('onlineTestIcon').innerText = document.getElementById('onlineTestWrapper').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
-            <div class="font-bold text-[11px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-sm text-purple-400">devices</span> Online MCQ Tests Setup
-              <span id="onlineTestIcon" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
+            <div class="font-bold text-[10px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
+              <span class="material-symbols-rounded text-[10px] text-purple-400">devices</span> Online MCQ Tests Setup
+              <span id="onlineTestIcon" class="material-symbols-rounded text-[10px] text-slate-500">expand_more</span>
             </div>
           </div>
           <div id="onlineTestWrapper" class="hidden p-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <!-- Configuration Form -->
               <div class="col-span-2 bg-slate-900/50 p-4 rounded-lg border border-slate-800/50">
-                <h5 class="text-xs font-bold text-slate-300 mb-3 border-b border-slate-800/60 pb-2">Publish New Online Test</h5>
+                <h5 class="text-[10px] font-bold text-slate-300 mb-3 border-b border-slate-800/60 pb-2">Publish New Online Test</h5>
                 <div class="grid grid-cols-2 gap-3 mb-3">
                   <div>
-                    <label class="block text-[9px] text-slate-500 font-bold mb-1 uppercase">Target COs (Multiple)</label>
+                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Target COs (Multiple)</label>
                     <select id="online_test_cos" multiple class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500 h-[60px]">
                       ${cos ? cos.map(co => `<option value="${co.id}">${co.id}</option>`).join('') : ''}
                     </select>
                   </div>
                   <div>
-                    <label class="block text-[9px] text-slate-500 font-bold mb-1 uppercase">Max Attempts</label>
+                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Max Attempts</label>
                     <input type="number" id="online_test_attempts" value="1" min="1" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
-                    <label class="block text-[9px] text-slate-500 font-bold mt-2 mb-1 uppercase">Duration (Minutes)</label>
+                    <label class="block text-[10px] text-slate-500 font-bold mt-2 mb-1 uppercase">Duration (Minutes)</label>
                     <input type="number" id="online_test_duration" value="30" min="5" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
                   </div>
                 </div>
+                
+                <div class="mb-4">
+                  <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Number of Questions</label>
+                  <input type="number" id="online_test_q_count" value="10" min="1" max="50" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
+                </div>
                 <div class="grid grid-cols-2 gap-3 mb-4">
                   <div>
-                    <label class="block text-[9px] text-slate-500 font-bold mb-1 uppercase">Start Time</label>
+                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Start Time</label>
                     <input type="text" id="online_test_start" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500" placeholder="Select Date & Time">
                   </div>
                   <div>
-                    <label class="block text-[9px] text-slate-500 font-bold mb-1 uppercase">End Time (Deadline)</label>
+                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">End Time (Deadline)</label>
                     <input type="text" id="online_test_end" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500" placeholder="Select Date & Time">
                   </div>
                 </div>
-                <button onclick="publishOnlineTest('${currentSubjectId}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded-lg text-xs font-bold transition-premium flex items-center justify-center gap-2">
-                  <span class="material-symbols-rounded text-sm">rocket_launch</span> Generate & Publish to Students
+                
+                <div class="mb-4">
+                  <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Custom Test ID/Name (Optional)</label>
+                  <input type="text" id="online_test_name" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500" placeholder="e.g. Midterm Test 1">
+                </div>
+                <button onclick="publishOnlineTest('${currentSubjectId}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded-lg text-[10px] font-bold transition-premium flex items-center justify-center gap-2">
+                  <span class="material-symbols-rounded text-[10px]">rocket_launch</span> Generate & Publish to Students
                 </button>
               </div>
               
               <!-- Active Tests Dashboard -->
               <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-800/50">
-                <h5 class="text-xs font-bold text-slate-300 mb-3 border-b border-slate-800/60 pb-2">Active Online Tests</h5>
+                <h5 class="text-[10px] font-bold text-slate-300 mb-3 border-b border-slate-800/60 pb-2">Active Online Tests</h5>
                 <div id="activeOnlineTestsList" class="space-y-2 text-[10px] text-slate-400">
                    <div class="p-3 bg-slate-950 border border-slate-800 rounded text-center border-dashed">No active online tests found.</div>
                 </div>
@@ -1425,16 +1607,24 @@
               html += `
                 <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/80 mb-2">
                   <div class="flex justify-between items-start mb-1">
-                    <h6 class="font-bold text-purple-400 text-[11px]">${t.test_name}</h6>
-                    <span class="bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded text-[9px] font-bold">${t.duration} Mins</span>
+                    <h6 class="font-bold text-purple-400 text-[10px]">${t.test_name}</h6>
+                    <span class="bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded text-[10px] font-bold">${t.duration} Mins</span>
                   </div>
-                  <div class="text-[9px] text-slate-500 mb-2">
+                  <div class="text-[10px] text-slate-500 mb-2">
                     Start: ${t.start_time ? new Date(t.start_time).toLocaleString() : 'Now'}<br>
                     Live Students: <span class="text-emerald-400 font-bold">${t.student_count || 0}</span> | Completed: <span class="text-blue-400 font-bold">${t.completed_count || 0}</span>
                   </div>
-                  <button onclick="generateOnlineTestReport('${t.test_id}')" class="w-full py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700/50 flex items-center justify-center gap-1 transition-premium">
-                    <span class="material-symbols-rounded text-[11px]">download</span> Download Report PDF
-                  </button>
+                  <div class="grid grid-cols-2 gap-2 mt-2">
+                      <button onclick="generateOnlineTestReport('${t.test_id}')" class="w-full py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700/50 flex items-center justify-center gap-1 text-[10px] transition-premium" title="Download Results">
+                        <span class="material-symbols-rounded text-[10px]">download</span> Report
+                      </button>
+                      <button onclick="printOnlineTest('${t.test_id}')" class="w-full py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700/50 flex items-center justify-center gap-1 text-[10px] transition-premium" title="Print Question Paper with Answers">
+                        <span class="material-symbols-rounded text-[10px]">print</span> Print Q&A
+                      </button>
+                      <button onclick="deleteOnlineTest('${t.test_id}', '${subjectId}')" class="col-span-2 w-full py-1 bg-red-900/50 hover:bg-red-800/80 text-red-300 rounded border border-red-800/50 flex items-center justify-center gap-1 text-[10px] transition-premium" title="Delete Test">
+                        <span class="material-symbols-rounded text-[10px]">delete</span> Delete
+                      </button>
+                    </div>
                 </div>
               `;
             });
@@ -1601,6 +1791,14 @@
       });
     }
 
+    function printAssignmentReport(subjectId) {
+      window.open(`/classroom/${subjectId}/assignment-report`, '_blank');
+    }
+
+    function printSummativeReport(subjectId) {
+      window.open(`/classroom/${subjectId}/summative-report`, '_blank');
+    }
+
     function printSummativePaper(coTag, totalMarks) {
       const data = currentSummativeTests[coTag];
       if(!data) return;
@@ -1637,19 +1835,19 @@
 
       if (data.part_a && data.part_a.q_count > 0) {
         bodyHtml += `
-          <h4 style="text-align:center;font-weight:bold;margin:18px 0 6px;">PART A &nbsp;<small style="font-weight:normal;font-size:12px;">(${data.part_a.q_count} × ${data.part_a.marks_per_q} = ${data.part_a.total_marks} Marks)</small></h4>
+          <h4 style="text-align:center;font-weight:bold;margin:18px 0 6px;">PART A &nbsp;<small style="font-weight:normal;font-size:12px;">(${data.part_a.q_count} Ã ${data.part_a.marks_per_q} = ${data.part_a.total_marks} Marks)</small></h4>
           <p style="text-align:center;font-style:italic;font-size:12px;margin:0 0 10px;">Answer all questions.</p>
           <table style="width:100%;border-collapse:collapse;font-size:13px;">${buildRows(data.part_a)}</table>`;
       }
       if (data.part_b && data.part_b.q_count > 0) {
         bodyHtml += `
-          <h4 style="text-align:center;font-weight:bold;margin:20px 0 6px;">PART B &nbsp;<small style="font-weight:normal;font-size:12px;">(${data.part_b.q_count} × ${data.part_b.marks_per_q} = ${data.part_b.total_marks} Marks)</small></h4>
+          <h4 style="text-align:center;font-weight:bold;margin:20px 0 6px;">PART B &nbsp;<small style="font-weight:normal;font-size:12px;">(${data.part_b.q_count} Ã ${data.part_b.marks_per_q} = ${data.part_b.total_marks} Marks)</small></h4>
           <p style="text-align:center;font-style:italic;font-size:12px;margin:0 0 10px;">Answer all questions.</p>
           <table style="width:100%;border-collapse:collapse;font-size:13px;">${buildRows(data.part_b)}</table>`;
       }
       if (data.part_c && data.part_c.q_count > 0) {
         bodyHtml += `
-          <h4 style="text-align:center;font-weight:bold;margin:20px 0 6px;">PART C &nbsp;<small style="font-weight:normal;font-size:12px;">(${data.part_c.q_count} × ${data.part_c.marks_per_q} = ${data.part_c.total_marks} Marks)</small></h4>
+          <h4 style="text-align:center;font-weight:bold;margin:20px 0 6px;">PART C &nbsp;<small style="font-weight:normal;font-size:12px;">(${data.part_c.q_count} Ã ${data.part_c.marks_per_q} = ${data.part_c.total_marks} Marks)</small></h4>
           <p style="text-align:center;font-style:italic;font-size:12px;margin:0 0 10px;">Answer all questions.</p>
           <table style="width:100%;border-collapse:collapse;font-size:13px;">${buildRows(data.part_c)}</table>`;
       }
@@ -1683,7 +1881,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="college-name">CARMEL ENGINEERING COLLEGE</div>
+    <div class="college-name">CARMEL POLYTECHNIC COLLEGE</div>
     <div class="dept-name">Department of ${deptName}</div>
     <div class="subject-info">${subjectName ? subjectName : 'Subject'} ${subjectCode ? '&nbsp;&mdash;&nbsp;<strong>' + subjectCode + '</strong>' : ''}</div>
     <div style="margin-top:6px;"><span class="exam-title">&nbsp;${coTag} &ndash; Written Test&nbsp;</span></div>
@@ -1784,17 +1982,17 @@
 
       if (data.part_a && data.part_a.q_count > 0) {
         bodyHtml += `
-          <h4 style="font-weight:bold; margin: 15px 0 8px; text-transform: uppercase; border-bottom: 2px solid #000; display: inline-block;">PART A <small style="font-weight:normal; font-size:12px;">(${data.part_a.q_count} × ${data.part_a.marks_per_q} = ${data.part_a.total_marks} Marks)</small></h4>
+          <h4 style="font-weight:bold; margin: 15px 0 8px; text-transform: uppercase; border-bottom: 2px solid #000; display: inline-block;">PART A <small style="font-weight:normal; font-size:12px;">(${data.part_a.q_count} Ã ${data.part_a.marks_per_q} = ${data.part_a.total_marks} Marks)</small></h4>
           ${tableHeader}${buildRows(data.part_a)}</tbody></table>`;
       }
       if (data.part_b && data.part_b.q_count > 0) {
         bodyHtml += `
-          <h4 style="font-weight:bold; margin: 15px 0 8px; text-transform: uppercase; border-bottom: 2px solid #000; display: inline-block;">PART B <small style="font-weight:normal; font-size:12px;">(${data.part_b.q_count} × ${data.part_b.marks_per_q} = ${data.part_b.total_marks} Marks)</small></h4>
+          <h4 style="font-weight:bold; margin: 15px 0 8px; text-transform: uppercase; border-bottom: 2px solid #000; display: inline-block;">PART B <small style="font-weight:normal; font-size:12px;">(${data.part_b.q_count} Ã ${data.part_b.marks_per_q} = ${data.part_b.total_marks} Marks)</small></h4>
           ${tableHeader}${buildRows(data.part_b)}</tbody></table>`;
       }
       if (data.part_c && data.part_c.q_count > 0) {
         bodyHtml += `
-          <h4 style="font-weight:bold; margin: 15px 0 8px; text-transform: uppercase; border-bottom: 2px solid #000; display: inline-block;">PART C <small style="font-weight:normal; font-size:12px;">(${data.part_c.q_count} × ${data.part_c.marks_per_q} = ${data.part_c.total_marks} Marks)</small></h4>
+          <h4 style="font-weight:bold; margin: 15px 0 8px; text-transform: uppercase; border-bottom: 2px solid #000; display: inline-block;">PART C <small style="font-weight:normal; font-size:12px;">(${data.part_c.q_count} Ã ${data.part_c.marks_per_q} = ${data.part_c.total_marks} Marks)</small></h4>
           ${tableHeader}${buildRows(data.part_c)}</tbody></table>`;
       }
 
@@ -1827,7 +2025,7 @@
 </head>
 <body>
   <div class="header">
-    <div class="college-name">CARMEL ENGINEERING COLLEGE</div>
+    <div class="college-name">CARMEL POLYTECHNIC COLLEGE</div>
     <div class="dept-name">Department of ${deptName}</div>
     <div class="subject-info">${subjectName ? subjectName : 'Subject'} ${subjectCode ? '&nbsp;&mdash;&nbsp;<strong>' + subjectCode + '</strong>' : ''}</div>
     <div style="margin-top:6px;"><span class="exam-title">&nbsp;${coTag} &ndash; ANSWER KEY & RUBRIC&nbsp;</span></div>
@@ -1863,7 +2061,7 @@
             }
             data.logs.forEach(log => {
               const tr = document.createElement('tr');
-              tr.className = "border-b border-slate-800/40 text-xs hover:bg-slate-900/20";
+              tr.className = "border-b border-slate-800/40 text-[10px] hover:bg-slate-900/20";
               const date = new Date(log.created_at).toLocaleString();
               tr.innerHTML = `
                 <td class="p-4 text-slate-400 font-mono">${date}</td>
@@ -1880,6 +2078,231 @@
           tbody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-red-400 font-bold">Error querying logs.</td></tr>`;
         });
     }
-  </script>
+  
+      function deleteOnlineTest(testId, subjectId) {
+        if (!confirm("Are you sure you want to delete this online test? This will permanently remove all student attempts and records associated with it.")) return;
+        fetch(`/api/classroom/online-tests/${testId}`, {
+          method: 'DELETE',
+          headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            loadActiveOnlineTests(subjectId);
+          } else {
+            alert(data.message || "Failed to delete test.");
+          }
+        });
+      }
+
+      function printOnlineTest(testId) {
+        fetch(`/api/classroom/online-tests/${testId}/key`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            const deptMap = {
+              'EL': 'ELECTRONICS ENGINEERING',
+              'CS': 'COMPUTER SCIENCE AND ENGINEERING',
+              'CE': 'CIVIL ENGINEERING',
+              'ME': 'MECHANICAL ENGINEERING',
+              'EE': 'ELECTRICAL AND ELECTRONICS ENGINEERING',
+              'IT': 'INFORMATION TECHNOLOGY',
+              'ECE': 'ELECTRONICS AND COMMUNICATION ENGINEERING'
+            };
+            const sessionBranch = "{{ session('userBranch', 'ENGINEERING') }}";
+            const subjectName = currentSubjectName;
+            const subjectCode = currentSubjectCode;
+            const deptName = deptMap[sessionBranch.toUpperCase()] || sessionBranch;
+            const testName = data.test_name || 'Online Test';
+            const totalQ = data.total || 0;
+
+            let html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Online MCQ Test - ${testName}</title>
+  <style>
+    @page { size: A4 portrait; margin: 1.5cm 2cm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13px;
+      color: #000;
+      background: #fff;
+    }
+    h2, h3, h4, p { margin: 0; padding: 0; }
+    .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px; }
+    .college-name { font-size: 21px; font-weight: bold; letter-spacing: 1px; }
+    .dept-name { font-size: 14px; font-weight: bold; text-transform: uppercase; margin-top: 3px; }
+    .subject-info { font-size: 12px; margin-top: 4px; color: #222; }
+    .exam-title { font-size: 14px; margin-top: 6px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #888; border-bottom: 1px solid #888; padding: 4px 0; display: inline-block; background-color: #f0f0f0; }
+    .meta-row { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; }
+    .q-block { margin-bottom: 15px; page-break-inside: avoid; }
+    .q-text { font-weight: bold; margin-bottom: 5px; }
+    .options { list-style-type: lower-alpha; margin: 0; padding-left: 20px; }
+    .options li { margin-bottom: 3px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="college-name">CARMEL POLYTECHNIC COLLEGE</div>
+    <div class="dept-name">Department of ${deptName}</div>
+    <div class="subject-info">${subjectName ? subjectName : 'Subject'} ${subjectCode ? '&nbsp;&mdash;&nbsp;<strong>' + subjectCode + '</strong>' : ''}</div>
+    <div style="margin-top:6px;"><span class="exam-title">&nbsp;${testName} &ndash; Answer Key&nbsp;</span></div>
+    <div class="meta-row">
+      <span><strong>Total Questions:</strong> ${totalQ}</span>
+    </div>
+  </div>`;
+
+            data.details.forEach((q, i) => {
+              html += `<div class="q-block">
+                <div class="q-text">${i+1}. ${q.q} &nbsp; <em>[${q.co}]</em></div>
+                <ul class="options">`;
+              q.options.forEach(opt => {
+                let isCorrect = (opt === q.correct_ans);
+                if (isCorrect) {
+                  html += `<li><strong>${opt} &nbsp; &#10004;</strong></li>`;
+                } else {
+                  html += `<li>${opt}</li>`;
+                }
+              });
+              html += `</ul></div>`;
+            });
+
+            html += `</body></html>`;
+            let pw = window.open('', '_blank', 'width=800,height=600');
+            pw.document.write(html);
+            pw.document.close();
+            pw.focus();
+            setTimeout(() => { pw.print(); }, 500);
+          } else {
+            alert(data.message);
+          }
+        });
+      }
+
+      function showVcStudentsList() {
+        let html = '';
+        if (window.currentVirtualStudents && window.currentVirtualStudents.length > 0) {
+          html = `
+            <table class="w-full text-left text-[10px] border-collapse">
+              <thead>
+                <tr class="bg-slate-900 border-b border-slate-800 text-slate-400">
+                  <th class="p-3 font-bold w-12 text-center">No.</th>
+                  <th class="p-3 font-bold w-32">Reg No</th>
+                  <th class="p-3 font-bold">Student Name</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+          window.currentVirtualStudents.forEach((s, idx) => {
+            html += `
+              <tr class="border-b border-slate-800/50 hover:bg-slate-900/50 transition-colors">
+                <td class="p-3 text-center text-slate-500 font-bold">${idx + 1}</td>
+                <td class="p-3 font-mono text-slate-400">${s.reg_no}</td>
+                <td class="p-3 font-bold text-slate-200">${s.name}</td>
+              </tr>
+            `;
+          });
+          html += `</tbody></table>`;
+        } else {
+          html = '<p class="text-[10px] text-slate-500 text-center py-4">No students enrolled in this classroom.</p>';
+        }
+        document.getElementById('vcStudentsListContent').innerHTML = html;
+        document.getElementById('vcStudentsModal').classList.remove('hidden');
+      }
+
+      function closeVcStudentsList() {
+        document.getElementById('vcStudentsModal').classList.add('hidden');
+      }
+
+      function printVcStudentsList() {
+        if (!window.currentVirtualStudents || window.currentVirtualStudents.length === 0) {
+            alert("No students to print.");
+            return;
+        }
+
+        let printHtml = `
+          <html>
+            <head>
+              <title>Classroom Students List</title>
+              <style>
+                body { font-family: sans-serif; font-size: 12px; padding: 20px; }
+                h2 { text-align: center; margin-bottom: 5px; font-size: 18px; text-transform: uppercase; }
+                p.subtitle { text-align: center; margin-top: 0; font-size: 12px; font-weight: bold; margin-bottom: 20px; color: #555; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+                th { background-color: #f0f0f0; }
+                .text-center { text-align: center; }
+              </style>
+            </head>
+            <body>
+              <h2>Classroom Students List</h2>
+              <p class="subtitle">Subject: ${currentSubjectCode} - ${currentSubjectName}</p>
+              <table>
+                <thead>
+                  <tr>
+                    <th class="text-center" style="width: 40px;">No.</th>
+                    <th style="width: 100px;">Roll No</th>
+                    <th style="width: 120px;">Reg No</th>
+                    <th>Student Name</th>
+                    <th style="width: 150px;">Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>
+        `;
+
+        window.currentVirtualStudents.forEach((s, idx) => {
+          printHtml += `
+            <tr>
+              <td class="text-center">${idx + 1}</td>
+              <td></td>
+              <td style="font-family: monospace;">${s.reg_no}</td>
+              <td><strong>${s.name}</strong></td>
+              <td></td>
+            </tr>
+          `;
+        });
+
+        printHtml += `
+                </tbody>
+              </table>
+              <script>
+                setTimeout(() => { window.print(); window.close(); }, 500);
+              <\/script>
+            </body>
+          </html>
+        `;
+
+        let printWin = window.open('', '_blank');
+        printWin.document.write(printHtml);
+        printWin.document.close();
+      }
+</script>
+
+<!-- Virtual Classroom Students Modal -->
+<div id="vcStudentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-slate-950 border border-slate-800/80 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+    <div class="p-4 border-b border-slate-800/80 bg-slate-900/50 flex justify-between items-center">
+      <h3 class="text-[10px] font-black text-slate-200 flex items-center gap-2">
+        <span class="material-symbols-rounded text-blue-400">groups</span> Enrolled Students
+      </h3>
+      <div class="flex items-center gap-3">
+        <button onclick="printVcStudentsList()" class="text-[10px] font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded flex items-center gap-1 transition-premium">
+          <span class="material-symbols-rounded text-[14px]">print</span> Print List
+        </button>
+        <button onclick="closeVcStudentsList()" class="text-slate-500 hover:text-white transition-premium ml-2">
+          <span class="material-symbols-rounded">close</span>
+        </button>
+      </div>
+    </div>
+    <div class="p-0 overflow-y-auto custom-scrollbar flex-1">
+      <div id="vcStudentsListContent"></div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

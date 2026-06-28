@@ -1,0 +1,23 @@
+           'family'          => $family,
+                    'education'       => $education,
+                    'fees'            => $fees,
+                    'extracurricular' => $extracurricular,
+                    'meetings'        => $meetings,
+                    'leaves'          => $leaves ?? [],
+                    'disciplinary'    => $disciplinary ?? [],
+                    'board'           => $board,
+                    'academics'       => $academics,
+                    'syllabus_list'   => [],
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    // ─────────────────────────────────────────────
+    //  POST /api/mentoring/diary/add
+    //  Staff adds a diary entry for a student
+    //  Body: { reg_no, date, category, discussion_notes, action_taken, remarks }
+    // ─────────────────────────────────────────────
+    public function addDiaryEntry

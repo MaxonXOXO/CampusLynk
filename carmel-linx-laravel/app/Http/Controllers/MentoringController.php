@@ -8,6 +8,16 @@ use App\Models\StaffProfile;
 use App\Models\Student;
 use App\Models\TutorDiary;
 use App\Models\AuditLog;
+use App\Models\StudentFamilyDetail;
+use App\Models\StudentPriorEducation;
+use App\Models\StudentFeeRecord;
+use App\Models\ExtracurricularActivity;
+use App\Models\LeaveRecord;
+use App\Models\DisciplinaryAction;
+use App\Models\StudentSemesterSummary;
+use App\Models\AcademicMark;
+use App\Models\StudentBoardGrade;
+use App\Models\BatchSubject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -304,6 +314,176 @@ class MentoringController extends Controller
     }
 
     // ─────────────────────────────────────────────
+    //  GET /api/mentoring/full-diary/{reg_no}
+    //  Fetch all 7 sections of the mentoring diary
+    // ─────────────────────────────────────────────
+    
+    public function saveExtendedProfile(Request $request)
+    {
+        $regNo = Session::get('userId');
+        if (Session::get('userRole') !== 'Student' || !$regNo) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated as student.'], 403);
+        }
+
+        $validated = $request->validate([
+            'gender' => 'nullable|string',
+            'caste' => 'nullable|string',
+            'religion' => 'nullable|string',
+            'special_category' => 'nullable|string',
+            'reservation' => 'nullable|string',
+            'quota' => 'nullable|string',
+            'is_physically_disabled' => 'nullable|boolean',
+            'disability_category' => 'nullable|string',
+            'guardian_occupation' => 'nullable|string',
+            'monthly_family_income' => 'nullable|string',
+            'has_vehicle_pass' => 'nullable|boolean',
+            'vehicle_pass_id' => 'nullable|string',
+            'communication_address' => 'nullable|string',
+        ]);
+
+        try {
+            $profile = \App\Models\StudentMentoringProfile::updateOrCreate(
+                ['reg_no' => strtoupper($regNo)],
+                $validated
+            );
+
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Profile updated successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function getFullStudentDiary(string $regNo)
+    {
+        $mobileNo = Session::get('userId');
+        if (!$mobileNo) return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+
+        try {
+            $student = Student::where('reg_no', strtoupper($regNo))->first();
+            if (!$student) return response()->json(['status' => 'ERROR', 'message' => 'Student not found.']);
+            
+            $extended_profile = \App\Models\StudentMentoringProfile::where('reg_no', $student->reg_no)->first();
+
+            // 1 & 2. Personal & Profile Info
+            $family = StudentFamilyDetail::where('reg_no', $student->reg_no)->get();
+            $education = StudentPriorEducation::where('reg_no', $student->reg_no)->get();
+            $fees = StudentFeeRecord::where('reg_no', $student->reg_no)->get();
+
+            // 4. Extracurricular
+            $extracurricular = \App\Models\ActivityPointClaim::where('reg_no', $student->reg_no)->get();
+
+            // 5. Meeting Logs (Diary)
+            $meetings = TutorDiary::where('reg_no', $student->reg_no)
+                ->orderByDesc('date')
+                ->get()
+                ->map(function ($e) {
+                    $loggedBy = $e->logged_by ? (StaffProfile::where('mobile_no', $e->logged_by)->value('name') ?? $e->logged_by) : 'System';
+                    return [
+                        'diary_id' => $e->diary_id,
+                        'date' => $e->date,
+                        'category' => $e->category,
+                        'discussion_notes' => $e->discussion_notes,
+                        'action_taken' => $e->action_taken,
+                        'approval_status' => $e->approval_status,
+                        'logged_by_name' => $loggedBy,
+                    ];
+                });
+
+            // 6. Leaves
+            $leaves = LeaveRecord::where('reg_no', $student->reg_no)->orderByDesc('leave_date')->get();
+
+            // 7. Disciplinary
+            $disciplinary = DisciplinaryAction::where('reg_no', $student->reg_no)->orderByDesc('date')->get();
+
+            // 8. Board Exams
+            $board = StudentSemesterSummary::where('reg_no', $student->reg_no)->orderBy('semester', 'desc')->get();
+
+            // 9. Academics (Structured by Semester and Subject)
+            $batchSubjects = BatchSubject::where('classroom_id', $student->classroom_id)->get();
+            $academicMarks = AcademicMark::where('reg_no', $student->reg_no)->get();
+            $boardGrades = StudentBoardGrade::where('reg_no', $student->reg_no)->get();
+            
+            $academics = [];
+            foreach ($batchSubjects as $subject) {
+                $sem = $subject->semester;
+                $code = $subject->subject_code;
+                
+                if (!isset($academics[$sem])) {
+                    $academics[$sem] = [];
+                }
+                
+                // Find marks for this subject
+                $subjectMarks = $academicMarks->where('subject_code', $code);
+                
+                // Find board grade for this subject
+                $bGrade = $boardGrades->where('semester', $sem)->where('subject_code', $code)->first();
+                
+                // Helper to extract mark
+                $getMark = function($cat, $co) use ($subjectMarks) {
+                    $m = $subjectMarks->where('category', $cat)->where('co_tag', $co)->first();
+                    return $m ? $m->marks_obtained : '--';
+                };
+
+                $academics[$sem][] = [
+                    'subject_code' => $code,
+                    'subject_name' => $subject->subject_name,
+                    'type' => $subject->subject_type,
+                    'tests' => [
+                        'CO1' => $getMark('Written Test', 'CO1'),
+                        'CO2' => $getMark('Written Test', 'CO2'),
+                        'CO3' => $getMark('Written Test', 'CO3'),
+                        'CO4' => $getMark('Written Test', 'CO4'),
+                    ],
+                    'assignments' => [
+                        'CO1' => $getMark('Assignment', 'CO1'),
+                        'CO2' => $getMark('Assignment', 'CO2'),
+                        'CO3' => $getMark('Assignment', 'CO3'),
+                        'CO4' => $getMark('Assignment', 'CO4'),
+                    ],
+                    'mcq' => [
+                        'CO1' => $getMark('Online Test', 'CO1'),
+                        'CO2' => $getMark('Online Test', 'CO2'),
+                        'CO3' => $getMark('Online Test', 'CO3'),
+                        'CO4' => $getMark('Online Test', 'CO4'),
+                    ],
+                    'internal_mark' => '--', // Database generated later
+                    'attendance' => '--', // Will be added later
+                    'board_result' => $bGrade ? [
+                        'grade' => $bGrade->grade,
+                        'internal_marks' => $bGrade->internal_marks,
+                        'external_marks' => $bGrade->external_marks,
+                        'total_marks' => $bGrade->total_marks,
+                        'exam_month_year' => $bGrade->exam_month_year,
+                        'passed' => $bGrade->passed,
+                        'chances_taken' => $bGrade->chances_taken
+                    ] : null
+                ];
+            }
+
+            return response()->json([
+                'status' => 'SUCCESS',
+                'data' => [
+                    'student'         => $student,
+                    'extended_profile'=> $extended_profile,
+                    'profile'         => $student,
+                    'family'          => $family,
+                    'education'       => $education,
+                    'fees'            => $fees,
+                    'extracurricular' => $extracurricular,
+                    'meetings'        => $meetings,
+                    'leaves'          => $leaves ?? [],
+                    'disciplinary'    => $disciplinary ?? [],
+                    'board'           => $board,
+                    'academics'       => (krsort($academics) ? $academics : $academics),
+                    'syllabus_list'   => [],
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    // ─────────────────────────────────────────────
     //  POST /api/mentoring/diary/add
     //  Staff adds a diary entry for a student
     //  Body: { reg_no, date, category, discussion_notes, action_taken, remarks }
@@ -364,6 +544,58 @@ class MentoringController extends Controller
             ]);
 
             return response()->json(['status' => 'SUCCESS', 'message' => "Entry {$request->decision}."]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    //  GET /api/mentoring/backlog-report/{classroom_id}
+    //  Generate backlog report for a classroom
+    // ────────────────────────────────────────────────────────────────────────
+    public function getBacklogReport(string $classroomId)
+    {
+        $mobileNo = Session::get('userId');
+        if (!$mobileNo) return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+
+        try {
+            $students = Student::where('classroom_id', $classroomId)->get();
+            $boardGrades = StudentBoardGrade::whereIn('reg_no', $students->pluck('reg_no'))->get();
+            
+            $noBacklogs = [];
+            $withBacklogs = [];
+
+            foreach ($students as $student) {
+                // Get all board grades for this student
+                $studentGrades = $boardGrades->where('reg_no', $student->reg_no);
+                
+                // Count how many subjects have passed == 0
+                // Wait, if no record exists for a subject, it's pending/not written yet. 
+                // Backlogs are explicitly those that are failed (passed == 0)
+                $backlogs = $studentGrades->where('passed', 0)->count();
+
+                $studentData = [
+                    'reg_no' => $student->reg_no,
+                    'name' => $student->name,
+                    'backlog_count' => $backlogs
+                ];
+
+                if ($backlogs > 0) {
+                    $withBacklogs[] = $studentData;
+                } else {
+                    $noBacklogs[] = $studentData;
+                }
+            }
+
+            // Sort arrays
+            usort($noBacklogs, fn($a, $b) => strcmp($a['name'], $b['name']));
+            usort($withBacklogs, fn($a, $b) => strcmp($a['name'], $b['name']));
+
+            return response()->json([
+                'status' => 'SUCCESS',
+                'no_backlogs' => $noBacklogs,
+                'with_backlogs' => $withBacklogs
+            ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
         }
@@ -462,56 +694,983 @@ class MentoringController extends Controller
     //  GET /api/student/mentoring/diary
     //  Student views their own diary
     // ─────────────────────────────────────────────
-    public function studentViewDiary()
+        
+
+    public function studentSaveExtraCurricular(Request $request)
     {
-        $regNo = Session::get('userId');
-        $role  = Session::get('userRole');
-        if ($role !== 'Student' || !$regNo) {
-            return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated as student.'], 403);
+        $userId = Session::get('userId');
+        $role   = Session::get('userRole');
+        
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+        }
+
+        $regNo = $request->input('reg_no');
+        
+        if ($role === 'Student') {
+            $regNo = $userId;
+        } else {
+            if (!$regNo) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Registration number is required.'], 400);
+            }
+        }
+
+        $request->validate([
+            'semester'         => 'required|integer',
+            'segment'          => 'required|string',
+            'activity_name'    => 'required|string',
+            'level'            => 'required|string',
+            'points_claimed'   => 'required|integer'
+        ]);
+
+        $data = [
+            'reg_no'           => strtoupper($regNo),
+            'semester'         => $request->semester,
+            'activity_segment' => $request->segment,
+            'activity_name'    => $request->activity_name,
+            'level'            => $request->level,
+            'points_claimed'   => $request->points_claimed,
+            'status'           => 'Pending',
+        ];
+
+        if ($request->has('activity_id') && !empty($request->activity_id)) {
+            \App\Models\ActivityPointClaim::where('id', $request->activity_id)
+                ->where('reg_no', strtoupper($regNo))
+                ->update($data);
+            $msg = 'Activity updated successfully.';
+        } else {
+            \App\Models\ActivityPointClaim::create($data);
+            $msg = 'Activity submitted for verification.';
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => $msg]);
+    }
+
+    public function studentViewDiary(Request $request)
+    {
+        $userId = Session::get('userId');
+        $role   = Session::get('userRole');
+        
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+        }
+
+        $regNo = $request->input('reg_no');
+        
+        if ($role === 'Student') {
+            $regNo = $userId;
+        } else {
+            if (!$regNo) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Registration number is required.'], 400);
+            }
         }
 
         try {
-            // Get mentor info
-            $student  = Student::where('reg_no', $regNo)->first();
-            $mentorNo = $student?->mentor_mobile_no;
-            $mentor   = $mentorNo ? StaffProfile::where('mobile_no', $mentorNo)->first() : null;
+            // Call the shared full diary fetching logic
+            // Since this is the same logic a mentor uses to view a student's diary, we just reuse it.
+            // But we must fake the session briefly or extract the logic.
+            // Since getFullStudentDiary checks for mentor auth, we'll extract the logic.
 
-            // Get classroom mentors
-            $classroom = $student?->classroom_id
-                ? ClassManagement::where('classroom_id', $student->classroom_id)->first()
-                : null;
-            $mentor1 = $classroom?->tutor_mobile_no
-                ? StaffProfile::where('mobile_no', $classroom->tutor_mobile_no)->first()
-                : null;
-            $mentor2 = $classroom?->mentor_mobile_no
-                ? StaffProfile::where('mobile_no', $classroom->mentor_mobile_no)->first()
-                : null;
+            $student = Student::where('reg_no', strtoupper($regNo))->first();
+            if (!$student) return response()->json(['status' => 'ERROR', 'message' => 'Student not found.']);
 
-            $entries = TutorDiary::where('reg_no', $regNo)
-                ->orderByDesc('date')
-                ->get()
+            $family = StudentFamilyDetail::where('reg_no', $student->reg_no)->get();
+            $education = StudentPriorEducation::where('reg_no', $student->reg_no)->get();
+            $fees = StudentFeeRecord::where('reg_no', $student->reg_no)->get();
+            $extracurricular = \App\Models\ActivityPointClaim::where('reg_no', $student->reg_no)->get();
+            $leaves = LeaveRecord::where('reg_no', $student->reg_no)->orderByDesc('leave_date')->get();
+            $disciplinary = DisciplinaryAction::where('reg_no', $student->reg_no)->orderByDesc('date')->get();
+            $meetings = TutorDiary::where('reg_no', $student->reg_no)->orderByDesc('date')->get()
                 ->map(function ($e) {
+                    $loggedBy = $e->logged_by
+                        ? (\App\Models\StaffProfile::where('mobile_no', $e->logged_by)->value('name') ?? $e->logged_by)
+                        : 'System';
                     return [
-                        'diary_id'        => $e->diary_id,
-                        'date'            => $e->date,
-                        'category'        => $e->category,
-                        'discussion_notes'=> $e->discussion_notes,
-                        'student_remarks' => $e->student_remarks,
-                        'entry_source'    => $e->entry_source,
-                        'approval_status' => $e->approval_status,
-                        'created_at'      => $e->created_at,
+                        'diary_id'         => $e->diary_id,
+                        'date'             => $e->date,
+                        'category'         => $e->category,
+                        'discussion_notes' => $e->discussion_notes,
+                        'action_taken'     => $e->action_taken,
+                        'approval_status'  => $e->approval_status,
+                        'logged_by_name'   => $loggedBy,
                     ];
                 });
+            $board = StudentSemesterSummary::where('reg_no', $student->reg_no)->orderBy('semester', 'desc')->get();
+
+            // 9. Academics (Structured by Semester and Subject)
+            $batchSubjects = BatchSubject::where('classroom_id', $student->classroom_id)->get();
+            $academicMarks = AcademicMark::where('reg_no', $student->reg_no)->get();
+            $boardGrades = StudentBoardGrade::where('reg_no', $student->reg_no)->get();
+            
+            $academics = [];
+            foreach ($batchSubjects as $subject) {
+                $sem = $subject->semester;
+                $code = $subject->subject_code;
+                
+                if (!isset($academics[$sem])) {
+                    $academics[$sem] = [];
+                }
+                
+                // Find marks for this subject
+                $subjectMarks = $academicMarks->where('subject_code', $code);
+                
+                // Find board grade for this subject
+                $bGrade = $boardGrades->where('semester', $sem)->where('subject_code', $code)->first();
+                
+                // Helper to extract mark
+                $getMark = function($cat, $co) use ($subjectMarks) {
+                    $m = $subjectMarks->where('category', $cat)->where('co_tag', $co)->first();
+                    return $m ? $m->marks_obtained : '--';
+                };
+
+                $academics[$sem][] = [
+                    'subject_code' => $code,
+                    'subject_name' => $subject->subject_name,
+                    'type' => $subject->subject_type,
+                    'tests' => [
+                        'CO1' => $getMark('Written Test', 'CO1'),
+                        'CO2' => $getMark('Written Test', 'CO2'),
+                        'CO3' => $getMark('Written Test', 'CO3'),
+                        'CO4' => $getMark('Written Test', 'CO4'),
+                    ],
+                    'assignments' => [
+                        'CO1' => $getMark('Assignment', 'CO1'),
+                        'CO2' => $getMark('Assignment', 'CO2'),
+                        'CO3' => $getMark('Assignment', 'CO3'),
+                        'CO4' => $getMark('Assignment', 'CO4'),
+                    ],
+                    'mcq' => [
+                        'CO1' => $getMark('Online Test', 'CO1'),
+                        'CO2' => $getMark('Online Test', 'CO2'),
+                        'CO3' => $getMark('Online Test', 'CO3'),
+                        'CO4' => $getMark('Online Test', 'CO4'),
+                    ],
+                    'internal_mark' => '--',
+                    'attendance' => '--',
+                    'board_result' => $bGrade ? [
+                        'grade' => $bGrade->grade,
+                        'internal_marks' => $bGrade->internal_marks,
+                        'external_marks' => $bGrade->external_marks,
+                        'total_marks' => $bGrade->total_marks,
+                        'exam_month_year' => $bGrade->exam_month_year,
+                        'passed' => $bGrade->passed,
+                        'chances_taken' => $bGrade->chances_taken
+                    ] : null
+                ];
+            }
+
+            // Fetch all board grades for this student and map subject names
+            $allBoardGrades = $boardGrades->map(function($bg) {
+                $syllabus = \DB::table('syllabus_registry')->where('subject_code', $bg->subject_code)->first();
+                $bg->subject_name = $syllabus ? $syllabus->subject_name : 'Unknown Subject';
+                return $bg;
+            });
 
             return response()->json([
-                'status'   => 'SUCCESS',
-                'my_mentor'=> $mentor  ? ['name' => $mentor->name, 'designation' => $mentor->designation] : null,
-                'mentor1'  => $mentor1 ? ['name' => $mentor1->name, 'designation' => $mentor1->designation] : null,
-                'mentor2'  => $mentor2 ? ['name' => $mentor2->name, 'designation' => $mentor2->designation] : null,
-                'entries'  => $entries,
+                'status' => 'SUCCESS',
+                'data' => [
+                    'student' => [
+                        'name'   => $student->name,
+                        'reg_no' => $student->reg_no,
+                    ],
+                    'profile' => [
+                        'name' => $student->name,
+                        'reg_no' => $student->reg_no,
+                        'annual_income' => $student->annual_income,
+                        'residential_status' => $student->residential_status,
+                        'scholarships' => $student->scholarships,
+                        'is_fee_waiver' => $student->is_fee_waiver,
+                        'guardian_name' => $student->guardian_name,
+                        'guardian_relationship' => $student->guardian_relationship,
+                        'guardian_mobile' => $student->guardian_mobile,
+                        'guardian_address' => $student->guardian_address,
+                        'profile_verified_at' => $student->profile_verified_at,
+                    ],
+                    'family'          => $family,
+                    'education'       => $education,
+                    'fees'            => $fees,
+                    'extracurricular' => $extracurricular,
+                    'leaves'          => $leaves,
+                    'disciplinary'    => $disciplinary,
+                    'meetings'        => $meetings,
+                    'board'           => $board,
+                    'all_board_grades' => $allBoardGrades,
+                    'academics'       => $academics
+                ]
             ]);
+
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
         }
+    }
+
+    public function saveStudentMentoringData(Request $request)
+    {
+        $userId = Session::get('userId');
+        $role   = Session::get('userRole');
+        
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+        }
+
+        $regNo = $request->input('reg_no');
+        
+        if ($role === 'Student') {
+            $regNo = $userId;
+        } else {
+            if (!$regNo) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Registration number is required.'], 400);
+            }
+        }
+
+        DB::beginTransaction();
+        try {
+            $student = Student::where('reg_no', strtoupper($regNo))->first();
+
+            // 1. Update Profile Fields
+            if ($request->has('profile')) {
+                $p = $request->profile;
+                $student->update([
+                    'annual_income' => $p['annual_income'] ?? $student->annual_income,
+                    'residential_status' => $p['residential_status'] ?? $student->residential_status,
+                    'scholarships' => $p['scholarships'] ?? $student->scholarships,
+                    'is_fee_waiver' => $p['is_fee_waiver'] ?? $student->is_fee_waiver,
+                    'guardian_name' => $p['guardian_name'] ?? $student->guardian_name,
+                    'guardian_relationship' => $p['guardian_relationship'] ?? $student->guardian_relationship,
+                    'guardian_mobile' => $p['guardian_mobile'] ?? $student->guardian_mobile,
+                    'guardian_address' => $p['guardian_address'] ?? $student->guardian_address,
+                ]);
+            }
+
+            // 2. Update Family Details
+            if ($request->has('family')) {
+                StudentFamilyDetail::where('reg_no', $regNo)->delete();
+                foreach ($request->family as $f) {
+                    StudentFamilyDetail::create([
+                        'reg_no' => $regNo,
+                        'name' => $f['name'],
+                        'relationship' => $f['relationship'] ?? '',
+                        'education' => $f['education'] ?? '',
+                        'occupation' => $f['occupation'] ?? '',
+                        'contact_no' => $f['contact_no'] ?? ''
+                    ]);
+                }
+            }
+
+            // 3. Update Prior Education
+            if ($request->has('education')) {
+                StudentPriorEducation::where('reg_no', $regNo)->delete();
+                foreach ($request->education as $e) {
+                    StudentPriorEducation::create([
+                        'reg_no' => $regNo,
+                        'course' => $e['course'],
+                        'institution' => $e['institution'] ?? '',
+                        'year_of_completion' => $e['year_of_completion'] ?? '',
+                        'total_percentage' => $e['total_percentage'] ?? ''
+                    ]);
+                }
+            }
+
+            // Extracurricular is now handled via separate endpoints (ActivityPointClaim)
+
+            // 5. Update Board Exams (Semester Summary)
+            if ($request->has('board')) {
+                StudentSemesterSummary::where('reg_no', $regNo)->delete();
+                foreach ($request->board as $b) {
+                    StudentSemesterSummary::create([
+                        'reg_no' => $regNo,
+                        'semester' => $b['semester'],
+                        'sgpa' => $b['sgpa'] ?? null,
+                        'cgpa' => $b['cgpa'] ?? null,
+                        'activity_points' => $b['activity_points'] ?? 0
+                    ]);
+                }
+            }
+
+            // 6. Update Subject-wise Board Grades
+            if ($request->has('board_grades')) {
+                StudentBoardGrade::where('reg_no', $regNo)->delete();
+                foreach ($request->board_grades as $bg) {
+                    StudentBoardGrade::create([
+                        'reg_no' => $regNo,
+                        'semester' => $bg['semester'],
+                        'subject_code' => $bg['subject_code'],
+                        'grade' => $bg['grade'] ?? null,
+                        'internal_marks' => $bg['internal_marks'] ?? null,
+                        'external_marks' => $bg['external_marks'] ?? null,
+                        'total_marks' => $bg['total_marks'] ?? null,
+                        'exam_month_year' => $bg['exam_month_year'] ?? null,
+                        'passed' => $bg['passed'] ?? 1,
+                        'chances_taken' => $bg['chances_taken'] ?? 1,
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Data saved successfully.']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function verifyData(Request $request)
+    {
+        $mobileNo = Session::get('userId');
+        if (!$mobileNo) return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+
+        try {
+            $student = Student::where('reg_no', $request->reg_no)->first();
+            if ($student) {
+                $student->update([
+                    'profile_verified_at' => now(),
+                    'profile_verified_by' => $mobileNo
+                ]);
+                return response()->json(['status' => 'SUCCESS']);
+            }
+            return response()->json(['status' => 'ERROR', 'message' => 'Student not found']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function unverifyData(Request $request)
+    {
+        $mobileNo = Session::get('userId');
+        if (!$mobileNo) return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+
+        try {
+            $student = Student::where('reg_no', $request->reg_no)->first();
+            if ($student) {
+                $student->update([
+                    'profile_verified_at' => null,
+                    'profile_verified_by' => null
+                ]);
+                return response()->json(['status' => 'SUCCESS']);
+            }
+            return response()->json(['status' => 'ERROR', 'message' => 'Student not found']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function mentorDownloadPdf(string $regNo)
+    {
+        $mobileNo = Session::get('userId');
+        if (!$mobileNo) return response("Not authenticated.", 401);
+
+        $dataResponse = app(MentoringController::class)->getFullStudentDiary($regNo);
+        if ($dataResponse->status() !== 200) {
+            return response("Failed to load student data.", 500);
+        }
+
+        $data = $dataResponse->getData(true);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('mentoring_pdf', $data);
+        return $pdf->download('mentoring_diary_' . strtolower($regNo) . '.pdf');
+    }
+
+    public function studentDownloadPdf()
+    {
+        $regNo = Session::get('userId');
+        if (Session::get('userRole') !== 'Student' || !$regNo) {
+            return response("Not authenticated as student.", 403);
+        }
+
+        $dataResponse = app(MentoringController::class)->getFullStudentDiary($regNo);
+        if ($dataResponse->status() !== 200) {
+            return response("Failed to load your data.", 500);
+        }
+
+        $data = $dataResponse->getData(true);
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('mentoring_pdf', $data);
+        return $pdf->download('my_mentoring_diary.pdf');
+    }
+
+    public function printDiary(string $regNo)
+    {
+        $userId = Session::get('userId');
+        $role = Session::get('userRole');
+
+        if (!$userId) return redirect('/');
+
+        // Basic authorization: Students can only print their own diary.
+        if ($role === 'Student' && strtoupper($userId) !== strtoupper($regNo)) {
+            return response("Unauthorized.", 403);
+        }
+
+        $dataResponse = app(MentoringController::class)->getFullStudentDiary($regNo);
+        if ($dataResponse->status() !== 200) {
+            return response("Failed to load student data.", 500);
+        }
+
+        $responseData = $dataResponse->getData();
+        $data = (array) ($responseData->data ?? $responseData);
+        $data['student'] = $data['profile'] ?? null; 
+        // Cast the inner 'data' object to an array so view can extract $student, etc.
+
+        return view('student_mentoring_diary_print', $data);
+    }
+
+    public function printLeaveReport(string $regNo)
+    {
+        $userId = Session::get('userId');
+        $role = Session::get('userRole');
+        if (!$userId) return redirect('/');
+
+        $student = Student::where('reg_no', strtoupper($regNo))->first();
+        if (!$student) return response("Student not found.", 404);
+
+        $leaves = LeaveRecord::where('reg_no', $student->reg_no)->orderByDesc('leave_date')->get();
+        $totalLeaves = LeaveRecord::where('reg_no', $student->reg_no)->where('status', 'Approved')->sum('no_of_days');
+
+        // Assume 90 working days per semester
+        $workingDays = 90;
+        $attendancePercentage = max(0, min(100, (($workingDays - $totalLeaves) / $workingDays) * 100));
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+        ];
+        $branchKey = strtoupper($student->branch);
+        $fullDepartment = $branchMap[$branchKey] ?? $student->branch;
+        
+        $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $student->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        return view('student_leave_report_print', [
+            'student' => $student,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'leaves' => $leaves,
+            'totalLeaves' => $totalLeaves,
+            'attendancePercentage' => round($attendancePercentage, 2)
+        ]);
+    }
+
+    public function printCondonationReport(string $classroomId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) return redirect('/');
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+        ];
+        
+        $branchKey = strtoupper(explode('_', $classroomId)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? $branchKey;
+        
+        $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $classroomId);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        $students = Student::where('classroom_id', $classroomId)->get()->map(function($s) {
+            $totalLeaves = LeaveRecord::where('reg_no', $s->reg_no)->where('status', 'Approved')->sum('no_of_days');
+            $workingDays = 90;
+            $attendancePercentage = max(0, min(100, (($workingDays - $totalLeaves) / $workingDays) * 100));
+            $s->total_leaves = $totalLeaves;
+            $s->attendance_percentage = round($attendancePercentage, 2);
+
+            // Fetch condonation/attendance related disciplinary actions
+            $condonationDetails = DisciplinaryAction::where('reg_no', $s->reg_no)
+                ->where(function($query) {
+                    $query->where('description', 'like', '%condonation%')
+                          ->orWhere('action_taken', 'like', '%condonation%')
+                          ->orWhere('description', 'like', '%attendance%')
+                          ->orWhere('action_taken', 'like', '%attendance%');
+                })->first();
+
+            $s->condonation_reason = $condonationDetails ? $condonationDetails->description : ($attendancePercentage < 75 ? 'Attendance Shortage (< 75%)' : '-');
+            $s->condonation_action = $condonationDetails ? $condonationDetails->action_taken : ($attendancePercentage < 75 ? 'Condonation Required' : '-');
+            return $s;
+        });
+
+        return view('classroom_condonation_report_print', [
+            'classroomId' => $classroomId,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'students' => $students
+        ]);
+    }
+
+    /**
+     * Student Academic Report — powers the "My Academic Stats" panel and "Works To Do" counters.
+     * Returns semester-wise mark data, active tasks and overall CGPA.
+     * Active tasks only show for the CURRENT semester and only when a lecturer has
+     * actually published an assignment deadline or MCQ test.
+     */
+    public function getStudentAcademicReport()
+    {
+        $userId = Session::get('userId');
+        $role   = Session::get('userRole');
+        
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+        }
+
+        $regNo = $request->input('reg_no');
+        
+        if ($role === 'Student') {
+            $regNo = $userId;
+        } else {
+            if (!$regNo) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Registration number is required.'], 400);
+            }
+        }
+
+        try {
+            $student = Student::where('reg_no', strtoupper($regNo))->first();
+            if (!$student) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Student profile not found.']);
+            }
+
+            // ── Classroom info (includes current_semester) ───────────────────────
+            $classroom = ClassManagement::where('classroom_id', $student->classroom_id)->first();
+            $currentSem = $classroom ? (int) $classroom->current_semester : 1;
+
+            // ── Batch subjects ───────────────────────────────────────────────────
+            $batchSubjects = BatchSubject::where('classroom_id', $student->classroom_id)->get();
+            $allSemesters  = $batchSubjects->pluck('semester')->unique()->sort()->values();
+
+            // Subjects for the current semester only
+            $currentSemSubjects = $batchSubjects->where('semester', $currentSem);
+            $currentSubjectCodes = $currentSemSubjects->pluck('subject_code')->all();
+
+            // ── All academic marks for this student ──────────────────────────────
+            $marks = AcademicMark::where('reg_no', $regNo)->get();
+
+            // Helper: get a single mark value
+            $getM = function ($subjectCode, $category, $co) use ($marks) {
+                $row = $marks
+                    ->where('subject_code', $subjectCode)
+                    ->where('category', $category)
+                    ->where('co_tag', $co)
+                    ->first();
+                return $row ? $row->marks_obtained : null;
+            };
+
+            // ── Active tasks: only subjects lecturer has actually activated ───────
+            // For MCQ: check test_configs with is_active=true for current-sem subjects
+            // For Assignments: check course_files with assignment_deadline set and not expired
+            // For Written Tests: check academic_marks entries published by lecturers
+            $activeTasks = [];
+            $statsAssignActive  = 0;
+            $statsAssignDone    = 0;
+            $statsWTActive      = 0;
+            $statsWTDone        = 0;
+            $statsOTActive      = 0;
+
+            if (!empty($currentSubjectCodes)) {
+                // --- MCQ / Online Tests (active test_configs for current sem subjects) ---
+                $activeTests = DB::table('test_configs')
+                    ->whereIn('subject_code', $currentSubjectCodes)
+                    ->where('is_active', true)
+                    ->get();
+
+                foreach ($activeTests as $tc) {
+                    $subName = $batchSubjects->where('subject_code', $tc->subject_code)->first()?->subject_name ?? $tc->subject_code;
+                    $hasDone = DB::table('test_attempts')
+                        ->where('reg_no', $regNo)
+                        ->where('test_id', $tc->test_id)
+                        ->where('status', 'completed')
+                        ->exists();
+
+                    if (!$hasDone) {
+                        $statsOTActive++;
+                        // note: Online tests shown in the online-tests section, not here
+                    }
+                }
+
+                // --- Assignments: only if lecturer set a deadline (course_files) ---
+                // Check if assignment config was published (test_configs with category='Assignment')
+                $assignedCOs = DB::table('test_configs')
+                    ->whereIn('subject_code', $currentSubjectCodes)
+                    ->where('test_name', 'like', '%Assignment%')
+                    ->where('is_active', true)
+                    ->get();
+
+                foreach ($assignedCOs as $ac) {
+                    $subName = $batchSubjects->where('subject_code', $ac->subject_code)->first()?->subject_name ?? $ac->subject_code;
+                    // Extract CO from test_name if present
+                    preg_match('/CO\d/', $ac->test_name, $matches);
+                    $co = $matches[0] ?? 'CO1';
+
+                    $hasMark = $marks->where('subject_code', $ac->subject_code)
+                                     ->where('category', 'Assignment')
+                                     ->where('co_tag', $co)->isNotEmpty();
+                    if (!$hasMark) {
+                        $statsAssignActive++;
+                        $activeTasks[] = [
+                            'type'         => 'Assignment',
+                            'subject_code' => $ac->subject_code,
+                            'subject'      => $subName,
+                            'co_tag'       => $co,
+                            'status'       => 'Active',
+                            'deadline'     => $ac->end_time ?? null,
+                            'start'        => $ac->start_time ?? null,
+                            'questions'    => [],
+                        ];
+                    } else {
+                        $statsAssignDone++;
+                    }
+                }
+
+                // --- Written Tests: show only if lecturer has saved marks for at least
+                //     one student (meaning test was conducted) but this student's marks
+                //     haven't come yet (or all marks present = done) ---
+                // Approach: check all subject+CO combinations where ANY academic_mark
+                //     of category 'Written Test' exists for this classroom's students.
+                $wtPublished = DB::table('academic_marks')
+                    ->whereIn('subject_code', $currentSubjectCodes)
+                    ->where('category', 'Written Test')
+                    ->select('subject_code', 'co_tag')
+                    ->distinct()
+                    ->get();
+
+                foreach ($wtPublished as $wt) {
+                    $subName = $batchSubjects->where('subject_code', $wt->subject_code)->first()?->subject_name ?? $wt->subject_code;
+                    $hasMark = $marks->where('subject_code', $wt->subject_code)
+                                     ->where('category', 'Written Test')
+                                     ->where('co_tag', $wt->co_tag)->isNotEmpty();
+                    if (!$hasMark) {
+                        $statsWTActive++;
+                        $activeTasks[] = [
+                            'type'         => 'Written Test',
+                            'subject_code' => $wt->subject_code,
+                            'subject'      => $subName,
+                            'co_tag'       => $wt->co_tag,
+                            'status'       => 'Pending',
+                            'deadline'     => null,
+                            'start'        => null,
+                            'questions'    => [],
+                        ];
+                    } else {
+                        $statsWTDone++;
+                    }
+                }
+            }
+
+            // Count submitted assignments from marks
+            $statsAssignDone = $marks->where('category', 'Assignment')
+                ->whereIn('subject_code', $currentSubjectCodes)->count();
+
+            // ── Semester summaries (SGPA / CGPA / activity points) ───────────────
+            $semSummaries = StudentSemesterSummary::where('reg_no', $regNo)
+                ->orderBy('semester', 'asc')->get()->keyBy('semester');
+
+            // ── Overall CGPA ─────────────────────────────────────────────────────
+            $latestSummary = $semSummaries->last();
+            $overallCgpa   = $latestSummary ? $latestSummary->cgpa : null;
+            $totalActPts   = $semSummaries->sum('activity_points');
+
+            // ── Build semesters array for frontend ───────────────────────────────
+            $semestersData = [];
+            foreach ($allSemesters as $sem) {
+                $semSubjects = $batchSubjects->where('semester', $sem);
+                $summ = $semSummaries->get($sem);
+
+                $subjectRows = [];
+                foreach ($semSubjects as $sub) {
+                    $subjectRows[] = [
+                        'subject_code'         => $sub->subject_code,
+                        'subject_name'         => $sub->subject_name,
+                        'CO1'   => $getM($sub->subject_code, 'Written Test', 'CO1'),
+                        'CO2'   => $getM($sub->subject_code, 'Written Test', 'CO2'),
+                        'CO3'   => $getM($sub->subject_code, 'Written Test', 'CO3'),
+                        'CO4'   => $getM($sub->subject_code, 'Written Test', 'CO4'),
+                        'Assg1' => $getM($sub->subject_code, 'Assignment', 'CO1'),
+                        'Assg2' => $getM($sub->subject_code, 'Assignment', 'CO2'),
+                        'Assg3' => $getM($sub->subject_code, 'Assignment', 'CO3'),
+                        'Assg4' => $getM($sub->subject_code, 'Assignment', 'CO4'),
+                        'WT1'   => $getM($sub->subject_code, 'Written Test', 'CO1'),
+                        'WT2'   => $getM($sub->subject_code, 'Written Test', 'CO2'),
+                        'WT3'   => $getM($sub->subject_code, 'Written Test', 'CO3'),
+                        'WT4'   => $getM($sub->subject_code, 'Written Test', 'CO4'),
+                        'OT1'   => $getM($sub->subject_code, 'Online Test', 'CO1'),
+                        'OT2'   => $getM($sub->subject_code, 'Online Test', 'CO2'),
+                        'OT3'   => $getM($sub->subject_code, 'Online Test', 'CO3'),
+                        'OT4'   => $getM($sub->subject_code, 'Online Test', 'CO4'),
+                        'attendance_percentage' => 0,
+                    ];
+                }
+
+                $semestersData[] = [
+                    'semester'        => $sem,
+                    'sgpa'            => $summ ? $summ->sgpa : null,
+                    'cgpa'            => $summ ? $summ->cgpa : null,
+                    'activity_points' => $summ ? $summ->activity_points : 0,
+                    'subjects'        => $subjectRows,
+                    'is_current'      => ((int)$sem === $currentSem),
+                ];
+            }
+
+            return response()->json([
+                'status'       => 'SUCCESS',
+                'overall'      => [
+                    'cgpa'             => $overallCgpa,
+                    'activity_points'  => $totalActPts,
+                    'current_semester' => $currentSem,
+                ],
+                'semesters'    => $semestersData,
+                'active_tasks' => $activeTasks,
+                'stats'        => [
+                    'assignments_active'      => $statsAssignActive,
+                    'assignments_submitted'   => $statsAssignDone,
+                    'written_tests_active'    => $statsWTActive,
+                    'written_tests_submitted' => $statsWTDone,
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function saveExtraCurricular(Request $request)
+    {
+        $mobileNo = Session::get('userId');
+        if (!$mobileNo) return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+
+        $request->validate([
+            'reg_no'           => 'required|string',
+            'semester'         => 'required|integer',
+            'activity_segment' => 'required|string',
+            'activity_name'    => 'required|string',
+            'level'            => 'required|string',
+            'points_claimed'   => 'required|integer',
+            'points_awarded'   => 'required|integer',
+            'status'           => 'required|string'
+        ]);
+
+        $data = [
+            'reg_no'           => strtoupper($request->reg_no),
+            'semester'         => $request->semester,
+            'activity_segment' => $request->activity_segment,
+            'activity_name'    => $request->activity_name,
+            'level'            => $request->level,
+            'points_claimed'   => $request->points_claimed,
+            'points_awarded'   => $request->points_awarded,
+            'status'           => $request->status,
+            'verified_by'      => $mobileNo,
+        ];
+
+        if ($request->has('id') && !empty($request->id)) {
+            \App\Models\ActivityPointClaim::where('id', $request->id)->update($data);
+            $msg = 'Activity updated successfully.';
+        } else {
+            \App\Models\ActivityPointClaim::create($data);
+            $msg = 'Activity added successfully.';
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => $msg]);
+    }
+
+    public function saveLeaveRecord(Request $request)
+    {
+        $mobileNo = Session::get('userId');
+        $role = Session::get('userRole');
+        if (!$mobileNo) return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+
+        $regNo = $request->input('reg_no');
+        if ($role === 'Student') {
+            $regNo = $mobileNo;
+        } else {
+            if (!$regNo) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Registration number is required.'], 400);
+            }
+        }
+
+        $request->validate([
+            'semester'   => 'required|integer',
+            'leave_date' => 'required|string',
+            'no_of_days' => 'required|string',
+            'reason'     => 'required|string'
+        ]);
+
+        $data = [
+            'reg_no'          => strtoupper($regNo),
+            'semester'        => $request->semester,
+            'leave_date'      => $request->leave_date,
+            'no_of_days'      => $request->no_of_days,
+            'reason'          => $request->reason,
+            'parent_informed' => $request->has('parent_informed') ? $request->parent_informed : false,
+            'status'          => $request->input('status', 'Pending'),
+            'approved_by'     => ($role === 'Student') ? null : $mobileNo,
+        ];
+
+        if ($request->has('id') && !empty($request->id)) {
+            LeaveRecord::where('id', $request->id)->update($data);
+            $msg = 'Leave record updated successfully.';
+        } else {
+            LeaveRecord::create($data);
+            $msg = 'Leave record added successfully.';
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => $msg]);
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  POST /api/mentoring/leave/approve
+    //  Tutor/Mentor approves or rejects a student leave application
+    // ─────────────────────────────────────────────────────────────────
+    public function approveLeaveRecord(Request $request)
+    {
+        $mobileNo = Session::get('userId');
+        $role     = Session::get('userRole');
+
+        if (!$mobileNo) return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+        if ($role === 'Student') return response()->json(['status' => 'ERROR', 'message' => 'Students cannot approve leave.'], 403);
+
+        $request->validate([
+            'id'     => 'required|integer',
+            'status' => 'required|in:Approved,Rejected',
+        ]);
+
+        try {
+            $leave = LeaveRecord::find($request->id);
+            if (!$leave) return response()->json(['status' => 'ERROR', 'message' => 'Leave record not found.']);
+
+            $leave->update([
+                'status'      => $request->status,
+                'approved_by' => $mobileNo,
+            ]);
+
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Leave ' . strtolower($request->status) . ' successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  POST /api/mentoring/diary/delete
+    //  Tutor/Mentor deletes a diary session entry
+    // ─────────────────────────────────────────────────────────────────
+    public function deleteDiaryEntry(Request $request)
+    {
+        $mobileNo = Session::get('userId');
+        $role     = Session::get('userRole');
+
+        if (!$mobileNo) return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+        if ($role === 'Student') return response()->json(['status' => 'ERROR', 'message' => 'Students cannot delete diary logs.'], 403);
+
+        $request->validate([
+            'diary_id' => 'required|string',
+        ]);
+
+        try {
+            $entry = TutorDiary::where('diary_id', $request->diary_id)->first();
+            if (!$entry) return response()->json(['status' => 'ERROR', 'message' => 'Meeting log not found.']);
+
+            $entry->delete();
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Meeting log deleted successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  POST /api/mentoring/disciplinary/delete
+    //  Tutor/Mentor deletes a disciplinary action record
+    // ─────────────────────────────────────────────────────────────────
+    public function deleteDisciplinary(Request $request)
+    {
+        $mobileNo = Session::get('userId');
+        $role     = Session::get('userRole');
+
+        if (!$mobileNo) return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+        if ($role === 'Student') return response()->json(['status' => 'ERROR', 'message' => 'Students cannot delete disciplinary actions.'], 403);
+
+        $request->validate([
+            'id' => 'required|integer',
+        ]);
+
+        try {
+            $action = DisciplinaryAction::find($request->id);
+            if (!$action) return response()->json(['status' => 'ERROR', 'message' => 'Disciplinary record not found.']);
+
+            $action->delete();
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Disciplinary action deleted successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function saveDisciplinary(Request $request)
+    {
+        $mobileNo = Session::get('userId');
+        if (!$mobileNo) return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+
+        $request->validate([
+            'reg_no'      => 'required|string',
+            'date'        => 'required|date',
+            'description' => 'required|string'
+        ]);
+
+        // Only store reported_by if the staff profile exists (avoids FK constraint violation)
+        $staffExists = StaffProfile::where('mobile_no', $mobileNo)->exists();
+        $reportedBy  = $staffExists ? $mobileNo : null;
+
+        $data = [
+            'reg_no'       => strtoupper($request->reg_no),
+            'date'         => $request->date,
+            'description'  => $request->description,
+            'action_taken' => $request->action_taken,
+            'reported_by'  => $reportedBy,
+        ];
+
+        try {
+            if ($request->has('id') && !empty($request->id)) {
+                DisciplinaryAction::where('id', $request->id)->update($data);
+                $msg = 'Disciplinary action updated successfully.';
+            } else {
+                DisciplinaryAction::create($data);
+                $msg = 'Disciplinary action added successfully.';
+            }
+
+            return response()->json(['status' => 'SUCCESS', 'message' => $msg]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  GET /api/mentoring/classroom/{classroomId}/leaves
+    //  Fetch all student leave records for a classroom
+    // ─────────────────────────────────────────────────────────────────
+    public function getClassroomLeaves(string $classroomId)
+    {
+        $mobileNo = Session::get('userId');
+        if (!$mobileNo) return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+
+        try {
+            $studentRegNos = Student::where('classroom_id', $classroomId)->pluck('reg_no');
+            $leaves = LeaveRecord::whereIn('reg_no', $studentRegNos)
+                ->orderByDesc('leave_date')
+                ->get()
+                ->map(function ($l) {
+                    $l->student_name = Student::where('reg_no', $l->reg_no)->value('name') ?? $l->reg_no;
+                    return $l;
+                });
+
+            return response()->json(['status' => 'SUCCESS', 'data' => $leaves]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function tutorViewFullDiary(string $regNo)
+    {
+        $userId = Session::get('userId');
+        $role = Session::get('userRole');
+        if (!$userId || $role === 'Student') return redirect('/');
+        return view('tutor_student_diary_full', ['studentRegNo' => $regNo]);
     }
 }

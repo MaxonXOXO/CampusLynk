@@ -46,6 +46,13 @@ Route::middleware(['web'])->group(function () {
         return view('student_dashboard');
     });
 
+    Route::get('/student/mentoring-diary', function () {
+        if (Session::get('userRole') !== 'Student') return redirect('/');
+        return view('student_mentoring_diary_full');
+    });
+
+    Route::get('/tutor/mentoring-diary/{regNo}', [\App\Http\Controllers\MentoringController::class, 'tutorViewFullDiary']);
+
     Route::get('/dashboard/superadmin', function () {
         $role = Session::get('userRole');
         if ($role !== 'Super_Admin' && $role !== 'Principal') return redirect('/');
@@ -106,6 +113,7 @@ Route::middleware(['web'])->group(function () {
 
     // Core Data Actions
     Route::post('/api/approve-account', [DataController::class, 'approveAccount']);
+    Route::post('/api/student/update-sbte-reg', [DataController::class, 'updateSbteRegNo']);
     Route::post('/api/student/update/{regNo}', [DataController::class, 'updateStudentProfile']);
     Route::delete('/api/student/delete/{regNo}', [DataController::class, 'deleteStudentProfile']);
     Route::get('/api/tutor/classroom/{tutorMobile}', [DataController::class, 'getTutorClassroomRoster']);
@@ -136,6 +144,25 @@ Route::middleware(['web'])->group(function () {
 
     // Lecturer Endpoints
     Route::get('/api/lecturer/my-batches', [DataController::class, 'getLecturerBatches']);
+    Route::get('/course-files', function () {
+        $role = Session::get('userRole');
+        if (!$role || $role === 'Student') return redirect('/');
+        return view('course_files_dashboard');
+    });
+
+    // Course File API Routes
+    Route::get('/api/course-files/subjects', [App\Http\Controllers\CourseFileController::class, 'getStaffSubjects']);
+    Route::get('/api/course-files/{id}', [App\Http\Controllers\CourseFileController::class, 'getCourseFile']);
+    Route::post('/api/course-files/{id}', [App\Http\Controllers\CourseFileController::class, 'saveCourseFile']);
+    Route::get('/api/course-files/{id}/preview/{docNo}', [App\Http\Controllers\CourseFileController::class, 'previewDocument']);
+    Route::post('/api/course-files/{id}/document/{docNo}/save', [App\Http\Controllers\CourseFileController::class, 'saveDocumentPayload']);
+    Route::post('/api/course-files/{id}/document/5/upload-cis', [App\Http\Controllers\CourseFileController::class, 'uploadCisPdf']);
+    Route::post('/api/course-files/{id}/document/6/save-copo', [App\Http\Controllers\CourseFileController::class, 'saveCoPoMapping']);
+    Route::get('/api/course-files/{id}/pdf', [App\Http\Controllers\CourseFileController::class, 'generatePdf']);
+
+    // Academic Reports
+    Route::get('/api/student/academic-report', [DataController::class, 'getAcademicReport']);
+
     Route::post('/api/classroom/{subjectId}/syllabus', [App\Http\Controllers\ClassroomController::class, 'uploadSyllabus']);
     Route::get('/api/classroom/{subjectId}/details', [App\Http\Controllers\ClassroomController::class, 'getCourseDetails']);
     Route::get('/api/classroom/{subjectId}/generate-questions', [App\Http\Controllers\ClassroomController::class, 'generateAssignmentQuestions']);
@@ -147,23 +174,72 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/classroom/{subjectId}/publish-online-test', [App\Http\Controllers\TestEngineController::class, 'publishOnlineTest']);
     Route::get('/api/classroom/{subjectId}/active-online-tests', [App\Http\Controllers\TestEngineController::class, 'getActiveTestsLecturer']);
     Route::get('/api/test-engine/report/{testId}', [App\Http\Controllers\TestEngineController::class, 'generateTestReport']);
+    Route::get('/classroom/{subjectId}/assignment-report', [App\Http\Controllers\ClassroomController::class, 'printAssignmentReport']);
+    Route::get('/classroom/{subjectId}/summative-report', [App\Http\Controllers\ClassroomController::class, 'printSummativeReport']);
 
     // Mentoring Endpoints
     Route::get('/api/mentoring/my-batches', [MentoringController::class, 'getMyBatches']);
     Route::get('/api/mentoring/students/{classroomId}', [MentoringController::class, 'getClassroomStudents']);
+    Route::get('/api/mentoring/classroom/{classroomId}/leaves', [MentoringController::class, 'getClassroomLeaves']);
     Route::post('/api/mentoring/assign-batch', [MentoringController::class, 'assignBatch']);
     Route::post('/api/mentoring/assign-mentor2', [MentoringController::class, 'assignMentor2']);
     Route::get('/api/mentoring/diary/{regNo}', [MentoringController::class, 'getStudentDiary']);
     Route::post('/api/mentoring/diary/add', [MentoringController::class, 'addDiaryEntry']);
     Route::post('/api/mentoring/diary/approve', [MentoringController::class, 'approveDiaryEntry']);
+    Route::post('/api/mentoring/diary/delete', [MentoringController::class, 'deleteDiaryEntry']);
+    Route::post('/api/mentoring/leave/save', [MentoringController::class, 'saveLeaveRecord']);
+    Route::post('/api/mentoring/leave/approve', [MentoringController::class, 'approveLeaveRecord']);
+    Route::post('/api/mentoring/disciplinary/save', [MentoringController::class, 'saveDisciplinary']);
+    Route::post('/api/mentoring/disciplinary/delete', [MentoringController::class, 'deleteDisciplinary']);
+    Route::post('/api/student/mentoring/extra-curricular/save', [MentoringController::class, 'studentSaveExtraCurricular']);
     Route::get('/api/mentoring/report/{classroomId}', [MentoringController::class, 'getMentoringReport']);
+    Route::get('/api/mentoring/backlog-report/{classroomId}', [MentoringController::class, 'getBacklogReport']);
+    
+    Route::get('/diary/{regNo}/print', [MentoringController::class, 'printDiary']);
+    Route::get('/diary/{regNo}/leave-report', [MentoringController::class, 'printLeaveReport']);
+    Route::get('/classroom/{classroomId}/condonation-report', [MentoringController::class, 'printCondonationReport']);
 
     // Student Self-Service Mentoring
     Route::post('/api/student/mentoring/self-entry', [MentoringController::class, 'studentSelfEntry']);
+    Route::post('/api/student/mentoring/extended-profile', [MentoringController::class, 'saveExtendedProfile']);
     Route::get('/api/student/mentoring/diary', [MentoringController::class, 'studentViewDiary']);
+    Route::post('/api/student/mentoring/save-all', [MentoringController::class, 'saveStudentMentoringData']);
+
+    // Activity Points Endpoints
+    Route::get('/api/student/activity-points', [App\Http\Controllers\ActivityPointsController::class, 'getStudentPoints']);
+    Route::post('/api/student/activity-points', [App\Http\Controllers\ActivityPointsController::class, 'submitClaim']);
+    Route::get('/api/student/activity-points/summary/{regNo}', [App\Http\Controllers\ActivityPointsController::class, 'getStudentSummary']);
+    Route::get('/api/tutor/activity-points', [App\Http\Controllers\ActivityPointsController::class, 'getClassroomClaims']);
+    Route::post('/api/tutor/activity-points/{id}/verify', [App\Http\Controllers\ActivityPointsController::class, 'verifyClaim']);
 
     // Student Online Tests
     Route::get('/api/student/online-tests', [App\Http\Controllers\TestEngineController::class, 'getAvailableTests']);
     Route::post('/api/student/online-tests/{testId}/start', [App\Http\Controllers\TestEngineController::class, 'startTest']);
     Route::post('/api/student/online-tests/{testId}/submit', [App\Http\Controllers\TestEngineController::class, 'submitTest']);
+    Route::delete('/api/classroom/online-tests/{testId}', [App\Http\Controllers\TestEngineController::class, 'deleteOnlineTest']);
+    Route::get('/api/classroom/online-tests/{testId}/key', [App\Http\Controllers\TestEngineController::class, 'getLecturerAnswerKey']);
+
+    // Remedial Sessions
+    Route::get('/remedial-sessions', function () {
+        $role = Session::get('userRole');
+        if (!$role || !in_array($role, ['Lecturer', 'Tutor', 'HOD'])) return redirect('/');
+        return view('remedial_dashboard');
+    });
+    Route::get('/remedial/rooms/{roomId}/assessments/{assessmentId}/report', [App\Http\Controllers\RemedialController::class, 'printAssessmentReport']);
+
+
+    Route::prefix('api/remedial')->group(function () {
+        Route::get('/assigned-subjects', [App\Http\Controllers\RemedialController::class, 'getAssignedSubjects']);
+        Route::get('/student-performance', [App\Http\Controllers\RemedialController::class, 'getStudentPerformance']);
+        Route::post('/rooms', [App\Http\Controllers\RemedialController::class, 'createRoom']);
+        Route::get('/rooms', [App\Http\Controllers\RemedialController::class, 'getRooms']);
+        Route::get('/rooms/{roomId}', [App\Http\Controllers\RemedialController::class, 'getRoomDetails']);
+        Route::post('/rooms/{roomId}/students', [App\Http\Controllers\RemedialController::class, 'addStudent']);
+        Route::delete('/rooms/{roomId}/students', [App\Http\Controllers\RemedialController::class, 'removeStudent']);
+        Route::post('/rooms/{roomId}/logs', [App\Http\Controllers\RemedialController::class, 'saveLog']);
+        Route::get('/rooms/{roomId}/assessments', [App\Http\Controllers\RemedialController::class, 'getAssessments']);
+        Route::post('/rooms/{roomId}/assessments', [App\Http\Controllers\RemedialController::class, 'createAssessment']);
+        Route::post('/rooms/{roomId}/assessments/{assessmentId}/scores', [App\Http\Controllers\RemedialController::class, 'saveAssessmentScores']);
+        Route::post('/rooms/{roomId}/assessments/{assessmentId}/sync', [App\Http\Controllers\RemedialController::class, 'syncOnlineScores']);
+    });
 });

@@ -1,0 +1,13 @@
+# Ignore heavy PHP dependency folders (Every vendor folder inside the workspace)
+**/carmel-linx-laravel/vendor/
+
+# Ignore local framework caches, logs, and sessions
+**/carmel-linx-laravel/storage/
+**/carmel-linx-laravel/bootstrap/cache/
+
+# Ignore version control metadata
+**/.git/
+**/.github/
+
+# Ignore local environment configurations
+**/.env

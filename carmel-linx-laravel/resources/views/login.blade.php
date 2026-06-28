@@ -44,7 +44,7 @@
     
     <!-- Branding Header -->
     <div class="text-center mb-8">
-      <div class="inline-flex items-center justify-center bg-gradient-to-br from-blue-500 to-sky-600 text-white w-16 h-16 rounded-2xl shadow-lg shadow-blue-500/25 font-black text-3xl mb-3 tracking-wider select-none">CL</div>
+      <img src="{{ asset('logo.jpg') }}" class="w-16 h-16 rounded-2xl mx-auto shadow-lg object-cover mb-3 select-none">
       <h1 class="text-3xl font-black text-white tracking-tight">Carmel Linx</h1>
       <p class="text-slate-400 font-semibold text-sm mt-1">Outcome-Based Education Exam Portal</p>
     </div>
@@ -56,10 +56,10 @@
       <div id="loginSection">
         <!-- Login Role Tabs -->
         <div class="flex bg-slate-950/60 p-1.5 rounded-2xl mb-6 border border-slate-800/60">
-          <button id="tabStudent" onclick="toggleRoleTab('student')" class="flex-1 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-900/30 transition-premium flex items-center justify-center gap-1.5 cursor-pointer">
+          <button id="tabStudent" onclick="toggleRoleTab('student')" class="flex-1 py-2.5 rounded-xl font-bold text-base text-slate-400 hover:text-slate-200 hover:bg-slate-900/30 transition-premium flex items-center justify-center gap-1.5 cursor-pointer">
             <span class="material-symbols-rounded text-lg">school</span> Student
           </button>
-          <button id="tabStaff" onclick="toggleRoleTab('staff')" class="flex-1 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-500 to-sky-600 shadow-md shadow-blue-500/15 transition-premium flex items-center justify-center gap-1.5 cursor-pointer">
+          <button id="tabStaff" onclick="toggleRoleTab('staff')" class="flex-1 py-2.5 rounded-xl font-bold text-base text-white bg-gradient-to-r from-blue-500 to-sky-600 shadow-md shadow-blue-500/15 transition-premium flex items-center justify-center gap-1.5 cursor-pointer">
             <span class="material-symbols-rounded text-lg">badge</span> Staff Portal
           </button>
         </div>
@@ -85,7 +85,7 @@
 
           <div>
             <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Password</label>
-            <input type="password" id="loginPassword" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-white font-medium transition-premium" placeholder="••••••••">
+            <input type="password" id="loginPassword" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-white font-medium transition-premium" placeholder="********">
           </div>
 
           <!-- Alert Container -->
@@ -211,12 +211,12 @@
           <!-- Password & Photo -->
           <div>
             <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Password</label>
-            <input type="password" id="regPassword" required class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 focus:ring-2 focus:ring-blue-500/20 outline-none text-white font-medium transition-premium" placeholder="••••••••">
+            <input type="password" id="regPassword" required class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 focus:ring-2 focus:ring-blue-500/20 outline-none text-white font-medium transition-premium" placeholder="********">
           </div>
 
           <div>
             <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Passport Photo</label>
-            <input type="file" id="regPhoto" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20 transition-premium">
+            <input type="file" id="regPhoto" accept="image/*" class="w-full text-base text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20 transition-premium">
           </div>
 
           <!-- Alert Container -->
@@ -256,14 +256,14 @@
       const fFields = document.getElementById('staffLoginFields');
 
       if (role === 'student') {
-        tabStudent.className = "flex-1 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-500 to-sky-600 shadow-md shadow-blue-500/15 transition-premium flex items-center justify-center gap-1.5 cursor-pointer";
-        tabStaff.className = "flex-1 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-900/30 transition-premium flex items-center justify-center gap-1.5 cursor-pointer";
+        tabStudent.className = "flex-1 py-2.5 rounded-xl font-bold text-base text-white bg-gradient-to-r from-blue-500 to-sky-600 shadow-md shadow-blue-500/15 transition-premium flex items-center justify-center gap-1.5 cursor-pointer";
+        tabStaff.className = "flex-1 py-2.5 rounded-xl font-bold text-base text-slate-400 hover:text-slate-200 hover:bg-slate-900/30 transition-premium flex items-center justify-center gap-1.5 cursor-pointer";
         sFields.classList.remove('hidden');
         fFields.classList.add('hidden');
         setTimeout(() => document.getElementById('loginUserId').focus(), 50);
       } else {
-        tabStaff.className = "flex-1 py-2.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-500 to-sky-600 shadow-md shadow-blue-500/15 transition-premium flex items-center justify-center gap-1.5 cursor-pointer";
-        tabStudent.className = "flex-1 py-2.5 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-200 hover:bg-slate-900/30 transition-premium flex items-center justify-center gap-1.5 cursor-pointer";
+        tabStaff.className = "flex-1 py-2.5 rounded-xl font-bold text-base text-white bg-gradient-to-r from-blue-500 to-sky-600 shadow-md shadow-blue-500/15 transition-premium flex items-center justify-center gap-1.5 cursor-pointer";
+        tabStudent.className = "flex-1 py-2.5 rounded-xl font-bold text-base text-slate-400 hover:text-slate-200 hover:bg-slate-900/30 transition-premium flex items-center justify-center gap-1.5 cursor-pointer";
         fFields.classList.remove('hidden');
         sFields.classList.add('hidden');
         setTimeout(() => document.getElementById('loginMobileId').focus(), 50);

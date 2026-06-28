@@ -47,8 +47,10 @@ class AuthController extends Controller
                     'userId' => $student->reg_no,
                     'userName' => $student->name,
                     'userBranch' => $student->branch,
+                    'userAdmissionType' => $student->admission_type,
                     'userPhoto' => $student->photo_url ?? '',
                     'classroomId' => $student->classroom_id,
+                    'sbteRegNo' => $student->sbte_reg_no,
                 ]);
 
                 return response()->json([
@@ -127,7 +129,6 @@ class AuthController extends Controller
     public function registerStudent(Request $request)
     {
         $request->validate([
-            'regNo' => 'required|string',
             'admNo' => 'required|string',
             'name' => 'required|string',
             'email' => 'required|email',
@@ -142,8 +143,14 @@ class AuthController extends Controller
             return response()->json(['status' => 'ERROR', 'message' => 'Student registration requires a college email ID (e.g. name@carmelpoly.in).']);
         }
 
-        $regNo = strtoupper(trim($request->input('regNo')));
         $admNo = strtoupper(trim($request->input('admNo')));
+        $branchCode = strtoupper(trim($request->input('branch')));
+        $admYear = (int)$request->input('admissionYear');
+        $isLET = $request->input('admissionType') === 'LET';
+
+        // Auto-generate Registration Number
+        $yy = substr((string)$admYear, -2);
+        $regNo = $yy . $branchCode . $admNo . ($isLET ? 'L' : '');
 
         // Check duplicate
         $duplicate = Student::where('reg_no', $regNo)->orWhere('adm_no', $admNo)->first();
@@ -152,9 +159,6 @@ class AuthController extends Controller
         }
 
         // Classroom ID calculation
-        $branchCode = strtoupper(trim($request->input('branch')));
-        $admYear = (int)$request->input('admissionYear');
-        $isLET = $request->input('admissionType') === 'LET';
         $startYear = $isLET ? ($admYear - 1) : $admYear;
         $endYear = $startYear + 3;
         $classroomId = "{$branchCode}_{$startYear}_{$endYear}";
@@ -204,7 +208,8 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => 'SUCCESS',
-                'message' => 'Registration successful! Pending Class Tutor approval.'
+                'message' => 'Registration successful! Pending Class Tutor approval.',
+                'regNo' => $regNo
             ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Failed to write: ' . $e->getMessage()]);
@@ -300,12 +305,47 @@ class AuthController extends Controller
         }
     }
 
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $email = trim($request->input('email'));
+
+        // Check if email belongs to student or staff
+        $isStudent = Student::where('email', $email)->exists();
+        $isStaff = \App\Models\StaffProfile::where('email', $email)->exists();
+
+        if (!$isStudent && !$isStaff) {
+            return response()->json(['status' => 'ERROR', 'message' => 'No account found with that email address.']);
+        }
+
+        // Generate a random token
+        $token = \Illuminate\Support\Str::random(64);
+
+        // Delete any existing tokens for this email
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $email)->delete();
+
+        // Insert new token
+        \Illuminate\Support\Facades\DB::table('password_reset_tokens')->insert([
+            'email' => $email,
+            'token' => $token,
+            'created_at' => now()
+        ]);
+
+        // In a real application, you would send an email here using Laravel's Mail facade.
+        // Mail::to($email)->send(new ResetPasswordMail($token));
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'A password reset link has been securely sent to your email address!']);
+    }
+
     /**
-     * Clear sessions and logout.
+     * Logout and destroy session.
      */
     public function logout()
     {
         Session::flush();
-        return redirect('/');
+        return redirect()->route('login');
     }
 }

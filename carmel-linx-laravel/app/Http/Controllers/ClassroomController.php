@@ -298,7 +298,7 @@ class ClassroomController extends Controller
             $batchSubject = \App\Models\BatchSubject::find($subjectId);
             $students = [];
             if ($batchSubject) {
-                $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)->get(['reg_no', 'name']);
+                $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)->get(['reg_no', 'name', 'sbte_reg_no']);
                 
                 // Get marks
                 $studentRegNos = $students->pluck('reg_no')->toArray();
@@ -306,9 +306,14 @@ class ClassroomController extends Controller
                             ->where('subject_code', $batchSubject->subject_code)
                             ->where('category', 'Assignment')
                             ->get();
+
+                $summativeMarks = \App\Models\AcademicMark::whereIn('reg_no', $studentRegNos)
+                            ->where('subject_code', $batchSubject->subject_code)
+                            ->where('category', 'Summative')
+                            ->get();
                 
                 // Map marks to students
-                $students = $students->map(function ($student) use ($marks) {
+                $students = $students->map(function ($student) use ($marks, $summativeMarks) {
                     $studentMarks = $marks->where('reg_no', $student->reg_no);
                     $coMarks = [];
                     foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
@@ -316,6 +321,15 @@ class ClassroomController extends Controller
                         $coMarks[$co] = $mark ? $mark->marks_obtained : null;
                     }
                     $student->assignment_marks = $coMarks;
+
+                    $studentSummativeMarks = $summativeMarks->where('reg_no', $student->reg_no);
+                    $coSummative = [];
+                    foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
+                        $mark = $studentSummativeMarks->where('co_tag', $co)->first();
+                        $coSummative[$co] = $mark ? $mark->marks_obtained : null;
+                    }
+                    $student->summative_marks = $coSummative;
+
                     return $student;
                 });
             }
@@ -403,15 +417,38 @@ class ClassroomController extends Controller
 
         $deadlines = $courseFile->assignment_deadlines ?? [];
 
+        $batchSubject = \App\Models\BatchSubject::with('classroom')->find($subjectId);
+        $subjectCode = $batchSubject->subject_code;
+        $branchCode = $batchSubject->classroom->branch;
+
         if ($coTag && isset($allQuestions[$coTag])) {
             // Check if locked
             if (isset($deadlines[$coTag]['locked']) && $deadlines[$coTag]['locked']) {
                 return response()->json(['status' => 'ERROR', 'message' => 'Questions for this CO are locked and cannot be regenerated.']);
             }
 
-            $savedQuestions[$coTag] = $formatQuestions($allQuestions[$coTag]);
+            $generatedList = $formatQuestions($allQuestions[$coTag]);
+            $savedQuestions[$coTag] = $generatedList;
             $courseFile->assignment_questions = $savedQuestions;
             $courseFile->save();
+
+            // Persist to Question Bank
+            foreach ($generatedList as $qStr) {
+                $cleanText = preg_replace('/^\d+\.\s*/', '', $qStr);
+                \Illuminate\Support\Facades\DB::table('question_bank')->insert([
+                    'question_id' => (string) \Illuminate\Support\Str::uuid(),
+                    'branch_code' => $branchCode,
+                    'subject_code' => $subjectCode,
+                    'type' => 'Descriptive',
+                    'question_text' => $cleanText,
+                    'options' => json_encode([]),
+                    'correct_answer' => null,
+                    'co_tag' => $coTag,
+                    'marks' => 5, // Default for assignments
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
 
             return response()->json([
                 'status' => 'SUCCESS',
@@ -422,7 +459,26 @@ class ClassroomController extends Controller
         // Default all
         $questions = [];
         foreach ($allQuestions as $tag => $pool) {
-            $questions[$tag] = $formatQuestions($pool);
+            $generatedList = $formatQuestions($pool);
+            $questions[$tag] = $generatedList;
+
+            // Persist to Question Bank
+            foreach ($generatedList as $qStr) {
+                $cleanText = preg_replace('/^\d+\.\s*/', '', $qStr);
+                \Illuminate\Support\Facades\DB::table('question_bank')->insert([
+                    'question_id' => (string) \Illuminate\Support\Str::uuid(),
+                    'branch_code' => $branchCode,
+                    'subject_code' => $subjectCode,
+                    'type' => 'Descriptive',
+                    'question_text' => $cleanText,
+                    'options' => json_encode([]),
+                    'correct_answer' => null,
+                    'co_tag' => $tag,
+                    'marks' => 5, // Default for assignments
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
         }
 
         $courseFile->assignment_questions = $questions;
@@ -665,6 +721,35 @@ class ClassroomController extends Controller
         $courseFile->summative_manual_tests = $summativeTests;
         $courseFile->save();
 
+        // Persist to Question Bank
+        $batchSubject = \App\Models\BatchSubject::with('classroom')->find($subjectId);
+        $subjectCode = $batchSubject->subject_code;
+        $branchCode = $batchSubject->classroom->branch;
+
+        $persistToBank = function($partData) use ($subjectCode, $branchCode, $coTag) {
+            if (!$partData || !isset($partData['questions'])) return;
+            foreach ($partData['questions'] as $qObj) {
+                \Illuminate\Support\Facades\DB::table('question_bank')->insert([
+                    'question_id' => (string) \Illuminate\Support\Str::uuid(),
+                    'branch_code' => $branchCode,
+                    'subject_code' => $subjectCode,
+                    'type' => 'Descriptive',
+                    'question_text' => $qObj['q'],
+                    'options' => json_encode([]),
+                    'correct_answer' => json_encode($qObj['ans'] ?? []),
+                    'co_tag' => $coTag,
+                    'marks' => $qObj['marks'] ?? 5,
+                    'rubric' => json_encode($qObj['rubric'] ?? []),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+        };
+
+        $persistToBank($generatedA);
+        $persistToBank($generatedB);
+        $persistToBank($generatedC);
+
         return response()->json([
             'status' => 'SUCCESS',
             'data' => $summativeTests[$coTag]
@@ -740,7 +825,7 @@ class ClassroomController extends Controller
             foreach ($partsToSave as $partKey => $partType) {
                 if (isset($testData[$partKey]['questions']) && is_array($testData[$partKey]['questions'])) {
                     foreach ($testData[$partKey]['questions'] as $q) {
-                        QuestionBank::create([
+                        \App\Models\QuestionBank::create([
                             'department' => $dept,
                             'branch_code' => session('userBranch', 'EL'),
                             'semester' => 'N/A', // Semester not directly in Classroom ctx
@@ -758,5 +843,103 @@ class ClassroomController extends Controller
         }
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Config updated.']);
+    }
+
+    public function printAssignmentReport($subjectId)
+    {
+        $batchSubject = \App\Models\BatchSubject::find($subjectId);
+        if (!$batchSubject) return response("Subject not found.", 404);
+
+        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)->get(['reg_no', 'name', 'sbte_reg_no']);
+        
+        $studentRegNos = $students->pluck('reg_no')->toArray();
+        $marks = \App\Models\AcademicMark::whereIn('reg_no', $studentRegNos)
+                    ->where('subject_code', $batchSubject->subject_code)
+                    ->where('category', 'Assignment')
+                    ->get();
+        
+        $students = $students->map(function ($student) use ($marks) {
+            $studentMarks = $marks->where('reg_no', $student->reg_no);
+            $coMarks = [];
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
+                $mark = $studentMarks->where('co_tag', $co)->first();
+                $coMarks[$co] = $mark ? intval(round($mark->marks_obtained)) : '-';
+            }
+            $student->assignment_marks = $coMarks;
+            return $student;
+        });
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+        ];
+        
+        $branchKey = strtoupper(explode('_', $batchSubject->classroom_id)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? $branchKey;
+        
+        $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $batchSubject->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        return view('classroom_assignment_report_print', [
+            'subject' => $batchSubject,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'students' => $students,
+            'totalStudents' => $students->count(),
+            'currentYear' => date('Y')
+        ]);
+    }
+
+    public function printSummativeReport($subjectId)
+    {
+        $batchSubject = \App\Models\BatchSubject::find($subjectId);
+        if (!$batchSubject) return response("Subject not found.", 404);
+
+        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)->get(['reg_no', 'name', 'sbte_reg_no']);
+        
+        $studentRegNos = $students->pluck('reg_no')->toArray();
+        $marks = \App\Models\AcademicMark::whereIn('reg_no', $studentRegNos)
+                    ->where('subject_code', $batchSubject->subject_code)
+                    ->where('category', 'Summative')
+                    ->get();
+        
+        $students = $students->map(function ($student) use ($marks) {
+            $studentMarks = $marks->where('reg_no', $student->reg_no);
+            $coMarks = [];
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
+                $mark = $studentMarks->where('co_tag', $co)->first();
+                $coMarks[$co] = $mark ? intval(round($mark->marks_obtained)) : '-';
+            }
+            $student->summative_marks = $coMarks;
+            return $student;
+        });
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+        ];
+        
+        $branchKey = strtoupper(explode('_', $batchSubject->classroom_id)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? $branchKey;
+        
+        $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $batchSubject->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        return view('classroom_summative_report_print', [
+            'subject' => $batchSubject,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'students' => $students,
+            'totalStudents' => $students->count(),
+            'currentYear' => date('Y')
+        ]);
     }
 }

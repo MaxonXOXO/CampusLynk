@@ -11,7 +11,8 @@ class BatchSubject extends Model
         'semester',
         'subject_code',
         'subject_name',
-        'subject_type'
+        'subject_type',
+        'syllabus_revision_code'
     ];
 
     public function classroom()
@@ -22,5 +23,10 @@ class BatchSubject extends Model
     public function staffAssignments()
     {
         return $this->hasMany(SubjectStaffAssignment::class, 'batch_subject_id', 'id');
+    }
+
+    public function courseFile()
+    {
+        return $this->hasOne(CourseFile::class, 'batch_subject_id', 'id');
     }
 }
