@@ -26,28 +26,28 @@
 
         /* NBA Course Files dashboard layout & form element overrides to increase readability */
         body, button, select, input, textarea, table, th, td, div, p, span, a {
-            font-size: 13px !important;
+            font-size: 16px !important;
         }
         
         h1, h2, h3, h4, h5, h6 {
-            font-size: 1.15rem !important;
+            font-size: 1.35rem !important;
             font-weight: 800 !important;
         }
 
         h2#cfSubjectTitle {
-            font-size: 1.75rem !important;
+            font-size: 2rem !important;
             font-weight: 900 !important;
         }
 
         /* Enlarge sidebar buttons, buttons, labels */
         button, .btn {
-            font-size: 13px !important;
+            font-size: 15px !important;
             font-weight: bold !important;
         }
         
         /* Master Checklist items */
         .grid-cols-1.gap-4 div {
-            font-size: 13px !important;
+            font-size: 16px !important;
         }
 
         /* Let's increase the width and height of the preview modal popup window */
@@ -66,7 +66,7 @@
         #cfPreviewModalContent th,
         #cfPreviewModalContent div,
         #cfPreviewModalContent p {
-            font-size: 13px !important;
+            font-size: 15px !important;
         }
     </style>
 </head>
@@ -75,12 +75,13 @@
     <!-- Navbar -->
     <nav class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 z-10 shrink-0">
         <div class="flex items-center gap-4">
-            <a href="javascript:history.back()" class="text-slate-400 hover:text-white transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-800">
-                <span class="material-symbols-rounded">arrow_back</span>
+            <a href="javascript:history.back()" class="flex items-center gap-2 px-4 py-2 bg-amber-500/15 hover:bg-amber-500/30 border border-amber-500/40 hover:border-amber-400 text-amber-400 hover:text-amber-300 rounded-xl font-bold transition-premium">
+                <span class="material-symbols-rounded text-xl">arrow_back</span>
+                <span class="text-base">Back</span>
             </a>
             <div>
-                <h1 class="font-extrabold text-slate-100 tracking-tight flex items-center gap-2 text-lg">
-                    <span class="material-symbols-rounded text-amber-500">folder_special</span> NBA Course Files
+                <h1 class="font-extrabold text-slate-100 tracking-tight flex items-center gap-2 text-xl">
+                    <span class="material-symbols-rounded text-amber-500 text-2xl">folder_special</span> NBA Course Files
                 </h1>
             </div>
         </div>
@@ -95,11 +96,11 @@
         <div class="max-w-6xl mx-auto space-y-6">
             
             <!-- BREADCRUMBS -->
-            <div id="cfBreadcrumbs" class="hidden flex items-center gap-2 text-[10px] font-bold text-slate-400 bg-slate-900/50 p-3 rounded-xl border border-slate-800 shadow-sm text-[10px] text-xs">
-                <button onclick="cfShowLevel(1)" class="hover:text-amber-400 transition-colors flex items-center gap-1"><span class="material-symbols-rounded text-[16px]">home</span> All Batches</button>
-                <span id="cfCrumbBatch" class="hidden items-center gap-2"><span class="material-symbols-rounded text-[16px] text-slate-600">chevron_right</span> <button onclick="cfShowLevel(2)" class="hover:text-amber-400 transition-colors bg-slate-800/50 px-2 py-1 rounded-md" id="cfCrumbBatchText">2024</button></span>
-                <span id="cfCrumbSem" class="hidden items-center gap-2"><span class="material-symbols-rounded text-[16px] text-slate-600">chevron_right</span> <button onclick="cfShowLevel(3)" class="hover:text-amber-400 transition-colors bg-slate-800/50 px-2 py-1 rounded-md" id="cfCrumbSemText">Sem 1</button></span>
-                <span id="cfCrumbCourse" class="hidden items-center gap-2"><span class="material-symbols-rounded text-[16px] text-slate-600">chevron_right</span> <span class="text-amber-400 bg-amber-500/10 px-2 py-1 rounded-md border border-amber-500/20" id="cfCrumbCourseText">Subject</span></span>
+            <div id="cfBreadcrumbs" class="hidden flex items-center gap-2 font-bold text-slate-400 bg-slate-900/50 p-3 rounded-xl border border-slate-800 shadow-sm text-sm">
+                <button onclick="cfShowLevel(1)" class="hover:text-amber-400 transition-colors flex items-center gap-1"><span class="material-symbols-rounded text-lg">home</span> All Batches</button>
+                <span id="cfCrumbBatch" class="hidden items-center gap-2"><span class="material-symbols-rounded text-lg text-slate-600">chevron_right</span> <button onclick="cfShowLevel(2)" class="hover:text-amber-400 transition-colors bg-slate-800/50 px-2 py-1 rounded-md" id="cfCrumbBatchText">2024</button></span>
+                <span id="cfCrumbSem" class="hidden items-center gap-2"><span class="material-symbols-rounded text-lg text-slate-600">chevron_right</span> <button onclick="cfShowLevel(3)" class="hover:text-amber-400 transition-colors bg-slate-800/50 px-2 py-1 rounded-md" id="cfCrumbSemText">Sem 1</button></span>
+                <span id="cfCrumbCourse" class="hidden items-center gap-2"><span class="material-symbols-rounded text-lg text-slate-600">chevron_right</span> <span class="text-amber-400 bg-amber-500/10 px-2 py-1 rounded-md border border-amber-500/20" id="cfCrumbCourseText">Subject</span></span>
             </div>
 
             <!-- LEVEL 1: BATCH SELECTION -->

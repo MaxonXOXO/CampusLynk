@@ -177,6 +177,12 @@ Route::middleware(['web'])->group(function () {
     Route::get('/classroom/{subjectId}/assignment-report', [App\Http\Controllers\ClassroomController::class, 'printAssignmentReport']);
     Route::get('/classroom/{subjectId}/summative-report', [App\Http\Controllers\ClassroomController::class, 'printSummativeReport']);
 
+    Route::get('/api/classroom/{subjectId}/question-bank', [App\Http\Controllers\ClassroomController::class, 'getQuestionBank']);
+    Route::get('/api/classroom/question-bank/template', [App\Http\Controllers\ClassroomController::class, 'downloadQuestionTemplate']);
+    Route::post('/api/classroom/{subjectId}/question-bank/upload', [App\Http\Controllers\ClassroomController::class, 'uploadQuestionBank']);
+    Route::post('/api/classroom/{subjectId}/question-bank/seed-ai', [App\Http\Controllers\ClassroomController::class, 'seedQuestionBankWithAi']);
+    Route::post('/api/classroom/{subjectId}/question-bank/upload-json', [App\Http\Controllers\ClassroomController::class, 'uploadQuestionBankJson']);
+
     // Mentoring Endpoints
     Route::get('/api/mentoring/my-batches', [MentoringController::class, 'getMyBatches']);
     Route::get('/api/mentoring/students/{classroomId}', [MentoringController::class, 'getClassroomStudents']);
@@ -242,4 +248,13 @@ Route::middleware(['web'])->group(function () {
         Route::post('/rooms/{roomId}/assessments/{assessmentId}/scores', [App\Http\Controllers\RemedialController::class, 'saveAssessmentScores']);
         Route::post('/rooms/{roomId}/assessments/{assessmentId}/sync', [App\Http\Controllers\RemedialController::class, 'syncOnlineScores']);
     });
+
+    // Live Class Log & Attendance System
+    Route::get('/staff/attendance-log', [App\Http\Controllers\AttendanceController::class, 'viewPage']);
+    Route::get('/api/staff/attendance/subjects', [App\Http\Controllers\AttendanceController::class, 'getActiveSubjects']);
+    Route::get('/api/staff/attendance/subjects/{id}/details', [App\Http\Controllers\AttendanceController::class, 'getSubjectDetails']);
+    Route::post('/api/staff/attendance/save', [App\Http\Controllers\AttendanceController::class, 'saveAttendance']);
+    Route::get('/api/tutor/attendance/students', [App\Http\Controllers\AttendanceController::class, 'getTutorStudents']);
+    Route::post('/api/tutor/attendance/roll-numbers', [App\Http\Controllers\AttendanceController::class, 'updateRollNumbers']);
+    Route::get('/api/staff/attendance/subjects/{id}/reports', [App\Http\Controllers\AttendanceController::class, 'getReports']);
 });

@@ -5,13 +5,13 @@
       <h3 class="font-black text-slate-200 flex items-center gap-2 text-lg">
         <span class="material-symbols-rounded text-blue-400">menu_book</span> My Mentoring Diary
       </h3>
-      <p class="text-slate-400 mt-1 text-[10px] text-xs">Keep your profile updated. Your mentor will verify these details.</p>
+      <p class="text-slate-400 mt-1 text-sm text-xs">Keep your profile updated. Your mentor will verify these details.</p>
     </div>
     <div class="flex gap-2">
-      <button onclick="downloadMentoringPdf()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-[10px] text-xs">
+      <button onclick="downloadMentoringPdf()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-sm text-xs">
         <span class="material-symbols-rounded text-sm">download</span> Download PDF
       </button>
-      <button onclick="saveStudentMentoringData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-[10px] text-xs">
+      <button onclick="saveStudentMentoringData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-sm text-xs">
         <span class="material-symbols-rounded text-sm">save</span> Save Changes
       </button>
     </div>
@@ -53,43 +53,43 @@
         <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Additional Personal Info</h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Annual Income</label>
-            <input type="text" id="smd_annual_income" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. ?2,00,000">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Annual Income</label>
+            <input type="text" id="smd_annual_income" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm" placeholder="e.g. ?2,00,000">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Residential Status</label>
-            <select id="smd_residential_status" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Residential Status</label>
+            <select id="smd_residential_status" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
               <option value="Day Scholar">Day Scholar</option>
               <option value="Hosteller">Hosteller</option>
             </select>
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Scholarships (if any)</label>
-            <input type="text" id="smd_scholarships" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. E-Grantz">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Scholarships (if any)</label>
+            <input type="text" id="smd_scholarships" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm" placeholder="e.g. E-Grantz">
           </div>
           <div class="flex items-center gap-2 mt-6">
             <input type="checkbox" id="smd_fee_waiver" class="rounded bg-slate-900 border-slate-700 text-blue-500 focus:ring-blue-500 focus:ring-2">
-            <label class="text-slate-300 font-bold text-[10px] text-xs">Fee Waiver Student</label>
+            <label class="text-slate-300 font-bold text-sm text-xs">Fee Waiver Student</label>
           </div>
         </div>
 
         <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 mt-8 text-sm">Guardian Details</h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Guardian Name</label>
-            <input type="text" id="smd_guardian_name" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Guardian Name</label>
+            <input type="text" id="smd_guardian_name" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Relationship</label>
-            <input type="text" id="smd_guardian_relationship" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Relationship</label>
+            <input type="text" id="smd_guardian_relationship" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Mobile No</label>
-            <input type="text" id="smd_guardian_mobile" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Mobile No</label>
+            <input type="text" id="smd_guardian_mobile" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
           </div>
           <div class="md:col-span-2">
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Permanent Address</label>
-            <textarea id="smd_guardian_address" rows="3" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 resize-none text-[11px]"></textarea>
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Permanent Address</label>
+            <textarea id="smd_guardian_address" rows="3" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 resize-none text-sm"></textarea>
           </div>
         </div>
       </div>
@@ -98,7 +98,7 @@
       <div id="smdFamily" class="smd-content-pane hidden space-y-4">
         <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Family Members</h4>
         <div class="overflow-x-auto rounded-xl border border-slate-800/60">
-          <table class="w-full text-left border-collapse text-[10px] text-xs">
+          <table class="w-full text-left border-collapse text-sm text-xs">
             <thead>
               <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800/60">
                 <th class="p-3">Name</th>
@@ -121,7 +121,7 @@
       <div id="smdEducation" class="smd-content-pane hidden space-y-4">
         <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Educational Background</h4>
         <div class="overflow-x-auto rounded-xl border border-slate-800/60">
-          <table class="w-full text-left border-collapse text-[10px] text-xs">
+          <table class="w-full text-left border-collapse text-sm text-xs">
             <thead>
               <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800/60">
                 <th class="p-3">Course/Standard</th>
@@ -142,7 +142,7 @@
       <!-- Academic Progress Tab -->
       <div id="smdAcademic" class="smd-content-pane hidden space-y-4">
         <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Internal Progress Report</h4>
-        <p class="text-slate-400 mb-4 text-[10px] text-xs">These marks are generated automatically from your classroom assessments.</p>
+        <p class="text-slate-400 mb-4 text-sm text-xs">These marks are generated automatically from your classroom assessments.</p>
         <div id="smdAcademicReport" class="space-y-6">
           <!-- JS rendered academic tables (CO tests, assignments) -->
         </div>
@@ -151,10 +151,10 @@
       <!-- Board Exams Tab -->
       <div id="smdBoard" class="smd-content-pane hidden space-y-4">
         <div class="flex justify-between items-center border-b border-slate-800/60 pb-2 mb-4">
-          <h4 class="text-[10px] font-bold text-white">Board Exam Results</h4>
+          <h4 class="text-sm font-bold text-white">Board Exam Results</h4>
           <div class="flex items-center gap-2">
-            <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Select Semester:</label>
-            <select id="smdBoardSemSelect" class="bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-[10px] text-white font-bold outline-none focus:border-blue-500" onchange="renderStudentBoardExams()">
+            <label class="text-sm text-slate-400 font-bold uppercase tracking-wider">Select Semester:</label>
+            <select id="smdBoardSemSelect" class="bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-sm text-white font-bold outline-none focus:border-blue-500" onchange="renderStudentBoardExams()">
               <option value="">-- Choose --</option>
               <option value="1">Semester 1</option>
               <option value="2">Semester 2</option>
@@ -259,7 +259,7 @@
         <div class="space-y-4">
           <div>
             <label class="block text-xs font-bold text-slate-400 mb-1">Segment</label>
-            <select id="studentActivitySegment" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
+            <select id="studentActivitySegment" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500">
               <option value="NCC">NCC</option>
               <option value="NSS">NSS</option>
               <option value="Sports & Games">Sports & Games</option>
@@ -272,15 +272,15 @@
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-400 mb-1">Activity Name</label>
-            <input type="text" id="studentActivityName" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
+            <input type="text" id="studentActivityName" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-400 mb-1">Level (e.g. State, College)</label>
-            <input type="text" id="studentActivityLevel" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
+            <input type="text" id="studentActivityLevel" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500">
           </div>
           <div>
             <label class="block text-xs font-bold text-slate-400 mb-1">Points Claimed</label>
-            <input type="number" id="studentActivityPtsClaimed" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
+            <input type="number" id="studentActivityPtsClaimed" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500">
           </div>
           <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-xs">Submit Activity for Verification</button>
         </div>

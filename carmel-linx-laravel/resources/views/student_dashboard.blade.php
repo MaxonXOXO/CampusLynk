@@ -38,8 +38,11 @@
 </head>
 <body class="bg-slate-900 text-slate-100 h-screen flex flex-col md:flex-row overflow-hidden">
 
+  <!-- Sidebar Backdrop (Mobile only) -->
+  <div id="sidebarBackdrop" class="fixed inset-0 bg-black/60 z-20 hidden transition-opacity duration-300 ease-in-out" onclick="toggleMobileSidebar()"></div>
+
   <!-- Sidebar -->
-  <aside class="w-full md:w-64 bg-slate-950 flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl overflow-y-auto">
+  <aside id="sidebarMenu" class="fixed inset-y-0 left-0 z-30 w-64 bg-slate-950 flex-shrink-0 flex flex-col border-r border-slate-800/80 shadow-xl transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 md:sticky md:top-0 md:h-screen overflow-y-auto">
     <!-- Branding -->
     <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
       <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-blue-500/20 text-lg">CL</div>
@@ -100,9 +103,14 @@
 
     <!-- Top Header -->
     <header class="bg-slate-950/40 border-b border-slate-800/80 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 z-10 shadow-lg">
-        <div>
-          <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Works To Do</h1>
-          <p class="font-bold text-slate-400 mt-0.5" id="panelSubtitle">Manage your pending assignments and active tests.</p>
+        <div class="flex items-center gap-3">
+          <button onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors focus:outline-none flex items-center justify-center">
+            <span class="material-symbols-rounded">menu</span>
+          </button>
+          <div>
+            <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Works To Do</h1>
+            <p class="font-bold text-slate-400 mt-0.5" id="panelSubtitle">Manage your pending assignments and active tests.</p>
+          </div>
         </div>
         <div class="flex items-center gap-4">
           <div class="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 font-black uppercase tracking-wider text-slate-400 flex gap-4">
@@ -406,7 +414,27 @@
   </main>
 
   <script>
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('sidebarMenu');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
     function switchPanel(panelId, title) {
+      // Close mobile sidebar if open
+      const sidebar = document.getElementById('sidebarMenu');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+
       const panels = ['exams', 'marks', 'profile', 'mentoring', 'activity'];
       
       panels.forEach(id => {
@@ -926,19 +954,19 @@
         let optionsHtml = '';
         q.options.forEach((opt, oIdx) => {
           optionsHtml += `
-            <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-700/50 bg-slate-900/50 cursor-pointer hover:border-purple-500/50 hover:bg-slate-800 transition-premium">
-              <input type="radio" name="q_${idx}" value="${opt}" class="w-4 h-4 text-purple-500 bg-slate-950 border-slate-600 focus:ring-purple-600">
-              <span class="text-xs text-slate-300">${opt}</span>
+            <label class="flex items-center gap-3 p-4 rounded-lg border border-slate-700/50 bg-slate-900/50 cursor-pointer hover:border-purple-500/50 hover:bg-slate-800 transition-premium">
+              <input type="radio" name="q_${idx}" value="${opt}" class="w-5 h-5 text-purple-500 bg-slate-950 border-slate-600 focus:ring-purple-600">
+              <span class="text-sm text-slate-200 leading-snug">${opt}</span>
             </label>
           `;
         });
         html += `
           <div class="question-container bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-lg">
-             <div class="flex items-start gap-4 mb-4">
-               <span class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center font-black text-xs border border-purple-500/20">${idx+1}</span>
-               <h4 class="text-xs font-bold text-slate-100 mt-1">${q.q}</h4>
+             <div class="flex items-start gap-4 mb-5">
+               <span class="flex-shrink-0 w-9 h-9 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center font-black text-sm border border-purple-500/20">${idx+1}</span>
+               <h4 class="text-base font-bold text-slate-100 mt-1 leading-relaxed">${q.q}</h4>
              </div>
-             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-12">
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-13">
                ${optionsHtml}
              </div>
           </div>

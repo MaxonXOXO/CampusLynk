@@ -50,6 +50,9 @@
       <button id="navRoster" onclick="switchPanel('roster')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500   text-sm">
         <span class="material-symbols-rounded text-lg">group</span> Supervised Class Roster
       </button>
+      <button id="navRollNumbers" onclick="switchPanel('rollNumbers')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+        <span class="material-symbols-rounded text-lg">format_list_numbered</span> Student Roll Numbers
+      </button>
 
       <button id="navMentoring" onclick="switchPanel('mentoring')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">diversity_3</span> Mentoring Batches
@@ -60,6 +63,10 @@
       <button id="navActivity" onclick="switchPanel('activity')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">verified</span> Activity Points
       </button>
+
+      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline block text-sm">
+         <span class="material-symbols-rounded text-lg">co_present</span> Log & Attendance
+      </a>
 
       @php
         $role = session('userRole');
@@ -166,6 +173,37 @@
           </div>
         </div>
         </div> <!-- End rosterContent -->
+      </div>
+
+      <!-- PANEL: STUDENT ROLL NUMBERS -->
+      <div id="panelRollNumbers" class="hidden space-y-6">
+        <div class="bg-slate-950 border border-slate-800/80 rounded-2xl p-6 shadow-lg">
+          <div class="flex justify-between items-center mb-6">
+            <div>
+              <h3 class="font-black text-white text-lg">Assign Class Roll Numbers</h3>
+              <p class="text-xs text-slate-400">Set the serial roll numbers for students in your supervised classroom.</p>
+            </div>
+            <button onclick="saveRollNumbers()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer transition-premium">
+              <span class="material-symbols-rounded text-sm">save</span> Save Roll Numbers
+            </button>
+          </div>
+          <div class="overflow-x-auto border border-slate-800/60 rounded-xl bg-slate-900/20">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="bg-slate-950/40 text-slate-400 border-b border-slate-850 uppercase tracking-wider text-xs font-black">
+                  <th class="p-4 w-16 text-center">No.</th>
+                  <th class="p-4 w-40">Reg No</th>
+                  <th class="p-4 w-48">SBTE Exam No</th>
+                  <th class="p-4">Student Name</th>
+                  <th class="p-4 w-32 text-center">Roll Number</th>
+                </tr>
+              </thead>
+              <tbody id="tutorRollNumberList">
+                <!-- Loaded dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
       <!-- PANEL 2: AUDIT TRAIL -->
@@ -697,7 +735,7 @@
     function switchPanel(panelId) {
       activePanel = panelId;
       
-      const panels = ['roster', 'audit', 'profile', 'mentoring', 'activity', 'leaveApproval'];
+      const panels = ['roster', 'rollNumbers', 'audit', 'profile', 'mentoring', 'activity', 'leaveApproval'];
       panels.forEach(id => {
         const el = document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1));
         const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
@@ -713,6 +751,7 @@
 
       const titles = {
         'roster': 'Supervised Class Roster',
+        'rollNumbers': 'Student Roll Numbers',
         'audit': 'Classroom Audit Trail',
         'profile': 'My Tutor Profile',
         'mentoring': 'Mentoring Batches',
@@ -722,6 +761,7 @@
       document.getElementById('panelTitle').innerText = titles[panelId];
 
       if (panelId === 'roster') loadUsers();
+      if (panelId === 'rollNumbers') loadTutorStudents();
       if (panelId === 'audit') loadAuditTrail();
       if (panelId === 'profile') loadSelfSecurityLogs();
       if (panelId === 'mentoring') initMentoringPanel();
@@ -1736,6 +1776,73 @@
         return;
       }
       window.open(`/classroom/${classroomId}/condonation-report`, '_blank');
+    }
+
+    function loadTutorStudents() {
+      const list = document.getElementById('tutorRollNumberList');
+      list.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">Loading students...</td></tr>';
+      fetch('/api/tutor/attendance/students')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            let html = '';
+            if (data.students.length === 0) {
+              list.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">No students in your classroom.</td></tr>';
+              return;
+            }
+            data.students.forEach((s, idx) => {
+              html += `
+                <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium student-roll-row" data-reg="${s.reg_no}">
+                  <td class="p-4 text-center font-bold text-slate-500 text-sm">${idx+1}</td>
+                  <td class="p-4 font-mono font-bold text-slate-300 text-sm">${s.reg_no}</td>
+                  <td class="p-4 font-mono font-bold text-teal-400 text-sm">${s.sbte_reg_no || '-'}</td>
+                  <td class="p-4 font-bold text-white text-sm">${s.name}</td>
+                  <td class="p-2 text-center">
+                    <input type="number" class="w-24 bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-center font-bold text-white roll-no-input text-sm" value="${s.roll_no || ''}" min="1" placeholder="-">
+                  </td>
+                </tr>
+              `;
+            });
+            list.innerHTML = html;
+          } else {
+            list.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-red-400">${data.message || 'Failed to load students.'}</td></tr>`;
+          }
+        });
+    }
+
+    function saveRollNumbers() {
+      const rows = document.querySelectorAll('.student-roll-row');
+      const rollNumbers = [];
+      rows.forEach(row => {
+        const regNo = row.getAttribute('data-reg');
+        const rollNoVal = row.querySelector('.roll-no-input').value.trim();
+        rollNumbers.push({
+          reg_no: regNo,
+          roll_no: rollNoVal ? parseInt(rollNoVal) : null
+        });
+      });
+
+      fetch('/api/tutor/attendance/roll-numbers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ roll_numbers: rollNumbers })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          showGlobalMessage(data.message);
+          loadTutorStudents();
+        } else {
+          showGlobalMessage(data.message || "Failed to update roll numbers.", true);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        showGlobalMessage("Error saving roll numbers.", true);
+      });
     }
   </script>
 

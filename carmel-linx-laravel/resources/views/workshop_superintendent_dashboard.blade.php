@@ -78,6 +78,10 @@
       </a>
       @endif
 
+      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline block text-[10px] text-xs">
+         <span class="material-symbols-rounded text-lg">co_present</span> Log & Attendance
+      </a>
+
       <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4 text-[10px] text-xs">
         <span class="material-symbols-rounded text-lg">security</span> My Security Log
       </button>

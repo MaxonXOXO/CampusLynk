@@ -14,27 +14,27 @@
 
     /* Clean overrides to enlarge fonts for readability across Remedial Sessions workspace */
     body, button, select, input, textarea, table, th, td, div, p, span, a {
-        font-size: 13px !important;
+        font-size: 16px !important;
     }
     
     h1, h2, h3, h4, h5, h6 {
-        font-size: 1.15rem !important;
+        font-size: 1.35rem !important;
         font-weight: 800 !important;
     }
 
     button, .btn {
-        font-size: 13px !important;
+        font-size: 15px !important;
         font-weight: bold !important;
     }
     
     /* Headers specific adjustments */
     header h1 {
-        font-size: 1.25rem !important;
+        font-size: 1.45rem !important;
         font-weight: 900 !important;
     }
     
     header p {
-        font-size: 10px !important;
+        font-size: 12px !important;
         font-weight: bold !important;
         letter-spacing: 0.1em !important;
     }
@@ -46,13 +46,14 @@
   <header class="bg-slate-900 border-b border-slate-800/80 sticky top-0 z-40 shadow-2xl">
     <div class="px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <a href="/dashboard/lecturer" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 transition-premium">
-          <span class="material-symbols-rounded text-[10px]">arrow_back</span>
+        <a href="/dashboard/lecturer" class="flex items-center gap-2 px-4 py-2 bg-purple-500/15 hover:bg-purple-500/30 border border-purple-500/40 hover:border-purple-400 text-purple-400 hover:text-purple-300 rounded-xl font-bold transition-premium">
+          <span class="material-symbols-rounded text-xl">arrow_back</span>
+          <span class="text-base">Back</span>
         </a>
-        <div class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-black rounded-lg w-8 h-8 flex items-center justify-center text-[10px] shadow-lg shadow-purple-500/20">RS</div>
+        <div class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white font-black rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-lg shadow-purple-500/20">RS</div>
         <div>
-          <h1 class="font-extrabold text-[10px] text-white tracking-wide">Remedial Sessions</h1>
-          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Coaching & Diagnostics</p>
+          <h1 class="font-extrabold text-base text-white tracking-wide">Remedial Sessions</h1>
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Coaching & Diagnostics</p>
         </div>
       </div>
     </div>

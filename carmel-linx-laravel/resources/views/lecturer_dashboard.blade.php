@@ -13,6 +13,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <!-- SheetJS for client-side Excel parse & generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
   <style>
     .transition-premium {
@@ -189,6 +191,10 @@
          <span class="material-symbols-rounded text-xs">health_and_safety</span> Remedial Sessions
       </a>
 
+      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline">
+         <span class="material-symbols-rounded text-lg">co_present</span> Log & Attendance
+      </a>
+
       <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4">
         <span class="material-symbols-rounded text-lg">settings</span> My Profile
       </button>
@@ -215,10 +221,18 @@
       
       <!-- PANEL 1: DASHBOARD (BATCH CARDS) -->
       <div id="panelDashboard" class="space-y-6">
-        <div class="flex justify-between items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl gap-4">
           <div>
             <h3 class="text-lg font-black text-slate-200">My Assigned Batches & Classrooms</h3>
             <p class="text-sm text-slate-400 mt-0.5">Select a subject to enter the virtual classroom for assignments and assessments.</p>
+          </div>
+          <div class="flex bg-slate-900 border border-slate-800 p-1 rounded-xl shadow-inner">
+            <button onclick="setDashboardBatchFilter('active')" id="btnFilterActive" class="px-4 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white shadow transition-premium cursor-pointer">
+              Active Batches
+            </button>
+            <button onclick="setDashboardBatchFilter('historical')" id="btnFilterHistorical" class="px-4 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">
+              Archived Batches
+            </button>
           </div>
         </div>
         
@@ -287,18 +301,24 @@
         </div>
         
         <!-- Toggle Buttons -->
-        <div class="flex items-center gap-4 border-b border-slate-800/60 pb-3 mb-4">
-            <button onclick="toggleClassroomTab('structure')" id="tabStructure" class="text-[10px] font-black text-blue-400 flex items-center gap-1.5 transition-premium border-b-2 border-blue-500 pb-1">
-              <span class="material-symbols-rounded text-xs">account_tree</span> Course Structure
+        <div class="flex flex-wrap items-center gap-4 border-b border-slate-800/60 pb-3 mb-4">
+            <button onclick="toggleClassroomTab('structure')" id="tabStructure" class="text-sm font-black text-blue-400 flex items-center gap-1.5 transition-premium border-b-2 border-blue-500 pb-1">
+              <span class="material-symbols-rounded text-base">account_tree</span> Course Structure
             </button>
-            <button onclick="toggleClassroomTab('planner')" id="tabPlanner" class="text-[10px] font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-              <span class="material-symbols-rounded text-xs">calendar_month</span> Lesson Planner
+            <button onclick="toggleClassroomTab('planner')" id="tabPlanner" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
+              <span class="material-symbols-rounded text-base">calendar_month</span> Lesson Planner
             </button>
-            <button onclick="toggleClassroomTab('assessment')" id="tabAssessment" class="text-[10px] font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-              <span class="material-symbols-rounded text-xs">assignment_turned_in</span> Formative Assessment
+            <button onclick="toggleClassroomTab('assessment')" id="tabAssessment" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
+              <span class="material-symbols-rounded text-base">assignment_turned_in</span> Formative Assessment
             </button>
-            <button onclick="toggleClassroomTab('summative')" id="tabSummative" class="text-[10px] font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-              <span class="material-symbols-rounded text-xs">school</span> Summative Assessment
+            <button onclick="toggleClassroomTab('summative')" id="tabSummative" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
+              <span class="material-symbols-rounded text-base">school</span> Summative Assessment
+            </button>
+            <button onclick="toggleClassroomTab('reports')" id="tabReports" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
+              <span class="material-symbols-rounded text-base">assessment</span> Reports
+            </button>
+            <button onclick="toggleClassroomTab('qbank')" id="tabQBank" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
+              <span class="material-symbols-rounded text-base">database</span> Question Bank
             </button>
         </div>
 
@@ -340,6 +360,50 @@
                   <span class="material-symbols-rounded text-xl text-slate-600">school</span>
                 </div>
                 <p class="text-[10px] font-bold text-slate-400">Loading summative assessments...</p>
+              </div>
+            </div>
+
+            <div id="classReportsContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
+              <div class="flex flex-wrap gap-3">
+                <button onclick="loadClassReport('attendance_log')" id="btnReportLog" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm cursor-pointer transition-premium">
+                  Class Attendance Log
+                </button>
+                <button onclick="loadClassReport('subject_log')" id="btnReportSubject" class="px-4 py-2 bg-slate-900 text-slate-300 border border-slate-800 rounded-xl font-bold text-sm cursor-pointer hover:bg-slate-800 transition-premium">
+                  Class Subject Log
+                </button>
+                <button onclick="loadClassReport('summary_matrix')" id="btnReportMatrix" class="px-4 py-2 bg-slate-900 text-slate-300 border border-slate-800 rounded-xl font-bold text-sm cursor-pointer hover:bg-slate-800 transition-premium">
+                  Attendance Matrix
+                </button>
+              </div>
+
+              <div id="classroomReportWorkspace" class="pt-4 overflow-x-auto">
+                <div class="text-sm font-bold text-slate-400 py-10 text-center">No reports loaded. Please select a report type above.</div>
+              </div>
+            </div>
+
+            <!-- Question Bank Panel -->
+            <div id="questionBankContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/60 pb-4">
+                <div>
+                  <h4 class="text-sm font-black text-slate-200">Shared Question Bank Pool</h4>
+                  <p class="text-sm text-slate-400 mt-1">Manage and import MCQ or Descriptive questions for this subject code. These questions are pooled across all batches.</p>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                  <button onclick="downloadExcelTemplate()" class="px-4 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-200 rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 shadow-md cursor-pointer">
+                    <span class="material-symbols-rounded text-base">download</span> Download Excel Template
+                  </button>
+                  <button onclick="document.getElementById('qbankFileInput').click()" class="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-md border border-slate-700/60">
+                    <span class="material-symbols-rounded text-base">upload_file</span> Upload Filled Excel
+                  </button>
+                  <input type="file" id="qbankFileInput" class="hidden" accept=".xlsx,.xls,.csv" onchange="handleQBankUpload(this)">
+                </div>
+              </div>
+
+              <!-- Question Bank View -->
+              <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl p-6 shadow-inner">
+                <div class="space-y-6" id="qbankCoGroups">
+                  <div class="text-sm font-bold text-slate-400 py-10 text-center">Loading Question Bank...</div>
+                </div>
               </div>
             </div>
         </div>
@@ -434,11 +498,30 @@
       if (panelId === 'dashboard') loadLecturerBatches();
     }
 
+    let currentDashboardFilter = 'active';
+
+    function setDashboardBatchFilter(status) {
+      currentDashboardFilter = status;
+      
+      const activeBtn = document.getElementById('btnFilterActive');
+      const historicalBtn = document.getElementById('btnFilterHistorical');
+
+      if (status === 'active') {
+        if (activeBtn) activeBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white shadow transition-premium cursor-pointer';
+        if (historicalBtn) historicalBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-200 transition-premium cursor-pointer';
+      } else {
+        if (activeBtn) activeBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-200 transition-premium cursor-pointer';
+        if (historicalBtn) historicalBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white shadow transition-premium cursor-pointer';
+      }
+
+      loadLecturerBatches();
+    }
+
     function loadLecturerBatches() {
       const grid = document.getElementById('lecturerBatchGrid');
       grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-500 font-bold text-[10px] animate-pulse">Loading batches...</div>';
 
-      fetch('/api/lecturer/my-batches', {
+      fetch(`/api/lecturer/my-batches?status=${currentDashboardFilter}`, {
         headers: { 'Content-Type': 'application/json' }
       })
       .then(res => res.json())
@@ -577,7 +660,9 @@
         { id: 'structure', btn: 'tabStructure', content: 'courseStructureContent' },
         { id: 'planner', btn: 'tabPlanner', content: 'coursePlannerContent' },
         { id: 'assessment', btn: 'tabAssessment', content: 'formativeAssessmentContent' },
-        { id: 'summative', btn: 'tabSummative', content: 'summativeAssessmentContent' }
+        { id: 'summative', btn: 'tabSummative', content: 'summativeAssessmentContent' },
+        { id: 'reports', btn: 'tabReports', content: 'classReportsContent' },
+        { id: 'qbank', btn: 'tabQBank', content: 'questionBankContent' }
       ];
 
       tabs.forEach(t => {
@@ -585,21 +670,35 @@
         const content = document.getElementById(t.content);
         
         if (t.id === tabName) {
-          btn.classList.add('border-blue-500', 'text-blue-400');
-          btn.classList.remove('border-transparent', 'text-slate-500', 'hover:border-slate-600', 'hover:text-slate-300');
-          
-          content.classList.remove('hidden');
-          if (t.id !== 'structure') content.classList.add('flex');
+          if (btn) {
+            btn.classList.add('border-blue-500', 'text-blue-400');
+            btn.classList.remove('border-transparent', 'text-slate-500', 'hover:border-slate-600', 'hover:text-slate-300');
+          }
+          if (content) {
+            content.classList.remove('hidden');
+            if (t.id !== 'structure') content.classList.add('flex');
+          }
         } else {
-          btn.classList.remove('border-blue-500', 'text-blue-400');
-          btn.classList.add('border-transparent', 'text-slate-500', 'hover:border-slate-600', 'hover:text-slate-300');
-          
-          content.classList.add('hidden');
-          if (t.id !== 'structure') content.classList.remove('flex');
+          if (btn) {
+            btn.classList.remove('border-blue-500', 'text-blue-400');
+            btn.classList.add('border-transparent', 'text-slate-500', 'hover:border-slate-600', 'hover:text-slate-300');
+          }
+          if (content) {
+            content.classList.add('hidden');
+            if (t.id !== 'structure') content.classList.remove('flex');
+          }
         }
       });
+
+      if (tabName === 'reports') {
+        fetchClassReports();
+      } else if (tabName === 'qbank') {
+        fetchQuestionBank(currentSubjectId);
+      }
     }
 
+    let classReportsData = null;
+    let activeReportType = 'attendance_log';
     let currentDeadlines = {};
     let currentQuestions = {};
     let currentSummativeTests = {};
@@ -607,6 +706,7 @@
     let currentSubjectCode = '';
 
     function loadCourseDetails(subjectId) {
+      currentSubjectId = subjectId;
       document.getElementById('courseStructureContent').innerHTML = `
         <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
           <div class="w-6 h-6 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin mb-4"></div>
@@ -656,8 +756,8 @@
               <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
                 <span class="material-symbols-rounded text-xl text-slate-600">inventory_2</span>
               </div>
-              <p class="text-[10px] font-bold text-slate-400">No syllabus loaded.</p>
-              <p class="text-[10px] mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus PDF to automatically populate Course Outcomes, Modules, and Textbooks.</p>
+              <p class="text-sm font-bold text-slate-400">No syllabus loaded.</p>
+              <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus PDF to automatically populate Course Outcomes, Modules, and Textbooks.</p>
             </div>
           `;
           document.getElementById('coursePlannerContent').innerHTML = `
@@ -665,10 +765,40 @@
               <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
                 <span class="material-symbols-rounded text-xl text-slate-600">event_note</span>
               </div>
-              <p class="text-[10px] font-bold text-slate-400">Planner not generated.</p>
-              <p class="text-[10px] mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to automatically generate the lesson plan.</p>
+              <p class="text-sm font-bold text-slate-400">Planner not generated.</p>
+              <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to automatically generate the lesson plan.</p>
             </div>
           `;
+          document.getElementById('formativeAssessmentContent').innerHTML = `
+            <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
+              <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+                <span class="material-symbols-rounded text-xl text-slate-600">assignment_turned_in</span>
+              </div>
+              <p class="text-sm font-bold text-slate-400">Formative Assessment Inactive.</p>
+              <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to activate formative assessment tasks and mark entry.</p>
+            </div>
+          `;
+          document.getElementById('summativeAssessmentContent').innerHTML = `
+            <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
+              <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+                <span class="material-symbols-rounded text-xl text-slate-600">quiz</span>
+              </div>
+              <p class="text-sm font-bold text-slate-400">Summative Assessment Inactive.</p>
+              <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to activate written test configuration and mark entry.</p>
+            </div>
+          `;
+          const qbContent = document.getElementById('questionBankContent');
+          if (qbContent) {
+              qbContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
+                  <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+                    <span class="material-symbols-rounded text-xl text-slate-600">database</span>
+                  </div>
+                  <p class="text-sm font-bold text-slate-400">Question Bank Inactive.</p>
+                  <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to activate the question bank pooling.</p>
+                </div>
+              `;
+          }
         }
       });
     }
@@ -763,8 +893,8 @@
 
         <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner">
           <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 flex items-center justify-between">
-            <div class="font-bold text-sm text-slate-400 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-sm text-sky-400">group</span> Enrolled Students
+            <div class="font-bold text-base text-slate-300 flex items-center gap-2 tracking-wide uppercase">
+              <span class="material-symbols-rounded text-base text-emerald-400">edit_note</span> Enter Assignment Marks
             </div>
             <button onclick="saveAssignmentMarks('${currentSubjectId}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer">
               Save Marks
@@ -773,7 +903,7 @@
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[700px]">
               <thead>
-                <tr class="bg-slate-900/40 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/60">
+                <tr class="bg-slate-900/40 text-sm font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/60">
                   <th class="p-3 w-12">S.No.</th>
                   <th class="p-3">Student Name</th>
                   <th class="p-3 w-28">Admission No</th>
@@ -791,15 +921,15 @@
         students.forEach((student, index) => {
           let m = student.assignment_marks || {};
           html += `
-            <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-sm" data-reg="${student.reg_no}">
-              <td class="p-3 text-slate-400 font-bold">${index + 1}</td>
-              <td class="p-3 font-bold text-slate-200">${student.name}</td>
-              <td class="p-3 font-mono text-slate-400">${student.reg_no}</td>
-              <td class="p-3 font-mono text-slate-400">${student.sbte_reg_no || '-'}</td>
-              <td class="p-3"><input type="number" step="1" max="10" min="0" value="${m.CO1 !== null ? Math.round(m.CO1) : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO1"></td>
-              <td class="p-3"><input type="number" step="1" max="10" min="0" value="${m.CO2 !== null ? Math.round(m.CO2) : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO2"></td>
-              <td class="p-3"><input type="number" step="1" max="10" min="0" value="${m.CO3 !== null ? Math.round(m.CO3) : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO3"></td>
-              <td class="p-3"><input type="number" step="1" max="10" min="0" value="${m.CO4 !== null ? Math.round(m.CO4) : ''}" class="co-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO4"></td>
+            <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/40 transition-premium" data-reg="${student.reg_no}">
+              <td class="px-4 py-4 text-slate-400 font-bold text-base">${index + 1}</td>
+              <td class="px-4 py-4 font-bold text-slate-50 text-lg tracking-wide">${student.name}</td>
+              <td class="px-4 py-4 font-mono text-slate-200 text-base">${student.reg_no}</td>
+              <td class="px-4 py-4 font-mono text-slate-200 text-base">${student.sbte_reg_no || '-'}</td>
+              <td class="px-3 py-3"><input type="number" step="1" max="10" min="0" value="${m.CO1 !== null ? Math.round(m.CO1) : ''}" class="co-mark w-full bg-slate-900 border border-slate-600/70 rounded-lg px-2 py-2 text-slate-100 text-base font-bold focus:outline-none focus:border-blue-400 text-center" data-co="CO1"></td>
+              <td class="px-3 py-3"><input type="number" step="1" max="10" min="0" value="${m.CO2 !== null ? Math.round(m.CO2) : ''}" class="co-mark w-full bg-slate-900 border border-slate-600/70 rounded-lg px-2 py-2 text-slate-100 text-base font-bold focus:outline-none focus:border-blue-400 text-center" data-co="CO2"></td>
+              <td class="px-3 py-3"><input type="number" step="1" max="10" min="0" value="${m.CO3 !== null ? Math.round(m.CO3) : ''}" class="co-mark w-full bg-slate-900 border border-slate-600/70 rounded-lg px-2 py-2 text-slate-100 text-base font-bold focus:outline-none focus:border-blue-400 text-center" data-co="CO3"></td>
+              <td class="px-3 py-3"><input type="number" step="1" max="10" min="0" value="${m.CO4 !== null ? Math.round(m.CO4) : ''}" class="co-mark w-full bg-slate-900 border border-slate-600/70 rounded-lg px-2 py-2 text-slate-100 text-base font-bold focus:outline-none focus:border-blue-400 text-center" data-co="CO4"></td>
             </tr>
           `;
         });
@@ -836,8 +966,11 @@
         let lockStr = isLocked ? `<span class="material-symbols-rounded text-[10px] text-amber-500 ml-1" title="Locked">lock</span>` : '';
         let disabledAttr = isLocked ? 'disabled' : '';
         let regenBtn = isLocked ? '' : `
-                <button onclick="generateAIQuestions('${subjectId}', '${co}')" class="p-1 rounded-lg bg-slate-800 hover:bg-blue-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Regenerate Questions">
-                  <span class="material-symbols-rounded text-[14px] block">refresh</span>
+                <button onclick="generateAIQuestions('${subjectId}', '${co}', 'ai')" class="p-1 rounded-lg bg-slate-800 hover:bg-blue-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Generate via AI (Gemini)">
+                  <span class="material-symbols-rounded text-[14px] block">auto_awesome</span>
+                </button>
+                <button onclick="generateAIQuestions('${subjectId}', '${co}', 'bank')" class="p-1 rounded-lg bg-slate-800 hover:bg-indigo-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Pull from Question Bank Pool">
+                  <span class="material-symbols-rounded text-[14px] block">database</span>
                 </button>
         `;
         let lockBtn = isLocked ? '' : `
@@ -875,16 +1008,16 @@
       document.getElementById('aiQuestionsContainer').innerHTML = html;
     }
 
-    function generateAIQuestions(subjectId, coTag = null) {
+    function generateAIQuestions(subjectId, coTag = null, mode = 'ai') {
       if (!coTag) {
         document.getElementById('aiQuestionsContainer').classList.remove('hidden');
-        document.getElementById('aiQuestionsContainer').innerHTML = `<div class="col-span-full text-center py-4 text-[10px] font-bold text-blue-400 animate-pulse">AI is generating questions...</div>`;
+        document.getElementById('aiQuestionsContainer').innerHTML = `<div class="col-span-full text-center py-4 text-sm font-bold text-blue-400 animate-pulse">Generating questions...</div>`;
       } else {
         const ul = document.getElementById(`questions-list-${coTag}`);
-        if(ul) ul.innerHTML = `<li class="text-[10px] text-blue-400 animate-pulse">Regenerating...</li>`;
+        if(ul) ul.innerHTML = `<li class="text-sm text-blue-400 animate-pulse">Retrieving questions...</li>`;
       }
       
-      let url = `/api/classroom/${subjectId}/generate-questions?_t=${Date.now()}`;
+      let url = `/api/classroom/${subjectId}/generate-questions?_t=${Date.now()}&generation_mode=${mode}`;
       if (coTag) url += `&co_tag=${coTag}`;
 
       fetch(url)
@@ -895,13 +1028,15 @@
              currentQuestions = data.data;
              renderAIQuestionsList(currentQuestions, subjectId);
           } else {
-             // Only update the specific CO list
              currentQuestions[coTag] = data.data[coTag];
              const ul = document.getElementById(`questions-list-${coTag}`);
              if (ul && data.data[coTag]) {
-               ul.innerHTML = data.data[coTag].map(q => `<li class="text-[10px] text-slate-400 mb-1 leading-relaxed">${q}</li>`).join('');
+               ul.innerHTML = data.data[coTag].map(q => `<li class="text-sm text-slate-400 mb-1 leading-relaxed">${q}</li>`).join('');
              }
           }
+        } else {
+           alert(data.message || 'Failed to retrieve questions.');
+           loadCourseDetails(subjectId);
         }
       });
     }
@@ -1142,7 +1277,7 @@
       html += marksEntryHtml;
 
       html += `
-        <div id="summativePapersContainer" class="grid-cols-1 md:grid-cols-2 gap-4 mb-6 no-print" style="display: grid;">
+        <div id="summativePapersContainer" class="flex flex-col gap-6 mb-6 no-print">
       `;
 
       if (cos && cos.length > 0) {
@@ -1151,27 +1286,27 @@
           let generatedContent = '';
           
           if (testData) {
-            let partAStr = testData.part_a ? testData.part_a.questions.map(q => `<li class="mb-1"><span class="font-mono text-[10px] text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-[10px] text-slate-500">(${q.marks})</span></li>`).join('') : '';
-            let partBStr = testData.part_b ? testData.part_b.questions.map(q => `<li class="mb-1"><span class="font-mono text-[10px] text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-[10px] text-slate-500">(${q.marks})</span></li>`).join('') : '';
-            let partCStr = testData.part_c ? testData.part_c.questions.map(q => `<li class="mb-1"><span class="font-mono text-[10px] text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-[10px] text-slate-500">(${q.marks})</span></li>`).join('') : '';
+            let partAStr = testData.part_a ? testData.part_a.questions.map(q => `<li class="mb-1.5"><span class="font-mono text-sm text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-sm text-slate-500">(${q.marks})</span></li>`).join('') : '';
+            let partBStr = testData.part_b ? testData.part_b.questions.map(q => `<li class="mb-1.5"><span class="font-mono text-sm text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-sm text-slate-500">(${q.marks})</span></li>`).join('') : '';
+            let partCStr = testData.part_c ? testData.part_c.questions.map(q => `<li class="mb-1.5"><span class="font-mono text-sm text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-sm text-slate-500">(${q.marks})</span></li>`).join('') : '';
 
             generatedContent = `
               <div class="mt-4 pt-4 border-t border-slate-800/60" id="paper-${co.id}">
                 <div class="flex justify-between items-center mb-2">
-                  <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Generated Question Paper</span>
+                  <span class="text-sm font-bold text-emerald-400 uppercase tracking-widest">Generated Question Paper</span>
                   <div class="flex items-center gap-2">
-                    <button onclick="printSummativePaper('${co.id}', ${testData.total_marks})" class="flex items-center gap-1 text-[10px] bg-blue-700/30 hover:bg-blue-600 border border-blue-600/40 px-2 py-1 rounded text-blue-300 hover:text-white transition-premium">
-                      <span class="material-symbols-rounded text-[12px]">print</span> Print Q Paper
+                    <button onclick="printSummativePaper('${co.id}', ${testData.total_marks})" class="flex items-center gap-1.5 text-sm bg-blue-700/30 hover:bg-blue-600 border border-blue-600/40 px-3 py-1.5 rounded-lg text-blue-300 hover:text-white transition-premium cursor-pointer">
+                      <span class="material-symbols-rounded text-base">print</span> Print Q Paper
                     </button>
-                    <button onclick="printAnswerKey('${co.id}', ${testData.total_marks})" class="flex items-center gap-1 text-[10px] bg-amber-700/30 hover:bg-amber-600 border border-amber-600/40 px-2 py-1 rounded text-amber-300 hover:text-white transition-premium">
-                      <span class="material-symbols-rounded text-[12px]">assignment</span> Print Answer Key
+                    <button onclick="printAnswerKey('${co.id}', ${testData.total_marks})" class="flex items-center gap-1.5 text-sm bg-amber-700/30 hover:bg-amber-600 border border-amber-600/40 px-3 py-1.5 rounded-lg text-amber-300 hover:text-white transition-premium cursor-pointer">
+                      <span class="material-symbols-rounded text-base">assignment</span> Print Answer Key
                     </button>
                   </div>
                 </div>
-                <div class="text-[10px] text-slate-300 bg-slate-950/50 p-3 rounded-lg border border-slate-800/40">
-                  ${partAStr ? `<div class="font-bold mb-1 text-slate-400">PART A (Short Answers)</div><ul class="list-decimal pl-4 mb-3">${partAStr}</ul>` : ''}
-                  ${partBStr ? `<div class="font-bold mb-1 text-slate-400">PART B (Medium Answers)</div><ul class="list-decimal pl-4 mb-3">${partBStr}</ul>` : ''}
-                  ${partCStr ? `<div class="font-bold mb-1 text-slate-400">PART C (Long Answers)</div><ul class="list-decimal pl-4 mb-1">${partCStr}</ul>` : ''}
+                <div class="text-sm text-slate-300 bg-slate-950/50 p-4 rounded-lg border border-slate-800/40">
+                  ${partAStr ? `<div class="font-bold mb-1.5 text-slate-400">PART A (Short Answers)</div><ul class="list-decimal pl-5 mb-4">${partAStr}</ul>` : ''}
+                  ${partBStr ? `<div class="font-bold mb-1.5 text-slate-400">PART B (Medium Answers)</div><ul class="list-decimal pl-5 mb-4">${partBStr}</ul>` : ''}
+                  ${partCStr ? `<div class="font-bold mb-1.5 text-slate-400">PART C (Long Answers)</div><ul class="list-decimal pl-5 mb-2">${partCStr}</ul>` : ''}
                 </div>
               </div>
             `;
@@ -1179,7 +1314,7 @@
 
           let isLocked = testData && testData.is_locked ? true : false;
           let disabledAttr = isLocked ? 'disabled' : '';
-          let lockStr = isLocked ? `<span class="material-symbols-rounded text-[10px] text-amber-500 ml-1" title="Locked">lock</span>` : '';
+          let lockStr = isLocked ? `<span class="material-symbols-rounded text-sm text-amber-500 ml-1" title="Locked">lock</span>` : '';
           let dateStr = testData && testData.date_of_exam ? testData.date_of_exam : '';
 
           let qA = tempSummativePatterns[co.id] ? tempSummativePatterns[co.id].qA : (testData?.part_a?.q_count || '');
@@ -1190,29 +1325,29 @@
           let mC = tempSummativePatterns[co.id] ? tempSummativePatterns[co.id].mC : (testData?.part_c?.marks_per_q || '');
 
           let lockBtn = isLocked || !testData ? '' : `
-            <button onclick="lockSummativeTest('${currentSubjectId}', '${co.id}')" class="p-1 rounded-lg bg-slate-800 hover:bg-amber-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Lock & Finalize">
-              <span class="material-symbols-rounded text-[14px] block">lock</span>
+            <button onclick="lockSummativeTest('${currentSubjectId}', '${co.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-amber-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Lock & Finalize">
+              <span class="material-symbols-rounded text-base block">lock</span>
             </button>
           `;
 
           let genBtn = isLocked ? '' : `
-              <button id="gen_btn_${co.id}" onclick="generateSummativePaper('${currentSubjectId}', '${co.id}')" class="w-full py-1.5 bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 text-blue-400 hover:text-white rounded text-[10px] font-bold transition-premium mt-2">
+              <button id="gen_btn_${co.id}" onclick="generateSummativePaper('${currentSubjectId}', '${co.id}')" class="w-full py-2.5 bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 text-blue-400 hover:text-white rounded-xl text-sm font-bold transition-premium mt-3 cursor-pointer">
                 ${testData ? 'Regenerate Question Paper' : 'Generate AI Question Paper'}
               </button>
           `;
           
           let dateInputStr = `
-            <div class="flex items-center gap-1 bg-slate-800 px-2 py-1 rounded border border-slate-700/80 shadow-inner">
-              <span class="text-[10px] text-slate-400 font-bold uppercase"><span class="material-symbols-rounded text-[10px] align-middle mr-0.5">calendar_today</span>Date</span>
-              <input type="date" id="summ_date_${co.id}" value="${dateStr}" ${disabledAttr} onchange="saveSummativeConfig('${currentSubjectId}', '${co.id}')" class="bg-slate-900 text-[10px] text-slate-200 font-mono outline-none w-[90px] px-1 py-0.5 rounded border border-slate-700 focus:border-blue-500">
+            <div class="flex items-center gap-1.5 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700/80 shadow-inner">
+              <span class="text-sm text-slate-400 font-bold uppercase flex items-center gap-1"><span class="material-symbols-rounded text-sm">calendar_today</span>Date</span>
+              <input type="date" id="summ_date_${co.id}" value="${dateStr}" ${disabledAttr} onchange="saveSummativeConfig('${currentSubjectId}', '${co.id}')" class="bg-slate-900 text-sm text-slate-200 font-mono outline-none w-[110px] px-2 py-0.5 rounded border border-slate-700 focus:border-blue-500">
             </div>
           `;
 
           html += `
-            <div class="bg-slate-900/50 border border-slate-800/60 p-4 rounded-xl relative ${isLocked ? 'ring-1 ring-amber-500/30' : ''}">
-              <div class="flex items-center justify-between mb-3 border-b border-slate-800/60 pb-2 cursor-pointer hover:opacity-80 transition-premium" onclick="document.getElementById('co_body_${co.id}').classList.toggle('hidden'); document.getElementById('co_icon_${co.id}').innerText = document.getElementById('co_body_${co.id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
-                <h5 class="text-[10px] font-black text-blue-400 flex items-center gap-1">
-                  <span id="co_icon_${co.id}" class="material-symbols-rounded text-[10px] text-slate-500">expand_more</span>
+            <div id="summ_card_${co.id}" class="bg-slate-900/50 border border-slate-800/60 p-5 rounded-xl relative ${isLocked ? 'ring-1 ring-amber-500/30' : ''}">
+              <div class="flex items-center justify-between mb-4 border-b border-slate-800/60 pb-3 cursor-pointer hover:opacity-80 transition-premium" onclick="document.getElementById('co_body_${co.id}').classList.toggle('hidden'); document.getElementById('co_icon_${co.id}').innerText = document.getElementById('co_body_${co.id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
+                <h5 class="text-sm font-black text-blue-400 flex items-center gap-1">
+                  <span id="co_icon_${co.id}" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
                   ${co.id} Written Test ${lockStr}
                 </h5>
                 <div class="flex items-center gap-2" onclick="event.stopPropagation()">
@@ -1220,53 +1355,55 @@
                   ${lockBtn}
                 </div>
               </div>
-
+ 
               <div id="co_body_${co.id}" class="hidden pt-2">
-
-              <div class="flex items-center gap-3 mb-3 mt-1 text-[10px] font-bold text-slate-500 bg-slate-950/50 p-1.5 rounded-lg border border-slate-800/40 w-max">
-                 <label class="flex items-center gap-1 cursor-pointer hover:text-blue-400 transition-premium">
-                   <input type="radio" name="summ_mode_${co.id}" value="ai" checked onchange="toggleSummativeMode('${co.id}')" class="text-blue-500 focus:ring-blue-500 bg-slate-900 border-slate-700" ${disabledAttr}>
+ 
+              <div class="flex items-center gap-4 mb-4 mt-1 text-sm font-bold text-slate-400 bg-slate-950/50 p-2 rounded-lg border border-slate-800/40 w-max">
+                 <label class="flex items-center gap-1.5 cursor-pointer hover:text-blue-400 transition-premium">
+                   <input type="radio" name="summ_mode_${co.id}" value="ai" ${(!testData || !testData.manual_mode) ? 'checked' : ''} onchange="toggleSummativeMode('${co.id}')" class="text-blue-500 focus:ring-blue-500 bg-slate-900 border-slate-700" ${disabledAttr}>
                    AI Generation
                  </label>
-                 <label class="flex items-center gap-1 cursor-pointer hover:text-emerald-400 transition-premium">
-                   <input type="radio" name="summ_mode_${co.id}" value="manual" onchange="toggleSummativeMode('${co.id}')" class="text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-700" ${disabledAttr}>
+                 <label class="flex items-center gap-1.5 cursor-pointer hover:text-emerald-400 transition-premium">
+                   <input type="radio" name="summ_mode_${co.id}" value="manual" ${(testData && testData.manual_mode) ? 'checked' : ''} onchange="toggleSummativeMode('${co.id}')" class="text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-700" ${disabledAttr}>
                    Manual Entry
                  </label>
               </div>
               
-              <div class="space-y-2 mb-3">
-                <div class="flex justify-between text-[10px] text-slate-400 font-bold mb-1"><span class="w-16">Part</span><span>Q. Count</span><span>Marks/Q</span></div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-[10px] text-slate-500 font-bold w-16">PART A</span>
-                  <input type="number" id="summ_q_A_${co.id}" value="${qA}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
-                  <span class="text-slate-600 text-[10px] font-bold">x</span>
-                  <input type="number" id="summ_m_A_${co.id}" value="${mA}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
+              <div class="space-y-3 mb-4">
+                <div class="flex items-center gap-3 text-sm text-slate-400 font-bold mb-1"><span class="w-24 shrink-0 whitespace-nowrap">Part</span><span class="flex-1 text-center">Q. Count</span><span class="w-4"></span><span class="flex-1 text-center">Marks/Q</span></div>
+                <div class="flex items-center justify-between gap-3">
+                  <span class="text-sm text-slate-400 font-bold w-24 shrink-0 whitespace-nowrap">PART A</span>
+                  <input type="number" id="summ_q_A_${co.id}" value="${qA}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
+                  <span class="text-slate-600 text-sm font-bold">x</span>
+                  <input type="number" id="summ_m_A_${co.id}" value="${mA}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
                 </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-[10px] text-slate-500 font-bold w-16">PART B</span>
-                  <input type="number" id="summ_q_B_${co.id}" value="${qB}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
-                  <span class="text-slate-600 text-[10px] font-bold">x</span>
-                  <input type="number" id="summ_m_B_${co.id}" value="${mB}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
+                <div class="flex items-center justify-between gap-3">
+                  <span class="text-sm text-slate-400 font-bold w-24 shrink-0 whitespace-nowrap">PART B</span>
+                  <input type="number" id="summ_q_B_${co.id}" value="${qB}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
+                  <span class="text-slate-600 text-sm font-bold">x</span>
+                  <input type="number" id="summ_m_B_${co.id}" value="${mB}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
                 </div>
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-[10px] text-slate-500 font-bold w-16">PART C</span>
-                  <input type="number" id="summ_q_C_${co.id}" value="${qC}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
-                  <span class="text-slate-600 text-[10px] font-bold">x</span>
-                  <input type="number" id="summ_m_C_${co.id}" value="${mC}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1 text-[10px] text-slate-200 outline-none focus:border-blue-500">
+                <div class="flex items-center justify-between gap-3">
+                  <span class="text-sm text-slate-400 font-bold w-24 shrink-0 whitespace-nowrap">PART C</span>
+                  <input type="number" id="summ_q_C_${co.id}" value="${qC}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
+                  <span class="text-slate-600 text-sm font-bold">x</span>
+                  <input type="number" id="summ_m_C_${co.id}" value="${mC}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
                 </div>
               </div>
 
-              <div class="flex items-center justify-between mb-3 border-t border-slate-800/40 pt-2">
-                <label class="flex items-center gap-1.5 cursor-pointer text-[10px] text-slate-400 hover:text-slate-200 transition-premium">
+              <div class="flex items-center justify-between mb-4 border-t border-slate-800/40 pt-3">
+                <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-400 hover:text-slate-200 transition-premium">
                   <input type="checkbox" id="sync_pattern_${co.id}" ${disabledAttr} onchange="if(this.checked) applySummativePatternToAll('${co.id}')" class="rounded border-slate-700 bg-slate-900 text-blue-500 focus:ring-blue-500/30">
                   <span>Apply pattern to all COs</span>
                 </label>
-                <div class="text-[10px] font-bold text-slate-300 bg-slate-800/50 px-2 py-0.5 rounded border border-slate-700/50">
+                <div class="text-sm font-bold text-slate-300 bg-slate-800/50 px-3 py-1 rounded-lg border border-slate-700/50">
                   Total Marks: <span id="summ_total_${co.id}" class="${testData ? 'text-emerald-400' : 'text-blue-400'}">${testData ? testData.total_marks : '0'}</span>
                 </div>
               </div>
               
               ${genBtn}
+
+              <div id="manual_form_wrapper_${co.id}"></div>
 
               ${generatedContent}
               </div> <!-- close co_body -->
@@ -1294,7 +1431,7 @@
                 <div class="grid grid-cols-2 gap-3 mb-3">
                   <div>
                     <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Target COs (Multiple)</label>
-                    <select id="online_test_cos" multiple class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500 h-[60px]">
+                    <select id="online_test_cos" multiple class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500 h-[96px]">
                       ${cos ? cos.map(co => `<option value="${co.id}">${co.id}</option>`).join('') : ''}
                     </select>
                   </div>
@@ -1306,9 +1443,18 @@
                   </div>
                 </div>
                 
-                <div class="mb-4">
-                  <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Number of Questions</label>
-                  <input type="number" id="online_test_q_count" value="10" min="1" max="50" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                  <div>
+                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Number of Questions</label>
+                    <input type="number" id="online_test_q_count" value="10" min="1" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
+                  </div>
+                  <div>
+                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Generation Mode</label>
+                    <select id="online_test_gen_mode" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
+                      <option value="bank">Mode B: Question Bank Pool</option>
+                      <option value="ai">Mode A: AI Generator (Gemini)</option>
+                    </select>
+                  </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 mb-4">
                   <div>
@@ -1350,6 +1496,25 @@
 
       document.getElementById('summativeAssessmentContent').innerHTML = html;
 
+      // Automatically spawn manual fields for any saved manual papers on load
+      if (cos && cos.length > 0) {
+         cos.forEach(co => {
+             let testData = currentSummativeTests[co.id] || null;
+             if (testData && testData.manual_mode) {
+                 spawnManualFields(co.id);
+                 // Adjust button styling to show it's manual save
+                 const btn = document.getElementById(`gen_btn_${co.id}`);
+                 if (btn) {
+                     btn.innerText = 'Save Custom Questions';
+                     btn.classList.replace('bg-blue-600/20', 'bg-emerald-600/20');
+                     btn.classList.replace('hover:bg-blue-600', 'hover:bg-emerald-600');
+                     btn.classList.replace('border-blue-500/30', 'border-emerald-500/30');
+                     btn.classList.replace('text-blue-400', 'text-emerald-400');
+                 }
+             }
+         });
+      }
+
       // Initialize Flatpickr
       if (typeof flatpickr !== 'undefined') {
         flatpickr("#online_test_start", { 
@@ -1371,6 +1536,20 @@
       calcSummativeTotal(sourceCoId);
       if(document.getElementById(`sync_pattern_${sourceCoId}`)?.checked) {
          applySummativePatternToAll(sourceCoId);
+         
+         // Trigger spawn for all COs in manual mode
+         document.querySelectorAll('[id^="summ_card_"]').forEach(card => {
+             const coId = card.id.replace('summ_card_', '');
+             const isManual = document.querySelector(`input[name="summ_mode_${coId}"]:checked`)?.value === 'manual';
+             if (isManual) {
+                 spawnManualFields(coId);
+             }
+         });
+      } else {
+         const isManual = document.querySelector(`input[name="summ_mode_${sourceCoId}"]:checked`)?.value === 'manual';
+         if (isManual) {
+             spawnManualFields(sourceCoId);
+         }
       }
     }
 
@@ -1462,17 +1641,26 @@
        const btn = document.getElementById(`gen_btn_${coId}`);
        if(btn) {
           if(isManual) {
-             btn.innerText = 'Spawn Custom Question Fields';
+             btn.innerText = 'Save Custom Questions';
              btn.classList.replace('bg-blue-600/20', 'bg-emerald-600/20');
              btn.classList.replace('hover:bg-blue-600', 'hover:bg-emerald-600');
              btn.classList.replace('border-blue-500/30', 'border-emerald-500/30');
              btn.classList.replace('text-blue-400', 'text-emerald-400');
+             
+             // Instantly spawn manual question fields
+             spawnManualFields(coId);
           } else {
              btn.innerText = 'Generate AI Question Paper';
              btn.classList.replace('bg-emerald-600/20', 'bg-blue-600/20');
              btn.classList.replace('hover:bg-emerald-600', 'hover:bg-blue-600');
              btn.classList.replace('border-emerald-500/30', 'border-blue-500/30');
              btn.classList.replace('text-emerald-400', 'text-blue-400');
+
+             // Remove manual entry fields if switching back to AI
+             const wrapper = document.getElementById(`manual_form_wrapper_${coId}`);
+             if (wrapper) {
+                 wrapper.innerHTML = '';
+             }
           }
        }
     }
@@ -1482,21 +1670,28 @@
       let qB = parseInt(document.getElementById(`summ_q_B_${coTag}`).value) || 0;
       let qC = parseInt(document.getElementById(`summ_q_C_${coTag}`).value) || 0;
 
+      let testData = currentSummativeTests[coTag] || null;
+      let savedA = (testData && testData.manual_mode) ? (testData.part_a?.questions || []) : [];
+      let savedB = (testData && testData.manual_mode) ? (testData.part_b?.questions || []) : [];
+      let savedC = (testData && testData.manual_mode) ? (testData.part_c?.questions || []) : [];
+
       let html = `<div id="manual_form_${coTag}" class="mt-4 pt-4 border-t border-slate-800/60">`;
-      html += `<div class="text-[10px] text-slate-300 bg-slate-950/50 p-3 rounded-lg border border-slate-800/40 space-y-4">`;
+      html += `<div class="text-sm text-slate-300 bg-slate-950/50 p-4 rounded-xl border border-slate-800/40 space-y-4">`;
       
-      const buildFields = (count, partName, prefix) => {
+      const buildFields = (count, partName, prefix, savedQuestions) => {
          let fHtml = '';
-         if(count > 0) fHtml += `<div class="font-bold text-slate-400 border-b border-slate-800 pb-1">${partName}</div><div class="space-y-2 mt-2">`;
+         if(count > 0) fHtml += `<div class="font-bold text-slate-400 border-b border-slate-800 pb-1.5">${partName}</div><div class="space-y-3 mt-2">`;
          for(let i=0; i<count; i++) {
+            let qText = savedQuestions && savedQuestions[i] ? savedQuestions[i].q : '';
+            let qLvl = savedQuestions && savedQuestions[i] ? savedQuestions[i].level : 'U';
             fHtml += `
-              <div class="flex gap-2 items-start">
-                 <span class="text-slate-500 mt-1 font-mono">${i+1}.</span>
-                 <textarea id="man_q_${prefix}_${coTag}_${i}" class="w-full bg-slate-900 border border-slate-700 rounded p-2 text-slate-300 outline-none focus:border-emerald-500 text-[10px]" rows="2" placeholder="Enter question ${i+1}..."></textarea>
-                 <select id="man_lvl_${prefix}_${coTag}_${i}" class="bg-slate-900 border border-slate-700 rounded p-1 text-slate-300 text-[10px] w-16 outline-none focus:border-emerald-500">
-                    <option value="U">U</option>
-                    <option value="R">R</option>
-                    <option value="A">A</option>
+              <div class="flex gap-3 items-start">
+                 <span class="text-slate-500 mt-2 font-mono">${i+1}.</span>
+                 <textarea id="man_q_${prefix}_${coTag}_${i}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 outline-none focus:border-emerald-500 text-sm" rows="2" placeholder="Enter question ${i+1}...">${qText}</textarea>
+                 <select id="man_lvl_${prefix}_${coTag}_${i}" class="bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 text-sm w-24 outline-none focus:border-emerald-500 mt-0.5">
+                    <option value="U" ${qLvl === 'U' ? 'selected' : ''}>U (Understand)</option>
+                    <option value="R" ${qLvl === 'R' ? 'selected' : ''}>R (Remember)</option>
+                    <option value="A" ${qLvl === 'A' ? 'selected' : ''}>A (Apply)</option>
                  </select>
               </div>
             `;
@@ -1505,20 +1700,18 @@
          return fHtml;
       };
 
-      html += buildFields(qA, 'PART A', 'A');
-      html += buildFields(qB, 'PART B', 'B');
-      html += buildFields(qC, 'PART C', 'C');
+      html += buildFields(qA, 'PART A', 'A', savedA);
+      html += buildFields(qB, 'PART B', 'B', savedB);
+      html += buildFields(qC, 'PART C', 'C', savedC);
       html += `</div></div>`;
 
-      let paperContainer = document.getElementById(`paper-${coTag}`);
-      if(paperContainer) paperContainer.outerHTML = html;
-      else {
-         const card = document.getElementById(`summ_date_${coTag}`).closest('.bg-slate-900\\/50');
-         card.insertAdjacentHTML('beforeend', html);
+      let wrapper = document.getElementById(`manual_form_wrapper_${coTag}`);
+      if (wrapper) {
+          wrapper.innerHTML = html;
       }
       
       const btn = document.getElementById(`gen_btn_${coTag}`);
-      btn.innerText = 'Save Custom Questions';
+      if (btn) btn.innerText = 'Save Custom Questions';
     }
 
     function saveManualSummativePaper(subjectId, coTag) {
@@ -1642,6 +1835,8 @@
       const duration = document.getElementById('online_test_duration').value;
       const start = document.getElementById('online_test_start').value;
       const end = document.getElementById('online_test_end').value;
+      const q_count = document.getElementById('online_test_q_count').value;
+      const gen_mode = document.getElementById('online_test_gen_mode').value;
 
       if (selectedCos.length === 0) {
         alert("Please select at least one CO.");
@@ -1651,7 +1846,7 @@
       fetch(`/api/classroom/${subjectId}/publish-online-test`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-        body: JSON.stringify({ cos: selectedCos, attempts, duration, start, end })
+        body: JSON.stringify({ cos: selectedCos, attempts, duration, start, end, q_count, generation_mode: gen_mode })
       })
       .then(res => res.json())
       .then(data => {
@@ -2280,6 +2475,475 @@
         printWin.document.write(printHtml);
         printWin.document.close();
       }
+
+    function fetchClassReports() {
+      if (!currentSubjectId) return;
+      const workspace = document.getElementById('classroomReportWorkspace');
+      workspace.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500">
+          <div class="w-6 h-6 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+          <p class="text-sm font-bold text-slate-400">Loading reports...</p>
+        </div>
+      `;
+
+      fetch(`/api/staff/attendance/subjects/${currentSubjectId}/reports`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            classReportsData = data;
+            renderActiveReport();
+          } else {
+            workspace.innerHTML = `<div class="text-sm font-bold text-red-400 py-10 text-center">${data.message || 'Failed to load reports.'}</div>`;
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          workspace.innerHTML = '<div class="text-sm font-bold text-red-400 py-10 text-center">Error loading reports.</div>';
+        });
+    }
+
+    function loadClassReport(type) {
+      activeReportType = type;
+      
+      const buttons = [
+        { id: 'attendance_log', btn: 'btnReportLog' },
+        { id: 'subject_log', btn: 'btnReportSubject' },
+        { id: 'summary_matrix', btn: 'btnReportMatrix' }
+      ];
+
+      buttons.forEach(b => {
+        const el = document.getElementById(b.btn);
+        if (!el) return;
+        if (b.id === type) {
+          el.className = "px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm cursor-pointer transition-premium";
+        } else {
+          el.className = "px-4 py-2 bg-slate-900 text-slate-300 border border-slate-800 rounded-xl font-bold text-sm cursor-pointer hover:bg-slate-800 transition-premium";
+        }
+      });
+
+      renderActiveReport();
+    }
+
+    function renderActiveReport() {
+      if (!classReportsData) return;
+      const workspace = document.getElementById('classroomReportWorkspace');
+      workspace.innerHTML = '';
+
+      if (activeReportType === 'attendance_log') {
+        renderAttendanceLogReport(workspace);
+      } else if (activeReportType === 'subject_log') {
+        renderSubjectLogReport(workspace);
+      } else if (activeReportType === 'summary_matrix') {
+        renderSummaryMatrixReport(workspace);
+      }
+    }
+
+    function renderAttendanceLogReport(container) {
+      const logs = classReportsData.logs || [];
+      if (logs.length === 0) {
+        container.innerHTML = '<div class="text-sm font-bold text-slate-400 py-10 text-center">No attendance logs recorded yet for this subject.</div>';
+        return;
+      }
+
+      let html = `
+        <div class="overflow-x-auto border border-slate-800/60 rounded-xl bg-slate-900/20">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-950/40 text-slate-400 border-b border-slate-800 uppercase tracking-wider text-xs font-black">
+                <th class="p-4">Date</th>
+                <th class="p-4 text-center">Period</th>
+                <th class="p-4">Topics Covered</th>
+                <th class="p-4 text-center">Present</th>
+                <th class="p-4 text-center">Absent</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      logs.forEach(log => {
+        html += `
+          <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
+            <td class="p-4 font-mono font-bold text-slate-300">${log.date}</td>
+            <td class="p-4 text-center font-bold text-slate-400">P${log.period}</td>
+            <td class="p-4 text-slate-200">${log.topics_covered || '-'}</td>
+            <td class="p-4 text-center font-bold text-emerald-400">${log.present_count}</td>
+            <td class="p-4 text-center font-bold text-rose-400">${log.absent_count}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+      container.innerHTML = html;
+    }
+
+    function renderSubjectLogReport(container) {
+      const logs = classReportsData.logs || [];
+      if (logs.length === 0) {
+        container.innerHTML = '<div class="text-sm font-bold text-slate-400 py-10 text-center">No class logs recorded yet for this subject.</div>';
+        return;
+      }
+
+      let html = `
+        <div class="overflow-x-auto border border-slate-800/60 rounded-xl bg-slate-900/20">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-950/40 text-slate-400 border-b border-slate-800 uppercase tracking-wider text-xs font-black">
+                <th class="p-4">Completed Date</th>
+                <th class="p-4 text-center">Period</th>
+                <th class="p-4">Lesson Plan Reference</th>
+                <th class="p-4">Topics Covered</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      logs.forEach(log => {
+        html += `
+          <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
+            <td class="p-4 font-mono font-bold text-slate-300">${log.date}</td>
+            <td class="p-4 text-center font-bold text-slate-400">P${log.period}</td>
+            <td class="p-4 text-slate-400 font-bold">${log.lesson_plan_id ? 'LP ID: ' + log.lesson_plan_id : 'Manual Entry'}</td>
+            <td class="p-4 text-slate-200">${log.topics_covered || '-'}</td>
+          </tr>
+        `;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+      container.innerHTML = html;
+    }
+
+    function renderSummaryMatrixReport(container) {
+      const dates = classReportsData.dates || [];
+      const matrix = classReportsData.matrix || [];
+
+      if (dates.length === 0 || matrix.length === 0) {
+        container.innerHTML = '<div class="text-sm font-bold text-slate-400 py-10 text-center">No attendance summary available.</div>';
+        return;
+      }
+
+      let html = `
+        <div class="overflow-x-auto border border-slate-800/60 rounded-xl bg-slate-900/20 max-h-[500px]">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-950/40 text-slate-400 border-b border-slate-800 uppercase tracking-wider text-xs font-black sticky top-0 z-10">
+                <th class="p-4 bg-slate-950/90 w-16 text-center sticky left-0 z-20">Roll</th>
+                <th class="p-4 bg-slate-950/90 w-44 sticky left-16 z-20">Name</th>
+      `;
+
+      dates.forEach(d => {
+        const shortDate = d.date.substring(5);
+        html += `<th class="p-4 text-center min-w-[70px]">${shortDate}<br><span class="text-[10px] text-slate-500">P${d.period}</span></th>`;
+      });
+
+      html += `
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      matrix.forEach(row => {
+        html += `
+          <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
+            <td class="p-4 text-center font-bold text-slate-500 bg-slate-900/90 sticky left-0 z-10">${row.roll_no || '-'}</td>
+            <td class="p-4 font-bold text-white bg-slate-900/90 sticky left-16 z-10 truncate max-w-[176px]">${row.name}</td>
+        `;
+
+        dates.forEach(d => {
+          const key = d.date + ' | P' + d.period;
+          const status = row.attendance[key] || '-';
+          let cellClass = 'text-slate-500';
+          if (status === 'P') cellClass = 'text-emerald-400 font-bold';
+          if (status === 'A') cellClass = 'text-rose-400 font-bold';
+
+          html += `<td class="p-4 text-center ${cellClass}">${status}</td>`;
+        });
+
+        html += `</tr>`;
+      });
+
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+      container.innerHTML = html;
+    }
+
+    function fetchQuestionBank(subjectId) {
+      const container = document.getElementById('qbankCoGroups');
+      container.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-10">
+          <div class="w-8 h-8 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+          <p class="text-sm font-bold text-slate-400">Loading Question Bank...</p>
+        </div>
+      `;
+
+      fetch(`/api/classroom/${subjectId}/question-bank`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          renderQuestionBank(data.questions);
+        } else {
+          container.innerHTML = `<div class="text-sm text-rose-400 py-6 text-center font-bold">Failed to load questions.</div>`;
+        }
+      })
+      .catch(err => {
+        container.innerHTML = `<div class="text-sm text-rose-400 py-6 text-center font-bold">Error loading questions.</div>`;
+      });
+    }
+
+    function renderQuestionBank(questions) {
+      const container = document.getElementById('qbankCoGroups');
+      if (!questions || questions.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-slate-400 space-y-4 max-w-md mx-auto">
+            <div class="bg-slate-900/50 p-4 rounded-full border border-slate-800/60 inline-block">
+              <span class="material-symbols-rounded text-3xl text-slate-600 block">database</span>
+            </div>
+            <p class="text-sm font-bold text-slate-300">No questions in this subject's pool.</p>
+            <p class="text-sm text-slate-500">You can download the template CSV, fill it with questions, and upload it. Alternatively, seed the pool instantly with high-quality questions using AI.</p>
+            <div class="pt-2">
+              <button onclick="seedQuestionBankWithAi(currentSubjectId)" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer shadow-md flex items-center gap-1.5 mx-auto">
+                <span class="material-symbols-rounded text-base">auto_awesome</span> Seed Pool via AI
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const markGroups = {
+        '1 Mark Questions': [],
+        '3 Mark Questions': [],
+        '7 Mark Questions': [],
+        'Other Marks': []
+      };
+
+      questions.forEach(q => {
+        const marks = parseInt(q.marks || 0);
+        if (marks === 1) {
+          markGroups['1 Mark Questions'].push(q);
+        } else if (marks === 3) {
+          markGroups['3 Mark Questions'].push(q);
+        } else if (marks === 7) {
+          markGroups['7 Mark Questions'].push(q);
+        } else {
+          markGroups['Other Marks'].push(q);
+        }
+      });
+
+      let html = '';
+      Object.keys(markGroups).forEach(groupName => {
+        const qList = markGroups[groupName];
+        if (qList.length === 0) return;
+
+        html += `
+          <div class="border border-slate-800/80 rounded-xl overflow-hidden bg-slate-900/10 mb-6">
+            <div class="bg-slate-900/60 p-4 flex justify-between items-center border-b border-slate-800/60">
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-rounded text-blue-400 text-base">grade</span>
+                <span class="text-sm font-black text-slate-200">${groupName}</span>
+              </div>
+              <span class="text-sm text-slate-400 font-bold bg-slate-950/40 px-2.5 py-1 rounded-md">${qList.length} Questions</span>
+            </div>
+            <div class="p-0 overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-800/60 text-slate-400 text-sm bg-slate-950/20">
+                    <th class="py-2.5 px-4 font-bold w-12 text-center">#</th>
+                    <th class="py-2.5 px-4 font-bold">Question Text</th>
+                    <th class="py-2.5 px-4 font-bold w-20 text-center">CO Tag</th>
+                    <th class="py-2.5 px-4 font-bold w-28 text-center">Cognitive</th>
+                    <th class="py-2.5 px-4 font-bold w-28 text-center">Type</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/30 text-slate-300">
+        `;
+
+        qList.forEach((q, index) => {
+          const typeStr = q.type === 'MCQ' ? `MCQ (Ans: ${q.correct_answer || 'N/A'})` : 'Descriptive';
+          html += `
+            <tr class="hover:bg-slate-900/20 transition-premium text-sm">
+              <td class="py-3 px-4 text-center text-slate-500 font-mono">${index + 1}</td>
+              <td class="py-3 px-4 font-bold text-slate-200">
+                <div>${q.question_text}</div>
+                ${q.type === 'MCQ' && q.options ? renderCompactOptions(q.options, q.correct_answer) : ''}
+              </td>
+              <td class="py-3 px-4 text-center">
+                <span class="px-2 py-0.5 rounded bg-blue-950/40 text-blue-400 border border-blue-900/30 font-mono text-[11px] font-bold">${q.co_tag || 'CO1'}</span>
+              </td>
+              <td class="py-3 px-4 text-center">
+                <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/40 text-[11px] font-bold">${q.cognitive_level || 'Understand'}</span>
+              </td>
+              <td class="py-3 px-4 text-center">
+                <span class="px-2 py-0.5 rounded ${q.type === 'MCQ' ? 'bg-purple-950/40 text-purple-400 border border-purple-900/30' : 'bg-amber-950/40 text-amber-400 border border-amber-900/30'} text-[11px] font-bold">${typeStr}</span>
+              </td>
+            </tr>
+          `;
+        });
+
+        html += `
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      });
+
+      if (!html) {
+        html = `<div class="text-sm text-slate-500 py-8 text-center">No grouped questions found.</div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function renderCompactOptions(optionsStr, correctAns) {
+      const options = typeof optionsStr === 'string' ? JSON_decode_safe(optionsStr) : optionsStr;
+      if (!options || options.length === 0) return '';
+      const labels = ['A', 'B', 'C', 'D'];
+      let optHtml = '<div class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-[11px] text-slate-400 font-normal pl-2 border-l border-slate-800">';
+      options.forEach((opt, idx) => {
+        if (!opt) return;
+        const isCorrect = correctAns === labels[idx] || correctAns === opt;
+        const colorClass = isCorrect ? 'text-emerald-400 font-bold' : 'text-slate-500';
+        optHtml += `<span class="${colorClass}"><b class="opacity-60">${labels[idx]}:</b> ${opt}</span>`;
+      });
+      optHtml += '</div>';
+      return optHtml;
+    }
+
+    function JSON_decode_safe(str) {
+      try {
+        return JSON.parse(str);
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function downloadExcelTemplate() {
+      const headers = [
+        ['Type', 'Marks', 'Cognitive Level', 'CO Tag', 'Question Text', 'Option A', 'Option B', 'Option C', 'Option D', 'Correct Answer'],
+        ['MCQ', '1', 'Remember', 'CO1', 'What is the correct definition of an embedded system?', 'A general purpose computer system', 'A specialized computer system designed for specific control functions', 'A computer system with no hardware', 'A system only used in gaming consoles', 'B'],
+        ['Descriptive', '5', 'Understand', 'CO2', 'Explain the differences between RISC and CISC architectures in embedded processors.', '', '', '', '', '']
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(headers);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Questions Template");
+      XLSX.writeFile(wb, "Question_Bank_Template.xlsx");
+    }
+
+    function handleQBankUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      const file = input.files[0];
+
+      const container = document.getElementById('qbankCoGroups');
+      container.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-10">
+          <div class="w-8 h-8 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+          <p class="text-sm font-bold text-slate-400">Parsing Excel file...</p>
+        </div>
+      `;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          
+          if (rows.length < 2) {
+            alert('Excel file is empty or missing data rows.');
+            fetchQuestionBank(currentSubjectId);
+            input.value = '';
+            return;
+          }
+
+          container.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-10">
+              <div class="w-8 h-8 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+              <p class="text-sm font-bold text-slate-400">Uploading and saving questions to pool...</p>
+            </div>
+          `;
+
+          fetch(`/api/classroom/${currentSubjectId}/question-bank/upload-json`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ rows: rows })
+          })
+          .then(res => res.json())
+          .then(data => {
+            if (data.status === 'SUCCESS') {
+              alert(data.message || 'Questions imported successfully!');
+            } else {
+              alert('Upload failed: ' + (data.message || 'Unknown error'));
+            }
+            fetchQuestionBank(currentSubjectId);
+            input.value = '';
+          })
+          .catch(err => {
+            alert('Upload failed: server error');
+            fetchQuestionBank(currentSubjectId);
+            input.value = '';
+          });
+
+        } catch (err) {
+          alert('Error reading Excel file: ' + err.message);
+          fetchQuestionBank(currentSubjectId);
+          input.value = '';
+        }
+      };
+      
+      reader.readAsArrayBuffer(file);
+    }
+
+    function seedQuestionBankWithAi(subjectId) {
+      const container = document.getElementById('qbankCoGroups');
+      container.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-12">
+          <div class="w-8 h-8 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+          <p class="text-sm font-bold text-slate-400">AI is generating structured exam questions for all COs...</p>
+        </div>
+      `;
+
+      fetch(`/api/classroom/${subjectId}/question-bank/seed-ai`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert(data.message);
+        } else {
+          alert('Failed to seed: ' + data.message);
+        }
+        fetchQuestionBank(subjectId);
+      })
+      .catch(err => {
+        alert('Server error seeding question bank.');
+        fetchQuestionBank(subjectId);
+      });
+    }
 </script>
 
 <!-- Virtual Classroom Students Modal -->

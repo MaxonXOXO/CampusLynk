@@ -59,6 +59,10 @@
       <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
         <span class="material-symbols-rounded text-lg">receipt_long</span> Department Audit Trail
       </button>
+      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline">
+         <span class="material-symbols-rounded text-lg">co_present</span> Log & Attendance
+      </a>
+
       <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
         <span class="material-symbols-rounded text-lg">settings</span> My Profile
       </button>

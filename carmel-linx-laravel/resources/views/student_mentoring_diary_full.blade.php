@@ -41,8 +41,11 @@
   $isLet = session('userAdmissionType') === 'LET';
   $activityGoal = $isLet ? 40 : 60;
 @endphp
+  <!-- Sidebar Backdrop (Mobile only) -->
+  <div id="sidebarBackdrop" class="fixed inset-0 bg-black/60 z-20 hidden transition-opacity duration-300 ease-in-out" onclick="toggleMobileSidebar()"></div>
+
   <!-- Sidebar -->
-  <aside class="w-full md:w-64 bg-slate-950 flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl overflow-y-auto">
+  <aside id="sidebarMenu" class="fixed inset-y-0 left-0 z-30 w-64 bg-slate-950 flex-shrink-0 flex flex-col border-r border-slate-800/80 shadow-xl transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 md:sticky md:top-0 md:h-screen overflow-y-auto">
     <!-- Branding -->
     <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
       <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-blue-500/20 text-lg">CL</div>
@@ -64,9 +67,9 @@
           </div>
         @endif
         <div class="overflow-hidden">
-          <span class="font-bold text-xs block truncate text-slate-200">{{ session('userName') }}</span>
-          <span class="text-xs font-bold text-teal-400 block font-mono">{{ session('userId') }}</span>
-          <span class="text-xs text-slate-500 font-semibold">{{ session('userBranch') }} &bull; Student</span>
+          <span class="font-bold text-sm block truncate text-slate-200">{{ session('userName') }}</span>
+          <span class="text-sm font-bold text-teal-400 block font-mono">{{ session('userId') }}</span>
+          <span class="text-sm text-slate-500 font-semibold">{{ session('userBranch') }} &bull; Student</span>
         </div>
       </div>
     </div>
@@ -103,9 +106,14 @@
 
     <!-- Top Header -->
     <header class="bg-slate-950/40 border-b border-slate-800/80 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 z-10 shadow-lg">
-        <div>
-          <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">My Mentoring Diary</h1>
-          <p class="font-bold text-slate-400 mt-0.5" id="panelSubtitle">View and update your complete academic profile.</p>
+        <div class="flex items-center gap-3">
+          <button onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors focus:outline-none flex items-center justify-center">
+            <span class="material-symbols-rounded">menu</span>
+          </button>
+          <div>
+            <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">My Mentoring Diary</h1>
+            <p class="font-bold text-slate-400 mt-0.5" id="panelSubtitle">View and update your complete academic profile.</p>
+          </div>
         </div>
         <div class="flex items-center gap-4">
           <div class="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 font-black uppercase tracking-wider text-slate-400 flex gap-4">
@@ -121,18 +129,18 @@
 <div class="flex-grow overflow-y-auto p-6 md:p-8">
 <div id="panelMentoring" class="fade-up space-y-6">
   
-  <div class="flex items-center justify-between bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl">
     <div>
       <h3 class="font-black text-slate-200 flex items-center gap-2 text-lg">
         <span class="material-symbols-rounded text-blue-400">menu_book</span> My Mentoring Diary
       </h3>
-      <p class="text-slate-400 mt-1 text-[10px] text-xs">Keep your profile updated. Your mentor will verify these details.</p>
+      <p class="text-slate-400 mt-1 text-sm">Keep your profile updated. Your mentor will verify these details.</p>
     </div>
-    <div class="flex gap-2">
-      <button onclick="downloadMentoringPdf()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-[10px] text-xs">
+    <div class="flex flex-wrap gap-2 w-full md:w-auto justify-start md:justify-end">
+      <button onclick="downloadMentoringPdf()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-sm">
         <span class="material-symbols-rounded text-sm">download</span> Download PDF
       </button>
-      <button onclick="saveStudentMentoringData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-[10px] text-xs">
+      <button onclick="saveStudentMentoringData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-sm">
         <span class="material-symbols-rounded text-sm">save</span> Save Changes
       </button>
     </div>
@@ -176,43 +184,43 @@
         <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Additional Personal Info</h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Annual Income</label>
-            <input type="text" id="smd_annual_income" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. ?2,00,000">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Annual Income</label>
+            <input type="text" id="smd_annual_income" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm" placeholder="e.g. ?2,00,000">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Residential Status</label>
-            <select id="smd_residential_status" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Residential Status</label>
+            <select id="smd_residential_status" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
               <option value="Day Scholar">Day Scholar</option>
               <option value="Hosteller">Hosteller</option>
             </select>
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Scholarships (if any)</label>
-            <input type="text" id="smd_scholarships" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. E-Grantz">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Scholarships (if any)</label>
+            <input type="text" id="smd_scholarships" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm" placeholder="e.g. E-Grantz">
           </div>
           <div class="flex items-center gap-2 mt-6">
             <input type="checkbox" id="smd_fee_waiver" class="rounded bg-slate-900 border-slate-700 text-blue-500 focus:ring-blue-500 focus:ring-2">
-            <label class="text-slate-300 font-bold text-[10px] text-xs">Fee Waiver Student</label>
+            <label class="text-slate-300 font-bold text-sm text-sm">Fee Waiver Student</label>
           </div>
         </div>
 
         <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 mt-8 text-sm">Guardian Details</h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Guardian Name</label>
-            <input type="text" id="smd_guardian_name" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Guardian Name</label>
+            <input type="text" id="smd_guardian_name" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Relationship</label>
-            <input type="text" id="smd_guardian_relationship" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Relationship</label>
+            <input type="text" id="smd_guardian_relationship" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Mobile No</label>
-            <input type="text" id="smd_guardian_mobile" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Mobile No</label>
+            <input type="text" id="smd_guardian_mobile" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
           </div>
           <div class="md:col-span-2">
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Permanent Address</label>
-            <textarea id="smd_guardian_address" rows="3" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 resize-none text-[11px]"></textarea>
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Permanent Address</label>
+            <textarea id="smd_guardian_address" rows="3" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 resize-none text-sm"></textarea>
           </div>
         </div>
       
@@ -220,8 +228,8 @@
         <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 mt-8 text-sm">Extended Profile Details</h4>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Gender</label>
-            <select id="mdGender" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Gender</label>
+            <select id="mdGender" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
               <option value="">Select</option>
               <option value="Male">Male</option>
               <option value="Female">Female</option>
@@ -229,20 +237,20 @@
             </select>
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Religion</label>
-            <input type="text" id="mdReligion" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. Hindu">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Religion</label>
+            <input type="text" id="mdReligion" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm" placeholder="e.g. Hindu">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Caste</label>
-            <input type="text" id="mdCaste" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. General">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Caste</label>
+            <input type="text" id="mdCaste" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm" placeholder="e.g. General">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Special Category / Reservation</label>
-            <input type="text" id="mdReservation" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. EWS">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Special Category / Reservation</label>
+            <input type="text" id="mdReservation" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm" placeholder="e.g. EWS">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Quota</label>
-            <select id="mdQuota" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Quota</label>
+            <select id="mdQuota" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
               <option value="">None</option>
               <option value="NCC">NCC</option>
               <option value="ITI">ITI</option>
@@ -253,38 +261,38 @@
             </select>
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Physically Disabled?</label>
-            <select id="mdIsDisabled" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Physically Disabled?</label>
+            <select id="mdIsDisabled" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
               <option value="0">No</option>
               <option value="1">Yes</option>
             </select>
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Disability Category</label>
-            <input type="text" id="mdDisabilityCat" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="If yes, specify">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Disability Category</label>
+            <input type="text" id="mdDisabilityCat" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm" placeholder="If yes, specify">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Guardian Occupation</label>
-            <input type="text" id="mdGuardianOcc" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Guardian Occupation</label>
+            <input type="text" id="mdGuardianOcc" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Monthly Family Income</label>
-            <input type="text" id="mdFamilyIncome" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. 50000">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Monthly Family Income</label>
+            <input type="text" id="mdFamilyIncome" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm" placeholder="e.g. 50000">
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Vehicle Pass Holder?</label>
-            <select id="mdVehiclePass" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Vehicle Pass Holder?</label>
+            <select id="mdVehiclePass" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm">
               <option value="0">No</option>
               <option value="1">Yes</option>
             </select>
           </div>
           <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Vehicle Pass ID</label>
-            <input type="text" id="mdVehiclePassId" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="If yes, specify">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Vehicle Pass ID</label>
+            <input type="text" id="mdVehiclePassId" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-sm" placeholder="If yes, specify">
           </div>
           <div class="lg:col-span-2">
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Communication Address</label>
-            <textarea id="mdCommAddress" rows="1" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 resize-none text-[11px]"></textarea>
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Communication Address</label>
+            <textarea id="mdCommAddress" rows="1" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 resize-none text-sm"></textarea>
           </div>
         </div>
       </div>
@@ -293,7 +301,7 @@
       <div id="smdFamily" class="smd-content-pane hidden space-y-4">
         <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Family Members</h4>
         <div class="overflow-x-auto rounded-xl border border-slate-800/60">
-          <table class="w-full text-left border-collapse text-[10px] text-xs">
+          <table class="w-full text-left border-collapse text-sm text-sm">
             <thead>
               <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800/60">
                 <th class="p-3">Name</th>
@@ -316,7 +324,7 @@
       <div id="smdEducation" class="smd-content-pane hidden space-y-4">
         <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Educational Background</h4>
         <div class="overflow-x-auto rounded-xl border border-slate-800/60">
-          <table class="w-full text-left border-collapse text-[10px] text-xs">
+          <table class="w-full text-left border-collapse text-sm text-sm">
             <thead>
               <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800/60">
                 <th class="p-3">Course/Standard</th>
@@ -337,7 +345,7 @@
       <!-- Academic Progress Tab -->
       <div id="smdAcademic" class="smd-content-pane hidden space-y-4">
         <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Internal Progress Report</h4>
-        <p class="text-slate-400 mb-4 text-[10px] text-xs">These marks are generated automatically from your classroom assessments.</p>
+        <p class="text-slate-400 mb-4 text-sm text-sm">These marks are generated automatically from your classroom assessments.</p>
         <div id="smdAcademicReport" class="space-y-6">
           <!-- JS rendered academic tables (CO tests, assignments) -->
         </div>
@@ -346,10 +354,10 @@
       <!-- Board Exams Tab -->
       <div id="smdBoard" class="smd-content-pane hidden space-y-4">
         <div class="flex justify-between items-center border-b border-slate-800/60 pb-2 mb-4">
-          <h4 class="text-[10px] font-bold text-white">Board Exam Results</h4>
+          <h4 class="text-sm font-bold text-white">Board Exam Results</h4>
           <div class="flex items-center gap-2">
-            <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Select Semester:</label>
-            <select id="smdBoardSemSelect" class="bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-[10px] text-white font-bold outline-none focus:border-blue-500" onchange="renderStudentBoardExams()">
+            <label class="text-sm text-slate-400 font-bold uppercase tracking-wider">Select Semester:</label>
+            <select id="smdBoardSemSelect" class="bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-sm text-white font-bold outline-none focus:border-blue-500" onchange="renderStudentBoardExams()">
               <option value="">-- Choose --</option>
               <option value="1">Semester 1</option>
               <option value="2">Semester 2</option>
@@ -361,9 +369,9 @@
           </div>
         </div>
         <div class="overflow-x-auto rounded-xl border border-slate-800/60">
-          <table class="w-full text-left text-xs border-collapse min-w-[700px]">
+          <table class="w-full text-left text-sm border-collapse min-w-[700px]">
             <thead>
-              <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800/60 uppercase tracking-wider text-xs font-bold">
+              <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800/60 uppercase tracking-wider text-sm font-bold">
                 <th class="p-3 w-28">Sub Code</th>
                 <th class="p-3">Subject Name</th>
                 <th class="p-3 w-36">Exam Month/Yr</th>
@@ -382,17 +390,17 @@
       <!-- Extracurricular Tab -->
       <div id="smdExtra" class="smd-content-pane hidden space-y-4">
         <div class="flex justify-between items-end border-b border-slate-800 pb-3">
-            <h4 class="text-xs font-bold text-white">Extracurricular Achievements</h4>
-            <button onclick="openStudentActivityModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1"><span class="material-symbols-rounded text-xs">add</span> Add Activity</button>
+            <h4 class="text-sm font-bold text-white">Extracurricular Achievements</h4>
+            <button onclick="openStudentActivityModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold transition-premium cursor-pointer flex items-center gap-1"><span class="material-symbols-rounded text-sm">add</span> Add Activity</button>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div class="md:col-span-2 space-y-3">
-              <h3 class="text-xs font-black text-slate-200">Activity Points Tracker</h3>
+              <h3 class="text-sm font-black text-slate-200">Activity Points Tracker</h3>
               <div class="relative w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800/60 shadow-inner">
                 <div id="studentActivityProgressBar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-500 to-orange-400 transition-all duration-1000 ease-out" style="width: 0%"></div>
               </div>
-              <div class="flex justify-between text-xs font-bold text-slate-500">
+              <div class="flex justify-between text-sm font-bold text-slate-500">
                 <span>0</span>
                 <span>Goal: 100</span>
               </div>
@@ -404,13 +412,13 @@
                 <span class="text-base font-black text-amber-400" id="studentTotalActivityPoints">0</span>
               </div>
               <div class="mt-2 border-t border-slate-800/40 pt-2" id="studentActivitySplitList">
-                <div class="text-xs text-slate-500 py-1">Loading...</div>
+                <div class="text-sm text-slate-500 py-1">Loading...</div>
               </div>
             </div>
         </div>
 
         <div class="overflow-x-auto rounded-xl border border-slate-800/60">
-          <table class="w-full text-left text-xs border-collapse">
+          <table class="w-full text-left text-sm border-collapse">
             <thead>
               <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800/60">
                 <th class="p-3">Sem</th>
@@ -433,12 +441,12 @@
       <div id="smdLeave" class="smd-content-pane hidden space-y-4">
         <div class="flex justify-between items-center border-b border-slate-800/60 pb-2 mb-4">
             <h4 class="font-bold text-white text-sm">Leave Records</h4>
-            <button onclick="openLeaveModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-premium cursor-pointer flex items-center gap-1 text-[10px] text-xs">
+            <button onclick="openLeaveModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-premium cursor-pointer flex items-center gap-1 text-sm text-sm">
               <span class="material-symbols-rounded text-sm">add</span> Log Leave
             </button>
         </div>
         <div class="overflow-x-auto bg-slate-900/50 border border-slate-700 rounded-xl">
-          <table class="w-full text-left text-[11px]">
+          <table class="w-full text-left text-sm">
             <thead class="bg-slate-800/80 text-slate-400 font-black uppercase">
               <tr>
                 <th class="p-3">Semester</th>
@@ -457,8 +465,8 @@
 
       <!-- Mentor Meetings Tab -->
       <div id="smdMeetings" class="smd-content-pane hidden space-y-4">
-        <h4 class="text-xs font-bold text-white border-b border-slate-800/60 pb-2 mb-4">Mentor Remarks</h4>
-        <p class="text-xs text-slate-400 mb-4">These logs are maintained by your mentor.</p>
+        <h4 class="text-sm font-bold text-white border-b border-slate-800/60 pb-2 mb-4">Mentor Remarks</h4>
+        <p class="text-sm text-slate-400 mb-4">These logs are maintained by your mentor.</p>
         <div id="smdMeetingsList" class="space-y-4">
           <!-- JS rendered meetings -->
         </div>
@@ -473,15 +481,15 @@
   <div id="addStudentActivityModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xs font-black text-white" id="studentActivityModalTitle">Add Activity</h3>
+        <h3 class="text-sm font-black text-white" id="studentActivityModalTitle">Add Activity</h3>
         <button onclick="closeStudentActivityModal()" class="text-slate-400 hover:text-white"><span class="material-symbols-rounded">close</span></button>
       </div>
       <form id="studentActivityForm" onsubmit="saveStudentActivity(event)">
         <input type="hidden" id="studentActivityId">
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Segment</label>
-            <select id="studentActivitySegment" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
+            <label class="block text-sm font-bold text-slate-400 mb-1">Segment</label>
+            <select id="studentActivitySegment" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500">
               <option value="NCC">NCC</option>
               <option value="NSS">NSS</option>
               <option value="Sports & Games">Sports & Games</option>
@@ -493,18 +501,18 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Activity Name</label>
-            <input type="text" id="studentActivityName" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
+            <label class="block text-sm font-bold text-slate-400 mb-1">Activity Name</label>
+            <input type="text" id="studentActivityName" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Level (e.g. State, College)</label>
-            <input type="text" id="studentActivityLevel" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
+            <label class="block text-sm font-bold text-slate-400 mb-1">Level (e.g. State, College)</label>
+            <input type="text" id="studentActivityLevel" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500">
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Points Claimed</label>
-            <input type="number" id="studentActivityPtsClaimed" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
+            <label class="block text-sm font-bold text-slate-400 mb-1">Points Claimed</label>
+            <input type="number" id="studentActivityPtsClaimed" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500">
           </div>
-          <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-xs">Submit Activity for Verification</button>
+          <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-sm">Submit Activity for Verification</button>
         </div>
       </form>
     </div>
@@ -615,7 +623,7 @@
     function renderActiveTasks(tasks) {
       const container = document.getElementById('studentActiveTasksContainer');
       if (!tasks || tasks.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 font-bold text-xs">No active assignments or tests at the moment.</div>`;
+        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 font-bold text-sm">No active assignments or tests at the moment.</div>`;
         return;
       }
       
@@ -628,8 +636,8 @@
         let qHtml = '';
         if (t.questions && t.questions.length > 0) {
           qHtml = `<div class="mt-4 pt-4 border-t border-slate-800 hidden" id="taskQ_${index}">
-            <h4 class="text-xs uppercase font-black text-slate-400 mb-2">Assignment Questions</h4>
-            <ul class="space-y-2 text-xs text-slate-300 font-medium list-disc pl-4">
+            <h4 class="text-sm uppercase font-black text-slate-400 mb-2">Assignment Questions</h4>
+            <ul class="space-y-2 text-sm text-slate-300 font-medium list-disc pl-4">
               ${t.questions.map(q => `<li>${q}</li>`).join('')}
             </ul>
           </div>`;
@@ -637,7 +645,7 @@
 
         let actionBtn = '';
         if (t.type === 'Assignment' && !isExp) {
-          actionBtn = `<button onclick="markManualTaskSubmitted('${t.subject_code}', '${t.co_tag}', 'Assignment')" class="mt-3 w-full py-2 bg-blue-600/80 hover:bg-blue-500 text-white rounded font-bold text-xs transition-premium">Mark as Submitted</button>`;
+          actionBtn = `<button onclick="markManualTaskSubmitted('${t.subject_code}', '${t.co_tag}', 'Assignment')" class="mt-3 w-full py-2 bg-blue-600/80 hover:bg-blue-500 text-white rounded font-bold text-sm transition-premium">Mark as Submitted</button>`;
         }
 
         html += `
@@ -646,20 +654,20 @@
             <div onclick="document.getElementById('co_task_${index}').classList.toggle('hidden'); this.querySelector('.arrow-icon').innerText = document.getElementById('co_task_${index}').classList.contains('hidden') ? 'expand_more' : 'expand_less';" 
                  class="px-4 py-3.5 bg-slate-950/40 hover:bg-slate-950/70 border-b border-slate-800/60 flex justify-between items-center cursor-pointer transition-premium">
               <div class="flex items-center gap-3">
-                <span class="material-symbols-rounded text-blue-400 text-xs">${icon}</span>
+                <span class="material-symbols-rounded text-blue-400 text-sm">${icon}</span>
                 <div>
-                  <h4 class="font-bold text-xs text-slate-200 uppercase">${t.type} - ${t.co_tag}</h4>
-                  <p class="text-xs font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject}</p>
+                  <h4 class="font-bold text-sm text-slate-200 uppercase">${t.type} - ${t.co_tag}</h4>
+                  <p class="text-sm font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject}</p>
                 </div>
               </div>
-              <span class="material-symbols-rounded text-slate-500 text-xs arrow-icon">expand_more</span>
+              <span class="material-symbols-rounded text-slate-500 text-sm arrow-icon">expand_more</span>
             </div>
             <!-- Collapsible Content -->
             <div id="co_task_${index}" class="hidden p-4 bg-slate-950/10 border-t border-slate-800/40">
               <div class="flex items-center gap-2 mb-3">
-                  <span class="px-2 py-0.5 rounded text-xs font-black uppercase tracking-widest ${stCol}">${t.status}</span>
+                  <span class="px-2 py-0.5 rounded text-sm font-black uppercase tracking-widest ${stCol}">${t.status}</span>
               </div>
-              <div class="grid grid-cols-2 gap-4 mb-4 text-xs text-slate-400 font-semibold">
+              <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-slate-400 font-semibold">
                 <div class="space-y-1">
                   <div>Start Date: <span class="text-slate-200 font-bold">${t.start ? new Date(t.start).toLocaleDateString() : '-'}</span></div>
                 </div>
@@ -667,7 +675,7 @@
                   <div>Deadline: <span class="text-slate-200 font-bold font-mono">${t.deadline ? new Date(t.deadline).toLocaleDateString() : '-'}</span></div>
                 </div>
               </div>
-              ${qHtml ? `<button onclick="document.getElementById('taskQ_${index}').classList.toggle('hidden')" class="w-full mt-2 py-2 text-xs font-bold text-blue-400 hover:text-blue-300 bg-blue-500/5 rounded-xl transition-premium flex justify-center items-center gap-1"><span class="material-symbols-rounded text-xs">visibility</span> View Questions</button>` : ''}
+              ${qHtml ? `<button onclick="document.getElementById('taskQ_${index}').classList.toggle('hidden')" class="w-full mt-2 py-2 text-sm font-bold text-blue-400 hover:text-blue-300 bg-blue-500/5 rounded-xl transition-premium flex justify-center items-center gap-1"><span class="material-symbols-rounded text-sm">visibility</span> View Questions</button>` : ''}
               ${qHtml}
               ${actionBtn}
             </div>
@@ -746,7 +754,7 @@
           : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800 border-transparent';
         const badge = isCurrent ? `<span class="ml-1 text-[8px] bg-teal-500/20 text-teal-400 px-1 py-0.5 rounded font-black">NOW</span>` : '';
         html += `
-          <button onclick="renderGodTable(${s.semester})" id="btnSemTab_${s.semester}" class="sem-tab px-4 py-2 rounded-lg text-xs font-black transition-premium border ${cls}">
+          <button onclick="renderGodTable(${s.semester})" id="btnSemTab_${s.semester}" class="sem-tab px-4 py-2 rounded-lg text-sm font-black transition-premium border ${cls}">
             Semester ${s.semester}${badge}
           </button>
         `;
@@ -765,7 +773,7 @@
       const container = document.getElementById('academicReportContent');
       const semData = academicData.semesters.find(s => s.semester == semId);
       if (!semData || !semData.subjects || semData.subjects.length === 0) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-500 font-bold text-xs border border-slate-800/50 rounded-2xl bg-slate-900/30">No academic data available for Semester ${semId}.</div>`;
+        container.innerHTML = `<div class="py-12 text-center text-slate-500 font-bold text-sm border border-slate-800/50 rounded-2xl bg-slate-900/30">No academic data available for Semester ${semId}.</div>`;
         return;
       }
 
@@ -775,26 +783,26 @@
         rows += `
           <tr class="${trClass}">
             <td class="p-4 whitespace-nowrap">
-              <div class="font-black text-slate-200 text-xs">${sub.subject_code}</div>
-              <div class="text-xs text-slate-500 font-bold truncate max-w-[150px]" title="${sub.subject_name}">${sub.subject_name}</div>
+              <div class="font-black text-slate-200 text-sm">${sub.subject_code}</div>
+              <div class="text-sm text-slate-500 font-bold truncate max-w-[150px]" title="${sub.subject_name}">${sub.subject_name}</div>
             </td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300">${sub.CO1 !== null ? sub.CO1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO2 !== null ? sub.CO2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300">${sub.CO3 !== null ? sub.CO3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO4 !== null ? sub.CO4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400 border-l border-slate-800">${sub.Assg1 !== null ? sub.Assg1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg2 !== null ? sub.Assg2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg3 !== null ? sub.Assg3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg4 !== null ? sub.Assg4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400 border-l border-slate-800">${sub.WT1 !== null ? sub.WT1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT2 !== null ? sub.WT2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT3 !== null ? sub.WT3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT4 !== null ? sub.WT4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400 border-l border-slate-800">${sub.OT1 !== null ? sub.OT1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT2 !== null ? sub.OT2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT3 !== null ? sub.OT3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT4 !== null ? sub.OT4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-black border-l border-slate-800 ${sub.attendance_percentage < 75 ? 'text-rose-400' : 'text-slate-300'}">
+            <td class="p-4 text-center text-sm font-mono font-bold text-slate-300">${sub.CO1 !== null ? sub.CO1 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO2 !== null ? sub.CO2 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-bold text-slate-300">${sub.CO3 !== null ? sub.CO3 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO4 !== null ? sub.CO4 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-bold text-blue-400 border-l border-slate-800">${sub.Assg1 !== null ? sub.Assg1 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-bold text-blue-400">${sub.Assg2 !== null ? sub.Assg2 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-bold text-blue-400">${sub.Assg3 !== null ? sub.Assg3 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-bold text-blue-400">${sub.Assg4 !== null ? sub.Assg4 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-black text-emerald-400 border-l border-slate-800">${sub.WT1 !== null ? sub.WT1 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-black text-emerald-400">${sub.WT2 !== null ? sub.WT2 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-black text-emerald-400">${sub.WT3 !== null ? sub.WT3 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-black text-emerald-400">${sub.WT4 !== null ? sub.WT4 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-black text-purple-400 border-l border-slate-800">${sub.OT1 !== null ? sub.OT1 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-black text-purple-400">${sub.OT2 !== null ? sub.OT2 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-black text-purple-400">${sub.OT3 !== null ? sub.OT3 : '-'}</td>
+            <td class="p-4 text-center text-sm font-mono font-black text-purple-400">${sub.OT4 !== null ? sub.OT4 : '-'}</td>
+            <td class="p-4 text-center text-sm font-black border-l border-slate-800 ${sub.attendance_percentage < 75 ? 'text-rose-400' : 'text-slate-300'}">
               ${sub.attendance_percentage}%
             </td>
           </tr>
@@ -805,14 +813,14 @@
         <div class="flex justify-between items-center mb-4">
           <div class="flex gap-4">
             <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
-              <span class="material-symbols-rounded text-slate-400 text-xs">stars</span>
-              <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">SGPA:</span>
-              <span class="text-xs font-black text-white">${semData.sgpa || '-'}</span>
+              <span class="material-symbols-rounded text-slate-400 text-sm">stars</span>
+              <span class="text-sm text-slate-400 font-bold uppercase tracking-widest">SGPA:</span>
+              <span class="text-sm font-black text-white">${semData.sgpa || '-'}</span>
             </div>
             <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
-              <span class="material-symbols-rounded text-slate-400 text-xs">local_activity</span>
-              <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Points:</span>
-              <span class="text-xs font-black text-white">${semData.activity_points || '-'}</span>
+              <span class="material-symbols-rounded text-slate-400 text-sm">local_activity</span>
+              <span class="text-sm text-slate-400 font-bold uppercase tracking-widest">Points:</span>
+              <span class="text-sm font-black text-white">${semData.activity_points || '-'}</span>
             </div>
           </div>
         </div>
@@ -820,7 +828,7 @@
         <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl overflow-x-auto shadow-2xl">
           <table class="w-full text-left border-collapse min-w-[1200px]">
             <thead>
-              <tr class="bg-slate-900/80 border-b border-slate-800 text-xs uppercase tracking-wider font-black text-slate-400">
+              <tr class="bg-slate-900/80 border-b border-slate-800 text-sm uppercase tracking-wider font-black text-slate-400">
                 <th class="p-4 font-black">Subject</th>
                 <th class="p-4 text-center" colspan="4">Sum COs</th>
                 <th class="p-4 text-center border-l border-slate-800 text-blue-400" colspan="4">Assignments</th>
@@ -828,7 +836,7 @@
                 <th class="p-4 text-center border-l border-slate-800 text-purple-400" colspan="4">Online Tests</th>
                 <th class="p-4 text-center border-l border-slate-800">Attend.</th>
               </tr>
-              <tr class="bg-slate-900/40 border-b border-slate-800/50 text-xs uppercase font-bold text-slate-500">
+              <tr class="bg-slate-900/40 border-b border-slate-800/50 text-sm uppercase font-bold text-slate-500">
                 <th class="p-2"></th>
                 <th class="p-2 text-center w-10 border-l border-slate-800/50">C1</th><th class="p-2 text-center w-10 bg-slate-950/20">C2</th><th class="p-2 text-center w-10">C3</th><th class="p-2 text-center w-10 bg-slate-950/20">C4</th>
                 <th class="p-2 text-center w-10 border-l border-slate-800">A1</th><th class="p-2 text-center w-10">A2</th><th class="p-2 text-center w-10">A3</th><th class="p-2 text-center w-10">A4</th>
@@ -938,13 +946,13 @@
             data.tests.forEach(t => {
               let actionHtml = '';
               if (t.can_take) {
-                actionHtml = `<button onclick="startOnlineTest('${t.test_id}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded font-bold text-xs transition-premium">Start Test</button>`;
+                actionHtml = `<button onclick="startOnlineTest('${t.test_id}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded font-bold text-sm transition-premium">Start Test</button>`;
               } else if (t.status_message && t.status_message.startsWith('Starts')) {
-                actionHtml = `<button disabled class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-xs text-center border border-slate-700/50 mb-2 cursor-not-allowed flex items-center justify-center gap-2"><span class="material-symbols-rounded text-xs">lock</span> ${t.status_message}</button>`;
+                actionHtml = `<button disabled class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-sm text-center border border-slate-700/50 mb-2 cursor-not-allowed flex items-center justify-center gap-2"><span class="material-symbols-rounded text-sm">lock</span> ${t.status_message}</button>`;
               } else if (t.my_attempts > 0) {
-                actionHtml = `<div class="w-full py-2 bg-emerald-900/40 text-emerald-400 rounded font-bold text-xs text-center border border-emerald-800/50 mb-2">Best Score: ${t.best_score || 0}</div>`;
+                actionHtml = `<div class="w-full py-2 bg-emerald-900/40 text-emerald-400 rounded font-bold text-sm text-center border border-emerald-800/50 mb-2">Best Score: ${t.best_score || 0}</div>`;
               } else {
-                actionHtml = `<div class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-xs text-center border border-slate-700/50 mb-2">${t.status_message || 'Expired'}</div>`;
+                actionHtml = `<div class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-sm text-center border border-slate-700/50 mb-2">${t.status_message || 'Expired'}</div>`;
               }
 
               let hasEnded = false;
@@ -953,10 +961,10 @@
                 hasEnded = (new Date() >= et);
               }
               if (hasEnded && t.my_attempts > 0) {
-                actionHtml += `<button onclick="viewAnswerKey('${t.test_id}')" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold text-xs transition-premium">View Answer Key</button>`;
+                actionHtml += `<button onclick="viewAnswerKey('${t.test_id}')" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold text-sm transition-premium">View Answer Key</button>`;
               } else if (t.my_attempts > 0 && !t.can_take) {
                 let formattedEndTime = new Date(t.end_time).toLocaleString();
-                actionHtml += `<div class="text-xs text-center text-slate-400 font-semibold mt-1 bg-slate-950/30 p-1.5 rounded border border-slate-800/50">Answer key unlocks after test ends: <br/>${formattedEndTime}</div>`;
+                actionHtml += `<div class="text-sm text-center text-slate-400 font-semibold mt-1 bg-slate-950/30 p-1.5 rounded border border-slate-800/50">Answer key unlocks after test ends: <br/>${formattedEndTime}</div>`;
               }
 
               html += `
@@ -965,13 +973,13 @@
                   <div onclick="document.getElementById('co_exam_${t.test_id}').classList.toggle('hidden'); this.querySelector('.arrow-icon').innerText = document.getElementById('co_exam_${t.test_id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';" 
                        class="px-4 py-3.5 bg-slate-950/40 hover:bg-slate-950/70 border-b border-slate-800/60 flex justify-between items-center cursor-pointer transition-premium">
                     <div class="flex items-center gap-3">
-                      <span class="material-symbols-rounded text-purple-400 text-xs">quiz</span>
+                      <span class="material-symbols-rounded text-purple-400 text-sm">quiz</span>
                       <div>
-                        <h4 class="font-bold text-xs text-slate-200">${t.test_name}</h4>
-                        <p class="text-xs font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject_name || t.subject_code}</p>
+                        <h4 class="font-bold text-sm text-slate-200">${t.test_name}</h4>
+                        <p class="text-sm font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject_name || t.subject_code}</p>
                       </div>
                     </div>
-                    <span class="material-symbols-rounded text-slate-500 text-xs arrow-icon">expand_more</span>
+                    <span class="material-symbols-rounded text-slate-500 text-sm arrow-icon">expand_more</span>
                   </div>
                   <!-- Collapsible Content -->
                   <div id="co_exam_${t.test_id}" class="hidden p-4 bg-slate-950/10 border-t border-slate-800/40">
@@ -995,7 +1003,7 @@
             container.innerHTML = html;
             container.className = "flex flex-col gap-1 mt-4 mb-6";
           } else {
-            container.innerHTML = `<div class="col-span-full p-4 bg-slate-900/60 border border-slate-800/60 rounded-xl text-center text-xs text-slate-500">No active tests available right now.</div>`;
+            container.innerHTML = `<div class="col-span-full p-4 bg-slate-900/60 border border-slate-800/60 rounded-xl text-center text-sm text-slate-500">No active tests available right now.</div>`;
             container.className = "mt-4 mb-6";
           }
 
@@ -1031,15 +1039,15 @@
           optionsHtml += `
             <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-700/50 bg-slate-900/50 cursor-pointer hover:border-purple-500/50 hover:bg-slate-800 transition-premium">
               <input type="radio" name="q_${idx}" value="${opt}" class="w-4 h-4 text-purple-500 bg-slate-950 border-slate-600 focus:ring-purple-600">
-              <span class="text-xs text-slate-300">${opt}</span>
+              <span class="text-sm text-slate-300">${opt}</span>
             </label>
           `;
         });
         html += `
           <div class="question-container bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-lg">
              <div class="flex items-start gap-4 mb-4">
-               <span class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center font-black text-xs border border-purple-500/20">${idx+1}</span>
-               <h4 class="text-xs font-bold text-slate-100 mt-1">${q.q}</h4>
+               <span class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center font-black text-sm border border-purple-500/20">${idx+1}</span>
+               <h4 class="text-sm font-bold text-slate-100 mt-1">${q.q}</h4>
              </div>
              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-12">
                ${optionsHtml}
@@ -1138,32 +1146,32 @@
                 // Color code options
                 if (opt === q.correct_ans) {
                   borderClass = 'border-green-500/50 bg-green-950/20';
-                  badgeHtml = '<span class="text-xs bg-green-500/20 text-green-400 font-bold px-2 py-0.5 rounded ml-auto">Correct Answer</span>';
+                  badgeHtml = '<span class="text-sm bg-green-500/20 text-green-400 font-bold px-2 py-0.5 rounded ml-auto">Correct Answer</span>';
                 } else if (opt === q.student_ans) {
                   borderClass = 'border-red-500/50 bg-red-950/20';
-                  badgeHtml = '<span class="text-xs bg-red-500/20 text-red-400 font-bold px-2 py-0.5 rounded ml-auto">Your Answer</span>';
+                  badgeHtml = '<span class="text-sm bg-red-500/20 text-red-400 font-bold px-2 py-0.5 rounded ml-auto">Your Answer</span>';
                 }
 
                 optionsHtml += `
                   <div class="flex items-center gap-3 p-3 rounded-lg border ${borderClass} transition-premium">
-                    <span class="text-xs text-slate-300">${opt}</span>
+                    <span class="text-sm text-slate-300">${opt}</span>
                     ${badgeHtml}
                   </div>
                 `;
               });
 
               let correctBadge = q.is_correct 
-                ? '<span class="bg-green-500/10 text-green-400 text-xs font-bold px-2.5 py-1 rounded-full border border-green-500/20 flex items-center gap-1"><span class="material-symbols-rounded text-xs">check_circle</span> Correct</span>'
-                : `<span class="bg-red-500/10 text-red-400 text-xs font-bold px-2.5 py-1 rounded-full border border-red-500/20 flex items-center gap-1"><span class="material-symbols-rounded text-xs">cancel</span> Incorrect</span>`;
+                ? '<span class="bg-green-500/10 text-green-400 text-sm font-bold px-2.5 py-1 rounded-full border border-green-500/20 flex items-center gap-1"><span class="material-symbols-rounded text-sm">check_circle</span> Correct</span>'
+                : `<span class="bg-red-500/10 text-red-400 text-sm font-bold px-2.5 py-1 rounded-full border border-red-500/20 flex items-center gap-1"><span class="material-symbols-rounded text-sm">cancel</span> Incorrect</span>`;
 
               html += `
                 <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-lg">
                    <div class="flex items-start justify-between gap-4 mb-4">
                      <div class="flex items-start gap-4">
-                       <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-black text-xs border border-slate-700/20">${idx+1}</span>
+                       <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-black text-sm border border-slate-700/20">${idx+1}</span>
                        <div>
-                         <h4 class="text-xs font-bold text-slate-100 mt-1">${q.q}</h4>
-                         <span class="text-xs text-slate-500 font-mono">CO Tag: ${q.co}</span>
+                         <h4 class="text-sm font-bold text-slate-100 mt-1">${q.q}</h4>
+                         <span class="text-sm text-slate-500 font-mono">CO Tag: ${q.co}</span>
                        </div>
                      </div>
                      ${correctBadge}
@@ -1218,13 +1226,13 @@
               for (const [segment, pts] of Object.entries(data.split)) {
                 splitHtml += `
                   <div class="flex justify-between items-center py-1">
-                    <span class="text-xs text-slate-300">${segment}</span>
-                    <span class="text-xs font-bold text-emerald-400">${pts}</span>
+                    <span class="text-sm text-slate-300">${segment}</span>
+                    <span class="text-sm font-bold text-emerald-400">${pts}</span>
                   </div>
                 `;
               }
             } else {
-              splitHtml = '<div class="text-xs text-slate-500 py-1">No verified points yet.</div>';
+              splitHtml = '<div class="text-sm text-slate-500 py-1">No verified points yet.</div>';
             }
             document.getElementById('activitySplitList').innerHTML = splitHtml;
 
@@ -1242,25 +1250,25 @@
                 
                 let noteHtml = '';
                 if (c.status === 'Rejected' && c.rejection_note) {
-                  noteHtml = `<div class="mt-1 text-xs text-rose-400/80 leading-tight">Reason: ${c.rejection_note}</div>`;
+                  noteHtml = `<div class="mt-1 text-sm text-rose-400/80 leading-tight">Reason: ${c.rejection_note}</div>`;
                 }
                 if (c.status !== 'Pending' && verifiedDateStr) {
-                  noteHtml += `<div class="mt-0.5 text-xs text-slate-500">On: ${verifiedDateStr}</div>`;
+                  noteHtml += `<div class="mt-0.5 text-sm text-slate-500">On: ${verifiedDateStr}</div>`;
                 }
                 
                 html += `
                   <tr class="hover:bg-slate-900/50 transition-colors border-b border-slate-800/40">
-                    <td class="p-3 text-xs text-slate-400">${dateStr}</td>
-                    <td class="p-3 text-xs font-bold text-slate-300">${c.activity_segment}</td>
-                    <td class="p-3 text-xs text-slate-300">${c.activity_name}</td>
-                    <td class="p-3 text-xs text-slate-400">${c.level}</td>
+                    <td class="p-3 text-sm text-slate-400">${dateStr}</td>
+                    <td class="p-3 text-sm font-bold text-slate-300">${c.activity_segment}</td>
+                    <td class="p-3 text-sm text-slate-300">${c.activity_name}</td>
+                    <td class="p-3 text-sm text-slate-400">${c.level}</td>
                     <td class="p-3">
-                      ${c.document_reference ? `<a href="${c.document_reference}" target="_blank" class="text-blue-400 hover:text-blue-300 text-xs underline flex items-center gap-1"><span class="material-symbols-rounded text-[12px]">link</span> View</a>` : '<span class="text-xs text-slate-600">None</span>'}
+                      ${c.document_reference ? `<a href="${c.document_reference}" target="_blank" class="text-blue-400 hover:text-blue-300 text-sm underline flex items-center gap-1"><span class="material-symbols-rounded text-[12px]">link</span> View</a>` : '<span class="text-sm text-slate-600">None</span>'}
                     </td>
-                    <td class="p-3 text-center text-xs font-bold text-slate-300">${c.points_claimed}</td>
-                    <td class="p-3 text-center text-xs font-bold ${c.status === 'Verified' ? 'text-emerald-400' : 'text-slate-500'}">${c.status === 'Verified' ? c.points_awarded : '--'}</td>
+                    <td class="p-3 text-center text-sm font-bold text-slate-300">${c.points_claimed}</td>
+                    <td class="p-3 text-center text-sm font-bold ${c.status === 'Verified' ? 'text-emerald-400' : 'text-slate-500'}">${c.status === 'Verified' ? c.points_awarded : '--'}</td>
                     <td class="p-3 text-right max-w-[120px]">
-                      <span class="px-2 py-0.5 rounded border text-xs font-bold uppercase tracking-wider ${statusClass} inline-block">${c.status}</span>
+                      <span class="px-2 py-0.5 rounded border text-sm font-bold uppercase tracking-wider ${statusClass} inline-block">${c.status}</span>
                       ${noteHtml}
                     </td>
                   </tr>
@@ -1268,7 +1276,7 @@
               });
               tbody.innerHTML = html;
             } else {
-              tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 text-xs">No activity claims submitted yet.</td></tr>`;
+              tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 text-sm">No activity claims submitted yet.</td></tr>`;
             }
           }
         });
@@ -1304,16 +1312,16 @@
       <div class="flex items-center gap-3">
         <span class="material-symbols-rounded text-purple-500 text-base">devices</span>
         <div>
-          <h3 id="liveTestName" class="font-bold text-xs text-white leading-tight">Test Name</h3>
-          <span class="text-xs text-slate-400 font-mono" id="liveTestReg">{{ session('userId') }}</span>
+          <h3 id="liveTestName" class="font-bold text-sm text-white leading-tight">Test Name</h3>
+          <span class="text-sm text-slate-400 font-mono" id="liveTestReg">{{ session('userId') }}</span>
         </div>
       </div>
       <div class="flex items-center gap-4">
-        <div class="bg-slate-950 border border-slate-800 px-4 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold shadow-inner">
-          <span class="material-symbols-rounded text-red-400 text-xs">timer</span>
+        <div class="bg-slate-950 border border-slate-800 px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold shadow-inner">
+          <span class="material-symbols-rounded text-red-400 text-sm">timer</span>
           <span id="liveTimer" class="text-red-400 font-mono tracking-widest">00:00:00</span>
         </div>
-        <button onclick="submitTest()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-1.5 rounded-full font-bold text-xs transition-premium shadow-lg shadow-purple-600/20">Submit Final</button>
+        <button onclick="submitTest()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-1.5 rounded-full font-bold text-sm transition-premium shadow-lg shadow-purple-600/20">Submit Final</button>
       </div>
     </div>
 
@@ -1330,20 +1338,20 @@
         <span class="material-symbols-rounded text-xl">verified</span>
       </div>
       <h2 class="text-base font-black text-white mb-1">Test Completed!</h2>
-      <p class="text-xs text-slate-400 mb-6">Your responses have been saved securely.</p>
+      <p class="text-sm text-slate-400 mb-6">Your responses have been saved securely.</p>
       
       <div class="grid grid-cols-2 gap-4 mb-8">
         <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
-          <span class="text-xs uppercase font-black tracking-wider text-slate-500 block mb-1">Total Score</span>
+          <span class="text-sm uppercase font-black tracking-wider text-slate-500 block mb-1">Total Score</span>
           <span class="text-base font-black text-emerald-400" id="resultScore">0/0</span>
         </div>
         <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
-          <span class="text-xs uppercase font-black tracking-wider text-slate-500 block mb-1">Percentage</span>
+          <span class="text-sm uppercase font-black tracking-wider text-slate-500 block mb-1">Percentage</span>
           <span class="text-base font-black text-blue-400" id="resultPercent">0%</span>
         </div>
       </div>
 
-      <button onclick="closeResultModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition-premium">Return to Dashboard</button>
+      <button onclick="closeResultModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-sm transition-premium">Return to Dashboard</button>
     </div>
   </div>
 
@@ -1354,11 +1362,11 @@
       <div class="flex items-center gap-3">
         <span class="material-symbols-rounded text-blue-400 text-base">menu_book</span>
         <div>
-          <h3 id="answerKeyTestName" class="font-bold text-xs text-white leading-tight">Answer Key Review</h3>
-          <span class="text-xs text-slate-400 font-mono block" id="answerKeyScoreInfo">Score: â</span>
+          <h3 id="answerKeyTestName" class="font-bold text-sm text-white leading-tight">Answer Key Review</h3>
+          <span class="text-sm text-slate-400 font-mono block" id="answerKeyScoreInfo">Score: â</span>
         </div>
       </div>
-      <button onclick="closeAnswerKeyModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-1.5 rounded-full font-bold text-xs transition-premium">Close</button>
+      <button onclick="closeAnswerKeyModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-1.5 rounded-full font-bold text-sm transition-premium">Close</button>
     </div>
 
     <!-- Content Area -->
@@ -1393,7 +1401,7 @@ function switchStudentMentoringTab(tabId) {
     if (!container) return;
 
     if (!data || !data.academics || Object.keys(data.academics).length === 0) {
-      container.innerHTML = '<p class="text-slate-500 text-xs text-center py-8">No academic stats available yet.</p>';
+      container.innerHTML = '<p class="text-slate-500 text-sm text-center py-8">No academic stats available yet.</p>';
       return;
     }
 
@@ -1446,14 +1454,14 @@ function switchStudentMentoringTab(tabId) {
            
            rows += `<tr class="border-b border-slate-800/50 hover:bg-slate-900/30 transition-premium">
               <td class="p-2 whitespace-nowrap">
-                <div class="font-black text-slate-200 text-xs">${sub.subject_code}</div>
-                <div class="text-[10px] text-slate-500 mt-0.5">${sub.subject_name}</div>
+                <div class="font-black text-slate-200 text-sm">${sub.subject_code}</div>
+                <div class="text-sm text-slate-500 mt-0.5">${sub.subject_name}</div>
               </td>
-              <td class="p-2 text-center border-l border-slate-800/50"><span class="text-xs ${attColor}">${att}</span></td>
+              <td class="p-2 text-center border-l border-slate-800/50"><span class="text-sm ${attColor}">${att}</span></td>
             </tr>`;
         });
       } else {
-        rows = `<tr><td colspan="2" class="p-4 text-center text-xs text-slate-500 font-bold">No subjects available</td></tr>`;
+        rows = `<tr><td colspan="2" class="p-4 text-center text-sm text-slate-500 font-bold">No subjects available</td></tr>`;
       }
 
       htmlRows += `
@@ -1461,23 +1469,23 @@ function switchStudentMentoringTab(tabId) {
           <summary class="flex justify-between items-center p-3 cursor-pointer hover:bg-slate-800/50 transition-premium select-none list-none [&::-webkit-details-marker]:hidden">
             <div class="flex items-center gap-3">
               <span class="material-symbols-rounded text-slate-500 group-open:rotate-90 transition-transform">chevron_right</span>
-              <h5 class="text-xs font-black text-slate-300 uppercase tracking-widest">Semester ${sem}</h5>
+              <h5 class="text-sm font-black text-slate-300 uppercase tracking-widest">Semester ${sem}</h5>
             </div>
             <div class="flex gap-2">
               <div class="bg-slate-950 border border-slate-800 px-2 py-1 rounded flex items-center gap-1.5 shadow-inner">
-                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">SGPA:</span>
-                <span class="text-[11px] font-black text-white">${sgpa > 0 ? sgpa : '-'}</span>
+                <span class="text-sm text-slate-500 font-bold uppercase tracking-widest">SGPA:</span>
+                <span class="text-sm font-black text-white">${sgpa > 0 ? sgpa : '-'}</span>
               </div>
               <div class="bg-amber-950/20 border border-amber-900/40 px-2 py-1 rounded flex items-center gap-1.5 shadow-inner">
-                <span class="text-[10px] text-amber-600 font-bold uppercase tracking-widest">Pts:</span>
-                <span class="text-[11px] font-black text-amber-400">${pts > 0 ? pts : '-'}</span>
+                <span class="text-sm text-amber-600 font-bold uppercase tracking-widest">Pts:</span>
+                <span class="text-sm font-black text-amber-400">${pts > 0 ? pts : '-'}</span>
               </div>
             </div>
           </summary>
           <div class="border-t border-slate-800/50 bg-slate-950/40 overflow-x-auto">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-slate-900/80 border-b border-slate-800 text-[10px] uppercase tracking-wider font-black text-slate-500">
+                <tr class="bg-slate-900/80 border-b border-slate-800 text-sm uppercase tracking-wider font-black text-slate-500">
                   <th class="p-2 w-3/4">Subject</th>
                   <th class="p-2 w-1/4 text-center border-l border-slate-800/50">Attend.</th>
                 </tr>
@@ -1494,11 +1502,11 @@ function switchStudentMentoringTab(tabId) {
     let html = `
       <div class="grid grid-cols-2 gap-4 mb-5">
         <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-4 flex flex-col items-center justify-center shadow-inner">
-          <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Total CGPA</span>
+          <span class="text-sm text-slate-400 font-bold uppercase tracking-widest mb-1">Total CGPA</span>
           <span class="text-2xl font-black text-white">${displayCgpa}</span>
         </div>
         <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-4 flex flex-col items-center justify-center shadow-inner">
-          <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Activity Points</span>
+          <span class="text-sm text-slate-400 font-bold uppercase tracking-widest mb-1">Activity Points</span>
           <span class="text-2xl font-black text-amber-400">${displayPts}</span>
         </div>
       </div>
@@ -1560,7 +1568,7 @@ function loadStudentMentoringDiary() {
     } else {
       console.error('[Diary API] Error:', data.message);
       const c = document.getElementById('smdAcademicReport');
-      if (c) c.innerHTML = '<p class="text-rose-400 text-xs text-center py-8">Could not load diary data. Please refresh.</p>';
+      if (c) c.innerHTML = '<p class="text-rose-400 text-sm text-center py-8">Could not load diary data. Please refresh.</p>';
     }
   })
   .catch(err => console.error('[Diary API] Fetch error:', err));
@@ -1652,12 +1660,12 @@ function populateMentoringUI(data) {
     for (const [seg, pts] of Object.entries(splitPts)) {
       splitHtml += `
         <div class="flex justify-between items-center py-1">
-          <span class="text-xs text-slate-300">${seg}</span>
-          <span class="text-xs font-bold text-emerald-400">${pts}</span>
+          <span class="text-sm text-slate-300">${seg}</span>
+          <span class="text-sm font-bold text-emerald-400">${pts}</span>
         </div>`;
     }
   } else {
-    splitHtml = '<div class="text-xs text-slate-500 py-1">No verified points yet.</div>';
+    splitHtml = '<div class="text-sm text-slate-500 py-1">No verified points yet.</div>';
   }
   document.getElementById('studentActivitySplitList').innerHTML = splitHtml;
 
@@ -1669,15 +1677,15 @@ function populateMentoringUI(data) {
       mList.innerHTML += `
         <div class="bg-slate-900/50 p-4 rounded-xl border border-slate-800">
           <div class="flex justify-between items-start mb-2">
-            <span class="text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-bold">${m.date}</span>
-            <span class="text-xs text-blue-400 font-bold uppercase tracking-wider">${m.category}</span>
+            <span class="text-sm bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-bold">${m.date}</span>
+            <span class="text-sm text-blue-400 font-bold uppercase tracking-wider">${m.category}</span>
           </div>
-          <p class="text-xs text-slate-300">${m.discussion_notes}</p>
+          <p class="text-sm text-slate-300">${m.discussion_notes}</p>
         </div>
       `;
     });
   } else {
-    mList.innerHTML = '<p class="text-xs text-slate-500">No meeting logs found.</p>';
+    mList.innerHTML = '<p class="text-sm text-slate-500">No meeting logs found.</p>';
   }
 }
 
@@ -1709,17 +1717,17 @@ function renderStudentBoardExams() {
     let br = sub.board_result || {};
     sbList.innerHTML += `
       <tr class="border-b border-slate-800/40 hover:bg-slate-900/50 board-grade-row transition-premium" data-sem="${sem}" data-code="${sub.subject_code}">
-        <td class="p-3 text-slate-300 font-bold bg-slate-900/40 font-mono text-[11px] tracking-wider">${sub.subject_code}</td>
-        <td class="p-3 text-slate-200 text-[10px] font-bold uppercase truncate max-w-[200px]" title="${sub.subject_name}">${sub.subject_name}</td>
-        <td class="p-2"><input type="month" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-[10px] text-white bg-exam-my focus:border-blue-500 outline-none transition-premium" value="${br.exam_month_year || ''}"></td>
-        <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-[10px] text-white bg-grade uppercase font-bold text-center focus:border-blue-500 outline-none transition-premium" value="${br.grade || ''}" placeholder="e.g. A+"></td>
+        <td class="p-3 text-slate-300 font-bold bg-slate-900/40 font-mono text-sm tracking-wider">${sub.subject_code}</td>
+        <td class="p-3 text-slate-200 text-sm font-bold uppercase truncate max-w-[200px]" title="${sub.subject_name}">${sub.subject_name}</td>
+        <td class="p-2"><input type="month" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-sm text-white bg-exam-my focus:border-blue-500 outline-none transition-premium" value="${br.exam_month_year || ''}"></td>
+        <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-sm text-white bg-grade uppercase font-bold text-center focus:border-blue-500 outline-none transition-premium" value="${br.grade || ''}" placeholder="e.g. A+"></td>
         <td class="p-2">
-          <select class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-[10px] text-white bg-pass font-bold focus:border-blue-500 outline-none transition-premium">
+          <select class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-sm text-white bg-pass font-bold focus:border-blue-500 outline-none transition-premium">
             <option value="1" ${br.passed == 1 || br.passed === undefined ? 'selected' : ''} class="text-emerald-400">Yes</option>
             <option value="0" ${br.passed == 0 && br.passed !== undefined ? 'selected' : ''} class="text-red-400">No</option>
           </select>
         </td>
-        <td class="p-2"><input type="number" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-[10px] text-white font-bold bg-chances text-center focus:border-blue-500 outline-none transition-premium" value="${br.chances_taken || 1}" min="1"></td>
+        <td class="p-2"><input type="number" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-sm text-white font-bold bg-chances text-center focus:border-blue-500 outline-none transition-premium" value="${br.chances_taken || 1}" min="1"></td>
       </tr>
     `;
   });
@@ -1752,12 +1760,12 @@ function addFamilyRow(name='', rel='', edu='', occ='', con='', id='') {
   const tr = document.createElement('tr');
   tr.className = 'border-b border-slate-800/40 family-row';
   tr.innerHTML = `
-    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white f-name" value="${name}"></td>
-    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white f-rel" value="${rel}"></td>
-    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white f-edu" value="${edu}"></td>
-    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white f-occ" value="${occ}"></td>
-    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white f-con" value="${con}"></td>
-    <td class="p-2 text-right"><button onclick="if(confirm('Are you sure you want to remove this row? This action cannot be undone.')) this.closest('tr').remove();" class="text-red-400 hover:text-red-300 text-xs cursor-pointer">&times;</button></td>
+    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white f-name" value="${name}"></td>
+    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white f-rel" value="${rel}"></td>
+    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white f-edu" value="${edu}"></td>
+    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white f-occ" value="${occ}"></td>
+    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white f-con" value="${con}"></td>
+    <td class="p-2 text-right"><button onclick="if(confirm('Are you sure you want to remove this row? This action cannot be undone.')) this.closest('tr').remove();" class="text-red-400 hover:text-red-300 text-sm cursor-pointer">&times;</button></td>
   `;
   document.getElementById('smdFamilyList').appendChild(tr);
 }
@@ -1766,11 +1774,11 @@ function addEducationRow(course='', inst='', year='', marks='', id='') {
   const tr = document.createElement('tr');
   tr.className = 'border-b border-slate-800/40 edu-row';
   tr.innerHTML = `
-    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white e-course" value="${course}" placeholder="e.g. SSLC"></td>
-    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white e-inst" value="${inst}"></td>
-    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white e-year" value="${year}"></td>
-    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white e-marks" value="${marks}"></td>
-    <td class="p-2 text-right"><button onclick="if(confirm('Are you sure you want to remove this row? This action cannot be undone.')) this.closest('tr').remove();" class="text-red-400 hover:text-red-300 text-xs cursor-pointer">&times;</button></td>
+    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white e-course" value="${course}" placeholder="e.g. SSLC"></td>
+    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white e-inst" value="${inst}"></td>
+    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white e-year" value="${year}"></td>
+    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white e-marks" value="${marks}"></td>
+    <td class="p-2 text-right"><button onclick="if(confirm('Are you sure you want to remove this row? This action cannot be undone.')) this.closest('tr').remove();" class="text-red-400 hover:text-red-300 text-sm cursor-pointer">&times;</button></td>
   `;
   document.getElementById('smdEducationList').appendChild(tr);
 }
@@ -1780,11 +1788,11 @@ function addExtraRow(sem='', act='', ach='', status='Pending', id='') {
   tr.className = 'border-b border-slate-800/40 extra-row';
   const statusColor = status === 'Approved' ? 'text-green-400' : (status === 'Rejected' ? 'text-red-400' : 'text-amber-400');
   tr.innerHTML = `
-    <td class="p-2"><input type="number" class="w-16 bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white ex-sem" value="${sem}"></td>
-    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white ex-act" value="${act}"></td>
-    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white ex-ach" value="${ach}"></td>
+    <td class="p-2"><input type="number" class="w-16 bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white ex-sem" value="${sem}"></td>
+    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white ex-act" value="${act}"></td>
+    <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white ex-ach" value="${ach}"></td>
     <td class="p-2 font-bold ${statusColor}">${status}</td>
-    <td class="p-2 text-right"><button onclick="if(confirm('Are you sure you want to remove this row? This action cannot be undone.')) this.closest('tr').remove();" class="text-red-400 hover:text-red-300 text-xs cursor-pointer">&times;</button></td>
+    <td class="p-2 text-right"><button onclick="if(confirm('Are you sure you want to remove this row? This action cannot be undone.')) this.closest('tr').remove();" class="text-red-400 hover:text-red-300 text-sm cursor-pointer">&times;</button></td>
   `;
   document.getElementById('smdExtraList').appendChild(tr);
 }
@@ -1793,11 +1801,11 @@ function addBoardRow(sem='', sgpa='', cgpa='', act='', id='') {
   const tr = document.createElement('tr');
   tr.className = 'border-b border-slate-800/40 board-row';
   tr.innerHTML = `
-    <td class="p-2"><input type="number" class="w-16 bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white b-sem" value="${sem}"></td>
-    <td class="p-2"><input type="number" step="0.01" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white b-sgpa" value="${sgpa}"></td>
-    <td class="p-2"><input type="number" step="0.01" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white b-cgpa" value="${cgpa}"></td>
-    <td class="p-2"><input type="number" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-xs text-white b-act" value="${act}"></td>
-    <td class="p-2 text-right"><button onclick="if(confirm('Are you sure you want to remove this row? This action cannot be undone.')) this.closest('tr').remove();" class="text-red-400 hover:text-red-300 text-xs cursor-pointer">&times;</button></td>
+    <td class="p-2"><input type="number" class="w-16 bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white b-sem" value="${sem}"></td>
+    <td class="p-2"><input type="number" step="0.01" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white b-sgpa" value="${sgpa}"></td>
+    <td class="p-2"><input type="number" step="0.01" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white b-cgpa" value="${cgpa}"></td>
+    <td class="p-2"><input type="number" class="w-full bg-slate-900 border border-slate-700 rounded p-1 text-sm text-white b-act" value="${act}"></td>
+    <td class="p-2 text-right"><button onclick="if(confirm('Are you sure you want to remove this row? This action cannot be undone.')) this.closest('tr').remove();" class="text-red-400 hover:text-red-300 text-sm cursor-pointer">&times;</button></td>
   `;
   const list = document.getElementById('smdBoardList');
   if (list) list.appendChild(tr);
@@ -1960,6 +1968,18 @@ function saveStudentActivity(e) {
 </script>
 
 <script>
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('sidebarMenu');
+      const backdrop = document.getElementById('sidebarBackdrop');
+      if (sidebar.classList.contains('-translate-x-full')) {
+        sidebar.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+        backdrop.classList.add('hidden');
+      }
+    }
+
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof loadStudentMentoringDiary === 'function') {
         loadStudentMentoringDiary();
@@ -1979,37 +1999,37 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Semester</label>
+                <label class="block font-bold text-slate-400 mb-1 text-sm text-sm">Semester</label>
                 <input type="number" id="leaveSem" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
               </div>
               <div>
-                  <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">From Date</label>
+                  <label class="block font-bold text-slate-400 mb-1 text-sm text-sm">From Date</label>
                   <input type="date" id="leaveDateFrom" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
                 </div>
               </div>
               <div class="grid grid-cols-2 gap-4">
                 <div>
-                  <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">To Date</label>
+                  <label class="block font-bold text-slate-400 mb-1 text-sm text-sm">To Date</label>
                   <input type="date" id="leaveDateTo" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
                 </div>
                 <div>
-                  <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">No. of Days</label>
+                  <label class="block font-bold text-slate-400 mb-1 text-sm text-sm">No. of Days</label>
                   <input type="number" step="0.5" id="leaveDays" placeholder="e.g. 1, 0.5" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
                 </div>
             </div>
             <div>
-              <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Reason</label>
+              <label class="block font-bold text-slate-400 mb-1 text-sm text-sm">Reason</label>
               <input type="text" id="leaveReason" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
             </div>
             <input type="hidden" id="leaveStatus" value="Pending">
             <div class="flex items-center gap-2">
               <input type="checkbox" id="leaveParent" class="rounded bg-slate-950 border-slate-800 text-indigo-500">
-              <label class="font-bold text-slate-400 text-[10px] text-xs">Parent/Guardian Informed?</label>
+              <label class="font-bold text-slate-400 text-sm text-sm">Parent/Guardian Informed?</label>
             </div>
           </div>
           <div class="mt-6 flex justify-end gap-3">
-            <button type="button" onclick="closeLeaveModal()" class="px-4 py-2 text-slate-400 font-bold hover:text-white transition-colors text-[10px] text-xs">Cancel</button>
-            <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-premium text-[10px] text-xs shadow-lg">Save Record</button>
+            <button type="button" onclick="closeLeaveModal()" class="px-4 py-2 text-slate-400 font-bold hover:text-white transition-colors text-sm text-sm">Cancel</button>
+            <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-premium text-sm text-sm shadow-lg">Save Record</button>
           </div>
         </form>
       </div>

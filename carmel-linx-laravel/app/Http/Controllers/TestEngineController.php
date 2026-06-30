@@ -90,6 +90,8 @@ class TestEngineController extends Controller
         $numCos = count($cos);
         $qCountPerCo = ceil($qCount / max(1, $numCos));
 
+        $generationMode = $request->input('generation_mode', 'bank');
+
         // Generate MCQ payload based on selected COs
         $payload = [];
         $totalMcq = 0;
@@ -100,14 +102,16 @@ class TestEngineController extends Controller
             $remaining = $qCount - $totalMcq;
             $currentLimit = min($remaining, $qCountPerCo);
 
-            // Fetch from question_bank database
-            $dbQuestions = DB::table('question_bank')
-                ->where('subject_code', $subjectCode)
-                ->where('co_tag', $co)
-                ->where('type', 'MCQ')
-                ->inRandomOrder()
-                ->limit($currentLimit)
-                ->get();
+            $dbQuestions = collect();
+            if ($generationMode === 'bank') {
+                // Fetch all available questions from question_bank for this CO
+                $dbQuestions = DB::table('question_bank')
+                    ->where('subject_code', $subjectCode)
+                    ->where('co_tag', $co)
+                    ->where('type', 'MCQ')
+                    ->inRandomOrder()
+                    ->get();
+            }
 
             if ($dbQuestions->isNotEmpty()) {
                 $dbCount = count($dbQuestions);
@@ -186,20 +190,22 @@ class TestEngineController extends Controller
                 }
 
                 if (!$generatedWithAi) {
-                    // Fallback to mock MCQ pool if AI fails or no key
+                    // Fallback to mock MCQ pool — cycle through to fulfill any requested count
                     if (isset($this->mockMCQs[$co])) {
                         $pool = $this->mockMCQs[$co];
                         shuffle($pool);
-                        $limitToUse = min($currentLimit, count($pool));
-                        for ($i = 0; $i < $limitToUse; $i++) {
-                            if ($totalMcq >= $qCount) break;
-                            $q = $pool[$i];
+                        $poolSize = count($pool);
+                        $added = 0;
+                        while ($added < $currentLimit && $totalMcq < $qCount) {
+                            // Use modulo to cycle through pool if count > pool size
+                            $q = $pool[$added % $poolSize];
                             $q['co'] = $co;
                             if (!$genAnswers) {
                                 $q['ans'] = null;
                             }
                             $payload[] = $q;
                             $totalMcq++;
+                            $added++;
                         }
                     }
                 }
