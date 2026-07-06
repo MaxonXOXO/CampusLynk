@@ -6,3 +6,4 @@ node_modules
 .env.*
 *.env
 carmel-linx-laravel/.env
+!.env.example
