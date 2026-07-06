@@ -1,15 +1,23 @@
+@php
+  $activeBranch = $branchOverride ?? session('userBranch');
+  $isPrincipalMode = isset($isPrincipalView) && $isPrincipalView;
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carmel Linx - HOD Dashboard</title>
+  <title>Carmel Linx - {{ $isPrincipalMode ? 'Principal view' : 'HOD Dashboard' }}</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Google Icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   
   <style>
+    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
+    .font-extrabold, .font-black {
+      font-weight: 700 !important;
+    }
     .transition-premium {
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -32,21 +40,26 @@
       <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-blue-500/20 text-lg">CL</div>
       <div>
         <h2 class="font-extrabold text-sm tracking-wide text-sm">Carmel Linx</h2>
-        <span class="text-sm text-slate-400 font-bold uppercase tracking-wider">HOD Console</span>
+        <span class="text-sm text-slate-400 font-bold uppercase tracking-wider">{{ $isPrincipalMode ? 'Principal View' : 'HOD Console' }}</span>
       </div>
     </div>
 
     <!-- Active Profile Info -->
-    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3">
-      <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
+    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3" id="sidebarAvatarContainer">
+      <img id="sidebarStaffImg" src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
       <div class="overflow-hidden">
         <span class="font-bold text-sm block truncate text-slate-200 text-sm">{{ session('userName') }}</span>
-        <span class="text-sm font-bold text-blue-400 block uppercase tracking-wider">{{ session('userBranch') }} HOD</span>
+        <span class="text-sm font-bold text-blue-400 block uppercase tracking-wider">{{ $activeBranch }} {{ $isPrincipalMode ? 'Batch Status' : 'HOD' }}</span>
       </div>
     </div>
 
     <!-- Navigation Menus -->
     <nav class="flex-grow p-4 space-y-1.5">
+      @if($isPrincipalMode)
+      <a href="/dashboard/principal" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-amber-400 hover:bg-amber-950/30 hover:text-amber-300 cursor-pointer no-underline mb-2">
+         <span class="material-symbols-rounded text-lg">arrow_back</span> Return to Desk
+      </a>
+      @endif
       <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
         <span class="material-symbols-rounded text-lg">group</span> User Directory
       </button>
@@ -62,6 +75,17 @@
       <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline">
          <span class="material-symbols-rounded text-lg">co_present</span> Log & Attendance
       </a>
+      <a href="/hod/report-centre" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-amber-400 hover:bg-amber-900/20 hover:text-amber-300 cursor-pointer no-underline">
+         <span class="material-symbols-rounded text-lg">analytics</span> Report Centre
+      </a>
+      <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 cursor-pointer no-underline block">
+         <span class="material-symbols-rounded text-lg">school</span> Academic Activities
+      </a>
+
+      <a href="/dashboard/lecturer" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 hover:text-sky-300 cursor-pointer no-underline block">
+         <span class="material-symbols-rounded text-lg">calendar_view_week</span> My Batches
+      </a>
+
 
       <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
         <span class="material-symbols-rounded text-lg">settings</span> My Profile
@@ -81,7 +105,7 @@
     
     <!-- Top Header -->
     <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-10">
-      <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Batch & Class Management</h1>
+      <h1 id="panelTitle" class="font-bold text-slate-100 tracking-tight text-lg">Batch & Class Management</h1>
       <div id="loadingIndicator" class="hidden items-center gap-2 text-sm text-slate-400 text-sm">
         <div class="w-4 h-4 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin"></div>
         <span>Syncing...</span>
@@ -100,7 +124,7 @@
         <!-- Directory Header -->
         <div class="flex justify-between items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl">
           <div>
-            <h3 class="text-sm font-black text-slate-200 text-sm">Department Registered Accounts ({{ session('userBranch') }})</h3>
+            <h3 class="text-sm font-bold text-slate-200 text-sm">Department Registered Accounts ({{ $activeBranch }})</h3>
             <p class="text-sm text-slate-400 mt-0.5">Filter, search, audit, and manage profile lifecycle states for students and staff in your branch.</p>
           </div>
           <button onclick="openRegisterModal()" class="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/10 text-sm">
@@ -175,7 +199,7 @@
         <!-- Panel Header -->
           <div class="flex justify-between items-start md:items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl flex-col md:flex-row gap-4">
             <div class="flex-1">
-              <h3 class="text-sm font-black text-slate-200 text-lg">Batch & Class Management ({{ session('userBranch') }})</h3>
+              <h3 class="text-sm font-bold text-slate-200 text-lg">Batch & Class Management ({{ session('userBranch') }})</h3>
               <p class="text-sm text-slate-400 mt-0.5">Create admission-year batches, assign a Tutor (class teacher) and Mentor for each batch.<br>Students auto-assign on registration.</p>
             </div>
             <div class="flex items-center gap-4 ml-auto">
@@ -201,7 +225,7 @@
         <div id="batchEmptyState" class="hidden flex flex-col items-center justify-center py-16 text-center">
           <span class="material-symbols-rounded text-slate-700 mb-3 text-5xl">folder_open</span>
           <p class="text-slate-500 font-bold text-base">No batches created yet.</p>
-          <p class="text-slate-600 text-sm mt-1 text-sm">Click "Create Batch" to set up your first admission year cohort.</p>
+          <p class="text-slate-600 text-sm mt-1 text-sm">Click "Create Batch" to set up your first admission year batch.</p>
         </div>
 
       </div>
@@ -210,7 +234,7 @@
       <div id="panelSubjects" class="hidden space-y-6">
         <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl">
           <div class="mb-4 pb-4 border-b border-slate-800/60">
-            <h3 class="text-sm font-black text-slate-200 text-sm">Subject & Staff Allocation</h3>
+            <h3 class="text-sm font-bold text-slate-200 text-sm">Subject & Staff Allocation</h3>
             <p class="text-sm text-slate-400 mt-0.5">Map curriculum subjects to batches per semester and assign staff across departments.</p>
           </div>
           <div class="flex flex-col sm:flex-row gap-4 items-end">
@@ -263,7 +287,7 @@
         <!-- Audit Logs Controls -->
         <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h3 class="font-black text-slate-200 text-sm">Department Audit Trail</h3>
+            <h3 class="font-bold text-slate-200 text-sm">Department Audit Trail</h3>
             <p class="text-sm text-slate-400 mt-1">Lifecycle events, status updates, registrations, and actions performed within the {{ session('userBranch') }} branch.</p>
           </div>
           <button onclick="loadAuditTrail()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-premium cursor-pointer flex items-center gap-2">
@@ -299,9 +323,19 @@
           <!-- Profile Card -->
           <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
             <div class="flex flex-col items-center text-center space-y-3">
-              <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-24 h-24 rounded-full border border-slate-700 object-cover shadow-lg">
+              <div class="relative group">
+                <div id="staffAvatarWrapper" class="w-24 h-24 rounded-full overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center shadow-lg relative">
+                  <img id="staffProfileImg" src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-full h-full object-cover">
+                </div>
+                <label for="staffPhotoUploadInput" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer rounded-full text-white text-sm font-bold text-center gap-1 p-1">
+                  <span class="material-symbols-rounded text-base">photo_camera</span>
+                  <span>Change</span>
+                </label>
+                <input type="file" id="staffPhotoUploadInput" accept="image/*" class="hidden" onchange="handleStaffPhotoUpload(event)">
+              </div>
+              <div id="staffPhotoUploadStatus" class="text-sm font-bold mt-2 text-green-400 hidden"></div>
               <div>
-                <h3 class="text-sm font-black text-white">{{ session('userName') }}</h3>
+                <h3 class="text-sm font-bold text-white">{{ session('userName') }}</h3>
                 <span class="text-sm font-bold text-blue-400 uppercase tracking-wider">{{ session('userBranch') }} Department HOD</span>
               </div>
             </div>
@@ -323,7 +357,7 @@
 
           <!-- Self Security Logs -->
           <div class="lg:col-span-2 bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl flex flex-col">
-            <h3 class="text-sm font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2">
+            <h3 class="text-sm font-bold text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2">
               <span class="material-symbols-rounded text-blue-400 text-xs">security</span> My Security Log
             </h3>
             <div class="flex-grow max-h-[300px] overflow-y-auto scrollbar-hidden border border-slate-850 rounded-xl">
@@ -421,6 +455,7 @@
          <button onclick="switchBatchTab('tutorMentor')" id="tabBtn_tutorMentor" class="pb-3 text-sm font-bold border-b-2 border-violet-500 text-white transition-premium cursor-pointer">Tutor & Mentor</button>
          <button onclick="switchBatchTab('subjects')" id="tabBtn_subjects" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Allocated Subjects</button>
          <button onclick="switchBatchTab('students')" id="tabBtn_students" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Enrolled Students</button>
+         <button onclick="switchBatchTab('timetable')" id="tabBtn_timetable" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Time Table</button>
       </div>
 
       <div class="flex-grow overflow-y-auto p-5 relative">
@@ -439,7 +474,7 @@
             <div id="tutorCurrentDisplay" class="text-sm text-slate-400">Not assigned</div>
             <div class="space-y-2">
               <select id="detailTutorSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-sky-500 outline-none">
-                <option value="">â None (Remove) â</option>
+                <option value="">- None (Remove) -</option>
               </select>
               <button onclick="submitAssignTutor()" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
                 <span class="material-symbols-rounded text-sm">how_to_reg</span> Update Tutor
@@ -458,7 +493,7 @@
             <div id="mentorCurrentDisplay" class="text-sm text-slate-400">Not assigned</div>
             <div class="space-y-2">
               <select id="detailMentorSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
-                <option value="">â None (Remove) â</option>
+                <option value="">- None (Remove) -</option>
               </select>
               <button onclick="submitAssignMentor()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
                 <span class="material-symbols-rounded text-sm">group_add</span> Update Mentor
@@ -498,6 +533,7 @@
                   <th class="p-3">Type</th>
                   <th class="p-3">Assigned Staff</th>
                   <th class="p-3">Course File</th>
+                  <th class="p-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody id="modalSubjectsTableBody">
@@ -537,6 +573,73 @@
           </div>
         </div>
       </div>
+
+      <!-- Tab: Time Table -->
+      <div id="batchTab_timetable" class="hidden space-y-4 fade-up">
+        <div class="flex justify-between items-center bg-slate-950/20 border border-slate-800/60 p-4 rounded-xl">
+          <div>
+            <h4 class="text-sm font-bold text-white">Batch Weekly Timetable</h4>
+            <p class="text-xs text-slate-400">Configure weekly lecture and lab hours. 3 periods forenoon, 3 periods afternoon.</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="printTimetable()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center gap-1.5">
+              <span class="material-symbols-rounded text-sm">print</span> Print
+            </button>
+            <button id="btnEditTimetable" onclick="toggleTimetableEdit(true)" class="px-3.5 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-violet-600/10">
+              <span class="material-symbols-rounded text-sm">edit</span> Edit Timetable
+            </button>
+            <button id="btnCancelTimetable" onclick="toggleTimetableEdit(false)" class="hidden px-3.5 py-2 border border-slate-800 hover:bg-slate-800 text-slate-300 rounded-xl font-bold text-sm transition-premium cursor-pointer">
+              Cancel
+            </button>
+            <button id="btnSaveTimetable" onclick="submitTimetable()" class="hidden px-3.5 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
+              <span class="material-symbols-rounded text-sm">save</span> Save Changes
+            </button>
+          </div>
+        </div>
+
+        <!-- View Mode -->
+        <div id="timetableDisplayArea" class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
+          <table class="w-full text-left text-sm border-collapse">
+            <thead>
+              <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
+                <th class="p-3 text-center w-24">Day</th>
+                <th class="p-3 text-center">Period 1<br><span class="text-xs text-slate-500">09:00 - 10:00</span></th>
+                <th class="p-3 text-center">Period 2<br><span class="text-xs text-slate-500">10:00 - 11:00</span></th>
+                <th class="p-3 text-center">Period 3<br><span class="text-xs text-slate-500">11:10 - 12:10</span></th>
+                <th class="p-3 text-center bg-slate-900/20 w-16">Lunch</th>
+                <th class="p-3 text-center">Period 4<br><span class="text-xs text-slate-500">01:00 - 02:00</span></th>
+                <th class="p-3 text-center">Period 5<br><span class="text-xs text-slate-500">02:00 - 03:00</span></th>
+                <th class="p-3 text-center">Period 6<br><span class="text-xs text-slate-500">03:00 - 04:00</span></th>
+              </tr>
+            </thead>
+            <tbody id="timetableDisplayBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Edit Mode (Form Grid) -->
+        <div id="timetableEditArea" class="hidden bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-x-auto">
+          <table class="w-full text-left text-sm border-collapse min-w-[800px]">
+            <thead>
+              <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
+                <th class="p-3 text-center w-24">Day</th>
+                <th class="p-3 text-center">Period 1</th>
+                <th class="p-3 text-center">Period 2</th>
+                <th class="p-3 text-center">Period 3</th>
+                <th class="p-3 text-center bg-slate-900/20 w-16">Lunch</th>
+                <th class="p-3 text-center">Period 4</th>
+                <th class="p-3 text-center">Period 5</th>
+                <th class="p-3 text-center">Period 6</th>
+              </tr>
+            </thead>
+            <tbody id="timetableEditBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div> <!-- Close flex-grow container -->
     </div>
   </div>
 
@@ -671,7 +774,7 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch</label>
-              <input type="text" id="directRegStudentBranch" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-400 focus:outline-none" value="{{ session('userBranch') }}">
+              <input type="text" id="directRegStudentBranch" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-400 focus:outline-none" value="{{ $activeBranch }}">
             </div>
             <div>
               <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Semester</label>
@@ -709,7 +812,7 @@
 
           <div>
             <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch</label>
-            <input type="text" id="directRegStaffBranch" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-400 focus:outline-none" value="{{ session('userBranch') }}">
+            <input type="text" id="directRegStaffBranch" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-400 focus:outline-none" value="{{ $activeBranch }}">
           </div>
         </div>
 
@@ -742,8 +845,8 @@
       </div>
 
       <form id="subjectForm" onsubmit="createSubject(event)" class="space-y-4">
-        <input type="hidden" id="modalSubjectBatch">
-        <input type="hidden" id="modalSubjectSemester">
+        <input type="hidden" id="modalFormSubjectBatch">
+        <input type="hidden" id="modalFormSubjectSemester">
         
         <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl mb-2 flex justify-between items-center text-sm">
           <span class="text-slate-400">Target Batch: <span id="displaySubjectBatch" class="font-bold text-slate-200"></span></span>
@@ -845,6 +948,26 @@
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
+    window.isPrincipalView = @json($isPrincipalMode);
+    window.branchOverride = @json($activeBranch);
+
+    if (window.isPrincipalView && window.branchOverride) {
+      const originalFetch = window.fetch;
+      window.fetch = function(input, init) {
+        let url = typeof input === 'string' ? input : input.url;
+        if (url.startsWith('/api/')) {
+          const separator = url.includes('?') ? '&' : '?';
+          url = `${url}${separator}branch=${window.branchOverride}`;
+        }
+        if (typeof input === 'string') {
+          return originalFetch(url, init);
+        } else {
+          const newRequest = new Request(url, input);
+          return originalFetch(newRequest, init);
+        }
+      };
+    }
+
     let activePanel = "batches";
     let selectedUserForReset = null;
     let activeBatchId = null;
@@ -1427,8 +1550,8 @@
             <div class="flex items-center gap-2 mb-1">
               <span class="px-2 py-0.5 bg-violet-500/10 text-violet-400 border border-violet-500/20 rounded-lg font-mono text-base font-bold">${batch.classroom_id}</span>
             </div>
-            <h4 class="font-black text-slate-100 text-base">Admission ${batch.batch_year}</h4>
-            <p class="text-xs text-slate-500">${batch.batch_year} â ${batch.batch_year + 3} Cohort</p>
+            <h4 class="font-bold text-slate-100 text-base">Admission ${batch.batch_year}</h4>
+            <p class="text-xs text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} Batch</p>
           </div>
           <div class="text-right">
             <span class="text-base font-black text-slate-200">${batch.student_count}</span>
@@ -1532,7 +1655,7 @@
       switchBatchTab('tutorMentor'); // Reset to default tab
 
       document.getElementById('batchDetailTitle').innerText = `Batch ${batch.classroom_id}`;
-      document.getElementById('batchDetailSubtitle').innerText = `Admission ${batch.batch_year} Â· ${batch.batch_year}â${batch.batch_year + 3} Cohort`;
+      document.getElementById('batchDetailSubtitle').innerText = `Admission ${batch.batch_year} · ${batch.batch_year} - ${batch.batch_year + 3} Batch`;
 
       // Show current tutor/mentor
       document.getElementById('tutorCurrentDisplay').innerHTML = batch.tutor_name
@@ -1570,26 +1693,616 @@
     }
 
     function switchBatchTab(tab) {
-      const tabs = ['tutorMentor', 'subjects', 'students'];
+      const tabs = ['tutorMentor', 'subjects', 'students', 'timetable'];
       tabs.forEach(t => {
-        document.getElementById('batchTab_' + t).classList.add('hidden');
-        document.getElementById('batchTab_' + t).classList.remove('block');
-        document.getElementById('tabBtn_' + t).className = "pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer";
+        const el = document.getElementById('batchTab_' + t);
+        const btn = document.getElementById('tabBtn_' + t);
+        if (el) {
+          el.classList.add('hidden');
+          el.classList.remove('block');
+        }
+        if (btn) {
+          btn.className = "pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer";
+        }
       });
-      document.getElementById('batchTab_' + tab).classList.remove('hidden');
-      document.getElementById('batchTab_' + tab).classList.add('block');
-      document.getElementById('tabBtn_' + tab).className = "pb-3 text-sm font-bold border-b-2 border-violet-500 text-white transition-premium cursor-pointer";
+      const targetEl = document.getElementById('batchTab_' + tab);
+      const targetBtn = document.getElementById('tabBtn_' + tab);
+      if (targetEl) {
+        targetEl.classList.remove('hidden');
+        targetEl.classList.add('block');
+      }
+      if (targetBtn) {
+        targetBtn.className = "pb-3 text-sm font-bold border-b-2 border-violet-500 text-white transition-premium cursor-pointer";
+      }
       
       if (tab === 'subjects') {
         loadModalSubjects();
       }
+      if (tab === 'timetable') {
+        loadTimetable();
+      }
+    }
+
+    let currentTimetableData = {};
+    let currentAllocatedSubjects = [];
+
+    function loadTimetable() {
+      if (!activeBatchId) return;
+      
+      const sem = document.getElementById('modalSubjectSemester') ? document.getElementById('modalSubjectSemester').value : 3;
+      
+      const displayBody = document.getElementById('timetableDisplayBody');
+      if (displayBody) displayBody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-slate-500">Loading timetable...</td></tr>';
+      
+      toggleTimetableEdit(false);
+
+      fetch(`/api/hod/batches/${encodeURIComponent(activeBatchId)}/subjects?semester=${sem}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            currentAllocatedSubjects = data.subjects || [];
+            return fetch(`/api/hod/batches/${encodeURIComponent(activeBatchId)}/timetable`);
+          } else {
+            throw new Error(data.message || 'Failed to load batch subjects');
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            currentTimetableData = data.timetable || {};
+            renderTimetable();
+          } else {
+            throw new Error(data.message || 'Failed to load timetable');
+          }
+        })
+        .catch(err => {
+          if (displayBody) displayBody.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-red-400">Error: ${err.message}</td></tr>`;
+        });
+    }
+
+    function slotsEqual(slotA, slotB) {
+      if (!slotA || !slotB) return false;
+      return slotA.subject === slotB.subject;
+    }
+
+    function renderTimetable() {
+      const displayBody = document.getElementById('timetableDisplayBody');
+      const editBody = document.getElementById('timetableEditBody');
+      if (!displayBody || !editBody) return;
+
+      displayBody.innerHTML = '';
+      editBody.innerHTML = '';
+
+      const days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
+      days.forEach((day, index) => {
+        const dayData = currentTimetableData[day] || {};
+        
+        // 1. Render Display Row with cell merging (colspan)
+        const trDisp = document.createElement('tr');
+        trDisp.className = 'border-b border-slate-800/40 hover:bg-slate-900/10 transition-premium';
+        
+        let dispCellsHtml = `<td class="p-4 text-center font-bold text-slate-200 bg-slate-900/40">${day}</td>`;
+        
+        const s1 = dayData[1] || { subject: '', staff: '' };
+        const s2 = dayData[2] || { subject: '', staff: '' };
+        const s3 = dayData[3] || { subject: '', staff: '' };
+        const s4 = dayData[4] || { subject: '', staff: '' };
+        const s5 = dayData[5] || { subject: '', staff: '' };
+        const s6 = dayData[6] || { subject: '', staff: '' };
+
+        // Forenoon continuous slots (1, 2, 3) merging logic
+        if (s1.subject && slotsEqual(s1, s2) && slotsEqual(s2, s3)) {
+          dispCellsHtml += renderTimetableDisplayCell(s1, 3);
+        } else if (s1.subject && slotsEqual(s1, s2)) {
+          dispCellsHtml += renderTimetableDisplayCell(s1, 2);
+          dispCellsHtml += renderTimetableDisplayCell(s3, 1);
+        } else if (s2.subject && slotsEqual(s2, s3)) {
+          dispCellsHtml += renderTimetableDisplayCell(s1, 1);
+          dispCellsHtml += renderTimetableDisplayCell(s2, 2);
+        } else {
+          dispCellsHtml += renderTimetableDisplayCell(s1, 1);
+          dispCellsHtml += renderTimetableDisplayCell(s2, 1);
+          dispCellsHtml += renderTimetableDisplayCell(s3, 1);
+        }
+        
+        // Lunch Break Column (merged vertically)
+        if (index === 0) {
+          dispCellsHtml += `<td rowspan="5" class="p-4 text-center bg-slate-950/60 font-bold text-slate-500 text-sm align-middle select-none border-l border-r border-slate-800/40" style="writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 4px; text-orientation: mixed; vertical-align: middle;">LUNCH BREAK</td>`;
+        }
+        
+        // Afternoon continuous slots (4, 5, 6) merging logic
+        if (s4.subject && slotsEqual(s4, s5) && slotsEqual(s5, s6)) {
+          dispCellsHtml += renderTimetableDisplayCell(s4, 3);
+        } else if (s4.subject && slotsEqual(s4, s5)) {
+          dispCellsHtml += renderTimetableDisplayCell(s4, 2);
+          dispCellsHtml += renderTimetableDisplayCell(s6, 1);
+        } else if (s5.subject && slotsEqual(s5, s6)) {
+          dispCellsHtml += renderTimetableDisplayCell(s4, 1);
+          dispCellsHtml += renderTimetableDisplayCell(s5, 2);
+        } else {
+          dispCellsHtml += renderTimetableDisplayCell(s4, 1);
+          dispCellsHtml += renderTimetableDisplayCell(s5, 1);
+          dispCellsHtml += renderTimetableDisplayCell(s6, 1);
+        }
+        
+        trDisp.innerHTML = dispCellsHtml;
+        displayBody.appendChild(trDisp);
+
+        // 2. Render Edit Row (always unmerged for individual slot selection)
+        const trEdit = document.createElement('tr');
+        trEdit.className = 'border-b border-slate-800/40';
+        
+        let editCellsHtml = `<td class="p-3 text-center font-bold text-slate-300 bg-slate-900/40">${day}</td>`;
+        
+        // Forenoon hours (1, 2, 3)
+        for (let h = 1; h <= 3; h++) {
+          const slot = dayData[h] || { subject: '', staff: '' };
+          editCellsHtml += renderTimetableEditCell(day, h, slot);
+        }
+        
+        // Lunch Break Column (merged vertically)
+        if (index === 0) {
+          editCellsHtml += `<td rowspan="5" class="p-3 text-center bg-slate-950/60 text-slate-600 font-bold text-sm align-middle select-none border-l border-r border-slate-850" style="writing-mode: vertical-rl; transform: rotate(180deg); letter-spacing: 4px; text-orientation: mixed; vertical-align: middle;">LUNCH BREAK</td>`;
+        }
+        
+        // Afternoon hours (4, 5, 6)
+        for (let h = 4; h <= 6; h++) {
+          const slot = dayData[h] || { subject: '', staff: '' };
+          editCellsHtml += renderTimetableEditCell(day, h, slot);
+        }
+        
+        trEdit.innerHTML = editCellsHtml;
+        editBody.appendChild(trEdit);
+      });
+    }
+
+    function renderTimetableDisplayCell(slot, colspan = 1) {
+      const colspanAttr = colspan > 1 ? `colspan="${colspan}"` : '';
+      if (!slot.subject) {
+        return `<td ${colspanAttr} class="p-4 text-center text-slate-600 italic text-sm">-- Free Period --</td>`;
+      }
+
+      // Automatically pull ALL staff members assigned to this subject (for labs/multi-lecturer classes)
+      const matchedSub = currentAllocatedSubjects.find(s => s.subject_code === slot.subject);
+      let staffDisplay = '';
+      if (matchedSub && matchedSub.staff && matchedSub.staff.length > 0) {
+        staffDisplay = matchedSub.staff.map(s => s.name).join(', ');
+      } else {
+        staffDisplay = slot.staff || 'N/A';
+      }
+
+      return `
+        <td ${colspanAttr} class="p-4 text-center space-y-1">
+          <div class="font-extrabold text-slate-100 text-base leading-snug">${slot.subject}</div>
+          <div class="text-slate-400 text-sm">${staffDisplay}</div>
+        </td>
+      `;
+    }
+
+    function renderTimetableEditCell(day, hour, slot) {
+      let subOptions = `<option value="">-- Free Period --</option>`;
+      currentAllocatedSubjects.forEach(sub => {
+        const isSelected = sub.subject_code === slot.subject ? 'selected' : '';
+        subOptions += `<option value="${sub.subject_code}" ${isSelected}>${sub.subject_code} - ${sub.subject_name}</option>`;
+      });
+
+      let staffOptions = `<option value="">-- No Staff --</option>`;
+      const matchedSub = currentAllocatedSubjects.find(s => s.subject_code === slot.subject);
+      if (matchedSub && matchedSub.staff) {
+        matchedSub.staff.forEach(st => {
+          const isSelected = st.name === slot.staff ? 'selected' : '';
+          staffOptions += `<option value="${st.name}" ${isSelected}>${st.name}</option>`;
+        });
+      }
+
+      return `
+        <td class="p-2 w-44">
+          <div class="space-y-1.5">
+            <select onchange="updateTimetableStaffDropdown(this)" data-day="${day}" data-hour="${hour}" class="w-full bg-slate-900 border border-slate-800 rounded-lg p-1.5 text-sm text-white focus:border-violet-500 outline-none select-subject">
+              ${subOptions}
+            </select>
+            <select data-day="${day}" data-hour="${hour}" class="w-full bg-slate-950 border border-slate-850 rounded-lg p-1 text-sm text-slate-300 focus:border-violet-500 outline-none select-staff">
+              ${staffOptions}
+            </select>
+          </div>
+        </td>
+      `;
+    }    function printTimetable() {
+      if (!activeBatchId) return;
+
+      const sem = document.getElementById('modalSubjectSemester') ? document.getElementById('modalSubjectSemester').value : 3;
+      const dept = activeBatchId ? activeBatchId.split('_')[0] : '{{ session("userBranch") }}';
+      const currentYear = new Date().getFullYear();
+
+      // Convert department codes to full names
+      const deptNames = {
+        "EL": "Electronics Engineering",
+        "CS": "Computer Engineering",
+        "ME": "Mechanical Engineering",
+        "EE": "Electrical & Electronics Engineering",
+        "CE": "Civil Engineering",
+        "CH": "Chemical Engineering"
+      };
+      const fullDept = deptNames[dept.toUpperCase()] || dept;
+
+      const printWindow = window.open('', '_blank');
+      const days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
+      let rowsHtml = '';
+      const scheduledSubjects = new Set();
+
+      days.forEach((day, index) => {
+        const dayData = currentTimetableData[day] || {};
+        const s1 = dayData[1] || { subject: '', staff: '' };
+        const s2 = dayData[2] || { subject: '', staff: '' };
+        const s3 = dayData[3] || { subject: '', staff: '' };
+        const s4 = dayData[4] || { subject: '', staff: '' };
+        const s5 = dayData[5] || { subject: '', staff: '' };
+        const s6 = dayData[6] || { subject: '', staff: '' };
+
+        // Collect scheduled subject codes
+        [s1, s2, s3, s4, s5, s6].forEach(s => {
+          if (s.subject) scheduledSubjects.add(s.subject);
+        });
+
+        let cellsHtml = `<td class="p-4 text-center font-bold bg-gray-100 day-cell">${day}</td>`;
+
+        // Forenoon
+        if (s1.subject && slotsEqual(s1, s2) && slotsEqual(s2, s3)) {
+          cellsHtml += renderPrintCell(s1, 3);
+        } else if (s1.subject && slotsEqual(s1, s2)) {
+          cellsHtml += renderPrintCell(s1, 2);
+          cellsHtml += renderPrintCell(s3, 1);
+        } else if (s2.subject && slotsEqual(s2, s3)) {
+          cellsHtml += renderPrintCell(s1, 1);
+          cellsHtml += renderPrintCell(s2, 2);
+        } else {
+          cellsHtml += renderPrintCell(s1, 1);
+          cellsHtml += renderPrintCell(s2, 1);
+          cellsHtml += renderPrintCell(s3, 1);
+        }
+
+        // Lunch Break (merged vertically)
+        if (index === 0) {
+          cellsHtml += `<td rowspan="5" class="p-4 text-center font-black lunch-cell text-base" style="writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); letter-spacing: 5px; vertical-align: middle; min-width: 50px;">LUNCH BREAK</td>`;
+        }
+
+        // Afternoon
+        if (s4.subject && slotsEqual(s4, s5) && slotsEqual(s5, s6)) {
+          cellsHtml += renderPrintCell(s4, 3);
+        } else if (s4.subject && slotsEqual(s4, s5)) {
+          cellsHtml += renderPrintCell(s4, 2);
+          cellsHtml += renderPrintCell(s6, 1);
+        } else if (s5.subject && slotsEqual(s5, s6)) {
+          cellsHtml += renderPrintCell(s4, 1);
+          cellsHtml += renderPrintCell(s5, 2);
+        } else {
+          cellsHtml += renderPrintCell(s4, 1);
+          cellsHtml += renderPrintCell(s5, 1);
+          cellsHtml += renderPrintCell(s6, 1);
+        }
+
+        rowsHtml += `<tr class="border-b border-slate-800/40 print-row">${cellsHtml}</tr>`;
+      });
+
+      function renderPrintCell(slot, colspan = 1) {
+        const colspanAttr = colspan > 1 ? `colspan="${colspan}"` : '';
+        if (!slot.subject) {
+          return `<td ${colspanAttr} class="p-4 text-center free-period">-- Free --</td>`;
+        }
+        
+        const matchedSub = currentAllocatedSubjects.find(s => s.subject_code === slot.subject);
+        let subjectName = matchedSub ? matchedSub.subject_name : '';
+        let staffDisplay = '';
+        if (matchedSub && matchedSub.staff && matchedSub.staff.length > 0) {
+          staffDisplay = matchedSub.staff.map(s => s.name).join(', ');
+        } else {
+          staffDisplay = slot.staff || 'N/A';
+        }
+
+        return `
+          <td ${colspanAttr} class="p-4 text-center">
+            <div style="font-weight: 850; font-size: 15px;">${slot.subject}</div>
+            <div style="font-weight: 600; font-size: 12px; margin-top: 2px;">${subjectName}</div>
+            <div style="font-size: 11px; margin-top: 2px;">${staffDisplay}</div>
+          </td>
+        `;
+      }
+
+      // Build Legend/Abbreviations List
+      let legendHtml = '';
+      scheduledSubjects.forEach(code => {
+        const sub = currentAllocatedSubjects.find(s => s.subject_code === code);
+        const name = sub ? sub.subject_name : 'Unknown Subject';
+        let staffDisplay = '';
+        if (sub && sub.staff && sub.staff.length > 0) {
+          staffDisplay = sub.staff.map(s => s.name).join(', ');
+        }
+        legendHtml += `
+          <div class="flex gap-2 text-sm py-1.5 border-b legend-item">
+            <span class="font-mono font-bold w-24 legend-code">${code}</span>
+            <span class="flex-grow font-semibold">${name}</span>
+            <span class="legend-staff font-medium">(${staffDisplay || 'No staff assigned'})</span>
+          </div>
+        `;
+      });
+
+      if (!legendHtml) {
+        legendHtml = '<p class="text-sm text-gray-500 italic">No subjects scheduled.</p>';
+      }
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Timetable - ${activeBatchId}</title>
+          <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+          <style>
+            /* Screen (Dark Mode) Styles */
+            body {
+              font-family: Arial, sans-serif;
+              padding: 30px;
+              background-color: #0b0f19;
+              color: #f1f5f9;
+            }
+            .header-border {
+              border-color: #1e293b;
+            }
+            .meta-val {
+              color: #ffffff;
+            }
+            .meta-lbl {
+              color: #94a3b8;
+            }
+            table {
+              border-collapse: collapse;
+              width: 100%;
+              border: 2px solid #1e293b;
+              background-color: #0f172a;
+            }
+            th {
+              background-color: #1e293b;
+              color: #f1f5f9;
+              border: 1px solid #334155;
+              padding: 12px;
+              text-align: center;
+            }
+            td {
+              border: 1px solid #334155;
+              padding: 12px;
+              text-align: center;
+              vertical-align: middle;
+            }
+            .day-cell {
+              background-color: #1e293b;
+              font-weight: bold;
+              color: #ffffff;
+            }
+            .lunch-cell {
+              background-color: #090d16;
+              color: #64748b;
+              font-weight: 900;
+            }
+            .legend-box {
+              background-color: #0f172a;
+              border: 1px solid #1e293b;
+            }
+            .legend-title {
+              color: #ffffff;
+            }
+            .legend-item {
+              border-color: #1e293b;
+              color: #cbd5e1;
+            }
+            .legend-code {
+              color: #ffffff;
+            }
+            .legend-staff {
+              color: #94a3b8;
+            }
+            .free-period {
+              color: #475569;
+              font-style: italic;
+            }
+
+            /* Print (Light Mode) Styles */
+            @media print {
+              .no-print {
+                display: none;
+              }
+              @page {
+                size: A4 landscape;
+                margin: 0.5cm;
+              }
+              body {
+                background-color: #ffffff;
+                color: #000000;
+                padding: 0;
+                margin: 0;
+              }
+              table {
+                background-color: #ffffff;
+                border: 2px solid #000000 !important;
+              }
+              th, td {
+                border: 2px solid #000000 !important;
+                color: #000000 !important;
+                background-color: #ffffff !important;
+                padding: 6px !important;
+              }
+              .day-cell {
+                background-color: #f3f4f6 !important;
+              }
+              .lunch-cell {
+                background-color: #e5e7eb !important;
+              }
+              .legend-box {
+                background-color: #ffffff !important;
+                border: 1px solid #000000 !important;
+                margin-top: 10px !important;
+                padding: 8px !important;
+              }
+              .legend-title, .legend-item, .legend-code, .legend-staff {
+                color: #000000 !important;
+              }
+              .free-period {
+                color: #9ca3af !important;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="max-w-6xl mx-auto space-y-6">
+            
+            <!-- Centered Header Section -->
+            <div class="border-b pb-4 text-center relative header-border">
+              <h1 class="text-lg font-bold meta-lbl uppercase tracking-widest text-slate-400">Carmel Polytechnic College</h1>
+              <h2 class="text-2xl font-black text-white mt-1">Weekly Class Timetable</h2>
+              
+              <div class="flex justify-center gap-12 mt-4 text-sm meta-lbl">
+                <div>Department: <strong class="meta-val">${fullDept}</strong></div>
+                <div>Batch: <strong class="meta-val">${activeBatchId}</strong></div>
+                <div>Semester: <strong class="meta-val">Semester ${sem}</strong></div>
+                <div>Assessment Year: <strong class="meta-val">${currentYear}</strong></div>
+              </div>
+
+              <div class="no-print absolute top-0 right-0 flex gap-2">
+                <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm shadow transition duration-200">
+                  Print Timetable
+                </button>
+                <button onclick="window.close()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-bold text-sm shadow transition duration-200">
+                  Close Preview
+                </button>
+              </div>
+            </div>
+            
+            <!-- Timetable Grid -->
+            <table class="w-full text-left border">
+              <thead>
+                <tr class="text-slate-400 font-bold border-b header-border">
+                  <th class="p-3 text-center w-24">Day</th>
+                  <th class="p-3 text-center">Period 1<br><span class="text-xs font-normal meta-lbl">09:00 - 10:00</span></th>
+                  <th class="p-3 text-center">Period 2<br><span class="text-xs font-normal meta-lbl">10:00 - 11:00</span></th>
+                  <th class="p-3 text-center">Period 3<br><span class="text-xs font-normal meta-lbl">11:10 - 12:10</span></th>
+                  <th class="p-3 text-center w-16">Lunch</th>
+                  <th class="p-3 text-center">Period 4<br><span class="text-xs font-normal meta-lbl">01:00 - 02:00</span></th>
+                  <th class="p-3 text-center">Period 5<br><span class="text-xs font-normal meta-lbl">02:00 - 03:00</span></th>
+                  <th class="p-3 text-center">Period 6<br><span class="text-xs font-normal meta-lbl">03:00 - 04:00</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+            
+            <!-- Subject Legend / Abbreviations -->
+            <div class="mt-6 p-4 rounded-xl border legend-box">
+              <h3 class="text-sm font-bold legend-title mb-2 uppercase tracking-wider text-center">Subject Legend & Abbreviations</h3>
+              <div class="space-y-1">
+                ${legendHtml}
+              </div>
+            </div>
+            
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
+
+    function updateTimetableStaffDropdown(subjectSelect) {
+      const subjectCode = subjectSelect.value;
+      const cell = subjectSelect.closest('td');
+      const staffSelect = cell.querySelector('.select-staff');
+      if (!staffSelect) return;
+
+      staffSelect.innerHTML = `<option value="">-- No Staff --</option>`;
+      if (!subjectCode) return;
+
+      const matchedSub = currentAllocatedSubjects.find(s => s.subject_code === subjectCode);
+      if (matchedSub && matchedSub.staff) {
+        matchedSub.staff.forEach(st => {
+          const opt = document.createElement('option');
+          opt.value = st.name;
+          opt.textContent = st.name;
+          staffSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function toggleTimetableEdit(isEdit) {
+      const displayArea = document.getElementById('timetableDisplayArea');
+      const editArea = document.getElementById('timetableEditArea');
+      const btnEdit = document.getElementById('btnEditTimetable');
+      const btnCancel = document.getElementById('btnCancelTimetable');
+      const btnSave = document.getElementById('btnSaveTimetable');
+
+      if (isEdit) {
+        if (displayArea) displayArea.classList.add('hidden');
+        if (editArea) editArea.classList.remove('hidden');
+        if (btnEdit) btnEdit.classList.add('hidden');
+        if (btnCancel) btnCancel.classList.remove('hidden');
+        if (btnSave) btnSave.classList.remove('hidden');
+      } else {
+        if (displayArea) displayArea.classList.remove('hidden');
+        if (editArea) editArea.classList.add('hidden');
+        if (btnEdit) btnEdit.classList.remove('hidden');
+        if (btnCancel) btnCancel.classList.add('hidden');
+        if (btnSave) btnSave.classList.add('hidden');
+      }
+    }
+
+    function submitTimetable() {
+      if (!activeBatchId) return;
+
+      const payload = {};
+      const days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
+      
+      days.forEach(day => {
+        payload[day] = {};
+      });
+
+      const editArea = document.getElementById('timetableEditBody');
+      if (!editArea) return;
+
+      const subjectSelects = editArea.querySelectorAll('.select-subject');
+      subjectSelects.forEach(sel => {
+        const day = sel.getAttribute('data-day');
+        const hour = sel.getAttribute('data-hour');
+        const subject = sel.value;
+        
+        const cell = sel.closest('td');
+        const staffSel = cell.querySelector('.select-staff');
+        const staff = staffSel ? staffSel.value : '';
+
+        if (day && hour) {
+          payload[day][hour] = { subject, staff };
+        }
+      });
+
+      fetch(`/api/hod/batches/${encodeURIComponent(activeBatchId)}/timetable`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert('Timetable saved successfully!');
+          loadTimetable();
+        } else {
+          alert('Error: ' + data.message);
+        }
+      })
+      .catch(err => {
+        alert('Network Error: ' + err.message);
+      });
     }
 
     function loadModalSubjects() {
       if (!activeBatchId) return;
       const sem = document.getElementById('modalSubjectSemester').value;
       const tbody = document.getElementById('modalSubjectsTableBody');
-      tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">Loading subjects...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-500">Loading subjects...</td></tr>`;
 
       fetch(`/api/hod/batches/${encodeURIComponent(activeBatchId)}/subjects?semester=${sem}`)
         .then(res => res.json())
@@ -1598,7 +2311,7 @@
             allCollegeStaffCache = data.all_staff || [];
             tbody.innerHTML = '';
             if (data.subjects.length === 0) {
-              tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">No subjects allocated for this semester yet.</td></tr>`;
+              tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-500">No subjects allocated for this semester yet.</td></tr>`;
               return;
             }
 
@@ -1610,8 +2323,10 @@
                 ? '<span class="px-2 py-0.5 rounded text-sm font-bold bg-green-500/10 text-green-400 border border-green-500/20">Submitted</span>'
                 : '<span class="px-2 py-0.5 rounded text-sm font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>';
 
+              const currentStaffIds = subj.staff.map(s => s.mobile_no).join(',');
+
               const tr = document.createElement('tr');
-              tr.className = 'border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium';
+              tr.className = 'border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium cursor-help';
               tr.innerHTML = `
                 <td class="p-4 font-mono text-slate-300 font-bold">${subj.subject_code}</td>
                 <td class="p-4 font-mono text-slate-500 text-sm">${subj.syllabus_revision_code || '2021'}</td>
@@ -1619,27 +2334,46 @@
                 <td class="p-4 text-slate-400 text-sm">${subj.subject_type}</td>
                 <td class="p-4">${staffList}</td>
                 <td class="p-4">${courseFileBadge}</td>
+                <td class="p-4 text-right">
+                  <button onclick="openAssignStaffModalFromModal(event, this, ${subj.id}, '${currentStaffIds}')" data-subject-name="${subj.subject_name.replace(/"/g, '&quot;')}" class="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-bold transition-premium border border-blue-500/20 cursor-pointer">Assign Staff</button>
+                </td>
               `;
+              
+              // Progress popup event listeners
+              tr.addEventListener('mouseenter', (e) => {
+                showSubjectProgressPopup(subj, e);
+              });
+              tr.addEventListener('mousemove', (e) => {
+                positionSubjectProgressPopup(e);
+              });
+              tr.addEventListener('mouseleave', () => {
+                hideSubjectProgressPopup();
+              });
+              tr.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showSubjectProgressPopup(subj, e, true);
+              });
               tbody.appendChild(tr);
             });
           } else {
-            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-400">Failed to load subjects.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-400">Failed to load subjects.</td></tr>`;
           }
         })
         .catch(() => {
-          tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-400">Error fetching subjects.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-400">Error fetching subjects.</td></tr>`;
         });
     }
 
     function openSubjectModalFromDetail() {
       const sem = document.getElementById('modalSubjectSemester').value;
-      document.getElementById('modalSubjectBatch').value = activeBatchId;
-      document.getElementById('displaySubjectBatch').innerText = activeBatchId;
-      document.getElementById('modalSubjectSemester').value = sem;
-      document.getElementById('displaySubjectSemester').innerText = 'Semester ' + sem;
       
       document.getElementById('subjectForm').reset();
       document.getElementById('subjectAlert').classList.add('hidden');
+
+      document.getElementById('modalFormSubjectBatch').value = activeBatchId;
+      document.getElementById('displaySubjectBatch').innerText = activeBatchId;
+      document.getElementById('modalFormSubjectSemester').value = sem;
+      document.getElementById('displaySubjectSemester').innerText = 'Semester ' + sem;
       
       const modal = document.getElementById('subjectModal');
       modal.classList.remove('hidden');
@@ -1758,7 +2492,7 @@
               <td class="p-3">${admTypeBadge}</td>
               <td class="p-3">${statusBadge}</td>
               <td class="p-3 text-right">
-                <button onclick="openFullMentoringDiaryModal('${s.reg_no}', '${s.name.replace(/'/g, "\\'")}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/20 text-teal-400 rounded-lg text-sm font-bold transition-premium cursor-pointer">
+                <button onclick="openStudentDiary('${s.reg_no}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/20 text-teal-400 rounded-lg text-sm font-bold transition-premium cursor-pointer">
                   <span class="material-symbols-rounded text-sm">menu_book</span> Diary
                 </button>
               </td>
@@ -1819,8 +2553,8 @@
                 <td class="p-4 text-slate-400 text-sm">${subj.subject_type}</td>
                 <td class="p-4">${staffList}</td>
                 <td class="p-4 text-right space-x-2">
-                  <button onclick="openAssignStaffModal(${subj.id}, '${subj.subject_name.replace(/'/g, "\\'")}', '${currentStaffIds}')" class="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-bold transition-premium border border-blue-500/20">Assign Staff</button>
-                  <button onclick="deleteSubject(${subj.id})" class="px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-sm font-bold transition-premium border border-red-500/20">Delete</button>
+                  <button onclick="openAssignStaffModal(this, ${subj.id}, '${currentStaffIds}')" data-subject-name="${subj.subject_name.replace(/"/g, '&quot;')}" class="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-bold transition-premium border border-blue-500/20 cursor-pointer">Assign Staff</button>
+                  <button onclick="deleteSubject(${subj.id})" class="px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-sm font-bold transition-premium border border-red-500/20 cursor-pointer">Delete</button>
                 </td>
               `;
               tbody.appendChild(tr);
@@ -1835,30 +2569,51 @@
     }
 
     function openSubjectModal() {
-      const batchSelect = document.getElementById('subjectBatchSelect');
-      const semSelect = document.getElementById('subjectSemesterSelect');
-      if (!batchSelect.value) {
-        alert("Please select a target batch first.");
-        return;
+      try {
+        const batchSelect = document.getElementById('subjectBatchSelect');
+        const semSelect = document.getElementById('subjectSemesterSelect');
+        if (!batchSelect || !batchSelect.value) {
+          alert("Please select a target batch first.");
+          return;
+        }
+        
+        const formEl = document.getElementById('subjectForm');
+        if (formEl) formEl.reset();
+        
+        const alertEl = document.getElementById('subjectAlert');
+        if (alertEl) alertEl.classList.add('hidden');
+
+        const modalBatch = document.getElementById('modalFormSubjectBatch');
+        if (modalBatch) modalBatch.value = batchSelect.value;
+        
+        const displayBatch = document.getElementById('displaySubjectBatch');
+        if (displayBatch) displayBatch.innerText = batchSelect.value;
+        
+        const modalSem = document.getElementById('modalFormSubjectSemester');
+        if (modalSem) modalSem.value = semSelect.value;
+        
+        const displaySem = document.getElementById('displaySubjectSemester');
+        if (displaySem && semSelect) {
+          displaySem.innerText = semSelect.options[semSelect.selectedIndex].text;
+        }
+        
+        const modal = document.getElementById('subjectModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+        }
+      } catch (err) {
+        alert("Error opening subject modal: " + err.message);
+        console.error('[openSubjectModal] Error:', err);
       }
-      
-      document.getElementById('modalSubjectBatch').value = batchSelect.value;
-      document.getElementById('displaySubjectBatch').innerText = batchSelect.value;
-      document.getElementById('modalSubjectSemester').value = semSelect.value;
-      document.getElementById('displaySubjectSemester').innerText = semSelect.options[semSelect.selectedIndex].text;
-      
-      document.getElementById('subjectForm').reset();
-      document.getElementById('subjectAlert').classList.add('hidden');
-      
-      const modal = document.getElementById('subjectModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
     }
 
     function closeSubjectModal() {
       const modal = document.getElementById('subjectModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
     }
 
     function createSubject(e) {
@@ -1869,8 +2624,8 @@
       alertEl.classList.add('hidden');
 
       const payload = {
-        classroom_id: document.getElementById('modalSubjectBatch').value,
-        semester: document.getElementById('modalSubjectSemester').value,
+        classroom_id: document.getElementById('modalFormSubjectBatch').value,
+        semester: document.getElementById('modalFormSubjectSemester').value,
         subject_code: document.getElementById('subjectCode').value,
         subject_name: document.getElementById('subjectName').value,
         subject_type: document.getElementById('subjectType').value,
@@ -1888,6 +2643,7 @@
         if (data.status === 'SUCCESS') {
           closeSubjectModal();
           loadSubjects(); // refresh
+          loadModalSubjects(); // refresh modal
         } else {
           alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
           alertEl.innerText = data.message;
@@ -1917,19 +2673,38 @@
 
     let currentAssignStaffIds = [];
 
-    function openAssignStaffModal(subjectId, subjectName, currentStaffIds) {
-      document.getElementById('assignSubjectId').value = subjectId;
-      document.getElementById('assignSubjectName').innerText = subjectName;
-      document.getElementById('staffBranchFilter').value = "{{ session('userBranch') }}";
-      
-      currentAssignStaffIds = currentStaffIds ? currentStaffIds.split(',') : [];
-      
-      renderAssignStaffList();
+    function openAssignStaffModal(btn, subjectId, currentStaffIds) {
+      try {
+        console.log('[openAssignStaffModal] subjectId:', subjectId, 'currentStaffIds:', currentStaffIds);
+        const subjectName = btn.getAttribute('data-subject-name');
+        
+        const idEl = document.getElementById('assignSubjectId');
+        if (idEl) idEl.value = subjectId;
+        
+        const nameEl = document.getElementById('assignSubjectName');
+        if (nameEl) nameEl.innerText = subjectName;
+        
+        const filterEl = document.getElementById('staffBranchFilter');
+        if (filterEl) {
+          filterEl.value = window.branchOverride || "{{ session('userBranch') }}" || "";
+        }
+        
+        currentAssignStaffIds = currentStaffIds ? currentStaffIds.split(',') : [];
+        
+        renderAssignStaffList();
 
-      document.getElementById('assignStaffAlert').classList.add('hidden');
-      const modal = document.getElementById('assignStaffModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+        const alertEl = document.getElementById('assignStaffAlert');
+        if (alertEl) alertEl.classList.add('hidden');
+        
+        const modal = document.getElementById('assignStaffModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+        }
+      } catch (err) {
+        alert("Error opening assign staff modal: " + err.message);
+        console.error('[openAssignStaffModal] Error:', err);
+      }
     }
 
     function closeAssignStaffModal() {
@@ -1991,6 +2766,7 @@
         if (data.status === 'SUCCESS') {
           closeAssignStaffModal();
           loadSubjects(); // refresh
+          loadModalSubjects(); // refresh modal
         } else {
           alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
           alertEl.innerText = data.message;
@@ -2039,7 +2815,195 @@
           tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-400 font-bold">Error querying logs.</td></tr>`;
         });
     }
+
+    // =========================================================================
+    // SUBJECT PROGRESS POPUP CARD LOGIC
+    // =========================================================================
+    let persistentPopupActive = false;
+
+    function showSubjectProgressPopup(subj, event, isClick = false) {
+      if (isClick) {
+        persistentPopupActive = !persistentPopupActive;
+      }
+      
+      const popup = document.getElementById('subjectProgressPopup');
+      document.getElementById('popupSubjName').innerText = subj.subject_name;
+      document.getElementById('popupSubjCode').innerText = subj.subject_code;
+      document.getElementById('popupAllottedHours').innerText = (subj.total_hours_allotted || 0) + ' hrs';
+      document.getElementById('popupCompletedHours').innerText = (subj.hours_completed || 0) + ' hrs';
+      
+      // Format Status Colors
+      const formatStatus = (elId, status) => {
+        const el = document.getElementById(elId);
+        el.innerText = status || 'Not Initiated';
+        if (!status || status === 'Not Initiated') {
+          el.className = 'font-bold text-slate-500';
+        } else if (status === 'Pending') {
+          el.className = 'font-bold text-amber-400';
+        } else {
+          el.className = 'font-bold text-green-400';
+        }
+      };
+
+      formatStatus('popupAssignmentStatus', subj.assignment_initiated);
+      formatStatus('popupWrittenTestStatus', subj.written_test_initiated);
+      formatStatus('popupMcqStatus', subj.mcq_status);
+      formatStatus('popupMidSemStatus', subj.mid_sem_survey_status);
+      formatStatus('popupEndSemStatus', subj.end_sem_survey_status);
+      
+      popup.classList.remove('hidden');
+      positionSubjectProgressPopup(event);
+    }
+
+    function positionSubjectProgressPopup(event) {
+      const popup = document.getElementById('subjectProgressPopup');
+      let top = event.clientY + 15;
+      let left = event.clientX + 15;
+      
+      const popupWidth = 288;
+      const popupHeight = 240;
+      
+      if (left + popupWidth > window.innerWidth) {
+        left = event.clientX - popupWidth - 15;
+      }
+      if (top + popupHeight > window.innerHeight) {
+        top = event.clientY - popupHeight - 15;
+      }
+      
+      popup.style.top = top + 'px';
+      popup.style.left = left + 'px';
+    }
+
+    function hideSubjectProgressPopup() {
+      if (!persistentPopupActive) {
+        const popup = document.getElementById('subjectProgressPopup');
+        popup.classList.add('hidden');
+      }
+    }
+    
+    // Clear persistent state on closures or transitions
+    const originalCloseBatchDetailModal = closeBatchDetailModal;
+    closeBatchDetailModal = function() {
+      persistentPopupActive = false;
+      hideSubjectProgressPopup();
+      if (typeof originalCloseBatchDetailModal === 'function') {
+        originalCloseBatchDetailModal();
+      }
+    };
+
+    const originalSwitchBatchTab = switchBatchTab;
+    switchBatchTab = function(tab) {
+      persistentPopupActive = false;
+      hideSubjectProgressPopup();
+      if (typeof originalSwitchBatchTab === 'function') {
+        originalSwitchBatchTab(tab);
+      }
+    };
+
+    document.addEventListener('click', (e) => {
+      const popup = document.getElementById('subjectProgressPopup');
+      if (persistentPopupActive && !e.target.closest('tr')) {
+        persistentPopupActive = false;
+        popup.classList.add('hidden');
+      }
+    });
+
+    function openStudentDiary(regNo) {
+      window.open('/tutor/mentoring-diary/' + regNo, '_blank');
+    }
+
+    function openAssignStaffModalFromModal(event, btn, subjectId, currentStaffIds) {
+      if (event) event.stopPropagation();
+      openAssignStaffModal(btn, subjectId, currentStaffIds);
+    }
+
+    function handleStaffPhotoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('staffPhotoUploadStatus');
+      statusEl.classList.remove('hidden');
+      statusEl.className = "text-sm font-bold mt-2 text-blue-400";
+      statusEl.innerText = "Uploading photo...";
+
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      fetch('/api/staff/profile/upload-photo', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          statusEl.className = "text-sm font-bold mt-2 text-green-400";
+          statusEl.innerText = "Photo updated successfully!";
+
+          // Update main profile picture
+          const imgEl = document.getElementById('staffProfileImg');
+          if (imgEl) {
+            imgEl.src = data.photo_url;
+          }
+
+          // Update sidebar picture
+          const sidebarImg = document.getElementById('sidebarStaffImg');
+          if (sidebarImg) {
+            sidebarImg.src = data.photo_url;
+          }
+
+          setTimeout(() => statusEl.classList.add('hidden'), 3000);
+        } else {
+          statusEl.className = "text-sm font-bold mt-2 text-rose-400";
+          statusEl.innerText = data.message || "Upload failed.";
+        }
+      })
+      .catch(() => {
+        statusEl.className = "text-sm font-bold mt-2 text-rose-400";
+        statusEl.innerText = "Network error. Please try again.";
+      });
+    }
   </script>
+
+  <!-- SUBJECT PROGRESS POPUP CARD -->
+  <div id="subjectProgressPopup" class="fixed hidden bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl z-[60] w-72 pointer-events-none transition-premium flex flex-col gap-3">
+    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+      <h4 id="popupSubjName" class="font-extrabold text-sm text-slate-100 truncate w-48">Subject Name</h4>
+      <span id="popupSubjCode" class="font-mono text-xs font-bold text-violet-400 bg-violet-950/40 border border-violet-900/60 px-2 py-0.5 rounded">ENG101</span>
+    </div>
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between items-center">
+        <span class="text-slate-400 text-sm">Allotted Hours:</span>
+        <span id="popupAllottedHours" class="font-bold text-slate-200">0 hrs</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-slate-400 text-sm">Completed Hours:</span>
+        <span id="popupCompletedHours" class="font-bold text-slate-200">0 hrs</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-slate-400 text-sm">Assignment Initiated:</span>
+        <span id="popupAssignmentStatus" class="font-bold text-slate-500">Not Initiated</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-slate-400 text-sm">Written Test Initiated:</span>
+        <span id="popupWrittenTestStatus" class="font-bold text-slate-500">Not Initiated</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-slate-400 text-sm">MCQ Status:</span>
+        <span id="popupMcqStatus" class="font-bold text-slate-500">Not Initiated</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-slate-400 text-sm">Mid-Sem Survey:</span>
+        <span id="popupMidSemStatus" class="font-bold text-slate-500">Not Initiated</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <span class="text-slate-400 text-sm">End-Sem Survey:</span>
+        <span id="popupEndSemStatus" class="font-bold text-slate-500">Not Initiated</span>
+      </div>
+    </div>
+  </div>
 
   @include('mentoring_diary_modal')
 

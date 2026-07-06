@@ -18,13 +18,24 @@ class ClassroomController extends Controller
     public function uploadSyllabus(Request $request, $subjectId)
     {
         $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+        $userBranch = Session::get('userBranch');
+
         if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+
+        $batchSubject = \App\Models\BatchSubject::with('classroom')->find($subjectId);
+        if (!$batchSubject) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
+        }
 
         $assignment = SubjectStaffAssignment::where('batch_subject_id', $subjectId)
             ->where('staff_mobile_no', $userId)
             ->first();
 
-        if (!$assignment && Session::get('userRole') !== 'HOD') {
+        // Also allow upload if the staff is a Lecturer or Demonstrator belonging to the same department/branch
+        $isBranchStaff = (in_array($userRole, ['Lecturer', 'Demonstrator']) && strtoupper($userBranch) === strtoupper($batchSubject->classroom->branch));
+
+        if (!$assignment && !in_array($userRole, ['HOD', 'Principal']) && !$isBranchStaff) {
             return response()->json(['status' => 'ERROR', 'message' => 'You are not assigned to this subject.']);
         }
 
@@ -47,10 +58,17 @@ class ClassroomController extends Controller
             $extractedTextbooks = [];
             $lessonPlans = [];
 
-            if (strpos(strtolower($text), 'electronic circuits') !== false || 
-                strpos(strtolower($text), 'electric circuits') !== false || 
-                strpos(strtolower($text), '3043') !== false || 
-                $subjectId == 5) {
+            $useHardcodedFallback = false;
+            if (!env('GEMINI_API_KEY')) {
+                if (strpos(strtolower($text), 'electronic circuits') !== false || 
+                    strpos(strtolower($text), 'electric circuits') !== false || 
+                    strpos(strtolower($text), '3043') !== false || 
+                    $subjectId == 5) {
+                    $useHardcodedFallback = true;
+                }
+            }
+
+            if ($useHardcodedFallback) {
                 
                 $extractedCos = [
                     ['id' => 'CO1', 'description' => 'Develop basic single stage and multistage amplifiers', 'duration' => 14, 'cognitive_level' => 'Applying'],
@@ -245,6 +263,18 @@ Syllabus text:
             if (empty($lessonPlans)) {
                 $lessonPlans = $this->generateBasicLessonPlans($extractedModules, $extractedCos);
             }
+
+            // Register subject code in syllabus_registry to satisfy FK constraints in academic_marks and question_bank
+            \DB::table('syllabus_registry')->updateOrInsert(
+                ['subject_code' => $batchSubject->subject_code],
+                [
+                    'subject_name' => $batchSubject->subject_name,
+                    'revision_year' => $syllabusRevision ?? 2021,
+                    'co_count' => count($extractedCos) ?: 6,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]
+            );
 
             $courseFile = CourseFile::updateOrCreate(
                 ['batch_subject_id' => $subjectId],
@@ -475,7 +505,7 @@ Syllabus text:
             $batchSubject = \App\Models\BatchSubject::find($subjectId);
             $students = [];
             if ($batchSubject) {
-                $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)->get(['reg_no', 'name', 'sbte_reg_no']);
+                $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
                 
                 // Get marks
                 $studentRegNos = $students->pluck('reg_no')->toArray();
@@ -500,16 +530,25 @@ Syllabus text:
                             })
                             ->where('category', 'Summative')
                             ->get();
-                
-                // Map marks to students
-                $students = $students->map(function ($student) use ($marks, $summativeMarks) {
+                $taskSubmissions = \DB::table('student_task_submissions')
+                            ->where('subject_code', $batchSubject->subject_code)
+                            ->whereIn('reg_no', $studentRegNos)
+                            ->get();
+
+                // Map marks and submissions to students
+                $students = $students->map(function ($student) use ($marks, $summativeMarks, $taskSubmissions) {
                     $studentMarks = $marks->where('reg_no', $student->reg_no);
                     $coMarks = [];
+                    $coSubmissions = [];
                     foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
                         $mark = $studentMarks->where('co_tag', $co)->first();
                         $coMarks[$co] = $mark ? $mark->marks_obtained : null;
+
+                        $sub = $taskSubmissions->where('reg_no', $student->reg_no)->where('co_tag', $co)->where('category', 'Assignment')->first();
+                        $coSubmissions[$co] = $sub ? $sub->status : null;
                     }
                     $student->assignment_marks = $coMarks;
+                    $student->assignment_submissions = $coSubmissions;
 
                     $studentSummativeMarks = $summativeMarks->where('reg_no', $student->reg_no);
                     $coSummative = [];
@@ -522,6 +561,9 @@ Syllabus text:
                     return $student;
                 });
             }
+
+            $syllabus = \DB::table('syllabus_registry')->where('subject_code', $batchSubject->subject_code)->first();
+            $syllabusRevision = $syllabus->revision_year ?? '2021';
 
             return response()->json([
                 'status' => 'SUCCESS',
@@ -538,6 +580,7 @@ Syllabus text:
                     'summative_manual_tests' => $courseFile->summative_manual_tests ?? [],
                     'subject_name' => $batchSubject->subject_name ?? '',
                     'subject_code' => $batchSubject->subject_code ?? '',
+                    'syllabus_revision' => $syllabusRevision
                 ]
             ]);
         }
@@ -549,6 +592,9 @@ Syllabus text:
         $coTag = $request->query('co_tag') ?: $request->input('co_tag');
         $mode = $request->input('generation_mode', 'ai'); // 'ai' or 'bank'
         
+        // Allow longer execution time for bulk generation (4 COs × ~15s each)
+        set_time_limit(300);
+        
         $courseFile = \App\Models\CourseFile::where('batch_subject_id', $subjectId)->first();
         if (!$courseFile) return response()->json(['status' => 'ERROR', 'message' => 'Course file not found.']);
         
@@ -559,114 +605,125 @@ Syllabus text:
         $branchCode = $batchSubject->classroom->branch;
         $deadlines = $courseFile->assignment_deadlines ?? [];
 
-        // Check if locked
-        if ($coTag && isset($deadlines[$coTag]['locked']) && $deadlines[$coTag]['locked']) {
-            return response()->json(['status' => 'ERROR', 'message' => 'Questions for this CO are locked and cannot be regenerated.']);
-        }
+        // Determine which COs to generate (if coTag is null, generate all four outcomes)
+        $cosToGenerate = $coTag ? [$coTag] : ['CO1', 'CO2', 'CO3', 'CO4'];
+        
+        $apiKey = env('GEMINI_API_KEY');
+        $savedQuestions = $courseFile->assignment_questions ?? [];
 
-        // Get CO description
-        $coDesc = 'General topics';
-        if ($courseFile->parsed_cos) {
-            $parsedCos = is_string($courseFile->parsed_cos) ? json_decode($courseFile->parsed_cos, true) : $courseFile->parsed_cos;
-            if (is_array($parsedCos)) {
-                foreach ($parsedCos as $c) {
-                    if (isset($c['id']) && trim($c['id']) === trim($coTag)) {
-                        $coDesc = $c['description'] ?? 'General topics';
-                        break;
-                    }
-                }
+        foreach ($cosToGenerate as $currentCo) {
+            // Check if locked
+            if (isset($deadlines[$currentCo]['locked']) && $deadlines[$currentCo]['locked']) {
+                continue; // Skip locked COs
             }
-        }
 
-        $questionsList = [];
-
-        if ($mode === 'bank') {
-            // Option 1: Pull from local shared Question Bank pool
-            $pool = \Illuminate\Support\Facades\DB::table('question_bank')
-                ->where('subject_code', $subjectCode)
-                ->where('co_tag', $coTag)
-                ->where('type', 'Descriptive')
-                ->inRandomOrder()
-                ->limit(3)
-                ->pluck('question_text')
-                ->toArray();
-
-            if (count($pool) >= 1) {
-                $questionsList = $pool;
-            } else {
-                // If local pool is empty, auto fallback to AI or alert
-                $mode = 'ai'; // fallback
-            }
-        }
-
-        if ($mode === 'ai' || empty($questionsList)) {
-            // Option 2: Generate via AI
-            $apiKey = env('GEMINI_API_KEY');
-            $generatedWithAi = false;
-            if ($apiKey) {
-                try {
-                    $prompt = "You are an examiner generating descriptive homework questions for an engineering course. Generate exactly 3 descriptive questions for Course Outcome '{$coTag}' based strictly on the syllabus topic: '{$coDesc}'. Return ONLY a valid JSON array of strings: [\"Question 1?\", \"Question 2?\", \"Question 3?\"]";
-                    $response = \Illuminate\Support\Facades\Http::post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
-                        'contents' => [['parts' => [['text' => $prompt]]]],
-                        'generationConfig' => ['responseMimeType' => 'application/json']
-                    ]);
-
-                    if ($response->successful()) {
-                        $jsonString = $response->json('candidates.0.content.parts.0.text');
-                        $cleanJson = trim(str_replace(['```json', '```JSON', '```'], '', $jsonString));
-                        $parsed = json_decode($cleanJson, true);
-                        if (is_array($parsed) && count($parsed) > 0) {
-                            $questionsList = $parsed;
-                            $generatedWithAi = true;
+            // Get CO description
+            $coDesc = 'General topics';
+            if ($courseFile->parsed_cos) {
+                $parsedCos = is_string($courseFile->parsed_cos) ? json_decode($courseFile->parsed_cos, true) : $courseFile->parsed_cos;
+                if (is_array($parsedCos)) {
+                    foreach ($parsedCos as $c) {
+                        if (isset($c['id']) && trim($c['id']) === trim($currentCo)) {
+                            $coDesc = $c['description'] ?? 'General topics';
+                            break;
                         }
                     }
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::warning("Gemini descriptive question generation failed: " . $e->getMessage());
                 }
             }
 
-            if (!$generatedWithAi) {
-                // Fallback descriptive questions pool (not specific to embedded systems)
-                $questionsList = [
-                    "Explain the core principles and fundamental concepts associated with {$coTag} ({$coDesc}).",
-                    "Analyze the practical implementation challenges and considerations for {$coTag} in modern engineering applications.",
-                    "Discuss the key parameters and methodologies used to design systems related to {$coTag}."
-                ];
+            $questionsList = [];
+
+            if ($mode === 'bank') {
+                // Option 1: Pull from local shared Question Bank pool
+                $pool = \Illuminate\Support\Facades\DB::table('question_bank')
+                    ->where('subject_code', $subjectCode)
+                    ->where('co_tag', $currentCo)
+                    ->where('type', 'Descriptive')
+                    ->inRandomOrder()
+                    ->limit(3)
+                    ->pluck('question_text')
+                    ->toArray();
+
+                if (count($pool) >= 1) {
+                    $questionsList = $pool;
+                } else {
+                    $mode = 'ai'; // fallback
+                }
             }
 
-            // Save new AI generated questions back to shared question bank
-            foreach ($questionsList as $qText) {
-                \Illuminate\Support\Facades\DB::table('question_bank')->insert([
-                    'question_id' => (string) \Illuminate\Support\Str::uuid(),
-                    'branch_code' => $branchCode,
-                    'subject_code' => $subjectCode,
-                    'batch_subject_id' => $subjectId,
-                    'type' => 'Descriptive',
-                    'question_text' => $qText,
-                    'options' => json_encode([]),
-                    'correct_answer' => null,
-                    'co_tag' => $coTag,
-                    'marks' => 5,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
+            if ($mode === 'ai' || empty($questionsList)) {
+                // Option 2: Generate via AI
+                $generatedWithAi = false;
+                if ($apiKey) {
+                    try {
+                        $prompt = "You are an examiner generating descriptive homework questions for an engineering course. Generate exactly 3 descriptive questions for Course Outcome '{$currentCo}' based strictly on the syllabus topic: '{$coDesc}'. Return ONLY a valid JSON array of strings: [\"Question 1?\", \"Question 2?\", \"Question 3?\"]";
+                        $response = \Illuminate\Support\Facades\Http::timeout(60)->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
+                            'contents' => [['parts' => [['text' => $prompt]]]],
+                            'generationConfig' => ['responseMimeType' => 'application/json']
+                        ]);
+
+                        if ($response->successful()) {
+                            $jsonString = $response->json('candidates.0.content.parts.0.text');
+                            $cleanJson = trim(str_replace(['```json', '```JSON', '```'], '', $jsonString));
+                            $parsed = json_decode($cleanJson, true);
+                            if (is_array($parsed) && count($parsed) > 0) {
+                                $questionsList = $parsed;
+                                $generatedWithAi = true;
+                            }
+                        }
+                    } catch (\Exception $e) {
+                        \Illuminate\Support\Facades\Log::warning("Gemini descriptive question generation failed for {$currentCo}: " . $e->getMessage());
+                    }
+                }
+
+                if (!$generatedWithAi) {
+                    // Fallback descriptive questions pool
+                    $questionsList = [
+                        "Explain the core principles and fundamental concepts associated with {$currentCo} ({$coDesc}).",
+                        "Analyze the practical implementation challenges and considerations for {$currentCo} in modern engineering applications.",
+                        "Discuss the key parameters and methodologies used to design systems related to {$currentCo}."
+                    ];
+                }
+
+                // Save new AI generated questions back to shared question bank (best-effort — may fail if subject not in syllabus_registry)
+                foreach ($questionsList as $qText) {
+                    try {
+                        \Illuminate\Support\Facades\DB::table('question_bank')->insert([
+                            'question_id' => (string) \Illuminate\Support\Str::uuid(),
+                            'branch_code' => $branchCode,
+                            'subject_code' => $subjectCode,
+                            'batch_subject_id' => $subjectId,
+                            'type' => 'Descriptive',
+                            'question_text' => $qText,
+                            'options' => json_encode([]),
+                            'correct_answer' => null,
+                            'co_tag' => $currentCo,
+                            'marks' => 5,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ]);
+                    } catch (\Exception $e) {
+                        // Subject code not yet in syllabus_registry — skip pooling, questions still saved to course_file
+                        \Illuminate\Support\Facades\Log::info("Skipped question_bank pool for {$subjectCode}: " . $e->getMessage());
+                    }
+                }
             }
+
+            // Format to "1. Question Text"
+            $formatted = [];
+            foreach ($questionsList as $idx => $qText) {
+                $formatted[] = ($idx + 1) . '. ' . preg_replace('/^\d+\.\s*/', '', $qText);
+            }
+
+            $savedQuestions[$currentCo] = $formatted;
         }
 
-        // Format to "1. Question Text"
-        $formatted = [];
-        foreach ($questionsList as $idx => $qText) {
-            $formatted[] = ($idx + 1) . '. ' . preg_replace('/^\d+\.\s*/', '', $qText);
-        }
-
-        $savedQuestions = $courseFile->assignment_questions ?? [];
-        $savedQuestions[$coTag] = $formatted;
         $courseFile->assignment_questions = $savedQuestions;
         $courseFile->save();
 
         return response()->json([
             'status' => 'SUCCESS',
-            'data' => [ $coTag => $formatted ]
+            'data' => $savedQuestions
         ]);
     }
 
@@ -724,6 +781,14 @@ Syllabus text:
                     'marks_obtained' => $mark['marks_obtained']
                 ]
             );
+
+            // Update student's task submission status to 'Graded'
+            \DB::table('student_task_submissions')
+                ->where('reg_no', $mark['reg_no'])
+                ->where('subject_code', $batchSubject->subject_code)
+                ->where('co_tag', $mark['co_tag'])
+                ->where('category', 'Assignment')
+                ->update(['status' => 'Graded', 'updated_at' => now()]);
         }
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Marks saved successfully.']);

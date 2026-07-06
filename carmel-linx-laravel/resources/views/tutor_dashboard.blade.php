@@ -10,6 +10,10 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   
   <style>
+    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
+    .font-extrabold, .font-black {
+      font-weight: 700 !important;
+    }
     .transition-premium {
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -1729,6 +1733,20 @@
           });
         } else {
           tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">No leave records found for this classroom.</td></tr>';
+        }
+
+        // Populate reportStudentSelect dropdown for this classroom
+        const reportStudentSelect = document.getElementById('reportStudentSelect');
+        if (reportStudentSelect) {
+          reportStudentSelect.innerHTML = '<option value="">Select student...</option>';
+          if (resData.status === 'SUCCESS' && resData.students) {
+            resData.students.forEach(s => {
+              const opt = document.createElement('option');
+              opt.value = s.reg_no;
+              opt.innerText = `${s.name} (${s.reg_no})`;
+              reportStudentSelect.appendChild(opt);
+            });
+          }
         }
       });
     }

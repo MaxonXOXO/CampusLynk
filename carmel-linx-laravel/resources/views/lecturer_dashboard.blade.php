@@ -17,6 +17,10 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
   <style>
+    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
+    .font-extrabold, .font-black {
+      font-weight: 700 !important;
+    }
     .transition-premium {
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -134,6 +138,128 @@
       color: #38bdf8 !important;
       fill: #38bdf8 !important;
     }
+
+    /* PREMIUM LIGHT THEME OVERRIDES (100% Layout Safe) */
+    body.light-theme {
+      background-color: #f8fafc !important; /* slate-50 */
+      color: #334155 !important; /* slate-700 */
+    }
+    body.light-theme header {
+      background-color: rgba(255, 255, 255, 0.8) !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme header h1 {
+      color: #0f172a !important;
+    }
+    body.light-theme aside {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+    }
+    body.light-theme aside h2,
+    body.light-theme aside span {
+      color: #1e293b !important;
+    }
+    body.light-theme aside .text-slate-400 {
+      color: #64748b !important;
+    }
+    body.light-theme aside a,
+    body.light-theme aside button {
+      color: #475569 !important;
+    }
+    body.light-theme aside a:hover,
+    body.light-theme aside button:hover {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme aside .bg-slate-900\/40 {
+      background-color: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+    }
+    body.light-theme aside .bg-slate-800 {
+      background-color: #f1f5f9 !important;
+      color: #334155 !important;
+    }
+
+    /* Cards and panels */
+    body.light-theme .bg-slate-900,
+    body.light-theme .bg-slate-950,
+    body.light-theme .bg-slate-900\/50,
+    body.light-theme .bg-slate-950\/50,
+    body.light-theme .bg-slate-950\/40,
+    body.light-theme .bg-slate-950\/30,
+    body.light-theme .bg-slate-950\/20,
+    body.light-theme .bg-slate-950\/80,
+    body.light-theme .bg-slate-900\/80 {
+      background-color: #ffffff !important;
+      color: #334155 !important;
+    }
+    body.light-theme .bg-slate-800\/50,
+    body.light-theme .bg-slate-800 {
+      background-color: #f1f5f9 !important;
+      color: #1e293b !important;
+    }
+    body.light-theme .bg-slate-900\/40,
+    body.light-theme .bg-slate-950\/20 {
+      background-color: #f8fafc !important;
+    }
+
+    /* Borders */
+    body.light-theme .border-slate-800,
+    body.light-theme .border-slate-700,
+    body.light-theme .border-slate-800\/80,
+    body.light-theme .border-slate-800\/60,
+    body.light-theme .border-slate-800\/40,
+    body.light-theme .border-slate-700\/50,
+    body.light-theme .border-slate-700\/60 {
+      border-color: #e2e8f0 !important;
+    }
+
+    /* Texts */
+    body.light-theme .text-slate-100,
+    body.light-theme .text-slate-200,
+    body.light-theme .text-white {
+      color: #0f172a !important;
+    }
+    body.light-theme .text-slate-300,
+    body.light-theme .text-slate-400 {
+      color: #475569 !important;
+    }
+    body.light-theme .text-slate-500 {
+      color: #64748b !important;
+    }
+
+    /* Input elements */
+    body.light-theme input,
+    body.light-theme select,
+    body.light-theme textarea {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme input::placeholder,
+    body.light-theme textarea::placeholder {
+      color: #94a3b8 !important;
+    }
+
+    /* Flatpickr light override */
+    body.light-theme .flatpickr-calendar {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
+      color: #0f172a !important;
+    }
+    body.light-theme .flatpickr-calendar .flatpickr-day {
+      color: #334155 !important;
+    }
+    body.light-theme .flatpickr-calendar .flatpickr-day:hover {
+      background: #f1f5f9 !important;
+    }
+    body.light-theme .flatpickr-calendar span.cur-month,
+    body.light-theme .flatpickr-calendar input.numInput {
+      color: #0f172a !important;
+    }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col md:flex-row">
@@ -141,6 +267,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
   <!-- Sidebar Navigation -->
+  @if(session('userRole') !== 'Demonstrator')
   <aside class="w-full md:w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl">
     <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
       <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg">
@@ -151,8 +278,8 @@
     </div>
 
     <!-- Active Profile Info -->
-    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3">
-      <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
+    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3" id="sidebarAvatarContainer">
+      <img id="sidebarStaffImg" src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
       <div class="overflow-hidden">
         <span class="font-bold text-[10px] block truncate text-slate-200 text-[10px] text-xs">{{ session('userName') }}</span>
         <span class="text-[10px] font-bold text-teal-400 block uppercase tracking-wider">{{ session('userBranch') }} Lecturer</span>
@@ -170,6 +297,12 @@
         $isTutor = \App\Models\ClassManagement::where('tutor_mobile_no', $mobileNo)->exists();
         $isMentor = \App\Models\ClassManagement::where('mentor_mobile_no', $mobileNo)->exists();
       @endphp
+
+      @if(session('userRole') === 'HOD')
+      <a href="/dashboard/hod" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-amber-500 hover:bg-amber-950/30 cursor-pointer no-underline block ">
+        <span class="material-symbols-rounded text-lg">admin_panel_settings</span> HOD Console
+      </a>
+      @endif
 
       @if($isTutor)
       <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block ">
@@ -195,6 +328,10 @@
          <span class="material-symbols-rounded text-lg">co_present</span> Log & Attendance
       </a>
 
+      <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 cursor-pointer no-underline block">
+         <span class="material-symbols-rounded text-lg">school</span> Academic Activities
+      </a>
+
       <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4">
         <span class="material-symbols-rounded text-lg">settings</span> My Profile
       </button>
@@ -207,6 +344,7 @@
       </a>
     </div>
   </aside>
+  @endif
 
   <!-- Main Workspace -->
   <main class="flex-grow flex flex-col relative">
@@ -214,6 +352,10 @@
     <!-- Top Header -->
     <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-10">
       <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-2xl">My Batches</h1>
+      <button onclick="toggleTheme()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700/80 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-premium cursor-pointer" title="Toggle Light/Dark Theme">
+        <span id="themeToggleIcon" class="material-symbols-rounded text-lg">light_mode</span>
+        <span id="themeToggleText" class="text-xs font-bold uppercase tracking-wider">Light Mode</span>
+      </button>
     </header>
 
     <!-- Panel Container -->
@@ -245,9 +387,15 @@
       <div id="panelClassroom" class="hidden space-y-6">
         <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex items-center justify-between">
           <div>
-            <button onclick="switchPanel('dashboard')" class="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider flex items-center gap-1 transition-premium mb-1 cursor-pointer">
-              <span class="material-symbols-rounded text-[10px]">arrow_back</span> Back to Dashboard
-            </button>
+            @if(session('userRole') === 'Demonstrator')
+              <a href="/dashboard/demonstrator" class="text-sm font-bold text-blue-400 hover:text-blue-300 uppercase tracking-wider flex items-center gap-2 transition-premium mb-2 cursor-pointer no-underline inline-flex items-center">
+                <span class="material-symbols-rounded text-lg text-blue-500 group-hover:text-blue-400">arrow_back</span> Back to Console
+              </a>
+            @else
+              <button onclick="switchPanel('dashboard')" class="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider flex items-center gap-1 transition-premium mb-1 cursor-pointer">
+                <span class="material-symbols-rounded text-[10px]">arrow_back</span> Back to Dashboard
+              </button>
+            @endif
             <h3 id="vcTitle" class="text-[10px] font-black text-slate-200 flex items-center gap-2 mt-1">
               <span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> Virtual Classroom
             </h3>
@@ -319,6 +467,12 @@
             </button>
             <button onclick="toggleClassroomTab('qbank')" id="tabQBank" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
               <span class="material-symbols-rounded text-base">database</span> Question Bank
+            </button>
+            <button onclick="toggleClassroomTab('survey')" id="tabSurvey" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
+              <span class="material-symbols-rounded text-base">rate_review</span> Mid-Sem Survey
+            </button>
+            <button onclick="toggleClassroomTab('exit_survey')" id="tabExitSurvey" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
+              <span class="material-symbols-rounded text-base">assignment_turned_in</span> Course Exit Survey
             </button>
         </div>
 
@@ -406,6 +560,42 @@
                 </div>
               </div>
             </div>
+
+            <!-- Mid Semester Survey Panel (SAR Criterion 2) -->
+            <div id="midSemesterSurveyContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/60 pb-4">
+                <div>
+                  <h4 class="text-sm font-black text-slate-200">Mid-Semester Survey Evaluation (SAR Criterion 2)</h4>
+                  <p class="text-sm text-slate-400 mt-1">Conduct real-time Teaching-Learning process evaluation to identify learning difficulties and plan immediate corrective actions.</p>
+                </div>
+                <div class="flex items-center gap-3 font-semibold text-sm" id="surveyHeaderActions">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- Main Workspace for Survey -->
+              <div id="surveyWorkspace" class="space-y-6">
+                <!-- Rendered dynamically (Initiate Screen / Live Panel / Results Panel) -->
+              </div>
+            </div>
+
+            <!-- Course Exit Survey Panel (Indirect CO Attainment) -->
+            <div id="courseExitSurveyContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/60 pb-4">
+                <div>
+                  <h4 class="text-sm font-black text-slate-200">Course Exit Survey (Indirect CO Attainment)</h4>
+                  <p class="text-sm text-slate-400 mt-1">Evaluates indirect Course Outcome (CO) attainment parameters at semester-end for NBA course file accreditation.</p>
+                </div>
+                <div class="flex items-center gap-3 font-semibold text-sm" id="exitSurveyHeaderActions">
+                  <!-- Rendered dynamically -->
+                </div>
+              </div>
+
+              <!-- Main Workspace for Exit Survey -->
+              <div id="exitSurveyWorkspace" class="space-y-6">
+                <!-- Rendered dynamically (Initiate Screen / Live Panel / Results Panel) -->
+              </div>
+            </div>
         </div>
       </div>
 
@@ -415,10 +605,20 @@
           <!-- Profile Card -->
           <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
             <div class="flex flex-col items-center text-center space-y-3">
-              <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100' }}" class="w-24 h-24 rounded-full border border-slate-700 object-cover shadow-lg">
+              <div class="relative group">
+                <div id="staffAvatarWrapper" class="w-24 h-24 rounded-full overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center shadow-lg relative">
+                  <img id="staffProfileImg" src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100' }}" class="w-full h-full object-cover">
+                </div>
+                <label for="staffPhotoUploadInput" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer rounded-full text-white text-sm font-bold text-center gap-1 p-1">
+                  <span class="material-symbols-rounded text-base">photo_camera</span>
+                  <span>Change</span>
+                </label>
+                <input type="file" id="staffPhotoUploadInput" accept="image/*" class="hidden" onchange="handleStaffPhotoUpload(event)">
+              </div>
+              <div id="staffPhotoUploadStatus" class="text-sm font-bold mt-2 text-green-400 hidden"></div>
               <div>
                 <h3 class="font-black text-white text-base">{{ session('userName') }}</h3>
-                <span class="font-bold text-teal-400 uppercase tracking-wider text-xs">{{ session('userBranch') }} Lecturer</span>
+                <span class="font-bold text-teal-400 uppercase tracking-wider text-sm">{{ session('userBranch') }} Lecturer</span>
               </div>
             </div>
             <div class="border-t border-slate-800/60 pt-4 space-y-2.5 text-xs">
@@ -464,10 +664,53 @@
   </main>
 
   <script>
+    // Self-executing theme preference loader to run immediately and prevent flashing dark theme
+    (function() {
+      const savedTheme = localStorage.getItem('theme-preference');
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        window.addEventListener('DOMContentLoaded', () => {
+          const icon = document.getElementById('themeToggleIcon');
+          const text = document.getElementById('themeToggleText');
+          if (icon) icon.innerText = 'dark_mode';
+          if (text) text.innerText = 'Dark Mode';
+        });
+      }
+    })();
+
+    function toggleTheme() {
+      const body = document.body;
+      const isLight = body.classList.toggle('light-theme');
+      localStorage.setItem('theme-preference', isLight ? 'light' : 'dark');
+      
+      const icon = document.getElementById('themeToggleIcon');
+      const text = document.getElementById('themeToggleText');
+      if (isLight) {
+        if (icon) icon.innerText = 'dark_mode';
+        if (text) text.innerText = 'Dark Mode';
+      } else {
+        if (icon) icon.innerText = 'light_mode';
+        if (text) text.innerText = 'Light Mode';
+      }
+    }
+
     let activePanel = 'dashboard';
 
     document.addEventListener("DOMContentLoaded", () => {
-      loadLecturerBatches();
+      if (sessionStorage.getItem('openClassroomFromHOD') === 'true') {
+        sessionStorage.removeItem('openClassroomFromHOD');
+        // Instantly force load active batches list
+        switchPanel('dashboard');
+      }
+      const urlParams = new URLSearchParams(window.location.search);
+      const subjectId = urlParams.get('subject_id');
+      const subjectName = urlParams.get('subject_name');
+      const classroomId = urlParams.get('classroom_id');
+      if (subjectId) {
+        openClassroom(classroomId, subjectId, subjectName);
+      } else {
+        loadLecturerBatches();
+      }
       if (activePanel === 'security') loadSecurityLogs();
     });
 
@@ -638,10 +881,8 @@
         document.getElementById('syllabusUploadBox').classList.remove('hidden');
         document.getElementById('syllabusUploadProgress').classList.add('hidden');
         if (data.status === 'SUCCESS') {
-          renderCourseStructure(data.data.cos, data.data.modules, data.data.textbooks, data.data.copo);
-          renderCoursePlanner(data.data.lesson_plans);
-          document.getElementById('activeSyllabusCard').classList.remove('hidden');
           alert('Syllabus successfully parsed!');
+          loadCourseDetails(currentSubjectId);
         } else {
           alert(data.message);
           document.getElementById('parseStatusBadge').innerText = 'Upload Failed';
@@ -662,7 +903,9 @@
         { id: 'assessment', btn: 'tabAssessment', content: 'formativeAssessmentContent' },
         { id: 'summative', btn: 'tabSummative', content: 'summativeAssessmentContent' },
         { id: 'reports', btn: 'tabReports', content: 'classReportsContent' },
-        { id: 'qbank', btn: 'tabQBank', content: 'questionBankContent' }
+        { id: 'qbank', btn: 'tabQBank', content: 'questionBankContent' },
+        { id: 'survey', btn: 'tabSurvey', content: 'midSemesterSurveyContent' },
+        { id: 'exit_survey', btn: 'tabExitSurvey', content: 'courseExitSurveyContent' }
       ];
 
       tabs.forEach(t => {
@@ -694,6 +937,10 @@
         fetchClassReports();
       } else if (tabName === 'qbank') {
         fetchQuestionBank(currentSubjectId);
+      } else if (tabName === 'survey') {
+        fetchSurveyResults(currentSubjectId);
+      } else if (tabName === 'exit_survey') {
+        fetchExitSurveyResults(currentSubjectId);
       }
     }
 
@@ -719,6 +966,12 @@
           <p class="text-[10px] font-bold text-slate-400">Loading planner...</p>
         </div>
       `;
+      document.getElementById('surveyWorkspace').innerHTML = `
+        <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
+          <div class="w-6 h-6 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin mb-4"></div>
+          <p class="text-sm font-bold text-slate-400">Loading survey details...</p>
+        </div>
+      `;
       document.getElementById('activeSyllabusCard').classList.add('hidden');
       document.getElementById('parseStatusBadge').innerText = 'Syncing...';
       document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-blue-900/30 text-blue-400 border border-blue-500/30';
@@ -732,6 +985,7 @@
           currentSummativeTests = data.data.summative_manual_tests || {};
           currentSubjectName = data.data.subject_name || '';
           currentSubjectCode = data.data.subject_code || '';
+          window.currentSyllabusRevision = data.data.syllabus_revision || '2021';
           window.currentVirtualStudents = data.data.students || [];
           
           renderCourseStructure(data.data.cos, data.data.modules, data.data.textbooks, data.data.copo);
@@ -740,9 +994,8 @@
           renderSummativeAssessment(data.data.cos, data.data.students || []);
           loadActiveOnlineTests(subjectId);
           
-          if (Object.keys(currentQuestions).length > 0) {
-            renderAIQuestionsList(currentQuestions, subjectId);
-          }
+          // Always render the formative questions section (show prompt if none generated yet)
+          renderAIQuestionsList(currentQuestions, subjectId);
 
           if (data.data.syllabus_pdf_path) {
             document.getElementById('activeSyllabusCard').classList.remove('hidden');
@@ -889,7 +1142,7 @@
           </div>
         </div>
 
-        <div id="aiQuestionsContainer" class="hidden grid-cols-1 md:grid-cols-2 gap-4 mb-6"></div>
+        <div id="aiQuestionsContainer" class="grid-cols-1 md:grid-cols-2 gap-4 mb-6" style="display:none;"></div>
 
         <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner">
           <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 flex items-center justify-between">
@@ -920,16 +1173,43 @@
       if (students && students.length > 0) {
         students.forEach((student, index) => {
           let m = student.assignment_marks || {};
+          let sub = student.assignment_submissions || {};
+
+          const getInputHtml = (co, val) => {
+            let isSubmitted = (sub[co] === 'Submitted');
+            let isGraded = val !== null && val !== '';
+            let styleClasses = "co-mark w-full bg-slate-900 border rounded-lg px-2 py-2 text-slate-100 text-base font-bold focus:outline-none text-center ";
+            let indicator = "";
+
+            if (isGraded) {
+              styleClasses += "border-slate-800 focus:border-blue-400";
+            } else if (isSubmitted) {
+              // Highlight input field with an amber border and a pulsing indicator dot
+              styleClasses += "border-amber-500/70 bg-amber-950/20 focus:border-amber-400";
+              indicator = `<span class="absolute right-2 top-1.5 flex h-2 w-2" title="Submitted by student"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span></span>`;
+            } else {
+              styleClasses += "border-slate-700/60 focus:border-blue-400";
+            }
+
+            return `
+              <div class="relative">
+                <input type="number" step="1" max="10" min="0" value="${val !== null ? Math.round(val) : ''}" 
+                       class="${styleClasses}" data-co="${co}">
+                ${indicator}
+              </div>
+            `;
+          };
+
           html += `
             <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/40 transition-premium" data-reg="${student.reg_no}">
-              <td class="px-4 py-4 text-slate-400 font-bold text-base">${index + 1}</td>
+              <td class="px-4 py-4 text-slate-400 font-bold text-base text-center">${index + 1}</td>
               <td class="px-4 py-4 font-bold text-slate-50 text-lg tracking-wide">${student.name}</td>
               <td class="px-4 py-4 font-mono text-slate-200 text-base">${student.reg_no}</td>
               <td class="px-4 py-4 font-mono text-slate-200 text-base">${student.sbte_reg_no || '-'}</td>
-              <td class="px-3 py-3"><input type="number" step="1" max="10" min="0" value="${m.CO1 !== null ? Math.round(m.CO1) : ''}" class="co-mark w-full bg-slate-900 border border-slate-600/70 rounded-lg px-2 py-2 text-slate-100 text-base font-bold focus:outline-none focus:border-blue-400 text-center" data-co="CO1"></td>
-              <td class="px-3 py-3"><input type="number" step="1" max="10" min="0" value="${m.CO2 !== null ? Math.round(m.CO2) : ''}" class="co-mark w-full bg-slate-900 border border-slate-600/70 rounded-lg px-2 py-2 text-slate-100 text-base font-bold focus:outline-none focus:border-blue-400 text-center" data-co="CO2"></td>
-              <td class="px-3 py-3"><input type="number" step="1" max="10" min="0" value="${m.CO3 !== null ? Math.round(m.CO3) : ''}" class="co-mark w-full bg-slate-900 border border-slate-600/70 rounded-lg px-2 py-2 text-slate-100 text-base font-bold focus:outline-none focus:border-blue-400 text-center" data-co="CO3"></td>
-              <td class="px-3 py-3"><input type="number" step="1" max="10" min="0" value="${m.CO4 !== null ? Math.round(m.CO4) : ''}" class="co-mark w-full bg-slate-900 border border-slate-600/70 rounded-lg px-2 py-2 text-slate-100 text-base font-bold focus:outline-none focus:border-blue-400 text-center" data-co="CO4"></td>
+              <td class="px-3 py-3">${getInputHtml('CO1', m.CO1)}</td>
+              <td class="px-3 py-3">${getInputHtml('CO2', m.CO2)}</td>
+              <td class="px-3 py-3">${getInputHtml('CO3', m.CO3)}</td>
+              <td class="px-3 py-3">${getInputHtml('CO4', m.CO4)}</td>
             </tr>
           `;
         });
@@ -942,8 +1222,22 @@
     }
 
     function renderAIQuestionsList(questionsData, subjectId) {
-      document.getElementById('aiQuestionsContainer').classList.remove('hidden');
+      const container = document.getElementById('aiQuestionsContainer');
+      container.style.display = 'grid';
       let html = '';
+      
+      // Show empty-state prompt if no questions have been generated yet
+      if (!questionsData || Object.keys(questionsData).length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full flex flex-col items-center justify-center py-12 text-center bg-slate-900/40 border border-dashed border-slate-700/60 rounded-xl">
+            <span class="material-symbols-rounded text-5xl text-slate-600 mb-3">smart_toy</span>
+            <p class="font-bold text-slate-300 text-sm mb-1">No Assignment Questions Yet</p>
+            <p class="text-xs text-slate-500 mb-4">Click <strong>AI Generate Questions</strong> above to generate questions for all Course Outcomes using Gemini AI.</p>
+          </div>
+        `;
+        return;
+      }
+
       for (const [co, qs] of Object.entries(questionsData)) {
         let qList = qs.map(q => {
           let cog = '';
@@ -1009,19 +1303,24 @@
     }
 
     function generateAIQuestions(subjectId, coTag = null, mode = 'ai') {
+      const qContainer = document.getElementById('aiQuestionsContainer');
       if (!coTag) {
-        document.getElementById('aiQuestionsContainer').classList.remove('hidden');
-        document.getElementById('aiQuestionsContainer').innerHTML = `<div class="col-span-full text-center py-4 text-sm font-bold text-blue-400 animate-pulse">Generating questions...</div>`;
+        qContainer.style.display = 'grid';
+        qContainer.innerHTML = `<div class="col-span-full text-center py-10 text-sm font-bold text-blue-400 animate-pulse flex flex-col items-center gap-3"><div class="w-8 h-8 border-2 border-blue-500/40 border-t-blue-400 rounded-full animate-spin"></div>Generating AI questions for all Course Outcomes...</div>`;
       } else {
+        qContainer.style.display = 'grid';
         const ul = document.getElementById(`questions-list-${coTag}`);
-        if(ul) ul.innerHTML = `<li class="text-sm text-blue-400 animate-pulse">Retrieving questions...</li>`;
+        if(ul) ul.innerHTML = `<li class="text-sm text-blue-400 animate-pulse">Generating via Gemini AI...</li>`;
       }
       
       let url = `/api/classroom/${subjectId}/generate-questions?_t=${Date.now()}&generation_mode=${mode}`;
       if (coTag) url += `&co_tag=${coTag}`;
 
       fetch(url)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Server error: ' + res.status);
+        return res.json();
+      })
       .then(data => {
         if (data.status === 'SUCCESS') {
           if (!coTag) {
@@ -1035,9 +1334,12 @@
              }
           }
         } else {
-           alert(data.message || 'Failed to retrieve questions.');
-           loadCourseDetails(subjectId);
+           qContainer.innerHTML = `<div class="col-span-full p-4 bg-red-950/40 text-red-400 border border-red-900/40 rounded-xl text-sm font-bold">${data.message || 'Generation failed.'}</div>`;
         }
+      })
+      .catch(err => {
+        console.error('AI Generate Error:', err);
+        qContainer.innerHTML = `<div class="col-span-full p-4 bg-red-950/40 text-red-400 border border-red-900/40 rounded-xl text-sm font-bold">Generation failed: ${err.message}. Check your API key and internet connection.</div>`;
       });
     }
 
@@ -2241,6 +2543,55 @@
       setTimeout(() => { pw.print(); }, 400);
     }
 
+    function handleStaffPhotoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('staffPhotoUploadStatus');
+      statusEl.classList.remove('hidden');
+      statusEl.className = "text-sm font-bold mt-2 text-blue-400";
+      statusEl.innerText = "Uploading photo...";
+
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      fetch('/api/staff/profile/upload-photo', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          statusEl.className = "text-sm font-bold mt-2 text-green-400";
+          statusEl.innerText = "Photo updated successfully!";
+
+          // Update main profile picture
+          const imgEl = document.getElementById('staffProfileImg');
+          if (imgEl) {
+            imgEl.src = data.photo_url;
+          }
+
+          // Update sidebar picture
+          const sidebarImg = document.getElementById('sidebarStaffImg');
+          if (sidebarImg) {
+            sidebarImg.src = data.photo_url;
+          }
+
+          setTimeout(() => statusEl.classList.add('hidden'), 3000);
+        } else {
+          statusEl.className = "text-sm font-bold mt-2 text-rose-400";
+          statusEl.innerText = data.message || "Upload failed.";
+        }
+      })
+      .catch(() => {
+        statusEl.className = "text-sm font-bold mt-2 text-rose-400";
+        statusEl.innerText = "Network error. Please try again.";
+      });
+    }
+
     function loadSecurityLogs() {
       const tbody = document.getElementById('securityLogsTable');
       tbody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">Querying security logs...</td></tr>`;
@@ -2382,28 +2733,34 @@
         let html = '';
         if (window.currentVirtualStudents && window.currentVirtualStudents.length > 0) {
           html = `
-            <table class="w-full text-left text-[10px] border-collapse">
+            <table class="w-full text-left text-sm border-collapse">
               <thead>
                 <tr class="bg-slate-900 border-b border-slate-800 text-slate-400">
                   <th class="p-3 font-bold w-12 text-center">No.</th>
-                  <th class="p-3 font-bold w-32">Reg No</th>
+                  <th class="p-3 font-bold w-20 text-center">Roll No</th>
+                  <th class="p-3 font-bold w-32 text-center">SBTE Reg No</th>
+                  <th class="p-3 font-bold w-32 text-center">Admission No</th>
                   <th class="p-3 font-bold">Student Name</th>
+                  <th class="p-3 font-bold w-48">Remarks</th>
                 </tr>
               </thead>
               <tbody>
           `;
           window.currentVirtualStudents.forEach((s, idx) => {
             html += `
-              <tr class="border-b border-slate-800/50 hover:bg-slate-900/50 transition-colors">
+              <tr class="border-b border-slate-800/50 hover:bg-slate-900/50 transition-colors text-sm">
                 <td class="p-3 text-center text-slate-500 font-bold">${idx + 1}</td>
-                <td class="p-3 font-mono text-slate-400">${s.reg_no}</td>
-                <td class="p-3 font-bold text-slate-200">${s.name}</td>
+                <td class="p-3 text-center font-mono text-slate-300 font-bold">${s.roll_no || '-'}</td>
+                <td class="p-3 text-center font-mono text-slate-400">${s.sbte_reg_no || '-'}</td>
+                <td class="p-3 text-center font-mono text-slate-400">${s.reg_no}</td>
+                <td class="p-3 font-bold text-slate-200 max-w-[220px] whitespace-normal break-words">${s.name}</td>
+                <td class="p-2"><input type="text" placeholder="Add remark..." class="w-full bg-slate-900/50 border border-slate-800 rounded-lg px-3 py-1.5 text-sm text-slate-300 focus:outline-none focus:border-blue-500/50"></td>
               </tr>
             `;
           });
           html += `</tbody></table>`;
         } else {
-          html = '<p class="text-[10px] text-slate-500 text-center py-4">No students enrolled in this classroom.</p>';
+          html = '<p class="text-sm text-slate-500 text-center py-4">No students enrolled in this classroom.</p>';
         }
         document.getElementById('vcStudentsListContent').innerHTML = html;
         document.getElementById('vcStudentsModal').classList.remove('hidden');
@@ -2419,61 +2776,98 @@
             return;
         }
 
+        const deptMap = {
+          'EL': 'ELECTRONICS ENGINEERING',
+          'CS': 'COMPUTER SCIENCE AND ENGINEERING',
+          'CE': 'CIVIL ENGINEERING',
+          'ME': 'MECHANICAL ENGINEERING',
+          'EE': 'ELECTRICAL AND ELECTRONICS ENGINEERING',
+          'IT': 'INFORMATION TECHNOLOGY',
+          'ECE': 'ELECTRONICS AND COMMUNICATION ENGINEERING'
+        };
+        const branchCode = "{{ session('userBranch', '') }}";
+        const deptName = deptMap[branchCode.toUpperCase()] || branchCode;
+        const batchName = document.getElementById('vcSubtitle') ? document.getElementById('vcSubtitle').innerText.replace('Batch:', '').trim() : '';
+        const revision = window.currentSyllabusRevision || '2021';
+
         let printHtml = `
           <html>
             <head>
               <title>Classroom Students List</title>
               <style>
-                body { font-family: sans-serif; font-size: 12px; padding: 20px; }
-                h2 { text-align: center; margin-bottom: 5px; font-size: 18px; text-transform: uppercase; }
-                p.subtitle { text-align: center; margin-top: 0; font-size: 12px; font-weight: bold; margin-bottom: 20px; color: #555; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-                th { background-color: #f0f0f0; }
+                @page { size: A4 portrait; margin: 1.5cm; }
+                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 13px; color: #333; padding: 0; margin: 0; }
+                .header-container { text-align: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 20px; }
+                .college-name { font-size: 18px; font-weight: 800; text-transform: uppercase; margin: 0; letter-spacing: 0.5px; }
+                .dept-name { font-size: 13px; font-weight: 600; text-transform: uppercase; margin: 4px 0 0; color: #555; }
+                .doc-title { font-size: 15px; font-weight: 700; text-transform: uppercase; margin: 12px 0 4px; letter-spacing: 1px; text-decoration: underline; }
+                
+                .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; font-size: 12px; }
+                .meta-item { line-height: 1.4; }
+                .meta-label { font-weight: bold; color: #555; }
+                
+                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+                th, td { border: 1px solid #666; padding: 8px 10px; text-align: left; }
+                th { background-color: #f1f5f9; font-weight: bold; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
                 .text-center { text-align: center; }
+                .font-mono { font-family: monospace; }
+                tr:nth-child(even) { background-color: #f8fafc; }
               </style>
             </head>
-            <body>
-              <h2>Classroom Students List</h2>
-              <p class="subtitle">Subject: ${currentSubjectCode} - ${currentSubjectName}</p>
-              <table>
-                <thead>
-                  <tr>
-                    <th class="text-center" style="width: 40px;">No.</th>
-                    <th style="width: 100px;">Roll No</th>
-                    <th style="width: 120px;">Reg No</th>
-                    <th>Student Name</th>
-                    <th style="width: 150px;">Remarks</th>
-                  </tr>
-                </thead>
-                <tbody>
-        `;
+              <body>
+                <div class="header-container">
+                  <h1 class="college-name">CARMEL POLYTECHNIC COLLEGE, ALAPPUZHA</h1>
+                  <h2 class="dept-name">DEPARTMENT OF ${deptName}</h2>
+                  <div class="doc-title">Enrolled Students Register</div>
+                </div>
 
-        window.currentVirtualStudents.forEach((s, idx) => {
-          printHtml += `
-            <tr>
-              <td class="text-center">${idx + 1}</td>
-              <td></td>
-              <td style="font-family: monospace;">${s.reg_no}</td>
-              <td><strong>${s.name}</strong></td>
-              <td></td>
-            </tr>
+                <div class="meta-grid">
+                  <div class="meta-item"><span class="meta-label">Batch:</span> ${batchName}</div>
+                  <div class="meta-item" style="text-align: right;"><span class="meta-label">Syllabus Revision:</span> ${revision}</div>
+                  <div class="meta-item"><span class="meta-label">Subject Code:</span> ${currentSubjectCode}</div>
+                  <div class="meta-item" style="text-align: right;"><span class="meta-label">Subject Name:</span> ${currentSubjectName}</div>
+                </div>
+
+                <table>
+                  <thead>
+                    <tr>
+                      <th class="text-center" style="width: 40px;">No.</th>
+                      <th class="text-center" style="width: 80px;">Roll No</th>
+                      <th class="text-center" style="width: 120px;">SBTE Reg No</th>
+                      <th class="text-center" style="width: 120px;">Admission No</th>
+                      <th>Student Name</th>
+                      <th>Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody>
           `;
-        });
 
-        printHtml += `
-                </tbody>
-              </table>
-              <script>
-                setTimeout(() => { window.print(); window.close(); }, 500);
-              <\/script>
-            </body>
-          </html>
-        `;
+          window.currentVirtualStudents.forEach((s, idx) => {
+            printHtml += `
+              <tr>
+                <td class="text-center font-mono">${idx + 1}</td>
+                <td class="text-center font-mono">${s.roll_no || '-'}</td>
+                <td class="text-center font-mono">${s.sbte_reg_no || '-'}</td>
+                <td class="text-center font-mono">${s.reg_no}</td>
+                <td style="font-weight: 600;">${s.name}</td>
+                <td></td>
+              </tr>
+            `;
+          });
 
-        let printWin = window.open('', '_blank');
-        printWin.document.write(printHtml);
-        printWin.document.close();
+          printHtml += `
+                  </tbody>
+                </table>
+                <script>
+                  setTimeout(() => { window.print(); window.close(); }, 500);
+                <\/script>
+              </body>
+            </html>
+          `;
+
+          let printWin = window.open('', '_blank');
+          printWin.document.write(printHtml);
+          printWin.document.close();
       }
 
     function fetchClassReports() {
@@ -2944,18 +3338,522 @@
         fetchQuestionBank(subjectId);
       });
     }
+
+    // Mid-Semester Survey Functionality (SAR Criterion 2)
+    function fetchSurveyResults(subjectId) {
+      const workspace = document.getElementById('surveyWorkspace');
+      const headerActions = document.getElementById('surveyHeaderActions');
+      headerActions.innerHTML = '';
+
+      fetch(`/api/classroom/${subjectId}/survey/results`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.status === 'INACTIVE') {
+            workspace.innerHTML = `
+              <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 text-center max-w-xl mx-auto space-y-4">
+                <div class="h-12 w-12 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto mb-2 animate-pulse">
+                  <span class="material-symbols-rounded text-2xl">forum</span>
+                </div>
+                <h4 class="text-base font-extrabold text-slate-200">Initiate Mid-Semester Feedback Survey</h4>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                  Conducted around the 7th–9th week of the semester, this evaluates the teaching-learning process in real-time. It gathers student feedback on 5 criteria: Pace, Clarity, Interaction, Practicality, and Evaluation.
+                </p>
+                <button onclick="initiateMidSemSurvey(${subjectId})" class="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold border border-blue-500/30 transition-premium shadow-lg shadow-blue-500/10 cursor-pointer">
+                  Start Mid-Semester Survey
+                </button>
+              </div>
+            `;
+          } else if (res.status === 'SUCCESS') {
+            const survey = res.data.survey;
+            const total = res.data.total_students;
+            const responded = res.data.responded_count;
+
+            if (survey.status === 'Active') {
+              workspace.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <!-- Live stats card -->
+                  <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                    <div>
+                      <span class="text-teal-400 font-bold uppercase tracking-widest text-[10px] block mb-1">Live Status</span>
+                      <h4 class="text-base font-extrabold text-slate-200">Survey Active</h4>
+                      <p class="text-xs text-slate-400 leading-relaxed mt-1">Students can now see and submit feedback from their dashboard task list.</p>
+                    </div>
+                    <div class="border-t border-slate-800/60 pt-4">
+                      <div class="flex justify-between text-sm font-bold mb-1">
+                        <span class="text-slate-400">Participation:</span>
+                        <span class="text-white">${responded} / ${total}</span>
+                      </div>
+                      <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-900">
+                        <div class="bg-teal-500 h-2 rounded-full" style="width: ${total > 0 ? (responded / total) * 100 : 0}%"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Quick instructions card -->
+                  <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between col-span-2">
+                    <div>
+                      <h4 class="text-sm font-bold text-slate-300">Evaluating Criterion 2 (SAR)</h4>
+                      <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                        To finalize results, draw graphs, and register action plan notes, you must close the active survey. Encourage students to participate before closing.
+                      </p>
+                    </div>
+                    <div class="pt-6 border-t border-slate-800/60 flex justify-end">
+                      <button onclick="closeMidSemSurvey(${subjectId})" class="px-4 py-2.5 bg-rose-600/20 hover:bg-rose-600/45 border border-rose-500/30 text-rose-300 rounded-xl text-sm font-bold transition-premium cursor-pointer">
+                        Close & Finalize Survey
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            } else {
+              // Completed survey: show results + chart + notes
+              const averages = res.data.averages;
+              
+              workspace.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <!-- Stats overview -->
+                  <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-200">Participation Details</h4>
+                      <div class="grid grid-cols-2 gap-4 text-xs font-semibold">
+                        <div>
+                          <span class="text-slate-500 block">Class Strength</span>
+                          <span class="text-slate-200 font-bold text-sm">${total}</span>
+                        </div>
+                        <div>
+                          <span class="text-slate-500 block">Responded</span>
+                          <span class="text-slate-200 font-bold text-sm">${responded}</span>
+                        </div>
+                      </div>
+                      <div class="pt-3 border-t border-slate-850">
+                        <span class="text-slate-500 block text-xs">Response Rate</span>
+                        <span class="text-emerald-400 font-black text-base">${total > 0 ? Math.round((responded / total) * 100) : 0}%</span>
+                      </div>
+                    </div>
+
+                    <!-- Average Score Card -->
+                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-200">Average Scores Breakdown</h4>
+                      <div class="space-y-3 text-xs font-semibold">
+                        <div class="flex justify-between">
+                          <span class="text-slate-400">Pace of delivery</span>
+                          <span class="text-teal-400">${averages.pace} / 3</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-slate-400">Concept clarity</span>
+                          <span class="text-teal-400">${averages.clarity} / 3</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-slate-400">Interactive lectures</span>
+                          <span class="text-teal-400">${averages.interaction} / 3</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-slate-400">Lab practicality</span>
+                          <span class="text-teal-400">${averages.practicality} / 3</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-slate-400">Prompt evaluation</span>
+                          <span class="text-teal-400">${averages.evaluation} / 3</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Charts and Action Plan Notes -->
+                  <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6">
+                      <h4 class="text-sm font-black text-slate-200 mb-4">Feedback Chart (Teaching-Learning Process)</h4>
+                      <div class="h-64 relative">
+                        <canvas id="surveyResultChart"></canvas>
+                      </div>
+                    </div>
+
+                    <!-- Action Taken Form -->
+                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-200">SAR Criterion 2 Action Plan Notes</h4>
+                      
+                      <div class="space-y-3">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Improvements Noted by Faculty</label>
+                        <textarea id="improvementsNoted" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-xs focus:outline-none focus:border-blue-500 font-medium transition-all" rows="2" placeholder="e.g. Remedial classes identified for weak students, changing lecture pace...">${survey.improvements_noted || ''}</textarea>
+                      </div>
+
+                      <div class="space-y-3">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Corrective Action Taken (Faculty Member)</label>
+                        <textarea id="correctiveAction" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-xs focus:outline-none focus:border-blue-500 font-medium transition-all" rows="2" placeholder="e.g. Incorporated PPT slides, allocated extra laboratory session...">${survey.action_taken || ''}</textarea>
+                      </div>
+
+                      <div class="space-y-3">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Action Taken Notes (Class Tutor Remarks)</label>
+                        <textarea id="actionTakenByTutor" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-xs focus:outline-none focus:border-blue-500 font-medium transition-all" rows="2" placeholder="Tutor remarks on student feedback and faculty actions...">${survey.action_taken_by_tutor || ''}</textarea>
+                      </div>
+
+                      <div class="space-y-3">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Action Taken Remarks (Head of Department / HOD)</label>
+                        <textarea id="actionTakenByHod" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-xs focus:outline-none focus:border-blue-500 font-medium transition-all" rows="2" placeholder="HOD remarks or corrective endorsement...">${survey.action_taken_by_hod || ''}</textarea>
+                      </div>
+
+                      <div class="flex justify-between items-center pt-2">
+                        <button onclick="saveSurveyActionNotes(${subjectId})" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold border border-blue-500/30 transition-premium shadow cursor-pointer">
+                          Save Notes
+                        </button>
+                        <a href="/classroom/${subjectId}/survey/report" target="_blank" class="px-4 py-2 bg-teal-600/10 hover:bg-teal-600/25 border border-teal-500/30 text-teal-300 rounded-xl text-xs font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer">
+                          <span class="material-symbols-rounded text-sm">print</span> Print Survey Report
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+
+              // Initialize result chart
+              setTimeout(() => renderSurveyChart(averages), 100);
+            }
+          } else {
+            alert(res.message || "Failed to load survey results.");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          workspace.innerHTML = `<div class="text-sm font-bold text-slate-500 py-10 text-center">Failed to fetch survey. Network error.</div>`;
+        });
+    }
+
+    function initiateMidSemSurvey(subjectId) {
+      if (!confirm("Are you sure you want to initiate the Mid-Semester Survey? This will notify all enrolled students.")) return;
+      fetch(`/api/classroom/${subjectId}/survey/initiate`, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert(data.message);
+          fetchSurveyResults(subjectId);
+        } else {
+          alert(data.message);
+        }
+      });
+    }
+
+    function closeMidSemSurvey(subjectId) {
+      if (!confirm("Are you sure you want to close and finalize this survey? No further responses will be accepted.")) return;
+      fetch(`/api/classroom/${subjectId}/survey/close`, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert(data.message);
+          fetchSurveyResults(subjectId);
+        } else {
+          alert(data.message);
+        }
+      });
+    }
+
+    function saveSurveyActionNotes(subjectId) {
+      const imp = document.getElementById('improvementsNoted').value;
+      const act = document.getElementById('correctiveAction').value;
+      const tut = document.getElementById('actionTakenByTutor').value;
+      const hod = document.getElementById('actionTakenByHod').value;
+
+      fetch(`/api/classroom/${subjectId}/survey/save-notes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ 
+          improvements_noted: imp, 
+          action_taken: act,
+          action_taken_by_tutor: tut,
+          action_taken_by_hod: hod
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+      });
+    }
+
+    function renderSurveyChart(averages) {
+      const ctx = document.getElementById('surveyResultChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Pace', 'Clarity', 'Interaction', 'Practicality', 'Evaluation'],
+          datasets: [{
+            label: 'Avg Score (Out of 3)',
+            data: [averages.pace, averages.clarity, averages.interaction, averages.practicality, averages.evaluation],
+            backgroundColor: [
+              'rgba(20, 184, 166, 0.2)',
+              'rgba(14, 165, 233, 0.2)',
+              'rgba(99, 102, 241, 0.2)',
+              'rgba(168, 85, 247, 0.2)',
+              'rgba(236, 72, 153, 0.2)'
+            ],
+            borderColor: [
+              '#14b8a6',
+              '#0ea5e9',
+              '#6366f1',
+              '#a855f7',
+              '#ec4899'
+            ],
+            borderWidth: 2,
+            borderRadius: 8
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              min: 0,
+              max: 3,
+              ticks: { stepSize: 1, color: '#94a3b8' },
+              grid: { color: 'rgba(51, 65, 85, 0.2)' }
+            },
+            y: {
+              ticks: { color: '#94a3b8' },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    // Course Exit Survey JS methods
+    function fetchExitSurveyResults(subjectId) {
+      const workspace = document.getElementById('exitSurveyWorkspace');
+      const headerActions = document.getElementById('exitSurveyHeaderActions');
+      headerActions.innerHTML = '';
+
+      fetch(`/api/classroom/${subjectId}/course-exit/results`)
+        .then(res => res.json())
+        .then(res => {
+          if (res.status === 'INACTIVE') {
+            workspace.innerHTML = `
+              <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 text-center max-w-xl mx-auto space-y-4">
+                <div class="h-12 w-12 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center mx-auto mb-2 animate-pulse">
+                  <span class="material-symbols-rounded text-2xl">assignment_turned_in</span>
+                </div>
+                <h4 class="text-base font-extrabold text-slate-200">Initiate Course Exit Survey</h4>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                  Conducted at the end of the semester, this exit survey maps directly to Course Outcomes (CO1 to CO4) using 10 specific attainment questions. Attainments are rated on a Low (1), Medium (2), and High (3) scale.
+                </p>
+                <button onclick="initiateExitSurvey(${subjectId})" class="px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-sm font-bold border border-teal-500/30 transition-premium shadow-lg shadow-teal-500/10 cursor-pointer">
+                  Start Course Exit Survey
+                </button>
+              </div>
+            `;
+          } else if (res.status === 'SUCCESS') {
+            const survey = res.data.survey;
+            const total = res.data.total_students;
+            const responded = res.data.responded_count;
+
+            if (survey.status === 'Active') {
+              workspace.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <!-- Live stats card -->
+                  <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                    <div>
+                      <span class="text-teal-400 font-bold uppercase tracking-widest text-[10px] block mb-1">Live Status</span>
+                      <h4 class="text-base font-extrabold text-slate-200">Survey Active</h4>
+                      <p class="text-xs text-slate-400 leading-relaxed mt-1">Students can now submit exit responses mapping to COs via their dashboard.</p>
+                    </div>
+                    <div class="border-t border-slate-800/60 pt-4">
+                      <div class="flex justify-between text-sm font-bold mb-1">
+                        <span class="text-slate-400">Participation:</span>
+                        <span class="text-white">${responded} / ${total}</span>
+                      </div>
+                      <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-900">
+                        <div class="bg-teal-500 h-2 rounded-full" style="width: ${total > 0 ? (responded / total) * 100 : 0}%"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Quick instructions card -->
+                  <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between col-span-2">
+                    <div>
+                      <h4 class="text-sm font-bold text-slate-300">Course Outcome Attainment mapping</h4>
+                      <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                        To calculate final attainment averages and view the printable Course Exit Report, you must close the active survey.
+                      </p>
+                    </div>
+                    <div class="pt-6 border-t border-slate-800/60 flex justify-end">
+                      <button onclick="closeExitSurvey(${subjectId})" class="px-4 py-2.5 bg-rose-600/20 hover:bg-rose-600/45 border border-rose-500/30 text-rose-300 rounded-xl text-sm font-bold transition-premium cursor-pointer">
+                        Close & Finalize Exit Survey
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            } else {
+              // Completed survey: show results breakdown
+              const averages = res.data.averages;
+              const attainments = res.data.attainment_percentages;
+
+              workspace.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <!-- Stats overview -->
+                  <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-200">Participation Details</h4>
+                      <div class="grid grid-cols-2 gap-4 text-xs font-semibold">
+                        <div>
+                          <span class="text-slate-500 block">Class Strength</span>
+                          <span class="text-slate-200 font-bold text-sm">${total}</span>
+                        </div>
+                        <div>
+                          <span class="text-slate-500 block">Responded</span>
+                          <span class="text-slate-200 font-bold text-sm">${responded}</span>
+                        </div>
+                      </div>
+                      <div class="pt-3 border-t border-slate-850">
+                        <span class="text-slate-500 block text-xs">Response Rate</span>
+                        <span class="text-teal-400 font-black text-base">${total > 0 ? Math.round((responded / total) * 100) : 0}%</span>
+                      </div>
+                    </div>
+
+                    <!-- Average Score Card -->
+                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-200">CO Averages (Scale 1-3)</h4>
+                      <div class="space-y-3 text-xs font-semibold">
+                        <div class="flex justify-between">
+                          <span class="text-slate-400">CO1 Average score</span>
+                          <span class="text-teal-400">${averages.CO1} / 3</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-slate-400">CO2 Average score</span>
+                          <span class="text-teal-400">${averages.CO2} / 3</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-slate-400">CO3 Average score</span>
+                          <span class="text-teal-400">${averages.CO3} / 3</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-slate-400">CO4 Average score</span>
+                          <span class="text-teal-400">${averages.CO4} / 3</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Attainments and Print Action -->
+                  <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-200">Indirect CO Attainment Levels</h4>
+                      <p class="text-xs text-slate-400 leading-relaxed">Attainment is computed as: <code>(CO Average / 3) * 100</code></p>
+                      
+                      <div class="space-y-4 pt-2">
+                        <div>
+                          <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-slate-300">CO1 Attainment</span>
+                            <span class="text-teal-400">${attainments.CO1}%</span>
+                          </div>
+                          <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+                            <div class="bg-teal-500 h-2 rounded-full" style="width: ${attainments.CO1}%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-slate-300">CO2 Attainment</span>
+                            <span class="text-teal-400">${attainments.CO2}%</span>
+                          </div>
+                          <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+                            <div class="bg-teal-500 h-2 rounded-full" style="width: ${attainments.CO2}%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-slate-300">CO3 Attainment</span>
+                            <span class="text-teal-400">${attainments.CO3}%</span>
+                          </div>
+                          <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+                            <div class="bg-teal-500 h-2 rounded-full" style="width: ${attainments.CO3}%"></div>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-slate-300">CO4 Attainment</span>
+                            <span class="text-teal-400">${attainments.CO4}%</span>
+                          </div>
+                          <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+                            <div class="bg-teal-500 h-2 rounded-full" style="width: ${attainments.CO4}%"></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="flex justify-end items-center pt-6 border-t border-slate-800/60">
+                        <a href="/classroom/${subjectId}/course-exit/report" target="_blank" class="px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer shadow-md shadow-teal-600/10">
+                          <span class="material-symbols-rounded text-base">print</span> Print Course Exit Report
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }
+          } else {
+            alert(res.message || "Failed to load exit survey results.");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          workspace.innerHTML = `<div class="text-sm font-bold text-slate-500 py-10 text-center">Failed to fetch exit survey. Network error.</div>`;
+        });
+    }
+
+    function initiateExitSurvey(subjectId) {
+      if (!confirm("Are you sure you want to initiate the Course Exit Survey? This will notify all enrolled students.")) return;
+      fetch(`/api/classroom/${subjectId}/course-exit/initiate`, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert(data.message);
+          fetchExitSurveyResults(subjectId);
+        } else {
+          alert(data.message);
+        }
+      });
+    }
+
+    function closeExitSurvey(subjectId) {
+      if (!confirm("Are you sure you want to close and finalize this Course Exit Survey? No further responses will be accepted.")) return;
+      fetch(`/api/classroom/${subjectId}/course-exit/close`, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert(data.message);
+          fetchExitSurveyResults(subjectId);
+        } else {
+          alert(data.message);
+        }
+      });
+    }
 </script>
 
 <!-- Virtual Classroom Students Modal -->
 <div id="vcStudentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-  <div class="bg-slate-950 border border-slate-800/80 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+  <div class="bg-slate-950 border border-slate-800/80 w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
     <div class="p-4 border-b border-slate-800/80 bg-slate-900/50 flex justify-between items-center">
-      <h3 class="text-[10px] font-black text-slate-200 flex items-center gap-2">
-        <span class="material-symbols-rounded text-blue-400">groups</span> Enrolled Students
+      <h3 class="text-xl font-black text-slate-200 flex items-center gap-2">
+        <span class="material-symbols-rounded text-blue-400 text-2xl">groups</span> Enrolled Students
       </h3>
       <div class="flex items-center gap-3">
-        <button onclick="printVcStudentsList()" class="text-[10px] font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded flex items-center gap-1 transition-premium">
-          <span class="material-symbols-rounded text-[14px]">print</span> Print List
+        <button onclick="printVcStudentsList()" class="text-sm font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded flex items-center gap-1.5 transition-premium">
+          <span class="material-symbols-rounded text-lg">print</span> Print List
         </button>
         <button onclick="closeVcStudentsList()" class="text-slate-500 hover:text-white transition-premium ml-2">
           <span class="material-symbols-rounded">close</span>

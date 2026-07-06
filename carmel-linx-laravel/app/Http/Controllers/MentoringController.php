@@ -774,6 +774,7 @@ class MentoringController extends Controller
             $student = Student::where('reg_no', strtoupper($regNo))->first();
             if (!$student) return response()->json(['status' => 'ERROR', 'message' => 'Student not found.']);
 
+            $extended_profile = \App\Models\StudentMentoringProfile::where('reg_no', $student->reg_no)->first();
             $family = StudentFamilyDetail::where('reg_no', $student->reg_no)->get();
             $education = StudentPriorEducation::where('reg_no', $student->reg_no)->get();
             $fees = StudentFeeRecord::where('reg_no', $student->reg_no)->get();
@@ -870,8 +871,11 @@ class MentoringController extends Controller
                 'status' => 'SUCCESS',
                 'data' => [
                     'student' => [
-                        'name'   => $student->name,
-                        'reg_no' => $student->reg_no,
+                        'name'         => $student->name,
+                        'reg_no'       => $student->reg_no,
+                        'branch'       => $student->branch,
+                        'classroom_id' => $student->classroom_id,
+                        'photo_url'    => $student->photo_url,
                     ],
                     'profile' => [
                         'name' => $student->name,
@@ -886,6 +890,7 @@ class MentoringController extends Controller
                         'guardian_address' => $student->guardian_address,
                         'profile_verified_at' => $student->profile_verified_at,
                     ],
+                    'extended_profile' => $extended_profile,
                     'family'          => $family,
                     'education'       => $education,
                     'fees'            => $fees,
@@ -940,6 +945,29 @@ class MentoringController extends Controller
                     'guardian_mobile' => $p['guardian_mobile'] ?? $student->guardian_mobile,
                     'guardian_address' => $p['guardian_address'] ?? $student->guardian_address,
                 ]);
+            }
+
+            // Update/Create Extended Profile Fields
+            if ($request->has('extended_profile')) {
+                $ep = $request->extended_profile;
+                \App\Models\StudentMentoringProfile::updateOrCreate(
+                    ['reg_no' => strtoupper($regNo)],
+                    [
+                        'gender' => $ep['gender'] ?? null,
+                        'religion' => $ep['religion'] ?? null,
+                        'caste' => $ep['caste'] ?? null,
+                        'special_category' => $ep['special_category'] ?? null,
+                        'reservation' => $ep['reservation'] ?? null,
+                        'quota' => $ep['quota'] ?? null,
+                        'is_physically_disabled' => isset($ep['is_physically_disabled']) ? (int)$ep['is_physically_disabled'] : 0,
+                        'disability_category' => $ep['disability_category'] ?? null,
+                        'guardian_occupation' => $ep['guardian_occupation'] ?? null,
+                        'monthly_family_income' => $ep['monthly_family_income'] ?? null,
+                        'has_vehicle_pass' => isset($ep['has_vehicle_pass']) ? (int)$ep['has_vehicle_pass'] : 0,
+                        'vehicle_pass_id' => $ep['vehicle_pass_id'] ?? null,
+                        'communication_address' => $ep['communication_address'] ?? null,
+                    ]
+                );
             }
 
             // 2. Update Family Details
@@ -1660,7 +1688,16 @@ class MentoringController extends Controller
                     return $l;
                 });
 
-            return response()->json(['status' => 'SUCCESS', 'data' => $leaves]);
+            $students = Student::where('classroom_id', $classroomId)
+                ->orderBy('name')
+                ->select('reg_no', 'name')
+                ->get();
+
+            return response()->json([
+                'status' => 'SUCCESS', 
+                'data' => $leaves,
+                'students' => $students
+            ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
         }

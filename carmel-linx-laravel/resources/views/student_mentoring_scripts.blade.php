@@ -192,7 +192,7 @@ function populateMentoringUI(data) {
   if (!data) { console.error('[Diary] populateMentoringUI called with null data'); return; }
   console.log('[Diary] populateMentoringUI academics keys:', Object.keys(data.academics || {}));
 
-  // Populate mentor sidebar with student name (for tutor/mentor view)
+  // Populate mentor sidebar & header with student name
   const studentName = (data.student && data.student.name) ? data.student.name : (window.TARGET_REG_NO || '');
   const sidebarEl = document.getElementById('sidebarStudentName');
   if (sidebarEl) sidebarEl.innerText = studentName;
@@ -200,6 +200,52 @@ function populateMentoringUI(data) {
   if (headerNameEl) headerNameEl.innerText = (data.student && data.student.name) ? data.student.name + ' (' + window.TARGET_REG_NO + ')' : window.TARGET_REG_NO;
   const diaryHeaderEl = document.getElementById('diaryStudentNameHeader');
   if (diaryHeaderEl) diaryHeaderEl.innerText = studentName;
+
+  // Student Quick Info Header Card mapping
+  if (data.student) {
+    const headerNameCard = document.getElementById('diaryHeaderStudentName');
+    if (headerNameCard) headerNameCard.innerText = data.student.name || studentName;
+
+    const branchCard = document.getElementById('diaryHeaderStudentBranch');
+    if (branchCard) branchCard.innerText = data.student.branch || '-';
+
+    const batchCard = document.getElementById('diaryHeaderStudentBatch');
+    if (batchCard) batchCard.innerText = data.student.classroom_id || '-';
+
+    const topBranchEl = document.getElementById('topHeaderBranch');
+    if (topBranchEl) topBranchEl.innerText = data.student.branch || '-';
+
+    const topBatchEl = document.getElementById('topHeaderBatch');
+    if (topBatchEl) topBatchEl.innerText = data.student.classroom_id || '-';
+
+    // Sidebar Photo
+    const photoImg = document.getElementById('sidebarStudentPhoto');
+    const photoPlaceholder = document.getElementById('sidebarStudentPhotoPlaceholder');
+    if (photoImg && photoPlaceholder) {
+      if (data.student.photo_url) {
+        photoImg.src = data.student.photo_url;
+        photoImg.classList.remove('hidden');
+        photoPlaceholder.classList.add('hidden');
+      } else {
+        photoImg.classList.add('hidden');
+        photoPlaceholder.classList.remove('hidden');
+      }
+    }
+
+    // Diary Header Photo
+    const dPhotoImg = document.getElementById('diaryStudentPhoto');
+    const dPhotoPlaceholder = document.getElementById('diaryStudentPhotoPlaceholder');
+    if (dPhotoImg && dPhotoPlaceholder) {
+      if (data.student.photo_url) {
+        dPhotoImg.src = data.student.photo_url;
+        dPhotoImg.classList.remove('hidden');
+        dPhotoPlaceholder.classList.add('hidden');
+      } else {
+        dPhotoImg.classList.add('hidden');
+        dPhotoPlaceholder.classList.remove('hidden');
+      }
+    }
+  }
 
   // Populate Personal Info
   if (data.profile) {
@@ -211,6 +257,37 @@ function populateMentoringUI(data) {
     document.getElementById('smd_guardian_relationship').value = data.profile.guardian_relationship || '';
     document.getElementById('smd_guardian_mobile').value = data.profile.guardian_mobile || '';
     document.getElementById('smd_guardian_address').value = data.profile.guardian_address || '';
+  }
+
+  // Populate Extended Profile Info
+  if (data.extended_profile) {
+    const ep = data.extended_profile;
+    if (document.getElementById('mdGender')) document.getElementById('mdGender').value = ep.gender || '';
+    if (document.getElementById('mdReligion')) document.getElementById('mdReligion').value = ep.religion || '';
+    if (document.getElementById('mdCaste')) document.getElementById('mdCaste').value = ep.caste || '';
+    if (document.getElementById('mdReservation')) document.getElementById('mdReservation').value = ep.reservation || '';
+    if (document.getElementById('mdQuota')) document.getElementById('mdQuota').value = ep.quota || '';
+    if (document.getElementById('mdIsDisabled')) document.getElementById('mdIsDisabled').value = ep.is_physically_disabled !== undefined ? ep.is_physically_disabled : '0';
+    if (document.getElementById('mdDisabilityCat')) document.getElementById('mdDisabilityCat').value = ep.disability_category || '';
+    if (document.getElementById('mdGuardianOcc')) document.getElementById('mdGuardianOcc').value = ep.guardian_occupation || '';
+    if (document.getElementById('mdFamilyIncome')) document.getElementById('mdFamilyIncome').value = ep.monthly_family_income || '';
+    if (document.getElementById('mdVehiclePass')) document.getElementById('mdVehiclePass').value = ep.has_vehicle_pass !== undefined ? ep.has_vehicle_pass : '0';
+    if (document.getElementById('mdVehiclePassId')) document.getElementById('mdVehiclePassId').value = ep.vehicle_pass_id || '';
+    if (document.getElementById('mdCommAddress')) document.getElementById('mdCommAddress').value = ep.communication_address || '';
+  } else {
+    // Reset to empty/default values if no extended profile exists yet
+    if (document.getElementById('mdGender')) document.getElementById('mdGender').value = '';
+    if (document.getElementById('mdReligion')) document.getElementById('mdReligion').value = '';
+    if (document.getElementById('mdCaste')) document.getElementById('mdCaste').value = '';
+    if (document.getElementById('mdReservation')) document.getElementById('mdReservation').value = '';
+    if (document.getElementById('mdQuota')) document.getElementById('mdQuota').value = '';
+    if (document.getElementById('mdIsDisabled')) document.getElementById('mdIsDisabled').value = '0';
+    if (document.getElementById('mdDisabilityCat')) document.getElementById('mdDisabilityCat').value = '';
+    if (document.getElementById('mdGuardianOcc')) document.getElementById('mdGuardianOcc').value = '';
+    if (document.getElementById('mdFamilyIncome')) document.getElementById('mdFamilyIncome').value = '';
+    if (document.getElementById('mdVehiclePass')) document.getElementById('mdVehiclePass').value = '0';
+    if (document.getElementById('mdVehiclePassId')) document.getElementById('mdVehiclePassId').value = '';
+    if (document.getElementById('mdCommAddress')) document.getElementById('mdCommAddress').value = '';
   }
 
   // Store syllabus list globally for dropdowns
@@ -240,57 +317,67 @@ function populateMentoringUI(data) {
 
   // Populate Family
   const fList = document.getElementById('smdFamilyList');
-  fList.innerHTML = '';
-  if (data.family) {
-    data.family.forEach(f => {
-      addFamilyRow(f.name, f.relationship, f.education, f.occupation, f.contact_no, f.id);
-    });
+  if (fList) {
+    fList.innerHTML = '';
+    if (data.family) {
+      data.family.forEach(f => {
+        addFamilyRow(f.name, f.relationship, f.education, f.occupation, f.contact_no, f.id);
+      });
+    }
   }
 
   // Populate Education
   const eList = document.getElementById('smdEducationList');
-  eList.innerHTML = '';
-  if (data.education) {
-    data.education.forEach(e => {
-      addEducationRow(e.course, e.institution, e.year_of_completion, e.total_percentage, e.id);
-    });
+  if (eList) {
+    eList.innerHTML = '';
+    if (data.education) {
+      data.education.forEach(e => {
+        addEducationRow(e.course, e.institution, e.year_of_completion, e.total_percentage, e.id);
+      });
+    }
   }
 
   // Populate Extracurricular
   const exList = document.getElementById('smdExtraList');
-  exList.innerHTML = '';
-  let totalPts = 0;
-  let splitPts = {};
-  if (data.extracurricular && data.extracurricular.length > 0) {
-    data.extracurricular.forEach(ex => {
-      if (ex.status === 'Verified') {
-        let pts = parseFloat(ex.points_awarded) || 0;
-        totalPts += pts;
-        let seg = ex.segment || 'General';
-        splitPts[seg] = (splitPts[seg] || 0) + pts;
-      }
-      addExtraRow(ex);
-    });
-  } else {
-    exList.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-600">No extra-curricular records.</td></tr>';
-  }
-  
-  // Update progress bar
-  document.getElementById('studentTotalActivityPoints').innerText = totalPts;
-  document.getElementById('studentActivityProgressBar').style.width = Math.min(100, totalPts) + '%';
-  let splitHtml = '';
-  if (Object.keys(splitPts).length > 0) {
-    for (const [seg, pts] of Object.entries(splitPts)) {
-      splitHtml += `
-        <div class="flex justify-between items-center py-1">
-          <span class="text-xs text-slate-300">${seg}</span>
-          <span class="text-xs font-bold text-emerald-400">${pts}</span>
-        </div>`;
+  if (exList) {
+    exList.innerHTML = '';
+    let totalPts = 0;
+    let splitPts = {};
+    if (data.extracurricular && data.extracurricular.length > 0) {
+      data.extracurricular.forEach(ex => {
+        if (ex.status === 'Verified') {
+          let pts = parseFloat(ex.points_awarded) || 0;
+          totalPts += pts;
+          let seg = ex.segment || 'General';
+          splitPts[seg] = (splitPts[seg] || 0) + pts;
+        }
+        addExtraRow(ex);
+      });
+    } else {
+      exList.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-600">No extra-curricular records.</td></tr>';
     }
-  } else {
-    splitHtml = '<div class="text-xs text-slate-500 py-1">No verified points yet.</div>';
+    
+    // Update progress bar
+    const totalPtsEl = document.getElementById('studentTotalActivityPoints');
+    if (totalPtsEl) totalPtsEl.innerText = totalPts;
+    const progressEl = document.getElementById('studentActivityProgressBar');
+    if (progressEl) progressEl.style.width = Math.min(100, totalPts) + '%';
+    
+    let splitHtml = '';
+    if (Object.keys(splitPts).length > 0) {
+      for (const [seg, pts] of Object.entries(splitPts)) {
+        splitHtml += `
+          <div class="flex justify-between items-center py-1">
+            <span class="text-xs text-slate-300">${seg}</span>
+            <span class="text-xs font-bold text-emerald-400">${pts}</span>
+          </div>`;
+      }
+    } else {
+      splitHtml = '<div class="text-xs text-slate-500 py-1">No verified points yet.</div>';
+    }
+    const splitListEl = document.getElementById('studentActivitySplitList');
+    if (splitListEl) splitListEl.innerHTML = splitHtml;
   }
-  document.getElementById('studentActivitySplitList').innerHTML = splitHtml;
 
       
 
@@ -557,17 +644,32 @@ function saveStudentMentoringData() {
 
     const payload = {
       reg_no: window.TARGET_REG_NO,
-    profile: {
-      annual_income: document.getElementById('smd_annual_income').value,
-      residential_status: document.getElementById('smd_residential_status').value,
-      scholarships: document.getElementById('smd_scholarships').value,
-      is_fee_waiver: document.getElementById('smd_fee_waiver').checked ? 1 : 0,
-      guardian_name: document.getElementById('smd_guardian_name').value,
-      guardian_relationship: document.getElementById('smd_guardian_relationship').value,
-      guardian_mobile: document.getElementById('smd_guardian_mobile').value,
-      guardian_address: document.getElementById('smd_guardian_address').value
-    },
-    family: Array.from(document.querySelectorAll('.family-row')).map(row => ({
+      profile: {
+        annual_income: document.getElementById('smd_annual_income').value,
+        residential_status: document.getElementById('smd_residential_status').value,
+        scholarships: document.getElementById('smd_scholarships').value,
+        is_fee_waiver: document.getElementById('smd_fee_waiver').checked ? 1 : 0,
+        guardian_name: document.getElementById('smd_guardian_name').value,
+        guardian_relationship: document.getElementById('smd_guardian_relationship').value,
+        guardian_mobile: document.getElementById('smd_guardian_mobile').value,
+        guardian_address: document.getElementById('smd_guardian_address').value
+      },
+      extended_profile: {
+        gender: document.getElementById('mdGender') ? document.getElementById('mdGender').value : null,
+        religion: document.getElementById('mdReligion') ? document.getElementById('mdReligion').value : null,
+        caste: document.getElementById('mdCaste') ? document.getElementById('mdCaste').value : null,
+        special_category: document.getElementById('mdReservation') ? document.getElementById('mdReservation').value : null,
+        reservation: document.getElementById('mdReservation') ? document.getElementById('mdReservation').value : null,
+        quota: document.getElementById('mdQuota') ? document.getElementById('mdQuota').value : null,
+        is_physically_disabled: document.getElementById('mdIsDisabled') ? document.getElementById('mdIsDisabled').value : 0,
+        disability_category: document.getElementById('mdDisabilityCat') ? document.getElementById('mdDisabilityCat').value : null,
+        guardian_occupation: document.getElementById('mdGuardianOcc') ? document.getElementById('mdGuardianOcc').value : null,
+        monthly_family_income: document.getElementById('mdFamilyIncome') ? document.getElementById('mdFamilyIncome').value : null,
+        has_vehicle_pass: document.getElementById('mdVehiclePass') ? document.getElementById('mdVehiclePass').value : 0,
+        vehicle_pass_id: document.getElementById('mdVehiclePassId') ? document.getElementById('mdVehiclePassId').value : null,
+        communication_address: document.getElementById('mdCommAddress') ? document.getElementById('mdCommAddress').value : null
+      },
+      family: Array.from(document.querySelectorAll('.family-row')).map(row => ({
       name: row.querySelector('.f-name').value,
       relationship: row.querySelector('.f-rel').value,
       education: row.querySelector('.f-edu').value,
@@ -603,14 +705,14 @@ function saveStudentMentoringData() {
   .then(res => res.json())
   .then(data => {
     if (data.status === 'SUCCESS') {
-      showGlobalAlert('Mentoring diary updated successfully!', 'success');
+      alert('Changes saved successfully!');
     } else {
-      showGlobalAlert('Failed to save data.', 'error');
+      alert('Failed to save data: ' + (data.message || 'Unknown error'));
     }
   })
   .catch(err => {
     console.error(err);
-    showGlobalAlert('Error communicating with server.', 'error');
+    alert('Error communicating with server: ' + err.message);
   });
 }
 
@@ -673,16 +775,16 @@ function saveStudentActivity(e) {
     .then(res => res.json())
     .then(resData => {
         if(resData.status === "SUCCESS") {
+            alert("Activity saved successfully!");
             closeStudentActivityModal();
             loadStudentMentoringDiary();
-            showGlobalAlert("Activity saved successfully!", "success");
         } else {
-            showGlobalAlert(resData.message || "Failed to save activity.", "error");
+            alert("Error: " + (resData.message || "Failed to save activity."));
         }
     })
     .catch(err => {
         console.error(err);
-        showGlobalAlert("Error saving activity.", "error");
+        alert("Error saving activity: " + err.message);
     });
 }
 
@@ -757,6 +859,7 @@ function saveStudentActivity(e) {
         return res.json();
     }).then(resData => {
       if (resData.status === "SUCCESS") {
+        alert("Leave record saved successfully!");
         closeLeaveModal();
         loadStudentMentoringDiary(); // Reload UI
       } else alert("Error: " + resData.message);

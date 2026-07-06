@@ -1133,6 +1133,26 @@
     </div>
   </div>
 
+  <style>
+    /* Enlarge mentoring diary modal data fields for comfortable reading */
+    #fullMentoringDiaryModal label {
+      font-size: 14px !important;
+      font-weight: bold !important;
+    }
+    #fullMentoringDiaryModal input,
+    #fullMentoringDiaryModal select,
+    #fullMentoringDiaryModal textarea,
+    #fullMentoringDiaryModal td,
+    #fullMentoringDiaryModal th,
+    #fullMentoringDiaryModal li,
+    #fullMentoringDiaryModal p {
+      font-size: 14px !important;
+    }
+    #fullMentoringDiaryModal span:not(.material-symbols-rounded) {
+      font-size: 14px !important;
+    }
+  </style>
+
 
 
 

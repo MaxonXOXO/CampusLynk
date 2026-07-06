@@ -9,6 +9,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <style>
+    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
+    .font-extrabold, .font-black {
+      font-weight: 700 !important;
+    }
     body { font-family: 'Inter', system-ui, sans-serif; }
     .transition-premium { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
     .scrollbar-hidden::-webkit-scrollbar { display: none; }
@@ -54,13 +58,12 @@
 
     <!-- Profile Card -->
     <div class="p-4 bg-slate-900/40 border-b border-slate-800/40">
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3" id="sidebarAvatarContainer">
         @if(session('userPhoto'))
-          <img src="{{ session('userPhoto') }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
+          <img id="sidebarStudentImg" src="{{ session('userPhoto') }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
         @else
-          <div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 to-sky-700 flex items-center justify-center font-black shadow text-sm">
+          <div id="sidebarStudentPlaceholder" class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 to-sky-700 flex items-center justify-center font-black shadow text-sm">
             {{ strtoupper(substr(session('userName','S'), 0, 2)) }}
-
           </div>
         @endif
         <div class="overflow-hidden">
@@ -76,7 +79,7 @@
       <button id="navExams" onclick="switchPanel('exams')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500   text-sm">
         <span class="material-symbols-rounded text-lg">checklist</span> Works To Do
       </button>
-      <button id="navMarks" onclick="switchPanel('marks', 'Academic Stats')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+      <button id="navMarks" onclick="switchPanel('marks')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">bar_chart_4_bars</span> Academic Stats
       </button>
       <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
@@ -85,9 +88,12 @@
       <a id="navMentoring" href="/student/mentoring-diary" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">menu_book</span> Mentoring Diary
       </a>
-      <button id="navActivity" onclick="switchPanel('activity', 'Activity Points')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+      <button id="navActivity" onclick="switchPanel('activity')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">star</span> Activity Points
       </button>
+      <a id="navMockTest" href="/student/mock-test" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-teal-300 hover:bg-blue-950/20 cursor-pointer text-sm no-underline">
+        <span class="material-symbols-rounded text-lg text-teal-400 animate-pulse">rocket_launch</span> Mock Practice Test
+      </a>
     </nav>
 
     <!-- Logout -->
@@ -113,10 +119,10 @@
           </div>
         </div>
         <div class="flex items-center gap-4">
-          <div class="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 font-black uppercase tracking-wider text-slate-400 flex gap-4">
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 font-black uppercase tracking-wider text-slate-400 flex flex-wrap gap-4 text-xs">
             <span>Branch: <strong class="text-slate-200">{{ session('userBranch', '-') }}</strong></span>
             <span>Batch: <strong class="text-slate-200">{{ session('classroomId', '-') }}</strong></span>
-            <span id="headerSemesterText" class="hidden">Sem: <strong class="text-slate-200" id="headerSemValue">-</strong></span>
+            <span id="headerSemesterText">Sem: <strong class="text-teal-400" id="headerSemValue">...</strong></span>
           </div>
         </div>
       </header>
@@ -206,19 +212,28 @@
         <div class="max-w-2xl mx-auto space-y-6">
 
           <!-- Profile Header Card -->
-          <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl p-6 flex items-center gap-5">
-            @if(session('userPhoto'))
-              <img src="{{ session('userPhoto') }}" class="w-20 h-20 rounded-2xl object-cover border border-slate-700 shadow-lg">
-            @else
-              <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-sky-700 flex items-center justify-center font-black shadow-lg text-2xl">
-                {{ strtoupper(substr(session('userName','S'), 0, 2)) }}
-
+          <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-5">
+            <div class="relative group">
+              <div id="studentAvatarWrapper" class="w-20 h-20 rounded-2xl overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center shadow-lg relative">
+                @if(session('userPhoto'))
+                  <img id="studentProfileImg" src="{{ session('userPhoto') }}" class="w-full h-full object-cover">
+                @else
+                  <div id="studentProfilePlaceholder" class="w-full h-full bg-gradient-to-br from-blue-600 to-sky-700 flex items-center justify-center font-black text-2xl text-white">
+                    {{ strtoupper(substr(session('userName','S'), 0, 2)) }}
+                  </div>
+                @endif
               </div>
-            @endif
-            <div>
-              <h3 class="font-black text-white text-xs">{{ session('userName') }}</h3>
-              <p class="text-xs text-slate-400 font-semibold mt-0.5">{{ session('userId') }} Â· {{ session('userBranch') }}</p>
-              <span class="mt-2 inline-block px-2.5 py-0.5 rounded-full font-bold bg-teal-500/10 text-teal-400 border border-teal-500/20">Student</span>
+              <label for="photoUploadInput" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer rounded-2xl text-white text-sm font-bold text-center gap-1 p-1">
+                <span class="material-symbols-rounded text-base">photo_camera</span>
+                <span>Change</span>
+              </label>
+              <input type="file" id="photoUploadInput" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+            </div>
+            <div class="text-center sm:text-left">
+              <h3 class="font-black text-white text-sm">{{ session('userName') }}</h3>
+              <p class="text-sm text-slate-400 font-semibold mt-0.5">{{ session('userId') }} &bull; {{ session('userBranch') }}</p>
+              <span class="mt-2 inline-block px-2.5 py-0.5 rounded-full font-bold bg-teal-500/10 text-teal-400 border border-teal-500/20 text-sm">Student</span>
+              <div id="photoUploadStatus" class="text-sm font-bold mt-2 hidden"></div>
             </div>
           </div>
 
@@ -293,9 +308,8 @@
           </div>
 
         </div>
-        </div>
-
-        
+      </div>
+      <!-- END PANEL: MY PROFILE -->
 
         @php
           $isLet = session('userAdmissionType') === 'LET';
@@ -409,8 +423,9 @@
           </div>
         </div>
       </div>
+      <!-- END PANEL: ACTIVITY POINTS -->
 
-      </div>
+    </div>
   </main>
 
   <script>
@@ -426,16 +441,19 @@
       }
     }
 
-    function switchPanel(panelId, title) {
-      // Close mobile sidebar if open
+    function switchPanel(panelId) {
+      // Close mobile sidebar if open (only on mobile)
       const sidebar = document.getElementById('sidebarMenu');
       const backdrop = document.getElementById('sidebarBackdrop');
-      if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+      if (sidebar && window.innerWidth < 768 && !sidebar.classList.contains('-translate-x-full')) {
         sidebar.classList.add('-translate-x-full');
         backdrop.classList.add('hidden');
       }
 
-      const panels = ['exams', 'marks', 'profile', 'mentoring', 'activity'];
+      // Sync browser history state safely
+      window.history.replaceState({}, '', '?tab=' + panelId);
+
+      const panels = ['exams', 'marks', 'profile', 'activity'];
       
       panels.forEach(id => {
         const el = document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1));
@@ -449,20 +467,17 @@
         }
       });
 
-      const titles = { exams: 'Works To Do', marks: 'Academic Stats', profile: 'My Profile', mentoring: 'Mentoring Diary', activity: 'Activity Points' };
+      const titles = { exams: 'Works To Do', marks: 'Academic Stats', profile: 'My Profile', activity: 'Activity Points' };
       const subtitles = { 
         exams: 'Manage your pending assignments and active tests.', 
         marks: 'Your semester-wise academic progress.', 
         profile: 'Your personal and academic details.',
-        mentoring: 'Mentoring sessions and student data.',
         activity: 'Track and claim your extracurricular points.'
       };
-      document.getElementById('panelTitle').innerText = titles[panelId];
-      document.getElementById('panelSubtitle').innerText = subtitles[panelId];
+      if (titles[panelId]) document.getElementById('panelTitle').innerText = titles[panelId];
+      if (subtitles[panelId]) document.getElementById('panelSubtitle').innerText = subtitles[panelId];
 
-      if (panelId === 'mentoring') {
-        if (!mentoringLoaded) loadMentoringDiary();
-      } else if (panelId === 'activity') {
+      if (panelId === 'activity') {
         loadActivityPoints();
       }
     }
@@ -520,73 +535,112 @@
             academicReportLoaded = true;
             academicData = data;
             const overall = data.overall || {};
-            document.getElementById('overallCgpa').innerText = overall.cgpa || '0';
+            document.getElementById('overallCgpa').innerText = overall.cgpa || 'N/A';
             document.getElementById('overallActivityPoints').innerText = overall.activity_points || '0';
-            if (overall.current_semester) {
-              document.getElementById('headerSemesterText').classList.remove('hidden');
-              document.getElementById('headerSemValue').innerText = overall.current_semester;
-            }
-            currentActiveSem = data.overall.current_semester || 1;
+            // Always update sem in header
+            document.getElementById('headerSemValue').innerText = 'Sem ' + (overall.current_semester || '?');
+            currentActiveSem = overall.current_semester || 1;
 
             if (data.stats) updateStatsHeader(data.stats, null);
-            renderActiveTasks(data.active_tasks || []);
-            renderCgpaChart(data.semesters);
-            renderSemesterTabs(data.semesters);
+            renderActiveTasks(data.active_tasks || [], data.active_surveys || []);
+            renderCgpaChart(data.semesters || []);
+            renderSemesterTabs(data.semesters || []);
             renderGodTable(currentActiveSem);
+          } else {
+            // API returned an error — show it gracefully
+            const errMsg = data.message || 'Failed to load academic data.';
+            console.error('Academic report error:', errMsg);
+            const c = document.getElementById('studentActiveTasksContainer');
+            if (c) c.innerHTML = `<div class="col-span-full py-8 text-center text-rose-400 font-bold text-sm">⚠️ ${errMsg}</div>`;
           }
+        })
+        .catch(err => {
+          console.error('Network error loading academic report:', err);
+          const c = document.getElementById('studentActiveTasksContainer');
+          if (c) c.innerHTML = `<div class="col-span-full py-8 text-center text-rose-400 font-bold text-sm">⚠️ Network error — please refresh.</div>`;
         });
     }
 
-    function renderActiveTasks(tasks) {
+
+    function renderActiveTasks(tasks, surveys) {
       const container = document.getElementById('studentActiveTasksContainer');
-      if (!tasks || tasks.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 font-bold text-xs">No active assignments or tests at the moment.</div>`;
-        return;
-      }
       
       let html = '';
-      tasks.forEach((t, index) => {
-        const isExp = t.status === 'Expired' || t.status === 'Completed';
-        const stCol = isExp ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : 'text-teal-400 bg-teal-500/10 border-teal-500/20';
-        const icon = t.type === 'Assignment' ? 'assignment' : 'edit_document';
 
-        let qHtml = '';
-        if (t.questions && t.questions.length > 0) {
-          qHtml = `<div class="mt-4 pt-4 border-t border-slate-800 hidden" id="taskQ_${index}">
-            <h4 class="text-xs uppercase font-black text-slate-400 mb-2">Assignment Questions</h4>
-            <ul class="space-y-2 text-xs text-slate-300 font-medium list-disc pl-4">
-              ${t.questions.map(q => `<li>${q}</li>`).join('')}
-            </ul>
-          </div>`;
-        }
+      // Render Active Surveys first as highlighted amber cards
+      if (surveys && surveys.length > 0) {
+        surveys.forEach((srv) => {
+          const isExit = srv.type === 'Course Exit';
+          const title = isExit ? 'Course Exit Feedback Survey Active' : 'Mid-Semester Feedback Survey Active';
+          const link = isExit ? `/student/course-exit/${srv.survey_id}` : `/student/survey/${srv.survey_id}`;
+          const themeBg = isExit ? 'bg-teal-950/20 border-teal-500/30' : 'bg-amber-950/20 border-amber-500/30';
+          const themeText = isExit ? 'text-teal-300' : 'text-amber-300';
+          const themeBtn = isExit ? 'bg-teal-500/15 hover:bg-teal-500/30 border-teal-500/40 text-teal-300' : 'bg-amber-500/15 hover:bg-amber-500/30 border-amber-500/40 text-amber-300';
+          const themeIcon = isExit ? 'text-teal-400' : 'text-amber-400';
+          
+          html += `
+            <div class="${themeBg} border-2 rounded-xl p-4 mb-2 shadow-lg relative overflow-hidden col-span-full">
+              <div class="absolute top-0 right-0 h-12 w-12 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
+              <div class="flex items-start gap-3">
+                <span class="material-symbols-rounded ${themeIcon} text-lg mt-0.5 animate-bounce">rate_review</span>
+                <div class="flex-grow">
+                  <h4 class="font-extrabold text-sm ${themeText} uppercase tracking-wide">${title}</h4>
+                  <p class="text-sm font-bold text-slate-300 mt-0.5">${srv.subject_code} — ${srv.subject_name}</p>
+                  <p class="text-sm text-slate-400 mt-2 leading-relaxed">Please complete this feedback form to help calculate Course Outcome (CO) attainment parameters.</p>
+                  <a href="${link}" target="_blank" class="mt-3 inline-flex items-center gap-1.5 px-4 py-2 ${themeBtn} rounded-lg text-sm font-bold transition-premium no-underline cursor-pointer">
+                    <span class="material-symbols-rounded text-base">rate_review</span> Take Survey Feedback <span class="material-symbols-rounded text-sm">arrow_forward</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
 
-        let actionBtn = '';
-        if (t.type === 'Assignment' && !isExp) {
-          actionBtn = `<button onclick="markManualTaskSubmitted('${t.subject_code}', '${t.co_tag}', 'Assignment')" class="mt-3 w-full py-2 bg-blue-600/80 hover:bg-blue-500 text-white rounded font-bold text-xs transition-premium">Mark as Submitted</button>`;
-        }
+      // Render active tasks
+      if (tasks && tasks.length > 0) {
+        tasks.forEach((t, index) => {
+          const isExp = t.status === 'Expired' || t.status === 'Completed';
+          const stCol = isExp ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : 'text-teal-400 bg-teal-500/10 border-teal-500/20';
+          const icon = t.type === 'Assignment' ? 'assignment' : 'edit_document';
 
-        html += `
-          <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl overflow-hidden mb-1">
+          let qHtml = '';
+          if (t.questions && t.questions.length > 0) {
+            qHtml = `<div class="mt-4 pt-4 border-t border-slate-800 hidden" id="taskQ_${index}">
+              <h4 class="text-xs uppercase font-black text-slate-400 mb-2">Assignment Questions</h4>
+              <ul class="space-y-2 text-xs text-slate-300 font-medium list-disc pl-4">
+                ${t.questions.map(q => `<li>${q}</li>`).join('')}
+              </ul>
+            </div>`;
+          }
+
+          let actionBtn = '';
+          if (t.type === 'Assignment' && !isExp) {
+            actionBtn = `<button onclick="markManualTaskSubmitted('${t.subject_code}', '${t.co_tag}', 'Assignment')" class="mt-3 w-full py-2 bg-blue-600/80 hover:bg-blue-500 text-white rounded font-bold text-sm transition-premium">Mark as Submitted</button>`;
+          }
+
+          html += `
+            <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl overflow-hidden mb-1">
             <!-- Collapsible Header -->
             <div onclick="document.getElementById('co_task_${index}').classList.toggle('hidden'); this.querySelector('.arrow-icon').innerText = document.getElementById('co_task_${index}').classList.contains('hidden') ? 'expand_more' : 'expand_less';" 
                  class="px-4 py-3.5 bg-slate-950/40 hover:bg-slate-950/70 border-b border-slate-800/60 flex justify-between items-center cursor-pointer transition-premium">
               <div class="flex items-center gap-3">
-                <span class="material-symbols-rounded text-blue-400 text-xs">${icon}</span>
+                <span class="material-symbols-rounded text-blue-400 text-base">${icon}</span>
                 <div>
-                  <h4 class="font-bold text-xs text-slate-200 uppercase">${t.type} - ${t.co_tag}</h4>
-                  <p class="text-xs font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject}</p>
+                  <h4 class="font-bold text-sm text-slate-200 uppercase">${t.type} - ${t.co_tag}</h4>
+                  <p class="text-sm font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject}</p>
                 </div>
               </div>
-              <span class="material-symbols-rounded text-slate-500 text-xs arrow-icon">expand_more</span>
+              <span class="material-symbols-rounded text-slate-500 text-sm arrow-icon">expand_more</span>
             </div>
             <!-- Collapsible Content -->
             <div id="co_task_${index}" class="hidden p-4 bg-slate-950/10 border-t border-slate-800/40">
               <div class="flex items-center gap-2 mb-3">
                   <span class="px-2 py-0.5 rounded text-xs font-black uppercase tracking-widest ${stCol}">${t.status}</span>
               </div>
-              <div class="grid grid-cols-2 gap-4 mb-4 text-xs text-slate-400 font-semibold">
+              <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-slate-400 font-semibold">
                 <div class="space-y-1">
-                  <div>Start Date: <span class="text-slate-200 font-bold">${t.start ? new Date(t.start).toLocaleDateString() : '-'}</span></div>
+                  <div>Start: <span class="text-slate-200 font-bold">${t.start ? new Date(t.start).toLocaleDateString() : '-'}</span></div>
                 </div>
                 <div class="space-y-1">
                   <div>Deadline: <span class="text-slate-200 font-bold font-mono">${t.deadline ? new Date(t.deadline).toLocaleDateString() : '-'}</span></div>
@@ -597,10 +651,17 @@
               ${actionBtn}
             </div>
           </div>
-        `;
-      });
-      container.innerHTML = html;
-      container.className = "flex flex-col gap-1 mt-4 mb-6";
+          `;
+        });
+      }
+
+      // Always write html to container — even if only surveys or only tasks
+      if (html) {
+        container.innerHTML = html;
+        container.className = "grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4 mb-6";
+      } else {
+        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 font-bold text-sm">No active assignments, tests, or surveys at the moment. ✅</div>`;
+      }
     }
 
     function markManualTaskSubmitted(subjectCode, coTag, category) {
@@ -664,7 +725,7 @@
       const container = document.getElementById('semesterTabsContainer');
       let html = '';
       semesters.forEach(s => {
-        const isActive = s.semester === currentActiveSem;
+        const isActive = s.semester == currentActiveSem;
         const isCurrent = s.is_current === true;
         const cls = isActive 
           ? 'bg-blue-600/20 text-blue-400 border-blue-500/20' 
@@ -700,26 +761,34 @@
         rows += `
           <tr class="${trClass}">
             <td class="p-4 whitespace-nowrap">
-              <div class="font-black text-slate-200 text-xs">${sub.subject_code}</div>
-              <div class="text-xs text-slate-500 font-bold truncate max-w-[150px]" title="${sub.subject_name}">${sub.subject_name}</div>
+              <div class="font-black text-slate-200 text-sm">${sub.subject_code}</div>
+              <div class="text-sm text-slate-400 font-bold truncate max-w-[200px]" title="${sub.subject_name}">${sub.subject_name}</div>
             </td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300">${sub.CO1 !== null ? sub.CO1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO2 !== null ? sub.CO2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300">${sub.CO3 !== null ? sub.CO3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO4 !== null ? sub.CO4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400 border-l border-slate-800">${sub.Assg1 !== null ? sub.Assg1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg2 !== null ? sub.Assg2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg3 !== null ? sub.Assg3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg4 !== null ? sub.Assg4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400 border-l border-slate-800">${sub.WT1 !== null ? sub.WT1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT2 !== null ? sub.WT2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT3 !== null ? sub.WT3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT4 !== null ? sub.WT4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400 border-l border-slate-800">${sub.OT1 !== null ? sub.OT1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT2 !== null ? sub.OT2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT3 !== null ? sub.OT3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT4 !== null ? sub.OT4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-black border-l border-slate-800 ${sub.attendance_percentage < 75 ? 'text-rose-400' : 'text-slate-300'}">
+            <td class="p-4 text-center text-base font-mono font-bold text-slate-300">${sub.CO1 !== null ? sub.CO1 : '-'}</td>
+            <td class="p-4 text-center text-base font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO2 !== null ? sub.CO2 : '-'}</td>
+            <td class="p-4 text-center text-base font-mono font-bold text-slate-300">${sub.CO3 !== null ? sub.CO3 : '-'}</td>
+            <td class="p-4 text-center text-base font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO4 !== null ? sub.CO4 : '-'}</td>
+            <td class="p-4 text-center text-base font-mono font-bold text-blue-400 border-l border-slate-800">
+              ${sub.Assg1 !== null ? sub.Assg1 : (sub.Assg1_status === 'Submitted' ? '<span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 font-bold tracking-wider animate-pulse">SUBMITTED</span>' : '-')}
+            </td>
+            <td class="p-4 text-center text-base font-mono font-bold text-blue-400">
+              ${sub.Assg2 !== null ? sub.Assg2 : (sub.Assg2_status === 'Submitted' ? '<span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 font-bold tracking-wider animate-pulse">SUBMITTED</span>' : '-')}
+            </td>
+            <td class="p-4 text-center text-base font-mono font-bold text-blue-400">
+              ${sub.Assg3 !== null ? sub.Assg3 : (sub.Assg3_status === 'Submitted' ? '<span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 font-bold tracking-wider animate-pulse">SUBMITTED</span>' : '-')}
+            </td>
+            <td class="p-4 text-center text-base font-mono font-bold text-blue-400">
+              ${sub.Assg4 !== null ? sub.Assg4 : (sub.Assg4_status === 'Submitted' ? '<span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 font-bold tracking-wider animate-pulse">SUBMITTED</span>' : '-')}
+            </td>
+            <td class="p-4 text-center text-base font-mono font-black text-emerald-400 border-l border-slate-800">${sub.WT1 !== null ? sub.WT1 : '-'}</td>
+            <td class="p-4 text-center text-base font-mono font-black text-emerald-400">${sub.WT2 !== null ? sub.WT2 : '-'}</td>
+            <td class="p-4 text-center text-base font-mono font-black text-emerald-400">${sub.WT3 !== null ? sub.WT3 : '-'}</td>
+            <td class="p-4 text-center text-base font-mono font-black text-emerald-400">${sub.WT4 !== null ? sub.WT4 : '-'}</td>
+            <td class="p-4 text-center text-base font-mono font-black text-purple-400 border-l border-slate-800">${sub.OT1 !== null ? sub.OT1 : '-'}</td>
+            <td class="p-4 text-center text-base font-mono font-black text-purple-400">${sub.OT2 !== null ? sub.OT2 : '-'}</td>
+            <td class="p-4 text-center text-base font-mono font-black text-purple-400">${sub.OT3 !== null ? sub.OT3 : '-'}</td>
+            <td class="p-4 text-center text-base font-mono font-black text-purple-400">${sub.OT4 !== null ? sub.OT4 : '-'}</td>
+            <td class="p-4 text-center text-base font-black border-l border-slate-800 ${sub.attendance_percentage < 75 ? 'text-rose-400' : 'text-slate-300'}">
               ${sub.attendance_percentage}%
             </td>
           </tr>
@@ -730,14 +799,14 @@
         <div class="flex justify-between items-center mb-4">
           <div class="flex gap-4">
             <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
-              <span class="material-symbols-rounded text-slate-400 text-xs">stars</span>
-              <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">SGPA:</span>
-              <span class="text-xs font-black text-white">${semData.sgpa || '-'}</span>
+              <span class="material-symbols-rounded text-slate-400 text-sm">stars</span>
+              <span class="text-sm text-slate-400 font-bold uppercase tracking-widest">SGPA:</span>
+              <span class="text-sm font-black text-white">${semData.sgpa || '-'}</span>
             </div>
             <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
-              <span class="material-symbols-rounded text-slate-400 text-xs">local_activity</span>
-              <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Points:</span>
-              <span class="text-xs font-black text-white">${semData.activity_points || '-'}</span>
+              <span class="material-symbols-rounded text-slate-400 text-sm">local_activity</span>
+              <span class="text-sm text-slate-400 font-bold uppercase tracking-widest">Points:</span>
+              <span class="text-sm font-black text-white">${semData.activity_points || '-'}</span>
             </div>
           </div>
         </div>
@@ -745,7 +814,7 @@
         <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl overflow-x-auto shadow-2xl">
           <table class="w-full text-left border-collapse min-w-[1200px]">
             <thead>
-              <tr class="bg-slate-900/80 border-b border-slate-800 text-xs uppercase tracking-wider font-black text-slate-400">
+              <tr class="bg-slate-900/80 border-b border-slate-800 text-sm uppercase tracking-wider font-black text-slate-400">
                 <th class="p-4 font-black">Subject</th>
                 <th class="p-4 text-center" colspan="4">Sum COs</th>
                 <th class="p-4 text-center border-l border-slate-800 text-blue-400" colspan="4">Assignments</th>
@@ -839,6 +908,63 @@
       .catch(() => {
         alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
         alert.innerText = 'Request failed. Please try again.';
+      });
+    }
+
+    function handlePhotoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('photoUploadStatus');
+      statusEl.classList.remove('hidden');
+      statusEl.className = "text-sm font-bold mt-2 text-blue-450";
+      statusEl.innerText = "Uploading photo...";
+
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      fetch('/api/student/profile/upload-photo', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          statusEl.className = "text-sm font-bold mt-2 text-green-400";
+          statusEl.innerText = "Photo updated successfully!";
+
+          // Update main profile picture
+          const imgEl = document.getElementById('studentProfileImg');
+          if (imgEl) {
+            imgEl.src = data.photo_url;
+          } else {
+            const wrapper = document.getElementById('studentAvatarWrapper');
+            wrapper.innerHTML = `<img id="studentProfileImg" src="${data.photo_url}" class="w-full h-full object-cover">`;
+          }
+
+          // Update sidebar picture
+          const sidebarImg = document.getElementById('sidebarStudentImg');
+          if (sidebarImg) {
+            sidebarImg.src = data.photo_url;
+          } else {
+            const sidebarWrapper = document.getElementById('sidebarAvatarContainer');
+            if (sidebarWrapper) {
+              sidebarWrapper.innerHTML = `<img id="sidebarStudentImg" src="${data.photo_url}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">`;
+            }
+          }
+
+          setTimeout(() => statusEl.classList.add('hidden'), 3000);
+        } else {
+          statusEl.className = "text-sm font-bold mt-2 text-rose-450";
+          statusEl.innerText = data.message || "Upload failed.";
+        }
+      })
+      .catch(() => {
+        statusEl.className = "text-sm font-bold mt-2 text-rose-450";
+        statusEl.innerText = "Network error. Please try again.";
       });
     }
 

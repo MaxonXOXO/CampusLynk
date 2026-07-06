@@ -46,7 +46,10 @@
   <header class="bg-slate-900 border-b border-slate-800/80 sticky top-0 z-40 shadow-2xl">
     <div class="px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <a href="/dashboard/lecturer" class="flex items-center gap-2 px-4 py-2 bg-purple-500/15 hover:bg-purple-500/30 border border-purple-500/40 hover:border-purple-400 text-purple-400 hover:text-purple-300 rounded-xl font-bold transition-premium">
+        @php
+          $backUrl = (session('userRole') === 'Demonstrator') ? '/dashboard/demonstrator' : '/dashboard/lecturer';
+        @endphp
+        <a href="{{ $backUrl }}" class="flex items-center gap-2 px-4 py-2 bg-purple-500/15 hover:bg-purple-500/30 border border-purple-500/40 hover:border-purple-400 text-purple-400 hover:text-purple-300 rounded-xl font-bold transition-premium no-underline">
           <span class="material-symbols-rounded text-xl">arrow_back</span>
           <span class="text-base">Back</span>
         </a>

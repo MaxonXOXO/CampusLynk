@@ -219,9 +219,9 @@ class DataController extends Controller
                 // HOD can manage themselves
                 if ($staff->mobile_no === $currentUserId) return true;
 
-                // HOD can manage Faculty, Demonstrator, and Trade Instructor in their branch
+                // HOD can manage Faculty, Lecturer, Demonstrator, and Trade Instructor in their branch
                 return strtoupper($staff->branch) === strtoupper($currentBranch) &&
-                       in_array($staff->designation, ['Faculty', 'Demonstrator', 'Trade_Instructor']);
+                       in_array($staff->designation, ['Faculty', 'Lecturer', 'Demonstrator', 'Trade_Instructor']);
             }
         }
 
@@ -787,18 +787,36 @@ class DataController extends Controller
     // HOD BATCH MANAGEMENT METHODS
     // -------------------------------------------------------------------------
 
-    /**
-     * HOD: List all batches/classrooms for this HOD's department branch.
-     */
-    public function getHodBatches(Request $request)
+    private function checkHodOrPrincipalAccess(Request $request, &$branchOut)
     {
         $currentUserId = Session::get('userId');
         $currentRole   = Session::get('userRole');
         $currentBranch = Session::get('userBranch');
 
-        if (!$currentUserId || $currentRole !== 'HOD') {
-            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD access required.']);
+        if (!$currentUserId || !in_array($currentRole, ['HOD', 'Principal', 'Super_Admin'])) {
+            return false;
         }
+
+        if (in_array($currentRole, ['Principal', 'Super_Admin'])) {
+            $branchOut = $request->input('branch') ?? $request->query('branch') ?? $currentBranch;
+        } else {
+            $branchOut = $currentBranch;
+        }
+        return true;
+    }
+
+    /**
+     * HOD: List all batches/classrooms for this HOD's department branch.
+     */
+    public function getHodBatches(Request $request)
+    {
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD or Principal access required.']);
+        }
+        $currentUserId = Session::get('userId');
+        $currentRole   = Session::get('userRole');
+        $currentBranch = $branch;
 
         $filterStatus = $request->query('status', 'active');
 
@@ -853,13 +871,13 @@ class DataController extends Controller
      */
     public function createHodBatch(\Illuminate\Http\Request $request)
     {
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD or Principal access required.']);
+        }
         $currentUserId = Session::get('userId');
         $currentRole   = Session::get('userRole');
-        $currentBranch = Session::get('userBranch');
-
-        if (!$currentUserId || $currentRole !== 'HOD') {
-            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD access required.']);
-        }
+        $currentBranch = $branch;
 
         $request->validate([
             'admission_year'    => 'required|integer|min:2000|max:2100',
@@ -951,13 +969,13 @@ class DataController extends Controller
      */
     public function assignBatchTutor(\Illuminate\Http\Request $request)
     {
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD or Principal access required.']);
+        }
         $currentUserId = Session::get('userId');
         $currentRole   = Session::get('userRole');
-        $currentBranch = Session::get('userBranch');
-
-        if (!$currentUserId || $currentRole !== 'HOD') {
-            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD access required.']);
-        }
+        $currentBranch = $branch;
 
         $request->validate([
             'classroom_id'    => 'required|string',
@@ -1023,13 +1041,13 @@ class DataController extends Controller
      */
     public function assignBatchMentor(\Illuminate\Http\Request $request)
     {
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD or Principal access required.']);
+        }
         $currentUserId = Session::get('userId');
         $currentRole   = Session::get('userRole');
-        $currentBranch = Session::get('userBranch');
-
-        if (!$currentUserId || $currentRole !== 'HOD') {
-            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD access required.']);
-        }
+        $currentBranch = $branch;
 
         $request->validate([
             'classroom_id'     => 'required|string',
@@ -1090,18 +1108,15 @@ class DataController extends Controller
         ]);
     }
 
-    /**
-     * HOD: Get all students enrolled in a specific batch/classroom.
-     */
     public function getBatchStudents(\Illuminate\Http\Request $request, $classroomId)
     {
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD or Principal access required.']);
+        }
         $currentUserId = Session::get('userId');
         $currentRole   = Session::get('userRole');
-        $currentBranch = Session::get('userBranch');
-
-        if (!$currentUserId || $currentRole !== 'HOD') {
-            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD access required.']);
-        }
+        $currentBranch = $branch;
 
         $batch = ClassManagement::where('classroom_id', $classroomId)
             ->where('branch', strtoupper($currentBranch))
@@ -1137,15 +1152,15 @@ class DataController extends Controller
     /**
      * HOD: Get all staff members in the HOD's department (for tutor/mentor dropdowns).
      */
-    public function getDeptStaff()
+    public function getDeptStaff(Request $request)
     {
-        $currentUserId = Session::get('userId');
-        $currentRole   = Session::get('userRole');
-        $currentBranch = Session::get('userBranch');
-
-        if (!$currentUserId || $currentRole !== 'HOD') {
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
             return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD access required.']);
         }
+        $currentUserId = Session::get('userId');
+        $currentRole   = Session::get('userRole');
+        $currentBranch = $branch;
 
         try {
             $staff = StaffProfile::where('branch', $currentBranch)
@@ -1173,8 +1188,10 @@ class DataController extends Controller
      */
     public function getBatchSubjects(Request $request, $classroomId)
     {
-        $currentRole = Session::get('userRole');
-        if ($currentRole !== 'HOD') return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. HOD or Principal access required.']);
+        }
 
         $semester = $request->query('semester');
         try {
@@ -1183,7 +1200,47 @@ class DataController extends Controller
                 $query->where('semester', $semester);
             }
             
-            $subjects = $query->get()->map(function ($subj) {
+            $subjects = $query->get()->map(function ($subj) use ($classroomId) {
+                $totalHoursAllotted = \App\Models\LessonPlan::where('batch_subject_id', $subj->id)->sum('allocated_hours') ?: 0;
+                $hoursCompleted = \DB::table('class_logs_attendance')->where('batch_subject_id', $subj->id)->count();
+                
+                $assignmentCount = \App\Models\AcademicMark::where(function($q) use ($subj) {
+                        $q->where('batch_subject_id', $subj->id)
+                          ->orWhere(function($subQ) use ($subj) {
+                              $subQ->whereNull('batch_subject_id')
+                                   ->where('subject_code', $subj->subject_code);
+                          });
+                    })
+                    ->where('category', 'Assignment')
+                    ->distinct('co_tag')
+                    ->count('co_tag');
+                $assignmentInitiated = $assignmentCount > 0 ? "{$assignmentCount} / 4 COs Graded" : 'Not Initiated';
+
+                $writtenTestCount = \App\Models\AcademicMark::where(function($q) use ($subj) {
+                        $q->where('batch_subject_id', $subj->id)
+                          ->orWhere(function($subQ) use ($subj) {
+                              $subQ->whereNull('batch_subject_id')
+                                   ->where('subject_code', $subj->subject_code);
+                          });
+                    })
+                    ->where('category', 'Written Test')
+                    ->distinct('co_tag')
+                    ->count('co_tag');
+                $writtenTestInitiated = $writtenTestCount > 0 ? "{$writtenTestCount} / 4 COs Graded" : 'Not Initiated';
+
+                $midSem = \DB::table('mid_semester_surveys')->where('batch_subject_id', $subj->id)->first();
+                $midSemSurveyStatus = $midSem ? $midSem->status : 'Not Initiated';
+
+                $endSem = \DB::table('course_exit_surveys')->where('batch_subject_id', $subj->id)->first();
+                $endSemSurveyStatus = $endSem ? $endSem->status : 'Not Initiated';
+
+                $mcqTestCount = \DB::table('test_configs')
+                    ->where('classroom_id', $classroomId)
+                    ->where('subject_code', $subj->subject_code)
+                    ->where('mcq_count', '>', 0)
+                    ->count();
+                $mcqStatus = $mcqTestCount > 0 ? "{$mcqTestCount} Tests Created" : 'Not Initiated';
+
                 return [
                     'id' => $subj->id,
                     'semester' => $subj->semester,
@@ -1192,6 +1249,13 @@ class DataController extends Controller
                     'subject_name' => $subj->subject_name,
                     'subject_type' => $subj->subject_type,
                     'course_file_status' => $subj->courseFile ? 'Submitted' : 'Pending',
+                    'total_hours_allotted' => $totalHoursAllotted,
+                    'hours_completed' => $hoursCompleted,
+                    'assignment_initiated' => $assignmentInitiated,
+                    'written_test_initiated' => $writtenTestInitiated,
+                    'mid_sem_survey_status' => $midSemSurveyStatus,
+                    'end_sem_survey_status' => $endSemSurveyStatus,
+                    'mcq_status' => $mcqStatus,
                     'staff' => $subj->staffAssignments->map(function ($sa) {
                         return [
                             'mobile_no' => $sa->staff_mobile_no,
@@ -1233,8 +1297,10 @@ class DataController extends Controller
      */
     public function createBatchSubject(Request $request)
     {
-        $currentRole = Session::get('userRole');
-        if ($currentRole !== 'HOD') return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
 
         $request->validate([
             'classroom_id' => 'required|string',
@@ -1247,7 +1313,7 @@ class DataController extends Controller
         try {
             // Verify HOD branch vs classroom branch
             $classroom = ClassManagement::where('classroom_id', $request->classroom_id)->first();
-            if (!$classroom || $classroom->branch !== Session::get('userBranch')) {
+            if (!$classroom || $classroom->branch !== $branch) {
                 return response()->json(['status' => 'ERROR', 'message' => 'Invalid classroom.']);
             }
 
@@ -1271,8 +1337,10 @@ class DataController extends Controller
      */
     public function assignSubjectStaff(Request $request, $subjectId)
     {
-        $currentRole = Session::get('userRole');
-        if ($currentRole !== 'HOD') return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
 
         $request->validate([
             'staff_mobile_nos' => 'array',
@@ -1281,7 +1349,7 @@ class DataController extends Controller
 
         try {
             $subject = BatchSubject::with('classroom')->find($subjectId);
-            if (!$subject || $subject->classroom->branch !== Session::get('userBranch')) {
+            if (!$subject || $subject->classroom->branch !== $branch) {
                 return response()->json(['status' => 'ERROR', 'message' => 'Subject not found or unauthorized.']);
             }
 
@@ -1305,14 +1373,16 @@ class DataController extends Controller
     /**
      * HOD: Delete Subject
      */
-    public function deleteBatchSubject($subjectId)
+    public function deleteBatchSubject(Request $request, $subjectId)
     {
-        $currentRole = Session::get('userRole');
-        if ($currentRole !== 'HOD') return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
 
         try {
             $subject = BatchSubject::with('classroom')->find($subjectId);
-            if (!$subject || $subject->classroom->branch !== Session::get('userBranch')) {
+            if (!$subject || $subject->classroom->branch !== $branch) {
                 return response()->json(['status' => 'ERROR', 'message' => 'Subject not found or unauthorized.']);
             }
 
@@ -1476,7 +1546,7 @@ class DataController extends Controller
 
             $classroomId = $student->classroom_id;
             $classroom = DB::table('class_management')->where('classroom_id', $classroomId)->first();
-            $currentSem = $classroom ? $classroom->current_semester : 1;
+            $currentSem = $classroom ? (int)$classroom->current_semester : 1;
 
             $batchSubjects = \App\Models\BatchSubject::where('classroom_id', $classroomId)
                 ->orderBy('semester', 'asc')
@@ -1486,6 +1556,10 @@ class DataController extends Controller
                 ->where('reg_no', $regNo)
                 ->get()
                 ->groupBy('subject_code');
+
+            $taskSubmissions = DB::table('student_task_submissions')
+                ->where('reg_no', $regNo)
+                ->get();
 
             // Attendance
             $attendanceRecords = DB::table('student_attendance')
@@ -1521,6 +1595,7 @@ class DataController extends Controller
                 $parsedMarks = [
                     'CO1' => null, 'CO2' => null, 'CO3' => null, 'CO4' => null,
                     'Assg1' => null, 'Assg2' => null, 'Assg3' => null, 'Assg4' => null,
+                    'Assg1_status' => null, 'Assg2_status' => null, 'Assg3_status' => null, 'Assg4_status' => null,
                     'WT1' => null, 'WT2' => null, 'WT3' => null, 'WT4' => null,
                     'OT1' => null, 'OT2' => null, 'OT3' => null, 'OT4' => null,
                 ];
@@ -1543,6 +1618,14 @@ class DataController extends Controller
                         if ($m->co_tag === 'CO2') { $parsedMarks['OT2'] = $m->marks_obtained; $parsedMarks['CO2'] = ($parsedMarks['CO2'] ?? 0) + $m->marks_obtained; }
                         if ($m->co_tag === 'CO3') { $parsedMarks['OT3'] = $m->marks_obtained; $parsedMarks['CO3'] = ($parsedMarks['CO3'] ?? 0) + $m->marks_obtained; }
                         if ($m->co_tag === 'CO4') { $parsedMarks['OT4'] = $m->marks_obtained; $parsedMarks['CO4'] = ($parsedMarks['CO4'] ?? 0) + $m->marks_obtained; }
+                    }
+                }
+
+                // Map submission statuses from student_task_submissions
+                foreach (['CO1' => 'Assg1_status', 'CO2' => 'Assg2_status', 'CO3' => 'Assg3_status', 'CO4' => 'Assg4_status'] as $co => $key) {
+                    $sub = $taskSubmissions->where('subject_code', $subjCode)->where('co_tag', $co)->where('category', 'Assignment')->first();
+                    if ($sub) {
+                        $parsedMarks[$key] = $sub->status;
                     }
                 }
 
@@ -1615,9 +1698,7 @@ class DataController extends Controller
             if ($currentSem <= 6) {
                 $currentSubjects = $batchSubjects->where('semester', $currentSem);
                 
-                $taskSubmissions = DB::table('student_task_submissions')
-                    ->where('reg_no', $regNo)
-                    ->get();
+                // Reused $taskSubmissions query from top of function
                 
                 $allMarks = DB::table('academic_marks')
                     ->where('reg_no', $regNo)
@@ -1717,6 +1798,59 @@ class DataController extends Controller
             $latestSummary = $summaries->last();
             $currentCgpa = $latestSummary ? $latestSummary->cgpa : null;
 
+            $activeSurveys = [];
+            if ($currentSem <= 6) {
+                $subjectIds = $currentSubjects->pluck('id')->toArray();
+
+                // 1. Mid-Semester Surveys
+                $surveys = DB::table('mid_semester_surveys')
+                    ->join('batch_subjects', 'mid_semester_surveys.batch_subject_id', '=', 'batch_subjects.id')
+                    ->whereIn('mid_semester_surveys.batch_subject_id', $subjectIds)
+                    ->where('mid_semester_surveys.status', 'Active')
+                    ->select('mid_semester_surveys.id', 'batch_subjects.subject_name', 'batch_subjects.subject_code')
+                    ->get();
+
+                foreach ($surveys as $srv) {
+                    $hasResponded = DB::table('student_survey_responses')
+                        ->where('survey_id', $srv->id)
+                        ->where('reg_no', $regNo)
+                        ->exists();
+
+                    if (!$hasResponded) {
+                        $activeSurveys[] = [
+                            'survey_id' => $srv->id,
+                            'type' => 'Mid-Semester',
+                            'subject_name' => $srv->subject_name,
+                            'subject_code' => $srv->subject_code
+                        ];
+                    }
+                }
+
+                // 2. Course Exit Surveys
+                $exitSurveys = DB::table('course_exit_surveys')
+                    ->join('batch_subjects', 'course_exit_surveys.batch_subject_id', '=', 'batch_subjects.id')
+                    ->whereIn('course_exit_surveys.batch_subject_id', $subjectIds)
+                    ->where('course_exit_surveys.status', 'Active')
+                    ->select('course_exit_surveys.id', 'batch_subjects.subject_name', 'batch_subjects.subject_code')
+                    ->get();
+
+                foreach ($exitSurveys as $esrv) {
+                    $hasResponded = DB::table('student_course_exit_responses')
+                        ->where('exit_survey_id', $esrv->id)
+                        ->where('reg_no', $regNo)
+                        ->exists();
+
+                    if (!$hasResponded) {
+                        $activeSurveys[] = [
+                            'survey_id' => $esrv->id,
+                            'type' => 'Course Exit',
+                            'subject_name' => $esrv->subject_name,
+                            'subject_code' => $esrv->subject_code
+                        ];
+                    }
+                }
+            }
+
             ksort($report);
 
             return response()->json([
@@ -1728,6 +1862,7 @@ class DataController extends Controller
                 ],
                 'semesters' => array_values($report),
                 'active_tasks' => $activeTasks,
+                'active_surveys' => $activeSurveys,
                 'stats' => $stats
             ]);
 
@@ -1973,6 +2108,104 @@ class DataController extends Controller
             return response()->json(['status' => 'SUCCESS', 'message' => 'Task marked as submitted successfully.']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Failed to submit task: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Student: Upload or update profile photo.
+     */
+    public function uploadStudentPhoto(Request $request)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+        
+        if (!$userId || $userRole !== 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        try {
+            $student = Student::where('reg_no', $userId)->first();
+            if (!$student) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Student record not found.']);
+            }
+
+            if ($request->hasFile('photo')) {
+                // Delete old photo file if exists on disk
+                if ($student->photo_url) {
+                    $oldPath = str_replace('/storage/', '', $student->photo_url);
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+                }
+
+                $photoPath = '/storage/' . $request->file('photo')->store('avatars', 'public');
+                $student->photo_url = $photoPath;
+                $student->save();
+
+                // Sync user photo with session
+                Session::put('userPhoto', $photoPath);
+
+                return response()->json([
+                    'status' => 'SUCCESS',
+                    'message' => 'Profile photo updated successfully!',
+                    'photo_url' => $photoPath
+                ]);
+            }
+
+            return response()->json(['status' => 'ERROR', 'message' => 'No file uploaded.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed to upload photo: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Staff: Upload or update profile photo.
+     */
+    public function uploadStaffPhoto(Request $request)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+        
+        if (!$userId || $userRole === 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        try {
+            $staff = StaffProfile::where('mobile_no', $userId)->first();
+            if (!$staff) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Staff record not found.']);
+            }
+
+            if ($request->hasFile('photo')) {
+                // Delete old photo file if exists on disk
+                if ($staff->photo_url) {
+                    $oldPath = str_replace('/storage/', '', $staff->photo_url);
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+                }
+
+                $photoPath = '/storage/' . $request->file('photo')->store('avatars', 'public');
+                $staff->photo_url = $photoPath;
+                $staff->save();
+
+                // Sync user photo with session
+                Session::put('userPhoto', $photoPath);
+
+                return response()->json([
+                    'status' => 'SUCCESS',
+                    'message' => 'Profile photo updated successfully!',
+                    'photo_url' => $photoPath
+                ]);
+            }
+
+            return response()->json(['status' => 'ERROR', 'message' => 'No file uploaded.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed to upload photo: ' . $e->getMessage()]);
         }
     }
 }

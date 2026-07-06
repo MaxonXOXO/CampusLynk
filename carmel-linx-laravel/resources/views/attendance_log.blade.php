@@ -80,6 +80,37 @@
       </div>
     </div>
 
+    <!-- SUB-BATCH SELECTOR CARD (LABS ONLY) -->
+    <div id="subBatchCard" class="hidden bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+      <div class="flex items-center gap-2 pb-2 border-b border-slate-800/60">
+        <span class="material-symbols-rounded text-indigo-400 text-lg">splitscreen</span>
+        <h2 class="font-bold text-sm text-slate-200">Lab Sub-Batch Partitioning</h2>
+      </div>
+      <div>
+        <label class="block text-sm font-bold text-slate-400 mb-2">Select Lab Sub-Batch</label>
+        <div class="grid grid-cols-3 gap-3">
+          <label class="cursor-pointer">
+            <input type="radio" name="subBatchSelect" value="Whole" checked onchange="filterStudentsByBatch()" class="sr-only peer">
+            <div class="p-3 text-center rounded-xl border border-slate-700 bg-slate-900 text-sm font-bold text-slate-300 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 hover:bg-slate-800 transition-all select-none">
+              Whole Class
+            </div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="subBatchSelect" value="1" onchange="filterStudentsByBatch()" class="sr-only peer">
+            <div id="batch1Text" class="p-3 text-center rounded-xl border border-slate-700 bg-slate-900 text-sm font-bold text-slate-300 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 hover:bg-slate-800 transition-all select-none">
+              Batch 1
+            </div>
+          </label>
+          <label class="cursor-pointer">
+            <input type="radio" name="subBatchSelect" value="2" onchange="filterStudentsByBatch()" class="sr-only peer">
+            <div id="batch2Text" class="p-3 text-center rounded-xl border border-slate-700 bg-slate-900 text-sm font-bold text-slate-300 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 hover:bg-slate-800 transition-all select-none">
+              Batch 2
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
     <!-- DAILY CLASS LOG DETAILS -->
     <div id="classLogCard" class="hidden bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
       <div class="flex items-center gap-2 pb-2 border-b border-slate-800/60">
@@ -222,7 +253,7 @@
         });
     }
 
-    function onSubjectChange() {
+     function onSubjectChange() {
       const subjectId = document.getElementById('subjectSelect').value;
       if (!subjectId) return;
 
@@ -237,8 +268,23 @@
             currentStudents = data.students;
             classroomId = data.classroom_id;
 
+            // Check if Lab or Practical
+            const isLab = (data.subject_type && (data.subject_type.toLowerCase().includes('lab') || data.subject_type.toLowerCase().includes('practical') || data.subject_type.toLowerCase().includes('practicum')));
+            const subBatchCard = document.getElementById('subBatchCard');
+            if (isLab) {
+              subBatchCard.classList.remove('hidden');
+              const half = Math.ceil(currentStudents.length / 2);
+              document.getElementById('batch1Text').innerText = `Batch 1 (1-${half})`;
+              document.getElementById('batch2Text').innerText = `Batch 2 (${half + 1}+)`;
+            } else {
+              subBatchCard.classList.add('hidden');
+              const wholeRadio = document.querySelector('input[name="subBatchSelect"][value="Whole"]');
+              if (wholeRadio) wholeRadio.checked = true;
+            }
+
             // Load student count
-            document.getElementById('studentCountLabel').innerText = `Total Students: ${currentStudents.length}`;
+            const filtered = getFilteredStudents();
+            document.getElementById('studentCountLabel').innerText = `Total Students: ${filtered.length}`;
 
             // Reset present state (all present by default)
             currentStudents.forEach(s => s.present = true);
@@ -300,16 +346,41 @@
       }
     }
 
+    function getFilteredStudents() {
+      if (document.getElementById('subBatchCard').classList.contains('hidden')) {
+        return currentStudents;
+      }
+      const selectedRadio = document.querySelector('input[name="subBatchSelect"]:checked');
+      const val = selectedRadio ? selectedRadio.value : 'Whole';
+      if (val === 'Whole') {
+        return currentStudents;
+      }
+      const half = Math.ceil(currentStudents.length / 2);
+      if (val === '1') {
+        return currentStudents.slice(0, half);
+      } else {
+        return currentStudents.slice(half);
+      }
+    }
+
+    function filterStudentsByBatch() {
+      const filtered = getFilteredStudents();
+      document.getElementById('studentCountLabel').innerText = `Total Students: ${filtered.length}`;
+      renderList();
+      renderGrid();
+    }
+
     function renderList() {
       const container = document.getElementById('studentListContainer');
       container.innerHTML = '';
 
-      if (currentStudents.length === 0) {
+      const filtered = getFilteredStudents();
+      if (filtered.length === 0) {
         container.innerHTML = '<tr><td colspan="3" class="p-6 text-center text-slate-400">No students registered in this class.</td></tr>';
         return;
       }
 
-      currentStudents.forEach((student, index) => {
+      filtered.forEach((student, index) => {
         const tr = document.createElement('tr');
         tr.className = "border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium";
         tr.innerHTML = `
@@ -327,12 +398,13 @@
       const container = document.getElementById('studentGridContainer');
       container.innerHTML = '';
 
-      if (currentStudents.length === 0) {
+      const filtered = getFilteredStudents();
+      if (filtered.length === 0) {
         container.innerHTML = '<div class="col-span-full p-6 text-center text-slate-400">No students registered.</div>';
         return;
       }
 
-      currentStudents.forEach((student, index) => {
+      filtered.forEach((student, index) => {
         const roll = student.roll_no || index + 1;
         const btn = document.createElement('button');
         btn.onclick = () => {
@@ -359,13 +431,15 @@
 
     function toggleAllCheckboxes() {
       isAllChecked = !isAllChecked;
-      currentStudents.forEach(s => s.present = isAllChecked);
+      const filtered = getFilteredStudents();
+      filtered.forEach(s => s.present = isAllChecked);
       document.getElementById('btnCheckAll').innerText = isAllChecked ? "Mark All Absent" : "Mark All Present";
       renderList();
     }
 
     function toggleAllGrid(isPresent) {
-      currentStudents.forEach(s => s.present = isPresent);
+      const filtered = getFilteredStudents();
+      filtered.forEach(s => s.present = isPresent);
       renderGrid();
     }
 
@@ -392,13 +466,16 @@
 
       const present = [];
       const absent = [];
-      currentStudents.forEach(s => {
+      const filtered = getFilteredStudents();
+      filtered.forEach(s => {
         if (s.present) {
           present.push(s.reg_no);
         } else {
           absent.push(s.reg_no);
         }
       });
+
+      const subBatchVal = document.getElementById('subBatchCard').classList.contains('hidden') ? 'Whole' : document.querySelector('input[name="subBatchSelect"]:checked').value;
 
       fetch('/api/staff/attendance/save', {
         method: 'POST',
@@ -413,7 +490,8 @@
           lesson_plan_id: lpId ? parseInt(lpId) : null,
           topics_covered: topics,
           present_students: present,
-          absent_students: absent
+          absent_students: absent,
+          sub_batch: subBatchVal
         })
       })
       .then(res => res.json())

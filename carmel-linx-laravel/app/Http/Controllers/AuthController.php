@@ -341,6 +341,43 @@ class AuthController extends Controller
     }
 
     /**
+     * Change logged-in student's password.
+     */
+    public function changeStudentPassword(Request $request)
+    {
+        $userId = Session::get('userId');
+        $role = Session::get('userRole');
+
+        if (!$userId || $role !== 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. Only students can perform this action.']);
+        }
+
+        $request->validate([
+            'oldPassword' => 'required|string',
+            'newPassword' => 'required|string|min:6',
+        ]);
+
+        $oldPassword = $request->input('oldPassword');
+        $newPassword = $request->input('newPassword');
+
+        $student = Student::where('reg_no', $userId)->first();
+        if (!$student) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Student profile not found.']);
+        }
+
+        if ($student->password !== $oldPassword) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Current password matches incorrectly.']);
+        }
+
+        try {
+            $student->update(['password' => $newPassword]);
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Password updated successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed to update password: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
      * Logout and destroy session.
      */
     public function logout()

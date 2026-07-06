@@ -258,7 +258,18 @@
         <input type="hidden" id="studentActivityId">
         <div class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Segment</label>
+            <label class="block text-sm font-bold text-slate-400 mb-1">Semester</label>
+            <select id="studentActivitySemester" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500">
+              <option value="1">Semester 1</option>
+              <option value="2">Semester 2</option>
+              <option value="3">Semester 3</option>
+              <option value="4">Semester 4</option>
+              <option value="5">Semester 5</option>
+              <option value="6">Semester 6</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-slate-400 mb-1">Segment</label>
             <select id="studentActivitySegment" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500">
               <option value="NCC">NCC</option>
               <option value="NSS">NSS</option>

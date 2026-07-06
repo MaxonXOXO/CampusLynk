@@ -85,7 +85,8 @@ class AttendanceController extends Controller
             'status' => 'SUCCESS',
             'students' => $students,
             'lesson_plans' => $lessonPlans,
-            'classroom_id' => $batchSubject->classroom_id
+            'classroom_id' => $batchSubject->classroom_id,
+            'subject_type' => $batchSubject->subject_type
         ]);
     }
 
@@ -109,25 +110,38 @@ class AttendanceController extends Controller
             'topics_covered' => 'required|string',
             'present_students' => 'nullable|array',
             'absent_students' => 'nullable|array',
+            'sub_batch' => 'nullable|string|in:Whole,1,2',
         ]);
 
+        $subBatch = $request->input('sub_batch', 'Whole');
+
         // Check if an entry already exists for any of the selected periods
-        $existingPeriods = DB::table('class_logs_attendance')
+        $existingLogs = DB::table('class_logs_attendance')
             ->where('batch_subject_id', $request->batch_subject_id)
             ->where('date', $request->date)
             ->whereIn('period', $request->periods)
-            ->pluck('period')
-            ->toArray();
+            ->get(['period', 'sub_batch']);
 
-        if (!empty($existingPeriods)) {
-            $periodsStr = implode(', ', $existingPeriods);
+        $conflictingPeriods = [];
+        foreach ($existingLogs as $log) {
+            // Conflict if:
+            // 1. Existing log is 'Whole' class
+            // 2. New log is 'Whole' class
+            // 3. Existing log is for the SAME sub_batch
+            if ($log->sub_batch === 'Whole' || $subBatch === 'Whole' || $log->sub_batch === $subBatch) {
+                $conflictingPeriods[] = $log->period;
+            }
+        }
+
+        if (!empty($conflictingPeriods)) {
+            $periodsStr = implode(', ', array_unique($conflictingPeriods));
             return response()->json([
                 'status' => 'ERROR',
-                'message' => "An attendance/log entry already exists for this subject on the selected date for Period(s): {$periodsStr}."
+                'message' => "An attendance/log entry already exists for this subject/batch on the selected date for Period(s): {$periodsStr}."
             ], 422);
         }
 
-        DB::transaction(function () use ($request, $recordedBy) {
+        DB::transaction(function () use ($request, $recordedBy, $subBatch) {
             foreach ($request->periods as $period) {
                 // Save class log and attendance
                 DB::table('class_logs_attendance')->insert([
@@ -138,6 +152,7 @@ class AttendanceController extends Controller
                     'topics_covered' => $request->topics_covered,
                     'present_students' => json_encode($request->present_students ?? []),
                     'absent_students' => json_encode($request->absent_students ?? []),
+                    'sub_batch' => $subBatch,
                     'recorded_by' => $recordedBy,
                     'created_at' => now(),
                     'updated_at' => now(),

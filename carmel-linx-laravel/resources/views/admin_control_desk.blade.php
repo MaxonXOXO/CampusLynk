@@ -10,6 +10,10 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   
   <style>
+    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
+    .font-extrabold, .font-black {
+      font-weight: 700 !important;
+    }
     .transition-premium {
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -19,6 +23,20 @@
     .scrollbar-hidden {
       -ms-overflow-style: none;
       scrollbar-width: none;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.3);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.3);
+      border-radius: 99px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.5);
     }
   </style>
 </head>
@@ -31,40 +49,53 @@
     <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
       <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-blue-500/20 text-lg">CL</div>
       <div>
-        <h2 class="font-extrabold text-[10px] tracking-wide text-sm">Carmel Linx</h2>
-        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Control Desk</span>
+        <h2 class="font-extrabold text-base tracking-wide">Carmel Linx</h2>
+        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Control Desk</span>
       </div>
     </div>
 
     <!-- Active Profile Info -->
     <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3">
-      <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
+      <div class="relative group shrink-0">
+        <div id="staffAvatarWrapper" class="w-11 h-11 rounded-full overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center shadow-inner relative">
+          <img id="sidebarStaffImg" src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-full h-full object-cover">
+        </div>
+        <label for="staffPhotoUploadInput" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer rounded-full text-white text-sm font-bold text-center p-0.5">
+          <span class="material-symbols-rounded text-sm">photo_camera</span>
+        </label>
+        <input type="file" id="staffPhotoUploadInput" accept="image/*" class="hidden" onchange="handleStaffPhotoUpload(event)">
+      </div>
       <div class="overflow-hidden">
-        <span class="font-bold text-[10px] block truncate text-slate-200 text-[10px] text-xs">{{ session('userName') }}</span>
-        <span class="text-[10px] font-bold text-blue-400 block uppercase tracking-wider">{{ str_replace('_', ' ', session('userRole')) }}</span>
+        <span class="font-bold text-sm block truncate text-slate-200">{{ session('userName') }}</span>
+        <span class="text-xs font-bold text-blue-400 block uppercase tracking-wider">{{ str_replace('_', ' ', session('userRole')) }}</span>
+        <div id="staffPhotoUploadStatus" class="text-sm font-bold text-green-400 hidden"></div>
       </div>
     </div>
 
     <!-- Navigation Menus -->
     <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-[10px] flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-[10px] text-xs">
+      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-sm">
         <span class="material-symbols-rounded text-lg">dashboard</span> Dashboard Overview
       </button>
-      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-[10px] text-xs">
+      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
         <span class="material-symbols-rounded text-lg">group</span> User Directory
       </button>
-      <button id="navBackups" onclick="switchPanel('backups')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-[10px] text-xs">
+      <button id="navBackups" onclick="switchPanel('backups')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
         <span class="material-symbols-rounded text-lg">database</span> Drive Backups
       </button>
-      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-[10px] text-xs">
+      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
         <span class="material-symbols-rounded text-lg">receipt_long</span> Audit Trail
       </button>
+
+      <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 cursor-pointer no-underline block text-sm">
+         <span class="material-symbols-rounded text-lg">school</span> Academic Activities
+      </a>
     </nav>
 
     <!-- Logout -->
     <div class="p-4 border-t border-slate-800/80">
-      <a href="/logout" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-[10px] flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-[10px] text-xs">
-        <span class="material-symbols-rounded text-[10px] text-base">logout</span> Sign Out
+      <a href="/logout" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
+        <span class="material-symbols-rounded text-base">logout</span> Sign Out
       </a>
     </div>
   </aside>
@@ -96,7 +127,7 @@
           <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl flex items-center gap-4 shadow-sm">
             <div class="bg-blue-500/10 text-blue-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">badge</span></div>
             <div>
-              <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Total Staff</span>
+              <span class="text-sm text-slate-400 uppercase font-black tracking-wider block">Total Staff</span>
               <span id="statTotalStaff" class="font-black text-white mt-0.5 text-2xl">0</span>
             </div>
           </div>
@@ -104,7 +135,7 @@
           <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl flex items-center gap-4 shadow-sm">
             <div class="bg-sky-500/10 text-sky-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">school</span></div>
             <div>
-              <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Total Students</span>
+              <span class="text-sm text-slate-400 uppercase font-black tracking-wider block">Total Students</span>
               <span id="statTotalStudents" class="font-black text-white mt-0.5 text-2xl">0</span>
             </div>
           </div>
@@ -112,7 +143,7 @@
           <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl flex items-center gap-4 shadow-sm">
             <div class="bg-blue-500/10 text-blue-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">pending_actions</span></div>
             <div>
-              <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Pending Approvals</span>
+              <span class="text-sm text-slate-400 uppercase font-black tracking-wider block">Pending Approvals</span>
               <span id="statPendingApprovals" class="font-black text-white mt-0.5 text-2xl">0</span>
             </div>
           </div>
@@ -120,7 +151,7 @@
           <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl flex items-center gap-4 shadow-sm">
             <div class="bg-sky-500/10 text-sky-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">meeting_room</span></div>
             <div>
-              <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Classrooms</span>
+              <span class="text-sm text-slate-400 uppercase font-black tracking-wider block">Classrooms</span>
               <span id="statTotalClassrooms" class="font-black text-white mt-0.5 text-2xl">0</span>
             </div>
           </div>
@@ -129,24 +160,24 @@
         <!-- Quick Info Panel -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl">
-            <h3 class="text-[10px] font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-sm">
+            <h3 class="font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-base">
               <span class="material-symbols-rounded text-blue-400 text-lg">admin_panel_settings</span> Control Desk Status
             </h3>
-            <p class="text-[10px] text-slate-400 leading-relaxed text-[10px] text-xs">
+            <p class="text-sm text-slate-400 leading-relaxed">
               Welcome to the unified Administrator desk. As **{{ session('userName') }}**, you hold full execution overrides across the database. You can manage passwords, configure designations, review classroom profiles, and sync live table backups.
             </p>
             <div class="mt-4 flex gap-3">
-              <button onclick="switchPanel('directory')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-[10px] font-bold text-white transition-premium cursor-pointer">Manage Directory</button>
-              <button onclick="switchPanel('backups')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-[10px] font-bold text-slate-300 transition-premium cursor-pointer">Backup Database</button>
+              <button onclick="switchPanel('directory')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition-premium cursor-pointer text-sm">Manage Directory</button>
+              <button onclick="switchPanel('backups')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg font-bold text-slate-300 transition-premium cursor-pointer text-sm">Backup Database</button>
             </div>
           </div>
 
           <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl flex flex-col justify-between">
             <div>
-              <h3 class="text-[10px] font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-sm">
+              <h3 class="font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-base">
                 <span class="material-symbols-rounded text-blue-400 text-lg">info</span> Quick Guidelines
               </h3>
-              <ul class="text-[10px] text-slate-400 space-y-2 list-disc pl-4 leading-relaxed text-[10px] text-xs">
+              <ul class="text-sm text-slate-400 space-y-2 list-disc pl-4 leading-relaxed">
                 <li>Designations dictate role access: Changing a Lecturer's role to **HOD** promotes them to department supervisor.</li>
                 <li>Single Active Principal policy is automatically enforced.</li>
                 <li>New staff registrations must be manually **Approved** before they can sign in.</li>
@@ -157,36 +188,96 @@
 
         @if(session('userRole') === 'Principal' || session('userRole') === 'Super_Admin')
         <!-- General Department Coordinator Assignment Console -->
+        <details class="group bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden transition-premium">
+          <summary class="p-6 cursor-pointer flex items-center justify-between hover:bg-slate-900/40 select-none list-none [&::-webkit-details-marker]:hidden">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-rounded text-blue-400 text-lg">assignment_ind</span>
+              <h3 class="font-bold text-slate-200 text-base inline-block m-0">General Coordinator Allocation Console</h3>
+            </div>
+            <span class="material-symbols-rounded text-slate-400 group-open:rotate-180 transition-transform duration-300">expand_more</span>
+          </summary>
+          <div class="px-6 pb-6 space-y-4">
+            <p class="text-sm text-slate-400 leading-relaxed">
+              Select and assign a general department coordinator from among the registered academic staff in General Department Aided or Self Finance.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Aided -->
+              <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-3">
+                <span class="text-sm text-blue-400 uppercase font-black tracking-wider block">Aided General Department Coordinator</span>
+                <div>
+                  <label class="block text-sm text-slate-400 font-bold mb-1">Select Aided Coordinator</label>
+                  <select id="selectAidedCoord" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-white outline-none text-sm">
+                    <option value="">-- Select Registered Aided Staff --</option>
+                  </select>
+                </div>
+                <button onclick="assignGeneralCoordinator('Aided')" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-premium cursor-pointer text-sm">Assign Coordinator (Aided)</button>
+              </div>
+              <!-- Self Finance -->
+              <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-3">
+                <span class="text-sm text-teal-400 uppercase font-black tracking-wider block">Self Finance General Department Coordinator</span>
+                <div>
+                  <label class="block text-sm text-slate-400 font-bold mb-1">Select Self Finance Coordinator</label>
+                  <select id="selectSfCoord" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-white outline-none text-sm">
+                    <option value="">-- Select Registered SF Staff --</option>
+                  </select>
+                </div>
+                <button onclick="assignGeneralCoordinator('SF')" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg transition-premium cursor-pointer text-sm">Assign Coordinator (Self Finance)</button>
+              </div>
+            </div>
+          </div>
+        </details>
+        @endif
+
+        @if(session('userRole') === 'Principal' || session('userRole') === 'Super_Admin')
+        <!-- Department HOD Console Override Links -->
         <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl">
-          <h3 class="text-[10px] font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-sm">
-            <span class="material-symbols-rounded text-blue-400 text-lg">assignment_ind</span> General Coordinator Allocation Console
+          <h3 class="text-sm font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2">
+            <span class="material-symbols-rounded text-blue-400 text-lg">admin_panel_settings</span> Department HOD Dashboard Overrides
           </h3>
-          <p class="text-[10px] text-slate-400 mb-4 leading-relaxed text-[10px] text-xs">
-            Select and assign a general department coordinator from among the registered academic staff in General Department Aided or Self Finance.
+          <p class="text-sm text-slate-400 mb-4 leading-relaxed">
+            Directly access and supervise the HOD Dashboard for any department. This allows you to manage batch allocations, staff mapping, and curriculum updates for that branch.
           </p>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Aided -->
-            <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-3">
-              <span class="text-[10px] text-blue-400 uppercase font-black tracking-wider block">Aided General Department Coordinator</span>
-              <div>
-                <label class="block text-[10px] text-slate-400 font-bold mb-1">Select Aided Coordinator</label>
-                <select id="selectAidedCoord" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-[10px] text-white outline-none text-[10px] text-xs">
-                  <option value="">-- Select Registered Aided Staff --</option>
-                </select>
-              </div>
-              <button onclick="assignGeneralCoordinator('Aided')" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-[10px] rounded-lg transition-premium cursor-pointer text-[10px] text-xs">Assign Coordinator (Aided)</button>
-            </div>
-            <!-- Self Finance -->
-            <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-3">
-              <span class="text-[10px] text-teal-400 uppercase font-black tracking-wider block">Self Finance General Department Coordinator</span>
-              <div>
-                <label class="block text-[10px] text-slate-400 font-bold mb-1">Select Self Finance Coordinator</label>
-                <select id="selectSfCoord" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-[10px] text-white outline-none text-[10px] text-xs">
-                  <option value="">-- Select Registered SF Staff --</option>
-                </select>
-              </div>
-              <button onclick="assignGeneralCoordinator('SF')" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-[10px] rounded-lg transition-premium cursor-pointer text-[10px] text-xs">Assign Coordinator (Self Finance)</button>
-            </div>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <a href="/dashboard/principal/department/EL" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-amber-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
+              <span class="material-symbols-rounded text-2xl text-amber-500 group-hover:scale-110 transition-premium">settings_input_component</span>
+              <span class="font-bold text-lg text-slate-200">Electronics</span>
+              <span class="text-sm text-slate-400">EL Department</span>
+            </a>
+            <a href="/dashboard/principal/department/ME" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-emerald-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
+              <span class="material-symbols-rounded text-2xl text-emerald-500 group-hover:scale-110 transition-premium">precision_manufacturing</span>
+              <span class="font-bold text-lg text-slate-200">Mechanical</span>
+              <span class="text-sm text-slate-400">ME Department</span>
+            </a>
+            <a href="/dashboard/principal/department/CE" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-pink-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
+              <span class="material-symbols-rounded text-2xl text-pink-500 group-hover:scale-110 transition-premium">domain</span>
+              <span class="font-bold text-lg text-slate-200">Civil</span>
+              <span class="text-sm text-slate-400">CE Department</span>
+            </a>
+            <a href="/dashboard/principal/department/EEE" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-rose-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
+              <span class="material-symbols-rounded text-2xl text-rose-500 group-hover:scale-110 transition-premium">bolt</span>
+              <span class="font-bold text-lg text-slate-200">Electrical</span>
+              <span class="text-sm text-slate-400">EEE Department</span>
+            </a>
+            <a href="/dashboard/principal/department/CT" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-purple-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
+              <span class="material-symbols-rounded text-2xl text-purple-500 group-hover:scale-110 transition-premium">computer</span>
+              <span class="font-bold text-lg text-slate-200">Computer</span>
+              <span class="text-sm text-slate-400">CT Department</span>
+            </a>
+            <a href="/dashboard/principal/department/AU" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-indigo-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
+              <span class="material-symbols-rounded text-2xl text-indigo-500 group-hover:scale-110 transition-premium">directions_car</span>
+              <span class="font-bold text-lg text-slate-200">Automobile</span>
+              <span class="text-sm text-slate-400">AU Department</span>
+            </a>
+            <a href="/dashboard/principal/department/GEN_AIDED" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-teal-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
+              <span class="material-symbols-rounded text-2xl text-teal-500 group-hover:scale-110 transition-premium">calculate</span>
+              <span class="font-bold text-lg text-slate-200">General Aided</span>
+              <span class="text-sm text-slate-400">Gen (Aided)</span>
+            </a>
+            <a href="/dashboard/principal/department/GEN_SF" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-cyan-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
+              <span class="material-symbols-rounded text-2xl text-cyan-500 group-hover:scale-110 transition-premium">functions</span>
+              <span class="font-bold text-lg text-slate-200">General SF</span>
+              <span class="text-sm text-slate-400">Gen (SF)</span>
+            </a>
           </div>
         </div>
         @endif
@@ -198,11 +289,11 @@
         <!-- Directory Header -->
         <div class="flex justify-between items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl">
           <div>
-            <h3 class="text-[10px] font-black text-slate-200 text-[10px] text-xs">Registered Accounts</h3>
-            <p class="text-[10px] text-slate-400 mt-0.5">Filter, search, audit, and manage profile lifecycle states.</p>
+            <h3 class="text-base font-bold text-slate-200">Registered Accounts</h3>
+            <p class="text-sm text-slate-400 mt-0.5">Filter, search, audit, and manage profile lifecycle states.</p>
           </div>
-          <button onclick="openRegisterModal()" class="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl text-[10px] font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/10 text-[10px] text-xs">
-            <span class="material-symbols-rounded text-[10px] text-sm">person_add</span> Register User
+          <button onclick="openRegisterModal()" class="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/10 text-sm">
+            <span class="material-symbols-rounded text-sm">person_add</span> Register User
           </button>
         </div>
 
@@ -210,13 +301,13 @@
         <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Search input -->
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Search User</label>
-            <input type="text" id="filterSearch" oninput="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-[10px] text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-[10px] text-xs" placeholder="Name, Register No, Mobile...">
+            <label class="block text-sm text-slate-450 font-bold uppercase tracking-wider mb-1.5">Search User</label>
+            <input type="text" id="filterSearch" oninput="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Name, Register No, Mobile...">
           </div>
           <!-- Branch select -->
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch Code</label>
-            <select id="filterBranch" onchange="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-[10px] text-white focus:border-blue-500 outline-none text-[10px] text-xs">
+            <label class="block text-sm text-slate-450 font-bold uppercase tracking-wider mb-1.5">Branch Code</label>
+            <select id="filterBranch" onchange="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
               <option value="">All Branches</option>
               <option value="EL">Electronics Engineering (EL)</option>
               <option value="ME">Mechanical Engineering (ME)</option>
@@ -232,8 +323,8 @@
           </div>
           <!-- Role filter -->
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Designation / Role</label>
-            <select id="filterRole" onchange="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-[10px] text-white focus:border-blue-500 outline-none text-[10px] text-xs">
+            <label class="block text-sm text-slate-450 font-bold uppercase tracking-wider mb-1.5">Designation / Role</label>
+            <select id="filterRole" onchange="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
               <option value="">All Roles</option>
               <option value="student">Students Only</option>
               <option value="Super_Admin">Super Admin</option>
@@ -253,8 +344,8 @@
           </div>
           <!-- Status select -->
           <div>
-            <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">Account Status</label>
-            <select id="filterStatus" onchange="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-[10px] text-white focus:border-blue-500 outline-none text-[10px] text-xs">
+            <label class="block text-sm text-slate-450 font-bold uppercase tracking-wider mb-1.5">Account Status</label>
+            <select id="filterStatus" onchange="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
               <option value="">All Statuses</option>
               <option value="Approved">Approved</option>
               <option value="Pending">Pending</option>
@@ -265,10 +356,10 @@
 
         <!-- Users Table Grid -->
         <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-[10px] border-collapse text-[10px] text-xs">
+          <div class="max-h-[calc(100vh-320px)] overflow-auto custom-scrollbar">
+            <table class="min-w-[1100px] w-full text-left border-collapse text-sm">
               <thead>
-                <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
+                <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-450 font-bold">
                   <th class="p-4">Profile</th>
                   <th class="p-4">Mobile / Reg No</th>
                   <th class="p-4">Branch</th>
@@ -652,9 +743,9 @@
         
         if (id === panelId) {
           if (el) el.classList.remove('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-[10px] flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
+          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
         } else {
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
+          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
           if (el) el.classList.add('hidden');
         }
       });
@@ -749,30 +840,30 @@
         tr.className = "border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium";
 
         // Status Badge Styling
-        let statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>`;
+        let statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-sm font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>`;
         if (user.status === 'Approved') {
-          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Approved</span>`;
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-sm font-bold bg-green-500/10 text-green-400 border border-green-500/20">Approved</span>`;
         } else if (user.status === 'Suspended') {
-          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">Suspended</span>`;
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-sm font-bold bg-red-500/10 text-red-400 border border-red-500/20">Suspended</span>`;
         }
 
         // Action Options depending on current status
         let toggleButton = '';
         if (user.status === 'Pending') {
           toggleButton = `
-            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-[10px] font-bold text-white transition-premium cursor-pointer">
+            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2.5 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-bold text-white transition-premium cursor-pointer">
               Approve
             </button>
           `;
         } else if (user.status === 'Approved') {
           toggleButton = `
-            <button onclick="changeStatus('${user.id}', '${user.type}', 'Suspended')" class="px-2 py-1 bg-red-950 hover:bg-red-900 border border-red-800 rounded text-[10px] font-bold text-red-300 transition-premium cursor-pointer">
+            <button onclick="changeStatus('${user.id}', '${user.type}', 'Suspended')" class="px-2.5 py-1.5 bg-red-950 hover:bg-red-900 border border-red-800 rounded-lg text-sm font-bold text-red-300 transition-premium cursor-pointer">
               Suspend
             </button>
           `;
         } else if (user.status === 'Suspended') {
           toggleButton = `
-            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-[10px] font-bold text-white transition-premium cursor-pointer">
+            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-bold text-white transition-premium cursor-pointer">
               Activate
             </button>
           `;
@@ -782,7 +873,7 @@
         let roleCol = user.role;
         if (user.type === 'staff') {
           roleCol = `
-            <select onchange="updateDesignation('${user.id}', this.value)" class="bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-[10px] text-white outline-none cursor-pointer">
+            <select onchange="updateDesignation('${user.id}', this.value)" class="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-sm text-white outline-none cursor-pointer">
               <option value="Super_Admin" ${user.role === 'Super_Admin' ? 'selected' : ''}>Super Admin</option>
               <option value="Admin" ${user.role === 'Admin' ? 'selected' : ''}>Admin</option>
               <option value="Principal" ${user.role === 'Principal' ? 'selected' : ''}>Principal</option>
@@ -802,26 +893,26 @@
         }
 
         tr.innerHTML = `
-          <td class="p-4 flex items-center gap-3">
+          <td class="p-4 flex items-center gap-3 whitespace-nowrap">
             <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-8 h-8 rounded-full object-cover border border-slate-800 shadow">
             <div>
               <span class="font-bold text-slate-100 block">${user.name}</span>
-              <span class="text-[10px] text-slate-500 block">${user.email}</span>
+              <span class="text-sm text-slate-500 block">${user.email}</span>
             </div>
           </td>
-          <td class="p-4 font-mono font-bold text-slate-300">${user.id}</td>
-          <td class="p-4"><span class="font-bold font-mono text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
-          <td class="p-4">${roleCol}</td>
-          <td class="p-4">${statusBadge}</td>
-          <td class="p-4 text-right space-x-1">
+          <td class="p-4 font-mono font-bold text-slate-300 whitespace-nowrap">${user.id}</td>
+          <td class="p-4 whitespace-nowrap"><span class="font-bold font-mono text-sm bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
+          <td class="p-4 whitespace-nowrap">${roleCol}</td>
+          <td class="p-4 whitespace-nowrap">${statusBadge}</td>
+          <td class="p-4 text-right whitespace-nowrap space-x-1">
             ${toggleButton}
-            <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] font-bold transition-premium cursor-pointer">
+            <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-bold transition-premium cursor-pointer">
               Reset Pwd
             </button>
-            <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-blue-900 border border-slate-800 text-slate-300 rounded text-[10px] font-bold transition-premium cursor-pointer" title="View Audit Trail">
+            <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-blue-900 border border-slate-800 text-slate-300 rounded-lg text-sm font-bold transition-premium cursor-pointer" title="View Audit Trail">
               Audit
             </button>
-            <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded text-[10px] font-bold transition-premium cursor-pointer" title="Delete User">
+            <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2.5 py-1.5 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded-lg text-sm font-bold transition-premium cursor-pointer" title="Delete User">
               Delete
             </button>
           </td>
@@ -1181,7 +1272,49 @@
         spinner.classList.add('hidden');
         alert.className = "p-3 rounded-xl text-[10px] font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
         alert.innerText = "Request failed.";
-        alert.classList.remove('hidden');
+      });
+    }
+
+    function handleStaffPhotoUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const statusEl = document.getElementById('staffPhotoUploadStatus');
+      statusEl.classList.remove('hidden');
+      statusEl.className = "text-sm font-bold mt-2 text-blue-400";
+      statusEl.innerText = "Uploading...";
+
+      const formData = new FormData();
+      formData.append('photo', file);
+
+      fetch('/api/staff/profile/upload-photo', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          statusEl.className = "text-sm font-bold mt-2 text-green-400";
+          statusEl.innerText = "Updated!";
+
+          // Update sidebar picture
+          const sidebarImg = document.getElementById('sidebarStaffImg');
+          if (sidebarImg) {
+            sidebarImg.src = data.photo_url;
+          }
+
+          setTimeout(() => statusEl.classList.add('hidden'), 3000);
+        } else {
+          statusEl.className = "text-sm font-bold mt-2 text-rose-400";
+          statusEl.innerText = data.message || "Failed";
+        }
+      })
+      .catch(() => {
+        statusEl.className = "text-sm font-bold mt-2 text-rose-450";
+        statusEl.innerText = "Error";
       });
     }
   </script>
