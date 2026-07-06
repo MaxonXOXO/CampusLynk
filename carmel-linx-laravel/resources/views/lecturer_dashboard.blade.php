@@ -1000,6 +1000,11 @@
           if (data.data.syllabus_pdf_path) {
             document.getElementById('activeSyllabusCard').classList.remove('hidden');
             document.getElementById('downloadSyllabusBtn').href = data.data.syllabus_pdf_path;
+            document.getElementById('parseStatusBadge').innerText = 'Parsed & Synced';
+            document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-emerald-900/30 text-emerald-400 border border-emerald-500/30';
+          } else {
+            document.getElementById('parseStatusBadge').innerText = 'Waiting for upload';
+            document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/50';
           }
         } else {
           document.getElementById('parseStatusBadge').innerText = 'Waiting for upload';
