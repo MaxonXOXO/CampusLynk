@@ -132,45 +132,93 @@
 
       <!-- PANEL: ACTIVE EXAMS -->
       <div id="panelExams" class="fade-up">
-        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20"><span class="material-symbols-rounded text-purple-400 text-lg">quiz</span></div>
-              <div><p class="font-black text-slate-500 uppercase tracking-widest text-[10px]">Active Tests</p><h3 class="font-black text-white text-xl" id="statActiveTests">0</h3></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <!-- Assignments Card -->
+            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 flex-shrink-0">
+                <span class="material-symbols-rounded text-blue-400 text-lg">assignment</span>
+              </div>
+              <div class="flex-grow">
+                <p class="font-bold text-slate-200 text-sm mb-1">Assignments</p>
+                <div class="flex justify-between items-center text-sm gap-2">
+                  <span class="text-slate-400">Active: <strong class="text-white text-base" id="statActiveAssign">0</strong></span>
+                  <span class="text-slate-400">Done: <strong class="text-teal-400 text-base" id="statAssignDone">0</strong></span>
+                </div>
+              </div>
             </div>
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20"><span class="material-symbols-rounded text-blue-400 text-lg">assignment</span></div>
-              <div><p class="font-black text-slate-500 uppercase tracking-widest text-[10px]">Active Assign.</p><h3 class="font-black text-white text-xl" id="statActiveAssign">0</h3></div>
+
+            <!-- Written Tests Card -->
+            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 flex-shrink-0">
+                <span class="material-symbols-rounded text-amber-400 text-lg">edit_document</span>
+              </div>
+              <div class="flex-grow">
+                <p class="font-bold text-slate-200 text-sm mb-1">Written Tests</p>
+                <div class="flex justify-between items-center text-sm gap-2">
+                  <span class="text-slate-400">Active: <strong class="text-white text-base" id="statWrittenTests">0</strong></span>
+                  <span class="text-slate-400">Done: <strong class="text-indigo-400 text-base" id="statWrittenTestsDone">0</strong></span>
+                </div>
+              </div>
             </div>
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20"><span class="material-symbols-rounded text-amber-400 text-lg">edit_document</span></div>
-              <div><p class="font-black text-slate-500 uppercase tracking-widest text-[10px]">Written Tests</p><h3 class="font-black text-white text-xl" id="statWrittenTests">0</h3></div>
+
+            <!-- MCQ Tests Card -->
+            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 flex-shrink-0">
+                <span class="material-symbols-rounded text-purple-400 text-lg">quiz</span>
+              </div>
+              <div class="flex-grow">
+                <p class="font-bold text-slate-200 text-sm mb-1">MCQ Tests</p>
+                <div class="flex justify-between items-center text-sm gap-2">
+                  <span class="text-slate-400">Active: <strong class="text-white text-base" id="statActiveTests">0</strong></span>
+                  <span class="text-slate-400">Done: <strong class="text-emerald-400 text-base" id="statTestsDone">0</strong></span>
+                </div>
+              </div>
             </div>
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20"><span class="material-symbols-rounded text-emerald-400 text-lg">task_alt</span></div>
-              <div><p class="font-black text-slate-500 uppercase tracking-widest text-[10px]">MCQ Tests Done</p><h3 class="font-black text-white text-xl" id="statTestsDone">0</h3></div>
-            </div>
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-teal-500/10 flex items-center justify-center border border-teal-500/20"><span class="material-symbols-rounded text-teal-400 text-lg">fact_check</span></div>
-              <div><p class="font-black text-slate-500 uppercase tracking-widest text-[10px]">Assign. Done</p><h3 class="font-black text-white text-xl" id="statAssignDone">0</h3></div>
-            </div>
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20"><span class="material-symbols-rounded text-indigo-400 text-lg">library_books</span></div>
-              <div><p class="font-black text-slate-500 uppercase tracking-widest text-[10px]">Written Tests Done</p><h3 class="font-black text-white text-xl" id="statWrittenTestsDone">0</h3></div>
-            </div>
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20"><span class="material-symbols-rounded text-rose-400 text-lg">pending_actions</span></div>
-              <div><p class="font-black text-slate-500 uppercase tracking-widest text-[10px]">Pending Total</p><h3 class="font-black text-white text-xl" id="statPendingTotal">0</h3></div>
+
+            <!-- Overall Tasks Card -->
+            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 flex-shrink-0">
+                <span class="material-symbols-rounded text-rose-400 text-lg">pending_actions</span>
+              </div>
+              <div class="flex-grow">
+                <p class="font-bold text-slate-200 text-sm mb-1">Overall Tasks</p>
+                <div class="flex justify-between items-center text-sm gap-2">
+                  <span class="text-slate-400">Total Active: <strong class="text-rose-400 text-base" id="statPendingTotal">0</strong></span>
+                  <span class="text-slate-400">Total Done: <strong class="text-teal-400 text-base" id="statOverallDone">0</strong></span>
+                </div>
+              </div>
             </div>
         </div>
 
         <div class="mb-6 bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-          <h3 class="font-black text-slate-200 uppercase tracking-widest mb-1 text-[10px] text-xs">My Pending Work</h3>
-          <p class="text-slate-400">View your active assignments, upcoming tests, and deadlines.</p>
-          <div id="studentActiveTestsList" class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4 mb-6">
-            <div class="col-span-full py-12 text-center text-slate-500 font-bold animate-pulse text-[10px] text-xs">Loading active tests...</div>
-          </div>
-          <div id="studentActiveTasksContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="col-span-full py-12 text-center text-slate-500 font-bold animate-pulse text-[10px] text-xs">Loading active tasks...</div>
+          <h3 class="font-black text-slate-200 uppercase tracking-widest mb-1 text-base">My Pending Work</h3>
+          <p class="text-slate-400 text-sm">View your active assignments, upcoming tests, and deadlines.</p>
+          
+          <div id="pendingGridContainer" class="grid grid-cols-1 gap-6 mt-6">
+            <!-- Surveys Container (Spans full width above columns if active) -->
+            <div id="studentSurveysContainer" class="col-span-full hidden">
+              <!-- Rendered dynamically inside -->
+            </div>
+
+            <!-- Column 1: MCQ Tests Section -->
+            <div id="mcqTestsSection" class="hidden">
+              <h4 class="font-black text-purple-400 uppercase tracking-wider text-sm mb-3 flex items-center gap-1.5">
+                <span class="material-symbols-rounded text-lg">quiz</span> Online MCQ Tests
+              </h4>
+              <div id="studentActiveTestsList" class="flex flex-col gap-3">
+                <div class="py-12 text-center text-slate-500 font-bold animate-pulse text-sm">Loading active tests...</div>
+              </div>
+            </div>
+            
+            <!-- Column 2: Assignments & Written Tests Section -->
+            <div id="assignmentsSection" class="hidden">
+              <h4 class="font-black text-blue-400 uppercase tracking-wider text-sm mb-3 flex items-center gap-1.5">
+                <span class="material-symbols-rounded text-lg">assignment</span> Assignments & Written Tests
+              </h4>
+              <div id="studentActiveTasksContainer" class="flex flex-col gap-3">
+                <div class="py-12 text-center text-slate-500 font-bold animate-pulse text-sm">Loading active tasks...</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -178,19 +226,68 @@
       <!-- PANEL: ACADEMIC MARKS -->
       <div id="panelMarks" class="hidden fade-up space-y-6">
         
-        <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-          <div class="flex gap-8">
-            <div>
-              <p class="font-black text-amber-400 uppercase tracking-widest text-xs">Cumulative GPA</p>
-              <h3 class="font-black text-white text-xl text-blue-400" id="overallCgpa">0</h3>
+        <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-3 gap-6 shadow-xl items-stretch">
+          <!-- Circular GPA Gauge -->
+          <div class="flex flex-col justify-between items-center text-center p-5 bg-slate-950/80 border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.15)] rounded-xl h-full">
+            <p class="font-black text-slate-300 uppercase tracking-widest text-sm mb-3">Cumulative GPA</p>
+            <div class="relative w-32 h-32 flex items-center justify-center my-auto">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" stroke="rgba(15, 23, 42, 0.8)" stroke-width="8" fill="transparent" />
+                <circle id="cgpaGaugeProgress" cx="50" cy="50" r="40" stroke="url(#gpaGradient)" stroke-width="8" fill="transparent"
+                        stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+                <defs>
+                  <linearGradient id="gpaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#22d3ee" />
+                    <stop offset="100%" stop-color="#0284c7" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="absolute flex flex-col items-center leading-none">
+                <span id="overallCgpa" class="text-3xl font-black text-cyan-400">0.00</span>
+                <div class="w-10 h-[2px] bg-slate-800 my-1.5"></div>
+                <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">10.0</span>
+              </div>
             </div>
-            <div>
-              <p class="font-black text-blue-400 uppercase tracking-widest text-xs">Total Activity Points</p>
-              <h3 class="font-black text-white text-xl text-amber-400" id="overallActivityPoints">0</h3>
+            <div class="mt-4 text-xs font-semibold text-slate-400">
+              Max Target: <span class="text-cyan-400">10.0 GPA</span>
             </div>
           </div>
-          <div class="w-full md:w-64 h-24">
-            <canvas id="cgpaChart"></canvas>
+
+          <!-- Circular Activity Points Gauge -->
+          <div class="flex flex-col justify-between items-center text-center p-5 bg-slate-950/80 border border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.15)] rounded-xl h-full">
+            <p class="font-black text-slate-300 uppercase tracking-widest text-sm mb-3">Activity Points</p>
+            <div class="relative w-32 h-32 flex items-center justify-center my-auto">
+              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" stroke="rgba(15, 23, 42, 0.8)" stroke-width="8" fill="transparent" />
+                <circle id="activityGaugeProgress" cx="50" cy="50" r="40" stroke="url(#activityGradient)" stroke-width="8" fill="transparent"
+                        stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+                <defs>
+                  <linearGradient id="activityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#a855f7" />
+                    <stop offset="100%" stop-color="#6366f1" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="absolute flex flex-col items-center leading-none">
+                <span id="overallActivityPoints" class="text-3xl font-black text-purple-400">0</span>
+                <div class="w-10 h-[2px] bg-slate-800 my-1.5"></div>
+                <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">160</span>
+              </div>
+            </div>
+            <div class="mt-4 text-xs font-semibold text-slate-400">
+              Min Required: <span class="text-emerald-400">60 Points</span>
+            </div>
+          </div>
+
+          <!-- Line Chart for Trends -->
+          <div class="flex flex-col justify-between items-center text-center p-5 bg-slate-950/80 border border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.15)] rounded-xl h-full">
+            <p class="font-black text-slate-300 uppercase tracking-wider text-sm mb-2">SGPA Trend</p>
+            <div class="w-full h-32 flex items-center justify-center my-auto">
+              <canvas id="cgpaChart"></canvas>
+            </div>
+            <div class="mt-4 text-xs font-semibold text-slate-400">
+              Semester-wise SGPA
+            </div>
           </div>
         </div>
 
@@ -518,13 +615,14 @@
           currentTaskStats.online_tests_active = tStats.online_tests_active || 0;
           currentTaskStats.online_tests_submitted = tStats.online_tests_submitted || 0;
        }
-       document.getElementById('statActiveTests').innerText = currentTaskStats.online_tests_active;
-       document.getElementById('statActiveAssign').innerText = currentTaskStats.assignments_active;
-       document.getElementById('statWrittenTests').innerText = currentTaskStats.written_tests_active;
-       document.getElementById('statTestsDone').innerText = currentTaskStats.online_tests_submitted;
-       document.getElementById('statAssignDone').innerText = currentTaskStats.assignments_submitted;
-       document.getElementById('statWrittenTestsDone').innerText = currentTaskStats.written_tests_submitted;
-       document.getElementById('statPendingTotal').innerText = currentTaskStats.online_tests_active + currentTaskStats.assignments_active + currentTaskStats.written_tests_active;
+        document.getElementById('statActiveTests').innerText = currentTaskStats.online_tests_active;
+        document.getElementById('statActiveAssign').innerText = currentTaskStats.assignments_active;
+        document.getElementById('statWrittenTests').innerText = currentTaskStats.written_tests_active;
+        document.getElementById('statTestsDone').innerText = currentTaskStats.online_tests_submitted;
+        document.getElementById('statAssignDone').innerText = currentTaskStats.assignments_submitted;
+        document.getElementById('statWrittenTestsDone').innerText = currentTaskStats.written_tests_submitted;
+        document.getElementById('statPendingTotal').innerText = currentTaskStats.online_tests_active + currentTaskStats.assignments_active + currentTaskStats.written_tests_active;
+        document.getElementById('statOverallDone').innerText = currentTaskStats.online_tests_submitted + currentTaskStats.assignments_submitted + currentTaskStats.written_tests_submitted;
     }
 
     function loadAcademicReport() {
@@ -535,8 +633,21 @@
             academicReportLoaded = true;
             academicData = data;
             const overall = data.overall || {};
-            document.getElementById('overallCgpa').innerText = overall.cgpa || 'N/A';
-            document.getElementById('overallActivityPoints').innerText = overall.activity_points || '0';
+            const cgpaVal = parseFloat(overall.cgpa) || 0;
+            const activityPointsVal = parseInt(overall.activity_points) || 0;
+
+            document.getElementById('overallCgpa').innerText = cgpaVal > 0 ? cgpaVal.toFixed(2) : '0.00';
+            document.getElementById('overallActivityPoints').innerText = activityPointsVal;
+
+            // Update GPA Gauge offset (radius r = 40, circumference = 251.2)
+            const cgpaPercent = Math.min(1.0, Math.max(0.0, cgpaVal / 10.0));
+            const cgpaOffset = 251.2 - (cgpaPercent * 251.2);
+            document.getElementById('cgpaGaugeProgress').style.strokeDashoffset = cgpaOffset;
+
+            // Update Activity Points Gauge offset (radius r = 40, circumference = 251.2)
+            const activityPercent = Math.min(1.0, Math.max(0.0, activityPointsVal / 160.0));
+            const activityOffset = 251.2 - (activityPercent * 251.2);
+            document.getElementById('activityGaugeProgress').style.strokeDashoffset = activityOffset;
             // Always update sem in header
             document.getElementById('headerSemValue').innerText = 'Sem ' + (overall.current_semester || '?');
             currentActiveSem = overall.current_semester || 1;
@@ -562,13 +673,28 @@
     }
 
 
-    function renderActiveTasks(tasks, surveys) {
-      const container = document.getElementById('studentActiveTasksContainer');
+    function adjustPendingGridColumns() {
+      const mcqActive = (document.getElementById('mcqTestsSection') && !document.getElementById('mcqTestsSection').classList.contains('hidden'));
+      const assignmentsActive = (document.getElementById('assignmentsSection') && !document.getElementById('assignmentsSection').classList.contains('hidden'));
+      const pendingGrid = document.getElementById('pendingGridContainer');
       
-      let html = '';
+      if (mcqActive && assignmentsActive) {
+        pendingGrid.classList.remove('grid-cols-1');
+        pendingGrid.classList.add('lg:grid-cols-2');
+      } else {
+        pendingGrid.classList.remove('lg:grid-cols-2');
+        pendingGrid.classList.add('grid-cols-1');
+      }
+    }
 
-      // Render Active Surveys first as highlighted amber cards
+    function renderActiveTasks(tasks, surveys) {
+      const tasksContainer = document.getElementById('studentActiveTasksContainer');
+      const surveysContainer = document.getElementById('studentSurveysContainer');
+      const assignmentsSection = document.getElementById('assignmentsSection');
+
+      // 1. Render Active Surveys
       if (surveys && surveys.length > 0) {
+        let surveysHtml = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 col-span-full mb-4">`;
         surveys.forEach((srv) => {
           const isExit = srv.type === 'Course Exit';
           const title = isExit ? 'Course Exit Feedback Survey Active' : 'Mid-Semester Feedback Survey Active';
@@ -578,27 +704,38 @@
           const themeBtn = isExit ? 'bg-teal-500/15 hover:bg-teal-500/30 border-teal-500/40 text-teal-300' : 'bg-amber-500/15 hover:bg-amber-500/30 border-amber-500/40 text-amber-300';
           const themeIcon = isExit ? 'text-teal-400' : 'text-amber-400';
           
-          html += `
-            <div class="${themeBg} border-2 rounded-xl p-4 mb-2 shadow-lg relative overflow-hidden col-span-full">
+          surveysHtml += `
+            <div class="${themeBg} border-2 rounded-xl p-4 shadow-lg relative overflow-hidden flex flex-col justify-between">
               <div class="absolute top-0 right-0 h-12 w-12 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
-              <div class="flex items-start gap-3">
-                <span class="material-symbols-rounded ${themeIcon} text-lg mt-0.5 animate-bounce">rate_review</span>
-                <div class="flex-grow">
-                  <h4 class="font-extrabold text-sm ${themeText} uppercase tracking-wide">${title}</h4>
-                  <p class="text-sm font-bold text-slate-300 mt-0.5">${srv.subject_code} — ${srv.subject_name}</p>
-                  <p class="text-sm text-slate-400 mt-2 leading-relaxed">Please complete this feedback form to help calculate Course Outcome (CO) attainment parameters.</p>
-                  <a href="${link}" target="_blank" class="mt-3 inline-flex items-center gap-1.5 px-4 py-2 ${themeBtn} rounded-lg text-sm font-bold transition-premium no-underline cursor-pointer">
-                    <span class="material-symbols-rounded text-base">rate_review</span> Take Survey Feedback <span class="material-symbols-rounded text-sm">arrow_forward</span>
-                  </a>
+              <div>
+                <div class="flex items-start gap-3">
+                  <span class="material-symbols-rounded ${themeIcon} text-lg mt-0.5 animate-bounce">rate_review</span>
+                  <div class="flex-grow">
+                    <h4 class="font-extrabold text-sm ${themeText} uppercase tracking-wide">${title}</h4>
+                    <p class="text-sm font-bold text-slate-300 mt-0.5">${srv.subject_code} — ${srv.subject_name}</p>
+                    <p class="text-sm text-slate-400 mt-2 leading-relaxed">Please complete this feedback form to help calculate Course Outcome (CO) attainment parameters.</p>
+                  </div>
                 </div>
+              </div>
+              <div class="mt-4 pt-3 border-t border-slate-800/40 flex justify-end">
+                <a href="${link}" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-2 ${themeBtn} rounded-lg text-sm font-bold transition-premium no-underline cursor-pointer">
+                  <span class="material-symbols-rounded text-base">rate_review</span> Take Survey Feedback <span class="material-symbols-rounded text-sm">arrow_forward</span>
+                </a>
               </div>
             </div>
           `;
         });
+        surveysHtml += `</div>`;
+        surveysContainer.innerHTML = surveysHtml;
+        surveysContainer.classList.remove('hidden');
+      } else {
+        surveysContainer.innerHTML = '';
+        surveysContainer.classList.add('hidden');
       }
 
-      // Render active tasks
+      // 2. Render Active Tasks (Assignments & Written Tests)
       if (tasks && tasks.length > 0) {
+        let tasksHtml = '';
         tasks.forEach((t, index) => {
           const isExp = t.status === 'Expired' || t.status === 'Completed';
           const stCol = isExp ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : 'text-teal-400 bg-teal-500/10 border-teal-500/20';
@@ -607,8 +744,8 @@
           let qHtml = '';
           if (t.questions && t.questions.length > 0) {
             qHtml = `<div class="mt-4 pt-4 border-t border-slate-800 hidden" id="taskQ_${index}">
-              <h4 class="text-xs uppercase font-black text-slate-400 mb-2">Assignment Questions</h4>
-              <ul class="space-y-2 text-xs text-slate-300 font-medium list-disc pl-4">
+              <h4 class="text-sm uppercase font-black text-slate-400 mb-2">Assignment Questions</h4>
+              <ul class="space-y-2 text-sm text-slate-300 font-medium list-disc pl-4">
                 ${t.questions.map(q => `<li>${q}</li>`).join('')}
               </ul>
             </div>`;
@@ -619,7 +756,7 @@
             actionBtn = `<button onclick="markManualTaskSubmitted('${t.subject_code}', '${t.co_tag}', 'Assignment')" class="mt-3 w-full py-2 bg-blue-600/80 hover:bg-blue-500 text-white rounded font-bold text-sm transition-premium">Mark as Submitted</button>`;
           }
 
-          html += `
+          tasksHtml += `
             <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl overflow-hidden mb-1">
             <!-- Collapsible Header -->
             <div onclick="document.getElementById('co_task_${index}').classList.toggle('hidden'); this.querySelector('.arrow-icon').innerText = document.getElementById('co_task_${index}').classList.contains('hidden') ? 'expand_more' : 'expand_less';" 
@@ -636,7 +773,7 @@
             <!-- Collapsible Content -->
             <div id="co_task_${index}" class="hidden p-4 bg-slate-950/10 border-t border-slate-800/40">
               <div class="flex items-center gap-2 mb-3">
-                  <span class="px-2 py-0.5 rounded text-xs font-black uppercase tracking-widest ${stCol}">${t.status}</span>
+                  <span class="px-2 py-0.5 rounded text-sm font-black uppercase tracking-widest ${stCol}">${t.status}</span>
               </div>
               <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-slate-400 font-semibold">
                 <div class="space-y-1">
@@ -646,22 +783,21 @@
                   <div>Deadline: <span class="text-slate-200 font-bold font-mono">${t.deadline ? new Date(t.deadline).toLocaleDateString() : '-'}</span></div>
                 </div>
               </div>
-              ${qHtml ? `<button onclick="document.getElementById('taskQ_${index}').classList.toggle('hidden')" class="w-full mt-2 py-2 text-xs font-bold text-blue-400 hover:text-blue-300 bg-blue-500/5 rounded-xl transition-premium flex justify-center items-center gap-1"><span class="material-symbols-rounded text-xs">visibility</span> View Questions</button>` : ''}
+              ${qHtml ? `<button onclick="document.getElementById('taskQ_${index}').classList.toggle('hidden')" class="w-full mt-2 py-2 text-sm font-bold text-blue-400 hover:text-blue-300 bg-blue-500/5 rounded-xl transition-premium flex justify-center items-center gap-1"><span class="material-symbols-rounded text-sm">visibility</span> View Questions</button>` : ''}
               ${qHtml}
               ${actionBtn}
             </div>
           </div>
           `;
         });
+        tasksContainer.innerHTML = tasksHtml;
+        assignmentsSection.classList.remove('hidden');
+      } else {
+        tasksContainer.innerHTML = '';
+        assignmentsSection.classList.add('hidden');
       }
 
-      // Always write html to container — even if only surveys or only tasks
-      if (html) {
-        container.innerHTML = html;
-        container.className = "grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4 mb-6";
-      } else {
-        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 font-bold text-sm">No active assignments, tests, or surveys at the moment. ✅</div>`;
-      }
+      adjustPendingGridColumns();
     }
 
     function markManualTaskSubmitted(subjectCode, coTag, category) {
@@ -984,18 +1120,22 @@
         .then(res => res.json())
         .then(data => {
           let container = document.getElementById('studentActiveTestsList');
+          let mcqSection = document.getElementById('mcqTestsSection');
+
           if (data.status === 'SUCCESS' && data.tests && data.tests.length > 0) {
+            mcqSection.classList.remove('hidden');
+
             let html = '';
             data.tests.forEach(t => {
               let actionHtml = '';
               if (t.can_take) {
-                actionHtml = `<button onclick="startOnlineTest('${t.test_id}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded font-bold text-xs transition-premium">Start Test</button>`;
+                actionHtml = `<button onclick="startOnlineTest('${t.test_id}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded font-bold text-sm transition-premium">Start Test</button>`;
               } else if (t.status_message && t.status_message.startsWith('Starts')) {
-                actionHtml = `<button disabled class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-xs text-center border border-slate-700/50 mb-2 cursor-not-allowed flex items-center justify-center gap-2"><span class="material-symbols-rounded text-xs">lock</span> ${t.status_message}</button>`;
+                actionHtml = `<button disabled class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-sm text-center border border-slate-700/50 mb-2 cursor-not-allowed flex items-center justify-center gap-2"><span class="material-symbols-rounded text-sm">lock</span> ${t.status_message}</button>`;
               } else if (t.my_attempts > 0) {
-                actionHtml = `<div class="w-full py-2 bg-emerald-900/40 text-emerald-400 rounded font-bold text-xs text-center border border-emerald-800/50 mb-2">Best Score: ${t.best_score || 0}</div>`;
+                actionHtml = `<div class="w-full py-2 bg-emerald-900/40 text-emerald-400 rounded font-bold text-sm text-center border border-emerald-800/50 mb-2">Best Score: ${t.best_score || 0}</div>`;
               } else {
-                actionHtml = `<div class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-xs text-center border border-slate-700/50 mb-2">${t.status_message || 'Expired'}</div>`;
+                actionHtml = `<div class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-sm text-center border border-slate-700/50 mb-2">${t.status_message || 'Expired'}</div>`;
               }
 
               let hasEnded = false;
@@ -1004,10 +1144,10 @@
                 hasEnded = (new Date() >= et);
               }
               if (hasEnded && t.my_attempts > 0) {
-                actionHtml += `<button onclick="viewAnswerKey('${t.test_id}')" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold text-xs transition-premium">View Answer Key</button>`;
+                actionHtml += `<button onclick="viewAnswerKey('${t.test_id}')" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold text-sm transition-premium">View Answer Key</button>`;
               } else if (t.my_attempts > 0 && !t.can_take) {
                 let formattedEndTime = new Date(t.end_time).toLocaleString();
-                actionHtml += `<div class="text-xs text-center text-slate-400 font-semibold mt-1 bg-slate-950/30 p-1.5 rounded border border-slate-800/50">Answer key unlocks after test ends: <br/>${formattedEndTime}</div>`;
+                actionHtml += `<div class="text-sm text-center text-slate-400 font-semibold mt-1 bg-slate-950/30 p-1.5 rounded border border-slate-800/50">Answer key unlocks after test ends: <br/>${formattedEndTime}</div>`;
               }
 
               html += `
@@ -1016,17 +1156,17 @@
                   <div onclick="document.getElementById('co_exam_${t.test_id}').classList.toggle('hidden'); this.querySelector('.arrow-icon').innerText = document.getElementById('co_exam_${t.test_id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';" 
                        class="px-4 py-3.5 bg-slate-950/40 hover:bg-slate-950/70 border-b border-slate-800/60 flex justify-between items-center cursor-pointer transition-premium">
                     <div class="flex items-center gap-3">
-                      <span class="material-symbols-rounded text-purple-400 text-xs">quiz</span>
+                      <span class="material-symbols-rounded text-purple-400 text-sm">quiz</span>
                       <div>
-                        <h4 class="font-bold text-xs text-slate-200">${t.test_name}</h4>
-                        <p class="text-xs font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject_name || t.subject_code}</p>
+                        <h4 class="font-bold text-sm text-slate-200">${t.test_name}</h4>
+                        <p class="text-sm font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject_name || t.subject_code}</p>
                       </div>
                     </div>
-                    <span class="material-symbols-rounded text-slate-500 text-xs arrow-icon">expand_more</span>
+                    <span class="material-symbols-rounded text-slate-500 text-sm arrow-icon">expand_more</span>
                   </div>
                   <!-- Collapsible Content -->
                   <div id="co_exam_${t.test_id}" class="hidden p-4 bg-slate-950/10 border-t border-slate-800/40">
-                    <div class="grid grid-cols-2 gap-4 mb-4 text-slate-400 font-semibold">
+                    <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-slate-400 font-semibold">
                       <div class="space-y-1">
                         <div>Duration: <span class="text-slate-200 font-bold">${t.duration} Mins</span></div>
                         <div>Total Questions: <span class="text-slate-200 font-bold">${t.mcq_count} MCQs</span></div>
@@ -1044,12 +1184,14 @@
               `;
             });
             container.innerHTML = html;
-            container.className = "flex flex-col gap-1 mt-4 mb-6";
+            container.className = "flex flex-col gap-3";
           } else {
-            container.innerHTML = `<div class="col-span-full p-4 bg-slate-900/60 border border-slate-800/60 rounded-xl text-center text-xs text-slate-500">No active tests available right now.</div>`;
-            container.className = "mt-4 mb-6";
+            mcqSection.classList.add('hidden');
+            container.innerHTML = '';
+            container.className = "";
           }
 
+          adjustPendingGridColumns();
           if (data.stats) updateStatsHeader(null, data.stats);
         });
     }
