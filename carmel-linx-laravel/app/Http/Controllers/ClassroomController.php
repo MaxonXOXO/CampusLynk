@@ -505,7 +505,9 @@ Syllabus text:
             $batchSubject = \App\Models\BatchSubject::find($subjectId);
             $students = [];
             if ($batchSubject) {
-                $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+                $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+                            ->where('semester', $batchSubject->semester)
+                            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
                 
                 // Get marks
                 $studentRegNos = $students->pluck('reg_no')->toArray();
@@ -1106,7 +1108,9 @@ Syllabus text:
         $batchSubject = \App\Models\BatchSubject::find($subjectId);
         if (!$batchSubject) return response("Subject not found.", 404);
 
-        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)->get(['reg_no', 'name', 'sbte_reg_no']);
+        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+                    ->where('semester', $batchSubject->semester)
+                    ->get(['reg_no', 'name', 'sbte_reg_no']);
         
         $studentRegNos = $students->pluck('reg_no')->toArray();
         $marks = \App\Models\AcademicMark::whereIn('reg_no', $studentRegNos)
@@ -1161,7 +1165,9 @@ Syllabus text:
         $batchSubject = \App\Models\BatchSubject::find($subjectId);
         if (!$batchSubject) return response("Subject not found.", 404);
 
-        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)->get(['reg_no', 'name', 'sbte_reg_no']);
+        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+                    ->where('semester', $batchSubject->semester)
+                    ->get(['reg_no', 'name', 'sbte_reg_no']);
         
         $studentRegNos = $students->pluck('reg_no')->toArray();
         $marks = \App\Models\AcademicMark::whereIn('reg_no', $studentRegNos)

@@ -190,13 +190,15 @@
                   <th class="p-4">Profile</th>
                   <th class="p-4">Mobile / Reg No</th>
                   <th class="p-4">Branch</th>
+                  <th class="p-4">Registered Sem</th>
                   <th class="p-4">Role Designation</th>
                   <th class="p-4">Account Status</th>
+                  <th class="p-4">Enrollment Status</th>
                   <th class="p-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody id="usersTableBody">
-                <tr><td colspan="6" class="p-8 text-center text-slate-500 font-medium text-base">Use the filters and click "Load Directory" to view accounts.</td></tr>
+                <tr><td colspan="8" class="p-8 text-center text-slate-500 font-medium text-base">Use the filters and click "Load Directory" to view accounts.</td></tr>
               </tbody>
             </table>
           </div>
@@ -419,6 +421,19 @@
           </div>
         </div>
 
+        <!-- Starting Semester -->
+        <div>
+          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Starting Semester</label>
+          <select id="batchStartSemesterSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 outline-none">
+            <option value="1" selected>Semester 1 (S1)</option>
+            <option value="2">Semester 2 (S2)</option>
+            <option value="3">Semester 3 (S3)</option>
+            <option value="4">Semester 4 (S4)</option>
+            <option value="5">Semester 5 (S5)</option>
+            <option value="6">Semester 6 (S6)</option>
+          </select>
+        </div>
+
         <!-- Optional Tutor -->
         <div>
           <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Assign Tutor (Optional)</label>
@@ -462,10 +477,11 @@
 
       <!-- Tabs Navigation -->
       <div class="flex border-b border-slate-800/60 px-5 pt-3 gap-6">
-         <button onclick="switchBatchTab('tutorMentor')" id="tabBtn_tutorMentor" class="pb-3 text-sm font-bold border-b-2 border-violet-500 text-white transition-premium cursor-pointer">Tutor & Mentor</button>
+         <button onclick="switchBatchTab('tutorMentor')" id="tabBtn_tutorMentor" class="pb-3 text-sm font-bold border-b-2 border-violet-500 text-white transition-premium cursor-pointer">Tutor &amp; Mentor</button>
          <button onclick="switchBatchTab('subjects')" id="tabBtn_subjects" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Allocated Subjects</button>
          <button onclick="switchBatchTab('students')" id="tabBtn_students" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Enrolled Students</button>
          <button onclick="switchBatchTab('timetable')" id="tabBtn_timetable" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Time Table</button>
+         <button onclick="switchBatchTab('semesterHistory')" id="tabBtn_semesterHistory" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Semester History</button>
       </div>
 
       <div class="flex-grow overflow-y-auto p-5 relative">
@@ -572,12 +588,13 @@
                   <th class="p-3">Adm No</th>
                   <th class="p-3">SBTE No</th>
                   <th class="p-3">Type</th>
+                  <th class="p-3">Semester</th>
                   <th class="p-3">Status</th>
                   <th class="p-3"></th>
                 </tr>
               </thead>
               <tbody id="batchRosterTableBody">
-                <tr><td colspan="7" class="p-6 text-center text-slate-500">Loading...</td></tr>
+                <tr><td colspan="8" class="p-6 text-center text-slate-500">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -652,6 +669,12 @@
       </div> <!-- Close flex-grow container -->
     </div>
   </div>
+
+  <!-- ============================================================ -->
+  <!-- NEW: SEMESTER HISTORY TAB PANEL (purely additive, no existing code changed) -->
+  <!-- This panel is part of the batchDetailModal flex-grow area but rendered as a hidden sibling -->
+  <!-- Note: Panel is injected via JS into the flex-grow container on tab switch -->
+  <!-- ============================================================ -->
 
   <!-- PASSWORD RESET MODAL -->
   <div id="passwordModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
@@ -844,21 +867,24 @@
       </form>
     </div>
   </div>
-  <!-- SUBJECT MODAL -->
+  <!-- SUBJECT MODAL (Add + Edit mode) -->
   <div id="subjectModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-emerald-400 text-xs">add_box</span> Add Curriculum Subject
+        <h3 id="subjectModalTitle" class="font-black text-slate-200 text-sm flex items-center gap-2">
+          <span id="subjectModalIcon" class="material-symbols-rounded text-emerald-400 text-xs">add_box</span>
+          <span id="subjectModalTitleText">Add Curriculum Subject</span>
         </h3>
         <button onclick="closeSubjectModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
       </div>
 
-      <form id="subjectForm" onsubmit="createSubject(event)" class="space-y-4">
+      <form id="subjectForm" onsubmit="saveSubject(event)" class="space-y-4">
+        <!-- Hidden: tracks which mode we are in. Empty = Add, filled = Edit (holds subject ID) -->
+        <input type="hidden" id="modalEditSubjectId" value="">
         <input type="hidden" id="modalFormSubjectBatch">
         <input type="hidden" id="modalFormSubjectSemester">
-        
-        <div class="p-3 bg-slate-950 border border-slate-800 rounded-xl mb-2 flex justify-between items-center text-sm">
+
+        <div id="subjectBatchSemRow" class="p-3 bg-slate-950 border border-slate-800 rounded-xl mb-2 flex justify-between items-center text-sm">
           <span class="text-slate-400">Target Batch: <span id="displaySubjectBatch" class="font-bold text-slate-200"></span></span>
           <span class="text-slate-400">Semester: <span id="displaySubjectSemester" class="font-bold text-slate-200"></span></span>
         </div>
@@ -900,8 +926,8 @@
 
         <div class="flex gap-3 pt-2">
           <button type="button" onclick="closeSubjectModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Cancel</button>
-          <button type="submit" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
-            <span>Add Subject</span>
+          <button type="submit" id="subjectSubmitBtn" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
+            <span id="subjectSubmitLabel">Add Subject</span>
             <div id="subjectSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
           </button>
         </div>
@@ -1088,7 +1114,7 @@
       if (users.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="p-8 text-center text-slate-500 font-medium font-sans">
+            <td colspan="8" class="p-8 text-center text-slate-500 font-medium font-sans">
               No matching registered profiles found.
             </td>
           </tr>
@@ -1135,18 +1161,38 @@
         // HOD can't promote role designations in general, we just display it.
 
         tr.innerHTML = `
-          <td class="p-4 flex items-center gap-3">
+          <td class="p-2.5 flex items-center gap-3">
             <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-8 h-8 rounded-full object-cover border border-slate-800 shadow">
             <div>
-              <span class="font-bold text-slate-100 block">${user.name}</span>
+              <span class="font-bold text-slate-100 block text-sm">${user.name}</span>
               <span class="text-sm text-slate-500 block">${user.email}</span>
             </div>
           </td>
-          <td class="p-4 font-mono font-bold text-slate-300">${user.id}</td>
-          <td class="p-4"><span class="font-bold font-mono text-sm bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
-          <td class="p-4">${roleCol}</td>
-          <td class="p-4">${statusBadge}</td>
-          <td class="p-4 text-right space-x-1">
+          <td class="p-2.5 font-mono font-bold text-slate-300 text-sm">${user.id}</td>
+          <td class="p-2.5"><span class="font-bold font-mono text-sm bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
+          <td class="p-2.5">
+            ${user.type === 'student' ? `
+              <button onclick="editStudentSemester('${user.id}', '${user.semester || 'S1'}')" class="text-indigo-400 hover:text-indigo-300 underline font-bold text-sm cursor-pointer" title="Click to Edit Semester">
+                ${user.semester || 'S1'}
+              </button>
+            ` : '<span class="text-slate-500 font-bold text-sm">N/A</span>'}
+          </td>
+          <td class="p-2.5 text-sm">${roleCol}</td>
+          <td class="p-2.5 text-sm">${statusBadge}</td>
+          <td class="p-2.5">
+            ${user.type === 'student' ? `
+              <select onchange="updateAcademicStatusDirectly('${user.id}', this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-sm outline-none focus:border-blue-500 font-bold cursor-pointer ${
+                user.academic_status === 'Active' ? 'text-green-400 border-green-500/20' :
+                user.academic_status === 'Discontinued' ? 'text-amber-400 border-amber-500/20' :
+                'text-red-400 border-red-500/20'
+              }">
+                <option value="Active" ${user.academic_status === 'Active' ? 'selected' : ''}>Active</option>
+                <option value="Discontinued" ${user.academic_status === 'Discontinued' ? 'selected' : ''}>Discontinued</option>
+                <option value="TC Issued" ${user.academic_status === 'TC Issued' ? 'selected' : ''}>TC Issued</option>
+              </select>
+            ` : '<span class="text-slate-500 font-bold text-sm">N/A</span>'}
+          </td>
+          <td class="p-2.5 text-right space-x-1 text-sm">
             ${toggleButton}
             <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-sm font-bold transition-premium cursor-pointer">
               Reset Pwd
@@ -1186,6 +1232,68 @@
       .catch(() => {
         indicator.classList.add('hidden');
         showGlobalMessage('Failed to update status.', true);
+      });
+    }
+
+    function editStudentSemester(regNo, currentSem) {
+      let newSemStr = prompt("Enter new Semester (1-6) for student " + regNo + ":", currentSem.replace('S', ''));
+      if (newSemStr === null) return;
+      let newSem = parseInt(newSemStr);
+      if (isNaN(newSem) || newSem < 1 || newSem > 6) {
+        alert("Invalid semester! Please enter a number between 1 and 6.");
+        return;
+      }
+      
+      const indicator = document.getElementById('loadingIndicator');
+      indicator.classList.remove('hidden');
+      
+      fetch(`/api/student/update/${regNo}`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ semester: newSem })
+      })
+      .then(res => res.json())
+      .then(data => {
+        indicator.classList.add('hidden');
+        if (data.status === 'SUCCESS') {
+          showGlobalMessage('Student semester updated successfully.');
+          loadUsers();
+        } else {
+          showGlobalMessage(data.message, true);
+        }
+      })
+      .catch(() => indicator.classList.add('hidden'));
+    }
+
+    function updateAcademicStatusDirectly(regNo, newVal) {
+      let note = prompt("Enter remarks / reason for changing enrollment status to " + newVal + " (optional):");
+      if (note === null) {
+        loadUsers(); // User clicked cancel, refresh to restore dropdown selection
+        return;
+      }
+
+      const indicator = document.getElementById('loadingIndicator');
+      if (indicator) indicator.classList.remove('hidden');
+
+      fetch(`/api/student/update/${regNo}`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ academic_status: newVal, status_notes: note })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (indicator) indicator.classList.add('hidden');
+        if (data.status === 'SUCCESS') {
+          showGlobalMessage('Student enrollment status updated successfully.');
+          loadUsers();
+        } else {
+          showGlobalMessage(data.message, true);
+          loadUsers(); // refresh to reset selection
+        }
+      })
+      .catch(() => {
+        if (indicator) indicator.classList.add('hidden');
+        loadUsers();
       });
     }
 
@@ -1503,7 +1611,10 @@
       setTimeout(() => el.classList.add('hidden'), 5000);
     }
 
+    let currentBatchFilter = 'active';
+
     function loadBatches(status = 'active') {
+      currentBatchFilter = status;
       const grid = document.getElementById('batchCardsGrid');
       const empty = document.getElementById('batchEmptyState');
       grid.innerHTML = `
@@ -1542,8 +1653,42 @@
 
     function renderBatchCard(batch) {
       const grid = document.getElementById('batchCardsGrid');
+      
+      const wrapper = document.createElement('div');
+      wrapper.className = 'space-y-3';
+
+      let yearColorClass = 'text-slate-100';
+      let yearBadgeClass = 'bg-violet-500/10 text-violet-400 border-violet-500/20';
+      let borderHoverClass = 'hover:border-violet-500/50';
+      let progressColorClass = 'bg-violet-500';
+      let iconColorClass = 'text-violet-400';
+      let textAccentClass = 'text-violet-400';
+
+      if (batch.batch_year === 2024) {
+        yearColorClass = 'text-amber-400';
+        yearBadgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+        borderHoverClass = 'hover:border-amber-500/50';
+        progressColorClass = 'bg-amber-500';
+        iconColorClass = 'text-amber-400';
+        textAccentClass = 'text-amber-400';
+      } else if (batch.batch_year === 2025) {
+        yearColorClass = 'text-sky-400';
+        yearBadgeClass = 'bg-sky-500/10 text-sky-400 border-sky-500/20';
+        borderHoverClass = 'hover:border-sky-500/50';
+        progressColorClass = 'bg-sky-500';
+        iconColorClass = 'text-sky-400';
+        textAccentClass = 'text-sky-400';
+      } else if (batch.batch_year === 2026) {
+        yearColorClass = 'text-emerald-400';
+        yearBadgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        borderHoverClass = 'hover:border-emerald-500/50';
+        progressColorClass = 'bg-emerald-500';
+        iconColorClass = 'text-emerald-400';
+        textAccentClass = 'text-emerald-400';
+      }
+
       const card = document.createElement('div');
-      card.className = 'bg-slate-950/50 border border-slate-800/60 rounded-2xl p-5 space-y-4 hover:border-violet-500/30 transition-premium cursor-pointer group';
+      card.className = `bg-slate-950/50 border border-slate-700/60 rounded-2xl p-5 space-y-4 ${borderHoverClass} transition-premium cursor-pointer group shadow-lg`;
       card.onclick = () => openBatchDetail(batch);
 
       const tutorHtml = batch.tutor_name
@@ -1558,9 +1703,10 @@
         <div class="flex items-start justify-between">
           <div>
             <div class="flex items-center gap-2 mb-1">
-              <span class="px-2 py-0.5 bg-violet-500/10 text-violet-400 border border-violet-500/20 rounded-lg font-mono text-base font-bold">${batch.classroom_id}</span>
+              <span class="px-2 py-0.5 border rounded-lg font-mono text-base font-bold ${yearBadgeClass}">${batch.classroom_id}</span>
+              <span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-md select-none transition-premium" title="Click to Change Batch Semester">S-${batch.current_semester || 1}</span>
             </div>
-            <h4 class="font-bold text-slate-100 text-base">Admission ${batch.batch_year}</h4>
+            <h4 class="font-bold text-base ${yearColorClass}">Admission ${batch.batch_year}</h4>
             <p class="text-xs text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} Batch</p>
           </div>
           <div class="text-right">
@@ -1572,11 +1718,84 @@
           ${tutorHtml}
           ${mentorHtml}
         </div>
-        <div class="text-sm text-violet-400 font-bold group-hover:text-violet-300 transition-premium flex items-center gap-1">
+        <div class="text-sm text-violet-400 font-bold group-hover:text-violet-300 transition-premium flex items-center gap-1 pt-1">
           <span class="material-symbols-rounded text-sm">open_in_new</span> Manage Batch
         </div>
       `;
-      grid.appendChild(card);
+
+      wrapper.appendChild(card);
+
+      // Now create the subjects card
+      let subjectsHtml = '';
+      if (batch.subjects && batch.subjects.length > 0) {
+        subjectsHtml = `
+          <div class="bg-slate-950/20 border border-slate-600/50 rounded-2xl p-3.5 space-y-2.5 shadow-md">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span class="material-symbols-rounded text-xs ${iconColorClass}">menu_book</span>
+              Active Subjects & Progress (S-${batch.current_semester || 1})
+            </p>
+            <div class="grid gap-1.5">
+              ${batch.subjects.map(subj => `
+                <div class="bg-slate-900/40 border border-slate-600/40 rounded-xl p-2 space-y-1 hover:border-slate-500/60 transition-premium">
+                  <div class="flex justify-between items-center">
+                    <div class="flex-1 pr-2 truncate">
+                      <span class="text-slate-200 font-bold text-sm leading-none truncate" title="${subj.subject_name}">${subj.subject_name} <span class="font-mono text-slate-400 text-xs font-normal">(${subj.subject_code})</span></span>
+                    </div>
+                    <span class="text-xs font-bold ${textAccentClass} font-mono">${subj.progress}%</span>
+                  </div>
+                  
+                  <!-- Progress Bar -->
+                  <div class="w-full bg-slate-950 rounded-full h-1 overflow-hidden">
+                    <div class="${progressColorClass} h-1 rounded-full" style="width: ${subj.progress}%"></div>
+                  </div>
+
+                  <div class="flex items-center gap-1 text-slate-400 text-xs">
+                    <span class="material-symbols-rounded text-[12px] text-sky-400">person</span>
+                    <span class="truncate text-[11px]" title="${subj.staff_list}">Staff: ${subj.staff_list}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else {
+        subjectsHtml = `
+          <div class="bg-slate-950/20 border border-slate-600/50 rounded-2xl p-4 text-xs text-slate-500 italic shadow-md">
+            No subjects assigned for Semester ${batch.current_semester || 1} yet.
+          </div>
+        `;
+      }
+
+      const subjectsCard = document.createElement('div');
+      subjectsCard.innerHTML = subjectsHtml;
+      wrapper.appendChild(subjectsCard.firstElementChild);
+
+      grid.appendChild(wrapper);
+    }
+
+    function changeBatchSemesterPrompt(classroomId, currentSem) {
+      let newSemStr = prompt("Enter active Semester (1-8) for batch " + classroomId + ":", currentSem);
+      if (newSemStr === null) return;
+      let newSem = parseInt(newSemStr);
+      if (isNaN(newSem) || newSem < 1 || newSem > 8) {
+        alert("Invalid semester! Please enter a number between 1 and 8.");
+        return;
+      }
+
+      fetch(`/api/hod/batches/${classroomId}/update-semester`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ current_semester: newSem })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          showGlobalMessage('Batch current semester updated successfully.');
+          loadBatches(currentBatchFilter);
+        } else {
+          showGlobalMessage(data.message, true);
+        }
+      });
     }
 
     function openCreateBatchModal() {
@@ -1616,6 +1835,8 @@
       const tutor = document.getElementById('batchTutorSelect').value;
       const mentor = document.getElementById('batchMentorSelect').value;
 
+      const semester = document.getElementById('batchStartSemesterSelect').value;
+
       if (!year) {
         alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
         alertEl.innerText = 'Please enter an admission year.';
@@ -1632,7 +1853,8 @@
         body: JSON.stringify({
           admission_year: parseInt(year),
           tutor_mobile_no: tutor || null,
-          mentor_mobile_no: mentor || null
+          mentor_mobile_no: mentor || null,
+          current_semester: parseInt(semester)
         })
       })
       .then(r => r.json())
@@ -1702,6 +1924,221 @@
       activeBatchId = null;
     }
 
+    // ============================================================
+    // NEW: SEMESTER HISTORY TAB — purely additive, no existing functions modified
+    // ============================================================
+
+    // Extend switchBatchTab to handle the new 'semesterHistory' tab
+    (function() {
+      const _originalSwitchBatchTab = switchBatchTab;
+      switchBatchTab = function(tab) {
+        // For the new tab, we manage its panel manually
+        if (tab === 'semesterHistory') {
+          // Hide all existing tab panels
+          ['tutorMentor', 'subjects', 'students', 'timetable'].forEach(t => {
+            const el = document.getElementById('batchTab_' + t);
+            const btn = document.getElementById('tabBtn_' + t);
+            if (el) { el.classList.add('hidden'); el.classList.remove('block'); }
+            if (btn) btn.className = 'pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer';
+          });
+          // Activate this tab button
+          const btn = document.getElementById('tabBtn_semesterHistory');
+          if (btn) btn.className = 'pb-3 text-sm font-bold border-b-2 border-violet-500 text-white transition-premium cursor-pointer';
+          // Show or create the semester history panel
+          _ensureSemesterHistoryPanel();
+          return;
+        }
+        // Hide semester history panel if switching away
+        const semPanel = document.getElementById('batchTab_semesterHistory');
+        if (semPanel) semPanel.classList.add('hidden');
+        const semBtn = document.getElementById('tabBtn_semesterHistory');
+        if (semBtn) semBtn.className = 'pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer';
+        // Call original
+        _originalSwitchBatchTab(tab);
+      };
+    })();
+
+    function _ensureSemesterHistoryPanel() {
+      const flexContainer = document.querySelector('#batchDetailModal .flex-grow.overflow-y-auto');
+      if (!flexContainer) return;
+      let panel = document.getElementById('batchTab_semesterHistory');
+      if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'batchTab_semesterHistory';
+        panel.className = 'space-y-5';
+        panel.innerHTML = `
+          <!-- Semester Selector -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">Select Semester:</span>
+            ${[1,2,3,4,5,6].map(s => `
+              <button id="semHistBtn_${s}" onclick="loadSemesterSnapshot(activeBatchId, ${s})"
+                class="px-3 py-1.5 rounded-lg text-sm font-bold border border-slate-700 text-slate-400 hover:border-violet-500 hover:text-violet-300 transition-premium cursor-pointer bg-slate-950">
+                S${s}
+              </button>
+            `).join('')}
+          </div>
+
+          <!-- Content area -->
+          <div id="semHistContent">
+            <div class="p-10 text-center text-slate-500 text-sm">Select a semester above to view its academic data.</div>
+          </div>
+        `;
+        flexContainer.appendChild(panel);
+      }
+      panel.classList.remove('hidden');
+    }
+
+    function loadSemesterSnapshot(classroomId, semester) {
+      if (!classroomId) return;
+
+      // Highlight active semester button
+      for (let s = 1; s <= 6; s++) {
+        const btn = document.getElementById('semHistBtn_' + s);
+        if (btn) {
+          btn.className = s === semester
+            ? 'px-3 py-1.5 rounded-lg text-sm font-bold border border-violet-500 text-violet-300 transition-premium cursor-pointer bg-violet-500/10'
+            : 'px-3 py-1.5 rounded-lg text-sm font-bold border border-slate-700 text-slate-400 hover:border-violet-500 hover:text-violet-300 transition-premium cursor-pointer bg-slate-950';
+        }
+      }
+
+      const content = document.getElementById('semHistContent');
+      content.innerHTML = `<div class="p-10 text-center text-slate-500 text-sm flex items-center justify-center gap-3"><div class="w-5 h-5 border-2 border-slate-700 border-t-violet-400 rounded-full animate-spin"></div> Loading Semester ${semester} data...</div>`;
+
+      fetch(`/api/hod/batches/${encodeURIComponent(classroomId)}/semester/${semester}/snapshot`, {
+        headers: getHeaders()
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status !== 'SUCCESS') {
+          content.innerHTML = `<div class="p-8 text-center text-red-400 font-bold text-sm">${data.message || 'Failed to load semester data.'}</div>`;
+          return;
+        }
+        _renderSemesterSnapshot(data, semester);
+      })
+      .catch(() => {
+        content.innerHTML = `<div class="p-8 text-center text-red-400 font-bold text-sm">Error fetching semester data.</div>`;
+      });
+    }
+
+    function _renderSemesterSnapshot(data, semester) {
+      const content = document.getElementById('semHistContent');
+
+      // ---- Section 1: Subjects & Staff Log ----
+      let subjectsHtml = '';
+      if (data.subjects && data.subjects.length > 0) {
+        const rows = data.subjects.map(s => `
+          <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
+            <td class="p-3 font-mono text-slate-300 font-bold text-sm">${s.subject_code}</td>
+            <td class="p-3 font-bold text-slate-200 text-sm">${s.subject_name}</td>
+            <td class="p-3 text-slate-400 text-sm">${s.subject_type}</td>
+            <td class="p-3 text-sm">${s.staff.length > 0 ? s.staff.map(n => `<span class="block text-slate-300 font-bold">${n}</span>`).join('') : '<span class="text-red-400 font-bold">Unassigned</span>'}</td>
+            <td class="p-3 text-center text-sm font-bold text-sky-300">${s.classes_conducted}</td>
+            <td class="p-3 text-center text-sm ${s.course_file_status === 'Submitted' ? 'text-emerald-400' : 'text-amber-400'} font-bold">${s.course_file_status}</td>
+          </tr>
+        `).join('');
+        subjectsHtml = `
+          <div class="bg-slate-950/30 border border-slate-600/40 rounded-2xl overflow-hidden">
+            <div class="p-3 border-b border-slate-800/40 flex items-center gap-2">
+              <span class="material-symbols-rounded text-violet-400" style="font-size:16px">menu_book</span>
+              <span class="font-bold text-slate-200 text-sm">Subjects &amp; Staff Log — Semester ${semester}</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead><tr class="bg-slate-900/60 text-slate-400 font-bold text-xs uppercase tracking-wider">
+                  <th class="p-3">Code</th><th class="p-3">Subject</th><th class="p-3">Type</th>
+                  <th class="p-3">Assigned Staff</th><th class="p-3 text-center">Classes Taken</th><th class="p-3 text-center">Course File</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>`;
+      } else {
+        subjectsHtml = `<div class="p-6 bg-slate-950/30 border border-slate-700/40 rounded-2xl text-slate-500 text-sm italic">No subjects found for Semester ${semester}.</div>`;
+      }
+
+      // ---- Section 2: Student Attendance ----
+      let attendanceHtml = '';
+      if (data.students && data.students.length > 0) {
+        const rows = data.students.map(s => {
+          const pct = s.overall_attendance_percent ?? '—';
+          const pctClass = pct === '—' ? 'text-slate-500' : (pct >= 75 ? 'text-emerald-400' : (pct >= 60 ? 'text-amber-400' : 'text-red-400'));
+          const bySubj = s.subject_attendance && s.subject_attendance.length > 0
+            ? s.subject_attendance.map(a => `<span class="text-xs text-slate-400">${a.subject_code}: <span class="font-bold ${a.percent >= 75 ? 'text-emerald-400' : a.percent >= 60 ? 'text-amber-400' : 'text-red-400'}">${a.percent}%</span></span>`).join(' &nbsp;|&nbsp; ')
+            : '<span class="text-slate-600 text-xs">No logs</span>';
+          return `
+            <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
+              <td class="p-3 text-slate-400 text-sm font-mono">${s.roll_no || '—'}</td>
+              <td class="p-3 font-bold text-slate-200 text-sm">${s.name}</td>
+              <td class="p-3 text-center font-bold text-sm ${pctClass}">${pct !== '—' ? pct + '%' : '—'}</td>
+              <td class="p-3 text-sm">${bySubj}</td>
+              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-lg text-xs font-bold ${
+                s.academic_status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400'
+              }">${s.academic_status}</span></td>
+            </tr>`;
+        }).join('');
+        attendanceHtml = `
+          <div class="bg-slate-950/30 border border-slate-600/40 rounded-2xl overflow-hidden">
+            <div class="p-3 border-b border-slate-800/40 flex items-center gap-2">
+              <span class="material-symbols-rounded text-sky-400" style="font-size:16px">groups</span>
+              <span class="font-bold text-slate-200 text-sm">Student Attendance — Semester ${semester}</span>
+              <span class="ml-auto text-xs text-slate-500">${data.students.length} students</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead><tr class="bg-slate-900/60 text-slate-400 font-bold text-xs uppercase tracking-wider">
+                  <th class="p-3">Roll No</th><th class="p-3">Name</th>
+                  <th class="p-3 text-center">Overall %</th><th class="p-3">Subject-wise</th><th class="p-3 text-center">Status</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>`;
+      } else {
+        attendanceHtml = `<div class="p-6 bg-slate-950/30 border border-slate-700/40 rounded-2xl text-slate-500 text-sm italic">No student data found for Semester ${semester}.</div>`;
+      }
+
+      // ---- Section 3: Board Results / Marks ----
+      let marksHtml = '';
+      if (data.board_results && data.board_results.length > 0) {
+        const rows = data.board_results.map(s => `
+          <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
+            <td class="p-3 text-slate-400 text-sm font-mono">${s.roll_no || '—'}</td>
+            <td class="p-3 font-bold text-slate-200 text-sm">${s.name}</td>
+            <td class="p-3 text-center font-bold text-sm ${s.result === 'Pass' ? 'text-emerald-400' : s.result === 'Fail' ? 'text-red-400' : 'text-slate-400'}">${s.result || '—'}</td>
+            <td class="p-3 text-center font-bold text-sm text-amber-300">${s.sgpa || '—'}</td>
+            <td class="p-3 text-center text-slate-400 text-sm">${s.board_marks || '—'}</td>
+          </tr>
+        `).join('');
+        marksHtml = `
+          <div class="bg-slate-950/30 border border-slate-600/40 rounded-2xl overflow-hidden">
+            <div class="p-3 border-b border-slate-800/40 flex items-center gap-2">
+              <span class="material-symbols-rounded text-amber-400" style="font-size:16px">emoji_events</span>
+              <span class="font-bold text-slate-200 text-sm">Board Results — Semester ${semester}</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead><tr class="bg-slate-900/60 text-slate-400 font-bold text-xs uppercase tracking-wider">
+                  <th class="p-3">Roll No</th><th class="p-3">Name</th>
+                  <th class="p-3 text-center">Result</th><th class="p-3 text-center">SGPA</th><th class="p-3 text-center">Board Marks</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          </div>`;
+      } else {
+        marksHtml = `<div class="p-6 bg-slate-950/30 border border-slate-700/40 rounded-2xl text-slate-500 text-sm italic">Board results not yet entered for Semester ${semester}.</div>`;
+      }
+
+      content.innerHTML = subjectsHtml + attendanceHtml + marksHtml;
+    }
+
+    // ============================================================
+    // END: Semester History additions
+    // ============================================================
+
+
+    function switchBatchTabOriginalRef() {} // marker only
+
     function switchBatchTab(tab) {
       const tabs = ['tutorMentor', 'subjects', 'students', 'timetable'];
       tabs.forEach(t => {
@@ -1732,6 +2169,7 @@
         loadTimetable();
       }
     }
+
 
     let currentTimetableData = {};
     let currentAllocatedSubjects = [];
@@ -2344,8 +2782,11 @@
                 <td class="p-4 text-slate-400 text-sm">${subj.subject_type}</td>
                 <td class="p-4">${staffList}</td>
                 <td class="p-4">${courseFileBadge}</td>
-                <td class="p-4 text-right">
+                <td class="p-4 text-right space-x-1.5">
                   <button onclick="openAssignStaffModalFromModal(event, this, ${subj.id}, '${currentStaffIds}')" data-subject-name="${subj.subject_name.replace(/"/g, '&quot;')}" class="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-bold transition-premium border border-blue-500/20 cursor-pointer">Assign Staff</button>
+                  <button onclick="deleteBatchSubject(${subj.id}, '${subj.subject_name.replace(/'/g, "\\'")}')" class="px-2.5 py-1.5 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded-lg text-sm font-bold transition-premium cursor-pointer" title="Delete Subject">
+                    Delete
+                  </button>
                 </td>
               `;
               
@@ -2469,14 +2910,14 @@
     function loadBatchRoster(classroomId) {
       const tbody = document.getElementById('batchRosterTableBody');
       const countBadge = document.getElementById('rosterCountBadge');
-      tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 text-sm">Loading students...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 text-sm">Loading students...</td></tr>`;
 
       fetch(`/api/hod/batches/${encodeURIComponent(classroomId)}/students`)
         .then(r => r.json())
         .then(data => {
           tbody.innerHTML = '';
           if (data.status !== 'SUCCESS' || data.students.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-600 text-sm font-bold">No students enrolled in this batch yet.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-600 text-sm font-bold">No students enrolled in this batch yet.</td></tr>`;
             countBadge.innerText = '0';
             return;
           }
@@ -2500,6 +2941,7 @@
               <td class="p-3 font-mono text-slate-500">${s.adm_no}</td>
               <td class="p-3">${sbteBadge}</td>
               <td class="p-3">${admTypeBadge}</td>
+              <td class="p-3 font-bold text-indigo-400 font-mono">S${s.semester || '1'}</td>
               <td class="p-3">${statusBadge}</td>
               <td class="p-3 text-right">
                 <button onclick="openStudentDiary('${s.reg_no}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/20 text-teal-400 rounded-lg text-sm font-bold transition-premium cursor-pointer">
@@ -2511,7 +2953,7 @@
           });
         })
         .catch(() => {
-          tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-red-400 font-bold text-sm">Failed to load students.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-red-400 font-bold text-sm">Failed to load students.</td></tr>`;
         });
     }
 
@@ -2563,6 +3005,7 @@
                 <td class="p-4 text-slate-400 text-sm">${subj.subject_type}</td>
                 <td class="p-4">${staffList}</td>
                 <td class="p-4 text-right space-x-2">
+                  <button onclick="openEditSubjectModal(${JSON.stringify(subj).replace(/"/g, '&quot;')})" class="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-lg text-sm font-bold transition-premium border border-amber-500/20 cursor-pointer"><span class="material-symbols-rounded text-sm align-middle" style="font-size:14px">edit</span> Edit</button>
                   <button onclick="openAssignStaffModal(this, ${subj.id}, '${currentStaffIds}')" data-subject-name="${subj.subject_name.replace(/"/g, '&quot;')}" class="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-bold transition-premium border border-blue-500/20 cursor-pointer">Assign Staff</button>
                   <button onclick="deleteSubject(${subj.id})" class="px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-sm font-bold transition-premium border border-red-500/20 cursor-pointer">Delete</button>
                 </td>
@@ -2624,10 +3067,79 @@
         modal.classList.add('hidden');
         modal.classList.remove('flex');
       }
+      // Reset to Add mode so next open starts fresh
+      const editIdEl = document.getElementById('modalEditSubjectId');
+      if (editIdEl) editIdEl.value = '';
+      const iconEl = document.getElementById('subjectModalIcon');
+      if (iconEl) { iconEl.innerText = 'add_box'; iconEl.className = 'material-symbols-rounded text-emerald-400 text-xs'; }
+      const titleEl = document.getElementById('subjectModalTitleText');
+      if (titleEl) titleEl.innerText = 'Add Curriculum Subject';
+      const labelEl = document.getElementById('subjectSubmitLabel');
+      if (labelEl) labelEl.innerText = 'Add Subject';
+      const btnEl = document.getElementById('subjectSubmitBtn');
+      if (btnEl) btnEl.className = 'flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5';
     }
 
-    function createSubject(e) {
+    /**
+     * Opens the subject modal in EDIT mode, pre-filling existing values.
+     * @param {object|string} subjData - The subject object (or JSON string) from the table row.
+     */
+    function openEditSubjectModal(subjData) {
+      try {
+        const subj = (typeof subjData === 'string') ? JSON.parse(subjData) : subjData;
+
+        // Switch modal UI to Edit mode
+        document.getElementById('subjectModalIcon').innerText = 'edit';
+        document.getElementById('subjectModalIcon').className = 'material-symbols-rounded text-amber-400 text-xs';
+        document.getElementById('subjectModalTitleText').innerText = 'Edit Subject Details';
+        document.getElementById('subjectSubmitLabel').innerText = 'Save Changes';
+        document.getElementById('subjectSubmitBtn').className = 'flex-1 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5';
+
+        // Store the subject ID
+        document.getElementById('modalEditSubjectId').value = subj.id;
+
+        // Pre-fill fields
+        document.getElementById('subjectCode').value = subj.subject_code || '';
+        document.getElementById('subjectName').value = subj.subject_name || '';
+        document.getElementById('subjectType').value = subj.subject_type || 'Theory';
+        const revEl = document.getElementById('subjectRevisionYear');
+        if (revEl && subj.syllabus_revision_code) {
+          revEl.value = subj.syllabus_revision_code;
+        }
+
+        // Show batch/semester context (read-only info)
+        document.getElementById('displaySubjectBatch').innerText = subj.classroom_id || '';
+        document.getElementById('displaySubjectSemester').innerText = subj.semester ? 'S' + subj.semester : '';
+
+        // Clear any previous alert
+        const alertEl = document.getElementById('subjectAlert');
+        if (alertEl) alertEl.classList.add('hidden');
+
+        const modal = document.getElementById('subjectModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      } catch (err) {
+        alert('Error opening edit modal: ' + err.message);
+        console.error('[openEditSubjectModal]', err);
+      }
+    }
+
+    /**
+     * Unified form submit handler — routes to create or update based on modal mode.
+     */
+    function saveSubject(e) {
       e.preventDefault();
+      const editId = document.getElementById('modalEditSubjectId').value;
+      if (editId) {
+        // EDIT mode
+        _doUpdateSubject(editId);
+      } else {
+        // ADD mode
+        _doCreateSubject();
+      }
+    }
+
+    function _doCreateSubject() {
       const spinner = document.getElementById('subjectSpinner');
       const alertEl = document.getElementById('subjectAlert');
       spinner.classList.remove('hidden');
@@ -2652,8 +3164,45 @@
         spinner.classList.add('hidden');
         if (data.status === 'SUCCESS') {
           closeSubjectModal();
-          loadSubjects(); // refresh
-          loadModalSubjects(); // refresh modal
+          loadSubjects();
+          loadModalSubjects();
+        } else {
+          alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
+          alertEl.innerText = data.message;
+        }
+      })
+      .catch(() => {
+        spinner.classList.add('hidden');
+        alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
+        alertEl.innerText = 'Request failed.';
+      });
+    }
+
+    function _doUpdateSubject(subjectId) {
+      const spinner = document.getElementById('subjectSpinner');
+      const alertEl = document.getElementById('subjectAlert');
+      spinner.classList.remove('hidden');
+      alertEl.classList.add('hidden');
+
+      const payload = {
+        subject_code: document.getElementById('subjectCode').value,
+        subject_name: document.getElementById('subjectName').value,
+        subject_type: document.getElementById('subjectType').value,
+        syllabus_revision_code: document.getElementById('subjectRevisionYear').value
+      };
+
+      fetch(`/api/hod/batches/subjects/${subjectId}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(payload)
+      })
+      .then(r => r.json())
+      .then(data => {
+        spinner.classList.add('hidden');
+        if (data.status === 'SUCCESS') {
+          closeSubjectModal();
+          loadSubjects();
+          loadModalSubjects();
         } else {
           alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block mt-3';
           alertEl.innerText = data.message;

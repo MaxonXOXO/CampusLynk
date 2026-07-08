@@ -31,6 +31,7 @@ class Student extends Model
         'admission_type',
         'photo_url',
         'classroom_id',
+        'semester',
         'status',
         'sbte_reg_no',
         'mentor_mobile_no',
@@ -44,6 +45,8 @@ class Student extends Model
         'is_fee_waiver',
         'profile_verified_at',
         'profile_verified_by',
+        'academic_status',
+        'status_notes',
     ];
 
     protected $hidden = [

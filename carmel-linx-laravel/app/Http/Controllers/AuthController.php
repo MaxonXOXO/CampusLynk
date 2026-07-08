@@ -51,6 +51,7 @@ class AuthController extends Controller
                     'userPhoto' => $student->photo_url ?? '',
                     'classroomId' => $student->classroom_id,
                     'sbteRegNo' => $student->sbte_reg_no,
+                    'semester' => $student->semester,
                 ]);
 
                 return response()->json([
@@ -136,12 +137,11 @@ class AuthController extends Controller
             'admissionYear' => 'required|integer',
             'admissionType' => 'required|string|in:Regular,LET',
             'password' => 'required|string',
+            'sbteRegNo' => 'nullable|string',
+            'semester' => 'required|string',
         ]);
 
         $email = trim($request->input('email'));
-        if (!preg_match('/@carmelpoly\.(in|edu\.in)$/i', $email)) {
-            return response()->json(['status' => 'ERROR', 'message' => 'Student registration requires a college email ID (e.g. name@carmelpoly.in).']);
-        }
 
         $admNo = strtoupper(trim($request->input('admNo')));
         $branchCode = strtoupper(trim($request->input('branch')));
@@ -153,8 +153,14 @@ class AuthController extends Controller
         $regNo = $yy . $branchCode . $admNo . ($isLET ? 'L' : '');
 
         // Check duplicate
-        $duplicate = Student::where('reg_no', $regNo)->orWhere('adm_no', $admNo)->first();
+        $duplicate = Student::where('reg_no', $regNo)
+            ->orWhere('adm_no', $admNo)
+            ->orWhere('email', $email)
+            ->first();
         if ($duplicate) {
+            if (strcasecmp($duplicate->email, $email) === 0) {
+                return response()->json(['status' => 'ERROR', 'message' => 'A student with this Email Address already exists.']);
+            }
             return response()->json(['status' => 'ERROR', 'message' => 'A student with this Register Number or Admission Number already exists.']);
         }
 
@@ -170,6 +176,10 @@ class AuthController extends Controller
         if (!$batchExists) {
             $classroomId = null;
         }
+
+        // Parse Semester e.g. "S3" -> 3
+        $semStr = $request->input('semester', 'S1');
+        $semNum = (int) filter_var($semStr, FILTER_SANITIZE_NUMBER_INT) ?: 1;
 
         // Save Photo if uploaded
         $photoPath = null;
@@ -190,7 +200,9 @@ class AuthController extends Controller
                 'admission_type' => $request->input('admissionType'),
                 'photo_url' => $photoPath,
                 'classroom_id' => $classroomId,
+                'semester' => $semNum,
                 'status' => 'Pending',
+                'sbte_reg_no' => $request->filled('sbteRegNo') ? trim($request->input('sbteRegNo')) : null,
             ]);
 
             // Add Audit Log entry
@@ -231,9 +243,6 @@ class AuthController extends Controller
         ]);
 
         $email = trim($request->input('email'));
-        if (!preg_match('/@carmelpoly\.(in|edu\.in)$/i', $email)) {
-            return response()->json(['status' => 'ERROR', 'message' => 'Staff registration requires a college email ID (e.g. user@carmelpoly.in).']);
-        }
 
         $mobileNo = preg_replace('/[^0-9]/', '', $request->input('mobileNo'));
 

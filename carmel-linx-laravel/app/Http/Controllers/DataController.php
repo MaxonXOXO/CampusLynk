@@ -101,15 +101,52 @@ class DataController extends Controller
             'password' => 'nullable|string',
             'phone' => 'nullable|string',
             'sbte_reg_no' => 'nullable|string',
+            'semester' => 'nullable|integer|min:1|max:6',
+            'academic_status' => 'nullable|string|in:Active,Discontinued,TC Issued',
+            'status_notes' => 'nullable|string',
         ]);
 
         try {
-            $fields = array_filter($request->only(['name', 'email', 'password', 'phone', 'sbte_reg_no']));
+            $oldStatus = $student->academic_status;
+            $newStatus = $request->input('academic_status');
+            $oldSem = $student->semester;
+            $newSem = $request->input('semester');
+            $oldSbte = $student->sbte_reg_no;
+            $newSbte = $request->input('sbte_reg_no');
+
+            $fields = array_filter($request->only(['name', 'email', 'password', 'phone', 'sbte_reg_no', 'semester', 'academic_status', 'status_notes']), function ($val) {
+                return $val !== null;
+            });
             if ($request->hasFile('photo')) {
                 $fields['photo_url'] = '/storage/' . $request->file('photo')->store('avatars', 'public');
             }
 
             $student->update($fields);
+
+            $changes = [];
+            if ($newStatus && $newStatus !== $oldStatus) {
+                $noteText = $request->input('status_notes') ? " (Note: " . $request->input('status_notes') . ")" : "";
+                $changes[] = "Enrollment status changed from '{$oldStatus}' to '{$newStatus}'{$noteText}";
+            }
+            if ($newSem && $newSem != $oldSem) {
+                $changes[] = "Semester changed from 'S{$oldSem}' to 'S{$newSem}'";
+            }
+            if ($request->has('sbte_reg_no') && $newSbte !== $oldSbte) {
+                $changes[] = "SBTE Reg No updated from '{$oldSbte}' to '{$newSbte}'";
+            }
+
+            if (!empty($changes)) {
+                \App\Models\AuditLog::create([
+                    'performed_by' => Session::get('userId') ?? 'System',
+                    'performed_by_name' => Session::get('userName') ?? 'System',
+                    'target_id' => $student->reg_no,
+                    'target_name' => $student->name,
+                    'action' => 'Profile Updated',
+                    'details' => implode(', ', $changes) . '.',
+                    'ip_address' => $request->ip()
+                ]);
+            }
+
             return response()->json(['status' => 'SUCCESS', 'message' => 'Student profile updated.']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Update failed: ' . $e->getMessage()]);
@@ -323,6 +360,7 @@ class DataController extends Controller
                         'photo_url' => $s->photo_url,
                         'type' => 'student',
                         'sbte_reg_no' => $s->sbte_reg_no,
+                        'semester' => $s->semester ? 'S' . $s->semester : 'N/A',
                     ];
                 })->toArray();
 
@@ -846,6 +884,29 @@ class DataController extends Controller
 
                     $studentCount = Student::where('classroom_id', $cls->classroom_id)->count();
 
+                    $activeSem = $cls->current_semester ?: 1;
+                    $subjects = \App\Models\BatchSubject::where('classroom_id', $cls->classroom_id)
+                        ->where('semester', $activeSem)
+                        ->get()
+                        ->map(function ($subj) {
+                            $staffNames = \App\Models\SubjectStaffAssignment::where('batch_subject_id', $subj->id)
+                                ->join('staff_profiles', 'subject_staff_assignments.staff_mobile_no', '=', 'staff_profiles.mobile_no')
+                                ->pluck('staff_profiles.name')
+                                ->toArray();
+
+                            $total = \App\Models\LessonPlan::where('batch_subject_id', $subj->id)->count();
+                            $covered = \App\Models\LessonPlan::where('batch_subject_id', $subj->id)->where('status', 'Completed')->count();
+                            $progress = $total > 0 ? round(($covered / $total) * 100) : 0;
+
+                            return [
+                                'subject_code' => $subj->subject_code,
+                                'subject_name' => $subj->subject_name,
+                                'staff_list'   => !empty($staffNames) ? implode(', ', $staffNames) : 'Unassigned',
+                                'progress'     => $progress,
+                            ];
+                        })
+                        ->toArray();
+
                     return [
                         'classroom_id'      => $cls->classroom_id,
                         'branch'            => $cls->branch,
@@ -855,6 +916,8 @@ class DataController extends Controller
                         'mentor_mobile_no'  => $cls->mentor_mobile_no,
                         'mentor_name'       => $mentorName,
                         'student_count'     => $studentCount,
+                        'current_semester'  => $cls->current_semester,
+                        'subjects'          => $subjects,
                     ];
                 });
 
@@ -883,6 +946,7 @@ class DataController extends Controller
             'admission_year'    => 'required|integer|min:2000|max:2100',
             'tutor_mobile_no'   => 'nullable|string',
             'mentor_mobile_no'  => 'nullable|string',
+            'current_semester'  => 'nullable|integer|min:1|max:8',
         ]);
 
         $admYear    = (int) $request->input('admission_year');
@@ -890,6 +954,7 @@ class DataController extends Controller
         $startYear  = $admYear;
         $endYear    = $admYear + 3;
         $classroomId = "{$branchCode}_{$startYear}_{$endYear}";
+        $semester = (int) $request->input('current_semester', 1);
 
         // Validate optional tutor/mentor belong to same branch
         $tutorMobile  = $request->input('tutor_mobile_no');
@@ -911,10 +976,37 @@ class DataController extends Controller
         // Check if batch already exists
         $existing = ClassManagement::where('classroom_id', $classroomId)->first();
         if ($existing) {
-            return response()->json([
-                'status'  => 'ERROR',
-                'message' => "Batch {$classroomId} already exists for this department.",
-            ]);
+            try {
+                $existing->update([
+                    'tutor_mobile_no'  => $tutorMobile  ?: $existing->tutor_mobile_no,
+                    'mentor_mobile_no' => $mentorMobile ?: $existing->mentor_mobile_no,
+                    'current_semester' => $semester,
+                ]);
+
+                // Update active students' semesters to match the rollover
+                Student::where('classroom_id', $classroomId)
+                    ->where('academic_status', 'Active')
+                    ->update(['semester' => $semester]);
+
+                AuditLog::create([
+                    'performed_by'      => $currentUserId,
+                    'performed_by_name' => Session::get('userName'),
+                    'target_id'         => $classroomId,
+                    'target_name'       => "Batch {$classroomId}",
+                    'action'            => 'Batch Rollover',
+                    'details'           => "HOD rolled over batch {$classroomId} to Semester {$semester}.",
+                    'ip_address'        => $request->ip(),
+                ]);
+
+                return response()->json([
+                    'status'       => 'SUCCESS',
+                    'message'      => "Batch {$classroomId} rolled over/updated to Semester {$semester} successfully.",
+                    'classroom_id' => $classroomId,
+                    'backfilled'   => 0
+                ]);
+            } catch (\Exception $e) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Failed to update batch: ' . $e->getMessage()]);
+            }
         }
 
         try {
@@ -924,6 +1016,7 @@ class DataController extends Controller
                 'batch_year'       => $startYear,
                 'tutor_mobile_no'  => $tutorMobile  ?: null,
                 'mentor_mobile_no' => $mentorMobile ?: null,
+                'current_semester' => $semester,
             ]);
 
             // Backfill: assign any already-registered students that computed this
@@ -932,14 +1025,20 @@ class DataController extends Controller
             $backfilledCount = Student::where('branch', $branchCode)
                 ->where('admission_year', $admYear)
                 ->whereNull('classroom_id')
-                ->update(['classroom_id' => $classroomId]);
+                ->update([
+                    'classroom_id' => $classroomId,
+                    'semester'     => $semester
+                ]);
 
             // Also handle LET students (they join in year 2 → admYear = startYear+1)
             $letBackfilled = Student::where('branch', $branchCode)
                 ->where('admission_year', $admYear + 1)
                 ->where('admission_type', 'LET')
                 ->whereNull('classroom_id')
-                ->update(['classroom_id' => $classroomId]);
+                ->update([
+                    'classroom_id' => $classroomId,
+                    'semester'     => $semester
+                ]);
 
             $backfilledCount += $letBackfilled;
 
@@ -961,6 +1060,30 @@ class DataController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Failed to create batch: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * HOD: Update batch active current semester
+     */
+    public function updateBatchSemester(\Illuminate\Http\Request $request, $classroomId)
+    {
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+        $request->validate(['current_semester' => 'required|integer|min:1|max:8']);
+
+        try {
+            $batch = ClassManagement::where('classroom_id', $classroomId)->first();
+            if (!$batch || strtoupper($batch->branch) !== strtoupper($branch)) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Invalid batch or department mismatch.']);
+            }
+
+            $batch->update(['current_semester' => $request->input('current_semester')]);
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Batch current semester updated.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed: ' . $e->getMessage()]);
         }
     }
 
@@ -1140,6 +1263,7 @@ class DataController extends Controller
                         'admission_type' => $s->admission_type,
                         'status'         => $s->status,
                         'photo_url'      => $s->photo_url,
+                        'semester'       => $s->semester,
                     ];
                 });
 
@@ -1326,7 +1450,15 @@ class DataController extends Controller
                 'syllabus_revision_code' => $request->syllabus_revision_code ?? 'REV2021'
             ]);
 
-            return response()->json(['status' => 'SUCCESS', 'message' => 'Subject created successfully.']);
+            // Automatically update the batch's active semester to match the subject's semester
+            $classroom->update(['current_semester' => $request->semester]);
+
+            // Update all active students in this batch to this semester
+            Student::where('classroom_id', $request->classroom_id)
+                ->where('academic_status', 'Active')
+                ->update(['semester' => $request->semester]);
+
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Subject created successfully. Active batch semester synced.']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
         }
@@ -1388,6 +1520,179 @@ class DataController extends Controller
 
             $subject->delete();
             return response()->json(['status' => 'SUCCESS', 'message' => 'Subject deleted successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * HOD: Update Subject (correct a subject name, code, type or syllabus revision)
+     */
+    public function updateBatchSubject(Request $request, $subjectId)
+    {
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        $request->validate([
+            'subject_code' => 'required|string|max:20',
+            'subject_name' => 'required|string|max:255',
+            'subject_type' => 'required|string',
+            'syllabus_revision_code' => 'nullable|string|max:20',
+        ]);
+
+        try {
+            $subject = BatchSubject::with('classroom')->find($subjectId);
+            if (!$subject || $subject->classroom->branch !== $branch) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Subject not found or unauthorized.']);
+            }
+
+            $subject->update([
+                'subject_code'           => strtoupper(trim($request->subject_code)),
+                'subject_name'           => trim($request->subject_name),
+                'subject_type'           => $request->subject_type,
+                'syllabus_revision_code' => $request->syllabus_revision_code ?? $subject->syllabus_revision_code,
+            ]);
+
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Subject updated successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+
+    /**
+     * HOD: Get a full per-semester academic snapshot for a batch.
+     * Returns subjects+staff, student attendance, and board results for the given semester.
+     * PURELY ADDITIVE — does not change any existing methods.
+     */
+    public function getBatchSemesterSnapshot(Request $request, $classroomId, $semester)
+    {
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        try {
+            $classroom = \App\Models\ClassManagement::where('classroom_id', $classroomId)
+                ->where('branch', strtoupper($branch))
+                ->first();
+            if (!$classroom) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Batch not found or not in your department.']);
+            }
+
+            // ---- 1. Subjects & Staff ----
+            $subjects = \App\Models\BatchSubject::where('classroom_id', $classroomId)
+                ->where('semester', $semester)
+                ->get()
+                ->map(function ($subj) {
+                    $staffNames = \App\Models\SubjectStaffAssignment::where('batch_subject_id', $subj->id)
+                        ->join('staff_profiles', 'subject_staff_assignments.staff_mobile_no', '=', 'staff_profiles.mobile_no')
+                        ->pluck('staff_profiles.name')
+                        ->toArray();
+
+                    $classesConducted = \DB::table('class_logs_attendance')
+                        ->where('batch_subject_id', $subj->id)
+                        ->count();
+
+                    $courseFile = \DB::table('cf_course_files')
+                        ->where('batch_subject_id', $subj->id)
+                        ->first();
+
+                    return [
+                        'subject_code'       => $subj->subject_code,
+                        'subject_name'       => $subj->subject_name,
+                        'subject_type'       => $subj->subject_type,
+                        'staff'              => $staffNames,
+                        'classes_conducted'  => $classesConducted,
+                        'course_file_status' => $courseFile ? 'Submitted' : 'Pending',
+                    ];
+                });
+
+            // ---- 2. Students + Attendance ----
+            $students = \App\Models\Student::where('classroom_id', $classroomId)
+                ->orderBy('roll_no')
+                ->orderBy('name')
+                ->get();
+
+            // Get all batch_subject IDs for this semester
+            $subjectIds = \App\Models\BatchSubject::where('classroom_id', $classroomId)
+                ->where('semester', $semester)
+                ->pluck('id', 'subject_code');
+
+            $studentData = $students->map(function ($s) use ($subjectIds) {
+                $subjAttendance = [];
+                $totalPresent   = 0;
+                $totalClasses   = 0;
+
+                foreach ($subjectIds as $code => $bsId) {
+                    $total   = \DB::table('student_attendance')
+                        ->where('batch_subject_id', $bsId)
+                        ->where('reg_no', $s->reg_no)
+                        ->count();
+                    $present = \DB::table('student_attendance')
+                        ->where('batch_subject_id', $bsId)
+                        ->where('reg_no', $s->reg_no)
+                        ->where('status', 'Present')
+                        ->count();
+
+                    if ($total > 0) {
+                        $subjAttendance[] = [
+                            'subject_code' => $code,
+                            'present'      => $present,
+                            'total'        => $total,
+                            'percent'      => round(($present / $total) * 100),
+                        ];
+                        $totalPresent += $present;
+                        $totalClasses += $total;
+                    }
+                }
+
+                return [
+                    'reg_no'                     => $s->reg_no,
+                    'roll_no'                    => $s->roll_no,
+                    'name'                       => $s->name,
+                    'academic_status'            => $s->academic_status ?? $s->status,
+                    'overall_attendance_percent' => $totalClasses > 0 ? round(($totalPresent / $totalClasses) * 100) : null,
+                    'subject_attendance'         => $subjAttendance,
+                ];
+            });
+
+            // ---- 3. Board Results ----
+            $regNos = $students->pluck('reg_no')->toArray();
+            $semMarks = \App\Models\StudentSemesterMarks::whereIn('reg_no', $regNos)
+                ->where('semester', $semester)
+                ->get()
+                ->keyBy('reg_no');
+
+            $semSummary = \DB::table('student_semester_summaries')
+                ->whereIn('reg_no', $regNos)
+                ->where('semester', $semester)
+                ->get()
+                ->keyBy('reg_no');
+
+            $boardResults = $students->map(function ($s) use ($semMarks, $semSummary) {
+                $summary = $semSummary->get($s->reg_no);
+                $mark    = $semMarks->get($s->reg_no);
+                return [
+                    'reg_no'      => $s->reg_no,
+                    'roll_no'     => $s->roll_no,
+                    'name'        => $s->name,
+                    'result'      => $summary->result ?? null,
+                    'sgpa'        => $summary->sgpa ?? null,
+                    'board_marks' => $mark->board_marks ?? null,
+                ];
+            })->filter(fn($r) => $r['result'] || $r['sgpa'])->values();
+
+            return response()->json([
+                'status'        => 'SUCCESS',
+                'semester'      => (int) $semester,
+                'classroom_id'  => $classroomId,
+                'subjects'      => $subjects,
+                'students'      => $studentData,
+                'board_results' => $boardResults,
+            ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
         }
@@ -1480,12 +1785,22 @@ class DataController extends Controller
                     if (!in_array('Subject Staff', $batchesMap[$cid]['roles'])) {
                         $batchesMap[$cid]['roles'][] = 'Subject Staff';
                     }
+                    $subjId = $sa->batchSubject->id;
+                    $totalTopics = \App\Models\LessonPlan::where('batch_subject_id', $subjId)->count();
+                    $coveredTopics = \App\Models\LessonPlan::where('batch_subject_id', $subjId)->where('status', 'Completed')->count();
+                    $engagedHours = \DB::table('class_logs_attendance')->where('batch_subject_id', $subjId)->count();
+                    $totalHours = \App\Models\LessonPlan::where('batch_subject_id', $subjId)->sum('allocated_hours') ?: 0;
+
                     $batchesMap[$cid]['subjects'][] = [
                         'id' => $sa->batchSubject->id,
                         'code' => $sa->batchSubject->subject_code,
                         'name' => $sa->batchSubject->subject_name,
                         'semester' => $sa->batchSubject->semester,
-                        'type' => $sa->batchSubject->subject_type
+                        'type' => $sa->batchSubject->subject_type,
+                        'total_topics' => $totalTopics,
+                        'covered_topics' => $coveredTopics,
+                        'engaged_hours' => $engagedHours,
+                        'total_hours' => $totalHours
                     ];
                 }
             }
@@ -1546,7 +1861,7 @@ class DataController extends Controller
 
             $classroomId = $student->classroom_id;
             $classroom = DB::table('class_management')->where('classroom_id', $classroomId)->first();
-            $currentSem = $classroom ? (int)$classroom->current_semester : 1;
+            $currentSem = $student->semester ?: ($classroom ? (int)$classroom->current_semester : 1);
 
             $batchSubjects = \App\Models\BatchSubject::where('classroom_id', $classroomId)
                 ->orderBy('semester', 'asc')
@@ -2232,6 +2547,12 @@ class DataController extends Controller
             $newSem = $currentSem < 8 ? $currentSem + 1 : $currentSem;
 
             $supervisedClass->update(['current_semester' => $newSem]);
+
+            // Also increment active students' semester
+            Student::where('classroom_id', $supervisedClass->classroom_id)
+                ->where('academic_status', 'Active')
+                ->where('semester', '<', 6)
+                ->increment('semester');
 
             DB::commit();
 

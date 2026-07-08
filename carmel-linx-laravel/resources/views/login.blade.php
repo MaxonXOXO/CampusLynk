@@ -144,8 +144,8 @@
           <div id="regStudentFields" class="space-y-4">
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Register No</label>
-                <input type="text" id="regStudentId" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 focus:ring-2 focus:ring-blue-500/20 outline-none text-white font-medium transition-premium text-sm" placeholder="REG24EC01">
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">SBTE Register No (Optional)</label>
+                <input type="text" id="regStudentId" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 focus:ring-2 focus:ring-blue-500/20 outline-none text-white font-medium transition-premium text-sm" placeholder="e.g. 24010123">
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Admission No</label>
@@ -171,16 +171,25 @@
               </div>
             </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Current Semester</label>
-              <select id="regStudentSem" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950 text-white focus:ring-2 focus:ring-blue-500/20 outline-none font-medium transition-premium text-sm">
-                <option value="S1">S1</option>
-                <option value="S2">S2</option>
-                <option value="S3" selected>S3</option>
-                <option value="S4">S4</option>
-                <option value="S5">S5</option>
-                <option value="S6">S6</option>
-              </select>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Current Semester</label>
+                <select id="regStudentSem" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950 text-white focus:ring-2 focus:ring-blue-500/20 outline-none font-medium transition-premium text-sm">
+                  <option value="S1">S1</option>
+                  <option value="S2">S2</option>
+                  <option value="S3" selected>S3</option>
+                  <option value="S4">S4</option>
+                  <option value="S5">S5</option>
+                  <option value="S6">S6</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Admission Type</label>
+                <select id="regStudentAdmissionType" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-955 text-white focus:ring-2 focus:ring-blue-500/20 outline-none font-medium transition-premium text-sm">
+                  <option value="Regular" selected>Regular</option>
+                  <option value="LET">LET (Lateral Entry)</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -299,6 +308,34 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- REGISTRATION SUCCESS MODAL -->
+  <div id="regSuccessModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-premium">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4 text-center">
+      <div class="flex justify-center">
+        <span class="material-symbols-rounded text-green-400 text-5xl bg-green-500/10 p-4 rounded-full">check_circle</span>
+      </div>
+      <h3 class="font-bold text-slate-100 text-lg">Registration Success!</h3>
+      <p class="text-sm text-slate-300">
+        Your student profile registration is successful and pending Class Tutor approval.
+      </p>
+      
+      <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2">
+        <span class="text-xs text-slate-500 uppercase tracking-wider block">Your Generated Login ID</span>
+        <span id="successLoginId" class="text-xl font-mono font-extrabold text-blue-400 block tracking-widest select-all"></span>
+      </div>
+      
+      <p class="text-xs text-amber-400 font-semibold flex items-center justify-center gap-1.5 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+        <span class="material-symbols-rounded text-sm">photo_camera</span> Please take a screenshot / note down this login ID!
+      </p>
+      
+      <div>
+        <button onclick="closeRegSuccessModal()" class="w-full py-2.5 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl font-bold shadow-lg transition-premium text-sm cursor-pointer">
+          Done, Go to Login
+        </button>
+      </div>
     </div>
   </div>
 
@@ -457,6 +494,13 @@
       toggleRoleTab(activeRole);
     }
 
+    function closeRegSuccessModal() {
+      const modal = document.getElementById('regSuccessModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      showLogin();
+    }
+
     // Helper: get standard Laravel CSRF token header
     function getHeaders() {
       return {
@@ -530,11 +574,12 @@
 
       let url = '/register/student';
       if (activeRole === 'student') {
-        formData.append('regNo', document.getElementById('regStudentId').value);
+        formData.append('sbteRegNo', document.getElementById('regStudentId').value);
         formData.append('admNo', document.getElementById('regStudentAdm').value);
         formData.append('branch', document.getElementById('regStudentBranch').value);
         formData.append('admissionYear', document.getElementById('regStudentYear').value);
-        formData.append('admissionType', 'Regular');
+        formData.append('admissionType', document.getElementById('regStudentAdmissionType').value);
+        formData.append('semester', document.getElementById('regStudentSem').value);
       } else {
         url = '/register/staff';
         formData.append('mobileNo', document.getElementById('regStaffMobile').value);
@@ -552,11 +597,18 @@
       .then(res => res.json())
       .then(data => {
         if (data.status === "SUCCESS") {
-          regAlert.className = "p-4 rounded-xl text-sm font-semibold bg-green-950/40 text-green-400 border border-green-900/60 block";
-          regAlert.innerText = data.message;
           spinner.classList.add('hidden');
           btnText.innerText = "Register";
-          setTimeout(() => showLogin(), 2000);
+          if (activeRole === 'student') {
+            document.getElementById('successLoginId').innerText = data.regNo;
+            const successModal = document.getElementById('regSuccessModal');
+            successModal.classList.remove('hidden');
+            successModal.classList.add('flex');
+          } else {
+            regAlert.className = "p-4 rounded-xl text-sm font-semibold bg-green-950/40 text-green-400 border border-green-900/60 block";
+            regAlert.innerText = data.message;
+            setTimeout(() => showLogin(), 2000);
+          }
         } else {
           showRegError(regAlert, spinner, btnText, data.message);
         }

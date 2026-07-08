@@ -175,12 +175,15 @@
                   <th class="p-4">Mobile / Reg No</th>
                   <th class="p-4">SBTE Register No (Click to Edit)</th>
                   <th class="p-4">Branch</th>
+                  <th class="p-4">Registered Sem</th>
                   <th class="p-4">Role Designation</th>
                   <th class="p-4">Account Status</th>
+                  <th class="p-4">Enrollment Status</th>
                   <th class="p-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody id="usersTableBody">
+                <tr><td colspan="9" class="p-8 text-center text-slate-500 font-medium font-sans">No classroom students found.</td></tr>
                 <!-- User rows render dynamically via JS -->
               </tbody>
             </table>
@@ -829,7 +832,7 @@
       if (users.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" class="p-8 text-center text-slate-500 font-medium font-sans">
+            <td colspan="9" class="p-8 text-center text-slate-500 font-medium font-sans">
               No classroom students found.
             </td>
           </tr>
@@ -870,31 +873,51 @@
         }
 
         tr.innerHTML = `
-          <td class="p-4 flex items-center gap-3">
+          <td class="p-2.5 flex items-center gap-3">
             <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-8 h-8 rounded-full object-cover border border-slate-800 shadow">
             <div>
-              <span class="font-bold text-slate-100 block">${user.name}</span>
-              <span class="text-xs text-slate-500 block">${user.email}</span>
+              <span class="font-bold text-slate-100 block text-sm">${user.name}</span>
+              <span class="text-sm text-slate-500 block">${user.email}</span>
             </div>
           </td>
-          <td class="p-4 font-mono font-bold text-slate-300">${user.id}</td>
-          <td class="p-4">
-            <button onclick="editSbteRegNo('${user.id}', '${user.sbte_reg_no || ''}')" class="text-blue-400 hover:text-blue-300 underline font-mono cursor-pointer font-bold text-xs" title="Click to Edit SBTE No">
+          <td class="p-2.5 font-mono font-bold text-slate-300 text-sm">${user.id}</td>
+          <td class="p-2.5">
+            <button onclick="editSbteRegNo('${user.id}', '${user.sbte_reg_no || ''}')" class="text-blue-400 hover:text-blue-300 underline font-mono cursor-pointer font-bold text-sm" title="Click to Edit SBTE No">
               ${user.sbte_reg_no || '[Add SBTE No]'}
             </button>
           </td>
-          <td class="p-4"><span class="font-bold font-mono text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
-          <td class="p-4">${user.role}</td>
-          <td class="p-4">${statusBadge}</td>
-          <td class="p-4 text-right space-x-1">
+          <td class="p-2.5"><span class="font-bold font-mono text-sm bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
+          <td class="p-2.5">
+            ${user.type === 'student' ? `
+              <button onclick="editStudentSemester('${user.id}', '${user.semester || 'S1'}')" class="text-indigo-400 hover:text-indigo-300 underline font-bold text-sm cursor-pointer" title="Click to Edit Semester">
+                ${user.semester || 'S1'}
+              </button>
+            ` : '<span class="text-slate-500 font-bold text-sm">N/A</span>'}
+          </td>
+          <td class="p-2.5 text-sm">${user.role}</td>
+          <td class="p-2.5 text-sm">${statusBadge}</td>
+          <td class="p-2.5">
+            ${user.type === 'student' ? `
+              <select onchange="updateAcademicStatusDirectly('${user.id}', this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-sm outline-none focus:border-blue-500 font-bold cursor-pointer ${
+                user.academic_status === 'Active' ? 'text-green-400 border-green-500/20' :
+                user.academic_status === 'Discontinued' ? 'text-amber-400 border-amber-500/20' :
+                'text-red-400 border-red-500/20'
+              }">
+                <option value="Active" ${user.academic_status === 'Active' ? 'selected' : ''}>Active</option>
+                <option value="Discontinued" ${user.academic_status === 'Discontinued' ? 'selected' : ''}>Discontinued</option>
+                <option value="TC Issued" ${user.academic_status === 'TC Issued' ? 'selected' : ''}>TC Issued</option>
+              </select>
+            ` : '<span class="text-slate-500 font-bold text-sm">N/A</span>'}
+          </td>
+          <td class="p-2.5 text-right space-x-1 text-sm">
             ${toggleButton}
-            <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs font-bold transition-premium cursor-pointer">
+            <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-sm font-bold transition-premium cursor-pointer">
               Reset Pwd
             </button>
-            <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-blue-900 border border-slate-800 text-slate-300 rounded text-xs font-bold transition-premium cursor-pointer" title="View Audit Trail">
+            <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-blue-900 border border-slate-800 text-slate-300 rounded text-sm font-bold transition-premium cursor-pointer" title="View Audit Trail">
               Audit
             </button>
-            <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded text-xs font-bold transition-premium cursor-pointer" title="Delete Student">
+            <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded text-sm font-bold transition-premium cursor-pointer" title="Delete Student">
               Delete
             </button>
           </td>
@@ -951,6 +974,68 @@
         }
       })
       .catch(() => indicator.classList.add('hidden'));
+    }
+
+    function editStudentSemester(regNo, currentSem) {
+      let newSemStr = prompt("Enter new Semester (1-6) for student " + regNo + ":", currentSem.replace('S', ''));
+      if (newSemStr === null) return;
+      let newSem = parseInt(newSemStr);
+      if (isNaN(newSem) || newSem < 1 || newSem > 6) {
+        alert("Invalid semester! Please enter a number between 1 and 6.");
+        return;
+      }
+      
+      const indicator = document.getElementById('loadingIndicator');
+      indicator.classList.remove('hidden');
+      
+      fetch(`/api/student/update/${regNo}`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ semester: newSem })
+      })
+      .then(res => res.json())
+      .then(data => {
+        indicator.classList.add('hidden');
+        if (data.status === 'SUCCESS') {
+          showGlobalMessage('Student semester updated successfully.');
+          loadUsers();
+        } else {
+          showGlobalMessage(data.message, true);
+        }
+      })
+      .catch(() => indicator.classList.add('hidden'));
+    }
+
+    function updateAcademicStatusDirectly(regNo, newVal) {
+      let note = prompt("Enter remarks / reason for changing enrollment status to " + newVal + " (optional):");
+      if (note === null) {
+        loadUsers(); // User clicked cancel, refresh to restore dropdown selection
+        return;
+      }
+
+      const indicator = document.getElementById('loadingIndicator');
+      if (indicator) indicator.classList.remove('hidden');
+
+      fetch(`/api/student/update/${regNo}`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ academic_status: newVal, status_notes: note })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (indicator) indicator.classList.add('hidden');
+        if (data.status === 'SUCCESS') {
+          showGlobalMessage('Student enrollment status updated successfully.');
+          loadUsers();
+        } else {
+          showGlobalMessage(data.message, true);
+          loadUsers(); // refresh to reset selection
+        }
+      })
+      .catch(() => {
+        if (indicator) indicator.classList.add('hidden');
+        loadUsers();
+      });
     }
 
     function triggerPasswordReset(userId, userType, userName) {

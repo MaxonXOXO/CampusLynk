@@ -263,13 +263,18 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/hod/batches/assign-tutor', [DataController::class, 'assignBatchTutor']);
     Route::post('/api/hod/batches/assign-mentor', [DataController::class, 'assignBatchMentor']);
     Route::get('/api/hod/batches/{classroomId}/students', [DataController::class, 'getBatchStudents']);
+    Route::post('/api/hod/batches/{classroomId}/update-semester', [DataController::class, 'updateBatchSemester']);
     Route::get('/api/hod/dept-staff', [DataController::class, 'getDeptStaff']);
 
     // HOD Subject Allocation
     Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);
     Route::post('/api/hod/batches/subjects/create', [DataController::class, 'createBatchSubject']);
+    Route::put('/api/hod/batches/subjects/{subjectId}', [DataController::class, 'updateBatchSubject']);
     Route::post('/api/hod/batches/subjects/{subjectId}/assign-staff', [DataController::class, 'assignSubjectStaff']);
     Route::delete('/api/hod/batches/subjects/{subjectId}', [DataController::class, 'deleteBatchSubject']);
+
+    // HOD Semester Snapshot (NEW - historical/per-semester academic data view)
+    Route::get('/api/hod/batches/{classroomId}/semester/{semester}/snapshot', [DataController::class, 'getBatchSemesterSnapshot']);
 
     // Lecturer Endpoints
     Route::get('/api/lecturer/my-batches', [DataController::class, 'getLecturerBatches']);

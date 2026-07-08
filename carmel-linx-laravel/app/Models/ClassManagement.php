@@ -25,6 +25,7 @@ class ClassManagement extends Model
         'batch_year',
         'tutor_mobile_no',
         'mentor_mobile_no',
+        'current_semester',
     ];
 
     /**
