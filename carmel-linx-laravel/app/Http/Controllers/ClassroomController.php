@@ -506,7 +506,6 @@ Syllabus text:
             $students = [];
             if ($batchSubject) {
                 $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
-                            ->where('semester', $batchSubject->semester)
                             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
                 
                 // Get marks
