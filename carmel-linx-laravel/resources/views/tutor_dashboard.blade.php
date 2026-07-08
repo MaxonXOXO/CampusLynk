@@ -1938,6 +1938,11 @@
 
           let activeRows = '';
           activeList.forEach((s, idx) => {
+            const isLateral = (s.reg_no && s.reg_no.toUpperCase().endsWith('L')) || (s.sbte_reg_no && s.sbte_reg_no.toUpperCase().endsWith('L'));
+            let remark = s.status_notes || '-';
+            if (isLateral) {
+              remark = remark !== '-' ? 'Lateral Entry; ' + remark : 'Lateral Entry';
+            }
             activeRows += `
               <tr>
                 <td>${idx + 1}</td>
@@ -1947,7 +1952,7 @@
                 <td>${s.admission_year || 'N/A'}</td>
                 <td>${s.semester || 'S1'}</td>
                 <td>${s.academic_status || 'Active'}</td>
-                <td>${s.status_notes || '-'}</td>
+                <td>${remark}</td>
               </tr>
             `;
           });
@@ -1959,6 +1964,11 @@
           let discontinuedRows = '';
           discontinuedList.forEach((s, idx) => {
             const leftSem = s.semester || 'S1';
+            const isLateral = (s.reg_no && s.reg_no.toUpperCase().endsWith('L')) || (s.sbte_reg_no && s.sbte_reg_no.toUpperCase().endsWith('L'));
+            let remark = s.status_notes || '-';
+            if (isLateral) {
+              remark = remark !== '-' ? 'Lateral Entry; ' + remark : 'Lateral Entry';
+            }
             discontinuedRows += `
               <tr>
                 <td>${idx + 1}</td>
@@ -1967,7 +1977,7 @@
                 <td>${s.admission_year || 'N/A'}</td>
                 <td>${s.semester || 'S1'}</td>
                 <td>${s.academic_status}</td>
-                <td>${s.status_notes || 'Discontinued'}</td>
+                <td>${remark}</td>
               </tr>
             `;
           });
