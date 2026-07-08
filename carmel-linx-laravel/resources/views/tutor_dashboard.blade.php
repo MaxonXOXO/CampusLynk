@@ -131,7 +131,7 @@
           <div class="flex items-center gap-3">
             <span id="rosterIcon" class="material-symbols-rounded text-blue-400 transition-transform duration-300" style="transform: rotate(180deg);">expand_less</span>
             <div>
-              <h3 class="font-black text-slate-200 text-lg">Supervised Classroom Directory</h3>
+              <h3 id="supervisedClassroomTitle" class="font-black text-slate-200 text-lg">Supervised Classroom Directory</h3>
               <p class="text-slate-400 mt-0.5 text-sm">Manage and review lifecycle states of students in your assigned classroom.</p>
             </div>
           </div>
@@ -736,6 +736,8 @@
         activePanel = 'mentoring';
       }
 
+      loadSupervisedClassroomHeader();
+
       if (activePanel === 'roster') loadUsers();
       if (activePanel === 'audit') loadAuditTrail();
       if (activePanel === 'profile') loadSelfSecurityLogs();
@@ -743,6 +745,20 @@
         switchPanel('mentoring'); // Ensures UI is updated
       }
     });
+
+    function loadSupervisedClassroomHeader() {
+      fetch('/api/tutor/classroom/{{ session('userId') }}')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            const titleEl = document.getElementById('supervisedClassroomTitle');
+            if (titleEl) {
+              const sem = data.currentSemester || 1;
+              titleEl.innerText = `Supervised Classroom Directory — ${data.classroomId} (Semester S-${sem})`;
+            }
+          }
+        });
+    }
 
     function getHeaders() {
       return {
