@@ -22,11 +22,11 @@
       font-size: 0.875rem !important; /* 14px (text-sm) minimum */
     }
     nav.space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
-      margin-top: 0.25rem !important;
+      margin-top: 0.125rem !important;
     }
     nav.space-y-1\.5 a, nav.space-y-1\.5 button {
-      padding-top: 0.5rem !important;
-      padding-bottom: 0.5rem !important;
+      padding-top: 0.375rem !important;
+      padding-bottom: 0.375rem !important;
     }
     .transition-premium {
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
