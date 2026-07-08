@@ -54,7 +54,7 @@
   <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/10 via-transparent to-transparent pointer-events-none opacity-50"></div>
 
   <!-- Main Container -->
-  <div class="w-full max-w-md bg-slate-900/40 backdrop-blur-2xl shadow-[0_0_50px_rgba(59,130,246,0.12)] rounded-3xl overflow-hidden border border-slate-800/80 slide-up p-5 md:p-6 text-slate-100 relative z-10">
+  <div class="w-full max-w-md bg-slate-900/40 backdrop-blur-2xl shadow-[0_0_50px_rgba(59,130,246,0.12)] rounded-3xl overflow-hidden border border-white/40 slide-up p-5 md:p-6 text-slate-100 relative z-10">
     
     <!-- Branding Header -->
     <div class="text-center mb-4">

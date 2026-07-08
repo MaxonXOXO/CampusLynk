@@ -516,17 +516,17 @@ function renderStudentBoardExams() {
     let br = sub.board_result || {};
     sbList.innerHTML += `
       <tr class="border-b border-slate-800/40 hover:bg-slate-900/50 board-grade-row transition-premium" data-sem="${sem}" data-code="${sub.subject_code}">
-        <td class="p-3 text-slate-300 font-bold bg-slate-900/40 font-mono text-[11px] tracking-wider">${sub.subject_code}</td>
-        <td class="p-3 text-slate-200 text-[10px] font-bold uppercase truncate max-w-[200px]" title="${sub.subject_name}">${sub.subject_name}</td>
-        <td class="p-2"><input type="month" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-[10px] text-white bg-exam-my focus:border-blue-500 outline-none transition-premium" value="${br.exam_month_year || ''}"></td>
-        <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-[10px] text-white bg-grade uppercase font-bold text-center focus:border-blue-500 outline-none transition-premium" value="${br.grade || ''}" placeholder="e.g. A+"></td>
+        <td class="p-3 text-slate-300 font-bold bg-slate-900/40 font-mono text-sm tracking-wider">${sub.subject_code}</td>
+        <td class="p-3 text-slate-200 text-sm font-bold uppercase truncate max-w-[200px]" title="${sub.subject_name}">${sub.subject_name}</td>
+        <td class="p-2"><input type="month" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-sm text-white bg-exam-my focus:border-blue-500 outline-none transition-premium" value="${br.exam_month_year || ''}"></td>
+        <td class="p-2"><input type="text" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-sm text-white bg-grade uppercase font-bold text-center focus:border-blue-500 outline-none transition-premium" value="${br.grade || ''}" placeholder="e.g. A+"></td>
         <td class="p-2">
-          <select class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-[10px] text-white bg-pass font-bold focus:border-blue-500 outline-none transition-premium">
+          <select class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-sm text-white bg-pass font-bold focus:border-blue-500 outline-none transition-premium">
             <option value="1" ${br.passed == 1 || br.passed === undefined ? 'selected' : ''} class="text-emerald-400">Yes</option>
             <option value="0" ${br.passed == 0 && br.passed !== undefined ? 'selected' : ''} class="text-red-400">No</option>
           </select>
         </td>
-        <td class="p-2"><input type="number" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-[10px] text-white font-bold bg-chances text-center focus:border-blue-500 outline-none transition-premium" value="${br.chances_taken || 1}" min="1"></td>
+        <td class="p-2"><input type="number" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-sm text-white font-bold bg-chances text-center focus:border-blue-500 outline-none transition-premium" value="${br.chances_taken || 1}" min="1"></td>
       </tr>
     `;
   });

@@ -1032,6 +1032,74 @@ class MentoringController extends Controller
                         'chances_taken' => $bg['chances_taken'] ?? 1,
                     ]);
                 }
+
+                // Recalculate SGPA and CGPA dynamically based on board grades
+                $allGrades = StudentBoardGrade::where('reg_no', $regNo)->get();
+                $batchSubjects = BatchSubject::get();
+                $subjTypeMap = $batchSubjects->pluck('subject_type', 'subject_code')->toArray();
+
+                $getGP = function($grade) {
+                    switch (strtoupper(trim($grade))) {
+                        case 'S': return 10;
+                        case 'A': return 9;
+                        case 'B': return 8;
+                        case 'C': return 7;
+                        case 'D': return 6;
+                        case 'E': return 5;
+                        case 'F': return 0;
+                        default: return null;
+                    }
+                };
+
+                $getCredit = function($code) use ($subjTypeMap) {
+                    $type = $subjTypeMap[$code] ?? 'Theory';
+                    if (stripos($type, 'practical') !== false || stripos($type, 'lab') !== false) {
+                        return 2;
+                    }
+                    return 4;
+                };
+
+                $semestersList = $allGrades->pluck('semester')->unique()->sort()->toArray();
+                $cumTotalGP = 0;
+                $cumTotalCredits = 0;
+
+                foreach ($semestersList as $sem) {
+                    $semGrades = $allGrades->where('semester', $sem);
+                    $semTotalGP = 0;
+                    $semTotalCredits = 0;
+
+                    foreach ($semGrades as $g) {
+                        $gp = $getGP($g->grade);
+                        if ($gp !== null) {
+                            $credit = $getCredit($g->subject_code);
+                            $semTotalGP += ($gp * $credit);
+                            $semTotalCredits += $credit;
+
+                            $cumTotalGP += ($gp * $credit);
+                            $cumTotalCredits += $credit;
+                        }
+                    }
+
+                    $calculatedSgpa = $semTotalCredits > 0 ? round($semTotalGP / $semTotalCredits, 2) : null;
+                    $calculatedCgpa = $cumTotalCredits > 0 ? round($cumTotalGP / $cumTotalCredits, 2) : null;
+
+                    // Update or create the summary record (preserving activity points)
+                    $summary = StudentSemesterSummary::where('reg_no', $regNo)->where('semester', $sem)->first();
+                    if ($summary) {
+                        $summary->update([
+                            'sgpa' => $calculatedSgpa,
+                            'cgpa' => $calculatedCgpa
+                        ]);
+                    } else {
+                        StudentSemesterSummary::create([
+                            'reg_no' => $regNo,
+                            'semester' => $sem,
+                            'sgpa' => $calculatedSgpa,
+                            'cgpa' => $calculatedCgpa,
+                            'activity_points' => 0
+                        ]);
+                    }
+                }
             }
 
             DB::commit();

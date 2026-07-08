@@ -1561,16 +1561,91 @@ class DataController extends Controller
                 ->where('reg_no', $regNo)
                 ->get();
 
-            // Attendance
-            $attendanceRecords = DB::table('student_attendance')
+            $boardGrades = DB::table('student_board_grades')
                 ->where('reg_no', $regNo)
-                ->select('subject_code', 'status', DB::raw('count(*) as count'))
-                ->groupBy('subject_code', 'status')
+                ->get()
+                ->groupBy('subject_code');
+
+            // Calculate attendance dynamically from class_logs_attendance
+            $attendanceMap = [];
+            foreach ($batchSubjects as $subj) {
+                $logs = DB::table('class_logs_attendance')
+                    ->where('batch_subject_id', $subj->id)
+                    ->get(['present_students', 'absent_students']);
+
+                $present = 0;
+                $absent = 0;
+                foreach ($logs as $log) {
+                    $presentList = json_decode($log->present_students ?? '[]', true);
+                    $absentList = json_decode($log->absent_students ?? '[]', true);
+
+                    if (is_array($presentList) && in_array($regNo, $presentList)) {
+                        $present++;
+                    } elseif (is_array($absentList) && in_array($regNo, $absentList)) {
+                        $absent++;
+                    }
+                }
+
+                $attendanceMap[$subj->subject_code] = [
+                    'Present' => $present,
+                    'Absent' => $absent,
+                    'Late' => 0
+                ];
+            }
+
+            // Calculate SGPA and CGPA dynamically from student_board_grades
+            $allGrades = DB::table('student_board_grades')
+                ->where('reg_no', $regNo)
                 ->get();
 
-            $attendanceMap = [];
-            foreach ($attendanceRecords as $rec) {
-                $attendanceMap[$rec->subject_code][$rec->status] = $rec->count;
+            $subjTypeMap = $batchSubjects->pluck('subject_type', 'subject_code')->toArray();
+
+            $getGP = function($grade) {
+                switch (strtoupper(trim($grade))) {
+                    case 'S': return 10;
+                    case 'A': return 9;
+                    case 'B': return 8;
+                    case 'C': return 7;
+                    case 'D': return 6;
+                    case 'E': return 5;
+                    case 'F': return 0;
+                    default: return null;
+                }
+            };
+
+            $getCredit = function($code) use ($subjTypeMap) {
+                $type = $subjTypeMap[$code] ?? 'Theory';
+                if (stripos($type, 'practical') !== false || stripos($type, 'lab') !== false) {
+                    return 2;
+                }
+                return 4;
+            };
+
+            $computedSGPA = [];
+            $computedCGPA = [];
+            $semestersList = $batchSubjects->pluck('semester')->unique()->sort()->toArray();
+            $cumTotalGP = 0;
+            $cumTotalCredits = 0;
+
+            foreach ($semestersList as $sem) {
+                $semGrades = $allGrades->where('semester', $sem);
+                $semTotalGP = 0;
+                $semTotalCredits = 0;
+
+                foreach ($semGrades as $g) {
+                    $gp = $getGP($g->grade);
+                    if ($gp !== null) {
+                        $credit = $getCredit($g->subject_code);
+                        $semTotalGP += ($gp * $credit);
+                        $semTotalCredits += $credit;
+
+                        $cumTotalGP += ($gp * $credit);
+                        $cumTotalCredits += $credit;
+                    }
+                }
+
+                $computedSGPA[$sem] = $semTotalCredits > 0 ? round($semTotalGP / $semTotalCredits, 2) : null;
+                $computedCGPA[$sem] = $cumTotalCredits > 0 ? round($cumTotalGP / $cumTotalCredits, 2) : null;
             }
 
             // Build Report grouped by semester
@@ -1581,8 +1656,8 @@ class DataController extends Controller
                     $summary = $summaries->firstWhere('semester', $sem);
                     $report[$sem] = [
                         'semester' => $sem,
-                        'sgpa' => $summary ? $summary->sgpa : null,
-                        'cgpa' => $summary ? $summary->cgpa : null,
+                        'sgpa' => $computedSGPA[$sem] ?? ($summary ? $summary->sgpa : null),
+                        'cgpa' => $computedCGPA[$sem] ?? ($summary ? $summary->cgpa : null),
                         'activity_points' => $summary ? $summary->activity_points : 0,
                         'subjects' => []
                     ];
@@ -1637,10 +1712,14 @@ class DataController extends Controller
                 $totalDays = $present + $late + $absent;
                 $attPercent = $totalDays > 0 ? round((($present + ($late*0.5)) / $totalDays) * 100, 1) : 0;
 
+                $bgRecord = $boardGrades->get($subjCode);
+                $bGrade = $bgRecord ? $bgRecord->first() : null;
+
                 $report[$sem]['subjects'][] = array_merge([
                     'subject_code' => $subjCode,
                     'subject_name' => $subj->subject_name,
-                    'attendance_percentage' => $attPercent
+                    'attendance_percentage' => $attPercent,
+                    'board_grade' => $bGrade ? $bGrade->grade : null
                 ], $parsedMarks);
             }
 
@@ -1796,7 +1875,23 @@ class DataController extends Controller
             unset($semData);
 
             $latestSummary = $summaries->last();
-            $currentCgpa = $latestSummary ? $latestSummary->cgpa : null;
+            $currentCgpa = end($computedCGPA) ?: ($latestSummary ? $latestSummary->cgpa : null);
+
+            // Determine classification
+            $hasFail = $allGrades->where('grade', 'F')->count() > 0;
+            
+            $classification = 'Second Class';
+            if ($currentCgpa >= 8.0) {
+                $classification = 'First Class with Distinction';
+            } elseif ($currentCgpa >= 6.5) {
+                $classification = 'First Class';
+            } elseif ($currentCgpa === null || $currentCgpa == 0) {
+                $classification = 'In Progress';
+            }
+
+            if ($hasFail) {
+                $classification = 'Needs Improvement (F Grade present)';
+            }
 
             $activeSurveys = [];
             if ($currentSem <= 6) {
@@ -1851,6 +1946,74 @@ class DataController extends Controller
                 }
             }
 
+            $subjectProgress = [];
+            if ($currentSem <= 6) {
+                $currentSubjects = $batchSubjects->where('semester', $currentSem);
+                foreach ($currentSubjects as $subj) {
+                    $staffName = 'Not Assigned';
+                    $assignment = DB::table('subject_staff_assignments')
+                        ->where('batch_subject_id', $subj->id)
+                        ->first();
+                    if ($assignment) {
+                        $staff = DB::table('staff_profiles')
+                            ->where('mobile_no', $assignment->staff_mobile_no)
+                            ->first();
+                        if ($staff) {
+                            $staffName = $staff->name;
+                        }
+                    }
+
+                    $completedSessions = DB::table('class_logs_attendance')
+                        ->where('batch_subject_id', $subj->id)
+                        ->count();
+
+                    $totalSessions = DB::table('lesson_plans')
+                        ->where('batch_subject_id', $subj->id)
+                        ->sum('allocated_hours');
+
+                    if ($totalSessions <= 0) {
+                        $totalSessions = DB::table('lesson_plans')
+                            ->where('batch_subject_id', $subj->id)
+                            ->count();
+                        if ($totalSessions <= 0) {
+                            $totalSessions = 45;
+                        }
+                    }
+
+                    $percentage = $totalSessions > 0 ? min(100, round(($completedSessions / $totalSessions) * 100)) : 0;
+
+                    $subjectProgress[] = [
+                        'subject_code' => $subj->subject_code,
+                        'subject_name' => $subj->subject_name,
+                        'staff_name' => $staffName,
+                        'completed_sessions' => $completedSessions,
+                        'total_sessions' => $totalSessions,
+                        'percentage' => $percentage
+                    ];
+                }
+            }
+
+            $currentSemAttendance = [
+                'total_hours' => 0,
+                'present_hours' => 0,
+                'percentage' => 0
+            ];
+            if ($currentSem <= 6) {
+                $totalHours = 0;
+                $presentHours = 0;
+                foreach ($currentSubjects as $subj) {
+                    $att = $attendanceMap[$subj->subject_code] ?? ['Present' => 0, 'Absent' => 0, 'Late' => 0];
+                    $totalHours += ($att['Present'] + $att['Absent'] + $att['Late']);
+                    $presentHours += ($att['Present'] + ($att['Late'] * 0.5));
+                }
+                $percentage = $totalHours > 0 ? round(($presentHours / $totalHours) * 100, 1) : 0;
+                $currentSemAttendance = [
+                    'total_hours' => $totalHours,
+                    'present_hours' => $presentHours,
+                    'percentage' => $percentage
+                ];
+            }
+
             ksort($report);
 
             return response()->json([
@@ -1859,11 +2022,14 @@ class DataController extends Controller
                     'cgpa' => $currentCgpa,
                     'activity_points' => $totalActivityPoints,
                     'current_semester' => $currentSem,
+                    'classification' => $classification
                 ],
                 'semesters' => array_values($report),
                 'active_tasks' => $activeTasks,
                 'active_surveys' => $activeSurveys,
-                'stats' => $stats
+                'stats' => $stats,
+                'subject_progress' => $subjectProgress,
+                'current_sem_attendance' => $currentSemAttendance
             ]);
 
         } catch (\Exception $e) {

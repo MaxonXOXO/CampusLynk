@@ -182,6 +182,11 @@
             </tbody>
           </table>
         </div>
+        <div class="flex justify-end mt-4">
+          <button onclick="saveStudentMentoringData()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-sm">
+            <span class="material-symbols-rounded text-sm">save</span> Save Board Exam Results
+          </button>
+        </div>
       </div>
 
       <!-- Extracurricular Tab -->
