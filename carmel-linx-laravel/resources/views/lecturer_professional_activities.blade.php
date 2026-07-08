@@ -72,15 +72,7 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">Start Year</label>
-              <select id="ayStartYear" onchange="updateAcademicYearValue()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none text-sm font-bold cursor-pointer">
-                @php
-                  $startYr = 2015;
-                  $endYr = date('Y') + 10;
-                @endphp
-                @for($y = $startYr; $y <= $endYr; $y++)
-                  <option value="{{ $y }}" {{ strpos($academicYear, (string)$y) === 0 ? 'selected' : '' }}>{{ $y }}</option>
-                @endfor
-              </select>
+              <input type="number" id="ayStartYear" oninput="updateAcademicYearValue()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none text-sm font-bold" min="2010" max="2100" value="{{ explode('-', $academicYear)[0] }}">
             </div>
             <div>
               <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">Academic Year (AY)</label>
