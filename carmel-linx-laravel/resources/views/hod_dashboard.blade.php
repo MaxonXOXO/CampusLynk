@@ -483,6 +483,10 @@
           <button id="btnGraduateBatch" onclick="confirmGraduateBatch()" class="hidden px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5">
             <span class="material-symbols-rounded" style="font-size:15px">school</span> Graduate / Archive Batch
           </button>
+          <!-- Delete Batch button -->
+          <button id="btnDeleteBatch" onclick="confirmDeleteBatch()" class="hidden px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5">
+            <span class="material-symbols-rounded" style="font-size:15px">delete_forever</span> Delete Batch
+          </button>
           <button onclick="closeBatchDetailModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
         </div>
       </div>
@@ -1721,7 +1725,7 @@
                 : `<span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-md select-none transition-premium" title="Click to Change Batch Semester">S-${batch.current_semester || 1}</span>`
               }
             </div>
-            <h4 class="font-bold text-base ${yearColorClass}">Admission ${batch.batch_year}</h4>
+            <h4 class="font-bold text-lg ${yearColorClass}">Admission ${batch.batch_year}</h4>
             <p class="text-xs text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} Batch</p>
           </div>
           <div class="text-right">
@@ -1937,6 +1941,10 @@
         }
       }
 
+      // Always show Delete Batch button for HOD
+      const deleteBtn = document.getElementById('btnDeleteBatch');
+      if (deleteBtn) deleteBtn.classList.remove('hidden');
+
       const modal = document.getElementById('batchDetailModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
@@ -1947,9 +1955,11 @@
       modal.classList.add('hidden');
       modal.classList.remove('flex');
       activeBatchId = null;
-      // Hide graduate button on close
+      // Hide graduate & delete buttons on close
       const graduateBtn = document.getElementById('btnGraduateBatch');
       if (graduateBtn) graduateBtn.classList.add('hidden');
+      const deleteBtn = document.getElementById('btnDeleteBatch');
+      if (deleteBtn) deleteBtn.classList.add('hidden');
     }
 
     // ============================================================
@@ -1997,6 +2007,53 @@
     }
     // ============================================================
     // END: Graduate / Archive Batch
+    // ============================================================
+
+    // ============================================================
+    // DELETE BATCH
+    // ============================================================
+    function confirmDeleteBatch() {
+      if (!activeBatchId) return;
+      const title = document.getElementById('batchDetailTitle').innerText;
+      const confirmed = confirm(
+        `⚠️ DELETE BATCH: ${title}\n\n` +
+        `This will PERMANENTLY delete:\n` +
+        `  • The batch record\n` +
+        `  • All allocated subjects\n` +
+        `  • All staff assignments for this batch\n\n` +
+        `NOTE: Batches with enrolled students CANNOT be deleted.\n\n` +
+        `This action CANNOT be undone. Proceed?`
+      );
+      if (confirmed) doDeleteBatch();
+    }
+
+    function doDeleteBatch() {
+      if (!activeBatchId) return;
+      const btn = document.getElementById('btnDeleteBatch');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-rounded" style="font-size:15px">hourglass_empty</span> Deleting...'; }
+
+      fetch(`/api/hod/batches/${encodeURIComponent(activeBatchId)}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded" style="font-size:15px">delete_forever</span> Delete Batch'; }
+        if (data.status === 'SUCCESS') {
+          showGlobalMessage(data.message || 'Batch deleted successfully.');
+          closeBatchDetailModal();
+          loadBatches();
+        } else {
+          alert(data.message || 'Failed to delete batch.');
+        }
+      })
+      .catch(() => {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded" style="font-size:15px">delete_forever</span> Delete Batch'; }
+        alert('Request failed. Please try again.');
+      });
+    }
+    // ============================================================
+    // END: Delete Batch
     // ============================================================
 
     // ============================================================

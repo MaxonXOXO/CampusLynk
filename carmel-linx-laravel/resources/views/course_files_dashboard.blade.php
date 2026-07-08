@@ -364,7 +364,7 @@
                             <span class="material-symbols-rounded text-amber-500 text-sm">folder_open</span>
                         </div>
                     </div>
-                    <h4 class="text-xs font-black text-slate-100 leading-tight mb-1 group-hover:text-amber-400 transition-colors">${b.batch_year} Admission</h4>
+                    <h4 class="text-base font-black text-slate-100 leading-tight mb-1 group-hover:text-amber-400 transition-colors">${b.batch_year} Admission</h4>
                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${b.branch}</p>
                     <div class="mt-6 flex items-center justify-between border-t border-slate-800 pt-4">
                         <span class="text-[10px] font-bold text-slate-500">${b.semesters.length} Semesters</span>

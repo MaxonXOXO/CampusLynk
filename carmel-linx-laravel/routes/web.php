@@ -279,6 +279,9 @@ Route::middleware(['web'])->group(function () {
     // HOD Graduate Batch (NEW - marks batch as completed, moves to Previous Batches)
     Route::put('/api/hod/batches/{classroomId}/graduate', [DataController::class, 'graduateBatch']);
 
+    // HOD Delete Batch (permanently removes an empty batch)
+    Route::delete('/api/hod/batches/{classroomId}', [DataController::class, 'deleteHodBatch']);
+
     // Lecturer Endpoints
     Route::get('/api/lecturer/my-batches', [DataController::class, 'getLecturerBatches']);
     Route::get('/course-files', function () {

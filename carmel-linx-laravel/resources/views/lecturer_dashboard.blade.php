@@ -859,7 +859,7 @@
             <div class="flex justify-between items-start">
               <div>
                 <div class="flex items-center gap-2 mb-1">
-                  <h4 class="font-black text-slate-100 text-base tracking-tight">Admission ${b.batch_year}</h4>
+                  <h4 class="font-black text-slate-100 text-lg tracking-tight">Admission ${b.batch_year}</h4>
                   ${(b.current_semester || 1) > 6
                     ? `<span class="px-2.5 py-0.5 bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 rounded-lg font-bold text-sm select-none flex items-center gap-1"><span class="material-symbols-rounded" style="font-size:14px">school</span>Graduated</span>`
                     : `<span class="px-2.5 py-0.5 bg-indigo-600/80 text-white rounded-lg font-bold text-sm select-none">S-${b.current_semester || 1}</span>`

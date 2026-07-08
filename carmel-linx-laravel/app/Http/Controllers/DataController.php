@@ -1634,6 +1634,63 @@ class DataController extends Controller
     }
 
     /**
+     * HOD: Permanently delete a batch (only allowed if it has NO enrolled students).
+     */
+    public function deleteHodBatch(Request $request, $classroomId)
+    {
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        try {
+            $batch = \App\Models\ClassManagement::where('classroom_id', $classroomId)
+                ->where('branch', strtoupper($branch))
+                ->first();
+
+            if (!$batch) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Batch not found or not in your department.']);
+            }
+
+            // Safety check: refuse delete if there are enrolled students
+            $studentCount = \App\Models\Student::where('classroom_id', $classroomId)->count();
+            if ($studentCount > 0) {
+                return response()->json([
+                    'status'  => 'ERROR',
+                    'message' => "Cannot delete batch '{$classroomId}' — it has {$studentCount} enrolled student(s). Remove or transfer students first.",
+                ]);
+            }
+
+            // Delete all related batch subjects and their staff assignments
+            $subjectIds = \App\Models\BatchSubject::where('classroom_id', $classroomId)->pluck('id');
+            if ($subjectIds->isNotEmpty()) {
+                \App\Models\SubjectStaffAssignment::whereIn('batch_subject_id', $subjectIds)->delete();
+                \App\Models\BatchSubject::whereIn('id', $subjectIds)->delete();
+            }
+
+            // Delete the classroom record
+            $batch->delete();
+
+            AuditLog::create([
+                'performed_by'      => Session::get('userId'),
+                'performed_by_name' => Session::get('userName'),
+                'target_id'         => $classroomId,
+                'target_name'       => "Batch {$classroomId}",
+                'action'            => 'Batch Deleted',
+                'details'           => "HOD permanently deleted batch {$classroomId}.",
+                'ip_address'        => $request->ip(),
+            ]);
+
+            return response()->json([
+                'status'  => 'SUCCESS',
+                'message' => "Batch {$classroomId} has been permanently deleted.",
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * HOD: Get a full per-semester academic snapshot for a batch.
      * Returns subjects+staff, student attendance, and board results for the given semester.
      * PURELY ADDITIVE — does not change any existing methods.
