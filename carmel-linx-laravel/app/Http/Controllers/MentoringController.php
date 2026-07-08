@@ -98,6 +98,7 @@ class MentoringController extends Controller
                     'classroom_id'   => $classroomId,
                     'branch'         => $classroom->branch,
                     'batch_year'     => $classroom->batch_year,
+                    'current_semester' => $classroom->current_semester,
                     'my_role'        => $isTutor ? 'Mentor-1 (Tutor)' : 'Mentor-2',
                     'my_batch'       => $batchLabel,
                     'partner_name'   => $partnerName,

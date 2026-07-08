@@ -1490,7 +1490,8 @@
             data.batches.forEach(b => {
               const opt = document.createElement('option');
               opt.value = b.classroom_id;
-              opt.innerText = `${b.classroom_id} (Admission ${b.batch_year})`;
+              const isGraduated = (b.current_semester || 1) > 6;
+              opt.innerText = `${b.classroom_id} (Admission ${b.batch_year})${isGraduated ? ' (Graduated)' : ''}`;
               select.appendChild(opt);
 
               if (leaveSelect) {
