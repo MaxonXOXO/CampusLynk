@@ -82,7 +82,7 @@
           <!-- Student Login Fields -->
           <div id="studentLoginFields" class="space-y-3">
             <div>
-              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Register / Admission Number</label>
+              <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Register / Admission / SBTE Number</label>
               <input type="text" id="loginUserId" class="w-full px-3 py-2.5 rounded-xl border border-slate-800 bg-slate-950/80 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-white font-medium transition-premium text-sm" placeholder="e.g. REG24EC01">
             </div>
           </div>

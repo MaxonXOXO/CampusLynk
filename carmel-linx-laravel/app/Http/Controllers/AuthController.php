@@ -31,6 +31,7 @@ class AuthController extends Controller
             if ($roleType === 'student') {
                 $student = Student::where('reg_no', strtoupper($userId))
                     ->orWhere('adm_no', strtoupper($userId))
+                    ->orWhere('sbte_reg_no', strtoupper($userId))
                     ->first();
 
                 if (!$student || $student->password !== $password) {
