@@ -49,8 +49,8 @@
     <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
       <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-blue-500/20 text-lg">CL</div>
       <div>
-        <h2 class="font-extrabold text-sm tracking-wide text-sm">Carmel Linx</h2>
-        <span class="text-sm text-slate-400 font-bold uppercase tracking-wider">{{ $isPrincipalMode ? 'Principal View' : 'HOD Console' }}</span>
+        <h2 class="font-extrabold text-[10px] tracking-wide text-sm">Carmel Linx</h2>
+        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{{ $isPrincipalMode ? 'Principal View' : 'HOD Console' }}</span>
       </div>
     </div>
 
@@ -58,8 +58,8 @@
     <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3" id="sidebarAvatarContainer">
       <img id="sidebarStaffImg" src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
       <div class="overflow-hidden">
-        <span class="font-bold text-sm block truncate text-slate-200 text-sm">{{ session('userName') }}</span>
-        <span class="text-sm font-bold text-blue-400 block uppercase tracking-wider">{{ $activeBranch }} {{ $isPrincipalMode ? 'Batch Status' : 'HOD' }}</span>
+        <span class="font-bold text-[10px] block truncate text-slate-200 text-[10px] text-xs">{{ session('userName') }}</span>
+        <span class="text-[10px] font-bold text-teal-400 block uppercase tracking-wider">{{ $activeBranch }} {{ $isPrincipalMode ? 'Batch Status' : 'HOD' }}</span>
       </div>
     </div>
 
