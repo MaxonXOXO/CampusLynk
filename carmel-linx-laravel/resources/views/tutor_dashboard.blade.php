@@ -1877,6 +1877,8 @@
         console.error(err);
         showGlobalMessage("Error saving roll numbers.", true);
       });
+    }
+
     function printClassRegister() {
       const semSelect = document.getElementById('printSemesterSelect');
       if (!semSelect) return;
