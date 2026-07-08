@@ -137,43 +137,43 @@
           </div>
         </div>
 
-         <!-- Filters Console -->
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl grid grid-cols-1 md:grid-cols-3 gap-4">
-          <!-- Search input -->
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Search Student</label>
-            <input type="text" id="filterSearch" oninput="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm" placeholder="Name, Register No, Mobile...">
-          </div>
-          <!-- Status select -->
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Account Status</label>
-            <select id="filterStatus" onchange="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 outline-none text-sm">
-              <option value="">All Statuses</option>
-              <option value="Approved">Approved</option>
-              <option value="Pending">Pending</option>
-              <option value="Suspended">Suspended</option>
-            </select>
-          </div>
-          <!-- Print Report Selector & Button -->
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Class Register Report</label>
-            <div class="flex gap-2">
-              <select id="printSemesterSelect" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 outline-none text-sm">
-                <option value="S1">S1</option>
-                <option value="S2">S2</option>
-                <option value="S3" selected>S3</option>
-                <option value="S4">S4</option>
-                <option value="S5">S5</option>
-                <option value="S6">S6</option>
+        <div id="rosterContent" class="space-y-6 transition-all duration-300 origin-top" style="max-height: 0px; opacity: 0; overflow: hidden;">
+          <!-- Filters Console -->
+          <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search input -->
+            <div>
+              <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Search Student</label>
+              <input type="text" id="filterSearch" oninput="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm" placeholder="Name, Register No, Mobile...">
+            </div>
+            <!-- Status select -->
+            <div>
+              <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Account Status</label>
+              <select id="filterStatus" onchange="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 outline-none text-sm">
+                <option value="">All Statuses</option>
+                <option value="Approved">Approved</option>
+                <option value="Pending">Pending</option>
+                <option value="Suspended">Suspended</option>
               </select>
-              <button onclick="printClassRegister()" class="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center gap-1.5 transition-premium cursor-pointer shadow-md">
-                <span class="material-symbols-rounded text-base">print</span> Print
-              </button>
+            </div>
+            <!-- Print Report Selector & Button -->
+            <div>
+              <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Class Register Report</label>
+              <div class="flex gap-2">
+                <select id="printSemesterSelect" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 outline-none text-sm">
+                  <option value="S1">S1</option>
+                  <option value="S2">S2</option>
+                  <option value="S3" selected>S3</option>
+                  <option value="S4">S4</option>
+                  <option value="S5">S5</option>
+                  <option value="S6">S6</option>
+                </select>
+                <button onclick="printClassRegister()" class="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center gap-1.5 transition-premium cursor-pointer shadow-md">
+                  <span class="material-symbols-rounded text-base">print</span> Print
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div id="rosterContent" class="space-y-6 transition-all duration-300 origin-top" style="max-height: 0px; opacity: 0; overflow: hidden;">
         <!-- Users Table Grid -->
         <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
           <div class="overflow-x-auto overflow-y-auto max-h-[500px] scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
