@@ -1563,6 +1563,51 @@ class DataController extends Controller
 
 
     /**
+     * HOD: Graduate / Archive a batch.
+     * Only allowed when current_semester = 6 (final semester).
+     * Sets current_semester = 7 → moves batch to Previous Batches list.
+     * Marks all Active students as Graduated.
+     * PURELY ADDITIVE — does not change any existing methods.
+     */
+    public function graduateBatch(Request $request, $classroomId)
+    {
+        $branch = null;
+        if (!$this->checkHodOrPrincipalAccess($request, $branch)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        try {
+            $batch = \App\Models\ClassManagement::where('classroom_id', $classroomId)
+                ->where('branch', strtoupper($branch))
+                ->first();
+
+            if (!$batch) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Batch not found or not in your department.']);
+            }
+
+            if ((int) $batch->current_semester !== 6) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Only S6 batches can be graduated. Current semester: S' . $batch->current_semester]);
+            }
+
+            // Move to Previous Batches by setting semester to 7
+            $batch->update(['current_semester' => 7]);
+
+            // Mark all Active students in this batch as Graduated
+            $count = \App\Models\Student::where('classroom_id', $classroomId)
+                ->whereIn('status', ['active', 'Active'])
+                ->update(['status' => 'Graduated', 'academic_status' => 'Graduated']);
+
+            return response()->json([
+                'status'              => 'SUCCESS',
+                'message'             => 'Batch graduated and archived to Previous Batches.',
+                'students_graduated'  => $count,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
      * HOD: Get a full per-semester academic snapshot for a batch.
      * Returns subjects+staff, student attendance, and board results for the given semester.
      * PURELY ADDITIVE — does not change any existing methods.

@@ -472,7 +472,13 @@
           <h3 id="batchDetailTitle" class="font-black text-slate-100 text-sm">Batch Detail</h3>
           <p id="batchDetailSubtitle" class="text-sm text-slate-400 mt-0.5">Manage tutor, mentor, subjects, and enrolled students</p>
         </div>
-        <button onclick="closeBatchDetailModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
+        <div class="flex items-center gap-2">
+          <!-- Graduate / Archive Batch button (NEW - purely additive) -->
+          <button id="btnGraduateBatch" onclick="confirmGraduateBatch()" class="hidden px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5">
+            <span class="material-symbols-rounded" style="font-size:15px">school</span> Graduate / Archive Batch
+          </button>
+          <button onclick="closeBatchDetailModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
+        </div>
       </div>
 
       <!-- Tabs Navigation -->
@@ -1912,6 +1918,16 @@
       // Load roster
       loadBatchRoster(batch.classroom_id);
 
+      // Show Graduate button ONLY for S6 batches (final semester)
+      const graduateBtn = document.getElementById('btnGraduateBatch');
+      if (graduateBtn) {
+        if ((batch.current_semester || 1) === 6) {
+          graduateBtn.classList.remove('hidden');
+        } else {
+          graduateBtn.classList.add('hidden');
+        }
+      }
+
       const modal = document.getElementById('batchDetailModal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
@@ -1922,7 +1938,57 @@
       modal.classList.add('hidden');
       modal.classList.remove('flex');
       activeBatchId = null;
+      // Hide graduate button on close
+      const graduateBtn = document.getElementById('btnGraduateBatch');
+      if (graduateBtn) graduateBtn.classList.add('hidden');
     }
+
+    // ============================================================
+    // NEW: Graduate / Archive Batch — purely additive
+    // ============================================================
+    function confirmGraduateBatch() {
+      if (!activeBatchId) return;
+      const title = document.getElementById('batchDetailTitle').innerText;
+      const confirmed = confirm(
+        `Graduate / Archive Batch: ${title}\n\n` +
+        `This will:\n` +
+        `  • Set the batch status to Graduated (moves to Previous Batches)\n` +
+        `  • Mark all Active students as Graduated\n\n` +
+        `All historical data (attendance, marks, subjects) will remain accessible\n` +
+        `in the Semester History tab.\n\n` +
+        `Proceed?`
+      );
+      if (confirmed) doGraduateBatch();
+    }
+
+    function doGraduateBatch() {
+      if (!activeBatchId) return;
+      const btn = document.getElementById('btnGraduateBatch');
+      if (btn) { btn.disabled = true; btn.innerText = 'Archiving...'; }
+
+      fetch(`/api/hod/batches/${encodeURIComponent(activeBatchId)}/graduate`, {
+        method: 'PUT',
+        headers: getHeaders()
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded" style="font-size:15px">school</span> Graduate / Archive Batch'; }
+        if (data.status === 'SUCCESS') {
+          showGlobalMessage(`Batch graduated successfully. ${data.students_graduated} student(s) marked as Graduated.`);
+          closeBatchDetailModal();
+          loadBatches('historical'); // switch to Previous Batches so HOD sees the card there
+        } else {
+          alert(data.message || 'Failed to graduate batch.');
+        }
+      })
+      .catch(() => {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded" style="font-size:15px">school</span> Graduate / Archive Batch'; }
+        alert('Request failed. Please try again.');
+      });
+    }
+    // ============================================================
+    // END: Graduate / Archive Batch
+    // ============================================================
 
     // ============================================================
     // NEW: SEMESTER HISTORY TAB — purely additive, no existing functions modified

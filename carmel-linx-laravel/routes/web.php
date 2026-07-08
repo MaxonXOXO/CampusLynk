@@ -276,6 +276,9 @@ Route::middleware(['web'])->group(function () {
     // HOD Semester Snapshot (NEW - historical/per-semester academic data view)
     Route::get('/api/hod/batches/{classroomId}/semester/{semester}/snapshot', [DataController::class, 'getBatchSemesterSnapshot']);
 
+    // HOD Graduate Batch (NEW - marks batch as completed, moves to Previous Batches)
+    Route::put('/api/hod/batches/{classroomId}/graduate', [DataController::class, 'graduateBatch']);
+
     // Lecturer Endpoints
     Route::get('/api/lecturer/my-batches', [DataController::class, 'getLecturerBatches']);
     Route::get('/course-files', function () {
