@@ -135,11 +135,6 @@
               <p class="text-slate-400 mt-0.5 text-sm">Manage and review lifecycle states of students in your assigned classroom.</p>
             </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button onclick="event.stopPropagation(); openRegisterModal()" class="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/10 text-xs">
-              <span class="material-symbols-rounded text-sm">person_add</span> Register Student
-            </button>
-          </div>
         </div>
 
         <!-- Filters Console -->
@@ -663,66 +658,6 @@
   </div>
 
   <!-- REGISTER MODAL -->
-  <div id="registerModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-xs">person_add</span> Direct Register Student
-        </h3>
-        <button onclick="closeRegisterModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
-      </div>
-      <form id="directRegisterForm" onsubmit="handleDirectRegister(event)" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hidden">
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Full Name</label>
-            <input type="text" id="directRegName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Email Address</label>
-            </div>
-          </div>
-
-          <div class="grid grid-cols-3 gap-4">
-            <div>
-              <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch</label>
-              <input type="text" id="directRegStudentBranch" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-400 focus:outline-none" value="{{ session('userBranch') }}">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Adm Year</label>
-              <input type="number" id="directRegStudentYear" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" value="2026">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Semester</label>
-              <select id="directRegStudentSem" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
-                <option value="S1">S1</option>
-                <option value="S2">S2</option>
-                <option value="S3" selected>S3</option>
-                <option value="S4">S4</option>
-                <option value="S5">S5</option>
-                <option value="S6">S6</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <!-- Password -->
-        <div>
-          <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Password</label>
-          <input type="text" id="directRegPassword" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 outline-none" placeholder="e.g. 12345">
-        </div>
-
-        <div id="directRegAlert" class="hidden p-3 rounded-xl text-xs font-bold border"></div>
-
-        <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeRegisterModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-xs text-slate-300 transition-premium cursor-pointer">Cancel</button>
-          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition-premium cursor-pointer flex items-center justify-center gap-1.5">
-            <span>Register Profile</span>
-            <div id="directRegSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
@@ -1224,70 +1159,6 @@
       }
     }
 
-    function openRegisterModal() {
-      document.getElementById('directRegisterForm').reset();
-      document.getElementById('directRegAlert').classList.add('hidden');
-      
-      const modal = document.getElementById('registerModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeRegisterModal() {
-      const modal = document.getElementById('registerModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    function handleDirectRegister(e) {
-      e.preventDefault();
-      const alert = document.getElementById('directRegAlert');
-      const spinner = document.getElementById('directRegSpinner');
-      
-      alert.classList.add('hidden');
-      spinner.classList.remove('hidden');
-
-      const formData = new FormData();
-      formData.append('name', document.getElementById('directRegName').value);
-      formData.append('email', document.getElementById('directRegEmail').value);
-      formData.append('password', document.getElementById('directRegPassword').value);
-      formData.append('regNo', document.getElementById('directRegStudentId').value);
-      formData.append('admNo', document.getElementById('directRegStudentAdm').value);
-      formData.append('branch', document.getElementById('directRegStudentBranch').value);
-      formData.append('admissionYear', document.getElementById('directRegStudentYear').value);
-      formData.append('admissionType', 'Regular');
-
-      fetch('/register/student', {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: formData
-      })
-      .then(res => res.json())
-      .then(data => {
-        spinner.classList.add('hidden');
-        if (data.status === 'SUCCESS') {
-          alert.className = "p-3 rounded-xl text-xs font-bold bg-green-950/40 text-green-400 border border-green-900/60 block";
-          alert.innerText = "Student registered successfully.";
-          alert.classList.remove('hidden');
-          setTimeout(() => {
-            closeRegisterModal();
-            loadUsers();
-          }, 1500);
-        } else {
-          alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
-          alert.innerText = data.message;
-          alert.classList.remove('hidden');
-        }
-      })
-      .catch(() => {
-        spinner.classList.add('hidden');
-        alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
-        alert.innerText = "Request failed.";
-        alert.classList.remove('hidden');
-      });
-    }
 
     function loadSelfSecurityLogs() {
       const tbody = document.getElementById('selfSecurityLogsTable');
