@@ -497,95 +497,100 @@ Syllabus text:
 
     public function getCourseDetails($subjectId)
     {
-        $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
-        if ($courseFile) {
-            $lessonPlans = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->orderBy('id', 'asc')->get();
-            
-            // Get enrolled students
-            $batchSubject = \App\Models\BatchSubject::find($subjectId);
-            $students = [];
-            if ($batchSubject) {
-                $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
-                            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
-                
-                // Get marks
-                $studentRegNos = $students->pluck('reg_no')->toArray();
-                $marks = \App\Models\AcademicMark::whereIn('reg_no', $studentRegNos)
-                            ->where(function($q) use ($subjectId, $batchSubject) {
-                                $q->where('batch_subject_id', $subjectId)
-                                  ->orWhere(function($subQ) use ($batchSubject) {
-                                      $subQ->whereNull('batch_subject_id')
-                                           ->where('subject_code', $batchSubject->subject_code);
-                                  });
-                            })
-                            ->where('category', 'Assignment')
-                            ->get();
-
-                $summativeMarks = \App\Models\AcademicMark::whereIn('reg_no', $studentRegNos)
-                            ->where(function($q) use ($subjectId, $batchSubject) {
-                                $q->where('batch_subject_id', $subjectId)
-                                  ->orWhere(function($subQ) use ($batchSubject) {
-                                      $subQ->whereNull('batch_subject_id')
-                                           ->where('subject_code', $batchSubject->subject_code);
-                                  });
-                            })
-                            ->where('category', 'Summative')
-                            ->get();
-                $taskSubmissions = \DB::table('student_task_submissions')
-                            ->where('subject_code', $batchSubject->subject_code)
-                            ->whereIn('reg_no', $studentRegNos)
-                            ->get();
-
-                // Map marks and submissions to students
-                $students = $students->map(function ($student) use ($marks, $summativeMarks, $taskSubmissions) {
-                    $studentMarks = $marks->where('reg_no', $student->reg_no);
-                    $coMarks = [];
-                    $coSubmissions = [];
-                    foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
-                        $mark = $studentMarks->where('co_tag', $co)->first();
-                        $coMarks[$co] = $mark ? $mark->marks_obtained : null;
-
-                        $sub = $taskSubmissions->where('reg_no', $student->reg_no)->where('co_tag', $co)->where('category', 'Assignment')->first();
-                        $coSubmissions[$co] = $sub ? $sub->status : null;
-                    }
-                    $student->assignment_marks = $coMarks;
-                    $student->assignment_submissions = $coSubmissions;
-
-                    $studentSummativeMarks = $summativeMarks->where('reg_no', $student->reg_no);
-                    $coSummative = [];
-                    foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
-                        $mark = $studentSummativeMarks->where('co_tag', $co)->first();
-                        $coSummative[$co] = $mark ? $mark->marks_obtained : null;
-                    }
-                    $student->summative_marks = $coSummative;
-
-                    return $student;
-                });
-            }
-
-            $syllabus = \DB::table('syllabus_registry')->where('subject_code', $batchSubject->subject_code)->first();
-            $syllabusRevision = $syllabus->revision_year ?? '2021';
-
-            return response()->json([
-                'status' => 'SUCCESS',
-                'data' => [
-                    'syllabus_pdf_path' => $courseFile->syllabus_pdf_path,
-                    'cos' => $courseFile->parsed_cos ?? [],
-                    'copo' => $courseFile->parsed_copo ?? [],
-                    'modules' => $courseFile->parsed_modules ?? [],
-                    'textbooks' => $courseFile->parsed_textbooks ?? [],
-                    'lesson_plans' => $lessonPlans,
-                    'students' => $students,
-                    'assignment_deadlines' => $courseFile->assignment_deadlines ?? [],
-                    'assignment_questions' => $courseFile->assignment_questions ?? [],
-                    'summative_manual_tests' => $courseFile->summative_manual_tests ?? [],
-                    'subject_name' => $batchSubject->subject_name ?? '',
-                    'subject_code' => $batchSubject->subject_code ?? '',
-                    'syllabus_revision' => $syllabusRevision
-                ]
-            ]);
+        $batchSubject = \App\Models\BatchSubject::find($subjectId);
+        if (!$batchSubject) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
         }
-        return response()->json(['status' => 'SUCCESS', 'data' => null]);
+
+        $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
+        $lessonPlans = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->orderBy('id', 'asc')->get();
+        
+        // Get enrolled students
+        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+                    ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+        
+        // Get marks and submissions if students exist
+        $studentRegNos = $students->pluck('reg_no')->toArray();
+        $marks = collect();
+        $summativeMarks = collect();
+        $taskSubmissions = collect();
+
+        if (!empty($studentRegNos)) {
+            $marks = \App\Models\AcademicMark::whereIn('reg_no', $studentRegNos)
+                        ->where(function($q) use ($subjectId, $batchSubject) {
+                            $q->where('batch_subject_id', $subjectId)
+                              ->orWhere(function($subQ) use ($batchSubject) {
+                                  $subQ->whereNull('batch_subject_id')
+                                       ->where('subject_code', $batchSubject->subject_code);
+                              });
+                        })
+                        ->where('category', 'Assignment')
+                        ->get();
+
+            $summativeMarks = \App\Models\AcademicMark::whereIn('reg_no', $studentRegNos)
+                        ->where(function($q) use ($subjectId, $batchSubject) {
+                            $q->where('batch_subject_id', $subjectId)
+                              ->orWhere(function($subQ) use ($batchSubject) {
+                                  $subQ->whereNull('batch_subject_id')
+                                       ->where('subject_code', $batchSubject->subject_code);
+                              });
+                        })
+                        ->where('category', 'Summative')
+                        ->get();
+
+            $taskSubmissions = \DB::table('student_task_submissions')
+                        ->where('subject_code', $batchSubject->subject_code)
+                        ->whereIn('reg_no', $studentRegNos)
+                        ->get();
+
+            // Map marks and submissions to students
+            $students = $students->map(function ($student) use ($marks, $summativeMarks, $taskSubmissions) {
+                $studentMarks = $marks->where('reg_no', $student->reg_no);
+                $coMarks = [];
+                $coSubmissions = [];
+                foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
+                    $mark = $studentMarks->where('co_tag', $co)->first();
+                    $coMarks[$co] = $mark ? $mark->marks_obtained : null;
+
+                    $sub = $taskSubmissions->where('reg_no', $student->reg_no)->where('co_tag', $co)->where('category', 'Assignment')->first();
+                    $coSubmissions[$co] = $sub ? $sub->status : null;
+                }
+                $student->assignment_marks = $coMarks;
+                $student->assignment_submissions = $coSubmissions;
+
+                $studentSummativeMarks = $summativeMarks->where('reg_no', $student->reg_no);
+                $coSummative = [];
+                foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
+                    $mark = $studentSummativeMarks->where('co_tag', $co)->first();
+                    $coSummative[$co] = $mark ? $mark->marks_obtained : null;
+                }
+                $student->summative_marks = $coSummative;
+
+                return $student;
+            });
+        }
+
+        $syllabus = \DB::table('syllabus_registry')->where('subject_code', $batchSubject->subject_code)->first();
+        $syllabusRevision = $syllabus->revision_year ?? '2021';
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'data' => [
+                'syllabus_pdf_path' => $courseFile ? $courseFile->syllabus_pdf_path : null,
+                'cos' => $courseFile ? ($courseFile->parsed_cos ?? []) : [],
+                'copo' => $courseFile ? ($courseFile->parsed_copo ?? []) : [],
+                'modules' => $courseFile ? ($courseFile->parsed_modules ?? []) : [],
+                'textbooks' => $courseFile ? ($courseFile->parsed_textbooks ?? []) : [],
+                'lesson_plans' => $lessonPlans,
+                'students' => $students,
+                'assignment_deadlines' => $courseFile ? ($courseFile->assignment_deadlines ?? []) : [],
+                'assignment_questions' => $courseFile ? ($courseFile->assignment_questions ?? []) : [],
+                'summative_manual_tests' => $courseFile ? ($courseFile->summative_manual_tests ?? []) : [],
+                'subject_name' => $batchSubject->subject_name ?? '',
+                'subject_code' => $batchSubject->subject_code ?? '',
+                'syllabus_revision' => $syllabusRevision
+            ]
+        ]);
     }
 
     public function generateAssignmentQuestions(Request $request, $subjectId)
