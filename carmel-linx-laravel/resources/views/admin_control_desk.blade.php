@@ -39,6 +39,29 @@
       background: rgba(99, 102, 241, 0.5);
     }
   </style>
+
+  <style>
+    /* Universal Typography & Card Styles standard overrides */
+    .font-extrabold, .font-black {
+      font-weight: 700 !important;
+    }
+    input, select, textarea {
+      font-size: 0.875rem !important; /* 14px (text-sm) minimum */
+    }
+    .text-lg {
+      font-size: 1.05rem !important;
+    }
+    .text-base {
+      font-size: 0.875rem !important;
+    }
+    nav.space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
+      margin-top: 0.125rem !important;
+    }
+    nav.space-y-1\.5 a, nav.space-y-1\.5 button {
+      padding-top: 0.375rem !important;
+      padding-bottom: 0.375rem !important;
+    }
+  </style>
 </head>
 <body class="bg-slate-900 text-slate-100 h-screen flex flex-col md:flex-row overflow-hidden">
 
