@@ -1907,7 +1907,7 @@
 
           students.forEach(s => {
             const isInactive = s.academic_status === 'Discontinued' || s.academic_status === 'TC Issued';
-            const studentSemNum = parseInt((s.semester || 'S1').replace('S', ''));
+            const studentSemNum = parseInt(String(s.semester || 'S1').replace('S', ''));
 
             if (isInactive && studentSemNum < targetSemNum) {
               // Discontinued in a prior semester
