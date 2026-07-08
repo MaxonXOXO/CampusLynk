@@ -837,7 +837,7 @@
                   <div class="flex-1 bg-slate-950 rounded-full h-1 overflow-hidden">
                     <div class="bg-gradient-to-r ${barColor} h-1 rounded-full transition-all duration-500" style="width: ${barPct}%"></div>
                   </div>
-                  <span class="text-[11px] font-bold text-slate-400 whitespace-nowrap flex-shrink-0">${s.engaged_hours}/${s.total_hours} hrs · ${barPct}%</span>
+                  <span class="text-[11px] font-bold text-slate-400 whitespace-nowrap flex-shrink-0">${s.engaged_hours}/${s.total_hours} hrs</span>
                 </div>
               </div>
             `;
