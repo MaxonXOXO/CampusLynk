@@ -1934,6 +1934,8 @@
           const tutorName = window.supervisedTutorName || data.tutorName || 'Not Assigned';
           const mentorName = window.supervisedMentorName || data.mentorName || 'Not Assigned';
 
+          const printDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
           let activeRows = '';
           activeList.forEach((s, idx) => {
             activeRows += `
@@ -1942,13 +1944,16 @@
                 <td>${s.name}</td>
                 <td>${s.reg_no}</td>
                 <td>${s.sbte_reg_no || '-'}</td>
-                <td>Active</td>
+                <td>${s.admission_year || 'N/A'}</td>
+                <td>${s.semester || 'S1'}</td>
+                <td>${s.academic_status || 'Active'}</td>
+                <td>${s.status_notes || '-'}</td>
               </tr>
             `;
           });
 
           if (activeList.length === 0) {
-            activeRows = `<tr><td colspan="5" style="text-align:center; padding:15px; color:#555;">No active students in this semester.</td></tr>`;
+            activeRows = `<tr><td colspan="8" style="text-align:center; padding:15px; color:#555;">No active students in this semester.</td></tr>`;
           }
 
           let discontinuedRows = '';
@@ -1959,8 +1964,10 @@
                 <td>${idx + 1}</td>
                 <td>${s.name}</td>
                 <td>${s.reg_no}</td>
+                <td>${s.admission_year || 'N/A'}</td>
+                <td>${s.semester || 'S1'}</td>
                 <td>${s.academic_status}</td>
-                <td>After Semester ${leftSem}</td>
+                <td>${s.status_notes || 'Discontinued'}</td>
               </tr>
             `;
           });
@@ -1975,11 +1982,13 @@
                 <table class="report-table">
                   <thead>
                     <tr>
-                      <th style="width: 8%;">No.</th>
+                      <th style="width: 5%;">No.</th>
                       <th>Student Name</th>
-                      <th style="width: 25%;">Register No</th>
-                      <th style="width: 20%;">Status</th>
-                      <th style="width: 25%;">Discontinued After</th>
+                      <th style="width: 15%;">Register No</th>
+                      <th style="width: 12%;">Adm Year</th>
+                      <th style="width: 8%;">Sem</th>
+                      <th style="width: 15%;">Enrolled Status</th>
+                      <th style="width: 25%;">Remarks</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2110,7 +2119,10 @@
               </style>
             </head>
             <body>
-              <div class="header-container">
+              <div class="header-container" style="position: relative;">
+                <div style="position: absolute; right: 0; top: 0; font-size: 11px; font-weight: bold; color: #475569;">
+                  Print Date: ${printDate}
+                </div>
                 <div class="college-name">CARMEL POLYTECHNIC COLLEGE, ALAPPUZHA</div>
                 <div class="dept-name">DEPARTMENT OF ${branchName} ENGINEERING</div>
                 <div class="report-title">Class Register - Admission ${batchYear}</div>
@@ -2138,11 +2150,14 @@
               <table class="report-table">
                 <thead>
                   <tr>
-                    <th style="width: 8%;">Roll No.</th>
+                    <th style="width: 5%;">Roll No.</th>
                     <th>Student Name</th>
-                    <th style="width: 25%;">Register No</th>
-                    <th style="width: 25%;">SBTE Exam No</th>
-                    <th style="width: 15%;">Status</th>
+                    <th style="width: 15%;">Register No</th>
+                    <th style="width: 15%;">SBTE Exam No</th>
+                    <th style="width: 10%;">Adm Year</th>
+                    <th style="width: 8%;">Sem</th>
+                    <th style="width: 12%;">Enrolled Status</th>
+                    <th style="width: 25%;">Remarks</th>
                   </tr>
                 </thead>
                 <tbody>
