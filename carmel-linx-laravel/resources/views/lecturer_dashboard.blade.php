@@ -879,9 +879,12 @@
     }
 
     let currentSubjectId = null;
+    window.currentVirtualBatchId = '';
+    window.currentVirtualSemester = '';
 
     function openClassroom(batchId, subjectId, subjectName) {
       currentSubjectId = subjectId;
+      window.currentVirtualBatchId = batchId;
       document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> ${subjectName}`;
       document.getElementById('vcSubtitle').innerText = `Batch: ${batchId}`;
       switchPanel('classroom');
@@ -1017,6 +1020,7 @@
           currentSubjectCode = data.data.subject_code || '';
           window.currentSyllabusRevision = data.data.syllabus_revision || '2021';
           window.currentVirtualStudents = data.data.students || [];
+          window.currentVirtualSemester = data.data.semester || '';
           
           renderCourseStructure(data.data.cos, data.data.modules, data.data.textbooks, data.data.copo);
           renderCoursePlanner(data.data.lesson_plans);
@@ -2765,6 +2769,10 @@
       }
 
       function showVcStudentsList() {
+        const badge = document.getElementById('vcModalBatchBadge');
+        if (badge) {
+          badge.innerText = `${window.currentVirtualBatchId || ''} (S-${window.currentVirtualSemester || 1})`;
+        }
         let html = '';
         if (window.currentVirtualStudents && window.currentVirtualStudents.length > 0) {
           html = `
@@ -3883,8 +3891,9 @@
 <div id="vcStudentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
   <div class="bg-slate-950 border border-slate-800/80 w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
     <div class="p-4 border-b border-slate-800/80 bg-slate-900/50 flex justify-between items-center">
-      <h3 class="text-xl font-black text-slate-200 flex items-center gap-2">
-        <span class="material-symbols-rounded text-blue-400 text-2xl">groups</span> Enrolled Students
+      <h3 class="text-xl font-black text-slate-200 flex items-center gap-2 flex-wrap">
+        <span class="material-symbols-rounded text-blue-400 text-2xl flex-shrink-0">groups</span> Enrolled Students
+        <span id="vcModalBatchBadge" class="text-sm font-mono font-bold text-slate-300 bg-slate-800 border border-slate-700/60 px-2 py-0.5 rounded ml-2 flex-shrink-0"></span>
       </h3>
       <div class="flex items-center gap-3">
         <button onclick="printVcStudentsList()" class="text-sm font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded flex items-center gap-1.5 transition-premium">
