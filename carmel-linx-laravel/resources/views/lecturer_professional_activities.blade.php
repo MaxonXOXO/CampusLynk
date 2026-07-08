@@ -42,10 +42,14 @@
       <!-- Academic Year Filter -->
       <form method="GET" action="/staff/professional-activities" class="flex items-center gap-2">
         <select name="academic_year" onchange="this.form.submit()" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white outline-none text-sm font-extrabold cursor-pointer">
-          @php $currentYear = date('Y'); @endphp
-          @foreach(["2025-2026", "2026-2027", "2027-2028"] as $yr)
+          @php
+            $sYear = date('Y') - 5;
+            $eYear = date('Y') + 3;
+          @endphp
+          @for($y = $sYear; $y <= $eYear; $y++)
+            @php $yr = $y . '-' . ($y + 1); @endphp
             <option value="{{ $yr }}" {{ $yr === $academicYear ? 'selected' : '' }}>AY {{ $yr }}</option>
-          @endforeach
+          @endfor
         </select>
       </form>
     </div>
@@ -65,7 +69,24 @@
         
         <form method="POST" action="/staff/professional-activities/save" class="space-y-4">
           @csrf
-          <input type="hidden" name="academic_year" value="{{ $academicYear }}">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">Start Year</label>
+              <select id="ayStartYear" onchange="updateAcademicYearValue()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none text-sm font-bold cursor-pointer">
+                @php
+                  $startYr = date('Y') - 5;
+                  $endYr = date('Y') + 3;
+                @endphp
+                @for($y = $startYr; $y <= $endYr; $y++)
+                  <option value="{{ $y }}" {{ strpos($academicYear, (string)$y) === 0 ? 'selected' : '' }}>{{ $y }}</option>
+                @endfor
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">Academic Year (AY)</label>
+              <input type="text" name="academic_year" id="ayFullText" readonly class="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-slate-400 outline-none text-sm font-bold" value="{{ $academicYear }}">
+            </div>
+          </div>
 
           <div>
             <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">Activity Category</label>
@@ -242,6 +263,13 @@
 
     // Initialize with first item
     toggleFormFields('fdp_attended');
+
+    function updateAcademicYearValue() {
+      const year = parseInt(document.getElementById('ayStartYear').value);
+      if (year) {
+        document.getElementById('ayFullText').value = `${year}-${year + 1}`;
+      }
+    }
   </script>
 
 </body>
