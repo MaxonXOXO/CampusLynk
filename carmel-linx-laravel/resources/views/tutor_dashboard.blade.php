@@ -136,9 +136,6 @@
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="event.stopPropagation(); promoteBatch()" class="px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/10 text-xs">
-              <span class="material-symbols-rounded text-sm">upgrade</span> Promote Semester
-            </button>
             <button onclick="event.stopPropagation(); openRegisterModal()" class="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/10 text-xs">
               <span class="material-symbols-rounded text-sm">person_add</span> Register Student
             </button>
@@ -1303,26 +1300,7 @@
           tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-400 font-bold">Error querying logs.</td></tr>`;
         });
     }
-    function promoteBatch() {
-      if (!confirm("Are you sure you want to promote this classroom to the next semester? This action will advance the official semester of all active students in the batch.")) {
-        return;
-      }
-      
-      fetch('/api/tutor/promote-batch', {
-        method: 'POST',
-        headers: getHeaders()
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          showGlobalMessage(`Success! Classroom promoted to Semester ${data.new_semester}.`);
-          loadUsers(); 
-        } else {
-          showGlobalMessage(data.message, true);
-        }
-      })
-      .catch(() => showGlobalMessage('Failed to promote batch.', true));
-    }
+
 
     // ==========================================
     // ACTIVITY POINTS LOGIC
