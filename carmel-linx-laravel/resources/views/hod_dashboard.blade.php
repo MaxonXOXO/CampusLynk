@@ -1710,7 +1710,10 @@
           <div>
             <div class="flex items-center gap-2 mb-1">
               <span class="px-2 py-0.5 border rounded-lg font-mono text-base font-bold ${yearBadgeClass}">${batch.classroom_id}</span>
-              <span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-md select-none transition-premium" title="Click to Change Batch Semester">S-${batch.current_semester || 1}</span>
+              ${(batch.current_semester || 1) > 6
+                ? `<span class="px-3 py-1 bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 rounded-xl font-bold text-sm tracking-wide flex items-center gap-1 select-none"><span class="material-symbols-rounded" style="font-size:14px">school</span>Graduated</span>`
+                : `<span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-md select-none transition-premium" title="Click to Change Batch Semester">S-${batch.current_semester || 1}</span>`
+              }
             </div>
             <h4 class="font-bold text-base ${yearColorClass}">Admission ${batch.batch_year}</h4>
             <p class="text-xs text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} Batch</p>
