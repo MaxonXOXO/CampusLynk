@@ -43,8 +43,8 @@
       <form method="GET" action="/staff/professional-activities" class="flex items-center gap-2">
         <select name="academic_year" onchange="this.form.submit()" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-white outline-none text-sm font-extrabold cursor-pointer">
           @php
-            $sYear = date('Y') - 5;
-            $eYear = date('Y') + 3;
+            $sYear = 2015;
+            $eYear = date('Y') + 10;
           @endphp
           @for($y = $sYear; $y <= $eYear; $y++)
             @php $yr = $y . '-' . ($y + 1); @endphp
@@ -74,8 +74,8 @@
               <label class="block text-xs font-bold text-slate-400 uppercase mb-1.5">Start Year</label>
               <select id="ayStartYear" onchange="updateAcademicYearValue()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none text-sm font-bold cursor-pointer">
                 @php
-                  $startYr = date('Y') - 5;
-                  $endYr = date('Y') + 3;
+                  $startYr = 2015;
+                  $endYr = date('Y') + 10;
                 @endphp
                 @for($y = $startYr; $y <= $endYr; $y++)
                   <option value="{{ $y }}" {{ strpos($academicYear, (string)$y) === 0 ? 'selected' : '' }}>{{ $y }}</option>
