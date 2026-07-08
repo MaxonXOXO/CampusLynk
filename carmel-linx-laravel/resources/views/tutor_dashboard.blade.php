@@ -167,16 +167,16 @@
           <div class="overflow-x-auto overflow-y-auto max-h-[500px] scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
             <table class="w-full text-left border-collapse relative text-sm">
               <thead class="sticky top-0 z-10 shadow-md">
-                <tr class="bg-slate-900 border-b border-slate-800/60 text-slate-400 font-bold text-xs uppercase">
-                  <th class="p-4">Profile</th>
-                  <th class="p-4">Mobile / Reg No</th>
-                  <th class="p-4">SBTE Register No (Click to Edit)</th>
-                  <th class="p-4">Branch</th>
-                  <th class="p-4">Registered Sem</th>
-                  <th class="p-4">Role Designation</th>
-                  <th class="p-4">Account Status</th>
-                  <th class="p-4">Enrollment Status</th>
-                  <th class="p-4 text-right">Actions</th>
+                <tr class="bg-slate-900 border-b border-slate-800/60 text-slate-400 font-bold text-xs uppercase whitespace-nowrap">
+                  <th class="p-3">name</th>
+                  <th class="p-3">Reg No</th>
+                  <th class="p-3">SBTE REG No./ click to edit</th>
+                  <th class="p-3">branch</th>
+                  <th class="p-3">sem</th>
+                  <th class="p-3">role</th>
+                  <th class="p-3">status</th>
+                  <th class="p-3">enrolled status</th>
+                  <th class="p-3 text-right">actions</th>
                 </tr>
               </thead>
               <tbody id="usersTableBody">
