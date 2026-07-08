@@ -1080,8 +1080,14 @@ class DataController extends Controller
                 return response()->json(['status' => 'ERROR', 'message' => 'Invalid batch or department mismatch.']);
             }
 
-            $batch->update(['current_semester' => $request->input('current_semester')]);
-            return response()->json(['status' => 'SUCCESS', 'message' => 'Batch current semester updated.']);
+            $newSemester = $request->input('current_semester');
+            $batch->update(['current_semester' => $newSemester]);
+
+            // Promote all students in this batch to the new semester
+            \App\Models\Student::where('classroom_id', $classroomId)
+                ->update(['semester' => $newSemester]);
+
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Batch current semester updated. Students promoted.']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Failed: ' . $e->getMessage()]);
         }
