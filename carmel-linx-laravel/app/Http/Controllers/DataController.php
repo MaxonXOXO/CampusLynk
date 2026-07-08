@@ -1083,11 +1083,16 @@ class DataController extends Controller
             $newSemester = $request->input('current_semester');
             $batch->update(['current_semester' => $newSemester]);
 
-            // Promote all students in this batch to the new semester
+            // Promote ONLY active/approved students in this batch to the new semester
             \App\Models\Student::where('classroom_id', $classroomId)
+                ->whereIn('status', ['APPROVED', 'Approved', 'Active', 'active'])
+                ->where(function($q) {
+                    $q->whereNull('academic_status')
+                      ->orWhere('academic_status', 'Active');
+                })
                 ->update(['semester' => $newSemester]);
 
-            return response()->json(['status' => 'SUCCESS', 'message' => 'Batch current semester updated. Students promoted.']);
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Batch current semester updated. Active students promoted.']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Failed: ' . $e->getMessage()]);
         }
