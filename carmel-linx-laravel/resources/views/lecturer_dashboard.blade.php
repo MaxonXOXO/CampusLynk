@@ -818,41 +818,27 @@
         let subjectsHtml = '';
         if (b.subjects && b.subjects.length > 0) {
           b.subjects.forEach(s => {
-            // Calculate progress percentages
             let topicsPct = s.total_topics > 0 ? Math.round((s.covered_topics / s.total_topics) * 100) : 0;
-            
-            let progressBarHtml = '';
-            if (s.total_topics > 0 || s.total_hours > 0) {
-              progressBarHtml = `
-                <div class="mt-2 pt-2 border-t border-slate-800/40">
-                  <div class="flex justify-between items-center text-[11px] font-semibold text-slate-400 mb-1">
-                    <span class="flex items-center gap-1 text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>${s.covered_topics}/${s.total_topics} Topics Covered (${topicsPct}%)</span>
-                    <span class="text-[11px]">${s.engaged_hours}/${s.total_hours} Hrs Engaged</span>
-                  </div>
-                  <div class="w-full bg-slate-950 rounded-full h-1 overflow-hidden">
-                    <div class="bg-gradient-to-r from-teal-500 via-emerald-500 to-emerald-400 h-1 rounded-full transition-all duration-500" style="width: ${topicsPct}%"></div>
-                  </div>
-                </div>
-              `;
-            } else {
-              progressBarHtml = `
-                <div class="mt-2 pt-2 border-t border-slate-800/40 flex justify-between items-center text-[11px] font-semibold text-slate-500">
-                  <span class="flex items-center gap-1 italic text-[11px]"><span class="w-1.5 h-1.5 rounded-full bg-slate-600"></span>No syllabus/lesson plan</span>
-                  <span class="text-[11px]">0 Hrs</span>
-                </div>
-              `;
-            }
+            let hoursPct  = s.total_hours  > 0 ? Math.round((s.engaged_hours  / s.total_hours)  * 100) : 0;
+            let barPct    = topicsPct || hoursPct;
+            let barColor  = barPct >= 80 ? 'from-emerald-500 to-teal-400' : barPct >= 50 ? 'from-blue-500 to-sky-400' : 'from-violet-500 to-indigo-400';
 
             subjectsHtml += `
               <div class="w-full px-3 py-2.5 bg-slate-900/60 border border-slate-800/60 rounded-xl transition-premium group hover:border-blue-500/50">
                 <div class="flex justify-between items-center cursor-pointer" onclick="openClassroom('${b.classroom_id}', '${s.id}', '${s.name} (${s.code})')">
-                  <div>
-                    <div class="text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-premium">${s.name}</div>
-                    <div class="text-xs text-slate-400 font-mono mt-0.5">Sem ${s.semester} • ${s.type} • ${s.code}</div>
+                  <div class="flex-1 min-w-0 pr-2">
+                    <div class="text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-premium truncate">${s.name}</div>
+                    <div class="text-xs text-slate-400 font-mono mt-0.5">Sem ${s.semester} · ${s.type} · ${s.code}</div>
                   </div>
-                  <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-500 text-sm transition-premium">open_in_new</span>
+                  <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-500 text-sm transition-premium flex-shrink-0">open_in_new</span>
                 </div>
-                ${progressBarHtml}
+                <!-- Compact progress bar -->
+                <div class="mt-1.5 flex items-center gap-2">
+                  <div class="flex-1 bg-slate-950 rounded-full h-1 overflow-hidden">
+                    <div class="bg-gradient-to-r ${barColor} h-1 rounded-full transition-all duration-500" style="width: ${barPct}%"></div>
+                  </div>
+                  <span class="text-[11px] font-bold text-slate-400 whitespace-nowrap flex-shrink-0">${s.engaged_hours}/${s.total_hours} hrs · ${barPct}%</span>
+                </div>
               </div>
             `;
           });
