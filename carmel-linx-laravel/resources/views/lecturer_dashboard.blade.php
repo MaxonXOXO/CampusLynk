@@ -866,11 +866,17 @@
           <div class="p-4 border-b border-slate-800/60 bg-slate-900/40">
             <div class="flex justify-between items-start mb-2">
               <div>
-                <h4 class="font-black text-slate-200 text-xl tracking-tight">${b.classroom_id}</h4>
-                <div class="text-sm text-slate-400 font-mono mt-0.5">${b.branch} • Year ${b.batch_year}</div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="px-2 py-0.5 border border-slate-700/60 rounded-lg font-mono text-xs font-bold text-slate-400">${b.classroom_id}</span>
+                  <span class="px-3 py-1 bg-indigo-600/80 text-white rounded-xl font-bold text-sm tracking-wide select-none shadow-md">S-${b.current_semester || 1}</span>
+                </div>
+                <h4 class="font-black text-slate-100 text-base tracking-tight">Admission ${b.batch_year}</h4>
+                <div class="text-sm text-slate-400 mt-0.5">${b.branch} &bull; ${b.batch_year} &ndash; ${b.batch_year + 3} Batch</div>
               </div>
-              <div class="flex flex-wrap gap-1 justify-end max-w-[50%]">
-                ${rolesHtml}
+              <div class="flex flex-col gap-1 items-end">
+                <div class="flex flex-wrap gap-1 justify-end max-w-[120px]">
+                  ${rolesHtml}
+                </div>
               </div>
             </div>
           </div>
