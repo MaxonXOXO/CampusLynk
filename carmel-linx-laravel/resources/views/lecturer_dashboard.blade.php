@@ -852,6 +852,7 @@
           <div class="p-4 border-b border-slate-800/60 bg-slate-900/40">
             <div class="flex justify-between items-start">
               <div>
+                <span class="inline-block px-2.5 py-0.5 mb-1.5 bg-slate-800 border border-slate-600/60 rounded-lg font-mono text-sm font-bold text-slate-300 tracking-wide">${b.classroom_id}</span>
                 <div class="flex items-center gap-2 mb-0.5">
                   <h4 class="font-black text-slate-100 text-base tracking-tight">Admission ${b.batch_year}</h4>
                   <span class="px-2.5 py-0.5 bg-indigo-600/80 text-white rounded-lg font-bold text-sm select-none">S-${b.current_semester || 1}</span>
