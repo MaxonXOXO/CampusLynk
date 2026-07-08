@@ -197,9 +197,14 @@
               <h3 class="font-black text-white text-lg">Assign Class Roll Numbers</h3>
               <p class="text-xs text-slate-400">Set the serial roll numbers for students in your supervised classroom.</p>
             </div>
-            <button onclick="saveRollNumbers()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer transition-premium">
-              <span class="material-symbols-rounded text-sm">save</span> Save Roll Numbers
-            </button>
+            <div class="flex items-center gap-2">
+              <button onclick="autoFillRollNumbers()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 rounded-xl font-bold text-sm flex items-center gap-1.5 transition-premium cursor-pointer">
+                <span class="material-symbols-rounded text-sm">auto_awesome</span> Auto-Fill (A-Z)
+              </button>
+              <button onclick="saveRollNumbers()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer transition-premium">
+                <span class="material-symbols-rounded text-sm">save</span> Save Roll Numbers
+              </button>
+            </div>
           </div>
           <div class="overflow-x-auto border border-slate-800/60 rounded-xl bg-slate-900/20">
             <table class="w-full text-left text-sm border-collapse">
@@ -1900,6 +1905,28 @@
             list.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-red-400">${data.message || 'Failed to load students.'}</td></tr>`;
           }
         });
+    }
+
+    function autoFillRollNumbers() {
+      const rows = Array.from(document.querySelectorAll('.student-roll-row'));
+      if (rows.length === 0) return;
+
+      // Sort rows alphabetically by student name
+      rows.sort((a, b) => {
+        const nameA = a.querySelector('td:nth-child(4)').innerText.trim().toLowerCase();
+        const nameB = b.querySelector('td:nth-child(4)').innerText.trim().toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+
+      // Update the roll number inputs sequentially on screen
+      rows.forEach((row, index) => {
+        const input = row.querySelector('.roll-no-input');
+        if (input) {
+          input.value = index + 1;
+        }
+      });
+      
+      showGlobalMessage('Roll numbers auto-filled alphabetically (1 to ' + rows.length + '). Review and click Save.');
     }
 
     function saveRollNumbers() {
