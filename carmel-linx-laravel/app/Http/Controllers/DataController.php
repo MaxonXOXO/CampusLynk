@@ -187,11 +187,26 @@ class DataController extends Controller
             }
 
             $students = Student::where('classroom_id', $class->classroom_id)->get();
+            
+            $tutorName = null;
+            if ($class->tutor_mobile_no) {
+                $t = \App\Models\StaffProfile::where('mobile_no', $class->tutor_mobile_no)->first();
+                $tutorName = $t ? $t->name : null;
+            }
+            
+            $mentorName = null;
+            if ($class->mentor_mobile_no) {
+                $m = \App\Models\StaffProfile::where('mobile_no', $class->mentor_mobile_no)->first();
+                $mentorName = $m ? $m->name : null;
+            }
 
             return response()->json([
                 'status' => 'SUCCESS',
                 'classroomId' => $class->classroom_id,
                 'batchYear' => $class->batch_year,
+                'currentSemester' => $class->current_semester,
+                'tutorName' => $tutorName,
+                'mentorName' => $mentorName,
                 'isClassTutor' => ($class->tutor_mobile_no === $tutorMobile),
                 'students' => $students
             ]);

@@ -137,8 +137,8 @@
           </div>
         </div>
 
-        <!-- Filters Console -->
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl grid grid-cols-1 sm:grid-cols-2 gap-4">
+         <!-- Filters Console -->
+        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Search input -->
           <div>
             <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Search Student</label>
@@ -153,6 +153,23 @@
               <option value="Pending">Pending</option>
               <option value="Suspended">Suspended</option>
             </select>
+          </div>
+          <!-- Print Report Selector & Button -->
+          <div>
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Class Register Report</label>
+            <div class="flex gap-2">
+              <select id="printSemesterSelect" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 outline-none text-sm">
+                <option value="S1">S1</option>
+                <option value="S2">S2</option>
+                <option value="S3" selected>S3</option>
+                <option value="S4">S4</option>
+                <option value="S5">S5</option>
+                <option value="S6">S6</option>
+              </select>
+              <button onclick="printClassRegister()" class="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center gap-1.5 transition-premium cursor-pointer shadow-md">
+                <span class="material-symbols-rounded text-base">print</span> Print
+              </button>
+            </div>
           </div>
         </div>
 
@@ -686,10 +703,21 @@
         .then(res => res.json())
         .then(data => {
           if (data.status === 'SUCCESS') {
+            window.supervisedClassroomId = data.classroomId;
+            window.supervisedBatchYear = data.batchYear;
+            window.supervisedCurrentSemester = data.currentSemester || 1;
+            window.supervisedIsClassTutor = data.isClassTutor;
+            window.supervisedTutorName = data.tutorName || 'Not Assigned';
+            window.supervisedMentorName = data.mentorName || 'Not Assigned';
+
             const titleEl = document.getElementById('supervisedClassroomTitle');
             if (titleEl) {
-              const sem = data.currentSemester || 1;
-              titleEl.innerText = `Supervised Classroom Directory — ${data.classroomId} (Semester S-${sem})`;
+              titleEl.innerText = `Supervised Classroom Directory — ${data.classroomId} (Semester S-${data.currentSemester || 1})`;
+            }
+            
+            const printSemSelect = document.getElementById('printSemesterSelect');
+            if (printSemSelect && data.currentSemester) {
+              printSemSelect.value = 'S' + data.currentSemester;
             }
           }
         });
@@ -1849,6 +1877,303 @@
         console.error(err);
         showGlobalMessage("Error saving roll numbers.", true);
       });
+    function printClassRegister() {
+      const semSelect = document.getElementById('printSemesterSelect');
+      if (!semSelect) return;
+      const targetSem = semSelect.value; // e.g. "S3"
+      const targetSemNum = parseInt(targetSem.replace('S', ''));
+
+      const tutorMobile = "{{ session('userId') }}";
+      
+      const indicator = document.getElementById('loadingIndicator');
+      if (indicator) indicator.classList.remove('hidden');
+
+      fetch(`/api/tutor/classroom/${tutorMobile}`)
+        .then(res => res.json())
+        .then(data => {
+          if (indicator) indicator.classList.add('hidden');
+          if (data.status !== 'SUCCESS') {
+            alert('Failed to retrieve classroom data: ' + data.message);
+            return;
+          }
+
+          const students = data.students || [];
+          
+          // 1. Group students
+          const activeList = [];
+          const discontinuedList = [];
+
+          students.forEach(s => {
+            const isInactive = s.academic_status === 'Discontinued' || s.academic_status === 'TC Issued';
+            const studentSemNum = parseInt((s.semester || 'S1').replace('S', ''));
+
+            if (isInactive && studentSemNum < targetSemNum) {
+              // Discontinued in a prior semester
+              discontinuedList.push(s);
+            } else if (!isInactive) {
+              // Active student in target semester
+              activeList.push(s);
+            }
+          });
+
+          // 2. Sort active students alphabetically by name
+          activeList.sort((a, b) => a.name.localeCompare(b.name));
+
+          // 3. Build Print HTML
+          const printWindow = window.open('', '_blank');
+          if (!printWindow) {
+            alert('Popup blocker blocked the print preview. Please allow popups.');
+            return;
+          }
+
+          const branchName = "{{ session('userBranch') }}".toUpperCase();
+          const batchYear = window.supervisedBatchYear || data.batchYear || 'N/A';
+          const batchEnd = parseInt(batchYear) ? parseInt(batchYear) + 3 : 'N/A';
+          const tutorName = window.supervisedTutorName || data.tutorName || 'Not Assigned';
+          const mentorName = window.supervisedMentorName || data.mentorName || 'Not Assigned';
+
+          let activeRows = '';
+          activeList.forEach((s, idx) => {
+            activeRows += `
+              <tr>
+                <td>${idx + 1}</td>
+                <td>${s.name}</td>
+                <td>${s.reg_no}</td>
+                <td>${s.sbte_reg_no || '-'}</td>
+                <td>Active</td>
+              </tr>
+            `;
+          });
+
+          if (activeList.length === 0) {
+            activeRows = `<tr><td colspan="5" style="text-align:center; padding:15px; color:#555;">No active students in this semester.</td></tr>`;
+          }
+
+          let discontinuedRows = '';
+          discontinuedList.forEach((s, idx) => {
+            const leftSem = s.semester || 'S1';
+            discontinuedRows += `
+              <tr>
+                <td>${idx + 1}</td>
+                <td>${s.name}</td>
+                <td>${s.reg_no}</td>
+                <td>${s.academic_status}</td>
+                <td>After Semester ${leftSem}</td>
+              </tr>
+            `;
+          });
+
+          let discontinuedSection = '';
+          if (discontinuedList.length > 0) {
+            discontinuedSection = `
+              <div style="margin-top: 30px;">
+                <h3 style="font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #334155; padding-bottom: 5px; margin-bottom: 10px; color: #1e293b;">
+                  Discontinued / TC Issued Students (Prior to ${targetSem})
+                </h3>
+                <table class="report-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 8%;">No.</th>
+                      <th>Student Name</th>
+                      <th style="width: 25%;">Register No</th>
+                      <th style="width: 20%;">Status</th>
+                      <th style="width: 25%;">Discontinued After</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${discontinuedRows}
+                  </tbody>
+                </table>
+              </div>
+            `;
+          }
+
+          const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>Class Register - ${data.classroomId} (${targetSem})</title>
+              <style>
+                @media print {
+                  @page {
+                    size: A4 landscape;
+                    margin: 1.5cm;
+                  }
+                  body {
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                  }
+                }
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+                  color: #0f172a;
+                  margin: 0;
+                  padding: 10px;
+                  background-color: #fff;
+                }
+                .header-container {
+                  text-align: center;
+                  border-bottom: 3px double #000;
+                  padding-bottom: 12px;
+                  margin-bottom: 20px;
+                }
+                .college-name {
+                  font-size: 20px;
+                  font-weight: 900;
+                  letter-spacing: 1px;
+                  margin: 0;
+                  color: #000;
+                }
+                .dept-name {
+                  font-size: 13px;
+                  font-weight: bold;
+                  margin: 4px 0 0 0;
+                  color: #334155;
+                  letter-spacing: 0.5px;
+                }
+                .report-title {
+                  font-size: 15px;
+                  font-weight: 800;
+                  margin: 8px 0 0 0;
+                  text-transform: uppercase;
+                  color: #000;
+                  background: #f1f5f9;
+                  display: inline-block;
+                  padding: 4px 16px;
+                  border-radius: 4px;
+                }
+                .meta-grid {
+                  display: grid;
+                  grid-template-columns: repeat(4, 1fr);
+                  gap: 10px;
+                  margin-bottom: 20px;
+                  font-size: 12px;
+                  background-color: #f8fafc;
+                  border: 1px solid #e2e8f0;
+                  padding: 12px;
+                  border-radius: 8px;
+                }
+                .meta-item {
+                  display: flex;
+                  flex-direction: column;
+                }
+                .meta-label {
+                  font-weight: bold;
+                  color: #64748b;
+                  text-transform: uppercase;
+                  font-size: 9px;
+                  margin-bottom: 2px;
+                }
+                .meta-value {
+                  font-weight: bold;
+                  color: #0f172a;
+                  font-size: 12px;
+                }
+                .report-table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-top: 10px;
+                  font-size: 12px;
+                }
+                .report-table th, .report-table td {
+                  border: 1px solid #cbd5e1;
+                  padding: 8px 10px;
+                  text-align: left;
+                }
+                .report-table th {
+                  background-color: #f1f5f9;
+                  font-weight: bold;
+                  color: #1e293b;
+                  text-transform: uppercase;
+                  font-size: 10px;
+                }
+                .report-table tr:nth-child(even) {
+                  background-color: #f8fafc;
+                }
+                .footer-signatures {
+                  margin-top: 50px;
+                  display: flex;
+                  justify-content: space-between;
+                  font-size: 12px;
+                  font-weight: bold;
+                  padding: 0 20px;
+                }
+                .sig-line {
+                  border-top: 1.5px solid #000;
+                  width: 200px;
+                  text-align: center;
+                  padding-top: 5px;
+                  margin-top: 40px;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="header-container">
+                <div class="college-name">CARMEL POLYTECHNIC COLLEGE, ALAPPUZHA</div>
+                <div class="dept-name">DEPARTMENT OF ${branchName} ENGINEERING</div>
+                <div class="report-title">Class Register - Admission ${batchYear}</div>
+              </div>
+
+              <div class="meta-grid">
+                <div class="meta-item">
+                  <span class="meta-label">Classroom ID</span>
+                  <span class="meta-value">${data.classroomId}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Academic Semester</span>
+                  <span class="meta-value">${targetSem}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Class Tutor</span>
+                  <span class="meta-value">${tutorName}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Class Mentor</span>
+                  <span class="meta-value">${mentorName}</span>
+                </div>
+              </div>
+
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th style="width: 8%;">Roll No.</th>
+                    <th>Student Name</th>
+                    <th style="width: 25%;">Register No</th>
+                    <th style="width: 25%;">SBTE Exam No</th>
+                    <th style="width: 15%;">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${activeRows}
+                </tbody>
+              </table>
+
+              ${discontinuedSection}
+
+              <div class="footer-signatures">
+                <div class="sig-line">Class Tutor</div>
+                <div class="sig-line">Class Mentor</div>
+                <div class="sig-line">Head of Department</div>
+              </div>
+
+              <script>
+                window.onload = function() {
+                  window.print();
+                };
+              </script>
+            </body>
+            </html>
+          `;
+
+          printWindow.document.open();
+          printWindow.document.write(html);
+          printWindow.document.close();
+        })
+        .catch(err => {
+          if (indicator) indicator.classList.add('hidden');
+          console.error(err);
+          alert('Error preparing print preview.');
+        });
     }
   </script>
 
