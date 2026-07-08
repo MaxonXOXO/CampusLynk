@@ -1784,12 +1784,13 @@ class DataController extends Controller
                 $cid = $batch->classroom_id;
                 if (!isset($batchesMap[$cid])) {
                     $batchesMap[$cid] = [
-                        'classroom_id' => $batch->classroom_id,
-                        'batch_year' => $batch->batch_year,
+                        'classroom_id'     => $batch->classroom_id,
+                        'batch_year'       => $batch->batch_year,
                         'current_semester' => $batch->current_semester,
-                        'branch' => $batch->branch,
-                        'roles' => [],
-                        'subjects' => []
+                        'branch'           => $batch->branch,
+                        'student_count'    => \App\Models\Student::where('classroom_id', $batch->classroom_id)->count(),
+                        'roles'            => [],
+                        'subjects'         => []
                     ];
                 }
                 if ($batch->tutor_mobile_no === $userId) $batchesMap[$cid]['roles'][] = 'Tutor';
@@ -1819,12 +1820,13 @@ class DataController extends Controller
                     $cid = $batch->classroom_id;
                     if (!isset($batchesMap[$cid])) {
                         $batchesMap[$cid] = [
-                            'classroom_id' => $batch->classroom_id,
-                            'batch_year' => $batch->batch_year,
+                            'classroom_id'     => $batch->classroom_id,
+                            'batch_year'       => $batch->batch_year,
                             'current_semester' => $batch->current_semester,
-                            'branch' => $batch->branch,
-                            'roles' => [],
-                            'subjects' => []
+                            'branch'           => $batch->branch,
+                            'student_count'    => \App\Models\Student::where('classroom_id', $batch->classroom_id)->count(),
+                            'roles'            => [],
+                            'subjects'         => []
                         ];
                     }
                     if (!in_array('Subject Staff', $batchesMap[$cid]['roles'])) {

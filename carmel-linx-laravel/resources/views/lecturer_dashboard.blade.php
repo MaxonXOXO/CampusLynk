@@ -856,7 +856,10 @@
                   <h4 class="font-black text-slate-100 text-base tracking-tight">Admission ${b.batch_year}</h4>
                   <span class="px-2.5 py-0.5 bg-indigo-600/80 text-white rounded-lg font-bold text-sm select-none">S-${b.current_semester || 1}</span>
                 </div>
-                <span class="inline-block px-2.5 py-0.5 bg-slate-800 border border-slate-600/60 rounded-lg font-mono text-sm font-bold text-slate-300 tracking-wide">${b.classroom_id}</span>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="inline-block px-2.5 py-0.5 bg-slate-800 border border-slate-600/60 rounded-lg font-mono text-sm font-bold text-slate-300 tracking-wide">${b.classroom_id}</span>
+                  <span class="flex items-center gap-1 text-xs font-bold text-slate-400"><span class="material-symbols-rounded" style="font-size:13px">group</span>${b.student_count || 0} students</span>
+                </div>
               </div>
               <div class="flex flex-wrap gap-1 justify-end">
                 ${rolesHtml}
