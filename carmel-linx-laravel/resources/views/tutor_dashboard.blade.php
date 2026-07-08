@@ -823,7 +823,7 @@
 
       users.forEach(user => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium";
+        tr.className = "border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium whitespace-nowrap";
 
         let statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>`;
         if (user.status === 'Approved') {
