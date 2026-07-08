@@ -21,6 +21,12 @@
     input, select, textarea {
       font-size: 0.875rem !important; /* 14px (text-sm) minimum */
     }
+    .text-lg {
+      font-size: 1.05rem !important;
+    }
+    .text-base {
+      font-size: 0.875rem !important;
+    }
     nav.space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
       margin-top: 0.125rem !important;
     }
