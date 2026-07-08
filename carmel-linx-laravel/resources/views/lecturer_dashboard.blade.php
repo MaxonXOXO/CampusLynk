@@ -864,19 +864,16 @@
         card.className = "bg-slate-950/40 border border-slate-800/60 rounded-2xl overflow-hidden flex flex-col transition-premium hover:shadow-xl hover:shadow-black/50 hover:border-slate-700/60";
         card.innerHTML = `
           <div class="p-4 border-b border-slate-800/60 bg-slate-900/40">
-            <div class="flex justify-between items-start mb-2">
+            <div class="flex justify-between items-start">
               <div>
-                <div class="flex items-center gap-2 mb-1">
-                  <span class="px-2 py-0.5 border border-slate-700/60 rounded-lg font-mono text-xs font-bold text-slate-400">${b.classroom_id}</span>
-                  <span class="px-3 py-1 bg-indigo-600/80 text-white rounded-xl font-bold text-sm tracking-wide select-none shadow-md">S-${b.current_semester || 1}</span>
+                <div class="flex items-center gap-2 mb-0.5">
+                  <h4 class="font-black text-slate-100 text-base tracking-tight">Admission ${b.batch_year}</h4>
+                  <span class="px-2.5 py-0.5 bg-indigo-600/80 text-white rounded-lg font-bold text-sm select-none">S-${b.current_semester || 1}</span>
                 </div>
-                <h4 class="font-black text-slate-100 text-base tracking-tight">Admission ${b.batch_year}</h4>
-                <div class="text-sm text-slate-400 mt-0.5">${b.branch} &bull; 3-Year Diploma</div>
+                <div class="text-sm text-slate-400 font-mono">${b.branch}-${b.batch_year}-${b.batch_year + 3}</div>
               </div>
-              <div class="flex flex-col gap-1 items-end">
-                <div class="flex flex-wrap gap-1 justify-end max-w-[120px]">
-                  ${rolesHtml}
-                </div>
+              <div class="flex flex-wrap gap-1 justify-end">
+                ${rolesHtml}
               </div>
             </div>
           </div>
