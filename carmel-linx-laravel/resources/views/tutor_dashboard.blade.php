@@ -137,7 +137,7 @@
   </aside>
 
   <!-- Main Workspace -->
-  <main class="flex-grow flex flex-col relative min-h-screen">
+  <main class="flex-grow flex flex-col overflow-hidden relative min-h-screen">
     
     <!-- Top Header -->
     <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-30 sticky top-0">
