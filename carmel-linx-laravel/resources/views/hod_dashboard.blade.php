@@ -44,6 +44,20 @@
       -ms-overflow-style: none;
       scrollbar-width: none;
     }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.3);
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.3);
+      border-radius: 99px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.5);
+    }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 h-screen w-full flex flex-col md:flex-row overflow-hidden">
@@ -189,8 +203,8 @@
 
         <!-- Users Table Grid -->
         <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm border-collapse text-sm">
+          <div class="max-h-[calc(100vh-320px)] overflow-auto custom-scrollbar">
+            <table class="min-w-[1100px] w-full text-left border-collapse text-sm">
               <thead>
                 <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
                   <th class="p-4">Profile</th>
