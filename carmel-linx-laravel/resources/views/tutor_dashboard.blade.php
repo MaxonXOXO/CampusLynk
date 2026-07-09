@@ -35,6 +35,9 @@
         white-space: nowrap !important;
       }
     }
+    html {
+      font-size: 90%;
+    }
     /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
     .font-extrabold, .font-black {
       font-weight: 700 !important;
