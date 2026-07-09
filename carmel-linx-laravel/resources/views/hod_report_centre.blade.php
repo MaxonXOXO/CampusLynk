@@ -33,53 +33,55 @@
 
   <!-- Sticky Header -->
   <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 shadow-2xl">
-    <div class="px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <a href="/dashboard/hod" class="flex items-center gap-2 px-4 py-1.5 bg-amber-500/15 hover:bg-amber-500/30 border border-amber-500/40 hover:border-amber-400 text-amber-400 hover:text-amber-300 rounded-xl font-bold transition-premium no-underline">
-          <span class="material-symbols-rounded text-base">arrow_back</span>
-          <span class="text-sm">Back to HOD Console</span>
+    <div class="px-6 h-12 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/dashboard/hod" class="flex items-center gap-1.5 px-3 py-1 bg-amber-500/15 hover:bg-amber-500/30 border border-amber-500/40 hover:border-amber-400 text-amber-400 hover:text-amber-300 rounded-lg font-bold transition-premium no-underline">
+          <span class="material-symbols-rounded text-sm">arrow_back</span>
+          <span class="text-sm">Back</span>
         </a>
-        <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white font-black rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-lg shadow-amber-500/20">RC</div>
+        <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white font-black rounded-md w-7 h-7 flex items-center justify-center text-xs shadow-lg shadow-amber-500/20">RC</div>
         <div>
-          <h1 class="font-extrabold text-slate-100 tracking-wide text-sm">Report Centre</h1>
-          <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ session('userBranch') }} Department</p>
+          <h1 class="font-extrabold text-slate-100 tracking-wide text-sm flex items-center gap-2">
+            Report Centre
+            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800/50 px-1.5 py-0.5 rounded border border-slate-700/50">{{ session('userBranch') }} Dept</span>
+          </h1>
         </div>
       </div>
       
       <div class="flex items-center gap-3">
-        <span class="px-3 py-1 bg-slate-800 text-slate-300 border border-slate-700 rounded-lg font-mono text-sm">
-          Branch: {{ session('userBranch') }}
+        <span class="px-2 py-0.5 bg-slate-800 text-slate-300 border border-slate-700 rounded-md font-mono text-xs">
+          {{ session('userBranch') }}
         </span>
       </div>
     </div>
   </header>
 
   <!-- Main Content Space -->
-  <main class="flex-grow p-6 lg:p-10 max-w-7xl mx-auto w-full space-y-8">
+  <main class="flex-grow p-4 lg:p-6 max-w-[85rem] mx-auto w-full space-y-5">
     
     <!-- Hero Banner Section -->
-    <div class="bg-gradient-to-r from-amber-500/10 via-orange-600/5 to-slate-950 border border-amber-500/20 rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl">
-      <div class="space-y-2">
-        <h2 class="text-white text-lg font-black tracking-tight">Centralized Analytical Report Engine</h2>
+    <div class="bg-gradient-to-r from-amber-500/10 via-orange-600/5 to-slate-950 border border-amber-500/20 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+      <div class="space-y-1">
+        <h2 class="text-white text-base font-black tracking-tight">Centralized Analytical Report Engine</h2>
         <p class="text-slate-400 max-w-2xl leading-relaxed text-sm">
           Pull historical records, download mentoring logs, track academic performance analytics, and view audit reports. All departmental intelligence is gathered here in real-time.
         </p>
       </div>
       <div class="flex-shrink-0">
-        <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-          <span class="material-symbols-rounded text-3xl">insights</span>
+        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+          <span class="material-symbols-rounded text-2xl">insights</span>
         </div>
       </div>
     </div>
 
     <!-- Reports Directory Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
       
       <!-- Card 1: Attendance & Log Analysis -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-sky-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-2">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-sky-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-sky-400 text-2xl">co_present</span>
+            <span class="material-symbols-rounded text-sky-400 text-xl">co_present</span>
             <div class="flex items-center gap-2">
               <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
               <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 font-black text-sm">1</span>
@@ -90,7 +92,7 @@
             Consolidated reports of daily class logs, lesson plan coverage rates, and student attendance percentages by batch.
           </p>
         </div>
-        <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
           <span class="text-xs text-slate-500">Live Coverage Logs</span>
           <button onclick="openAttendanceModal()" class="px-3 py-1.5 bg-sky-500/15 hover:bg-sky-500/30 text-sky-400 hover:text-sky-300 border border-sky-500/30 hover:border-sky-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
             Compile Logs
@@ -99,10 +101,10 @@
       </div>
 
       <!-- Card 2: Remedial Session Analysis -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-purple-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-2">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-purple-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-purple-400 text-2xl">psychology</span>
+            <span class="material-symbols-rounded text-purple-400 text-xl">psychology</span>
             <div class="flex items-center gap-2">
               <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
               <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-400 font-black text-sm">2</span>
@@ -113,7 +115,7 @@
             Track diagnostics, active coaching rooms, weakness analysis, and student improvement outcomes for slower learners.
           </p>
         </div>
-        <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
           <span class="text-xs text-slate-500">Diagnostic Reports</span>
           <button onclick="openRemedialModal()" class="px-3 py-1.5 bg-purple-500/15 hover:bg-purple-500/30 text-purple-400 hover:text-purple-300 border border-purple-500/30 hover:border-purple-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
             Analyze Data
@@ -122,10 +124,10 @@
       </div>
 
       <!-- Card 3: Faculty Workload Report -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-2">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-amber-500 text-2xl">pending_actions</span>
+            <span class="material-symbols-rounded text-amber-500 text-xl">pending_actions</span>
             <div class="flex items-center gap-2">
               <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
               <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 font-black text-sm">3</span>
@@ -136,7 +138,7 @@
             Consolidated workload hours for classroom lectures and laboratories per week across all department timetables.
           </p>
         </div>
-        <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
           <span class="text-xs text-slate-500">Commencement Week Submission</span>
           <a href="/hod/report-centre/workload-panel" class="px-3 py-1.5 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400 rounded-xl font-bold transition-premium cursor-pointer text-sm no-underline inline-block">
             View Panel
@@ -145,10 +147,10 @@
       </div>
 
       <!-- Card 4: Extra-Curricular Claims -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-rose-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-2">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-rose-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-rose-400 text-2xl">emoji_events</span>
+            <span class="material-symbols-rounded text-rose-400 text-xl">emoji_events</span>
             <div class="flex items-center gap-2">
               <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>
               <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 font-black text-sm">4</span>
@@ -159,7 +161,7 @@
             Aggregate student activity point verifications, pending claims logs, and approved co-curricular achievement statuses.
           </p>
         </div>
-        <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
           <span class="text-xs text-slate-500">Activity Analytics</span>
           <button onclick="openActivityPointsModal()" class="px-3 py-1.5 bg-rose-500/15 hover:bg-rose-500/30 text-rose-400 hover:text-rose-300 border border-rose-500/30 hover:border-rose-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
             View Claims
@@ -168,10 +170,10 @@
       </div>
 
       <!-- Card 5: Department Course Files -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-emerald-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-2">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-emerald-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-emerald-400 text-2xl">folder_zip</span>
+            <span class="material-symbols-rounded text-emerald-400 text-xl">folder_zip</span>
             <div class="flex items-center gap-2">
               <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>
               <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-450 font-black text-sm">5</span>
@@ -182,7 +184,7 @@
             Consolidated audits of subject syllabus progress, CO-PO mappings, assignment plans, and lesson plan submission compliance.
           </p>
         </div>
-        <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
           <span class="text-xs text-slate-500">Curriculum Compliance</span>
           <button onclick="openCourseFilesModal()" class="px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
             Check Status
@@ -191,10 +193,10 @@
       </div>
 
       <!-- Card 6: Mentoring Diaries -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-2">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-amber-400 text-2xl">book</span>
+            <span class="material-symbols-rounded text-amber-400 text-xl">book</span>
             <div class="flex items-center gap-2">
               <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
               <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 font-black text-sm">6</span>
@@ -205,7 +207,7 @@
             Generate and export complete cumulative mentoring diaries, counselor notes, and personal records for students in your branch.
           </p>
         </div>
-        <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
           <span class="text-xs text-slate-500">PDF / Print Format</span>
           <button onclick="alert('Feature coming soon: Dynamic Mentoring Export will pull active records.')" class="px-3 py-1.5 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
             Access Logs
@@ -214,10 +216,10 @@
       </div>
 
       <!-- Card 7: SBTE Audit Console -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-sky-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-2">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-sky-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-sky-400 text-2xl">verified_user</span>
+            <span class="material-symbols-rounded text-sky-400 text-xl">verified_user</span>
             <div class="flex items-center gap-2">
               <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
               <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 font-black text-sm">7</span>
@@ -228,7 +230,7 @@
             Manage mandatory annual audit documentation, AICTE approval letters, affiliation orders, and board result registries.
           </p>
         </div>
-        <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
           <span class="text-xs text-slate-500">SBTE Accreditation</span>
           <a href="/hod/sbte-audit" class="px-3 py-1.5 bg-sky-500/15 hover:bg-sky-500/30 text-sky-400 hover:text-sky-300 border border-sky-500/30 hover:border-sky-400 rounded-xl font-bold transition-premium cursor-pointer text-sm no-underline inline-block">
             View Console
@@ -237,10 +239,10 @@
       </div>
 
       <!-- Card 8: NBA Criteria Audit Console -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-rose-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-2">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-rose-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-rose-400 text-2xl">menu_book</span>
+            <span class="material-symbols-rounded text-rose-400 text-xl">menu_book</span>
             <div class="flex items-center gap-2">
               <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
               <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-450 font-black text-sm">8</span>
@@ -251,7 +253,7 @@
             Organize and review academic audit files and related documentation across NBA Criteria 1 to 10.
           </p>
         </div>
-        <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
           <span class="text-xs text-slate-500">NBA Criteria Audit</span>
           <a href="/hod/nba-audit" class="px-3 py-1.5 bg-rose-500/15 hover:bg-rose-500/30 text-rose-400 hover:text-rose-300 border border-rose-500/30 hover:border-rose-400 rounded-xl font-bold transition-premium cursor-pointer text-sm no-underline inline-block">
             View Console
@@ -260,10 +262,10 @@
       </div>
 
       <!-- Card 9: Academic Calendar Preparation -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-2">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-amber-400 text-2xl">calendar_month</span>
+            <span class="material-symbols-rounded text-amber-400 text-xl">calendar_month</span>
             <div class="flex items-center gap-2">
               <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
               <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-450 font-black text-sm">9</span>
@@ -274,7 +276,7 @@
             All semester department academic calendar details will be managed, scheduled, and configured here.
           </p>
         </div>
-        <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
           <span class="text-xs text-slate-500">Academic Planning</span>
           <a href="/hod/academic-calendar" class="px-3 py-1.5 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400 rounded-xl font-bold transition-premium cursor-pointer text-sm no-underline inline-block">
             Open Planner
@@ -283,10 +285,10 @@
       </div>
 
       <!-- Card 10: Security & Operations Audit -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-5 space-y-4 hover:border-violet-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-2">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-violet-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1.5">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-violet-400 text-2xl">receipt_long</span>
+            <span class="material-symbols-rounded text-violet-400 text-xl">receipt_long</span>
             <div class="flex items-center gap-2">
               <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
               <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-violet-500/15 border border-violet-500/30 text-violet-450 font-black text-sm">10</span>
@@ -297,7 +299,7 @@
             Detailed department timeline of actions, password resets, registration changes, and critical security audits.
           </p>
         </div>
-        <div class="pt-4 border-t border-slate-800/60 flex items-center justify-between">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
           <span class="text-xs text-slate-500">Historical Audit Records</span>
           <button onclick="alert('Feature coming soon: Security Log Exports.')" class="px-3 py-1.5 bg-violet-500/15 hover:bg-violet-500/30 text-violet-400 hover:text-violet-300 border border-violet-500/30 hover:border-violet-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
             Extract Logs

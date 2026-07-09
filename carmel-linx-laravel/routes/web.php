@@ -787,11 +787,12 @@ Route::middleware(['web'])->group(function () {
         $role = Session::get('userRole');
         if (!$role || !in_array($role, ['HOD', 'Principal'])) return redirect('/');
 
-        $dept = getFullBranchName(Session::get('userBranch'));
+        $branchCode = Session::get('userBranch');
+        $dept = getFullBranchName($branchCode);
         
         // 1. Get only lecturers, demonstrators, and HOD in the department
         $staffList = DB::table('staff_profiles')
-            ->where('branch', $dept)
+            ->where('branch', $branchCode)
             ->whereIn('designation', ['Lecturer', 'Demonstrator', 'HOD'])
             ->get();
             
@@ -816,7 +817,7 @@ Route::middleware(['web'])->group(function () {
                 $classroomId = pathinfo($file, PATHINFO_FILENAME);
                 
                 // Only load timetables belonging to HOD's department (starts with branch code)
-                if (stripos($classroomId, $dept . "_") !== 0) {
+                if (stripos($classroomId, $branchCode . "_") !== 0) {
                     continue;
                 }
 

@@ -32,74 +32,76 @@
 
   <!-- Header -->
   <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 shadow-2xl">
-    <div class="px-6 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <a href="/hod/report-centre" class="flex items-center gap-2 px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold transition-premium no-underline">
-          <span class="material-symbols-rounded text-base">arrow_back</span>
-          <span class="text-sm">Back to Report Centre</span>
+    <div class="px-6 h-12 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/hod/report-centre" class="flex items-center gap-1.5 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-bold transition-premium no-underline">
+          <span class="material-symbols-rounded text-sm">arrow_back</span>
+          <span class="text-sm">Back</span>
         </a>
-        <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white font-black rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-lg shadow-amber-500/20">WP</div>
+        <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white font-black rounded-md w-7 h-7 flex items-center justify-center text-xs shadow-lg shadow-amber-500/20">WP</div>
         <div>
-          <h1 class="font-extrabold text-slate-100 tracking-wide text-sm">Workload & Timetable Reports</h1>
-          <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">{{ $department }} Department</p>
+          <h1 class="font-extrabold text-slate-100 tracking-wide text-sm flex items-center gap-2">
+            Workload & Timetable Reports
+            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800/50 px-1.5 py-0.5 rounded border border-slate-700/50">{{ $department }} Dept</span>
+          </h1>
         </div>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="flex-grow p-6 lg:p-10 max-w-5xl mx-auto w-full space-y-8">
+  <main class="flex-grow p-4 lg:p-6 max-w-5xl mx-auto w-full space-y-5">
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
       
       <!-- Card 1: Department Workload -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-6 space-y-4 hover:border-amber-500/30 transition-premium flex flex-col justify-between">
-        <div class="space-y-3">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-amber-500/30 transition-premium flex flex-col justify-between">
+        <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <div class="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl">
-              <span class="material-symbols-rounded text-2xl">pending_actions</span>
+            <div class="p-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg">
+              <span class="material-symbols-rounded text-xl">pending_actions</span>
             </div>
             <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
           </div>
-          <h3 class="text-white text-base font-black">1. Department Faculty Workload</h3>
+          <h3 class="text-white text-sm font-black">1. Department Faculty Workload</h3>
           <p class="text-slate-400 text-sm leading-relaxed">
             Generate the official weekly engaged hours report for all lecturers and demonstrators in the department, calculated dynamically from active timetables.
           </p>
         </div>
-        <div class="pt-6 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-sm text-slate-500">Commencement Format</span>
-          <a href="/hod/workload-report/print" target="_blank" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-xl transition-premium text-sm shadow-lg shadow-amber-500/15">
-            Print Workload Report
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
+          <span class="text-xs text-slate-500">Commencement Format</span>
+          <a href="/hod/workload-report/print" target="_blank" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg transition-premium text-sm shadow-lg shadow-amber-500/15">
+            Print Workload
           </a>
         </div>
       </div>
 
       <!-- Card 2: Batch Timetable Printer -->
-      <div class="card-gradient border border-slate-800/80 rounded-2xl p-6 space-y-4 hover:border-violet-500/30 transition-premium flex flex-col justify-between">
-        <div class="space-y-3">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-violet-500/30 transition-premium flex flex-col justify-between">
+        <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <div class="p-3 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-xl">
-              <span class="material-symbols-rounded text-2xl">calendar_today</span>
+            <div class="p-2 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-lg">
+              <span class="material-symbols-rounded text-xl">calendar_today</span>
             </div>
             <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Active</span>
           </div>
-          <h3 class="text-white text-base font-black">2. Individual Batch Timetable</h3>
+          <h3 class="text-white text-sm font-black">2. Individual Batch Timetable</h3>
           <p class="text-slate-400 text-sm leading-relaxed">
             Select any department batch and semester to preview and print its finalized A4 landscape weekly timetable.
           </p>
           
-          <div class="grid grid-cols-2 gap-4 pt-2">
-            <div class="space-y-1">
-              <label class="text-xs font-bold text-slate-400 uppercase">Select Classroom</label>
-              <select id="singleBatchSelect" class="w-full bg-slate-900 border border-slate-850 rounded-xl p-2.5 text-sm text-white focus:border-violet-500 outline-none">
+          <div class="grid grid-cols-2 gap-3 pt-1">
+            <div class="space-y-0.5">
+              <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Classroom</label>
+              <select id="singleBatchSelect" class="w-full bg-slate-900 border border-slate-850 rounded-lg p-2 text-sm text-white focus:border-violet-500 outline-none">
                 @foreach ($batches as $b)
                   <option value="{{ $b->classroom_id }}">{{ $b->classroom_id }}</option>
                 @endforeach
               </select>
             </div>
-            <div class="space-y-1">
-              <label class="text-xs font-bold text-slate-400 uppercase">Select Semester</label>
-              <select id="singleSemSelect" class="w-full bg-slate-900 border border-slate-850 rounded-xl p-2.5 text-sm text-white focus:border-violet-500 outline-none">
+            <div class="space-y-0.5">
+              <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Semester</label>
+              <select id="singleSemSelect" class="w-full bg-slate-900 border border-slate-850 rounded-lg p-2 text-sm text-white focus:border-violet-500 outline-none">
                 <option value="1">Semester 1</option>
                 <option value="2">Semester 2</option>
                 <option value="3" selected>Semester 3</option>
@@ -110,9 +112,9 @@
             </div>
           </div>
         </div>
-        <div class="pt-6 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-sm text-slate-500">A4 Landscape Grid</span>
-          <button onclick="printSingleTimetable()" class="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl transition-premium text-sm cursor-pointer shadow-lg shadow-violet-600/15">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
+          <span class="text-xs text-slate-500">A4 Landscape Grid</span>
+          <button onclick="printSingleTimetable()" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-lg transition-premium text-sm cursor-pointer shadow-lg shadow-violet-600/15">
             Print Timetable
           </button>
         </div>
@@ -121,16 +123,16 @@
     </div>
 
     <!-- Card 3: Consolidated Timetable (3 Batches) -->
-    <div class="card-gradient border border-slate-800/80 rounded-3xl p-8 space-y-6 hover:border-emerald-500/30 transition-premium shadow-xl">
-      <div class="space-y-2">
+    <div class="card-gradient border border-slate-800/80 rounded-xl p-5 space-y-4 hover:border-emerald-500/30 transition-premium shadow-xl">
+      <div class="space-y-1.5">
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl">
-              <span class="material-symbols-rounded text-2xl">dashboard_customize</span>
+          <div class="flex items-center gap-2">
+            <div class="p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg">
+              <span class="material-symbols-rounded text-xl">dashboard_customize</span>
             </div>
             <div>
-              <h3 class="text-white text-base font-black">3. Semester Consolidated Timetable</h3>
-              <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Select up to 3 active classes</p>
+              <h3 class="text-white text-sm font-black">3. Semester Consolidated Timetable</h3>
+              <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Select up to 3 active classes</p>
             </div>
           </div>
           <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Clash Audit</span>
@@ -140,10 +142,10 @@
         </p>
       </div>
 
-      <form id="consolidatedForm" action="/hod/consolidated-timetable/print" method="GET" target="_blank" onsubmit="return validateConsolidatedForm(event)" class="space-y-6 pt-2">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      <form id="consolidatedForm" action="/hod/consolidated-timetable/print" method="GET" target="_blank" onsubmit="return validateConsolidatedForm(event)" class="space-y-4 pt-1.5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           @forelse ($batches as $b)
-            <label class="flex items-center gap-3 p-4 bg-slate-900/40 border border-slate-850 hover:border-emerald-500/30 rounded-2xl transition-premium cursor-pointer select-none">
+            <label class="flex items-center gap-2 p-3 bg-slate-900/40 border border-slate-850 hover:border-emerald-500/30 rounded-xl transition-premium cursor-pointer select-none">
               <input type="checkbox" name="batches[]" value="{{ $b->classroom_id }}" class="w-4 h-4 rounded border-slate-800 text-emerald-600 focus:ring-emerald-500 bg-slate-950 accent-emerald-500 batch-checkbox" />
               <div>
                 <span class="text-sm font-bold text-slate-200 block">{{ $b->classroom_id }}</span>
@@ -155,9 +157,9 @@
           @endforelse
         </div>
 
-        <div class="pt-6 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-sm text-slate-500" id="selectionStatus">Select batches to begin (Max 3)</span>
-          <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-premium text-sm cursor-pointer shadow-lg shadow-emerald-600/15">
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
+          <span class="text-xs text-slate-500" id="selectionStatus">Select batches to begin (Max 3)</span>
+          <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-premium text-sm cursor-pointer shadow-lg shadow-emerald-600/15">
             Generate Consolidated Sheet
           </button>
         </div>
