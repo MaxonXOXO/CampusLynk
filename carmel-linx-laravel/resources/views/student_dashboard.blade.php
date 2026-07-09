@@ -85,23 +85,23 @@
     </div>
 
     <!-- Nav -->
-    <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navExams" onclick="switchPanel('exams')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500   text-sm">
+    <nav class="flex-grow p-4 space-y-1">
+      <button id="navExams" onclick="switchPanel('exams')" class="w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500   text-sm">
         <span class="material-symbols-rounded text-lg">checklist</span> Works To Do
       </button>
-      <button id="navMarks" onclick="switchPanel('marks')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+      <button id="navMarks" onclick="switchPanel('marks')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">bar_chart_4_bars</span> Academic Stats
       </button>
-      <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+      <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">manage_accounts</span> My Profile
       </button>
-      <a id="navMentoring" href="/student/mentoring-diary" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+      <a id="navMentoring" href="/student/mentoring-diary" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">menu_book</span> Mentoring Diary
       </a>
-      <button id="navActivity" onclick="switchPanel('activity')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+      <button id="navActivity" onclick="switchPanel('activity')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">star</span> Activity Points
       </button>
-      <a id="navMockTest" href="/student/mock-test" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-teal-300 hover:bg-blue-950/20 cursor-pointer text-sm no-underline">
+      <a id="navMockTest" href="/student/mock-test" target="_blank" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-teal-300 hover:bg-blue-950/20 cursor-pointer text-sm no-underline">
         <span class="material-symbols-rounded text-lg text-teal-400 animate-pulse">rocket_launch</span> Mock Practice Test
       </a>
     </nav>
@@ -142,7 +142,7 @@
 
       <!-- PANEL: ACTIVE EXAMS -->
       <div id="panelExams" class="fade-up">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <!-- Assignments Card -->
             <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-4">
               <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 flex-shrink-0">
@@ -801,8 +801,8 @@
       const col2 = progressList.slice(mid);
 
       const renderListHtml = (list) => list.map((item, index) => `
-        <div class="py-3 ${index > 0 ? 'border-t border-slate-800/40' : ''}">
-          <div class="flex justify-between items-start gap-2 flex-wrap mb-1.5">
+        <div class="py-2 ${index > 0 ? 'border-t border-slate-800/40' : ''}">
+          <div class="flex justify-between items-start gap-2 flex-wrap mb-1">
             <span class="font-extrabold text-slate-100 text-sm">${item.subject_code} - ${item.subject_name}</span>
             <span class="text-slate-400 text-sm font-semibold flex items-center gap-1">
               <span class="material-symbols-rounded text-sm">person</span>
@@ -810,11 +810,11 @@
             </span>
           </div>
 
-          <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+          <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
             <div class="bg-gradient-to-r from-teal-500 to-emerald-500 h-full rounded-full transition-all duration-1000 ease-out" style="width: ${item.percentage}%"></div>
           </div>
 
-          <div class="flex justify-between text-sm font-semibold text-slate-500 mt-1.5">
+          <div class="flex justify-between text-sm font-semibold text-slate-500 mt-1">
             <span>Sessions: <strong class="text-slate-300">${item.completed_sessions}</strong> / ${item.total_sessions} taught</span>
             <span class="text-teal-400">${item.percentage}%</span>
           </div>
