@@ -19,6 +19,20 @@
     body {
         font-family: "Plus Jakarta Sans", sans-serif;
     }
+    @media (max-width: 1440px) {
+      html, body {
+        font-size: 13px !important;
+      }
+      .p-5, .p-6, .md\:p-6 {
+        padding: 1rem !important;
+      }
+      .mb-4 {
+        margin-bottom: 0.75rem !important;
+      }
+      .space-y-3 > :not([hidden]) ~ :not([hidden]) {
+        margin-top: 0.5rem !important;
+      }
+    }
     select option {
       background-color: #0f172a !important;
       color: #ffffff !important;

@@ -53,6 +53,48 @@
       }
     }
 
+    /* Screen responsiveness: scale down fonts, paddings, and gaps for monitors under 1440px (like 1366x768) */
+    @media (max-width: 1440px) {
+      html, body {
+        font-size: 13px !important;
+      }
+      #panelClassroom, 
+      #panelClassroom button,
+      #panelClassroom select,
+      #panelClassroom input,
+      #panelClassroom table,
+      #panelClassroom th,
+      #panelClassroom td,
+      #panelClassroom div,
+      #panelClassroom p,
+      #panelClassroom h3,
+      #panelClassroom h4,
+      #panelClassroom h5,
+      #panelClassroom span {
+        font-size: 12px !important;
+      }
+      .p-6 {
+        padding: 1rem !important;
+      }
+      .p-8 {
+        padding: 1.25rem !important;
+      }
+      .gap-6 {
+        gap: 1rem !important;
+      }
+      .gap-8 {
+        gap: 1.25rem !important;
+      }
+      .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .text-nowrap {
+        white-space: nowrap !important;
+      }
+    }
+
     /* Clean overrides to enlarge fonts in the virtual classroom and related containers to normal readable sizes */
     #panelClassroom, 
     #panelClassroom button,
@@ -993,6 +1035,9 @@
     let currentSummativeTests = {};
     let currentSubjectName = '';
     let currentSubjectCode = '';
+    let currentSubjectSemester = '';
+    let currentSubjectAcademicYear = '';
+    let currentSubjectClassroomId = '';
 
     function loadCourseDetails(subjectId) {
       currentSubjectId = subjectId;
@@ -1027,6 +1072,9 @@
           currentSummativeTests = data.data.summative_manual_tests || {};
           currentSubjectName = data.data.subject_name || '';
           currentSubjectCode = data.data.subject_code || '';
+          currentSubjectSemester = data.data.semester || '';
+          currentSubjectAcademicYear = data.data.academic_year || '';
+          currentSubjectClassroomId = data.data.classroom_id || '';
           window.currentSyllabusRevision = data.data.syllabus_revision || '2021';
           window.currentVirtualStudents = data.data.students || [];
           window.currentVirtualSemester = data.data.semester || '';
@@ -1320,6 +1368,11 @@
                   <span class="material-symbols-rounded text-[14px] block">lock</span>
                 </button>
         `;
+        let printBtn = `
+                <button onclick="printAssignmentPaperAndRubrics('${subjectId}', '${co}')" class="p-1 rounded-lg bg-slate-800 hover:bg-emerald-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Print Assignment & Rubrics">
+                  <span class="material-symbols-rounded text-[14px] block">print</span>
+                </button>
+        `;
 
         html += `
           <div class="bg-slate-900/50 border border-slate-800/60 p-4 rounded-xl relative overflow-hidden group ${isLocked ? 'ring-1 ring-amber-500/30' : ''}">
@@ -1340,6 +1393,7 @@
                 </div>
                 ${regenBtn}
                 ${lockBtn}
+                ${printBtn}
               </div>
             </div>
             
@@ -2340,10 +2394,13 @@
       window.open(`/classroom/${subjectId}/assignment-report`, '_blank');
     }
 
+    function printAssignmentPaperAndRubrics(subjectId, coTag) {
+      window.open(`/classroom/${subjectId}/assignment-print/${coTag}`, '_blank');
+    }
+
     function printSummativeReport(subjectId) {
       window.open(`/classroom/${subjectId}/summative-report`, '_blank');
     }
-
     function printSummativePaper(coTag, totalMarks) {
       const data = currentSummativeTests[coTag];
       if(!data) return;
@@ -2358,6 +2415,7 @@
         'ECE': 'ELECTRONICS AND COMMUNICATION ENGINEERING'
       };
       const sessionBranch = "{{ session('userBranch', 'ENGINEERING') }}";
+      const lecturerName = "{{ session('userName', 'Faculty Name') }}";
       const subjectName = currentSubjectName;
       const subjectCode = currentSubjectCode;
       const deptName = deptMap[sessionBranch.toUpperCase()] || sessionBranch;
@@ -2365,63 +2423,307 @@
         ? new Date(data.date_of_exam).toLocaleDateString('en-IN', {day:'2-digit', month:'long', year:'numeric'})
         : 'TBA';
 
-      const buildRows = (part) => {
-        if (!part || !part.q_count || !part.questions) return '';
-        return part.questions.map((q, i) =>
-          `<tr>
-            <td style="width:28px;vertical-align:top;padding:4px 2px;">${i+1}.</td>
-            <td style="vertical-align:top;padding:4px 6px;">${q.q}</td>
-            <td style="width:95px;text-align:right;vertical-align:top;padding:4px 2px;white-space:nowrap;">${q.marks} Marks &nbsp;<strong>[${q.level}]</strong></td>
-          </tr>`
-        ).join('');
+      let questionsToSolve = [];
+      const collectQuestions = (part) => {
+        if (part && part.questions) {
+          part.questions.forEach(q => {
+            questionsToSolve.push({ q: q.q, marks: q.marks });
+          });
+        }
       };
+      collectQuestions(data.part_a);
+      collectQuestions(data.part_b);
+      collectQuestions(data.part_c);
 
-      let bodyHtml = '';
+      const proceedWithPrint = (geminiData) => {
+        const getGeminiInfo = (qText) => {
+          if (!geminiData) return null;
+          return geminiData.find(item => item.q === qText || item.q.includes(qText) || qText.includes(item.q));
+        };
 
-      if (data.part_a && data.part_a.q_count > 0) {
-        bodyHtml += `
-          <h4 style="text-align:center;font-weight:bold;margin:18px 0 6px;">PART A &nbsp;<small style="font-weight:normal;font-size:12px;">(${data.part_a.q_count} Ã ${data.part_a.marks_per_q} = ${data.part_a.total_marks} Marks)</small></h4>
-          <p style="text-align:center;font-style:italic;font-size:12px;margin:0 0 10px;">Answer all questions.</p>
-          <table style="width:100%;border-collapse:collapse;font-size:13px;">${buildRows(data.part_a)}</table>`;
-      }
-      if (data.part_b && data.part_b.q_count > 0) {
-        bodyHtml += `
-          <h4 style="text-align:center;font-weight:bold;margin:20px 0 6px;">PART B &nbsp;<small style="font-weight:normal;font-size:12px;">(${data.part_b.q_count} Ã ${data.part_b.marks_per_q} = ${data.part_b.total_marks} Marks)</small></h4>
-          <p style="text-align:center;font-style:italic;font-size:12px;margin:0 0 10px;">Answer all questions.</p>
-          <table style="width:100%;border-collapse:collapse;font-size:13px;">${buildRows(data.part_b)}</table>`;
-      }
-      if (data.part_c && data.part_c.q_count > 0) {
-        bodyHtml += `
-          <h4 style="text-align:center;font-weight:bold;margin:20px 0 6px;">PART C &nbsp;<small style="font-weight:normal;font-size:12px;">(${data.part_c.q_count} Ã ${data.part_c.marks_per_q} = ${data.part_c.total_marks} Marks)</small></h4>
-          <p style="text-align:center;font-style:italic;font-size:12px;margin:0 0 10px;">Answer all questions.</p>
-          <table style="width:100%;border-collapse:collapse;font-size:13px;">${buildRows(data.part_c)}</table>`;
-      }
+        const buildRows = (part) => {
+          if (!part || !part.q_count || !part.questions) return '';
+          return part.questions.map((q, i) => {
+            let lvl = q.level || '';
+            if (lvl === 'R') lvl = 'Remember';
+            else if (lvl === 'U') lvl = 'Understand';
+            else if (lvl === 'A') lvl = 'Apply';
+            return `<tr>
+              <td style="border: 1px solid #000; padding: 4px; text-align: center; vertical-align: top;">${i+1}</td>
+              <td style="border: 1px solid #000; padding: 4px; vertical-align: top;">${q.q}</td>
+              <td style="border: 1px solid #000; padding: 4px; text-align: center; vertical-align: top;">${coTag}</td>
+              <td style="border: 1px solid #000; padding: 4px; text-align: center; vertical-align: top;">${lvl}</td>
+            </tr>`;
+          }).join('');
+        };
 
-      const fullHtml = `<!DOCTYPE html>
+        let bodyHtml = '';
+
+        if (data.part_a && data.part_a.q_count > 0) {
+          bodyHtml += `
+            <h4 style="text-align:center;font-weight:bold;margin:10px 0 4px; font-size:12px;">PART A &nbsp;<small style="font-weight:normal;font-size:11px;">(${data.part_a.q_count} × ${data.part_a.marks_per_q} = ${data.part_a.total_marks} Marks)</small></h4>
+            <p style="text-align:center;font-style:italic;font-size:11px;margin:0 0 6px;">Answer all questions.</p>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #000; margin-bottom:10px;">
+              <thead>
+                <tr style="background:#f2f2f2;">
+                  <th style="border:1px solid #000; padding:4px; width:45px; text-align:center;">Q.No.</th>
+                  <th style="border:1px solid #000; padding:4px; text-align:left;">Question</th>
+                  <th style="border:1px solid #000; padding:4px; width:120px; text-align:center;">Module Outcome</th>
+                  <th style="border:1px solid #000; padding:4px; width:120px; text-align:center;">Cognitive Level</th>
+                </tr>
+              </thead>
+              <tbody>${buildRows(data.part_a)}</tbody>
+            </table>`;
+        }
+        if (data.part_b && data.part_b.q_count > 0) {
+          bodyHtml += `
+            <h4 style="text-align:center;font-weight:bold;margin:12px 0 4px; font-size:12px;">PART B &nbsp;<small style="font-weight:normal;font-size:11px;">(${data.part_b.q_count} × ${data.part_b.marks_per_q} = ${data.part_b.total_marks} Marks)</small></h4>
+            <p style="text-align:center;font-style:italic;font-size:11px;margin:0 0 6px;">Answer all questions.</p>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #000; margin-bottom:10px;">
+              <thead>
+                <tr style="background:#f2f2f2;">
+                  <th style="border:1px solid #000; padding:4px; width:45px; text-align:center;">Q.No.</th>
+                  <th style="border:1px solid #000; padding:4px; text-align:left;">Question</th>
+                  <th style="border:1px solid #000; padding:4px; width:120px; text-align:center;">Module Outcome</th>
+                  <th style="border:1px solid #000; padding:4px; width:120px; text-align:center;">Cognitive Level</th>
+                </tr>
+              </thead>
+              <tbody>${buildRows(data.part_b)}</tbody>
+            </table>`;
+        }
+        if (data.part_c && data.part_c.q_count > 0) {
+          bodyHtml += `
+            <h4 style="text-align:center;font-weight:bold;margin:12px 0 4px; font-size:12px;">PART C &nbsp;<small style="font-weight:normal;font-size:11px;">(${data.part_c.q_count} × ${data.part_c.marks_per_q} = ${data.part_c.total_marks} Marks)</small></h4>
+            <p style="text-align:center;font-style:italic;font-size:11px;margin:0 0 6px;">Answer all questions.</p>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #000; margin-bottom:10px;">
+              <thead>
+                <tr style="background:#f2f2f2;">
+                  <th style="border:1px solid #000; padding:4px; width:45px; text-align:center;">Q.No.</th>
+                  <th style="border:1px solid #000; padding:4px; text-align:left;">Question</th>
+                  <th style="border:1px solid #000; padding:4px; width:120px; text-align:center;">Module Outcome</th>
+                  <th style="border:1px solid #000; padding:4px; width:120px; text-align:center;">Cognitive Level</th>
+                </tr>
+              </thead>
+              <tbody>${buildRows(data.part_c)}</tbody>
+            </table>`;
+        }
+
+        // Calculate Cognitive Level wise Question Analysis
+        let counts = {
+          A: { R: 0, U: 0, A: 0, total: 0, marksPerQ: data.part_a?.marks_per_q || 1 },
+          B: { R: 0, U: 0, A: 0, total: 0, marksPerQ: data.part_b?.marks_per_q || 3 },
+          C: { R: 0, U: 0, A: 0, total: 0, marksPerQ: data.part_c?.marks_per_q || 7 }
+        };
+
+        if (data.part_a && data.part_a.questions) {
+          data.part_a.questions.forEach(q => {
+            let lvl = (q.level || 'R').toUpperCase()[0];
+            if (counts.A[lvl] !== undefined) counts.A[lvl]++;
+            counts.A.total++;
+          });
+        }
+        if (data.part_b && data.part_b.questions) {
+          data.part_b.questions.forEach(q => {
+            let lvl = (q.level || 'U').toUpperCase()[0];
+            if (counts.B[lvl] !== undefined) counts.B[lvl]++;
+            counts.B.total++;
+          });
+        }
+        if (data.part_c && data.part_c.questions) {
+          data.part_c.questions.forEach(q => {
+            let lvl = (q.level || 'A').toUpperCase()[0];
+            if (counts.C[lvl] !== undefined) counts.C[lvl]++;
+            counts.C.total++;
+          });
+        }
+
+        let rMarks = (counts.A.R * counts.A.marksPerQ) + (counts.B.R * counts.B.marksPerQ) + (counts.C.R * counts.C.marksPerQ);
+        let uMarks = (counts.A.U * counts.A.marksPerQ) + (counts.B.U * counts.B.marksPerQ) + (counts.C.U * counts.C.marksPerQ);
+        let aMarks = (counts.A.A * counts.A.marksPerQ) + (counts.B.A * counts.B.marksPerQ) + (counts.C.A * counts.C.marksPerQ);
+        let totalCalculatedMarks = rMarks + uMarks + aMarks;
+
+        let cognitiveTableHtml = `
+          <div style="margin-top:15px; page-break-inside: avoid;">
+            <h4 style="text-align:center; font-weight:bold; margin-bottom:6px; text-decoration: underline; font-size:12px;">Cognitive level wise Question Analysis</h4>
+            <table style="width:100%; border:1px solid #000; border-collapse:collapse; font-size:11px; text-align:center;">
+              <thead>
+                <tr style="background:#f2f2f2;">
+                  <th style="border:1px solid #000; padding:4px; text-align:left;" rowspan="2"></th>
+                  <th style="border:1px solid #000; padding:4px;" colspan="3">Cognitive Level</th>
+                  <th style="border:1px solid #000; padding:4px;" rowspan="2">No. of Questions</th>
+                </tr>
+                <tr style="background:#f2f2f2;">
+                  <th style="border:1px solid #000; padding:4px; width:150px;">Remember</th>
+                  <th style="border:1px solid #000; padding:4px; width:150px;">Understand</th>
+                  <th style="border:1px solid #000; padding:4px; width:150px;">Apply</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="border:1px solid #000; padding:4px; text-align:left; font-weight:bold;">Part A (${counts.A.marksPerQ} mark${counts.A.marksPerQ > 1 ? 's' : ''})</td>
+                  <td style="border:1px solid #000; padding:4px;">${counts.A.R || '0'}</td>
+                  <td style="border:1px solid #000; padding:4px;">${counts.A.U || '0'}</td>
+                  <td style="border:1px solid #000; padding:4px;">${counts.A.A || '0'}</td>
+                  <td style="border:1px solid #000; padding:4px; font-weight:bold;">${counts.A.total || '0'}</td>
+                </tr>
+                <tr>
+                  <td style="border:1px solid #000; padding:4px; text-align:left; font-weight:bold;">Part B (${counts.B.marksPerQ} marks)</td>
+                  <td style="border:1px solid #000; padding:4px;">${counts.B.R || '0'}</td>
+                  <td style="border:1px solid #000; padding:4px;">${counts.B.U || '0'}</td>
+                  <td style="border:1px solid #000; padding:4px;">${counts.B.A || '0'}</td>
+                  <td style="border:1px solid #000; padding:4px; font-weight:bold;">${counts.B.total || '0'}</td>
+                </tr>
+                <tr>
+                  <td style="border:1px solid #000; padding:4px; text-align:left; font-weight:bold;">Part C (${counts.C.marksPerQ} marks)</td>
+                  <td style="border:1px solid #000; padding:4px;">${counts.C.R || '0'}</td>
+                  <td style="border:1px solid #000; padding:4px;">${counts.C.U || '0'}</td>
+                  <td style="border:1px solid #000; padding:4px;">${counts.C.A || '0'}</td>
+                  <td style="border:1px solid #000; padding:4px; font-weight:bold;">${counts.C.total || '0'}</td>
+                </tr>
+                <tr style="background-color:#fafafa; font-weight:bold;">
+                  <td style="border:1px solid #000; padding:4px; text-align:left;">Marks</td>
+                  <td style="border:1px solid #000; padding:4px;">${rMarks}</td>
+                  <td style="border:1px solid #000; padding:4px;">${uMarks}</td>
+                  <td style="border:1px solid #000; padding:4px;">${aMarks}</td>
+                  <td style="border:1px solid #000; padding:4px;">Total Marks = ${totalCalculatedMarks}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        let signatureBlockHtml = `
+          <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 11px; page-break-inside: avoid; border-top: 1px dashed #000; padding-top: 8px;">
+            <div><strong>Prepared By:</strong> ${lecturerName} (Course Coordinator)</div>
+            <div><strong>Verified By:</strong> Faculty Name (Module Coordinator)</div>
+            <div><strong>Approved By:</strong> HOD</div>
+          </div>
+        `;
+
+        // Build Scheme of Valuation Rows dynamically
+        const buildSchemeRows = () => {
+          let rowsHtml = '';
+          const processPart = (part, partLabel) => {
+            if (!part || !part.questions || part.questions.length === 0) return;
+            rowsHtml += `
+              <tr style="background: #f2f2f2; font-weight: bold;">
+                <td colspan="5" style="border: 1px solid #000; padding: 6px; text-align: left; text-transform: uppercase;">${partLabel}</td>
+              </tr>
+            `;
+            part.questions.forEach((q, i) => {
+              let geminiInfo = getGeminiInfo(q.q);
+              let rubric = (geminiInfo && geminiInfo.rubric) ? geminiInfo.rubric : (q.rubric || []);
+              let answers = (geminiInfo && geminiInfo.ans) ? geminiInfo.ans : (q.ans || []);
+
+              if (rubric.length === 0) {
+                let marks = q.marks || 1;
+                if (marks <= 2) rubric = [{desc: 'Correct answer / explanation', mark: marks}];
+                else rubric = [{desc: 'Key definition / concept', mark: 1}, {desc: 'Correct steps & final answer', mark: marks - 1}];
+              }
+              let rSpan = rubric.length;
+
+              let answersHtml = '';
+              if (answers && answers.length > 0) {
+                answersHtml = `<div style="margin-bottom: 6px; font-size: 11px; color: #333;">
+                  <strong>Expected Answer Key / Suggestions:</strong>
+                  <ul style="margin: 2px 0 4px 14px; padding: 0; list-style-type: disc;">
+                    ${answers.map(pt => `<li>${pt}</li>`).join('')}
+                  </ul>
+                </div>`;
+              }
+
+              rubric.forEach((r, rIdx) => {
+                rowsHtml += `<tr>`;
+                if (rIdx === 0) {
+                  rowsHtml += `<td rowspan="${rSpan}" style="border: 1px solid #000; padding: 6px; text-align: center; vertical-align: middle; font-weight: bold;">${i + 1}</td>`;
+                }
+                
+                let cellContent = '';
+                if (rIdx === 0 && answersHtml) {
+                  cellContent += answersHtml + `<div style="margin-top: 6px; border-top: 1px dashed #ccc; padding-top: 4px; font-weight: bold; font-size: 11px;">Scoring Indicator Split-up:</div>`;
+                }
+                cellContent += `<div style="padding-left: 6px; font-size: 11px;">&bull; ${r.desc}</div>`;
+
+                rowsHtml += `
+                  <td style="border: 1px solid #000; padding: 6px; vertical-align: top; text-align: left;">${cellContent}</td>
+                  <td style="border: 1px solid #000; padding: 6px; text-align: center; vertical-align: top; font-weight: bold;">${r.mark}</td>
+                `;
+                if (rIdx === 0) {
+                  rowsHtml += `
+                    <td rowspan="${rSpan}" style="border: 1px solid #000; padding: 6px; text-align: center; vertical-align: middle; font-weight: bold;">${q.marks}</td>
+                    <td rowspan="${rSpan}" style="border: 1px solid #000; padding: 6px; text-align: center; vertical-align: middle; font-weight: bold;">${q.marks}</td>
+                  `;
+                }
+                rowsHtml += `</tr>`;
+              });
+            });
+          };
+          processPart(data.part_a, 'Part A');
+          processPart(data.part_b, 'Part B');
+          processPart(data.part_c, 'Part C');
+          return rowsHtml;
+        };
+
+        const schemeTableHtml = `
+          <div style="page-break-before: always; padding-top: 20px;">
+            <div class="header">
+              <div class="college-name">CARMEL POLYTECHNIC COLLEGE</div>
+              <div class="dept-name">Department of ${deptName}</div>
+              <div class="subject-info">${subjectName ? subjectName : 'Subject'} ${subjectCode ? '&nbsp;&mdash;&nbsp;<strong>' + subjectCode + '</strong>' : ''}</div>
+              <div style="margin-top:6px;"><span class="exam-title">&nbsp;${coTag} &ndash; SCHEME OF VALUATION&nbsp;</span></div>
+              <div class="meta-row" style="margin-top: 8px; font-size: 11px;">
+                <span><strong>Semester:</strong> Sem ${currentSubjectSemester}</span>
+                <span><strong>Batch:</strong> ${currentSubjectClassroomId.replace(/^[A-Z]+_/, '').replace(/_/g, ' - ')}</span>
+                <span><strong>Academic Year:</strong> ${currentSubjectAcademicYear}</span>
+              </div>
+              <div class="meta-row" style="margin-top: 4px; font-size: 11px;">
+                <span><strong>Time:</strong> 1.5 Hours</span>
+                <span><strong>Date:</strong> ${examDate}</span>
+                <span><strong>Max Marks:</strong> ${totalMarks}</span>
+              </div>
+            </div>
+            <table style="width: 100%; border: 1px solid #000; border-collapse: collapse; font-size: 12px;">
+              <thead>
+                <tr style="background: #f2f2f2; font-weight: bold;">
+                  <th style="border: 1px solid #000; padding: 6px; width: 60px; text-align: center;">Q. No.</th>
+                  <th style="border: 1px solid #000; padding: 6px; text-align: left;">Scoring Indicators</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 70px; text-align: center;">Split Up</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 70px; text-align: center;">Sub Total</th>
+                  <th style="border: 1px solid #000; padding: 6px; width: 70px; text-align: center;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${buildSchemeRows()}
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        const fullHtml = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <title>Question Paper - ${coTag}</title>
   <style>
-    @page { size: A4 portrait; margin: 1.5cm 2cm; }
+    @page { size: A4 portrait; margin: 1cm 1.2cm; }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       padding: 0;
       font-family: 'Times New Roman', Times, serif;
-      font-size: 13px;
+      font-size: 12px;
       color: #000;
       background: #fff;
     }
     h2, h3, h4, p { margin: 0; padding: 0; }
-    .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px; }
-    .college-name { font-size: 21px; font-weight: bold; letter-spacing: 1px; }
-    .dept-name { font-size: 14px; font-weight: bold; text-transform: uppercase; margin-top: 3px; }
-    .subject-info { font-size: 12px; margin-top: 4px; color: #222; }
-    .exam-title { font-size: 14px; margin-top: 6px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #888; border-bottom: 1px solid #888; padding: 4px 0; display: inline-block; }
-    .meta-row { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; }
+    .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; }
+    .college-name { font-size: 18px; font-weight: bold; letter-spacing: 0.5px; }
+    .dept-name { font-size: 13px; font-weight: bold; text-transform: uppercase; margin-top: 2px; }
+    .subject-info { font-size: 11px; margin-top: 3px; color: #222; }
+    .exam-title { font-size: 13px; margin-top: 4px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid #888; border-bottom: 1px solid #888; padding: 2px 0; display: inline-block; }
+    .meta-row { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; }
     table { width: 100%; border-collapse: collapse; }
-    td { padding: 5px 3px; vertical-align: top; line-height: 1.5; }
+    td { padding: 4px; vertical-align: top; line-height: 1.4; }
   </style>
 </head>
 <body>
@@ -2430,21 +2732,32 @@
     <div class="dept-name">Department of ${deptName}</div>
     <div class="subject-info">${subjectName ? subjectName : 'Subject'} ${subjectCode ? '&nbsp;&mdash;&nbsp;<strong>' + subjectCode + '</strong>' : ''}</div>
     <div style="margin-top:6px;"><span class="exam-title">&nbsp;${coTag} &ndash; Written Test&nbsp;</span></div>
-    <div class="meta-row">
+    <div class="meta-row" style="margin-top: 8px; font-size: 11px;">
+      <span><strong>Semester:</strong> Sem ${currentSubjectSemester}</span>
+      <span><strong>Batch:</strong> ${currentSubjectClassroomId.replace(/^[A-Z]+_/, '').replace(/_/g, ' - ')}</span>
+      <span><strong>Academic Year:</strong> ${currentSubjectAcademicYear}</span>
+    </div>
+    <div class="meta-row" style="margin-top: 4px; font-size: 11px;">
       <span><strong>Time:</strong> 1.5 Hours</span>
       <span><strong>Date:</strong> ${examDate}</span>
       <span><strong>Max Marks:</strong> ${totalMarks}</span>
     </div>
   </div>
   ${bodyHtml}
+  ${cognitiveTableHtml}
+  ${signatureBlockHtml}
+  ${schemeTableHtml}
 </body>
 </html>`;
 
-      const pw = window.open('', '_blank', 'width=900,height=700');
-      pw.document.write(fullHtml);
-      pw.document.close();
-      pw.focus();
-      setTimeout(() => { pw.print(); }, 400);
+        const pw = window.open('', '_blank', 'width=900,height=700');
+        pw.document.write(fullHtml);
+        pw.document.close();
+        pw.focus();
+        setTimeout(() => { pw.print(); }, 400);
+      };
+
+      proceedWithPrint(null);
     }
 
     function printAnswerKey(coTag, totalMarks) {

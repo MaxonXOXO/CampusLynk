@@ -588,6 +588,9 @@ Syllabus text:
                 'summative_manual_tests' => $courseFile ? ($courseFile->summative_manual_tests ?? []) : [],
                 'subject_name' => $batchSubject->subject_name ?? '',
                 'subject_code' => $batchSubject->subject_code ?? '',
+                'semester' => $batchSubject->semester ?? '',
+                'academic_year' => $batchSubject->academic_year ?? '',
+                'classroom_id' => $batchSubject->classroom_id ?? '',
                 'syllabus_revision' => $syllabusRevision
             ]
         ]);
@@ -1164,6 +1167,129 @@ Syllabus text:
         ]);
     }
 
+    public function printAssignmentQuestionPaperAndRubrics($subjectId, $coTag)
+    {
+        $batchSubject = \App\Models\BatchSubject::with('classroom')->find($subjectId);
+        if (!$batchSubject) return response("Subject not found.", 404);
+
+        $courseFile = \App\Models\CourseFile::where('batch_subject_id', $subjectId)->first();
+        $questions = $courseFile ? ($courseFile->assignment_questions[$coTag] ?? []) : [];
+        $deadlines = $courseFile ? ($courseFile->assignment_deadlines[$coTag] ?? []) : [];
+
+        // Department mapping
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+        ];
+        
+        $branchKey = strtoupper(explode('_', $batchSubject->classroom_id)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? $branchKey;
+        
+        $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $batchSubject->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        // Assessment Year calculation
+        $batchStartYear = intval(explode('-', $batchSubject->classroom->batch_year ?? '')[0]);
+        if ($batchStartYear <= 0) {
+            $batchStartYear = date('Y');
+        }
+        $sem = intval($batchSubject->semester);
+        $yearOffset = floor(($sem - 1) / 2);
+        $assessmentStart = $batchStartYear + $yearOffset;
+        $assessmentEnd = $assessmentStart + 1;
+        $assessmentYear = "$assessmentStart - $assessmentEnd";
+
+        // Roman numeral semester
+        $romanSemesters = [
+            1 => 'I', 2 => 'II', 3 => 'III', 4 => 'IV', 5 => 'V', 6 => 'VI'
+        ];
+        $romanSem = $romanSemesters[$sem] ?? $sem;
+
+        // Process questions: detect BT level (Remember/Understand/Apply) and allocate marks
+        $processedQuestions = [];
+        $rememberCount = 0;
+        $understandCount = 0;
+        $applyCount = 0;
+
+        // We assume maximum 20 marks. Let's divide 20 marks among the questions.
+        $totalQ = count($questions);
+        $marksAllocated = [];
+        if ($totalQ === 3) {
+            $marksAllocated = [10, 5, 5];
+        } elseif ($totalQ === 2) {
+            $marksAllocated = [10, 10];
+        } elseif ($totalQ === 1) {
+            $marksAllocated = [20];
+        } else {
+            for ($i = 0; $i < $totalQ; $i++) {
+                $marksAllocated[] = round(20 / ($totalQ ?: 1));
+            }
+        }
+
+        foreach ($questions as $idx => $qText) {
+            $cleanedQ = preg_replace('/^\d+\.\s*/', '', $qText);
+            
+            $lower = strtolower($cleanedQ);
+            $btLevel = 'Understand'; // default
+            if (strpos($lower, 'define') !== false || strpos($lower, 'list') !== false || strpos($lower, 'what is') !== false || strpos($lower, 'state') !== false || strpos($lower, 'name') !== false) {
+                $btLevel = 'Remember';
+                $rememberCount++;
+            } elseif (strpos($lower, 'design') !== false || strpos($lower, 'solve') !== false || strpos($lower, 'calculate') !== false || strpos($lower, 'write') !== false || strpos($lower, 'implement') !== false || strpos($lower, 'apply') !== false || strpos($lower, 'draw') !== false) {
+                $btLevel = 'Apply';
+                $applyCount++;
+            } else {
+                $understandCount++;
+            }
+
+            $processedQuestions[] = [
+                'q_no' => $idx + 1,
+                'question' => $cleanedQ,
+                'bt_level' => $btLevel,
+                'marks' => $marksAllocated[$idx] ?? 5
+            ];
+        }
+
+        // Get CO description/topic
+        $coDesc = 'General Topic';
+        if ($courseFile && $courseFile->parsed_cos) {
+            $parsedCos = $courseFile->parsed_cos;
+            foreach ($parsedCos as $c) {
+                if (isset($c['id']) && trim($c['id']) === trim($coTag)) {
+                    $coDesc = $c['description'] ?? 'General Topic';
+                    break;
+                }
+            }
+        }
+
+        // Last Date of Submission formatting
+        $dueDate = 'TBA';
+        if (!empty($deadlines['due'])) {
+            $dueDate = date('d-m-Y', strtotime($deadlines['due']));
+        }
+
+        $topicName = strtoupper($coDesc);
+
+        return view('classroom_assignment_print', [
+            'subject' => $batchSubject,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'assessmentYear' => $assessmentYear,
+            'romanSem' => $romanSem,
+            'coTag' => $coTag,
+            'questions' => $processedQuestions,
+            'rememberCount' => $rememberCount,
+            'understandCount' => $understandCount,
+            'applyCount' => $applyCount,
+            'totalQuestions' => $totalQ,
+            'topicName' => $topicName,
+            'dueDate' => $dueDate,
+        ]);
+    }
+
     public function printSummativeReport($subjectId)
     {
         $batchSubject = \App\Models\BatchSubject::find($subjectId);
@@ -1521,6 +1647,65 @@ Return ONLY a valid JSON array of objects with the exact schema:
                 'status' => 'ERROR',
                 'message' => 'Error saving Excel questions: ' . $e->getMessage()
             ]);
+        }
+    }
+
+    public function generateAnswerKeyForScheme(Request $request)
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        set_time_limit(180);
+
+        $questions = $request->input('questions', []);
+        if (empty($questions)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'No questions provided.']);
+        }
+
+        $apiKey = env('GEMINI_API_KEY');
+        if (!$apiKey) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Gemini API Key is not configured.']);
+        }
+
+        try {
+            $prompt = "You are an examiner creating a highly concise scheme of valuation (answer key) for an engineering/academic exam.
+For each question in the list, generate:
+1. 'ans': A list of key answer points/suggestions (expected answer details). KEEP THIS EXTREMELY BRIEF (maximum 2 short bullet points, under 15 words each).
+2. 'rubric': A split-up mark distribution table (each item has 'desc' as a short description, and 'mark' as the allocated mark). The sum of 'mark' in the rubric items MUST exactly equal the 'marks' field of the question.
+
+Input questions: " . json_encode($questions) . "
+
+Return strictly a valid JSON array of objects representing the answer key and rubrics in this format:
+[
+  {
+    \"q\": \"Question text here\",
+    \"ans\": [\"Brief point 1\", \"Brief point 2\"],
+    \"rubric\": [
+      {\"desc\": \"Concept definition\", \"mark\": 1},
+      {\"desc\": \"Explanation/steps\", \"mark\": 2}
+    ]
+  }
+]
+Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
+
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+                ->timeout(60)
+                ->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
+                    'contents' => [['parts' => [['text' => $prompt]]]],
+                    'generationConfig' => ['responseMimeType' => 'application/json']
+                ]);
+
+            if ($response->successful()) {
+                $jsonString = $response->json('candidates.0.content.parts.0.text');
+                $cleanJson = trim(preg_replace('/```json|```/i', '', $jsonString));
+                $parsed = json_decode($cleanJson, true);
+                if (is_array($parsed)) {
+                    return response()->json(['status' => 'SUCCESS', 'data' => $parsed]);
+                }
+            }
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed to retrieve or parse answer key from Gemini.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Gemini API Error: ' . $e->getMessage()]);
         }
     }
 }

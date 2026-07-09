@@ -311,10 +311,12 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/classroom/{subjectId}/generate-summative-paper', [App\Http\Controllers\ClassroomController::class, 'generateSummativePaper']);
     Route::post('/api/classroom/{subjectId}/save-summative-config', [App\Http\Controllers\ClassroomController::class, 'saveSummativeConfig']);
     Route::post('/api/classroom/{subjectId}/save-written-test-marks', [App\Http\Controllers\ClassroomController::class, 'saveWrittenTestMarks']);
+    Route::post('/api/classroom/generate-scheme-answers', [App\Http\Controllers\ClassroomController::class, 'generateAnswerKeyForScheme']);
     Route::post('/api/classroom/{subjectId}/publish-online-test', [App\Http\Controllers\TestEngineController::class, 'publishOnlineTest']);
     Route::get('/api/classroom/{subjectId}/active-online-tests', [App\Http\Controllers\TestEngineController::class, 'getActiveTestsLecturer']);
     Route::get('/api/test-engine/report/{testId}', [App\Http\Controllers\TestEngineController::class, 'generateTestReport']);
     Route::get('/classroom/{subjectId}/assignment-report', [App\Http\Controllers\ClassroomController::class, 'printAssignmentReport']);
+    Route::get('/classroom/{subjectId}/assignment-print/{coTag}', [App\Http\Controllers\ClassroomController::class, 'printAssignmentQuestionPaperAndRubrics']);
     Route::get('/classroom/{subjectId}/summative-report', [App\Http\Controllers\ClassroomController::class, 'printSummativeReport']);
 
     Route::get('/api/classroom/{subjectId}/question-bank', [App\Http\Controllers\ClassroomController::class, 'getQuestionBank']);
