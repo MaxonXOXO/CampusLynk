@@ -10,6 +10,9 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   
   <style>
+    html {
+      font-size: 90%;
+    }
     /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
     .font-extrabold, .font-black {
       font-weight: 700 !important;
