@@ -51,11 +51,11 @@
 
   <!-- Sidebar Navigation -->
   <aside class="w-full md:w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl">
-    <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
-      <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-blue-500/20 text-lg">CL</div>
+    <div class="p-5 border-b border-slate-800/60 flex items-center gap-3">
+      <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-slate-800/60">
       <div>
-        <h2 class="font-extrabold text-[10px] tracking-wide text-sm">Carmel Linx</h2>
-        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Instructor Console</span>
+        <h2 class="font-black tracking-tight leading-tight" style="font-size:1.1rem;background:linear-gradient(to right,#60a5fa,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Carmel Linx</h2>
+        <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Instructor Console</span>
       </div>
     </div>
 
@@ -63,8 +63,8 @@
     <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3">
       <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
       <div class="overflow-hidden">
-        <span class="font-bold text-[10px] block truncate text-slate-200 text-[10px] text-xs">{{ session('userName') }}</span>
-        <span class="text-[10px] font-bold text-teal-400 block uppercase tracking-wider">{{ session('userBranch') }} Instructor</span>
+        <span class="font-black text-base block truncate text-white leading-tight">{{ session('userName') }}</span>
+        <span class="text-xs font-bold text-teal-400 block uppercase tracking-wider">{{ session('userBranch') }} Instructor</span>
       </div>
     </div>
 

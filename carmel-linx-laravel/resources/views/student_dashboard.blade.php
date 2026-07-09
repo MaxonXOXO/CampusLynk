@@ -58,11 +58,11 @@
   <!-- Sidebar -->
   <aside id="sidebarMenu" class="fixed inset-y-0 left-0 z-30 w-64 bg-slate-950 flex-shrink-0 flex flex-col border-r border-slate-800/80 shadow-xl transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 md:sticky md:top-0 md:h-screen overflow-y-auto">
     <!-- Branding -->
-    <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
-      <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-blue-500/20 text-lg">CL</div>
+    <div class="p-5 border-b border-slate-800/60 flex items-center gap-3">
+      <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-slate-800/60">
       <div>
-        <h2 class="font-extrabold tracking-wide text-sm">Carmel Linx</h2>
-        <span class="text-slate-400 font-bold uppercase tracking-wider">Student Portal</span>
+        <h2 class="font-black tracking-tight leading-tight" style="font-size:1.1rem;background:linear-gradient(to right,#60a5fa,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Carmel Linx</h2>
+        <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Student Portal</span>
       </div>
     </div>
 
@@ -77,7 +77,7 @@
           </div>
         @endif
         <div class="overflow-hidden">
-          <span class="font-bold text-xs block truncate text-slate-200">{{ session('userName') }}</span>
+          <span class="font-black text-base block truncate text-white leading-tight">{{ session('userName') }}</span>
           <span class="text-xs font-bold text-teal-400 block font-mono">{{ session('userId') }}</span>
           <span class="text-xs text-slate-500 font-semibold">{{ session('userBranch') }} &bull; Student</span>
         </div>

@@ -69,11 +69,11 @@
 
 <!-- Sidebar Navigation -->
   <aside class="w-full md:w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl">
-    <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
-      <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-blue-500/20 text-lg">CL</div>
+    <div class="p-5 border-b border-slate-800/60 flex items-center gap-3">
+      <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-slate-800/60">
       <div>
-        <h2 class="font-extrabold text-base tracking-wide">Carmel Linx</h2>
-        <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Control Desk</span>
+        <h2 class="font-black tracking-tight leading-tight" style="font-size:1.1rem;background:linear-gradient(to right,#60a5fa,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Carmel Linx</h2>
+        <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Control Desk</span>
       </div>
     </div>
 
@@ -209,47 +209,7 @@
           </div>
         </div>
 
-        @if(session('userRole') === 'Principal' || session('userRole') === 'Super_Admin')
-        <!-- General Department Coordinator Assignment Console -->
-        <details class="group bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden transition-premium">
-          <summary class="p-6 cursor-pointer flex items-center justify-between hover:bg-slate-900/40 select-none list-none [&::-webkit-details-marker]:hidden">
-            <div class="flex items-center gap-2">
-              <span class="material-symbols-rounded text-blue-400 text-lg">assignment_ind</span>
-              <h3 class="font-bold text-slate-200 text-base inline-block m-0">General Coordinator Allocation Console</h3>
-            </div>
-            <span class="material-symbols-rounded text-slate-400 group-open:rotate-180 transition-transform duration-300">expand_more</span>
-          </summary>
-          <div class="px-6 pb-6 space-y-4">
-            <p class="text-sm text-slate-400 leading-relaxed">
-              Select and assign a general department coordinator from among the registered academic staff in General Department Aided or Self Finance.
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <!-- Aided -->
-              <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-3">
-                <span class="text-sm text-blue-400 uppercase font-black tracking-wider block">Aided General Department Coordinator</span>
-                <div>
-                  <label class="block text-sm text-slate-400 font-bold mb-1">Select Aided Coordinator</label>
-                  <select id="selectAidedCoord" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-white outline-none text-sm">
-                    <option value="">-- Select Registered Aided Staff --</option>
-                  </select>
-                </div>
-                <button onclick="assignGeneralCoordinator('Aided')" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-premium cursor-pointer text-sm">Assign Coordinator (Aided)</button>
-              </div>
-              <!-- Self Finance -->
-              <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl space-y-3">
-                <span class="text-sm text-teal-400 uppercase font-black tracking-wider block">Self Finance General Department Coordinator</span>
-                <div>
-                  <label class="block text-sm text-slate-400 font-bold mb-1">Select Self Finance Coordinator</label>
-                  <select id="selectSfCoord" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-2 text-white outline-none text-sm">
-                    <option value="">-- Select Registered SF Staff --</option>
-                  </select>
-                </div>
-                <button onclick="assignGeneralCoordinator('SF')" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg transition-premium cursor-pointer text-sm">Assign Coordinator (Self Finance)</button>
-              </div>
-            </div>
-          </div>
-        </details>
-        @endif
+
 
         @if(session('userRole') === 'Principal' || session('userRole') === 'Super_Admin')
         <!-- Department HOD Console Override Links -->
@@ -686,66 +646,10 @@
       loadStats();
       loadUsers();
       if (activePanel === 'audit') loadAuditTrail();
-      if (document.getElementById('selectAidedCoord')) {
-        loadGeneralStaffOptions();
-      }
+
     });
 
-    function loadGeneralStaffOptions() {
-      // Fetch all staff members to populate coordinator selectors
-      fetch('/api/admin/users?role=Lecturer')
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'SUCCESS') {
-            const aidedSelect = document.getElementById('selectAidedCoord');
-            const sfSelect = document.getElementById('selectSfCoord');
-            
-            // Clear but keep first option
-            aidedSelect.innerHTML = '<option value="">-- Select Registered Aided Staff --</option>';
-            sfSelect.innerHTML = '<option value="">-- Select Registered SF Staff --</option>';
 
-            data.users.forEach(u => {
-              if (u.type === 'staff') {
-                if (u.branch === 'GEN_AIDED') {
-                  aidedSelect.innerHTML += `<option value="${u.id}">${u.name} (${u.id})</option>`;
-                } else if (u.branch === 'GEN_SF') {
-                  sfSelect.innerHTML += `<option value="${u.id}">${u.name} (${u.id})</option>`;
-                }
-              }
-            });
-          }
-        });
-    }
-
-    function assignGeneralCoordinator(type) {
-      const selectId = type === 'Aided' ? 'selectAidedCoord' : 'selectSfCoord';
-      const staffId = document.getElementById(selectId).value;
-      if (!staffId) {
-        showGlobalMessage('Please select a staff member first.', true);
-        return;
-      }
-
-      const newRole = type === 'Aided' ? 'Gen_Dept_Coordinator_Aided' : 'Gen_Dept_Coordinator_Self_Finance';
-
-      fetch('/api/admin/user/change-role', {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({ userId: staffId, newRole: newRole })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          showGlobalMessage(`Coordinator assigned for General Department ${type} successfully.`);
-          loadUsers();
-          loadGeneralStaffOptions();
-        } else {
-          showGlobalMessage(data.message, true);
-        }
-      })
-      .catch(() => {
-        showGlobalMessage('Network error occurred while assigning coordinator.', true);
-      });
-    }
 
     // CSRF Token Helper
     function getHeaders() {
