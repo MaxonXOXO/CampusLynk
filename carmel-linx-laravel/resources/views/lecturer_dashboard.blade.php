@@ -320,36 +320,56 @@
     }
     /* MOBILE-SPECIFIC SIDEBAR & CARD FIXES (MD breakpoint is 768px) */
     @media (max-width: 767px) {
-      /* Sidebar changes: non-blocking horizontal layout */
+      /* Sidebar changes: multi-row horizontal block on mobile */
       aside {
         width: 100% !important;
         position: relative !important;
         border-r: none !important;
         border-b: 1px solid #1e293b !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
+        flex-direction: column !important; /* Stack rows vertically */
+        align-items: stretch !important;
         padding: 0.5rem 1rem !important;
+        gap: 0.5rem !important;
       }
       
-      /* Hide sidebar brand logo header container on mobile to maximize inline space */
+      /* Make sidebar brand logo header container visible inline on Row 1 */
       aside > div.border-b {
-        display: none !important;
+        display: flex !important;
+        border-bottom: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+      }
+
+      aside > div.border-b img {
+        width: 1.75rem !important;
+        height: 1.75rem !important;
+      }
+
+      aside > div.border-b h2 {
+        font-size: 14px !important;
+      }
+
+      aside > div.border-b span {
+        display: none !important; /* Hide subtitle to keep Row 1 clean */
       }
       
-      /* Make logout block sit inline at the end of the mobile horizontal bar */
+      /* Make logout block sit inline on Row 1 (far right) */
       aside > div.border-t {
         border-top: none !important;
         padding: 0 !important;
         margin: 0 !important;
         display: block !important;
         width: auto !important;
-        flex-shrink: 0 !important;
+        position: absolute !important;
+        right: 1rem !important;
+        top: 0.5rem !important;
       }
       
       aside > div.border-t a {
-        padding: 0.5rem 0.75rem !important;
-        border-radius: 0.75rem !important;
+        padding: 0.4rem 0.6rem !important;
+        border-radius: 0.5rem !important;
         font-size: 11px !important;
         display: flex !important;
         align-items: center !important;
@@ -360,24 +380,24 @@
         border: 1px solid rgba(239, 68, 68, 0.3) !important;
       }
 
-      /* Convert vertical nav list to an inline-flex horizontal row list */
+      /* Convert vertical nav list to an inline-flex horizontal row on Row 2 */
       aside nav {
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
         gap: 0.5rem !important;
-        width: auto !important;
-        flex-grow: 1 !important;
-        padding: 0.25rem !important;
+        width: 100% !important;
+        padding: 0.25rem 0 !important;
         margin: 0 !important;
-        justify-content: space-around !important;
+        justify-content: space-between !important;
+        border-top: 1px solid rgba(51, 65, 85, 0.3) !important; /* subtle dividing line */
       }
       
       /* Reset standard padding on links/buttons for inline fit */
       aside nav a, aside nav button {
-        padding: 0.5rem 0.75rem !important;
+        padding: 0.4rem 0.6rem !important;
         margin: 0 !important;
-        border-radius: 0.75rem !important;
+        border-radius: 0.5rem !important;
         font-size: 11px !important; /* compact font to fit */
         display: flex !important;
         align-items: center !important;
