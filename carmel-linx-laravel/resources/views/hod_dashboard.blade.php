@@ -277,7 +277,7 @@
         <div id="batchGlobalAlert" class="hidden p-4 rounded-xl text-sm font-bold border text-sm"></div>
 
         <!-- Batch Cards Grid -->
-        <div id="batchCardsGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div id="batchCardsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- rendered by JS -->
         </div>
 
@@ -1746,73 +1746,40 @@
       }
 
       const card = document.createElement('div');
-      card.className = `bg-slate-950/50 border border-slate-700/60 rounded-2xl p-5 space-y-4 ${borderHoverClass} transition-premium cursor-pointer group shadow-lg`;
-      card.onclick = () => openBatchDetail(batch);
+      card.className = `bg-slate-950/40 border border-slate-800/80 rounded-2xl p-6 transition-premium hover:border-slate-700/60 shadow-xl flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`;
 
       const tutorHtml = batch.tutor_name
-        ? `<div class="flex items-center gap-1.5"><span class="material-symbols-rounded text-sky-400 text-xs">person_pin</span><span class="text-slate-300">${batch.tutor_name}</span></div>`
-        : `<div class="flex items-center gap-1.5"><span class="material-symbols-rounded text-slate-600 text-sm">person_off</span><span class="text-slate-600 italic">No tutor assigned</span></div>`;
+        ? `<div class="flex items-center gap-2"><span class="material-symbols-rounded text-sky-400 text-sm">person_pin</span><span class="text-slate-300 font-medium">${batch.tutor_name}</span></div>`
+        : `<div class="flex items-center gap-2"><span class="material-symbols-rounded text-slate-600 text-sm">person_off</span><span class="text-slate-650 italic">No tutor assigned</span></div>`;
 
       const mentorHtml = batch.mentor_name
-        ? `<div class="flex items-center gap-1.5"><span class="material-symbols-rounded text-emerald-400 text-sm">supervisor_account</span><span class="text-slate-300">${batch.mentor_name}</span></div>`
-        : `<div class="flex items-center gap-1.5"><span class="material-symbols-rounded text-slate-600 text-sm">person_off</span><span class="text-slate-600 italic">No mentor assigned</span></div>`;
+        ? `<div class="flex items-center gap-2"><span class="material-symbols-rounded text-emerald-400 text-sm">supervisor_account</span><span class="text-slate-300 font-medium">${batch.mentor_name}</span></div>`
+        : `<div class="flex items-center gap-2"><span class="material-symbols-rounded text-slate-600 text-sm">person_off</span><span class="text-slate-650 italic">No mentor assigned</span></div>`;
 
-      card.innerHTML = `
-        <div class="flex items-start justify-between">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="px-2 py-0.5 border rounded-lg font-mono text-base font-bold ${yearBadgeClass}">${batch.classroom_id}</span>
-              ${(batch.current_semester || 1) > 6
-                ? `<span class="px-3 py-1 bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 rounded-xl font-bold text-sm tracking-wide flex items-center gap-1 select-none"><span class="material-symbols-rounded" style="font-size:14px">school</span>Graduated</span>`
-                : `<span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-md select-none transition-premium" title="Click to Change Batch Semester">S-${batch.current_semester || 1}</span>`
-              }
-            </div>
-            <h4 class="font-bold text-lg ${yearColorClass}">Admission ${batch.batch_year}</h4>
-            <p class="text-xs text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} Batch</p>
-          </div>
-          <div class="text-right">
-            <span class="text-base font-black text-slate-200">${batch.student_count}</span>
-            <p class="text-sm text-slate-500">students</p>
-          </div>
-        </div>
-        <div class="border-t border-slate-800/60 pt-3 space-y-1.5 text-sm">
-          ${tutorHtml}
-          ${mentorHtml}
-        </div>
-        <div class="text-sm text-violet-400 font-bold group-hover:text-violet-300 transition-premium flex items-center gap-1 pt-1">
-          <span class="material-symbols-rounded text-sm">open_in_new</span> Manage Batch
-        </div>
-      `;
-
-      wrapper.appendChild(card);
-
-      // Now create the subjects card
+      // Subjects section builder
       let subjectsHtml = '';
       if (batch.subjects && batch.subjects.length > 0) {
         subjectsHtml = `
-          <div class="bg-slate-950/20 border border-slate-600/50 rounded-2xl p-3.5 space-y-2.5 shadow-md">
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <span class="material-symbols-rounded text-xs ${iconColorClass}">menu_book</span>
+          <div class="flex-1 bg-slate-950/50 border border-slate-800/80 rounded-xl p-4 space-y-3 custom-scrollbar overflow-y-auto max-h-[220px]">
+            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-900 pb-2">
+              <span class="material-symbols-rounded text-sm ${iconColorClass}">menu_book</span>
               Active Subjects & Progress (S-${batch.current_semester || 1})
             </p>
-            <div class="grid gap-1.5">
+            <div class="space-y-2">
               ${batch.subjects.map(subj => `
-                <div class="bg-slate-900/40 border border-slate-600/40 rounded-xl p-2 space-y-1 hover:border-slate-500/60 transition-premium">
-                  <div class="flex justify-between items-center">
-                    <div class="flex-1 pr-2 truncate">
-                      <span class="text-slate-200 font-bold text-sm leading-none truncate" title="${subj.subject_name}">${subj.subject_name} <span class="font-mono text-slate-400 text-xs font-normal">(${subj.subject_code})</span></span>
-                    </div>
+                <div class="bg-slate-900/40 border border-slate-850 rounded-lg p-2.5 space-y-1.5 hover:border-slate-800 transition-premium">
+                  <div class="flex justify-between items-center gap-2">
+                    <span class="text-slate-200 font-bold text-sm truncate" title="${subj.subject_name}">${subj.subject_name}</span>
                     <span class="text-xs font-bold ${textAccentClass} font-mono">${subj.progress}%</span>
                   </div>
                   
-                  <!-- Progress Bar -->
-                  <div class="w-full bg-slate-950 rounded-full h-1 overflow-hidden">
-                    <div class="${progressColorClass} h-1 rounded-full" style="width: ${subj.progress}%"></div>
+                  <div class="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
+                    <div class="${progressColorClass} h-1.5 rounded-full" style="width: ${subj.progress}%"></div>
                   </div>
 
-                  <div class="flex items-center gap-1 text-slate-400 text-xs">
-                    <span class="material-symbols-rounded text-[12px] text-sky-400">person</span>
-                    <span class="truncate text-[11px]" title="${subj.staff_list}">Staff: ${subj.staff_list}</span>
+                  <div class="flex items-center justify-between text-[11px] text-slate-400">
+                    <span class="font-mono text-slate-500">${subj.subject_code}</span>
+                    <span class="truncate max-w-[150px]" title="${subj.staff_list}">Staff: ${subj.staff_list}</span>
                   </div>
                 </div>
               `).join('')}
@@ -1821,17 +1788,48 @@
         `;
       } else {
         subjectsHtml = `
-          <div class="bg-slate-950/20 border border-slate-600/50 rounded-2xl p-4 text-xs text-slate-500 italic shadow-md">
+          <div class="flex-1 bg-slate-950/50 border border-slate-800/80 rounded-xl p-6 flex items-center justify-center text-center text-xs text-slate-500 italic">
             No subjects assigned for Semester ${batch.current_semester || 1} yet.
           </div>
         `;
       }
 
-      const subjectsCard = document.createElement('div');
-      subjectsCard.innerHTML = subjectsHtml;
-      wrapper.appendChild(subjectsCard.firstElementChild);
+      card.innerHTML = `
+        <div class="flex-1 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center gap-2.5">
+              <span class="px-2.5 py-1 border rounded-lg font-mono text-sm font-bold ${yearBadgeClass}">${batch.classroom_id}</span>
+              ${(batch.current_semester || 1) > 6
+                ? `<span class="px-3 py-1 bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 rounded-xl font-bold text-sm tracking-wide flex items-center gap-1 select-none"><span class="material-symbols-rounded" style="font-size:14px">school</span>Graduated</span>`
+                : `<span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-md select-none transition-premium" title="Click to Change Batch Semester">S-${batch.current_semester || 1}</span>`
+              }
+            </div>
+            
+            <div>
+              <h4 class="font-bold text-xl ${yearColorClass}">Admission ${batch.batch_year}</h4>
+              <p class="text-xs text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} Batch</p>
+            </div>
 
-      grid.appendChild(wrapper);
+            <div class="border-t border-slate-900 pt-3.5 space-y-2 text-sm">
+              ${tutorHtml}
+              ${mentorHtml}
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between border-t border-slate-900 pt-3">
+            <div>
+              <span class="text-lg font-black text-slate-200">${batch.student_count}</span>
+              <span class="text-xs text-slate-500 ml-1">students</span>
+            </div>
+            <button onclick="openBatchDetail(${JSON.stringify(batch).replace(/"/g, '&quot;')})" class="px-4 py-2 bg-slate-800 hover:bg-violet-900 hover:text-white text-slate-300 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5">
+              <span class="material-symbols-rounded text-sm">open_in_new</span> Manage Batch
+            </button>
+          </div>
+        </div>
+        ${subjectsHtml}
+      `;
+
+      grid.appendChild(card);
     }
 
     function changeBatchSemesterPrompt(classroomId, currentSem) {
