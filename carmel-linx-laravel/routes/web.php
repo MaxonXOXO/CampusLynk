@@ -253,6 +253,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/api/admin/users', [DataController::class, 'getUsersList']);
     Route::post('/api/admin/user/toggle-status', [DataController::class, 'toggleUserStatus']);
     Route::post('/api/admin/user/reset-password', [DataController::class, 'resetUserPassword']);
+    Route::post('/api/admin/user/update-staff/{mobileNo}', [DataController::class, 'updateStaffProfileDirect']);
     Route::post('/api/admin/user/change-role', [DataController::class, 'changeUserRole']);
     Route::post('/api/admin/user/delete', [DataController::class, 'deleteUser']);
     Route::get('/api/audit-logs', [DataController::class, 'getAuditLogs']);

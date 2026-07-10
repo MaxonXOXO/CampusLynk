@@ -151,6 +151,77 @@ class DataController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Update failed: ' . $e->getMessage()]);
         }
+     }
+
+    public function updateStaffProfileDirect(Request $request, $mobileNo)
+    {
+        if (!$this->checkUserManagementPermission($mobileNo, 'staff')) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized action on this profile.']);
+        }
+
+        $staff = StaffProfile::where('mobile_no', $mobileNo)->first();
+        if (!$staff) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Staff profile not found.']);
+        }
+
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'branch' => 'required|string',
+            'designation' => 'required|string',
+        ]);
+
+        try {
+            $oldName = $staff->name;
+            $oldEmail = $staff->email;
+            $oldBranch = $staff->branch;
+            $oldDesig = $staff->designation;
+
+            $newName = $request->input('name');
+            $newEmail = $request->input('email');
+            $newBranch = $request->input('branch');
+            $newDesig = $request->input('designation');
+
+            // Enforce single active Principal constraint
+            if ($newDesig === 'Principal' && $oldDesig !== 'Principal') {
+                $hasOtherPrincipal = StaffProfile::where('designation', 'Principal')
+                    ->where('mobile_no', '!=', $mobileNo)
+                    ->where('account_status', 'Approved')
+                    ->exists();
+                if ($hasOtherPrincipal) {
+                    return response()->json(['status' => 'ERROR', 'message' => 'An active Principal already exists in the system.']);
+                }
+            }
+
+            $staff->update([
+                'name' => $newName,
+                'email' => $newEmail,
+                'branch' => $newBranch,
+                'designation' => $newDesig,
+            ]);
+
+            $changes = [];
+            if ($newName !== $oldName) $changes[] = "Name changed from '{$oldName}' to '{$newName}'";
+            if ($newEmail !== $oldEmail) $changes[] = "Email changed from '{$oldEmail}' to '{$newEmail}'";
+            if ($newBranch !== $oldBranch) $changes[] = "Branch changed from '{$oldBranch}' to '{$newBranch}'";
+            if ($newDesig !== $oldDesig) $changes[] = "Designation changed from '{$oldDesig}' to '{$newDesig}'";
+
+            if (!empty($changes)) {
+                AuditLog::create([
+                    'performed_by' => Session::get('userId') ?? 'System',
+                    'performed_by_name' => Session::get('userName') ?? 'System',
+                    'target_id' => $staff->mobile_no,
+                    'target_name' => $staff->name,
+                    'action' => 'Staff Profile Updated',
+                    'details' => implode(', ', $changes) . '.',
+                    'ip_address' => $request->ip()
+                ]);
+            }
+
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Staff profile updated successfully.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Update failed: ' . $e->getMessage()]);
+        }
     }
 
     /**

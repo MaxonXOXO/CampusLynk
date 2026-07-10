@@ -437,6 +437,72 @@
     </div>
   </main>
 
+  <!-- EDIT STAFF MODAL -->
+  <div id="editStaffModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
+          <span class="material-symbols-rounded text-blue-400 text-lg">edit</span> Edit Staff Details
+        </h3>
+        <button onclick="closeEditStaffModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-lg">close</span></button>
+      </div>
+
+      <form id="editStaffForm" onsubmit="submitStaffEdit(event)" class="space-y-4">
+        <input type="hidden" id="editStaffMobile">
+        <div>
+          <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Full Name</label>
+          <input type="text" id="editStaffName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none focus:border-blue-500 text-sm">
+        </div>
+        <div>
+          <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Email Address</label>
+          <input type="email" id="editStaffEmail" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none focus:border-blue-500 text-sm">
+        </div>
+        <div>
+          <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Department Branch</label>
+          <select id="editStaffBranch" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none focus:border-blue-500 text-sm">
+            <option value="EL">Electronics Engineering (EL)</option>
+            <option value="ME">Mechanical Engineering (ME)</option>
+            <option value="CE">Civil Engineering (CE)</option>
+            <option value="EEE">Electrical & Electronics Engineering (EEE)</option>
+            <option value="CT">Computer Engineering (CT)</option>
+            <option value="AU">Automobile Engineering (AU)</option>
+            <option value="GEN_AIDED">General Department Aided (GEN_AIDED)</option>
+            <option value="GEN_SF">General Department Self Finance (GEN_SF)</option>
+            <option value="Admin">Administration</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Designation Role</label>
+          <select id="editStaffDesig" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none focus:border-blue-500 text-sm">
+            <option value="Principal">Principal</option>
+            <option value="HOD">Head of Department (HOD)</option>
+            <option value="Gen_Dept_Coordinator_Aided">Gen Dept Coordinator Aided</option>
+            <option value="Gen_Dept_Coordinator_Self_Finance">Gen Dept Coordinator Self Finance</option>
+            <option value="Lecturer">Lecturer</option>
+            <option value="Demonstrator">Demonstrator</option>
+            <option value="Trade_Instructor">Trade Instructor</option>
+            <option value="Tradesman">Tradesman</option>
+            <option value="Laboratory_Assistant">Laboratory Assistant</option>
+            <option value="Workshop_Instructor">Workshop Instructor</option>
+            <option value="Workshop_Superintendent">Workshop Superintendent</option>
+            <option value="Super_Admin">Super Admin</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+
+        <div id="editStaffAlert" class="hidden p-3 rounded-xl font-bold border text-sm"></div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeEditStaffModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-slate-300 transition-premium cursor-pointer text-sm">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold transition-premium cursor-pointer text-sm flex items-center justify-center gap-1.5">
+            <span>Save Details</span>
+            <div id="editStaffSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- PASSWORD RESET MODAL -->
   <div id="passwordModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
     <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
@@ -822,6 +888,18 @@
           `;
         }
 
+        let idColumnHtml = `<span class="font-mono font-bold text-slate-300">${user.id}</span>`;
+        if (user.type === 'staff') {
+          idColumnHtml = `
+            <a href="javascript:void(0)" 
+               onclick="openEditStaffModal('${user.id}', '${user.name.replace(/'/g, "\\'")}', '${user.email.replace(/'/g, "\\'")}', '${user.branch}', '${user.role}')" 
+               class="text-blue-400 hover:text-blue-300 underline font-mono font-bold transition-premium" 
+               title="Modify details for ${user.name}">
+              ${user.id}
+            </a>
+          `;
+        }
+
         tr.innerHTML = `
           <td class="p-4 flex items-center gap-3 whitespace-nowrap">
             <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-8 h-8 rounded-full object-cover border border-slate-800 shadow">
@@ -830,7 +908,7 @@
               <span class="text-sm text-slate-500 block">${user.email}</span>
             </div>
           </td>
-          <td class="p-4 font-mono font-bold text-slate-300 whitespace-nowrap">${user.id}</td>
+          <td class="p-4 whitespace-nowrap">${idColumnHtml}</td>
           <td class="p-4 whitespace-nowrap"><span class="font-bold font-mono text-sm bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
           <td class="p-4 whitespace-nowrap">${roleCol}</td>
           <td class="p-4 whitespace-nowrap">${statusBadge}</td>
@@ -921,6 +999,70 @@
       modal.classList.add('hidden');
       modal.classList.remove('flex');
       selectedUserForReset = null;
+    }
+
+    // Edit Staff Modal JS handlers
+    function openEditStaffModal(mobileNo, name, email, branch, designation) {
+      document.getElementById('editStaffMobile').value = mobileNo;
+      document.getElementById('editStaffName').value = name;
+      document.getElementById('editStaffEmail').value = email;
+      document.getElementById('editStaffBranch').value = branch;
+      document.getElementById('editStaffDesig').value = designation;
+      document.getElementById('editStaffAlert').classList.add('hidden');
+
+      const modal = document.getElementById('editStaffModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeEditStaffModal() {
+      const modal = document.getElementById('editStaffModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function submitStaffEdit(e) {
+      e.preventDefault();
+      const mobileNo = document.getElementById('editStaffMobile').value;
+      const name = document.getElementById('editStaffName').value.trim();
+      const email = document.getElementById('editStaffEmail').value.trim();
+      const branch = document.getElementById('editStaffBranch').value;
+      const designation = document.getElementById('editStaffDesig').value;
+
+      const alert = document.getElementById('editStaffAlert');
+      const spinner = document.getElementById('editStaffSpinner');
+
+      alert.classList.add('hidden');
+      spinner.classList.remove('hidden');
+
+      fetch(`/api/admin/user/update-staff/${mobileNo}`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ name, email, branch, designation })
+      })
+      .then(res => res.json())
+      .then(data => {
+        spinner.classList.add('hidden');
+        if (data.status === 'SUCCESS') {
+          alert.className = "p-3 rounded-xl bg-green-950/40 text-green-400 border border-green-900/60 block text-sm";
+          alert.innerText = "Staff profile updated successfully!";
+          alert.classList.remove('hidden');
+          setTimeout(() => {
+            closeEditStaffModal();
+            loadUsers();
+          }, 1000);
+        } else {
+          alert.className = "p-3 rounded-xl bg-red-950/40 text-red-400 border border-red-900/60 block text-sm";
+          alert.innerText = data.message;
+          alert.classList.remove('hidden');
+        }
+      })
+      .catch(() => {
+        spinner.classList.add('hidden');
+        alert.className = "p-3 rounded-xl bg-red-950/40 text-red-400 border border-red-900/60 block text-sm";
+        alert.innerText = "Connection error. Request failed.";
+        alert.classList.remove('hidden');
+      });
     }
 
     function submitPasswordReset() {
