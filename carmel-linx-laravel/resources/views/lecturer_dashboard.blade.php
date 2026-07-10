@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Carmel Linx - Lecturer Dashboard</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Google Icons -->
