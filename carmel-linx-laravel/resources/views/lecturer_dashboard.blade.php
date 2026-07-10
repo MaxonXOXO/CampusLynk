@@ -348,6 +348,11 @@
       #assignedClassroomHeader {
         display: none !important;
       }
+
+      /* Light colored border for batch cards on mobile */
+      #lecturerBatchGrid > div {
+        border-color: rgba(148, 163, 184, 0.45) !important; /* light slate-400 border */
+      }
     }
   </style>
 </head>
