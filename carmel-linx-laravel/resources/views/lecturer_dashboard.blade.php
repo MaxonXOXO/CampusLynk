@@ -328,8 +328,8 @@
         border-b: 1px solid #1e293b !important;
         flex-direction: column !important; /* Stack rows vertically */
         align-items: stretch !important;
-        padding: 0.5rem 1rem !important;
-        gap: 0.5rem !important;
+        padding: 0.75rem 1rem 0.5rem !important;
+        gap: 0.75rem !important;
       }
       
       /* Make sidebar brand logo header container visible inline on Row 1 */
@@ -343,19 +343,20 @@
       }
 
       aside > div.border-b img {
-        width: 1.75rem !important;
-        height: 1.75rem !important;
+        width: 2.25rem !important;
+        height: 2.25rem !important;
       }
 
       aside > div.border-b h2 {
-        font-size: 14px !important;
+        font-size: 18px !important;
+        font-weight: 900 !important;
       }
 
       aside > div.border-b span {
         display: none !important; /* Hide subtitle to keep Row 1 clean */
       }
       
-      /* Make logout block sit inline on Row 1 (far right) */
+      /* Make logout block sit inline on Row 1 (far right) with extra top offset spacing */
       aside > div.border-t {
         border-top: none !important;
         padding: 0 !important;
@@ -364,38 +365,40 @@
         width: auto !important;
         position: absolute !important;
         right: 1rem !important;
-        top: 0.5rem !important;
+        top: 0.85rem !important;
       }
       
       aside > div.border-t a {
-        padding: 0.4rem 0.6rem !important;
+        padding: 0.4rem 0.65rem !important;
         border-radius: 0.5rem !important;
         font-size: 11px !important;
         display: flex !important;
         align-items: center !important;
         gap: 0.25rem !important;
         white-space: nowrap !important;
-        background-color: rgba(239, 68, 68, 0.15) !important;
-        color: #ef4444 !important;
-        border: 1px solid rgba(239, 68, 68, 0.3) !important;
+        background-color: rgba(239, 68, 68, 0.18) !important;
+        color: #f87171 !important;
+        border: 1px solid rgba(239, 68, 68, 0.4) !important;
       }
 
-      /* Convert vertical nav list to an inline-flex horizontal row on Row 2 */
+      /* Convert vertical nav list to an inline horizontal row on Row 2 with a dark gradient */
       aside nav {
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
         gap: 0.5rem !important;
         width: 100% !important;
-        padding: 0.25rem 0 !important;
+        padding: 0.4rem 0.5rem !important;
         margin: 0 !important;
         justify-content: space-between !important;
-        border-top: 1px solid rgba(51, 65, 85, 0.3) !important; /* subtle dividing line */
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
+        border: 1px solid rgba(51, 65, 85, 0.4) !important;
+        border-radius: 0.75rem !important;
       }
       
       /* Reset standard padding on links/buttons for inline fit */
       aside nav a, aside nav button {
-        padding: 0.4rem 0.6rem !important;
+        padding: 0.4rem 0.65rem !important;
         margin: 0 !important;
         border-radius: 0.5rem !important;
         font-size: 11px !important; /* compact font to fit */
