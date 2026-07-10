@@ -4628,6 +4628,7 @@
       .then(res => res.json())
       .then(res => {
         if (res.status === 'SUCCESS') {
+          alert('Seminar evaluation saved successfully!');
           closeSeminarEvaluationModal();
           fetchSeminarEvaluations();
         } else {
