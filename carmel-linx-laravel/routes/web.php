@@ -320,9 +320,13 @@ Route::middleware(['web'])->group(function () {
     Route::get('/classroom/{subjectId}/assignment-print/{coTag}', [App\Http\Controllers\ClassroomController::class, 'printAssignmentQuestionPaperAndRubrics']);
     Route::get('/classroom/{subjectId}/summative-report', [App\Http\Controllers\ClassroomController::class, 'printSummativeReport']);
 
-    Route::get('/api/classroom/{subjectId}/question-bank', [App\Http\Controllers\ClassroomController::class, 'getQuestionBank']);
-    Route::get('/api/classroom/question-bank/template', [App\Http\Controllers\ClassroomController::class, 'downloadQuestionTemplate']);
-    Route::post('/api/classroom/{subjectId}/question-bank/upload', [App\Http\Controllers\ClassroomController::class, 'uploadQuestionBank']);
+     Route::get('/api/classroom/{subjectId}/question-bank', [App\Http\Controllers\ClassroomController::class, 'getQuestionBank']);
+     Route::get('/api/classroom/question-bank/template', [App\Http\Controllers\ClassroomController::class, 'downloadQuestionTemplate']);
+     Route::post('/api/classroom/{subjectId}/question-bank/upload', [App\Http\Controllers\ClassroomController::class, 'uploadQuestionBank']);
+ 
+     // Seminar Evaluation (Revision 2021)
+     Route::get('/api/classroom/{subjectId}/seminar/evaluations', [App\Http\Controllers\ClassroomController::class, 'getSeminarEvaluations']);
+     Route::post('/api/classroom/{subjectId}/seminar/evaluate', [App\Http\Controllers\ClassroomController::class, 'saveSeminarEvaluation']);
     Route::post('/api/classroom/{subjectId}/question-bank/seed-ai', [App\Http\Controllers\ClassroomController::class, 'seedQuestionBankWithAi']);
     Route::post('/api/classroom/{subjectId}/question-bank/upload-json', [App\Http\Controllers\ClassroomController::class, 'uploadQuestionBankJson']);
 

@@ -588,6 +588,7 @@ Syllabus text:
                 'summative_manual_tests' => $courseFile ? ($courseFile->summative_manual_tests ?? []) : [],
                 'subject_name' => $batchSubject->subject_name ?? '',
                 'subject_code' => $batchSubject->subject_code ?? '',
+                'subject_type' => $batchSubject->subject_type ?? '',
                 'semester' => $batchSubject->semester ?? '',
                 'academic_year' => $batchSubject->academic_year ?? '',
                 'classroom_id' => $batchSubject->classroom_id ?? '',
@@ -1707,5 +1708,136 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Gemini API Error: ' . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Get seminar evaluations for the active classroom
+     */
+    public function getSeminarEvaluations($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+
+        $batchSubject = \App\Models\BatchSubject::find($subjectId);
+        if (!$batchSubject) return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
+
+        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+            ->where('semester', $batchSubject->semester)
+            ->get(['reg_no', 'name', 'roll_no', 'sbte_reg_no']);
+
+        $myEvaluations = \App\Models\SeminarEvaluation::where('batch_subject_id', $subjectId)
+            ->where('assessor_mobile_no', $userId)
+            ->get();
+
+        $allEvaluations = \App\Models\SeminarEvaluation::where('batch_subject_id', $subjectId)->get();
+
+        $data = $students->map(function ($student) use ($myEvaluations, $allEvaluations) {
+            $myEval = $myEvaluations->where('reg_no', $student->reg_no)->first();
+            
+            $studentAllEvals = $allEvaluations->where('reg_no', $student->reg_no);
+            $evalCount = $studentAllEvals->count();
+            $averageScore = $evalCount > 0 ? round($studentAllEvals->avg('total_score'), 2) : 0;
+
+            return [
+                'reg_no' => $student->reg_no,
+                'name' => $student->name,
+                'roll_no' => $student->roll_no,
+                'sbte_reg_no' => $student->sbte_reg_no,
+                'my_evaluation' => $myEval ? [
+                    'relevance' => (float)$myEval->relevance,
+                    'literature' => (float)$myEval->literature,
+                    'presentation' => (float)$myEval->presentation,
+                    'interaction' => (float)$myEval->interaction,
+                    'report' => (float)$myEval->report,
+                    'attendance' => (float)$myEval->attendance,
+                    'total_score' => (float)$myEval->total_score,
+                ] : null,
+                'average_score' => $averageScore,
+                'evaluators_count' => $evalCount
+            ];
+        });
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * Save/upsert seminar evaluations for a single student and update the final averaged CIA score
+     */
+    public function saveSeminarEvaluation(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+
+        $batchSubject = \App\Models\BatchSubject::find($subjectId);
+        if (!$batchSubject) return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
+
+        $request->validate([
+            'reg_no' => 'required|string',
+            'relevance' => 'required|numeric|min:0|max:5',
+            'literature' => 'required|numeric|min:0|max:5',
+            'presentation' => 'required|numeric|min:0|max:25',
+            'interaction' => 'required|numeric|min:0|max:5',
+            'report' => 'required|numeric|min:0|max:5',
+            'attendance' => 'required|numeric|min:0|max:5',
+        ]);
+
+        $regNo = $request->input('reg_no');
+        $relevance = (float)$request->input('relevance');
+        $literature = (float)$request->input('literature');
+        $presentation = (float)$request->input('presentation');
+        $interaction = (float)$request->input('interaction');
+        $report = (float)$request->input('report');
+        $attendance = (float)$request->input('attendance');
+
+        $totalScore = $relevance + $literature + $presentation + $interaction + $report + $attendance;
+
+        // 1. Upsert evaluation record for current assessor
+        \App\Models\SeminarEvaluation::updateOrCreate(
+            [
+                'batch_subject_id' => $subjectId,
+                'reg_no' => $regNo,
+                'assessor_mobile_no' => $userId
+            ],
+            [
+                'relevance' => $relevance,
+                'literature' => $literature,
+                'presentation' => $presentation,
+                'interaction' => $interaction,
+                'report' => $report,
+                'attendance' => $attendance,
+                'total_score' => $totalScore
+            ]
+        );
+
+        // 2. Fetch all evaluations for this student to compute the final averaged score
+        $studentAllEvals = \App\Models\SeminarEvaluation::where('batch_subject_id', $subjectId)
+            ->where('reg_no', $regNo)
+            ->get();
+
+        $averageScore = $studentAllEvals->count() > 0 ? round($studentAllEvals->avg('total_score'), 2) : 0;
+
+        // 3. Upsert as a Continuous Internal Assessment (CIA) AcademicMark of category 'Seminar'
+        \App\Models\AcademicMark::updateOrCreate(
+            [
+                'reg_no' => $regNo,
+                'batch_subject_id' => $subjectId,
+                'category' => 'Seminar',
+                'co_tag' => 'CO1' // Seminars map broadly to a single outcome tag or code
+            ],
+            [
+                'subject_code' => $batchSubject->subject_code,
+                'max_marks' => 50,
+                'marks_obtained' => $averageScore
+            ]
+        );
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Seminar evaluation saved.',
+            'average_score' => $averageScore
+        ]);
     }
 }

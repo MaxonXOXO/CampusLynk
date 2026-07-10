@@ -650,6 +650,9 @@
             <button onclick="toggleClassroomTab('exit_survey')" id="tabExitSurvey" class="text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
               <span class="material-symbols-rounded text-base">assignment_turned_in</span> Course Exit Survey
             </button>
+            <button onclick="toggleClassroomTab('seminar_evaluation')" id="tabSeminar" class="hidden text-sm font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
+              <span class="material-symbols-rounded text-base">co_present</span> Seminar Evaluation
+            </button>
         </div>
 
         <!-- Parsed Data View (Full Width) -->
@@ -770,6 +773,44 @@
               <!-- Main Workspace for Exit Survey -->
               <div id="exitSurveyWorkspace" class="space-y-6">
                 <!-- Rendered dynamically (Initiate Screen / Live Panel / Results Panel) -->
+              </div>
+            </div>
+
+            <!-- Seminar Evaluation Workspace -->
+            <div id="seminarEvaluationContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/60 pb-4">
+                <div>
+                  <h4 class="text-sm font-black text-slate-200">Seminar Evaluation (Revision 2021)</h4>
+                  <p class="text-sm text-slate-400 mt-1">Grade student seminars based on CIA criteria. Multiple assessors' scores will be averaged to formulate the final mark.</p>
+                </div>
+              </div>
+
+              <!-- Students List with Split Evaluation Details -->
+              <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner">
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left border-collapse">
+                    <thead>
+                      <tr class="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[11px] bg-slate-900/60">
+                        <th class="p-3">Roll No</th>
+                        <th class="p-3">Student Name</th>
+                        <th class="p-3 text-center">Relevance (5)</th>
+                        <th class="p-3 text-center">Literature (5)</th>
+                        <th class="p-3 text-center">Presentation (25)</th>
+                        <th class="p-3 text-center">Interaction (5)</th>
+                        <th class="p-3 text-center">Report (5)</th>
+                        <th class="p-3 text-center">Attendance (5)</th>
+                        <th class="p-3 text-center">My Total (50)</th>
+                        <th class="p-3 text-center text-teal-400">Class Average (50)</th>
+                        <th class="p-3 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="seminarEvaluationsTableBody" class="divide-y divide-slate-800/50">
+                      <tr>
+                        <td colspan="11" class="p-8 text-center text-slate-500 font-bold text-xs">Loading evaluations...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
         </div>
@@ -1138,7 +1179,8 @@
         { id: 'reports', btn: 'tabReports', content: 'classReportsContent' },
         { id: 'qbank', btn: 'tabQBank', content: 'questionBankContent' },
         { id: 'survey', btn: 'tabSurvey', content: 'midSemesterSurveyContent' },
-        { id: 'exit_survey', btn: 'tabExitSurvey', content: 'courseExitSurveyContent' }
+        { id: 'exit_survey', btn: 'tabExitSurvey', content: 'courseExitSurveyContent' },
+        { id: 'seminar_evaluation', btn: 'tabSeminar', content: 'seminarEvaluationContent' }
       ];
 
       tabs.forEach(t => {
@@ -1174,6 +1216,8 @@
         fetchSurveyResults(currentSubjectId);
       } else if (tabName === 'exit_survey') {
         fetchExitSurveyResults(currentSubjectId);
+      } else if (tabName === 'seminar_evaluation') {
+        fetchSeminarEvaluations();
       }
     }
 
@@ -1236,6 +1280,29 @@
           
           // Always render the formative questions section (show prompt if none generated yet)
           renderAIQuestionsList(currentQuestions, subjectId);
+
+          const isSeminar = data.data.subject_type === 'Seminar';
+          const tabSeminar = document.getElementById('tabSeminar');
+          const tabStructure = document.getElementById('tabStructure');
+          const tabPlanner = document.getElementById('tabPlanner');
+          const tabAssessment = document.getElementById('tabAssessment');
+          const tabSummative = document.getElementById('tabSummative');
+
+          if (isSeminar) {
+            if (tabSeminar) tabSeminar.classList.remove('hidden');
+            if (tabStructure) tabStructure.classList.add('hidden');
+            if (tabPlanner) tabPlanner.classList.add('hidden');
+            if (tabAssessment) tabAssessment.classList.add('hidden');
+            if (tabSummative) tabSummative.classList.add('hidden');
+            toggleClassroomTab('seminar_evaluation');
+          } else {
+            if (tabSeminar) tabSeminar.classList.add('hidden');
+            if (tabStructure) tabStructure.classList.remove('hidden');
+            if (tabPlanner) tabPlanner.classList.remove('hidden');
+            if (tabAssessment) tabAssessment.classList.remove('hidden');
+            if (tabSummative) tabSummative.classList.remove('hidden');
+            toggleClassroomTab('structure');
+          }
 
           if (data.data.syllabus_pdf_path) {
             document.getElementById('activeSyllabusCard').classList.remove('hidden');
@@ -4380,6 +4447,199 @@
     </div>
   </div>
 </div>
+
+<!-- Seminar Evaluation Pop-up Modal -->
+<div id="seminarEvaluationModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[110] hidden flex items-center justify-center p-4">
+  <div class="bg-slate-950 border border-slate-850 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+    <div class="p-4 border-b border-slate-800/80 bg-slate-900/50 flex justify-between items-center">
+      <h3 class="text-base font-black text-slate-200">Evaluate Seminar Presentation</h3>
+      <button onclick="closeSeminarEvaluationModal()" class="text-slate-500 hover:text-white transition-premium">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+    <form id="seminarEvaluationForm" onsubmit="submitSeminarEvaluation(event)" class="p-6 space-y-4">
+      <div>
+        <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Student</label>
+        <div id="semStudentName" class="text-sm font-extrabold text-white"></div>
+        <input type="hidden" id="semStudentRegNo">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Relevance (Max 5)</label>
+          <input type="number" step="0.01" min="0" max="5" id="semRelevance" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Literature Survey (Max 5)</label>
+          <input type="number" step="0.01" min="0" max="5" id="semLiterature" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Presentation (Max 25)</label>
+        <input type="number" step="0.01" min="0" max="25" id="semPresentation" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+      </div>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Interaction (5)</label>
+          <input type="number" step="0.01" min="0" max="5" id="semInteraction" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Report (5)</label>
+          <input type="number" step="0.01" min="0" max="5" id="semReport" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Attendance (5)</label>
+          <input type="number" step="0.01" min="0" max="5" id="semAttendance" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
+        </div>
+      </div>
+      <div class="pt-4 border-t border-slate-900 flex justify-between items-center">
+        <div>
+          <span class="text-xs text-slate-400 font-bold uppercase">Total Score:</span>
+          <span id="semTotalScoreLabel" class="text-base font-black text-blue-400 ml-2">0.00 / 50</span>
+        </div>
+        <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold shadow-lg transition-premium cursor-pointer">
+          Save Evaluation
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+    let activeSeminarData = [];
+
+    function fetchSeminarEvaluations() {
+      const tbody = document.getElementById('seminarEvaluationsTableBody');
+      tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-slate-500 font-bold text-xs animate-pulse">Loading evaluations data...</td></tr>';
+
+      fetch(`/api/classroom/${currentSubjectId}/seminar/evaluations`)
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'SUCCESS') {
+          activeSeminarData = res.data;
+          renderSeminarEvaluations();
+        } else {
+          tbody.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-red-400 font-bold text-xs">${res.message}</td></tr>`;
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-red-400 font-bold text-xs">Failed to load seminar evaluations.</td></tr>';
+      });
+    }
+
+    function renderSeminarEvaluations() {
+      const tbody = document.getElementById('seminarEvaluationsTableBody');
+      tbody.innerHTML = '';
+
+      if (activeSeminarData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-slate-500 italic text-xs">No students enrolled in this batch.</td></tr>';
+        return;
+      }
+
+      activeSeminarData.forEach(student => {
+        const me = student.my_evaluation;
+        const row = document.createElement('tr');
+        row.className = 'border-b border-slate-800/40 hover:bg-slate-900/20 text-xs font-semibold text-slate-300';
+        
+        row.innerHTML = `
+          <td class="p-3 font-mono">${student.roll_no || '-'}</td>
+          <td class="p-3 font-extrabold text-white">${student.name}</td>
+          <td class="p-3 text-center">${me ? me.relevance : '-'}</td>
+          <td class="p-3 text-center">${me ? me.literature : '-'}</td>
+          <td class="p-3 text-center">${me ? me.presentation : '-'}</td>
+          <td class="p-3 text-center">${me ? me.interaction : '-'}</td>
+          <td class="p-3 text-center">${me ? me.report : '-'}</td>
+          <td class="p-3 text-center">${me ? me.attendance : '-'}</td>
+          <td class="p-3 text-center font-bold text-slate-200">${me ? me.total_score : '-'}</td>
+          <td class="p-3 text-center font-bold text-teal-400">${student.average_score} <span class="text-[10px] text-slate-500 font-normal">(${student.evaluators_count} assessors)</span></td>
+          <td class="p-3 text-center">
+            <button onclick="openSeminarEvaluationModal('${student.reg_no}')" class="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white rounded-lg font-bold text-[11px] transition-premium cursor-pointer border border-blue-500/25">
+              ${me ? 'Modify' : 'Evaluate'}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function openSeminarEvaluationModal(regNo) {
+      const student = activeSeminarData.find(s => s.reg_no === regNo);
+      if (!student) return;
+
+      document.getElementById('semStudentName').innerText = `${student.name} (${student.reg_no})`;
+      document.getElementById('semStudentRegNo').value = regNo;
+
+      const me = student.my_evaluation;
+      document.getElementById('semRelevance').value = me ? me.relevance : '';
+      document.getElementById('semLiterature').value = me ? me.literature : '';
+      document.getElementById('semPresentation').value = me ? me.presentation : '';
+      document.getElementById('semInteraction').value = me ? me.interaction : '';
+      document.getElementById('semReport').value = me ? me.report : '';
+      document.getElementById('semAttendance').value = me ? me.attendance : '';
+
+      calculateSeminarTotal();
+      document.getElementById('seminarEvaluationModal').classList.remove('hidden');
+      document.getElementById('seminarEvaluationModal').classList.add('flex');
+    }
+
+    function closeSeminarEvaluationModal() {
+      document.getElementById('seminarEvaluationModal').classList.add('hidden');
+      document.getElementById('seminarEvaluationModal').classList.remove('flex');
+    }
+
+    function calculateSeminarTotal() {
+      const relevance = parseFloat(document.getElementById('semRelevance').value) || 0;
+      const literature = parseFloat(document.getElementById('semLiterature').value) || 0;
+      const presentation = parseFloat(document.getElementById('semPresentation').value) || 0;
+      const interaction = parseFloat(document.getElementById('semInteraction').value) || 0;
+      const report = parseFloat(document.getElementById('semReport').value) || 0;
+      const attendance = parseFloat(document.getElementById('semAttendance').value) || 0;
+
+      const total = relevance + literature + presentation + interaction + report + attendance;
+      document.getElementById('semTotalScoreLabel').innerText = `${total.toFixed(2)} / 50`;
+    }
+
+    function submitSeminarEvaluation(e) {
+      e.preventDefault();
+      const regNo = document.getElementById('semStudentRegNo').value;
+      const relevance = parseFloat(document.getElementById('semRelevance').value) || 0;
+      const literature = parseFloat(document.getElementById('semLiterature').value) || 0;
+      const presentation = parseFloat(document.getElementById('semPresentation').value) || 0;
+      const interaction = parseFloat(document.getElementById('semInteraction').value) || 0;
+      const report = parseFloat(document.getElementById('semReport').value) || 0;
+      const attendance = parseFloat(document.getElementById('semAttendance').value) || 0;
+
+      fetch(`/api/classroom/${currentSubjectId}/seminar/evaluate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          reg_no: regNo,
+          relevance: relevance,
+          literature: literature,
+          presentation: presentation,
+          interaction: interaction,
+          report: report,
+          attendance: attendance
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'SUCCESS') {
+          closeSeminarEvaluationModal();
+          fetchSeminarEvaluations();
+        } else {
+          alert(res.message);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Failed to save seminar evaluation.');
+      });
+    }
+</script>
 
 </body>
 </html>
