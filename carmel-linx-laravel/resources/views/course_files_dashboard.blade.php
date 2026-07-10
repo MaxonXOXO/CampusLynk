@@ -26,34 +26,34 @@
 
         /* NBA Course Files dashboard layout & form element overrides to increase readability */
         body, button, select, input, textarea, table, th, td, div, p, span, a {
-            font-size: 16px !important;
+            font-size: 14px !important;
         }
         
         h1, h2, h3, h4, h5, h6 {
-            font-size: 1.35rem !important;
+            font-size: 1.15rem !important;
             font-weight: 800 !important;
         }
 
         h2#cfSubjectTitle {
-            font-size: 2rem !important;
+            font-size: 1.5rem !important;
             font-weight: 900 !important;
         }
 
         /* Enlarge sidebar buttons, buttons, labels */
         button, .btn {
-            font-size: 15px !important;
+            font-size: 14px !important;
             font-weight: bold !important;
         }
         
         /* Master Checklist items */
         .grid-cols-1.gap-4 div {
-            font-size: 16px !important;
+            font-size: 14px !important;
         }
 
         /* Let's increase the width and height of the preview modal popup window */
         #cfPreviewModalContent {
-            max-width: 90vw !important;
-            height: 90vh !important;
+            max-width: 95vw !important;
+            height: 95vh !important;
         }
 
         /* Enlarge inputs and text inside modal */
@@ -66,99 +66,99 @@
         #cfPreviewModalContent th,
         #cfPreviewModalContent div,
         #cfPreviewModalContent p {
-            font-size: 15px !important;
+            font-size: 14px !important;
         }
     </style>
 </head>
-<body class="h-screen flex flex-col bg-[#0b1121] overflow-hidden">
+<body class="h-screen flex flex-col bg-[#070b13] overflow-hidden text-slate-300">
 
     <!-- Navbar -->
-    <nav class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 z-10 shrink-0">
+    <nav class="h-16 border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-xl flex items-center justify-between px-8 z-10 shrink-0 shadow-lg shadow-black/20">
         <div class="flex items-center gap-4">
-            <a href="javascript:history.back()" class="flex items-center gap-2 px-4 py-2 bg-amber-500/15 hover:bg-amber-500/30 border border-amber-500/40 hover:border-amber-400 text-amber-400 hover:text-amber-300 rounded-xl font-bold transition-premium">
+            <a href="javascript:history.back()" class="flex items-center gap-2 px-4 py-2 bg-amber-500/10 hover:bg-amber-500/25 border border-amber-500/30 hover:border-amber-400 text-amber-400 rounded-xl font-bold transition-premium">
                 <span class="material-symbols-rounded text-xl">arrow_back</span>
-                <span class="text-base">Back</span>
+                <span class="text-sm">Back</span>
             </a>
             <div>
                 <h1 class="font-extrabold text-slate-100 tracking-tight flex items-center gap-2 text-xl">
-                    <span class="material-symbols-rounded text-amber-500 text-2xl">folder_special</span> NBA Course Files
+                    <span class="material-symbols-rounded text-amber-500 text-2xl">folder_special</span> NBA Course Files Management Desk
                 </h1>
             </div>
         </div>
         <div class="flex items-center gap-3">
-            <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-8 h-8 rounded-full border border-slate-700 object-cover">
-            <span class="font-bold text-[10px] text-slate-200 hidden sm:block text-sm">{{ session('userName') }}</span>
+            <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-9 h-9 rounded-full border border-slate-700 object-cover shadow-md">
+            <span class="font-bold text-slate-200 hidden sm:block text-sm">{{ session('userName') }}</span>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto p-6 md:p-8">
-        <div class="max-w-6xl mx-auto space-y-6">
+    <main class="flex-1 overflow-y-auto p-8 bg-gradient-to-b from-[#070b13] to-[#0d1527]">
+        <div class="w-full mx-auto space-y-6 px-2">
             
             <!-- BREADCRUMBS -->
-            <div id="cfBreadcrumbs" class="hidden flex items-center gap-2 font-bold text-slate-400 bg-slate-900/50 p-3 rounded-xl border border-slate-800 shadow-sm text-sm">
+            <div id="cfBreadcrumbs" class="hidden flex items-center gap-2 font-bold text-slate-400 bg-slate-900/85 p-4 rounded-2xl border border-slate-800/80 shadow-md text-sm">
                 <button onclick="cfShowLevel(1)" class="hover:text-amber-400 transition-colors flex items-center gap-1"><span class="material-symbols-rounded text-lg">home</span> All Batches</button>
-                <span id="cfCrumbBatch" class="hidden items-center gap-2"><span class="material-symbols-rounded text-lg text-slate-600">chevron_right</span> <button onclick="cfShowLevel(2)" class="hover:text-amber-400 transition-colors bg-slate-800/50 px-2 py-1 rounded-md" id="cfCrumbBatchText">2024</button></span>
-                <span id="cfCrumbSem" class="hidden items-center gap-2"><span class="material-symbols-rounded text-lg text-slate-600">chevron_right</span> <button onclick="cfShowLevel(3)" class="hover:text-amber-400 transition-colors bg-slate-800/50 px-2 py-1 rounded-md" id="cfCrumbSemText">Sem 1</button></span>
-                <span id="cfCrumbCourse" class="hidden items-center gap-2"><span class="material-symbols-rounded text-lg text-slate-600">chevron_right</span> <span class="text-amber-400 bg-amber-500/10 px-2 py-1 rounded-md border border-amber-500/20" id="cfCrumbCourseText">Subject</span></span>
+                <span id="cfCrumbBatch" class="hidden items-center gap-2"><span class="material-symbols-rounded text-lg text-slate-600">chevron_right</span> <button onclick="cfShowLevel(2)" class="hover:text-amber-400 transition-colors bg-slate-800/50 px-3 py-1 rounded-lg" id="cfCrumbBatchText">2024</button></span>
+                <span id="cfCrumbSem" class="hidden items-center gap-2"><span class="material-symbols-rounded text-lg text-slate-600">chevron_right</span> <button onclick="cfShowLevel(3)" class="hover:text-amber-400 transition-colors bg-slate-800/50 px-3 py-1 rounded-lg" id="cfCrumbSemText">Sem 1</button></span>
+                <span id="cfCrumbCourse" class="hidden items-center gap-2"><span class="material-symbols-rounded text-lg text-slate-600">chevron_right</span> <span class="text-amber-400 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20" id="cfCrumbCourseText">Subject</span></span>
             </div>
 
             <!-- LEVEL 1: BATCH SELECTION -->
-            <div id="cfLevel1" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 animate-fade-in">
-                <div class="col-span-full py-20 text-center text-slate-500 font-bold text-[10px] animate-pulse text-sm">Loading assigned courses...</div>
+            <div id="cfLevel1" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in">
+                <div class="col-span-full py-20 text-center text-slate-500 font-bold animate-pulse text-sm">Loading assigned courses...</div>
             </div>
 
             <!-- LEVEL 2: SEMESTER SELECTION -->
-            <div id="cfLevel2" class="hidden grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-5 animate-fade-in"></div>
+            <div id="cfLevel2" class="hidden grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 animate-fade-in"></div>
 
             <!-- LEVEL 3: COURSE SELECTION -->
-            <div id="cfLevel3" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 animate-fade-in"></div>
+            <div id="cfLevel3" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 animate-fade-in"></div>
 
             <!-- LEVEL 4: COURSE FILE BUILDER -->
             <div id="cfLevel4" class="hidden space-y-6 animate-fade-in">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-slate-900/90 border border-slate-850 rounded-xl p-4 shadow-lg backdrop-blur-md">
                     <div>
-                        <h2 id="cfSubjectTitle" class="font-black text-white mb-1 text-2xl">Subject Name</h2>
-                        <p id="cfBatchInfo" class="text-[10px] text-slate-400 font-medium text-[10px] text-xs">Batch Info</p>
+                        <h2 id="cfSubjectTitle" class="font-black text-white mb-0.5 text-lg tracking-tight">Subject Name</h2>
+                        <p id="cfBatchInfo" class="text-slate-400 font-medium text-sm">Batch Info</p>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span id="cfStatusBadge" class="px-3 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 border-amber-500/20 text-[10px] text-xs">DRAFT</span>
-                        <button type="button" onclick="openAttainmentSettings()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2.5 rounded-xl text-[10px] font-bold transition-premium flex items-center gap-2 border border-slate-700"><span class="material-symbols-rounded text-xs">tune</span> Attainment Targets</button>
-                        <button type="button" onclick="saveCourseFileProgress()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-[10px] font-bold transition-premium shadow-lg shadow-indigo-500/20">Save Draft</button>
-                        <button type="button" onclick="generateCourseFilePDF()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-5 py-2.5 rounded-xl text-[10px] font-black transition-premium flex items-center gap-2 shadow-lg shadow-amber-500/20"><span class="material-symbols-rounded text-xs">picture_as_pdf</span> Generate PDF</button>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <span id="cfStatusBadge" class="px-3 py-1 rounded-lg border font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 border-amber-500/20 text-sm">DRAFT</span>
+                        <button type="button" onclick="openAttainmentSettings()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-2 rounded-lg text-sm font-bold transition-premium flex items-center gap-2 border border-slate-700"><span class="material-symbols-rounded text-sm">tune</span> Attainment Targets</button>
+                        <button type="button" onclick="saveCourseFileProgress()" class="bg-indigo-650 hover:bg-indigo-650/80 text-white px-4 py-2 rounded-lg text-sm font-bold transition-premium shadow-lg shadow-indigo-500/10">Save Draft</button>
+                        <button type="button" onclick="generateCourseFilePDF()" class="bg-amber-500 hover:bg-amber-450 text-slate-950 px-4 py-2 rounded-lg text-sm font-black transition-premium flex items-center gap-2 shadow-lg shadow-amber-500/10"><span class="material-symbols-rounded text-sm">picture_as_pdf</span> Generate PDF</button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     <!-- Sidebar Tabs -->
                     <div class="lg:col-span-3 space-y-2">
-                        <button type="button" onclick="switchCfTab('A')" id="tabBtnA" class="w-full text-left px-4 py-3 rounded-xl text-[10px] font-bold transition-premium bg-amber-500/10 text-amber-400 border-l-4 border-amber-500">Section A: Planning</button>
-                        <button type="button" onclick="switchCfTab('B')" id="tabBtnB" class="w-full text-left px-4 py-3 rounded-xl text-[10px] font-bold transition-premium text-slate-400 hover:bg-slate-800 hover:text-white border-l-4 border-transparent">Section B: Materials</button>
-                        <button type="button" onclick="switchCfTab('C')" id="tabBtnC" class="w-full text-left px-4 py-3 rounded-xl text-[10px] font-bold transition-premium text-slate-400 hover:bg-slate-800 hover:text-white border-l-4 border-transparent">Section C: Assessments</button>
-                        <button type="button" onclick="switchCfTab('D')" id="tabBtnD" class="w-full text-left px-4 py-3 rounded-xl text-[10px] font-bold transition-premium text-slate-400 hover:bg-slate-800 hover:text-white border-l-4 border-transparent">Section D: Attainment</button>
-                        <button type="button" onclick="switchCfTab('Checklist')" id="tabBtnChecklist" class="w-full text-left px-4 py-3 rounded-xl text-[10px] font-bold transition-premium text-slate-400 hover:bg-slate-800 hover:text-white border-l-4 border-transparent mt-4 bg-slate-800/50">Master Checklist</button>
+                        <button type="button" onclick="switchCfTab('A')" id="tabBtnA" class="w-full text-left px-5 py-3.5 rounded-xl text-sm font-bold transition-premium bg-amber-500/10 text-amber-400 border-l-4 border-amber-500 shadow-sm">Section A: Planning</button>
+                        <button type="button" onclick="switchCfTab('B')" id="tabBtnB" class="w-full text-left px-5 py-3.5 rounded-xl text-sm font-bold transition-premium text-slate-400 hover:bg-slate-800/80 hover:text-white border-l-4 border-transparent">Section B: Materials</button>
+                        <button type="button" onclick="switchCfTab('C')" id="tabBtnC" class="w-full text-left px-5 py-3.5 rounded-xl text-sm font-bold transition-premium text-slate-400 hover:bg-slate-800/80 hover:text-white border-l-4 border-transparent">Section C: Assessments</button>
+                        <button type="button" onclick="switchCfTab('D')" id="tabBtnD" class="w-full text-left px-5 py-3.5 rounded-xl text-sm font-bold transition-premium text-slate-400 hover:bg-slate-800/80 hover:text-white border-l-4 border-transparent">Section D: Attainment</button>
+                        <button type="button" onclick="switchCfTab('Checklist')" id="tabBtnChecklist" class="w-full text-left px-5 py-3.5 rounded-xl text-sm font-bold transition-premium text-slate-400 hover:bg-slate-800/80 hover:text-white border-l-4 border-transparent mt-4 bg-slate-800/40">Master Checklist</button>
                     </div>
 
                     <!-- Form Content -->
-                    <div class="lg:col-span-9 bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-sm min-h-[400px]">
+                    <div class="lg:col-span-9 bg-slate-900 border border-slate-800/80 rounded-2xl p-6 shadow-lg min-h-[450px]">
                         <form id="cfForm">
                             <!-- Section A -->
                             <div id="cfTabA" class="space-y-6 animate-fade-in">
-                                <div class="bg-slate-950/50 border border-slate-800/60 p-4 rounded-xl flex items-start gap-4">
-                                    <div class="bg-blue-500/20 text-blue-400 p-2 rounded-lg shrink-0"><span class="material-symbols-rounded">sync</span></div>
+                                <div class="bg-slate-950/60 border border-slate-800/60 p-5 rounded-xl flex items-start gap-4 shadow-sm">
+                                    <div class="bg-blue-500/10 text-blue-400 p-2 rounded-lg shrink-0 border border-blue-500/20"><span class="material-symbols-rounded">sync</span></div>
                                     <div>
-                                        <h4 class="text-[10px] font-bold text-slate-200 mb-1">Auto-Pulled Data Included</h4>
-                                        <p class="text-[10px] text-slate-400 leading-relaxed">Syllabus, Course Outcomes (COs), and your detailed Lesson Plans will be automatically injected into the final PDF. You do not need to re-enter them here.</p>
+                                        <h4 class="text-sm font-bold text-slate-200 mb-1">Auto-Pulled Data Included</h4>
+                                        <p class="text-sm text-slate-400 leading-relaxed">Syllabus, Course Outcomes (COs), and your detailed Lesson Plans will be automatically injected into the final PDF. You do not need to re-enter them here.</p>
                                     </div>
                                 </div>
                                 <div class="space-y-4">
                                     <div>
-                                        <label class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">Gaps Identified (if any)</label>
-                                        <textarea name="gaps_identified" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-[10px] text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600" placeholder="E.g., Students lacked prerequisite knowledge in..."></textarea>
+                                        <label class="block text-sm font-bold text-slate-350 uppercase tracking-wider mb-2">Gaps Identified (if any)</label>
+                                        <textarea name="gaps_identified" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600" placeholder="E.g., Students lacked prerequisite knowledge in..."></textarea>
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">Bridge Topics Delivered</label>
-                                        <textarea name="bridge_topics" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-[10px] text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600" placeholder="E.g., Conducted 2 extra hours on basics of..."></textarea>
+                                        <label class="block text-sm font-bold text-slate-350 uppercase tracking-wider mb-2">Bridge Topics Delivered</label>
+                                        <textarea name="bridge_topics" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600" placeholder="E.g., Conducted 2 extra hours on basics of..."></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -166,54 +166,54 @@
                             <!-- Section B -->
                             <div id="cfTabB" class="hidden space-y-6 animate-fade-in">
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">NPTEL / Swayam Links</label>
-                                    <textarea name="nptel_swayam_links" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-[10px] text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600" placeholder="Paste external course URLs..."></textarea>
+                                    <label class="block text-sm font-bold text-slate-350 uppercase tracking-wider mb-2">NPTEL / Swayam Links</label>
+                                    <textarea name="nptel_swayam_links" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600" placeholder="Paste external course URLs..."></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">Other Reference Materials / Handouts</label>
-                                    <textarea name="other_resources" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-[10px] text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600" placeholder="List textbooks, custom lab manuals, etc..."></textarea>
+                                    <label class="block text-sm font-bold text-slate-350 uppercase tracking-wider mb-2">Other Reference Materials / Handouts</label>
+                                    <textarea name="other_resources" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600" placeholder="List textbooks, custom lab manuals, etc..."></textarea>
                                 </div>
                             </div>
 
                             <!-- Section C -->
                             <div id="cfTabC" class="hidden space-y-6 animate-fade-in">
-                                <div class="bg-slate-950/50 border border-slate-800/60 p-4 rounded-xl flex items-start gap-4">
-                                    <div class="bg-emerald-500/20 text-emerald-400 p-2 rounded-lg shrink-0"><span class="material-symbols-rounded">grading</span></div>
+                                <div class="bg-slate-950/60 border border-slate-800/60 p-5 rounded-xl flex items-start gap-4 shadow-sm">
+                                    <div class="bg-emerald-500/10 text-emerald-400 p-2 rounded-lg shrink-0 border border-emerald-500/20"><span class="material-symbols-rounded">grading</span></div>
                                     <div>
-                                        <h4 class="text-[10px] font-bold text-slate-200 mb-1">Assessments Auto-Linked</h4>
-                                        <p class="text-[10px] text-slate-400 leading-relaxed">Test Questions, Assignment Questions, and the final Student Mark Sheets will be attached automatically.</p>
+                                        <h4 class="text-sm font-bold text-slate-200 mb-1">Assessments Auto-Linked</h4>
+                                        <p class="text-sm text-slate-400 leading-relaxed">Test Questions, Assignment Questions, and the final Student Mark Sheets will be attached automatically.</p>
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">Evaluation Scheme</label>
-                                    <textarea name="evaluation_scheme" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-[10px] text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600" placeholder="e.g., Internals 40%, End Sem 60%..."></textarea>
+                                    <label class="block text-sm font-bold text-slate-350 uppercase tracking-wider mb-2">Evaluation Scheme</label>
+                                    <textarea name="evaluation_scheme" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600" placeholder="e.g., Internals 40%, End Sem 60%..."></textarea>
                                 </div>
                             </div>
 
                             <!-- Section D -->
                             <div id="cfTabD" class="hidden space-y-6 animate-fade-in">
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">Action Taken Report (if COs not fully attained)</label>
-                                    <textarea name="action_taken_report" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-[10px] text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600"></textarea>
+                                    <label class="block text-sm font-bold text-slate-350 uppercase tracking-wider mb-2">Action Taken Report (if COs not fully attained)</label>
+                                    <textarea name="action_taken_report" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600"></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">Course Committee Minutes (Summary)</label>
-                                    <textarea name="committee_minutes" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-[10px] text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600"></textarea>
+                                    <label class="block text-sm font-bold text-slate-350 uppercase tracking-wider mb-2">Course Committee Minutes (Summary)</label>
+                                    <textarea name="committee_minutes" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-premium placeholder-slate-600"></textarea>
                                 </div>
                             </div>
                             
                             <!-- Master Checklist -->
                             <div id="cfTabChecklist" class="hidden space-y-6 animate-fade-in">
-                                <div class="bg-indigo-500/10 border border-indigo-500/20 p-4 rounded-xl flex items-start gap-4 mb-4">
+                                <div class="bg-indigo-500/10 border border-indigo-500/20 p-5 rounded-xl flex items-start gap-4 mb-4 shadow-sm">
                                     <div class="bg-indigo-500/20 text-indigo-400 p-2 rounded-lg shrink-0"><span class="material-symbols-rounded">checklist</span></div>
                                     <div>
-                                        <h4 class="text-[10px] font-bold text-slate-200 mb-1">File Integrity Checklist</h4>
-                                        <p class="text-[10px] text-slate-400 leading-relaxed">Verify each document before final PDF generation. You can check off items as you complete them.</p>
+                                        <h4 class="text-sm font-bold text-slate-200 mb-1">File Integrity Checklist</h4>
+                                        <p class="text-sm text-slate-400 leading-relaxed">Verify each document before final PDF generation. You can check off items as you complete them.</p>
                                     </div>
                                 </div>
-                                <div class="overflow-x-auto rounded-xl border border-slate-800">
-                                    <table class="w-full text-left text-[10px] text-slate-300">
-                                        <thead class="text-[10px] text-slate-400 bg-slate-950 uppercase border-b border-slate-800">
+                                <div class="overflow-x-auto rounded-xl border border-slate-800/80">
+                                    <table class="w-full text-left text-sm text-slate-300">
+                                        <thead class="text-sm text-slate-450 bg-slate-950 uppercase border-b border-slate-850">
                                             <tr>
                                                 <th class="px-4 py-3 w-16 text-center">Doc No.</th>
                                                 <th class="px-4 py-3">Document Name</th>
@@ -222,7 +222,7 @@
                                                 <th class="px-4 py-3 w-48">Remarks</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="cfChecklistBody" class="divide-y divide-slate-800/60">
+                                        <tbody id="cfChecklistBody" class="divide-y divide-slate-800/40">
                                             <!-- Dynamically populated -->
                                         </tbody>
                                     </table>
@@ -239,12 +239,12 @@
     <div id="attainmentModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 opacity-0 transition-opacity duration-300">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md shadow-2xl shadow-black overflow-hidden transform scale-95 transition-transform duration-300" id="attainmentModalContent">
             <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-800/50">
-                <h3 class="text-xs font-black text-white flex items-center gap-2"><span class="material-symbols-rounded text-amber-500">tune</span> Attainment Targets</h3>
+                <h3 class="text-sm font-black text-white flex items-center gap-2"><span class="material-symbols-rounded text-amber-500">tune</span> Attainment Targets</h3>
                 <button type="button" onclick="closeAttainmentSettings()" class="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-700 transition-colors"><span class="material-symbols-rounded">close</span></button>
             </div>
             <div class="p-6 space-y-4">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 mb-1">Target Mark Threshold (%)</label>
+                    <label class="block text-sm font-bold text-slate-400 mb-1">Target Mark Threshold (%)</label>
                     <div class="relative">
                         <input type="number" id="targetMarkPercent" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-bold focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none" placeholder="60">
                         <span class="absolute right-4 top-2.5 text-slate-500 font-bold">%</span>
@@ -354,21 +354,21 @@
         function renderCfLevel1() {
             const grid = document.getElementById("cfLevel1");
             if (cfDataTree.length === 0) {
-                grid.innerHTML = '<div class="col-span-full py-20 text-center text-slate-500 font-bold text-[10px] bg-slate-900 border border-slate-800 rounded-3xl">No assigned courses found.</div>';
+                grid.innerHTML = '<div class="col-span-full py-20 text-center text-slate-500 font-bold text-sm bg-slate-900 border border-slate-800 rounded-xl">No assigned courses found.</div>';
                 return;
             }
             grid.innerHTML = cfDataTree.map((b, idx) => `
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-amber-500/50 hover:bg-slate-800/80 transition-all cursor-pointer group shadow-sm hover:shadow-amber-500/5" onclick="cfSelectBatch(${idx})">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400/20 to-orange-500/10 flex items-center justify-center border border-amber-500/20">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 hover:border-amber-500/50 hover:bg-slate-800/80 transition-all cursor-pointer group shadow-sm hover:shadow-amber-500/5" onclick="cfSelectBatch(${idx})">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400/20 to-orange-500/10 flex items-center justify-center border border-amber-500/20">
                             <span class="material-symbols-rounded text-amber-500 text-sm">folder_open</span>
                         </div>
                     </div>
-                    <h4 class="text-base font-black text-slate-100 leading-tight mb-1 group-hover:text-amber-400 transition-colors">${b.batch_year} Admission</h4>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${b.branch}</p>
-                    <div class="mt-6 flex items-center justify-between border-t border-slate-800 pt-4">
-                        <span class="text-[10px] font-bold text-slate-500">${b.semesters.length} Semesters</span>
-                        <div class="text-[10px] text-amber-500 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <h4 class="text-sm font-black text-slate-100 leading-tight mb-1 group-hover:text-amber-400 transition-colors">${b.batch_year} Admission</h4>
+                    <p class="text-sm text-slate-450 font-bold uppercase tracking-wider">${b.branch_full_name || b.branch}</p>
+                    <div class="mt-4 flex items-center justify-between border-t border-slate-800/60 pt-3">
+                        <span class="text-sm font-bold text-slate-500">${b.semesters.length} Semesters</span>
+                        <div class="text-sm text-amber-500 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             View <span class="material-symbols-rounded text-[16px]">arrow_forward</span>
                         </div>
                     </div>
@@ -378,20 +378,20 @@
 
         function cfSelectBatch(idx) {
             selectedBatch = cfDataTree[idx];
-            document.getElementById("cfCrumbBatchText").innerText = `${selectedBatch.batch_year} (${selectedBatch.branch})`;
+            document.getElementById("cfCrumbBatchText").innerText = `${selectedBatch.batch_year} (${selectedBatch.branch_full_name || selectedBatch.branch})`;
             
             const grid = document.getElementById("cfLevel2");
             grid.innerHTML = selectedBatch.semesters.map((s, sIdx) => `
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-indigo-500/50 hover:bg-slate-800/80 transition-all cursor-pointer group shadow-sm hover:shadow-indigo-500/5" onclick="cfSelectSemester(${sIdx})">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-blue-500/10 flex items-center justify-center border border-indigo-500/20">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 hover:border-indigo-500/50 hover:bg-slate-800/80 transition-all cursor-pointer group shadow-sm hover:shadow-indigo-500/5" onclick="cfSelectSemester(${sIdx})">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-blue-500/10 flex items-center justify-center border border-indigo-500/20">
                             <span class="material-symbols-rounded text-indigo-400 text-sm">calendar_month</span>
                         </div>
                     </div>
-                    <h4 class="text-xs font-black text-slate-100 leading-tight mb-1 group-hover:text-indigo-400 transition-colors">Semester ${s.semester}</h4>
-                    <div class="mt-6 flex items-center justify-between border-t border-slate-800 pt-4">
-                        <span class="px-2.5 py-1 rounded-md bg-slate-950 border border-slate-800 text-[10px] font-bold text-slate-400">${s.courses.length} Courses</span>
-                        <div class="text-[10px] text-indigo-400 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <h4 class="text-sm font-black text-slate-100 leading-tight mb-1 group-hover:text-indigo-400 transition-colors">Semester ${s.semester}</h4>
+                    <div class="mt-4 flex items-center justify-between border-t border-slate-800/60 pt-3">
+                        <span class="px-2 py-0.5 rounded-md bg-slate-950 border border-slate-805 text-sm font-bold text-slate-400">${s.courses.length} Courses</span>
+                        <div class="text-sm text-indigo-400 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             View <span class="material-symbols-rounded text-[16px]">arrow_forward</span>
                         </div>
                     </div>
@@ -406,17 +406,17 @@
             
             const grid = document.getElementById("cfLevel3");
             grid.innerHTML = selectedSemester.courses.map(c => `
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all cursor-pointer group shadow-sm hover:shadow-emerald-500/5" onclick="cfOpenBuilder('${c.course_file_id}', '${c.subject_name.replace(/'/g, "\\'")}')">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 flex items-center justify-center border border-emerald-500/20">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all cursor-pointer group shadow-sm hover:shadow-emerald-500/5" onclick="cfOpenBuilder('${c.course_file_id}', '${c.subject_name.replace(/'/g, "\\'")}')">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 flex items-center justify-center border border-emerald-500/20">
                             <span class="material-symbols-rounded text-emerald-400 text-sm">school</span>
                         </div>
-                        <span class="px-3 py-1 rounded-lg border text-[10px] font-black uppercase tracking-wider ${c.status === 'Complete' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-amber-400 bg-amber-500/10 border-amber-500/20'}">${c.status}</span>
+                        <span class="px-2.5 py-0.5 rounded border text-sm font-black uppercase tracking-wider ${c.status === 'Complete' ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-amber-400 bg-amber-500/10 border-amber-500/20'}">${c.status}</span>
                     </div>
-                    <h4 class="text-[10px] font-black text-slate-100 leading-snug mb-1 group-hover:text-emerald-400 transition-colors line-clamp-2">${c.subject_name}</h4>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${c.subject_code}</p>
-                    <div class="mt-6 flex items-center justify-end border-t border-slate-800 pt-4">
-                        <div class="text-[10px] text-emerald-400 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <h4 class="text-sm font-black text-slate-100 leading-snug mb-1 group-hover:text-emerald-400 transition-colors line-clamp-2">${c.subject_name}</h4>
+                    <p class="text-sm text-slate-400 font-bold uppercase tracking-wider">${c.subject_code}</p>
+                    <div class="mt-4 flex items-center justify-end border-t border-slate-800/60 pt-3">
+                        <div class="text-sm text-emerald-400 font-bold flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             Open Builder <span class="material-symbols-rounded text-[16px]">arrow_forward</span>
                         </div>
                     </div>
@@ -429,7 +429,7 @@
             currentCfId = id;
             document.getElementById("cfCrumbCourseText").innerText = subjectName;
             document.getElementById("cfSubjectTitle").innerText = subjectName;
-            document.getElementById("cfBatchInfo").innerText = `${selectedBatch.batch_year} Admission â¢ ${selectedBatch.branch} â¢ Semester ${selectedSemester.semester}`;
+            document.getElementById("cfBatchInfo").innerText = `${selectedBatch.batch_year} Admission • ${selectedBatch.branch_full_name || selectedBatch.branch} • Semester ${selectedSemester.semester}`;
             
             cfShowLevel(4);
 
@@ -439,7 +439,14 @@
                 .then(data => {
                     if (data.status === "SUCCESS") {
                         const cf = data.course_file;
-                        document.getElementById("cfStatusBadge").innerText = cf.status.toUpperCase();
+                        const statusUpper = cf.status.toUpperCase();
+                        const badge = document.getElementById("cfStatusBadge");
+                        badge.innerText = statusUpper;
+                        if (statusUpper === "COMPLETE") {
+                            badge.className = "px-3 py-1 rounded-lg border font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border-emerald-500/20 text-sm";
+                        } else {
+                            badge.className = "px-3 py-1 rounded-lg border font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 border-amber-500/20 text-sm";
+                        }
                         
                         if (cf.attainment_settings) {
                             try {
@@ -513,10 +520,10 @@
                 const btn = document.getElementById("tabBtn" + t);
                 const panel = document.getElementById("cfTab" + t);
                 if (t === tab) {
-                    btn.className = "w-full text-left px-4 py-3 rounded-xl text-[10px] font-bold transition-premium bg-amber-500/10 text-amber-400 border-l-4 border-amber-500";
+                    btn.className = "w-full text-left px-5 py-3.5 rounded-xl text-sm font-bold transition-premium bg-amber-500/10 text-amber-400 border-l-4 border-amber-500 shadow-sm";
                     panel.classList.remove("hidden");
                 } else {
-                    btn.className = "w-full text-left px-4 py-3 rounded-xl text-[10px] font-bold transition-premium text-slate-400 hover:bg-slate-800 hover:text-white border-l-4 border-transparent";
+                    btn.className = "w-full text-left px-5 py-3.5 rounded-xl text-sm font-bold transition-premium text-slate-400 hover:bg-slate-800/80 hover:text-white border-l-4 border-transparent";
                     panel.classList.add("hidden");
                 }
             });
@@ -539,6 +546,11 @@
                 }))
             };
 
+            const btnSave = document.querySelector("button[onclick='saveCourseFileProgress()']");
+            const originalText = btnSave.innerHTML;
+            btnSave.innerHTML = `<span class="material-symbols-rounded animate-spin align-middle text-sm mr-1">sync</span> Saving...`;
+            btnSave.disabled = true;
+
             fetch(`/api/course-files/${currentCfId}`, {
                 method: "POST",
                 headers: {
@@ -549,13 +561,29 @@
             })
             .then(res => res.json())
             .then(data => {
+                btnSave.innerHTML = originalText;
+                btnSave.disabled = false;
                 if (data.status === "SUCCESS") {
                     showGlobalMessage("Draft saved successfully.");
+                    // Dynamic badge coloring based on updated status
+                    const updatedCf = data.course_file || {};
+                    const newStatus = (updatedCf.status || "Draft").toUpperCase();
+                    const badge = document.getElementById("cfStatusBadge");
+                    badge.innerText = newStatus;
+                    if (newStatus === "COMPLETE") {
+                        badge.className = "px-3 py-1 rounded-lg border font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border-emerald-500/20 text-sm";
+                    } else {
+                        badge.className = "px-3 py-1 rounded-lg border font-bold uppercase tracking-wider text-amber-400 bg-amber-500/10 border-amber-500/20 text-sm";
+                    }
                 } else {
                     showGlobalMessage(data.message || "Failed to save", true);
                 }
             })
-            .catch(() => showGlobalMessage("Network error", true));
+            .catch(() => {
+                btnSave.innerHTML = originalText;
+                btnSave.disabled = false;
+                showGlobalMessage("Network error", true);
+            });
         }
 
         function generateCourseFilePDF() {
@@ -610,13 +638,13 @@
                 const inputGen = [5, 12];
                 
                 if (autoGen.includes(docNo)) {
-                    actionBtn = `<button type="button" onclick="openPreviewModal(`+docNo+`, '`+name.replace(/'/g, "\'")+`')" class="w-full py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 text-[10px] font-bold transition-colors flex items-center justify-center gap-1"><span class="material-symbols-rounded text-[14px]">visibility</span> Generate Preview</button>`;
+                    actionBtn = `<button type="button" onclick="openPreviewModal(`+docNo+`, '`+name.replace(/'/g, "\'")+`')" class="w-full py-1.5 rounded-lg bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/20 text-sm font-bold transition-colors flex items-center justify-center gap-1"><span class="material-symbols-rounded text-[14px]">visibility</span> Generate Preview</button>`;
                 } else if (calcGen.includes(docNo)) {
-                    actionBtn = `<button type="button" onclick="openPreviewModal(`+docNo+`, '`+name.replace(/'/g, "\'")+`')" class="w-full py-1.5 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20 text-[10px] font-bold transition-colors flex items-center justify-center gap-1"><span class="material-symbols-rounded text-[14px]">calculate</span> Calculate & Preview</button>`;
+                    actionBtn = `<button type="button" onclick="openPreviewModal(`+docNo+`, '`+name.replace(/'/g, "\'")+`')" class="w-full py-1.5 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500/20 border border-purple-500/20 text-sm font-bold transition-colors flex items-center justify-center gap-1"><span class="material-symbols-rounded text-[14px]">calculate</span> Calculate & Preview</button>`;
                 } else if (inputGen.includes(docNo)) {
-                    actionBtn = `<button type="button" onclick="openPreviewModal(`+docNo+`, '`+name.replace(/'/g, "\'")+`')" class="w-full py-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 text-[10px] font-bold transition-colors flex items-center justify-center gap-1"><span class="material-symbols-rounded text-[14px]">edit_document</span> Input Data</button>`;
+                    actionBtn = `<button type="button" onclick="openPreviewModal(`+docNo+`, '`+name.replace(/'/g, "\'")+`')" class="w-full py-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 text-sm font-bold transition-colors flex items-center justify-center gap-1"><span class="material-symbols-rounded text-[14px]">edit_document</span> Input Data</button>`;
                 } else {
-                    actionBtn = `<select class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-[10px] text-slate-300 focus:border-amber-500 outline-none"><option>Attach Physical Copy</option><option>Generate Cover Page</option></select>`;
+                    actionBtn = `<select class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-sm text-slate-300 focus:border-amber-500 outline-none"><option>Attach Physical Copy</option><option>Generate Cover Page</option></select>`;
                 }
 
                 html += `
@@ -628,7 +656,7 @@
                             <input type="checkbox" id="cf_check_`+docNo+`" class="cf-check-item w-4 h-4 rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500/20" data-doc-no="` + docNo + `" data-doc-name="` + name + `" ` + isChecked + `>
                         </td>
                         <td class="px-4 py-3">
-                            <input type="text" id="remark_` + docNo + `" value="` + remarks + `" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-[10px] text-white focus:border-amber-500 outline-none placeholder-slate-600" placeholder="Optional remarks...">
+                            <input type="text" id="remark_` + docNo + `" value="` + remarks + `" class="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1 text-sm text-white focus:border-amber-500 outline-none placeholder-slate-600" placeholder="Optional remarks...">
                         </td>
                     </tr>
                 `;

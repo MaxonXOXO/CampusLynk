@@ -38,6 +38,7 @@ class CourseFileController extends Controller
 
             $batchYear = $bs->classroom->batch_year;
             $branch = $bs->classroom->branch;
+            $fullBranchName = getFullBranchName($branch);
             $batchKey = $batchYear . '|' . $branch;
             
             $semester = $bs->semester;
@@ -53,6 +54,7 @@ class CourseFileController extends Controller
                 $tree[$batchKey] = [
                     'batch_year' => $batchYear,
                     'branch' => $branch,
+                    'branch_full_name' => $fullBranchName,
                     'semesters' => []
                 ];
             }
@@ -165,10 +167,26 @@ class CourseFileController extends Controller
 
         if ($request->has('status')) {
             $cf->status = $request->input('status');
-            $cf->save();
+        } else {
+            // Keep status as Draft or current status unless explicitly updated
+            if ($cf->status === 'Complete') {
+                // Keep Complete
+            } else {
+                $cf->status = 'Draft';
+            }
         }
+        $cf->save();
 
-        return response()->json(['status' => 'SUCCESS', 'message' => 'Course File saved successfully']);
+        $cf->refresh();
+
+        return response()->json([
+            'status' => 'SUCCESS', 
+            'message' => 'Course File saved successfully',
+            'course_file' => [
+                'id' => $cf->id,
+                'status' => $cf->status
+            ]
+        ]);
     }
 
     /**
