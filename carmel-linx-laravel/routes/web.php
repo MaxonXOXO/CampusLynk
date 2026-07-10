@@ -324,9 +324,12 @@ Route::middleware(['web'])->group(function () {
      Route::get('/api/classroom/question-bank/template', [App\Http\Controllers\ClassroomController::class, 'downloadQuestionTemplate']);
      Route::post('/api/classroom/{subjectId}/question-bank/upload', [App\Http\Controllers\ClassroomController::class, 'uploadQuestionBank']);
  
-     // Seminar Evaluation (Revision 2021)
-     Route::get('/api/classroom/{subjectId}/seminar/evaluations', [App\Http\Controllers\ClassroomController::class, 'getSeminarEvaluations']);
-     Route::post('/api/classroom/{subjectId}/seminar/evaluate', [App\Http\Controllers\ClassroomController::class, 'saveSeminarEvaluation']);
+      // Seminar Evaluation (Revision 2021)
+      Route::get('/api/classroom/{subjectId}/seminar/evaluations', [App\Http\Controllers\ClassroomController::class, 'getSeminarEvaluations']);
+      Route::post('/api/classroom/{subjectId}/seminar/evaluate', [App\Http\Controllers\ClassroomController::class, 'saveSeminarEvaluation']);
+      Route::post('/api/student/seminar/register', [App\Http\Controllers\ClassroomController::class, 'registerSeminarDetails']);
+      Route::get('/api/student/seminar/guides', [App\Http\Controllers\ClassroomController::class, 'getSeminarGuides']);
+      Route::get('/classroom/{subjectId}/seminar-report', [App\Http\Controllers\ClassroomController::class, 'printSeminarReport']);
     Route::post('/api/classroom/{subjectId}/question-bank/seed-ai', [App\Http\Controllers\ClassroomController::class, 'seedQuestionBankWithAi']);
     Route::post('/api/classroom/{subjectId}/question-bank/upload-json', [App\Http\Controllers\ClassroomController::class, 'uploadQuestionBankJson']);
 

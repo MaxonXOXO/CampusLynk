@@ -1731,8 +1731,14 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
 
         $allEvaluations = \App\Models\SeminarEvaluation::where('batch_subject_id', $subjectId)->get();
 
-        $data = $students->map(function ($student) use ($myEvaluations, $allEvaluations) {
+        // Load Student Seminar Metadata (Topic, Date, Guide)
+        $seminarRegs = \App\Models\StudentSeminarRegistration::where('batch_subject_id', $subjectId)
+            ->with('guide')
+            ->get();
+
+        $data = $students->map(function ($student) use ($myEvaluations, $allEvaluations, $seminarRegs) {
             $myEval = $myEvaluations->where('reg_no', $student->reg_no)->first();
+            $semReg = $seminarRegs->where('reg_no', $student->reg_no)->first();
             
             $studentAllEvals = $allEvaluations->where('reg_no', $student->reg_no);
             $evalCount = $studentAllEvals->count();
@@ -1743,6 +1749,9 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
                 'name' => $student->name,
                 'roll_no' => $student->roll_no,
                 'sbte_reg_no' => $student->sbte_reg_no,
+                'topic' => $semReg ? $semReg->topic : null,
+                'presentation_date' => $semReg ? date('d-m-Y', strtotime($semReg->presentation_date)) : null,
+                'guide_name' => $semReg && $semReg->guide ? $semReg->guide->name : null,
                 'my_evaluation' => $myEval ? [
                     'relevance' => (float)$myEval->relevance,
                     'literature' => (float)$myEval->literature,
@@ -1774,14 +1783,15 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
         $batchSubject = \App\Models\BatchSubject::find($subjectId);
         if (!$batchSubject) return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
 
+        // Criteria scaled to 75 total: Relevance (7.5), Literature (7.5), Presentation (37.5), Interaction (7.5), Report (7.5), Attendance (7.5)
         $request->validate([
             'reg_no' => 'required|string',
-            'relevance' => 'required|numeric|min:0|max:5',
-            'literature' => 'required|numeric|min:0|max:5',
-            'presentation' => 'required|numeric|min:0|max:25',
-            'interaction' => 'required|numeric|min:0|max:5',
-            'report' => 'required|numeric|min:0|max:5',
-            'attendance' => 'required|numeric|min:0|max:5',
+            'relevance' => 'required|numeric|min:0|max:7.5',
+            'literature' => 'required|numeric|min:0|max:7.5',
+            'presentation' => 'required|numeric|min:0|max:37.5',
+            'interaction' => 'required|numeric|min:0|max:7.5',
+            'report' => 'required|numeric|min:0|max:7.5',
+            'attendance' => 'required|numeric|min:0|max:7.5',
         ]);
 
         $regNo = $request->input('reg_no');
@@ -1819,17 +1829,17 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
 
         $averageScore = $studentAllEvals->count() > 0 ? round($studentAllEvals->avg('total_score'), 2) : 0;
 
-        // 3. Upsert as a Continuous Internal Assessment (CIA) AcademicMark of category 'Seminar'
+        // 3. Upsert as a Continuous Internal Assessment (CIA) AcademicMark of category 'Seminar' out of 75
         \App\Models\AcademicMark::updateOrCreate(
             [
                 'reg_no' => $regNo,
                 'batch_subject_id' => $subjectId,
                 'category' => 'Seminar',
-                'co_tag' => 'CO1' // Seminars map broadly to a single outcome tag or code
+                'co_tag' => 'CO1'
             ],
             [
                 'subject_code' => $batchSubject->subject_code,
-                'max_marks' => 50,
+                'max_marks' => 75,
                 'marks_obtained' => $averageScore
             ]
         );
@@ -1838,6 +1848,129 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
             'status' => 'SUCCESS',
             'message' => 'Seminar evaluation saved.',
             'average_score' => $averageScore
+        ]);
+    }
+
+    /**
+     * Submit/Register Seminar Details (Topic, Date, Guide) from student dashboard
+     */
+    public function registerSeminarDetails(Request $request)
+    {
+        $regNo = Session::get('userId');
+        $role = Session::get('userRole');
+        if (!$regNo || $role !== 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. Only students can register seminar details.']);
+        }
+
+        $request->validate([
+            'batch_subject_id' => 'required|integer',
+            'topic' => 'required|string|max:255',
+            'presentation_date' => 'required|date',
+            'guide_mobile_no' => 'required|string',
+        ]);
+
+        $subjectId = $request->input('batch_subject_id');
+        
+        \App\Models\StudentSeminarRegistration::updateOrCreate(
+            [
+                'batch_subject_id' => $subjectId,
+                'reg_no' => $regNo
+            ],
+            [
+                'topic' => $request->input('topic'),
+                'presentation_date' => $request->input('presentation_date'),
+                'guide_mobile_no' => $request->input('guide_mobile_no')
+            ]
+        );
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Seminar details registered successfully.']);
+    }
+
+    /**
+     * Fetch Seminar Guides list (lecturers belonging to same department)
+     */
+    public function getSeminarGuides(Request $request)
+    {
+        $branch = Session::get('userBranch');
+        if (!$branch) return response()->json(['status' => 'ERROR', 'message' => 'Branch session expired.']);
+
+        $guides = \App\Models\StaffProfile::where('branch', $branch)
+            ->whereIn('designation', ['HOD', 'Lecturer', 'Demonstrator'])
+            ->get(['mobile_no', 'name']);
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'guides' => $guides
+        ]);
+    }
+
+    /**
+     * Print consolidated seminar CIA evaluations report
+     */
+    public function printSeminarReport($subjectId)
+    {
+        $batchSubject = \App\Models\BatchSubject::find($subjectId);
+        if (!$batchSubject) return response("Subject not found.", 404);
+
+        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+            ->where('semester', $batchSubject->semester)
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $allEvaluations = \App\Models\SeminarEvaluation::where('batch_subject_id', $subjectId)->get();
+        $seminarRegs = \App\Models\StudentSeminarRegistration::where('batch_subject_id', $subjectId)
+            ->with('guide')
+            ->get();
+
+        $students = $students->map(function ($student) use ($allEvaluations, $seminarRegs) {
+            $studentAllEvals = $allEvaluations->where('reg_no', $student->reg_no);
+            $semReg = $seminarRegs->where('reg_no', $student->reg_no)->first();
+            
+            // Average split criteria scores
+            $relevanceAvg = $studentAllEvals->count() > 0 ? round($studentAllEvals->avg('relevance'), 2) : 0;
+            $literatureAvg = $studentAllEvals->count() > 0 ? round($studentAllEvals->avg('literature'), 2) : 0;
+            $presentationAvg = $studentAllEvals->count() > 0 ? round($studentAllEvals->avg('presentation'), 2) : 0;
+            $interactionAvg = $studentAllEvals->count() > 0 ? round($studentAllEvals->avg('interaction'), 2) : 0;
+            $reportAvg = $studentAllEvals->count() > 0 ? round($studentAllEvals->avg('report'), 2) : 0;
+            $attendanceAvg = $studentAllEvals->count() > 0 ? round($studentAllEvals->avg('attendance'), 2) : 0;
+            $totalScoreAvg = $studentAllEvals->count() > 0 ? round($studentAllEvals->avg('total_score'), 2) : 0;
+
+            $student->seminar_details = [
+                'topic' => $semReg ? $semReg->topic : '-',
+                'presentation_date' => $semReg ? date('d-m-Y', strtotime($semReg->presentation_date)) : '-',
+                'guide_name' => $semReg && $semReg->guide ? $semReg->guide->name : '-',
+                'relevance' => $relevanceAvg,
+                'literature' => $literatureAvg,
+                'presentation' => $presentationAvg,
+                'interaction' => $interactionAvg,
+                'report' => $reportAvg,
+                'attendance' => $attendanceAvg,
+                'total_score' => $totalScoreAvg
+            ];
+            return $student;
+        });
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+        ];
+        
+        $branchKey = strtoupper(explode('_', $batchSubject->classroom_id)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? $branchKey;
+        
+        $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $batchSubject->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        return view('classroom_seminar_report_print', [
+            'subject' => $batchSubject,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'students' => $students,
+            'totalStudents' => $students->count(),
+            'currentYear' => date('Y')
         ]);
     }
 }

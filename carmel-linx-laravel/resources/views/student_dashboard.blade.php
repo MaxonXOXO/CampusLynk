@@ -126,6 +126,9 @@
       <button id="navActivity" onclick="switchPanel('activity')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">star</span> Activity Points
       </button>
+      <button id="navSeminar" onclick="switchPanel('seminar')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+        <span class="material-symbols-rounded text-lg">co_present</span> My Seminar
+      </button>
       <a id="navMockTest" href="/student/mock-test" target="_blank" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-teal-300 hover:bg-blue-950/20 cursor-pointer text-sm no-underline">
         <span class="material-symbols-rounded text-lg text-teal-400 animate-pulse">rocket_launch</span> Mock Practice Test
       </a>
@@ -591,6 +594,69 @@
       </div>
       <!-- END PANEL: ACTIVITY POINTS -->
 
+      <!-- PANEL: MY SEMINAR -->
+      <div id="panelSeminar" class="hidden space-y-6 fade-up">
+        <div class="max-w-3xl mx-auto space-y-6">
+          <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
+            <h3 class="font-black text-slate-200 text-base flex items-center gap-2"><span class="material-symbols-rounded text-blue-400">co_present</span> Register Seminar Topic & details</h3>
+            <p class="text-xs text-slate-450 leading-relaxed">Please register your seminar topic details below. Ensure you select the correct subject/batch and assign the appropriate seminar guide from your department.</p>
+            
+            <form id="seminarRegistrationForm" onsubmit="submitSeminarRegistration(event)" class="space-y-4 pt-2">
+              <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Seminar Subject</label>
+                <select id="semRegSubject" required class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+                  <!-- Dynamically loaded -->
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Seminar Presentation Topic</label>
+                <input type="text" id="semRegTopic" required placeholder="e.g. Artificial Intelligence in Health Diagnostics" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Proposed Presentation Date</label>
+                  <input type="date" id="semRegDate" required class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Seminar Guide / Faculty</label>
+                  <select id="semRegGuide" required class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+                    <option value="">Select Guide...</option>
+                  </select>
+                </div>
+              </div>
+              <div class="pt-4 border-t border-slate-900 flex justify-end">
+                <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs transition-premium shadow-lg shadow-blue-500/20">
+                  Register Details
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Active seminar details card -->
+          <div id="activeSeminarDetailsCard" class="hidden bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
+            <h3 class="font-black text-slate-200 text-base flex items-center gap-2"><span class="material-symbols-rounded text-emerald-400">verified</span> Currently Registered Seminar</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-semibold">
+              <div class="bg-slate-900/40 p-4 rounded-xl">
+                <span class="text-slate-500 block">Seminar Topic</span>
+                <span id="activeSemTopic" class="text-white font-extrabold text-sm block mt-1">-</span>
+              </div>
+              <div class="bg-slate-900/40 p-4 rounded-xl">
+                <span class="text-slate-500 block">Seminar Guide</span>
+                <span id="activeSemGuide" class="text-white font-bold block mt-1">-</span>
+              </div>
+              <div class="bg-slate-900/40 p-4 rounded-xl">
+                <span class="text-slate-500 block">Presentation Date</span>
+                <span id="activeSemDate" class="text-white font-bold block mt-1">-</span>
+              </div>
+              <div class="bg-slate-900/40 p-4 rounded-xl">
+                <span class="text-slate-500 block">Classroom Average Score (CIA)</span>
+                <span id="activeSemAvgScore" class="text-teal-400 font-extrabold text-sm block mt-1">- / 75</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -619,7 +685,7 @@
       // Sync browser history state safely
       window.history.replaceState({}, '', '?tab=' + panelId);
 
-      const panels = ['exams', 'marks', 'profile', 'activity'];
+      const panels = ['exams', 'marks', 'profile', 'activity', 'seminar'];
       
       panels.forEach(id => {
         const el = document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1));
@@ -633,25 +699,28 @@
         }
       });
 
-      const titles = { exams: 'Works To Do', marks: 'Academic Stats', profile: 'My Profile', activity: 'Activity Points' };
+      const titles = { exams: 'Works To Do', marks: 'Academic Stats', profile: 'My Profile', activity: 'Activity Points', seminar: 'My Seminar' };
       const subtitles = { 
         exams: 'Manage your pending assignments and active tests.', 
         marks: 'Your semester-wise academic progress.', 
         profile: 'Your personal and academic details.',
-        activity: 'Track and claim your extracurricular points.'
+        activity: 'Track and claim your extracurricular points.',
+        seminar: 'Register and view your seminar topics details.'
       };
       if (titles[panelId]) document.getElementById('panelTitle').innerText = titles[panelId];
       if (subtitles[panelId]) document.getElementById('panelSubtitle').innerText = subtitles[panelId];
 
       if (panelId === 'activity') {
         loadActivityPoints();
+      } else if (panelId === 'seminar') {
+        loadSeminarRegistration();
       }
     }
 
       document.addEventListener('DOMContentLoaded', () => {
         const urlParams = new URLSearchParams(window.location.search);
         const tab = urlParams.get('tab');
-        if (tab && ['exams', 'marks', 'profile', 'activity'].includes(tab)) {
+        if (tab && ['exams', 'marks', 'profile', 'activity', 'seminar'].includes(tab)) {
           switchPanel(tab);
         }
         loadStudentTests();
@@ -1660,6 +1729,126 @@
         } else {
           alert(resData.message || 'Failed to submit claim.');
         }
+      });
+    }
+
+    function loadSeminarRegistration() {
+      // 1. Fetch department guides
+      const guideSelect = document.getElementById('semRegGuide');
+      guideSelect.innerHTML = '<option value="">Loading guides...</option>';
+
+      fetch('/api/student/seminar/guides')
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'SUCCESS') {
+          guideSelect.innerHTML = '<option value="">Select Guide...</option>';
+          res.guides.forEach(g => {
+            const opt = document.createElement('option');
+            opt.value = g.mobile_no;
+            opt.innerText = g.name;
+            guideSelect.appendChild(opt);
+          });
+        }
+      });
+
+      // 2. Fetch student academic report to find any Seminar type subjects in active semester
+      const subjectSelect = document.getElementById('semRegSubject');
+      subjectSelect.innerHTML = '<option value="">Loading seminar subjects...</option>';
+
+      fetch('/api/student/academic-report')
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'SUCCESS') {
+          subjectSelect.innerHTML = '<option value="">Select Subject...</option>';
+          let hasSem = false;
+          let seminarSubjectId = null;
+
+          // Find current semester
+          const sem = res.current_semester;
+          const subjects = res.semester_reports[sem] ? res.semester_reports[sem].subjects : [];
+
+          subjects.forEach(s => {
+            if (s.subject_type === 'Seminar') {
+              hasSem = true;
+              seminarSubjectId = s.batch_subject_id;
+              const opt = document.createElement('option');
+              opt.value = s.batch_subject_id;
+              opt.innerText = `${s.subject_name} (${s.subject_code})`;
+              subjectSelect.appendChild(opt);
+            }
+          });
+
+          if (!hasSem) {
+            subjectSelect.innerHTML = '<option value="">No active Seminar subjects found this semester</option>';
+          } else {
+            // Load currently registered seminar details
+            fetchSeminarDetails(seminarSubjectId);
+          }
+        }
+      });
+    }
+
+    function fetchSeminarDetails(subjectId) {
+      fetch(`/api/classroom/${subjectId}/seminar/evaluations`)
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'SUCCESS') {
+          // Find own record
+          const regNo = "{{ session('userId') }}";
+          const student = res.data.find(s => s.reg_no === regNo);
+          const card = document.getElementById('activeSeminarDetailsCard');
+
+          if (student && student.topic) {
+            document.getElementById('activeSemTopic').innerText = student.topic;
+            document.getElementById('activeSemGuide').innerText = student.guide_name || '-';
+            document.getElementById('activeSemDate').innerText = student.presentation_date || '-';
+            document.getElementById('activeSemAvgScore').innerText = `${student.average_score} / 75`;
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        }
+      });
+    }
+
+    function submitSeminarRegistration(e) {
+      e.preventDefault();
+      const subjectId = document.getElementById('semRegSubject').value;
+      const topic = document.getElementById('semRegTopic').value;
+      const date = document.getElementById('semRegDate').value;
+      const guide = document.getElementById('semRegGuide').value;
+
+      if (!subjectId) {
+        alert('Please select a valid Seminar subject.');
+        return;
+      }
+
+      fetch('/api/student/seminar/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          batch_subject_id: subjectId,
+          topic: topic,
+          presentation_date: date,
+          guide_mobile_no: guide
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'SUCCESS') {
+          alert('Seminar details registered successfully!');
+          document.getElementById('seminarRegistrationForm').reset();
+          loadSeminarRegistration();
+        } else {
+          alert(res.message);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Failed to register seminar details.');
       });
     }
   </script>

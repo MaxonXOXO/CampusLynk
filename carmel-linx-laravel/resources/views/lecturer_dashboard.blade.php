@@ -783,6 +783,11 @@
                   <h4 class="text-sm font-black text-slate-200">Seminar Evaluation (Revision 2021)</h4>
                   <p class="text-sm text-slate-400 mt-1">Grade student seminars based on CIA criteria. Multiple assessors' scores will be averaged to formulate the final mark.</p>
                 </div>
+                <div>
+                  <a id="printSeminarReportBtn" href="#" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer shadow-md">
+                    <span class="material-symbols-rounded text-base">print</span> Print Seminar Report
+                  </a>
+                </div>
               </div>
 
               <!-- Students List with Split Evaluation Details -->
@@ -793,20 +798,23 @@
                       <tr class="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[11px] bg-slate-900/60">
                         <th class="p-3">Roll No</th>
                         <th class="p-3">Student Name</th>
-                        <th class="p-3 text-center">Relevance (5)</th>
-                        <th class="p-3 text-center">Literature (5)</th>
-                        <th class="p-3 text-center">Presentation (25)</th>
-                        <th class="p-3 text-center">Interaction (5)</th>
-                        <th class="p-3 text-center">Report (5)</th>
-                        <th class="p-3 text-center">Attendance (5)</th>
-                        <th class="p-3 text-center">My Total (50)</th>
-                        <th class="p-3 text-center text-teal-400">Class Average (50)</th>
+                        <th class="p-3">Topic</th>
+                        <th class="p-3">Guide</th>
+                        <th class="p-3 text-center">Presentation Date</th>
+                        <th class="p-3 text-center">Relevance (7.5)</th>
+                        <th class="p-3 text-center">Literature (7.5)</th>
+                        <th class="p-3 text-center">Presentation (37.5)</th>
+                        <th class="p-3 text-center">Interaction (7.5)</th>
+                        <th class="p-3 text-center">Report (7.5)</th>
+                        <th class="p-3 text-center">Attendance (7.5)</th>
+                        <th class="p-3 text-center">My Total (75)</th>
+                        <th class="p-3 text-center text-teal-400">Class Average (75)</th>
                         <th class="p-3 text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody id="seminarEvaluationsTableBody" class="divide-y divide-slate-800/50">
                       <tr>
-                        <td colspan="11" class="p-8 text-center text-slate-500 font-bold text-xs">Loading evaluations...</td>
+                        <td colspan="14" class="p-8 text-center text-slate-500 font-bold text-xs">Loading evaluations...</td>
                       </tr>
                     </tbody>
                   </table>
@@ -4465,36 +4473,36 @@
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Relevance (Max 5)</label>
-          <input type="number" step="0.01" min="0" max="5" id="semRelevance" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Relevance (Max 7.5)</label>
+          <input type="number" step="0.01" min="0" max="7.5" id="semRelevance" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
         </div>
         <div>
-          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Literature Survey (Max 5)</label>
-          <input type="number" step="0.01" min="0" max="5" id="semLiterature" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Literature Survey (Max 7.5)</label>
+          <input type="number" step="0.01" min="0" max="7.5" id="semLiterature" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
         </div>
       </div>
       <div>
-        <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Presentation (Max 25)</label>
-        <input type="number" step="0.01" min="0" max="25" id="semPresentation" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+        <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Presentation (Max 37.5)</label>
+        <input type="number" step="0.01" min="0" max="37.5" id="semPresentation" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
       </div>
       <div class="grid grid-cols-3 gap-4">
         <div>
-          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Interaction (5)</label>
-          <input type="number" step="0.01" min="0" max="5" id="semInteraction" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
+          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Interaction (7.5)</label>
+          <input type="number" step="0.01" min="0" max="7.5" id="semInteraction" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
         </div>
         <div>
-          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Report (5)</label>
-          <input type="number" step="0.01" min="0" max="5" id="semReport" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
+          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Report (7.5)</label>
+          <input type="number" step="0.01" min="0" max="7.5" id="semReport" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
         </div>
         <div>
-          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Attendance (5)</label>
-          <input type="number" step="0.01" min="0" max="5" id="semAttendance" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
+          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Attendance (7.5)</label>
+          <input type="number" step="0.01" min="0" max="7.5" id="semAttendance" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
         </div>
       </div>
       <div class="pt-4 border-t border-slate-900 flex justify-between items-center">
         <div>
           <span class="text-xs text-slate-400 font-bold uppercase">Total Score:</span>
-          <span id="semTotalScoreLabel" class="text-base font-black text-blue-400 ml-2">0.00 / 50</span>
+          <span id="semTotalScoreLabel" class="text-base font-black text-blue-400 ml-2">0.00 / 75</span>
         </div>
         <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold shadow-lg transition-premium cursor-pointer">
           Save Evaluation
@@ -4509,7 +4517,12 @@
 
     function fetchSeminarEvaluations() {
       const tbody = document.getElementById('seminarEvaluationsTableBody');
-      tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-slate-500 font-bold text-xs animate-pulse">Loading evaluations data...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="14" class="p-8 text-center text-slate-500 font-bold text-xs animate-pulse">Loading evaluations data...</td></tr>';
+      
+      const printBtn = document.getElementById('printSeminarReportBtn');
+      if (printBtn) {
+        printBtn.href = `/classroom/${currentSubjectId}/seminar-report`;
+      }
 
       fetch(`/api/classroom/${currentSubjectId}/seminar/evaluations`)
       .then(res => res.json())
@@ -4518,12 +4531,12 @@
           activeSeminarData = res.data;
           renderSeminarEvaluations();
         } else {
-          tbody.innerHTML = `<tr><td colspan="11" class="p-8 text-center text-red-400 font-bold text-xs">${res.message}</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="14" class="p-8 text-center text-red-400 font-bold text-xs">${res.message}</td></tr>`;
         }
       })
       .catch(err => {
         console.error(err);
-        tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-red-400 font-bold text-xs">Failed to load seminar evaluations.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="14" class="p-8 text-center text-red-400 font-bold text-xs">Failed to load seminar evaluations.</td></tr>';
       });
     }
 
@@ -4532,7 +4545,7 @@
       tbody.innerHTML = '';
 
       if (activeSeminarData.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="11" class="p-8 text-center text-slate-500 italic text-xs">No students enrolled in this batch.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="14" class="p-8 text-center text-slate-500 italic text-xs">No students enrolled in this batch.</td></tr>';
         return;
       }
 
@@ -4544,6 +4557,9 @@
         row.innerHTML = `
           <td class="p-3 font-mono">${student.roll_no || '-'}</td>
           <td class="p-3 font-extrabold text-white">${student.name}</td>
+          <td class="p-3 font-medium max-w-[200px] truncate" title="${student.topic || '-'}">${student.topic || '<span class="text-slate-600 italic">Not Registered</span>'}</td>
+          <td class="p-3 text-slate-400">${student.guide_name || '-'}</td>
+          <td class="p-3 text-center">${student.presentation_date || '-'}</td>
           <td class="p-3 text-center">${me ? me.relevance : '-'}</td>
           <td class="p-3 text-center">${me ? me.literature : '-'}</td>
           <td class="p-3 text-center">${me ? me.presentation : '-'}</td>
@@ -4596,7 +4612,7 @@
       const attendance = parseFloat(document.getElementById('semAttendance').value) || 0;
 
       const total = relevance + literature + presentation + interaction + report + attendance;
-      document.getElementById('semTotalScoreLabel').innerText = `${total.toFixed(2)} / 50`;
+      document.getElementById('semTotalScoreLabel').innerText = `${total.toFixed(2)} / 75`;
     }
 
     function submitSeminarEvaluation(e) {
