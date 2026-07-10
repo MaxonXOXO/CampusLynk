@@ -318,6 +318,32 @@
     body.light-theme .flatpickr-calendar input.numInput {
       color: #0f172a !important;
     }
+    /* MOBILE-SPECIFIC SIDEBAR & CARD FIXES (MD breakpoint is 768px) */
+    @media (max-width: 767px) {
+      /* Sidebar changes: non-blocking layout */
+      aside {
+        width: 100% !important;
+        position: relative !important;
+        border-r: none !important;
+        border-b: 1px solid #1e293b !important;
+      }
+      
+      /* Hide all links except: My Batches (navDashboard), Remedial, and Log & Attendance */
+      aside nav > :not(#navDashboard):not([href="/remedial-sessions"]):not([href="/staff/attendance-log"]) {
+        display: none !important;
+      }
+      
+      /* Active profile avatar banner is too large on mobile - hide or reduce */
+      #sidebarAvatarContainer {
+        display: none !important;
+      }
+      
+      /* Grid spacing and layout tweaks to ensure batch cards are easily accessible and stand alone */
+      #lecturerBatchGrid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col md:flex-row">
