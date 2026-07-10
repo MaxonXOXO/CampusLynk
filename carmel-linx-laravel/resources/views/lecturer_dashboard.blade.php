@@ -540,6 +540,21 @@
       
       <!-- PANEL 1: DASHBOARD (BATCH CARDS) -->
       <div id="panelDashboard" class="space-y-6">
+        
+        <!-- Mobile Events Today (Invitation Banner) -->
+        <div id="mobileEventsTodayCard" class="hidden p-4 bg-gradient-to-r from-blue-950 to-indigo-950 border border-blue-500/30 rounded-2xl animate-pulse">
+          <div class="flex items-start gap-3">
+            <span class="material-symbols-rounded text-blue-400 text-xl">event</span>
+            <div>
+              <h5 class="text-sm font-black text-white">Seminar Presentations Today</h5>
+              <p class="text-xs text-slate-300 mt-1" id="mobileEventsTodayCount">0 students scheduled for evaluation.</p>
+              <button onclick="openMobileSeminarEvaluation()" class="mt-3 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer shadow">
+                Start Evaluation
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div id="assignedClassroomHeader" class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl gap-4">
           <div>
             <h3 class="text-lg font-black text-slate-200">My Assigned Batches & Classrooms</h3>
@@ -886,6 +901,83 @@
         </div>
       </div>
 
+      <!-- PANEL: MOBILE SEMINAR EVALUATION WORKSPACE -->
+      <div id="panelMobileSeminar" class="hidden space-y-6 fade-up">
+        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex items-center justify-between">
+          <div>
+            <button onclick="switchPanel('dashboard')" class="text-xs font-bold text-slate-400 hover:text-white uppercase tracking-wider flex items-center gap-1 transition-premium mb-1 cursor-pointer">
+              <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Dashboard
+            </button>
+            <h3 class="text-base font-black text-slate-200 flex items-center gap-2 mt-1">
+              <span class="material-symbols-rounded text-blue-400">co_present</span> Mobile Seminar Evaluation
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Quickly select a student and evaluate their seminar presentation today.</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Select Student to Evaluate</label>
+            <select id="mobileSemStudentSelect" onchange="handleMobileSemStudentChange()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+              <option value="">Choose Student...</option>
+            </select>
+          </div>
+
+          <!-- Selected Student Details Card -->
+          <div id="mobileSemDetailsCard" class="hidden bg-slate-900/40 border border-slate-800/50 p-4 rounded-xl space-y-2">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-500">SBTE Reg No:</span>
+              <span id="mobileSemSbteReg" class="font-mono text-white font-bold">-</span>
+            </div>
+            <div class="flex justify-between items-start text-xs">
+              <span class="text-slate-500">Topic:</span>
+              <span id="mobileSemTopic" class="text-white font-extrabold text-right max-w-[200px] break-words">-</span>
+            </div>
+          </div>
+
+          <!-- Criteria input fields -->
+          <form id="mobileSeminarForm" onsubmit="submitMobileSeminarEvaluation(event)" class="hidden space-y-4 pt-2">
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Relevance (Max 7.5)</label>
+                <input type="number" step="0.01" min="0" max="7.5" id="mobSemRelevance" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Literature (Max 7.5)</label>
+                <input type="number" step="0.01" min="0" max="7.5" id="mobSemLiterature" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+              </div>
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Presentation (Max 37.5)</label>
+              <input type="number" step="0.01" min="0" max="37.5" id="mobSemPresentation" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Interaction (7.5)</label>
+                <input type="number" step="0.01" min="0" max="7.5" id="mobSemInteraction" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-2 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Report (7.5)</label>
+                <input type="number" step="0.01" min="0" max="7.5" id="mobSemReport" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-2 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Attendance (7.5)</label>
+                <input type="number" step="0.01" min="0" max="7.5" id="mobSemAttendance" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-2 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+              </div>
+            </div>
+            <div class="pt-4 border-t border-slate-900 flex justify-between items-center">
+              <div>
+                <span class="text-xs text-slate-400 font-bold uppercase">Total Score:</span>
+                <span id="mobSemTotalScoreLabel" class="text-sm font-black text-blue-400 ml-2">0.00 / 75</span>
+              </div>
+              <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-lg transition-premium cursor-pointer">
+                Save Evaluation
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -938,11 +1030,12 @@
         loadLecturerBatches();
       }
       if (activePanel === 'security') loadSecurityLogs();
+      checkTodaySeminars();
     });
 
     function switchPanel(panelId) {
       activePanel = panelId;
-      const panels = ['dashboard', 'security', 'classroom'];
+      const panels = ['dashboard', 'security', 'classroom', 'mobileSeminar'];
       panels.forEach(id => {
         const el = document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1));
         const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
@@ -959,7 +1052,8 @@
       const titles = {
         'dashboard': 'My Batches',
         'security': 'My Profile Security Log',
-        'classroom': 'Virtual Classroom'
+        'classroom': 'Virtual Classroom',
+        'mobileSeminar': 'Mobile Seminar Evaluation'
       };
       document.getElementById('panelTitle').innerText = titles[panelId] || 'Lecturer Console';
 
@@ -4648,6 +4742,144 @@
           alert('Seminar evaluation saved successfully!');
           closeSeminarEvaluationModal();
           fetchSeminarEvaluations();
+        } else {
+          alert(res.message);
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Failed to save seminar evaluation.');
+      });
+    }
+
+    let todaySeminarsData = [];
+
+    function checkTodaySeminars() {
+      fetch('/api/lecturer/today-seminars')
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'SUCCESS' && res.data.length > 0) {
+          todaySeminarsData = res.data;
+          document.getElementById('mobileEventsTodayCount').innerText = `${res.data.length} student(s) scheduled for evaluation today.`;
+          
+          const card = document.getElementById('mobileEventsTodayCard');
+          if (card) {
+            if (window.innerWidth < 768) {
+              card.classList.remove('hidden');
+            }
+          }
+        } else {
+          const card = document.getElementById('mobileEventsTodayCard');
+          if (card) card.classList.add('hidden');
+        }
+      })
+      .catch(err => console.error('Failed to load today seminars:', err));
+    }
+
+    function openMobileSeminarEvaluation() {
+      switchPanel('mobileSeminar');
+      
+      const select = document.getElementById('mobileSemStudentSelect');
+      select.innerHTML = '<option value="">Choose Student...</option>';
+      
+      todaySeminarsData.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.reg_no;
+        opt.innerText = `${s.student_name} (${s.sbte_reg_no})`;
+        select.appendChild(opt);
+      });
+
+      document.getElementById('mobileSemDetailsCard').classList.add('hidden');
+      document.getElementById('mobileSeminarForm').classList.add('hidden');
+      document.getElementById('mobileSeminarForm').reset();
+      document.getElementById('mobSemTotalScoreLabel').innerText = '0.00 / 75';
+    }
+
+    function handleMobileSemStudentChange() {
+      const regNo = document.getElementById('mobileSemStudentSelect').value;
+      const detailsCard = document.getElementById('mobileSemDetailsCard');
+      const form = document.getElementById('mobileSeminarForm');
+
+      if (!regNo) {
+        detailsCard.classList.add('hidden');
+        form.classList.add('hidden');
+        return;
+      }
+
+      const seminar = todaySeminarsData.find(s => s.reg_no === regNo);
+      if (!seminar) return;
+
+      document.getElementById('mobileSemSbteReg').innerText = seminar.sbte_reg_no || '-';
+      document.getElementById('mobileSemTopic').innerText = seminar.topic || '-';
+
+      detailsCard.classList.remove('hidden');
+      form.classList.remove('hidden');
+
+      fetch(`/api/classroom/${seminar.batch_subject_id}/seminar/evaluations`)
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'SUCCESS') {
+          const stud = res.data.find(s => s.reg_no === regNo);
+          const me = stud ? stud.my_evaluation : null;
+          
+          document.getElementById('mobSemRelevance').value = me ? me.relevance : '';
+          document.getElementById('mobSemLiterature').value = me ? me.literature : '';
+          document.getElementById('mobSemPresentation').value = me ? me.presentation : '';
+          document.getElementById('mobSemInteraction').value = me ? me.interaction : '';
+          document.getElementById('mobSemReport').value = me ? me.report : '';
+          document.getElementById('mobSemAttendance').value = me ? me.attendance : '';
+          
+          calculateMobileSeminarTotal();
+        }
+      });
+    }
+
+    function calculateMobileSeminarTotal() {
+      const relevance = parseFloat(document.getElementById('mobSemRelevance').value) || 0;
+      const literature = parseFloat(document.getElementById('mobSemLiterature').value) || 0;
+      const presentation = parseFloat(document.getElementById('mobSemPresentation').value) || 0;
+      const interaction = parseFloat(document.getElementById('mobSemInteraction').value) || 0;
+      const report = parseFloat(document.getElementById('mobSemReport').value) || 0;
+      const attendance = parseFloat(document.getElementById('mobSemAttendance').value) || 0;
+
+      const total = relevance + literature + presentation + interaction + report + attendance;
+      document.getElementById('mobSemTotalScoreLabel').innerText = `${total.toFixed(2)} / 75`;
+    }
+
+    function submitMobileSeminarEvaluation(e) {
+      e.preventDefault();
+      const regNo = document.getElementById('mobileSemStudentSelect').value;
+      const seminar = todaySeminarsData.find(s => s.reg_no === regNo);
+      if (!seminar) return;
+
+      const relevance = parseFloat(document.getElementById('mobSemRelevance').value) || 0;
+      const literature = parseFloat(document.getElementById('mobSemLiterature').value) || 0;
+      const presentation = parseFloat(document.getElementById('mobSemPresentation').value) || 0;
+      const interaction = parseFloat(document.getElementById('mobSemInteraction').value) || 0;
+      const report = parseFloat(document.getElementById('mobSemReport').value) || 0;
+      const attendance = parseFloat(document.getElementById('mobSemAttendance').value) || 0;
+
+      fetch(`/api/classroom/${seminar.batch_subject_id}/seminar/evaluate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          reg_no: regNo,
+          relevance: relevance,
+          literature: literature,
+          presentation: presentation,
+          interaction: interaction,
+          report: report,
+          attendance: attendance
+        })
+      })
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === 'SUCCESS') {
+          alert('Seminar evaluation saved successfully!');
+          switchPanel('dashboard');
         } else {
           alert(res.message);
         }

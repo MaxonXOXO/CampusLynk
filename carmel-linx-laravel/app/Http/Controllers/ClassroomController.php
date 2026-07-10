@@ -1973,4 +1973,42 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
             'currentYear' => date('Y')
         ]);
     }
+
+    /**
+     * Fetch active seminars scheduled for today in the lecturer's department
+     */
+    public function getTodaySeminars()
+    {
+        $userId = Session::get('userId');
+        $branch = Session::get('userBranch');
+        if (!$userId || !$branch) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized or session expired.']);
+        }
+
+        // Fetch student registrations scheduled for today
+        // Filter by branch: student's branch must match lecturer's branch
+        $today = date('Y-m-d');
+        $seminars = \App\Models\StudentSeminarRegistration::where('presentation_date', $today)
+            ->whereHas('student', function($q) use ($branch) {
+                $q->where('branch', $branch);
+            })
+            ->with(['student', 'batchSubject'])
+            ->get();
+
+        $data = $seminars->map(function ($s) {
+            return [
+                'batch_subject_id' => $s->batch_subject_id,
+                'reg_no' => $s->reg_no,
+                'student_name' => $s->student ? $s->student->name : 'Unknown',
+                'sbte_reg_no' => $s->student ? $s->student->sbte_reg_no : '-',
+                'topic' => $s->topic,
+                'subject_name' => $s->batchSubject ? $s->batchSubject->subject_name : 'Seminar'
+            ];
+        });
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'data' => $data
+        ]);
+    }
 }
