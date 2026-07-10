@@ -602,12 +602,7 @@
             <p class="text-xs text-slate-450 leading-relaxed">Please register your seminar topic details below. Ensure you select the correct subject/batch and assign the appropriate seminar guide from your department.</p>
             
             <form id="seminarRegistrationForm" onsubmit="submitSeminarRegistration(event)" class="space-y-4 pt-2">
-              <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Seminar Subject</label>
-                <select id="semRegSubject" required class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
-                  <!-- Dynamically loaded -->
-                </select>
-              </div>
+              <input type="hidden" id="semRegSubject">
               <div>
                 <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Seminar Presentation Topic</label>
                 <input type="text" id="semRegTopic" required placeholder="e.g. Artificial Intelligence in Health Diagnostics" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
@@ -1752,14 +1747,13 @@
       });
 
       // 2. Fetch student academic report to find any Seminar type subjects in active semester
-      const subjectSelect = document.getElementById('semRegSubject');
-      subjectSelect.innerHTML = '<option value="">Loading seminar subjects...</option>';
+      const subjectInput = document.getElementById('semRegSubject');
+      subjectInput.value = '';
 
       fetch('/api/student/academic-report')
       .then(res => res.json())
       .then(res => {
         if (res.status === 'SUCCESS') {
-          subjectSelect.innerHTML = '<option value="">Select Subject...</option>';
           let hasSem = false;
           let seminarSubjectId = null;
 
@@ -1771,16 +1765,13 @@
             if (s.subject_type === 'Seminar') {
               hasSem = true;
               seminarSubjectId = s.batch_subject_id;
-              const opt = document.createElement('option');
-              opt.value = s.batch_subject_id;
-              opt.innerText = `${s.subject_name} (${s.subject_code})`;
-              subjectSelect.appendChild(opt);
             }
           });
 
           if (!hasSem) {
-            subjectSelect.innerHTML = '<option value="">No active Seminar subjects found this semester</option>';
+            alert('No active Seminar subjects found for your batch in this semester. Contact HOD/tutor.');
           } else {
+            subjectInput.value = seminarSubjectId;
             // Load currently registered seminar details
             fetchSeminarDetails(seminarSubjectId);
           }
