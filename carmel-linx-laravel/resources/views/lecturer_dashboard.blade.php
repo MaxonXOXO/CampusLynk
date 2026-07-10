@@ -320,12 +320,50 @@
     }
     /* MOBILE-SPECIFIC SIDEBAR & CARD FIXES (MD breakpoint is 768px) */
     @media (max-width: 767px) {
-      /* Sidebar changes: non-blocking layout */
+      /* Sidebar changes: non-blocking horizontal layout */
       aside {
         width: 100% !important;
         position: relative !important;
         border-r: none !important;
         border-b: 1px solid #1e293b !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 0.5rem 1rem !important;
+      }
+      
+      /* Hide sidebar brand logo header container on mobile to maximize inline space */
+      aside > div.border-b {
+        display: none !important;
+      }
+      aside > div.border-t {
+        display: none !important; /* Hide logout block since space is limited */
+      }
+
+      /* Convert vertical nav list to an inline-flex horizontal row list */
+      aside nav {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+        padding: 0.25rem !important;
+        margin: 0 !important;
+        justify-content: space-around !important;
+      }
+      
+      /* Reset standard padding on links/buttons for inline fit */
+      aside nav a, aside nav button {
+        padding: 0.5rem 0.75rem !important;
+        margin: 0 !important;
+        border-radius: 0.75rem !important;
+        font-size: 11px !important; /* compact font to fit */
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.25rem !important;
+        white-space: nowrap !important;
+        width: auto !important;
+        border-left: none !important; /* Remove custom vertical border indicators */
       }
       
       /* Hide all links except: My Batches (navDashboard), Remedial, and Log & Attendance */
