@@ -343,6 +343,11 @@
         grid-template-columns: 1fr !important;
         gap: 1.5rem !important;
       }
+      
+      /* Hide My Assigned Classrooms header banner on mobile */
+      #assignedClassroomHeader {
+        display: none !important;
+      }
     }
   </style>
 </head>
@@ -447,7 +452,7 @@
       
       <!-- PANEL 1: DASHBOARD (BATCH CARDS) -->
       <div id="panelDashboard" class="space-y-6">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl gap-4">
+        <div id="assignedClassroomHeader" class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl gap-4">
           <div>
             <h3 class="text-lg font-black text-slate-200">My Assigned Batches & Classrooms</h3>
             <p class="text-sm text-slate-400 mt-0.5">Select a subject to enter the virtual classroom for assignments and assessments.</p>
