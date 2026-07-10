@@ -2282,8 +2282,10 @@ class DataController extends Controller
                 $bGrade = $bgRecord ? $bgRecord->first() : null;
 
                 $report[$sem]['subjects'][] = array_merge([
+                    'batch_subject_id' => $subj->id,
                     'subject_code' => $subjCode,
                     'subject_name' => $subj->subject_name,
+                    'subject_type' => $subj->subject_type,
                     'attendance_percentage' => $attPercent,
                     'board_grade' => $bGrade ? $bGrade->grade : null
                 ], $parsedMarks);
