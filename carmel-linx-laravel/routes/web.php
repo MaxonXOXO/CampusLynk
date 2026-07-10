@@ -929,6 +929,8 @@ Route::middleware(['web'])->group(function () {
         return response()->json(['status' => 'SUCCESS', 'message' => 'Timetable saved successfully']);
     });
     Route::get('/remedial/rooms/{roomId}/assessments/{assessmentId}/report', [App\Http\Controllers\RemedialController::class, 'printAssessmentReport']);
+    Route::get('/remedial/rooms/{roomId}/attendance/report', [App\Http\Controllers\RemedialController::class, 'printAttendanceReport']);
+    Route::get('/remedial/rooms/{roomId}/analysis/report', [App\Http\Controllers\RemedialController::class, 'printAnalysisReport']);
 
 
     Route::prefix('api/remedial')->group(function () {
@@ -937,6 +939,8 @@ Route::middleware(['web'])->group(function () {
         Route::post('/rooms', [App\Http\Controllers\RemedialController::class, 'createRoom']);
         Route::get('/rooms', [App\Http\Controllers\RemedialController::class, 'getRooms']);
         Route::get('/rooms/{roomId}', [App\Http\Controllers\RemedialController::class, 'getRoomDetails']);
+        Route::delete('/rooms/{roomId}', [App\Http\Controllers\RemedialController::class, 'deleteRoom']);
+        Route::patch('/rooms/{roomId}/status', [App\Http\Controllers\RemedialController::class, 'updateRoomStatus']);
         Route::post('/rooms/{roomId}/students', [App\Http\Controllers\RemedialController::class, 'addStudent']);
         Route::delete('/rooms/{roomId}/students', [App\Http\Controllers\RemedialController::class, 'removeStudent']);
         Route::post('/rooms/{roomId}/logs', [App\Http\Controllers\RemedialController::class, 'saveLog']);

@@ -134,6 +134,24 @@ class RemedialController extends Controller
             $classroom = DB::table('class_management')->where('classroom_id', $room->classroom_id)->first();
             $subject = DB::table('batch_subjects')->where('subject_code', $room->subject_code)->where('classroom_id', $room->classroom_id)->first();
             
+            $lecturer = DB::table('staff_profiles')->where('mobile_no', $room->created_by_mobile)->first();
+            $lecturerName = $lecturer ? $lecturer->name : 'Unknown Lecturer';
+            
+            $branchCode = $classroom ? $classroom->branch : 'Unknown';
+            $branches = [
+                'EL' => 'Electronics Engineering',
+                'ME' => 'Mechanical Engineering',
+                'CE' => 'Civil Engineering',
+                'EEE' => 'Electrical & Electronics Engineering',
+                'CT' => 'Computer Engineering',
+                'AU' => 'Automobile Engineering',
+                'GEN_AIDED' => 'General Department (Aided)',
+                'GEN_SF' => 'General Department (Self Finance)',
+                'GEN_DEPT_COORDINATOR_AIDED' => 'General Department (Aided)',
+                'GEN_DEPT_COORDINATOR_SELF_FINANCE' => 'General Department (Self Finance)'
+            ];
+            $deptName = $branches[strtoupper($branchCode)] ?? $branchCode;
+
             $output[] = [
                 'room_id' => $room->room_id,
                 'batch_name' => $classroom ? $classroom->classroom_id : 'Unknown',
@@ -141,7 +159,9 @@ class RemedialController extends Controller
                 'subject_name' => $subject ? $subject->subject_name : $room->subject_code,
                 'student_count' => $room->students->count(),
                 'status' => $room->status,
-                'created_at' => $room->created_at->format('Y-m-d')
+                'created_at' => $room->created_at->format('Y-m-d'),
+                'lecturer_name' => $lecturerName,
+                'department' => $deptName
             ];
         }
 
@@ -174,6 +194,24 @@ class RemedialController extends Controller
             ->where('subject_code', $room->subject_code)
             ->get();
 
+        $lecturer = DB::table('staff_profiles')->where('mobile_no', $room->created_by_mobile)->first();
+        $lecturerName = $lecturer ? $lecturer->name : 'Unknown Lecturer';
+        
+        $branchCode = $classroom ? $classroom->branch : 'Unknown';
+        $branches = [
+            'EL' => 'Electronics Engineering',
+            'ME' => 'Mechanical Engineering',
+            'CE' => 'Civil Engineering',
+            'EEE' => 'Electrical & Electronics Engineering',
+            'CT' => 'Computer Engineering',
+            'AU' => 'Automobile Engineering',
+            'GEN_AIDED' => 'General Department (Aided)',
+            'GEN_SF' => 'General Department (Self Finance)',
+            'GEN_DEPT_COORDINATOR_AIDED' => 'General Department (Aided)',
+            'GEN_DEPT_COORDINATOR_SELF_FINANCE' => 'General Department (Self Finance)'
+        ];
+        $deptName = $branches[strtoupper($branchCode)] ?? $branchCode;
+
         return response()->json([
             'status' => 'SUCCESS',
             'room' => [
@@ -186,7 +224,9 @@ class RemedialController extends Controller
                 'students' => $studentList,
                 'logs' => $room->logs,
                 'assessments' => $room->assessments,
-                'available_tests' => $availableTests
+                'available_tests' => $availableTests,
+                'lecturer_name' => $lecturerName,
+                'department' => $deptName
             ]
         ]);
     }
@@ -290,7 +330,7 @@ class RemedialController extends Controller
         if (!$assessment) return response("Assessment not found.", 404);
 
         $scores = RemedialAssessmentScore::where('assessment_id', $assessmentId)->get();
-        $studentRegs = DB::table('remedial_room_students')->where('room_id', $roomId)->pluck('reg_no')->toArray();
+        $studentRegs = DB::table('remedial_students')->where('room_id', $roomId)->pluck('reg_no')->toArray();
         $students = DB::table('students')->whereIn('reg_no', $studentRegs)->get(['reg_no', 'name', 'sbte_reg_no']);
 
         $students = $students->map(function ($student) use ($scores, $assessment) {
@@ -334,5 +374,223 @@ class RemedialController extends Controller
             'totalStudents' => $students->count(),
             'currentYear' => date('Y')
         ]);
+    }
+
+    public function printAttendanceReport($roomId)
+    {
+        $room = RemedialRoom::where('room_id', $roomId)->first();
+        if (!$room) return response("Remedial room not found.", 404);
+
+        $logs = RemedialSessionLog::where('room_id', $roomId)->orderBy('session_date', 'asc')->get();
+        $studentRegs = DB::table('remedial_students')->where('room_id', $roomId)->pluck('reg_no')->toArray();
+        $students = DB::table('students')->whereIn('reg_no', $studentRegs)->orderBy('name', 'asc')->get(['reg_no', 'name', 'sbte_reg_no']);
+
+        $lecturer = DB::table('staff_profiles')->where('mobile_no', $room->created_by_mobile)->first();
+        $lecturerName = $lecturer ? $lecturer->name : 'Unknown Lecturer';
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EEE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CT' => 'Computer Engineering',
+            'AU' => 'Automobile Engineering',
+        ];
+        
+        $branchKey = strtoupper(explode('_', $room->classroom_id)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? $branchKey;
+        
+        $cleanedBatch = preg_replace('/^[A-Z_]+_/', '', $room->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        $subject = DB::table('batch_subjects')->where('subject_code', $room->subject_code)->where('classroom_id', $room->classroom_id)->first();
+
+        // Calculate attendance matrix
+        $attendanceMatrix = [];
+        foreach ($students as $student) {
+            $presentCount = 0;
+            $logsAttendance = [];
+            
+            foreach ($logs as $log) {
+                $isPresent = is_array($log->attendance_data) && in_array($student->reg_no, $log->attendance_data);
+                if ($isPresent) {
+                    $presentCount++;
+                }
+                $logsAttendance[$log->log_id] = $isPresent;
+            }
+            
+            $percentage = count($logs) > 0 ? round(($presentCount / count($logs)) * 100) : 0;
+            
+            $attendanceMatrix[$student->reg_no] = [
+                'name' => $student->name,
+                'sbte_reg_no' => $student->sbte_reg_no,
+                'reg_no' => $student->reg_no,
+                'present_count' => $presentCount,
+                'percentage' => $percentage,
+                'sessions' => $logsAttendance
+            ];
+        }
+
+        return view('remedial_attendance_report_print', [
+            'room' => $room,
+            'logs' => $logs,
+            'subject' => $subject,
+            'lecturerName' => $lecturerName,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'attendanceMatrix' => $attendanceMatrix,
+            'totalStudents' => $students->count(),
+            'currentDate' => date('d-m-Y')
+        ]);
+    }
+
+    public function printAnalysisReport($roomId)
+    {
+        $room = RemedialRoom::where('room_id', $roomId)->first();
+        if (!$room) return response("Remedial room not found.", 404);
+
+        $logs = RemedialSessionLog::where('room_id', $roomId)->orderBy('session_date', 'asc')->get();
+        $studentRegs = DB::table('remedial_students')->where('room_id', $roomId)->pluck('reg_no')->toArray();
+        $students = DB::table('students')->whereIn('reg_no', $studentRegs)->orderBy('name', 'asc')->get(['reg_no', 'name', 'sbte_reg_no']);
+
+        $lecturer = DB::table('staff_profiles')->where('mobile_no', $room->created_by_mobile)->first();
+        $lecturerName = $lecturer ? $lecturer->name : 'Unknown Lecturer';
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EEE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CT' => 'Computer Engineering',
+            'AU' => 'Automobile Engineering',
+        ];
+        
+        $branchKey = strtoupper(explode('_', $room->classroom_id)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? $branchKey;
+        
+        $cleanedBatch = preg_replace('/^[A-Z_]+_/', '', $room->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        $subject = DB::table('batch_subjects')->where('subject_code', $room->subject_code)->where('classroom_id', $room->classroom_id)->first();
+
+        // Get assessments for test attended & improvement status
+        $assessments = RemedialAssessment::where('room_id', $roomId)->get();
+        $assessmentIds = $assessments->pluck('assessment_id')->toArray();
+        $scores = RemedialAssessmentScore::whereIn('assessment_id', $assessmentIds)->get();
+
+        // Calculate analysis matrix
+        $analysisMatrix = [];
+        foreach ($students as $student) {
+            $presentCount = 0;
+            $absentCount = 0;
+            $logsAttendance = [];
+            
+            foreach ($logs as $log) {
+                $isPresent = is_array($log->attendance_data) && in_array($student->reg_no, $log->attendance_data);
+                if ($isPresent) {
+                    $presentCount++;
+                } else {
+                    $absentCount++;
+                }
+                $logsAttendance[$log->log_id] = $isPresent;
+            }
+            
+            // Tests attended count
+            $studentScores = $scores->where('reg_no', $student->reg_no);
+            $testsAttended = $studentScores->count();
+
+            // Improvement status & Remarks
+            $improvementStatus = 'No Tests';
+            $remark = 'Requires attention';
+            if ($testsAttended > 0) {
+                // Find latest score percentage
+                $latestScoreObj = $studentScores->sortByDesc('created_at')->first();
+                $latestScoreVal = $latestScoreObj ? $latestScoreObj->score : 0;
+                
+                $assocAssessment = $assessments->where('assessment_id', $latestScoreObj->assessment_id)->first();
+                $maxMark = $assocAssessment ? $assocAssessment->max_marks : 100;
+                
+                $latestPercent = $maxMark > 0 ? ($latestScoreVal / $maxMark) * 100 : 0;
+                
+                if ($latestPercent >= 50) {
+                    $improvementStatus = 'Improved';
+                    $remark = 'Satisfactory progress';
+                } else {
+                    $improvementStatus = 'Marginal';
+                    $remark = 'Need improvement';
+                }
+            }
+            
+            if ($presentCount == count($logs) && count($logs) > 0) {
+                $remark = 'Regular & Active';
+            }
+
+            $analysisMatrix[$student->reg_no] = [
+                'name' => $student->name,
+                'sbte_reg_no' => $student->sbte_reg_no ?: '-',
+                'reg_no' => $student->reg_no,
+                'present_count' => $presentCount,
+                'absent_count' => $absentCount,
+                'sessions' => $logsAttendance,
+                'tests_attended' => $testsAttended . ' / ' . count($assessments),
+                'improvement_status' => $improvementStatus,
+                'remark' => $remark
+            ];
+        }
+
+        return view('remedial_analysis_report_print', [
+            'room' => $room,
+            'logs' => $logs,
+            'subject' => $subject,
+            'lecturerName' => $lecturerName,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'analysisMatrix' => $analysisMatrix,
+            'totalStudents' => $students->count(),
+            'currentDate' => date('d-m-Y')
+        ]);
+    }
+
+    public function deleteRoom($roomId)
+    {
+        $userId = Session::get('userId');
+        $room = RemedialRoom::where('room_id', $roomId)->where('created_by_mobile', $userId)->first();
+        if (!$room) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Room not found or unauthorized.'], 403);
+        }
+
+        // Delete related scores
+        $assessmentIds = RemedialAssessment::where('room_id', $roomId)->pluck('assessment_id');
+        RemedialAssessmentScore::whereIn('assessment_id', $assessmentIds)->delete();
+
+        // Delete assessments
+        RemedialAssessment::where('room_id', $roomId)->delete();
+
+        // Delete session logs
+        RemedialSessionLog::where('room_id', $roomId)->delete();
+
+        // Delete students
+        RemedialStudent::where('room_id', $roomId)->delete();
+
+        // Delete room
+        $room->delete();
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Room deleted successfully.']);
+    }
+
+    public function updateRoomStatus(Request $request, $roomId)
+    {
+        $userId = Session::get('userId');
+        $room = RemedialRoom::where('room_id', $roomId)->where('created_by_mobile', $userId)->first();
+        if (!$room) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Room not found or unauthorized.'], 403);
+        }
+
+        $status = $request->input('status', 'active');
+        $room->update(['status' => $status]);
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Room status updated successfully.', 'room' => $room]);
     }
 }
