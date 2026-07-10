@@ -513,7 +513,7 @@
 
   <!-- BATCH DETAIL MODAL -->
   <div id="batchDetailModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-6xl shadow-2xl flex flex-col max-h-[90vh]">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-7xl shadow-2xl flex flex-col max-h-[95vh]">
       <!-- Modal Header -->
       <div class="flex justify-between items-center border-b border-slate-800 p-5 flex-shrink-0">
         <div>
@@ -607,8 +607,8 @@
               <span class="material-symbols-rounded text-sm">add</span> Allocate Subject
             </button>
           </div>
-          <div class="overflow-x-auto max-h-[350px] overflow-y-auto bg-slate-950/40 border border-slate-800/40 rounded-2xl">
-            <table class="w-full text-left text-sm border-collapse">
+          <div class="overflow-x-auto max-h-[450px] overflow-y-auto bg-slate-950/40 border border-slate-800/40 rounded-2xl">
+            <table class="min-w-[950px] w-full text-left text-sm border-collapse">
               <thead>
                 <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold sticky top-0 z-10">
                   <th class="p-3">Code</th>
@@ -637,8 +637,8 @@
               <span id="rosterCountBadge" class="px-2 py-0.5 bg-slate-800 text-slate-400 rounded-full text-sm font-mono">0</span>
             </h4>
           </div>
-          <div class="overflow-x-auto max-h-[280px] overflow-y-auto">
-            <table class="w-full text-left text-sm border-collapse">
+          <div class="overflow-x-auto max-h-[450px] overflow-y-auto">
+            <table class="min-w-[950px] w-full text-left text-sm border-collapse">
               <thead>
                 <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold sticky top-0">
                   <th class="p-3">Name</th>
