@@ -895,7 +895,12 @@
         }
 
         const card = document.createElement('div');
-        card.className = "bg-slate-950/40 border border-slate-800/60 rounded-2xl overflow-hidden flex flex-col transition-premium hover:shadow-xl hover:shadow-black/50 hover:border-slate-700/60";
+        // Add a top accent border based on batch year to visually separate admission years
+        let yearBorderColor = 'border-t-violet-500';
+        if (b.batch_year % 3 === 0) yearBorderColor = 'border-t-sky-500';
+        else if (b.batch_year % 3 === 1) yearBorderColor = 'border-t-emerald-500';
+        
+        card.className = `bg-slate-950/40 border border-slate-800/80 ${yearBorderColor} border-t-[3px] rounded-2xl overflow-hidden flex flex-col transition-premium hover:shadow-xl hover:shadow-black/50 hover:border-slate-700/60`;
         card.innerHTML = `
           <div class="p-4 border-b border-slate-800/60 bg-slate-900/40">
             <div class="flex justify-between items-start">
@@ -920,8 +925,34 @@
           
           <div class="p-4 flex-grow space-y-3 bg-slate-950/20">
             <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><span class="material-symbols-rounded text-xs">book</span> Assigned Subjects</h5>
-            <div class="space-y-2">
-              ${subjectsHtml}
+            <div class="space-y-3 divide-y divide-slate-800/80">
+              ${b.subjects && b.subjects.length > 0 ? b.subjects.map((s, idx) => {
+                let topicsPct = s.total_topics > 0 ? Math.round((s.covered_topics / s.total_topics) * 100) : 0;
+                let hoursPct  = s.total_hours  > 0 ? Math.round((s.engaged_hours  / s.total_hours)  * 100) : 0;
+                let barPct    = topicsPct || hoursPct;
+                let barColor  = barPct >= 80 ? 'from-emerald-500 to-teal-400' : barPct >= 50 ? 'from-blue-500 to-sky-400' : 'from-violet-500 to-indigo-400';
+                
+                return `
+                  <div class="${idx > 0 ? 'pt-3' : ''} w-full">
+                    <div class="w-full px-3.5 py-3 bg-slate-900/80 border border-slate-800 rounded-xl transition-premium group hover:border-blue-500/50 hover:bg-slate-900 flex flex-col gap-2">
+                      <div class="flex justify-between items-center cursor-pointer" onclick="openClassroom('${b.classroom_id}', '${s.id}', '${s.name} (${s.code})')">
+                        <div class="flex-1 min-w-0 pr-2">
+                          <div class="text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-premium truncate">${s.name}</div>
+                          <div class="text-xs text-slate-450 font-mono mt-0.5">Sem ${s.semester} · ${s.type} · ${s.code}</div>
+                        </div>
+                        <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-500 text-base transition-premium flex-shrink-0">open_in_new</span>
+                      </div>
+                      <!-- Compact progress bar -->
+                      <div class="flex items-center gap-2 mt-1">
+                        <div class="flex-1 bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-900">
+                          <div class="bg-gradient-to-r ${barColor} h-1.5 rounded-full transition-all duration-500" style="width: ${barPct}%"></div>
+                        </div>
+                        <span class="text-[11px] font-bold text-slate-400 whitespace-nowrap flex-shrink-0">${s.engaged_hours}/${s.total_hours} hrs</span>
+                      </div>
+                    </div>
+                  </div>
+                `;
+              }).join('') : `<div class="text-xs text-slate-500 italic px-2 py-2">No subjects assigned in this batch.</div>`}
             </div>
           </div>
         `;
