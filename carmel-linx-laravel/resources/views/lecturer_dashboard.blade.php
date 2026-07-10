@@ -336,8 +336,28 @@
       aside > div.border-b {
         display: none !important;
       }
+      
+      /* Make logout block sit inline at the end of the mobile horizontal bar */
       aside > div.border-t {
-        display: none !important; /* Hide logout block since space is limited */
+        border-top: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+        width: auto !important;
+        flex-shrink: 0 !important;
+      }
+      
+      aside > div.border-t a {
+        padding: 0.5rem 0.75rem !important;
+        border-radius: 0.75rem !important;
+        font-size: 11px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.25rem !important;
+        white-space: nowrap !important;
+        background-color: rgba(239, 68, 68, 0.15) !important;
+        color: #ef4444 !important;
+        border: 1px solid rgba(239, 68, 68, 0.3) !important;
       }
 
       /* Convert vertical nav list to an inline-flex horizontal row list */
@@ -346,7 +366,8 @@
         flex-direction: row !important;
         align-items: center !important;
         gap: 0.5rem !important;
-        width: 100% !important;
+        width: auto !important;
+        flex-grow: 1 !important;
         padding: 0.25rem !important;
         margin: 0 !important;
         justify-content: space-around !important;
