@@ -4,20 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seminar Evaluation Report - {{ $subject->subject_name }}</title>
-    <style>
+        @page {
+            size: A4 landscape;
+            margin: 15mm 10mm 15mm 10mm;
+        }
         body {
             font-family: Arial, sans-serif;
             color: #333;
-            margin: 0;
-            padding: 20px;
+            margin: 0 auto;
+            padding: 10px;
             font-size: 11px;
             line-height: 1.4;
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
         }
         .header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             border-bottom: 2px double #333;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
         .header h1 {
             font-size: 16px;
@@ -45,12 +51,16 @@
         .report-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
+            table-layout: fixed;
+            word-wrap: break-word;
         }
         .report-table th, .report-table td {
             border: 1px solid #000;
-            padding: 6px 4px;
+            padding: 6px 3px;
             text-align: center;
+            font-size: 10px;
+            word-break: break-word;
         }
         .report-table th {
             background-color: #f2f2f2;
@@ -59,17 +69,17 @@
         }
         .report-table td.align-left {
             text-align: left;
-            padding-left: 6px;
+            padding-left: 4px;
         }
         .footer-signatures {
             width: 100%;
-            margin-top: 50px;
+            margin-top: 30px;
             page-break-inside: avoid;
         }
         .footer-signatures td {
             width: 33%;
             text-align: center;
-            padding-top: 50px;
+            padding-top: 40px;
             font-weight: bold;
             font-size: 11px;
         }
@@ -78,11 +88,18 @@
         }
         @media print {
             body {
-                padding: 10px;
+                padding: 0;
+                margin: 0;
             }
             .no-print {
                 display: none;
             }
+        }
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         .print-btn {
             background-color: #007bff;
@@ -93,14 +110,32 @@
             font-weight: bold;
             border-radius: 4px;
             cursor: pointer;
-            margin-bottom: 15px;
+            transition: background-color 0.2s;
+        }
+        .print-btn:hover {
+            background-color: #0056b3;
+        }
+        .close-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .close-btn:hover {
+            background-color: #5a6268;
         }
     </style>
 </head>
 <body>
 
-    <div class="no-print" style="text-align: right;">
+    <div class="no-print action-bar">
         <button class="print-btn" onclick="window.print()">Print Report</button>
+        <button class="close-btn" onclick="window.close()">Close Window</button>
     </div>
 
     <div class="header">
