@@ -1055,7 +1055,7 @@
                     <div class="w-full px-3.5 py-3 bg-slate-900/80 border border-slate-800 rounded-xl transition-premium group hover:border-blue-500/50 hover:bg-slate-900 flex flex-col gap-2">
                       <div class="flex justify-between items-center cursor-pointer" onclick="openClassroom('${b.classroom_id}', '${s.id}', '${s.name} (${s.code})')">
                         <div class="flex-1 min-w-0 pr-2">
-                          <div class="text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-premium truncate">${s.name}</div>
+                          <div class="text-base font-extrabold text-slate-200 group-hover:text-blue-400 transition-premium truncate">${s.name}</div>
                           <div class="text-xs text-slate-450 font-mono mt-0.5">Sem ${s.semester} · ${s.type} · ${s.code}</div>
                         </div>
                         <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-500 text-base transition-premium flex-shrink-0">open_in_new</span>
