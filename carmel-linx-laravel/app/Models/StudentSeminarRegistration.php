@@ -28,4 +28,9 @@ class StudentSeminarRegistration extends Model
     {
         return $this->belongsTo(StaffProfile::class, 'guide_mobile_no', 'mobile_no');
     }
+
+    public function acceptances()
+    {
+        return $this->hasMany(SeminarAcceptance::class, 'seminar_registration_id');
+    }
 }

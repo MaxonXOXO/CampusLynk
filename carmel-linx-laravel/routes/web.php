@@ -331,6 +331,7 @@ Route::middleware(['web'])->group(function () {
       Route::get('/api/student/seminar/guides', [App\Http\Controllers\ClassroomController::class, 'getSeminarGuides']);
       Route::get('/classroom/{subjectId}/seminar-report', [App\Http\Controllers\ClassroomController::class, 'printSeminarReport']);
       Route::get('/api/lecturer/today-seminars', [App\Http\Controllers\ClassroomController::class, 'getTodaySeminars']);
+      Route::post('/api/lecturer/seminar/accept', [App\Http\Controllers\ClassroomController::class, 'acceptSeminarInvitation']);
     Route::post('/api/classroom/{subjectId}/question-bank/seed-ai', [App\Http\Controllers\ClassroomController::class, 'seedQuestionBankWithAi']);
     Route::post('/api/classroom/{subjectId}/question-bank/upload-json', [App\Http\Controllers\ClassroomController::class, 'uploadQuestionBankJson']);
 

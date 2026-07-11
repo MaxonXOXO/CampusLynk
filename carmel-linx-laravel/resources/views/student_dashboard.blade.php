@@ -595,60 +595,82 @@
       <!-- END PANEL: ACTIVITY POINTS -->
 
       <!-- PANEL: MY SEMINAR -->
-      <div id="panelSeminar" class="hidden space-y-6 fade-up">
-        <div class="max-w-3xl mx-auto space-y-6">
-          <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
-            <h3 class="font-black text-slate-200 text-base flex items-center gap-2"><span class="material-symbols-rounded text-blue-400">co_present</span> Register Seminar Topic & details</h3>
-            <p class="text-xs text-slate-450 leading-relaxed">Please register your seminar topic details below. Ensure you select the correct subject/batch and assign the appropriate seminar guide from your department.</p>
-            
+      <div id="panelSeminar" class="hidden space-y-5 fade-up">
+        <!-- Inline toast -->
+        <div id="seminarToast" class="hidden max-w-3xl mx-auto px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2"></div>
+
+        <div class="max-w-3xl mx-auto space-y-5">
+
+          <!-- Status banner (shown when registered) -->
+          <div id="seminarStatusBanner" class="hidden bg-emerald-950/60 border border-emerald-600/30 rounded-2xl p-5">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex items-start gap-3">
+                <span class="material-symbols-rounded text-emerald-400 text-2xl mt-0.5">verified</span>
+                <div>
+                  <p id="semStatusBadgeTitle" class="text-sm font-black text-emerald-300">Seminar Registered</p>
+                  <p id="semStatusTopic" class="text-white font-extrabold text-base mt-0.5">-</p>
+                  <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                    <span class="text-xs text-slate-400">Guide: <span id="semStatusGuide" class="text-slate-200 font-bold">-</span></span>
+                    <span class="text-xs text-slate-400">Date: <span id="semStatusDate" class="text-slate-200 font-bold">-</span></span>
+                    <span class="text-xs text-slate-400">Avg Score: <span id="semStatusScore" class="text-teal-400 font-black">- / 75</span></span>
+                    <span class="text-xs text-slate-400">Assessments: <span id="semStatusAssessments" class="text-slate-200 font-bold">0</span></span>
+                  </div>
+                </div>
+              </div>
+              <button onclick="showSeminarEditForm()" class="shrink-0 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1 transition-premium cursor-pointer">
+                <span class="material-symbols-rounded text-sm">edit</span> Edit
+              </button>
+            </div>
+          </div>
+
+          <!-- Registration / Edit form -->
+          <div id="seminarFormCard" class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
+            <h3 id="semFormTitle" class="font-black text-slate-200 text-base flex items-center gap-2">
+              <span class="material-symbols-rounded text-blue-400">co_present</span> Register Seminar Details
+            </h3>
+            <p class="text-xs text-slate-400 leading-relaxed">Fill in your seminar topic, proposed date, and assign a faculty guide from your department. You can update this later before the presentation date.</p>
+
             <form id="seminarRegistrationForm" onsubmit="submitSeminarRegistration(event)" class="space-y-4 pt-2">
               <input type="hidden" id="semRegSubject">
               <div>
                 <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Seminar Presentation Topic</label>
-                <input type="text" id="semRegTopic" required placeholder="e.g. Artificial Intelligence in Health Diagnostics" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+                <input type="text" id="semRegTopic" required placeholder="e.g. Artificial Intelligence in Health Diagnostics"
+                  class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-3 text-sm text-white focus:border-blue-500 outline-none transition-colors">
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Proposed Presentation Date</label>
-                  <input type="date" id="semRegDate" required class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+                  <input type="date" id="semRegDate" required
+                    class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-3 text-sm text-white focus:border-blue-500 outline-none transition-colors">
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Seminar Guide / Faculty</label>
-                  <select id="semRegGuide" required class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
-                    <option value="">Select Guide...</option>
+                  <select id="semRegGuide" required
+                    class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-3 text-sm text-white focus:border-blue-500 outline-none transition-colors">
+                    <option value="">Loading guides...</option>
                   </select>
                 </div>
               </div>
-              <div class="pt-4 border-t border-slate-900 flex justify-end">
-                <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs transition-premium shadow-lg shadow-blue-500/20">
-                  Register Details
+              <div class="pt-4 border-t border-slate-900 flex justify-between items-center gap-3">
+                <button type="button" id="semCancelEditBtn" onclick="cancelSeminarEdit()" class="hidden px-5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl font-bold text-sm transition-premium cursor-pointer">
+                  Cancel
+                </button>
+                <button type="submit" id="semSubmitBtn" class="ml-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-sm transition-premium shadow-lg shadow-blue-500/20 flex items-center gap-2 cursor-pointer">
+                  <span class="material-symbols-rounded text-base">save</span> Save Registration
                 </button>
               </div>
             </form>
           </div>
 
-          <!-- Active seminar details card -->
-          <div id="activeSeminarDetailsCard" class="hidden bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
-            <h3 class="font-black text-slate-200 text-base flex items-center gap-2"><span class="material-symbols-rounded text-emerald-400">verified</span> Currently Registered Seminar</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-semibold">
-              <div class="bg-slate-900/40 p-4 rounded-xl">
-                <span class="text-slate-500 block">Seminar Topic</span>
-                <span id="activeSemTopic" class="text-white font-extrabold text-sm block mt-1">-</span>
-              </div>
-              <div class="bg-slate-900/40 p-4 rounded-xl">
-                <span class="text-slate-500 block">Seminar Guide</span>
-                <span id="activeSemGuide" class="text-white font-bold block mt-1">-</span>
-              </div>
-              <div class="bg-slate-900/40 p-4 rounded-xl">
-                <span class="text-slate-500 block">Presentation Date</span>
-                <span id="activeSemDate" class="text-white font-bold block mt-1">-</span>
-              </div>
-              <div class="bg-slate-900/40 p-4 rounded-xl">
-                <span class="text-slate-500 block">Classroom Average Score (CIA)</span>
-                <span id="activeSemAvgScore" class="text-teal-400 font-extrabold text-sm block mt-1">- / 75</span>
-              </div>
+          <!-- No seminar subject alert (shown if HOD hasn't assigned one) -->
+          <div id="seminarNoSubjectAlert" class="hidden bg-amber-950/40 border border-amber-600/30 rounded-2xl p-5 flex items-start gap-3">
+            <span class="material-symbols-rounded text-amber-400 text-xl mt-0.5">warning</span>
+            <div>
+              <p class="text-sm font-bold text-amber-300">No Seminar Subject Assigned</p>
+              <p class="text-xs text-slate-400 mt-1">Your department HOD has not yet assigned a Seminar subject for your batch/semester. Please contact your HOD or tutor to have it added.</p>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -1727,92 +1749,177 @@
       });
     }
 
+    let _seminarGuides = []; // cache for guide list
+
     function loadSeminarRegistration() {
-      // 1. Fetch department guides
       const guideSelect = document.getElementById('semRegGuide');
-      guideSelect.innerHTML = '<option value="">Loading guides...</option>';
-
-      fetch('/api/student/seminar/guides')
-      .then(res => res.json())
-      .then(res => {
-        if (res.status === 'SUCCESS') {
-          guideSelect.innerHTML = '<option value="">Select Guide...</option>';
-          res.guides.forEach(g => {
-            const opt = document.createElement('option');
-            opt.value = g.mobile_no;
-            opt.innerText = g.name;
-            guideSelect.appendChild(opt);
-          });
-        }
-      });
-
-      // 2. Fetch student academic report to find any Seminar type subjects in active semester
       const subjectInput = document.getElementById('semRegSubject');
+      const statusBanner = document.getElementById('seminarStatusBanner');
+      const formCard = document.getElementById('seminarFormCard');
+      const noSubjectAlert = document.getElementById('seminarNoSubjectAlert');
+
+      // Reset UI
+      statusBanner.classList.add('hidden');
+      noSubjectAlert.classList.add('hidden');
       subjectInput.value = '';
 
-      fetch('/api/student/academic-report')
-      .then(res => res.json())
+      // 1. Fetch guides
+      guideSelect.innerHTML = '<option value="">Loading guides...</option>';
+      fetch('/api/student/seminar/guides')
+      .then(r => r.json())
       .then(res => {
-        if (res.status === 'SUCCESS') {
-          let hasSem = false;
-          let seminarSubjectId = null;
+        _seminarGuides = res.guides || [];
+        guideSelect.innerHTML = '<option value="">Select Guide...</option>';
+        _seminarGuides.forEach(g => {
+          const opt = document.createElement('option');
+          opt.value = g.mobile_no;
+          opt.innerText = g.name;
+          guideSelect.appendChild(opt);
+        });
+      });
 
-          // Find current semester
-          const sem = res.current_semester;
-          const subjects = res.semester_reports[sem] ? res.semester_reports[sem].subjects : [];
+      // 2. Find seminar subject from academic report
+      // API returns: { status, overall: { current_semester }, semesters: [{semester, subjects:[...]}, ...] }
+      fetch('/api/student/academic-report')
+      .then(r => r.json())
+      .then(res => {
+        if (res.status !== 'SUCCESS') return;
 
-          subjects.forEach(s => {
-            if (s.subject_type === 'Seminar') {
-              hasSem = true;
-              seminarSubjectId = s.batch_subject_id;
-            }
-          });
+        // Correct keys: overall.current_semester and semesters (array)
+        const currentSem = res.overall?.current_semester;
+        const semestersArr = res.semesters || [];
 
-          if (!hasSem) {
-            alert('No active Seminar subjects found for your batch in this semester. Contact HOD/tutor.');
-          } else {
-            subjectInput.value = seminarSubjectId;
-            // Load currently registered seminar details
-            fetchSeminarDetails(seminarSubjectId);
+        // Find current semester entry first, then fall back to any semester with a Seminar subject
+        let semSubj = null;
+        const currentSemData = semestersArr.find(s => s.semester == currentSem);
+        if (currentSemData) {
+          semSubj = (currentSemData.subjects || []).find(s => s.subject_type === 'Seminar');
+        }
+        // Fallback: search all semesters
+        if (!semSubj) {
+          for (const semData of semestersArr) {
+            semSubj = (semData.subjects || []).find(s => s.subject_type === 'Seminar');
+            if (semSubj) break;
           }
         }
+
+        if (!semSubj) {
+          noSubjectAlert.classList.remove('hidden');
+          formCard.classList.add('hidden');
+          return;
+        }
+
+        formCard.classList.remove('hidden');
+        subjectInput.value = semSubj.batch_subject_id;
+        fetchSeminarDetails(semSubj.batch_subject_id);
+      })
+      .catch(() => {
+        showSeminarToast('Failed to load seminar data. Please refresh.', 'error');
       });
     }
 
     function fetchSeminarDetails(subjectId) {
+      const regNo = "{{ session('userId') }}";
       fetch(`/api/classroom/${subjectId}/seminar/evaluations`)
-      .then(res => res.json())
+      .then(r => r.json())
       .then(res => {
-        if (res.status === 'SUCCESS') {
-          // Find own record
-          const regNo = "{{ session('userId') }}";
-          const student = res.data.find(s => s.reg_no === regNo);
-          const card = document.getElementById('activeSeminarDetailsCard');
+        if (res.status !== 'SUCCESS') return;
+        const student = res.data.find(s => s.reg_no === regNo);
+        const statusBanner = document.getElementById('seminarStatusBanner');
+        const formCard = document.getElementById('seminarFormCard');
+        const cancelBtn = document.getElementById('semCancelEditBtn');
+        const submitBtn = document.getElementById('semSubmitBtn');
+        const formTitle = document.getElementById('semFormTitle');
 
-          if (student && student.topic) {
-            document.getElementById('activeSemTopic').innerText = student.topic;
-            document.getElementById('activeSemGuide').innerText = student.guide_name || '-';
-            document.getElementById('activeSemDate').innerText = student.presentation_date || '-';
-            document.getElementById('activeSemAvgScore').innerText = `${student.average_score} / 75`;
-            card.classList.remove('hidden');
+        if (student && student.topic) {
+          // Show registered banner
+          document.getElementById('semStatusTopic').innerText = student.topic;
+          document.getElementById('semStatusGuide').innerText = student.guide_name || '-';
+          document.getElementById('semStatusDate').innerText = student.presentation_date || '-';
+          document.getElementById('semStatusScore').innerText = `${student.average_score} / 75`;
+          
+          const assessmentsCount = student.evaluators_count || 0;
+          document.getElementById('semStatusAssessments').innerText = `${assessmentsCount} assessors`;
+
+          const titleEl = document.getElementById('semStatusBadgeTitle');
+          const bannerEl = document.getElementById('seminarStatusBanner');
+          if (assessmentsCount > 0) {
+            titleEl.innerText = "Seminar Completed ✅";
+            bannerEl.className = "max-w-3xl mx-auto p-5 bg-gradient-to-r from-emerald-950/80 to-teal-950/80 border border-emerald-600/40 rounded-2xl";
           } else {
-            card.classList.add('hidden');
+            titleEl.innerText = "Seminar Registered ⚠️";
+            bannerEl.className = "max-w-3xl mx-auto p-5 bg-slate-900/60 border border-slate-800/60 rounded-2xl";
           }
+          statusBanner.classList.remove('hidden');
+
+          // Pre-fill form (hidden until Edit clicked)
+          document.getElementById('semRegTopic').value = student.topic;
+          document.getElementById('semRegDate').value = student.presentation_date
+            ? student.presentation_date.split('-').reverse().join('-')
+            : '';
+          // Set guide select after guides are loaded
+          setTimeout(() => {
+            const gs = document.getElementById('semRegGuide');
+            if (student.guide_mobile_no) gs.value = student.guide_mobile_no;
+          }, 600);
+
+          // Switch form to edit/update mode (hidden)
+          formTitle.innerHTML = '<span class="material-symbols-rounded text-blue-400">edit</span> Update Seminar Details';
+          submitBtn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Update Registration';
+          cancelBtn.classList.remove('hidden');
+          formCard.classList.add('hidden'); // hidden until Edit clicked
+        } else {
+          // Not yet registered - show form openly
+          statusBanner.classList.add('hidden');
+          formCard.classList.remove('hidden');
+          cancelBtn.classList.add('hidden');
+          formTitle.innerHTML = '<span class="material-symbols-rounded text-blue-400">co_present</span> Register Seminar Details';
+          submitBtn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Save Registration';
         }
       });
+    }
+
+    function showSeminarEditForm() {
+      document.getElementById('seminarFormCard').classList.remove('hidden');
+      // Scroll to form
+      document.getElementById('seminarFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function cancelSeminarEdit() {
+      document.getElementById('seminarFormCard').classList.add('hidden');
+    }
+
+    function showSeminarToast(msg, type = 'success') {
+      const toast = document.getElementById('seminarToast');
+      toast.className = `max-w-3xl mx-auto px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 mb-1 ${
+        type === 'success'
+          ? 'bg-emerald-950/80 border border-emerald-600/40 text-emerald-300'
+          : 'bg-red-950/80 border border-red-600/40 text-red-300'
+      }`;
+      toast.innerHTML = `<span class="material-symbols-rounded text-base">${type === 'success' ? 'check_circle' : 'error'}</span> ${msg}`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 4000);
     }
 
     function submitSeminarRegistration(e) {
       e.preventDefault();
       const subjectId = document.getElementById('semRegSubject').value;
-      const topic = document.getElementById('semRegTopic').value;
+      const topic = document.getElementById('semRegTopic').value.trim();
       const date = document.getElementById('semRegDate').value;
       const guide = document.getElementById('semRegGuide').value;
+      const btn = document.getElementById('semSubmitBtn');
 
       if (!subjectId) {
-        alert('Please select a valid Seminar subject.');
+        showSeminarToast('No seminar subject found for your batch. Contact HOD.', 'error');
         return;
       }
+      if (!topic || !date || !guide) {
+        showSeminarToast('Please fill all fields before saving.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-rounded text-base animate-spin">sync</span> Saving...';
 
       fetch('/api/student/seminar/register', {
         method: 'POST',
@@ -1822,24 +1929,27 @@
         },
         body: JSON.stringify({
           batch_subject_id: subjectId,
-          topic: topic,
+          topic,
           presentation_date: date,
           guide_mobile_no: guide
         })
       })
-      .then(res => res.json())
+      .then(r => r.json())
       .then(res => {
+        btn.disabled = false;
         if (res.status === 'SUCCESS') {
-          alert('Seminar details registered successfully!');
-          document.getElementById('seminarRegistrationForm').reset();
+          showSeminarToast('Seminar details saved successfully! Invitations sent to all department staff.', 'success');
+          document.getElementById('seminarFormCard').classList.add('hidden');
           loadSeminarRegistration();
         } else {
-          alert(res.message);
+          showSeminarToast(res.message || 'Failed to save.', 'error');
+          btn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Save Registration';
         }
       })
-      .catch(err => {
-        console.error(err);
-        alert('Failed to register seminar details.');
+      .catch(() => {
+        btn.disabled = false;
+        showSeminarToast('Network error. Please try again.', 'error');
+        btn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Save Registration';
       });
     }
   </script>

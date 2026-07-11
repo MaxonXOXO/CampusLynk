@@ -2006,55 +2006,7 @@ class DataController extends Controller
                 }
             }
 
-            // 3. Get all active Seminar subjects belonging to the lecturer's branch/department
-            // This ensures all lecturers in the department can see active seminars for evaluation
-            $staffProfile = \App\Models\StaffProfile::where('mobile_no', $userId)->first();
-            if ($staffProfile && in_array($staffProfile->designation, ['HOD', 'Lecturer', 'Demonstrator'])) {
-                $deptSeminarSubjects = \App\Models\BatchSubject::where('subject_type', 'Seminar')
-                    ->whereHas('classroom', function($q) use ($staffProfile) {
-                        $q->where('branch', $staffProfile->branch);
-                        // Filter active vs historical classrooms
-                        $q->where('current_semester', '<=', 6);
-                    })
-                    ->get();
-
-                foreach ($deptSeminarSubjects as $ds) {
-                    $batch = $ds->classroom;
-                    if (!$batch) continue;
-
-                    $cid = $batch->classroom_id;
-                    if (!isset($batchesMap[$cid])) {
-                        $batchesMap[$cid] = [
-                            'classroom_id'     => $batch->classroom_id,
-                            'batch_year'       => $batch->batch_year,
-                            'current_semester' => $batch->current_semester,
-                            'branch'           => $batch->branch,
-                            'student_count'    => \App\Models\Student::where('classroom_id', $batch->classroom_id)->count(),
-                            'roles'            => [],
-                            'subjects'         => []
-                        ];
-                    }
-                    if (!in_array('Seminar Evaluator', $batchesMap[$cid]['roles'])) {
-                        $batchesMap[$cid]['roles'][] = 'Seminar Evaluator';
-                    }
-
-                    // Check if subject is already added
-                    $exists = collect($batchesMap[$cid]['subjects'])->contains('id', $ds->id);
-                    if (!$exists) {
-                        $batchesMap[$cid]['subjects'][] = [
-                            'id' => $ds->id,
-                            'code' => $ds->subject_code,
-                            'name' => $ds->subject_name,
-                            'semester' => $ds->semester,
-                            'type' => $ds->subject_type,
-                            'total_topics' => 0,
-                            'covered_topics' => 0,
-                            'engaged_hours' => 0,
-                            'total_hours' => 0
-                        ];
-                    }
-                }
-            }
+            // 3. Seminar Evaluator is handled separately now; no need to inject into batch list.
 
             // Sort subjects by semester
             foreach ($batchesMap as &$b) {
@@ -2113,6 +2065,24 @@ class DataController extends Controller
             $classroomId = $student->classroom_id;
             $classroom = DB::table('class_management')->where('classroom_id', $classroomId)->first();
             $currentSem = $student->semester ?: ($classroom ? (int)$classroom->current_semester : 1);
+
+            // Auto-create a default Seminar type subject if none exists for this classroom and semester
+            $hasSeminarSubject = \App\Models\BatchSubject::where('classroom_id', $classroomId)
+                ->where('semester', $currentSem)
+                ->where('subject_type', 'Seminar')
+                ->exists();
+
+            if (!$hasSeminarSubject) {
+                $branchKey = strtoupper(explode('_', $classroomId)[0] ?? 'EL');
+                \App\Models\BatchSubject::create([
+                    'classroom_id' => $classroomId,
+                    'semester' => $currentSem,
+                    'subject_code' => $branchKey . '-5008',
+                    'subject_name' => 'Seminar',
+                    'subject_type' => 'Seminar',
+                    'credits' => 1
+                ]);
+            }
 
             $batchSubjects = \App\Models\BatchSubject::where('classroom_id', $classroomId)
                 ->orderBy('semester', 'asc')

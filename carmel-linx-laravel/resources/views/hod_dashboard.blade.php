@@ -256,6 +256,11 @@
       <!-- PANEL 2: BATCH MANAGEMENT -->
       <div id="panelBatches" class="space-y-6">
 
+        <!-- Seminar Presentations Today dynamic notifications section -->
+        <div id="seminarNotificationsContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-2">
+          <!-- Populated dynamically -->
+        </div>
+
         <!-- Panel Header -->
           <div class="flex justify-between items-start md:items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl flex-col md:flex-row gap-4">
             <div class="flex-1">
@@ -1071,6 +1076,7 @@
       switchPanel(activePanel);
       // Pre-load dept staff for batch modals
       loadDeptStaffCache();
+      checkTodaySeminars();
     });
     function getHeaders() {
       return {
@@ -3695,6 +3701,61 @@
         statusEl.className = "text-sm font-bold mt-2 text-rose-400";
         statusEl.innerText = "Network error. Please try again.";
       });
+    }
+
+    function checkTodaySeminars() {
+      fetch('/api/lecturer/today-seminars')
+      .then(res => res.json())
+      .then(res => {
+        const container = document.getElementById('seminarNotificationsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+
+        if (res.status === 'SUCCESS' && res.data.length > 0) {
+          // Group by classroom_id
+          const groups = {};
+          res.data.forEach(item => {
+            const cid = item.classroom_id || 'Unknown_Classroom';
+            if (!groups[cid]) {
+              groups[cid] = [];
+            }
+            groups[cid].push(item);
+          });
+
+          // Render a card for each group
+          Object.keys(groups).forEach(cid => {
+            const items = groups[cid];
+            const first = items[0];
+            const count = items.length;
+
+            const card = document.createElement('div');
+            // Catchy glowing orange/purple notification card
+            card.className = "p-4 bg-gradient-to-br from-amber-500/20 via-orange-600/15 to-violet-950/40 border border-amber-500/40 hover:border-amber-400/80 rounded-2xl flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-premium cursor-pointer group relative overflow-hidden";
+            card.onclick = () => {
+              window.location.href = `/dashboard/lecturer?subject_id=${first.batch_subject_id}&subject_name=${encodeURIComponent(first.subject_name || 'Seminar')}&classroom_id=${encodeURIComponent(cid)}`;
+            };
+
+            card.innerHTML = `
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="bg-amber-500/10 p-2 rounded-xl text-amber-400 group-hover:bg-amber-500 group-hover:text-black transition-premium">
+                  <span class="material-symbols-rounded text-lg block">co_present</span>
+                </div>
+                <div class="min-w-0">
+                  <h5 class="text-xs font-black text-amber-300 group-hover:text-white transition-premium truncate">Seminar Day (${count})</h5>
+                  <p class="text-[11px] text-slate-400 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
+                </div>
+              </div>
+              <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-400 text-sm transition-premium flex-shrink-0">arrow_forward_ios</span>
+            `;
+            container.appendChild(card);
+          });
+
+          container.classList.remove('hidden');
+        } else {
+          container.classList.add('hidden');
+        }
+      })
+      .catch(err => console.error('Failed to load today seminars:', err));
     }
   </script>
 

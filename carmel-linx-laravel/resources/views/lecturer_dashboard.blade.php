@@ -469,6 +469,8 @@
         <span class="material-symbols-rounded text-lg">grid_view</span> My Batches
       </button>
 
+
+
       @php
         $mobileNo = session('userId');
         $isTutor = \App\Models\ClassManagement::where('tutor_mobile_no', $mobileNo)->exists();
@@ -541,18 +543,9 @@
       <!-- PANEL 1: DASHBOARD (BATCH CARDS) -->
       <div id="panelDashboard" class="space-y-6">
         
-        <!-- Mobile Events Today (Invitation Banner) -->
-        <div id="mobileEventsTodayCard" class="hidden p-4 bg-gradient-to-r from-blue-950 to-indigo-950 border border-blue-500/30 rounded-2xl animate-pulse">
-          <div class="flex items-start gap-3">
-            <span class="material-symbols-rounded text-blue-400 text-xl">event</span>
-            <div>
-              <h5 class="text-sm font-black text-white">Seminar Presentations Today</h5>
-              <p class="text-xs text-slate-300 mt-1" id="mobileEventsTodayCount">0 students scheduled for evaluation.</p>
-              <button onclick="openMobileSeminarEvaluation()" class="mt-3 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer shadow">
-                Start Evaluation
-              </button>
-            </div>
-          </div>
+        <!-- Seminar Presentations Today dynamic notifications section -->
+        <div id="seminarNotificationsContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated dynamically -->
         </div>
 
         <div id="assignedClassroomHeader" class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl gap-4">
@@ -902,80 +895,212 @@
       </div>
 
       <!-- PANEL: MOBILE SEMINAR EVALUATION WORKSPACE -->
-      <div id="panelMobileSeminar" class="hidden space-y-6 fade-up">
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex items-center justify-between">
-          <div>
-            <button onclick="switchPanel('dashboard')" class="text-xs font-bold text-slate-400 hover:text-white uppercase tracking-wider flex items-center gap-1 transition-premium mb-1 cursor-pointer">
-              <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Dashboard
+      <!-- PANEL: MOBILE SEMINAR EVALUATION -->
+      <div id="panelMobileSeminar" class="hidden fade-up">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between gap-3 mb-5">
+          <div class="flex items-center gap-3">
+            <button onclick="switchPanel('dashboard')" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-premium cursor-pointer">
+              <span class="material-symbols-rounded text-slate-300 text-base">arrow_back</span>
             </button>
-            <h3 class="text-base font-black text-slate-200 flex items-center gap-2 mt-1">
-              <span class="material-symbols-rounded text-blue-400">co_present</span> Mobile Seminar Evaluation
-            </h3>
-            <p class="text-xs text-slate-400 mt-0.5">Quickly select a student and evaluate their seminar presentation today.</p>
+            <div>
+              <h3 class="text-base font-black text-slate-200 flex items-center gap-2">
+                <span class="material-symbols-rounded text-blue-400">co_present</span> Seminar Evaluation
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Evaluate student seminars presented today.</p>
+            </div>
           </div>
+          <a href="{{ url('/logout') }}" class="px-3.5 py-2 bg-rose-950/40 hover:bg-red-600 text-rose-400 hover:text-white border border-rose-500/30 hover:border-red-500 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-premium no-underline select-none cursor-pointer">
+            <span class="material-symbols-rounded text-sm">logout</span> Sign Out
+          </a>
         </div>
 
-        <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Select Student to Evaluate</label>
-            <select id="mobileSemStudentSelect" onchange="handleMobileSemStudentChange()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
-              <option value="">Choose Student...</option>
-            </select>
+        <!-- Seminar Presentations Today dynamic notifications section (Mobile Panel) -->
+        <div id="mobileSeminarNotificationsContainer" class="hidden grid grid-cols-1 gap-3 mb-5">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- Mobile toast -->
+        <div id="mobileSemToast" class="hidden mb-4 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2"></div>
+
+        <!-- Step 1: Pending Invitations -->
+        <div id="mobileSemStep1" class="space-y-4">
+
+          <!-- Pending Invitations -->
+          <div class="bg-slate-950/40 border border-amber-600/20 rounded-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-800/60 flex items-center gap-2">
+              <span class="material-symbols-rounded text-amber-400 text-lg">mark_email_unread</span>
+              <h4 class="text-sm font-black text-slate-200">Pending Invitations</h4>
+            </div>
+            <div id="mobilePendingInvitationsList" class="p-4 space-y-3">
+              <div class="text-xs text-slate-500 text-center py-3">Loading...</div>
+            </div>
           </div>
 
-          <!-- Selected Student Details Card -->
-          <div id="mobileSemDetailsCard" class="hidden bg-slate-900/40 border border-slate-800/50 p-4 rounded-xl space-y-2">
-            <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-500">SBTE Reg No:</span>
-              <span id="mobileSemSbteReg" class="font-mono text-white font-bold">-</span>
+          <!-- Accepted / Start Evaluation -->
+          <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-800/60 flex items-center gap-2">
+              <span class="material-symbols-rounded text-emerald-400 text-lg">how_to_reg</span>
+              <h4 class="text-sm font-black text-slate-200">Attending Seminars</h4>
             </div>
-            <div class="flex justify-between items-start text-xs">
-              <span class="text-slate-500">Topic:</span>
-              <span id="mobileSemTopic" class="text-white font-extrabold text-right max-w-[200px] break-words">-</span>
+            <div class="p-4 space-y-3">
+              <div id="mobileSemAttendingList" class="space-y-2">
+                <div class="text-xs text-slate-500 text-center py-3">No accepted seminars yet.</div>
+              </div>
             </div>
           </div>
 
-          <!-- Criteria input fields -->
-          <form id="mobileSeminarForm" onsubmit="submitMobileSeminarEvaluation(event)" class="hidden space-y-4 pt-2">
-            <div class="grid grid-cols-2 gap-4">
+        </div>
+
+        <!-- Step 2: Evaluation Form (shown when a student is selected) -->
+        <div id="mobileSemStep2" class="hidden space-y-4">
+
+          <!-- Student Info Card -->
+          <div class="bg-gradient-to-r from-blue-950/60 to-indigo-950/60 border border-blue-700/30 rounded-2xl p-5">
+            <div class="flex items-start justify-between">
               <div>
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Relevance (Max 7.5)</label>
-                <input type="number" step="0.01" min="0" max="7.5" id="mobSemRelevance" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+                <div id="mobSemStudentName" class="text-lg font-black text-white">-</div>
+                <div class="text-xs text-slate-400 mt-0.5">SBTE Reg: <span id="mobSemSbteRegV2" class="font-mono text-slate-200">-</span></div>
+                <div class="mt-2 bg-blue-950/60 rounded-xl px-3 py-2">
+                  <div class="text-[10px] text-slate-500 uppercase tracking-wider">Seminar Topic</div>
+                  <div id="mobSemTopicV2" class="text-sm font-bold text-white mt-0.5 leading-snug">-</div>
+                </div>
               </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Literature (Max 7.5)</label>
-                <input type="number" step="0.01" min="0" max="7.5" id="mobSemLiterature" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+              <!-- Live Score Ring -->
+              <div class="shrink-0 ml-4 flex flex-col items-center">
+                <div class="relative w-16 h-16">
+                  <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="26" fill="none" stroke="#1e293b" stroke-width="6"/>
+                    <circle id="mobScoreRingCircle" cx="32" cy="32" r="26" fill="none" stroke="#3b82f6" stroke-width="6"
+                      stroke-dasharray="163.36" stroke-dashoffset="163.36" stroke-linecap="round"
+                      style="transition: stroke-dashoffset 0.4s ease, stroke 0.3s ease"/>
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span id="mobSemRingScore" class="text-sm font-black text-white leading-none">0</span>
+                    <span class="text-[9px] text-slate-500 leading-none">/75</span>
+                  </div>
+                </div>
+                <span class="text-[9px] text-slate-500 mt-1 uppercase tracking-wide">Your Score</span>
               </div>
             </div>
-            <div>
-              <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Presentation (Max 37.5)</label>
-              <input type="number" step="0.01" min="0" max="37.5" id="mobSemPresentation" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+          </div>
+
+          <!-- Evaluation Criteria Form -->
+          <form id="mobileSeminarForm" onsubmit="submitMobileSeminarEvaluation(event)" class="space-y-3">
+
+            <!-- Relevance -->
+            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4">
+              <div class="flex justify-between items-center mb-3">
+                <div>
+                  <div class="text-sm font-bold text-slate-200">Relevance</div>
+                  <div class="text-[10px] text-slate-500">Topic alignment &amp; suitability</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-1">
+                  <input type="number" step="0.5" min="0" max="7.5" id="mobSemRelevance" required
+                    oninput="clampMobSem(this,7.5); calcMobSemTotal()"
+                    class="w-12 bg-transparent text-white font-black text-base text-right outline-none" placeholder="0">
+                  <span class="text-slate-500 text-xs font-bold">/7.5</span>
+                </div>
+              </div>
+              <input type="range" min="0" max="7.5" step="0.5" value="0"
+                oninput="document.getElementById('mobSemRelevance').value=this.value; calcMobSemTotal()"
+                class="w-full h-2 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
             </div>
-            <div class="grid grid-cols-3 gap-2">
-              <div>
-                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Interaction (7.5)</label>
-                <input type="number" step="0.01" min="0" max="7.5" id="mobSemInteraction" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-2 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+
+            <!-- Literature -->
+            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4">
+              <div class="flex justify-between items-center mb-3">
+                <div>
+                  <div class="text-sm font-bold text-slate-200">Literature Survey</div>
+                  <div class="text-[10px] text-slate-500">Depth of research &amp; references</div>
+                </div>
+                <div class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-1">
+                  <input type="number" step="0.5" min="0" max="7.5" id="mobSemLiterature" required
+                    oninput="clampMobSem(this,7.5); calcMobSemTotal()"
+                    class="w-12 bg-transparent text-white font-black text-base text-right outline-none" placeholder="0">
+                  <span class="text-slate-500 text-xs font-bold">/7.5</span>
+                </div>
               </div>
-              <div>
-                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Report (7.5)</label>
-                <input type="number" step="0.01" min="0" max="7.5" id="mobSemReport" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-2 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+              <input type="range" min="0" max="7.5" step="0.5" value="0"
+                oninput="document.getElementById('mobSemLiterature').value=this.value; calcMobSemTotal()"
+                class="w-full h-2 rounded-full accent-indigo-500 bg-slate-800 cursor-pointer">
+            </div>
+
+            <!-- Presentation (largest weight) -->
+            <div class="bg-slate-950/40 border border-blue-700/20 rounded-2xl p-4">
+              <div class="flex justify-between items-center mb-3">
+                <div>
+                  <div class="text-sm font-bold text-blue-300">Presentation Quality</div>
+                  <div class="text-[10px] text-slate-500">Clarity, structure &amp; delivery — highest weight</div>
+                </div>
+                <div class="bg-slate-900 border border-blue-700/40 rounded-xl px-3 py-1.5 flex items-center gap-1">
+                  <input type="number" step="0.5" min="0" max="37.5" id="mobSemPresentation" required
+                    oninput="clampMobSem(this,37.5); calcMobSemTotal()"
+                    class="w-14 bg-transparent text-blue-300 font-black text-base text-right outline-none" placeholder="0">
+                  <span class="text-slate-500 text-xs font-bold">/37.5</span>
+                </div>
               </div>
-              <div>
-                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Attendance (7.5)</label>
-                <input type="number" step="0.01" min="0" max="7.5" id="mobSemAttendance" required oninput="calculateMobileSeminarTotal()" class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-2 py-2.5 text-xs text-white focus:border-blue-500 outline-none">
+              <input type="range" min="0" max="37.5" step="0.5" value="0"
+                oninput="document.getElementById('mobSemPresentation').value=this.value; calcMobSemTotal()"
+                class="w-full h-2 rounded-full accent-blue-400 bg-slate-800 cursor-pointer">
+            </div>
+
+            <!-- Last 3 criteria in a row -->
+            <div class="grid grid-cols-3 gap-3">
+              <!-- Interaction -->
+              <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-3 flex flex-col items-center gap-2">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide text-center">Interaction</div>
+                <div class="text-[10px] text-slate-600 text-center">Q&amp;A</div>
+                <input type="number" step="0.5" min="0" max="7.5" id="mobSemInteraction" required
+                  oninput="clampMobSem(this,7.5); calcMobSemTotal()"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-black text-base text-center outline-none focus:border-purple-500">
+                <div class="text-[9px] text-slate-600">max 7.5</div>
+              </div>
+              <!-- Report -->
+              <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-3 flex flex-col items-center gap-2">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide text-center">Report</div>
+                <div class="text-[10px] text-slate-600 text-center">Written</div>
+                <input type="number" step="0.5" min="0" max="7.5" id="mobSemReport" required
+                  oninput="clampMobSem(this,7.5); calcMobSemTotal()"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-black text-base text-center outline-none focus:border-teal-500">
+                <div class="text-[9px] text-slate-600">max 7.5</div>
+              </div>
+              <!-- Attendance -->
+              <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-3 flex flex-col items-center gap-2">
+                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide text-center">Attendance</div>
+                <div class="text-[10px] text-slate-600 text-center">Presence</div>
+                <input type="number" step="0.5" min="0" max="7.5" id="mobSemAttendance" required
+                  oninput="clampMobSem(this,7.5); calcMobSemTotal()"
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-black text-base text-center outline-none focus:border-emerald-500">
+                <div class="text-[9px] text-slate-600">max 7.5</div>
               </div>
             </div>
-            <div class="pt-4 border-t border-slate-900 flex justify-between items-center">
+
+            <!-- Total + Submit -->
+            <div class="bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-700/60 rounded-2xl p-5 flex items-center justify-between gap-4">
               <div>
-                <span class="text-xs text-slate-400 font-bold uppercase">Total Score:</span>
-                <span id="mobSemTotalScoreLabel" class="text-sm font-black text-blue-400 ml-2">0.00 / 75</span>
+                <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Score</div>
+                <div class="text-3xl font-black" id="mobSemTotalDisplay">
+                  <span id="mobSemTotalNum" class="text-blue-400">0.00</span>
+                  <span class="text-slate-600 text-lg"> / 75</span>
+                </div>
+                <!-- keep old ID for backward compat -->
+                <div id="mobSemTotalScoreLabel" class="hidden"></div>
               </div>
-              <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold shadow-lg transition-premium cursor-pointer">
-                Save Evaluation
+              <button type="submit" id="mobSemSubmitBtn"
+                class="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-xl font-black text-sm shadow-lg shadow-blue-500/30 transition-premium cursor-pointer flex items-center gap-2">
+                <span class="material-symbols-rounded text-base">save</span> Save
               </button>
             </div>
+
+            <button type="button" onclick="backToSeminarList()" class="w-full py-2.5 text-slate-400 text-xs font-bold flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-premium">
+              <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Seminar List
+            </button>
+
           </form>
         </div>
+
       </div>
 
     </div>
@@ -1392,6 +1517,8 @@
           const tabSummative = document.getElementById('tabSummative');
 
           if (isSeminar) {
+            document.getElementById('panelTitle').innerText = 'Virtual Seminar Room';
+            document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-emerald-400 text-sm">co_present</span> Virtual Seminar Room`;
             if (tabSeminar) tabSeminar.classList.remove('hidden');
             if (tabStructure) tabStructure.classList.add('hidden');
             if (tabPlanner) tabPlanner.classList.add('hidden');
@@ -1399,6 +1526,8 @@
             if (tabSummative) tabSummative.classList.add('hidden');
             toggleClassroomTab('seminar_evaluation');
           } else {
+            document.getElementById('panelTitle').innerText = 'Virtual Classroom';
+            document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> Virtual Classroom`;
             if (tabSeminar) tabSeminar.classList.add('hidden');
             if (tabStructure) tabStructure.classList.remove('hidden');
             if (tabPlanner) tabPlanner.classList.remove('hidden');
@@ -4560,44 +4689,87 @@
         <span class="material-symbols-rounded">close</span>
       </button>
     </div>
-    <form id="seminarEvaluationForm" onsubmit="submitSeminarEvaluation(event)" class="p-6 space-y-4">
+    <form id="seminarEvaluationForm" onsubmit="submitSeminarEvaluation(event)" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
       <div>
         <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Student</label>
-        <div id="semStudentName" class="text-sm font-extrabold text-white"></div>
+        <div id="semStudentName" class="text-base font-black text-white"></div>
         <input type="hidden" id="semStudentRegNo">
       </div>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Relevance (Max 7.5)</label>
-          <input type="number" step="0.01" min="0" max="7.5" id="semRelevance" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+
+      <!-- Relevance Slider & Input -->
+      <div class="bg-slate-900/50 border border-slate-800/80 p-3.5 rounded-xl space-y-2">
+        <div class="flex justify-between items-center">
+          <label class="block text-xs font-bold text-slate-200">Relevance (Max 7.5)</label>
+          <input type="number" step="0.1" min="0" max="7.5" id="semRelevance" required
+            oninput="syncSlider('semRelevance','semRelevanceSlider',7.5); calculateSeminarTotal()"
+            class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-sm font-black text-white text-center focus:border-blue-500 outline-none">
         </div>
-        <div>
-          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Literature Survey (Max 7.5)</label>
-          <input type="number" step="0.01" min="0" max="7.5" id="semLiterature" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+        <input type="range" id="semRelevanceSlider" min="0" max="7.5" step="0.1" value="0"
+          oninput="document.getElementById('semRelevance').value = this.value; calculateSeminarTotal()"
+          class="w-full h-2 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
+      </div>
+
+      <!-- Literature Survey Slider & Input -->
+      <div class="bg-slate-900/50 border border-slate-800/80 p-3.5 rounded-xl space-y-2">
+        <div class="flex justify-between items-center">
+          <label class="block text-xs font-bold text-slate-200">Literature Survey (Max 7.5)</label>
+          <input type="number" step="0.1" min="0" max="7.5" id="semLiterature" required
+            oninput="syncSlider('semLiterature','semLiteratureSlider',7.5); calculateSeminarTotal()"
+            class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-sm font-black text-white text-center focus:border-blue-500 outline-none">
+        </div>
+        <input type="range" id="semLiteratureSlider" min="0" max="7.5" step="0.1" value="0"
+          oninput="document.getElementById('semLiterature').value = this.value; calculateSeminarTotal()"
+          class="w-full h-2 rounded-full accent-indigo-500 bg-slate-800 cursor-pointer">
+      </div>
+
+      <!-- Presentation Slider & Input -->
+      <div class="bg-slate-900/50 border border-blue-950 p-3.5 rounded-xl space-y-2">
+        <div class="flex justify-between items-center">
+          <label class="block text-xs font-bold text-blue-300">Presentation Quality (Max 37.5)</label>
+          <input type="number" step="0.5" min="0" max="37.5" id="semPresentation" required
+            oninput="syncSlider('semPresentation','semPresentationSlider',37.5); calculateSeminarTotal()"
+            class="w-16 bg-slate-900 border border-blue-800 rounded-lg px-2 py-1 text-sm font-black text-blue-300 text-center focus:border-blue-500 outline-none">
+        </div>
+        <input type="range" id="semPresentationSlider" min="0" max="37.5" step="0.5" value="0"
+          oninput="document.getElementById('semPresentation').value = this.value; calculateSeminarTotal()"
+          class="w-full h-2 rounded-full accent-blue-400 bg-slate-800 cursor-pointer">
+      </div>
+
+      <!-- Compact 3 Column Input Grid -->
+      <div class="grid grid-cols-3 gap-3">
+        <!-- Interaction -->
+        <div class="bg-slate-900/30 border border-slate-800/80 p-2.5 rounded-xl text-center space-y-1.5">
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Interaction</label>
+          <input type="number" step="0.5" min="0" max="7.5" id="semInteraction" required
+            oninput="syncSlider(this.id,null,7.5); calculateSeminarTotal()"
+            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1.5 text-sm font-bold text-white text-center focus:border-blue-500 outline-none">
+          <div class="text-[9px] text-slate-600">max 7.5</div>
+        </div>
+
+        <!-- Report -->
+        <div class="bg-slate-900/30 border border-slate-800/80 p-2.5 rounded-xl text-center space-y-1.5">
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Report</label>
+          <input type="number" step="0.5" min="0" max="7.5" id="semReport" required
+            oninput="syncSlider(this.id,null,7.5); calculateSeminarTotal()"
+            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1.5 text-sm font-bold text-white text-center focus:border-blue-500 outline-none">
+          <div class="text-[9px] text-slate-600">max 7.5</div>
+        </div>
+
+        <!-- Attendance -->
+        <div class="bg-slate-900/30 border border-slate-800/80 p-2.5 rounded-xl text-center space-y-1.5">
+          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Attendance</label>
+          <input type="number" step="0.5" min="0" max="7.5" id="semAttendance" required
+            oninput="syncSlider(this.id,null,7.5); calculateSeminarTotal()"
+            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1.5 text-sm font-bold text-white text-center focus:border-blue-500 outline-none">
+          <div class="text-[9px] text-slate-600">max 7.5</div>
         </div>
       </div>
-      <div>
-        <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Presentation (Max 37.5)</label>
-        <input type="number" step="0.01" min="0" max="37.5" id="semPresentation" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
-      </div>
-      <div class="grid grid-cols-3 gap-4">
+
+      <!-- Total Score Banner -->
+      <div class="pt-4 border-t border-slate-900 flex justify-between items-center bg-slate-950/40 p-2 rounded-xl">
         <div>
-          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Interaction (7.5)</label>
-          <input type="number" step="0.01" min="0" max="7.5" id="semInteraction" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Report (7.5)</label>
-          <input type="number" step="0.01" min="0" max="7.5" id="semReport" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-450 font-bold uppercase tracking-wider mb-1">Attendance (7.5)</label>
-          <input type="number" step="0.01" min="0" max="7.5" id="semAttendance" required oninput="calculateSeminarTotal()" class="w-full bg-slate-900 border border-slate-850 rounded-xl px-3.5 py-2 text-sm text-white focus:border-blue-500 outline-none">
-        </div>
-      </div>
-      <div class="pt-4 border-t border-slate-900 flex justify-between items-center">
-        <div>
-          <span class="text-xs text-slate-400 font-bold uppercase">Total Score:</span>
-          <span id="semTotalScoreLabel" class="text-base font-black text-blue-400 ml-2">0.00 / 75</span>
+          <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Score:</span>
+          <span id="semTotalScoreLabel" class="text-xl font-black text-blue-400 ml-2">0.00 / 75</span>
         </div>
         <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold shadow-lg transition-premium cursor-pointer">
           Save Evaluation
@@ -4608,6 +4780,20 @@
 </div>
 
 <script>
+    function syncSlider(inputId, sliderId, max) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      let val = parseFloat(input.value);
+      if (isNaN(val)) val = 0;
+      if (val > max) val = max;
+      if (val < 0) val = 0;
+      input.value = val;
+      if (sliderId) {
+        const slider = document.getElementById(sliderId);
+        if (slider) slider.value = val;
+      }
+    }
+
     let activeSeminarData = [];
 
     function fetchSeminarEvaluations() {
@@ -4684,6 +4870,11 @@
       document.getElementById('semRelevance').value = me ? me.relevance : '';
       document.getElementById('semLiterature').value = me ? me.literature : '';
       document.getElementById('semPresentation').value = me ? me.presentation : '';
+      
+      document.getElementById('semRelevanceSlider').value = me ? me.relevance : 0;
+      document.getElementById('semLiteratureSlider').value = me ? me.literature : 0;
+      document.getElementById('semPresentationSlider').value = me ? me.presentation : 0;
+
       document.getElementById('semInteraction').value = me ? me.interaction : '';
       document.getElementById('semReport').value = me ? me.report : '';
       document.getElementById('semAttendance').value = me ? me.attendance : '';
@@ -4753,102 +4944,315 @@
     }
 
     let todaySeminarsData = [];
+    let mobSemCurrentRegNo = null;
+
+    function clampMobSem(input, max) {
+      const v = parseFloat(input.value);
+      if (!isNaN(v) && v > max) input.value = max;
+      if (!isNaN(v) && v < 0) input.value = 0;
+      // Sync range slider sibling if present
+      const sliders = input.closest('.bg-slate-950\/40, .bg-slate-950\/40.border')?.querySelectorAll('input[type=range]');
+      if (sliders && sliders.length) sliders[0].value = input.value;
+    }
+
+    function showMobileSemToast(msg, type = 'success') {
+      const toast = document.getElementById('mobileSemToast');
+      toast.className = `mb-4 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 ${
+        type === 'success'
+          ? 'bg-emerald-950/80 border border-emerald-600/40 text-emerald-300'
+          : type === 'warning'
+            ? 'bg-amber-950/80 border border-amber-600/40 text-amber-300'
+            : 'bg-red-950/80 border border-red-600/40 text-red-300'
+      }`;
+      const icon = type === 'success' ? 'check_circle' : type === 'warning' ? 'warning' : 'error';
+      toast.innerHTML = `<span class="material-symbols-rounded text-base">${icon}</span> ${msg}`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 4000);
+    }
 
     function checkTodaySeminars() {
       fetch('/api/lecturer/today-seminars')
       .then(res => res.json())
       .then(res => {
+        const container = document.getElementById('seminarNotificationsContainer');
+        const mobContainer = document.getElementById('mobileSeminarNotificationsContainer');
+        
+        if (container) container.innerHTML = '';
+        if (mobContainer) mobContainer.innerHTML = '';
+
         if (res.status === 'SUCCESS' && res.data.length > 0) {
           todaySeminarsData = res.data;
-          document.getElementById('mobileEventsTodayCount').innerText = `${res.data.length} student(s) scheduled for evaluation today.`;
-          
-          const card = document.getElementById('mobileEventsTodayCard');
-          if (card) {
-            if (window.innerWidth < 768) {
-              card.classList.remove('hidden');
+
+          // Group by classroom_id
+          const groups = {};
+          todaySeminarsData.forEach(item => {
+            const cid = item.classroom_id || 'Unknown_Classroom';
+            if (!groups[cid]) {
+              groups[cid] = [];
             }
-          }
+            groups[cid].push(item);
+          });
+
+          // Render cards
+          Object.keys(groups).forEach(cid => {
+            const items = groups[cid];
+            const first = items[0];
+            const count = items.length;
+
+            // Desktop card
+            if (container) {
+              const card = document.createElement('div');
+              card.className = "p-4 bg-gradient-to-br from-amber-500/20 via-orange-600/15 to-violet-950/40 border border-amber-500/40 hover:border-amber-400/80 rounded-2xl flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-premium cursor-pointer group relative overflow-hidden";
+              card.onclick = () => {
+                if (window.innerWidth < 768) {
+                  openMobileSeminarEvaluation();
+                } else {
+                  openClassroom(cid, first.batch_subject_id, first.subject_name || 'Seminar');
+                }
+              };
+              card.innerHTML = `
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="bg-amber-500/10 p-2 rounded-xl text-amber-400 group-hover:bg-amber-500 group-hover:text-black transition-premium">
+                    <span class="material-symbols-rounded text-lg block">co_present</span>
+                  </div>
+                  <div class="min-w-0">
+                    <h5 class="text-xs font-black text-amber-300 group-hover:text-white transition-premium truncate">Seminar Day (${count})</h5>
+                    <p class="text-[11px] text-slate-400 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
+                  </div>
+                </div>
+                <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-400 text-sm transition-premium flex-shrink-0">arrow_forward_ios</span>
+              `;
+              container.appendChild(card);
+            }
+
+            // Mobile card
+            if (mobContainer) {
+              const cardMob = document.createElement('div');
+              cardMob.className = "p-4 bg-gradient-to-br from-amber-500/20 via-orange-600/15 to-violet-950/40 border border-amber-500/40 hover:border-amber-400/80 rounded-2xl flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.1)] transition-premium cursor-pointer group relative overflow-hidden";
+              cardMob.onclick = () => {
+                openMobileSeminarEvaluation();
+              };
+              cardMob.innerHTML = `
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="bg-amber-500/10 p-2 rounded-xl text-amber-400 group-hover:bg-amber-500 group-hover:text-black transition-premium">
+                    <span class="material-symbols-rounded text-lg block">phone_android</span>
+                  </div>
+                  <div class="min-w-0">
+                    <h5 class="text-xs font-black text-amber-300 group-hover:text-white transition-premium truncate">Active Seminar Day (${count})</h5>
+                    <p class="text-[11px] text-slate-400 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
+                  </div>
+                </div>
+                <span class="material-symbols-rounded text-slate-600 group-hover:text-amber-400 text-sm transition-premium flex-shrink-0">arrow_forward_ios</span>
+              `;
+              mobContainer.appendChild(cardMob);
+            }
+          });
+
+          if (container) container.classList.remove('hidden');
+          if (mobContainer) mobContainer.classList.remove('hidden');
         } else {
-          const card = document.getElementById('mobileEventsTodayCard');
-          if (card) card.classList.add('hidden');
+          if (container) container.classList.add('hidden');
+          if (mobContainer) mobContainer.classList.add('hidden');
         }
       })
       .catch(err => console.error('Failed to load today seminars:', err));
     }
 
-    function openMobileSeminarEvaluation() {
-      switchPanel('mobileSeminar');
-      
-      const select = document.getElementById('mobileSemStudentSelect');
-      select.innerHTML = '<option value="">Choose Student...</option>';
-      
-      todaySeminarsData.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s.reg_no;
-        opt.innerText = `${s.student_name} (${s.sbte_reg_no})`;
-        select.appendChild(opt);
-      });
-
-      document.getElementById('mobileSemDetailsCard').classList.add('hidden');
-      document.getElementById('mobileSeminarForm').classList.add('hidden');
-      document.getElementById('mobileSeminarForm').reset();
-      document.getElementById('mobSemTotalScoreLabel').innerText = '0.00 / 75';
+    function goToVirtualSeminarClassroom() {
+      // deprecated but kept as safe fallback
     }
 
-    function handleMobileSemStudentChange() {
-      const regNo = document.getElementById('mobileSemStudentSelect').value;
-      const detailsCard = document.getElementById('mobileSemDetailsCard');
-      const form = document.getElementById('mobileSeminarForm');
+    function openMobileSeminarEvaluation() {
+      switchPanel('mobileSeminar');
+      mobSemCurrentRegNo = null;
+      document.getElementById('mobileSemStep1').classList.remove('hidden');
+      document.getElementById('mobileSemStep2').classList.add('hidden');
+      refreshMobileSeminarsList();
+    }
 
-      if (!regNo) {
-        detailsCard.classList.add('hidden');
-        form.classList.add('hidden');
-        return;
-      }
+    function backToSeminarList() {
+      mobSemCurrentRegNo = null;
+      document.getElementById('mobileSemStep1').classList.remove('hidden');
+      document.getElementById('mobileSemStep2').classList.add('hidden');
+    }
 
+    function refreshMobileSeminarsList() {
+      const pendingList = document.getElementById('mobilePendingInvitationsList');
+      const attendingList = document.getElementById('mobileSemAttendingList');
+      pendingList.innerHTML = '<div class="text-xs text-slate-500 text-center py-3">Loading...</div>';
+      attendingList.innerHTML = '<div class="text-xs text-slate-500 text-center py-3">Loading...</div>';
+
+      fetch('/api/lecturer/today-seminars')
+      .then(res => res.json())
+      .then(res => {
+        if (res.status !== 'SUCCESS') { pendingList.innerHTML = '<div class="text-xs text-red-400 py-2">Failed to load.</div>'; return; }
+        todaySeminarsData = res.data;
+
+        // Pending invitations
+        const pending = todaySeminarsData.filter(s => !s.accepted);
+        if (pending.length === 0) {
+          pendingList.innerHTML = '<div class="text-xs text-slate-500 text-center py-3">No pending invitations today.</div>';
+        } else {
+          pendingList.innerHTML = '';
+          pending.forEach(s => {
+            const card = document.createElement('div');
+            card.className = 'bg-slate-900/60 border border-amber-700/30 rounded-xl p-4 space-y-3';
+            card.innerHTML = `
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="font-extrabold text-white text-sm truncate">${s.student_name}</div>
+                  <div class="text-[10px] font-mono text-slate-400">${s.sbte_reg_no || '-'}</div>
+                </div>
+                <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-900/60 text-amber-400 border border-amber-700/40">Pending</span>
+              </div>
+              <div class="bg-slate-950/60 rounded-lg px-3 py-2">
+                <div class="text-[10px] text-slate-500 uppercase tracking-wide">Topic</div>
+                <div class="text-xs text-white font-semibold mt-0.5 leading-snug">${s.topic || '-'}</div>
+              </div>
+              <div class="text-[10px] text-slate-500">Guide: <span class="text-slate-300">${s.guide_name || '-'}</span></div>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="acceptMobileInvitation(${s.id})" class="py-2.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center justify-center gap-1">
+                  <span class="material-symbols-rounded text-sm">how_to_reg</span> Accept
+                </button>
+                <button onclick="openMobSemEvaluation('${s.reg_no}')" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition-premium cursor-pointer flex items-center justify-center gap-1">
+                  <span class="material-symbols-rounded text-sm">rate_review</span> Evaluate
+                </button>
+              </div>
+            `;
+            pendingList.appendChild(card);
+          });
+        }
+
+        // Accepted / Attending
+        const accepted = todaySeminarsData.filter(s => s.accepted);
+        if (accepted.length === 0) {
+          attendingList.innerHTML = '<div class="text-xs text-slate-500 text-center py-3">No accepted seminars yet. Accept an invitation above.</div>';
+        } else {
+          attendingList.innerHTML = '';
+          accepted.forEach(s => {
+            const card = document.createElement('div');
+            card.className = 'bg-slate-900/40 border border-emerald-700/20 rounded-xl p-4 flex items-center justify-between gap-3';
+            card.innerHTML = `
+              <div class="min-w-0">
+                <div class="font-bold text-white text-sm truncate">${s.student_name}</div>
+                <div class="text-xs text-slate-400 mt-0.5 truncate">${s.topic || '-'}</div>
+              </div>
+              <button onclick="openMobSemEvaluation('${s.reg_no}')" class="shrink-0 px-4 py-2 bg-emerald-700/80 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1">
+                <span class="material-symbols-rounded text-sm">edit_note</span> Evaluate
+              </button>
+            `;
+            attendingList.appendChild(card);
+          });
+        }
+      })
+      .catch(() => {
+        pendingList.innerHTML = '<div class="text-xs text-red-400 py-2">Failed to load. Try again.</div>';
+      });
+    }
+
+    function acceptMobileInvitation(seminarRegId) {
+      fetch('/api/lecturer/seminar/accept', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({ seminar_registration_id: seminarRegId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          showMobileSemToast('Invitation accepted! You can now evaluate this student.', 'success');
+          refreshMobileSeminarsList();
+          checkTodaySeminars();
+        } else {
+          showMobileSemToast(data.message || 'Failed to accept.', 'error');
+        }
+      })
+      .catch(() => showMobileSemToast('Network error. Try again.', 'error'));
+    }
+
+    function openMobSemEvaluation(regNo) {
       const seminar = todaySeminarsData.find(s => s.reg_no === regNo);
       if (!seminar) return;
+      mobSemCurrentRegNo = regNo;
 
-      document.getElementById('mobileSemSbteReg').innerText = seminar.sbte_reg_no || '-';
-      document.getElementById('mobileSemTopic').innerText = seminar.topic || '-';
+      // Populate student card
+      document.getElementById('mobSemStudentName').innerText = seminar.student_name || '-';
+      document.getElementById('mobSemSbteRegV2').innerText = seminar.sbte_reg_no || '-';
+      document.getElementById('mobSemTopicV2').innerText = seminar.topic || '-';
 
-      detailsCard.classList.remove('hidden');
-      form.classList.remove('hidden');
+      // Reset form
+      ['mobSemRelevance','mobSemLiterature','mobSemPresentation','mobSemInteraction','mobSemReport','mobSemAttendance']
+        .forEach(id => { document.getElementById(id).value = ''; });
+      // Reset sliders
+      document.querySelectorAll('#mobileSeminarForm input[type=range]').forEach(r => r.value = 0);
+      calcMobSemTotal();
 
+      // Switch to step 2
+      document.getElementById('mobileSemStep1').classList.add('hidden');
+      document.getElementById('mobileSemStep2').classList.remove('hidden');
+
+      // Load existing evaluation
       fetch(`/api/classroom/${seminar.batch_subject_id}/seminar/evaluations`)
-      .then(res => res.json())
+      .then(r => r.json())
       .then(res => {
         if (res.status === 'SUCCESS') {
           const stud = res.data.find(s => s.reg_no === regNo);
           const me = stud ? stud.my_evaluation : null;
-          
-          document.getElementById('mobSemRelevance').value = me ? me.relevance : '';
-          document.getElementById('mobSemLiterature').value = me ? me.literature : '';
-          document.getElementById('mobSemPresentation').value = me ? me.presentation : '';
-          document.getElementById('mobSemInteraction').value = me ? me.interaction : '';
-          document.getElementById('mobSemReport').value = me ? me.report : '';
-          document.getElementById('mobSemAttendance').value = me ? me.attendance : '';
-          
-          calculateMobileSeminarTotal();
+          if (me) {
+            document.getElementById('mobSemRelevance').value = me.relevance;
+            document.getElementById('mobSemLiterature').value = me.literature;
+            document.getElementById('mobSemPresentation').value = me.presentation;
+            document.getElementById('mobSemInteraction').value = me.interaction;
+            document.getElementById('mobSemReport').value = me.report;
+            document.getElementById('mobSemAttendance').value = me.attendance;
+            // Sync sliders
+            const sliders = document.querySelectorAll('#mobileSeminarForm input[type=range]');
+            const vals = [me.relevance, me.literature, me.presentation];
+            sliders.forEach((sl, i) => { if (vals[i] !== undefined) sl.value = vals[i]; });
+            calcMobSemTotal();
+          }
         }
       });
     }
 
-    function calculateMobileSeminarTotal() {
+    function calcMobSemTotal() {
       const relevance = parseFloat(document.getElementById('mobSemRelevance').value) || 0;
       const literature = parseFloat(document.getElementById('mobSemLiterature').value) || 0;
       const presentation = parseFloat(document.getElementById('mobSemPresentation').value) || 0;
       const interaction = parseFloat(document.getElementById('mobSemInteraction').value) || 0;
       const report = parseFloat(document.getElementById('mobSemReport').value) || 0;
       const attendance = parseFloat(document.getElementById('mobSemAttendance').value) || 0;
-
       const total = relevance + literature + presentation + interaction + report + attendance;
-      document.getElementById('mobSemTotalScoreLabel').innerText = `${total.toFixed(2)} / 75`;
+      const pct = total / 75;
+
+      // Update number display
+      const numEl = document.getElementById('mobSemTotalNum');
+      if (numEl) {
+        numEl.innerText = total.toFixed(2);
+        numEl.style.color = total >= 60 ? '#34d399' : total >= 45 ? '#60a5fa' : total >= 30 ? '#fbbf24' : '#f87171';
+      }
+
+      // Update score ring
+      const circle = document.getElementById('mobScoreRingCircle');
+      if (circle) {
+        const circumference = 163.36;
+        circle.style.strokeDashoffset = circumference * (1 - pct);
+        circle.style.stroke = total >= 60 ? '#34d399' : total >= 45 ? '#3b82f6' : total >= 30 ? '#f59e0b' : '#ef4444';
+      }
+      const ringScore = document.getElementById('mobSemRingScore');
+      if (ringScore) ringScore.innerText = total.toFixed(0);
+
+      // Compat: old label
+      const oldLabel = document.getElementById('mobSemTotalScoreLabel');
+      if (oldLabel) oldLabel.innerText = `${total.toFixed(2)} / 75`;
     }
+
+    // Keep old name as alias for compat
+    function calculateMobileSeminarTotal() { calcMobSemTotal(); }
 
     function submitMobileSeminarEvaluation(e) {
       e.preventDefault();
-      const regNo = document.getElementById('mobileSemStudentSelect').value;
+      const regNo = mobSemCurrentRegNo;
+      if (!regNo) return;
       const seminar = todaySeminarsData.find(s => s.reg_no === regNo);
       if (!seminar) return;
 
@@ -4859,37 +5263,37 @@
       const report = parseFloat(document.getElementById('mobSemReport').value) || 0;
       const attendance = parseFloat(document.getElementById('mobSemAttendance').value) || 0;
 
+      const btn = document.getElementById('mobSemSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-rounded text-base animate-spin">sync</span> Saving...';
+
       fetch(`/api/classroom/${seminar.batch_subject_id}/seminar/evaluate`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({
-          reg_no: regNo,
-          relevance: relevance,
-          literature: literature,
-          presentation: presentation,
-          interaction: interaction,
-          report: report,
-          attendance: attendance
-        })
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({ reg_no: regNo, relevance, literature, presentation, interaction, report, attendance })
       })
       .then(res => res.json())
       .then(res => {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Save';
         if (res.status === 'SUCCESS') {
-          alert('Seminar evaluation saved successfully!');
-          switchPanel('dashboard');
+          showMobileSemToast(`Evaluation saved! Avg score: ${res.average_score} / 75`, 'success');
+          setTimeout(() => backToSeminarList(), 1500);
         } else {
-          alert(res.message);
+          showMobileSemToast(res.message || 'Failed to save.', 'error');
         }
       })
-      .catch(err => {
-        console.error(err);
-        alert('Failed to save seminar evaluation.');
+      .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Save';
+        showMobileSemToast('Network error. Please try again.', 'error');
       });
     }
-</script>
+
+    // Legacy: keep old handler names as aliases for compat with any inline onclick
+    function handleMobileSemStudentChange() {}
+    function refreshMobileSeminarsList_old() { refreshMobileSeminarsList(); }
+  </script>
 
 </body>
 </html>

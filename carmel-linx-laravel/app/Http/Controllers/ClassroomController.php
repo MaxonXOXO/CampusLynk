@@ -1752,6 +1752,7 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
                 'topic' => $semReg ? $semReg->topic : null,
                 'presentation_date' => $semReg ? date('d-m-Y', strtotime($semReg->presentation_date)) : null,
                 'guide_name' => $semReg && $semReg->guide ? $semReg->guide->name : null,
+                'guide_mobile_no' => $semReg ? $semReg->guide_mobile_no : null,
                 'my_evaluation' => $myEval ? [
                     'relevance' => (float)$myEval->relevance,
                     'literature' => (float)$myEval->literature,
@@ -1782,6 +1783,8 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
 
         $batchSubject = \App\Models\BatchSubject::find($subjectId);
         if (!$batchSubject) return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
+
+        $regNo = $request->input('reg_no');
 
         // Criteria scaled to 75 total: Relevance (7.5), Literature (7.5), Presentation (37.5), Interaction (7.5), Report (7.5), Attendance (7.5)
         $request->validate([
@@ -1871,7 +1874,7 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
 
         $subjectId = $request->input('batch_subject_id');
         
-        \App\Models\StudentSeminarRegistration::updateOrCreate(
+        $semReg = \App\Models\StudentSeminarRegistration::updateOrCreate(
             [
                 'batch_subject_id' => $subjectId,
                 'reg_no' => $regNo
@@ -1882,6 +1885,26 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
                 'guide_mobile_no' => $request->input('guide_mobile_no')
             ]
         );
+
+        // Send invitation to all staff in the student's department/branch
+        $student = \App\Models\Student::where('reg_no', $regNo)->first();
+        if ($student) {
+            $staffList = \App\Models\StaffProfile::where('branch', $student->branch)
+                ->whereIn('designation', ['HOD', 'Lecturer', 'Demonstrator'])
+                ->get();
+
+            foreach ($staffList as $staff) {
+                \App\Models\SeminarAcceptance::updateOrCreate(
+                    [
+                        'seminar_registration_id' => $semReg->id,
+                        'staff_mobile_no' => $staff->mobile_no
+                    ],
+                    [
+                        'status' => ($staff->mobile_no === $semReg->guide_mobile_no) ? 'accepted' : 'pending'
+                    ]
+                );
+            }
+        }
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Seminar details registered successfully.']);
     }
@@ -1913,7 +1936,6 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
         if (!$batchSubject) return response("Subject not found.", 404);
 
         $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
-            ->where('semester', $batchSubject->semester)
             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
 
         $allEvaluations = \App\Models\SeminarEvaluation::where('batch_subject_id', $subjectId)->get();
@@ -1954,8 +1976,11 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
             'CE' => 'Civil Engineering',
             'ME' => 'Mechanical Engineering',
             'EE' => 'Electrical & Electronics Engineering',
+            'EEE' => 'Electrical & Electronics Engineering',
             'CH' => 'Chemical Engineering',
             'CS' => 'Computer Engineering',
+            'CT' => 'Computer Engineering',
+            'AU' => 'Automobile Engineering',
         ];
         
         $branchKey = strtoupper(explode('_', $batchSubject->classroom_id)[0] ?? '');
@@ -1992,17 +2017,23 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
             ->whereHas('student', function($q) use ($branch) {
                 $q->where('branch', $branch);
             })
-            ->with(['student', 'batchSubject'])
+            ->with(['student', 'batchSubject', 'guide', 'acceptances'])
             ->get();
 
-        $data = $seminars->map(function ($s) {
+        $data = $seminars->map(function ($s) use ($userId) {
+            $acceptance = $s->acceptances->where('staff_mobile_no', $userId)->first();
+            $isAccepted = $acceptance && $acceptance->status === 'accepted';
             return [
+                'id' => $s->id,
                 'batch_subject_id' => $s->batch_subject_id,
+                'classroom_id' => $s->batchSubject ? $s->batchSubject->classroom_id : null,
                 'reg_no' => $s->reg_no,
                 'student_name' => $s->student ? $s->student->name : 'Unknown',
                 'sbte_reg_no' => $s->student ? $s->student->sbte_reg_no : '-',
                 'topic' => $s->topic,
-                'subject_name' => $s->batchSubject ? $s->batchSubject->subject_name : 'Seminar'
+                'subject_name' => $s->batchSubject ? $s->batchSubject->subject_name : 'Seminar',
+                'guide_name' => $s->guide ? $s->guide->name : '-',
+                'accepted' => $isAccepted
             ];
         });
 
@@ -2010,5 +2041,35 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
             'status' => 'SUCCESS',
             'data' => $data
         ]);
+    }
+
+    /**
+     * Accept a seminar invitation by a staff member
+     */
+    public function acceptSeminarInvitation(Request $request)
+    {
+        $userId = Session::get('userId');
+        $role = Session::get('userRole');
+        if (!$userId || !in_array($role, ['HOD', 'Lecturer', 'Demonstrator'])) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. Only staff members can accept seminar invitations.']);
+        }
+
+        $request->validate([
+            'seminar_registration_id' => 'required|integer'
+        ]);
+
+        $seminarRegId = $request->input('seminar_registration_id');
+
+        \App\Models\SeminarAcceptance::updateOrCreate(
+            [
+                'seminar_registration_id' => $seminarRegId,
+                'staff_mobile_no' => $userId
+            ],
+            [
+                'status' => 'accepted'
+            ]
+        );
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Invitation accepted successfully.']);
     }
 }
