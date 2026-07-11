@@ -522,31 +522,56 @@
       #seminarEvaluationModal input[type="range"] {
         height: 14px !important;
       }
-      #seminarEvaluationModal .grid-cols-3 {
-        grid-template-columns: 1fr !important;
-        gap: 0.75rem !important;
+
+      /* Arrange Interaction, Report, Attendance in a row to save space and show titles */
+      #seminarEvaluationModal .grid-cols-3,
+      #mobileSeminarForm .grid-cols-3 {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.5rem !important;
       }
-      #seminarEvaluationModal .grid-cols-3 > div {
+      
+      #seminarEvaluationModal .grid-cols-3 > div,
+      #mobileSeminarForm .grid-cols-3 > div {
         display: flex !important;
-        flex-direction: row !important;
+        flex-direction: column !important;
         align-items: center !important;
-        justify-content: space-between !important;
-        text-align: left !important;
-        padding: 0.85rem !important;
+        justify-content: center !important;
+        padding: 0.5rem !important;
+        border-radius: 0.75rem !important;
+        text-align: center !important;
         space-y: 0 !important;
       }
-      #seminarEvaluationModal .grid-cols-3 > div label {
+      
+      #seminarEvaluationModal .grid-cols-3 > div label,
+      #mobileSeminarForm .grid-cols-3 > div label,
+      #mobileSeminarForm .grid-cols-3 > div .text-xs,
+      #mobileSeminarForm .grid-cols-3 > div .text-purple-300,
+      #mobileSeminarForm .grid-cols-3 > div .text-teal-300,
+      #mobileSeminarForm .grid-cols-3 > div .text-emerald-300 {
+        font-size: 11px !important;
+        font-weight: bold !important;
+        margin: 0 0 0.25rem 0 !important;
+        text-align: center !important;
+        display: block !important;
+        white-space: nowrap !important;
+        color: #94a3b8 !important;
+      }
+
+      #seminarEvaluationModal .grid-cols-3 > div input,
+      #mobileSeminarForm .grid-cols-3 > div input {
+        width: 100% !important;
+        font-size: 15px !important;
+        min-height: 38px !important;
         margin: 0 !important;
-        font-size: 14px !important;
+        text-align: center !important;
+        padding: 0.25rem !important;
       }
-      #seminarEvaluationModal .grid-cols-3 > div input {
-        width: 5rem !important;
-        margin: 0 0 0 auto !important;
-        font-size: 16px !important;
-        min-height: 44px !important;
-      }
-      #seminarEvaluationModal .grid-cols-3 > div .text-[9px] {
-        display: none !important;
+      
+      #seminarEvaluationModal .grid-cols-3 > div .text-[9px],
+      #mobileSeminarForm .grid-cols-3 > div .text-xs:not(.font-black):not(.text-purple-300):not(.text-teal-300):not(.text-emerald-300),
+      #mobileSeminarForm .grid-cols-3 > div .text-xs:not(.font-bold) {
+        display: none !important; /* Hide subtexts/limits to keep row clean */
       }
 
       /* Mobile Seminar Room Panel (#panelMobileSeminar) enhancements */
@@ -583,31 +608,64 @@
         padding: 0.6rem !important;
         min-height: 44px !important;
       }
-      #mobileSeminarForm .grid-cols-3 {
-        grid-template-columns: 1fr !important;
-        gap: 0.75rem !important;
-      }
-      #mobileSeminarForm .grid-cols-3 > div {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-        text-align: left !important;
-        padding: 0.85rem !important;
-        space-y: 0 !important;
-      }
-      #mobileSeminarForm .grid-cols-3 > div label {
+
+      /* Convert sidebar logout link to an icon-only button on mobile view */
+      aside > div.border-t {
+        border-top: none !important;
+        padding: 0 !important;
         margin: 0 !important;
-        font-size: 14px !important;
+        display: block !important;
+        width: auto !important;
+        position: absolute !important;
+        right: 1rem !important;
+        top: 0.85rem !important;
       }
-      #mobileSeminarForm .grid-cols-3 > div input {
-        width: 5rem !important;
-        margin: 0 0 0 auto !important;
+      aside > div.border-t a {
+        padding: 0.5rem !important;
+        border-radius: 0.5rem !important;
+        font-size: 0 !important; /* Hide "Sign Out" text node */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background-color: rgba(239, 68, 68, 0.18) !important;
+        color: #f87171 !important;
+        border: 1px solid rgba(239, 68, 68, 0.4) !important;
+      }
+      aside > div.border-t a span {
         font-size: 16px !important;
-        min-height: 44px !important;
+        margin: 0 !important;
       }
-      #mobileSeminarForm .grid-cols-3 > div .text-xs {
-        display: none !important;
+
+      /* Convert horizontal nav links into styled app-buttons on mobile view */
+      aside nav a, aside nav button {
+        background-color: rgba(30, 41, 59, 0.8) !important;
+        border: 1px solid rgba(51, 65, 85, 0.8) !important;
+        padding: 0.55rem 0.75rem !important;
+        border-radius: 0.65rem !important;
+        font-size: 13px !important;
+        font-weight: bold !important;
+        color: #f1f5f9 !important;
+        flex-grow: 1 !important;
+        justify-content: center !important;
+        text-align: center !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.35rem !important;
+        white-space: nowrap !important;
+        width: auto !important;
+        border-left: none !important;
+      }
+
+      /* Clean dashboard title bar on mobile */
+      header h1#panelTitle {
+        font-size: 18px !important;
+      }
+      header button {
+        padding: 0.35rem 0.5rem !important;
+      }
+      header button span {
+        font-size: 14px !important;
       }
 
       /* Assessment Mark Entry Fields Font Enlargement & App-like Layout */
@@ -5431,6 +5489,7 @@
       const seminar = todaySeminarsData.find(s => s.reg_no === regNo);
       if (!seminar) return;
       mobSemCurrentRegNo = regNo;
+      currentSubjectId = seminar.batch_subject_id;
 
       // Populate student card
       document.getElementById('mobSemStudentName').innerText = seminar.student_name || '-';
@@ -5538,7 +5597,11 @@
           showMobileSemToast(`Evaluation saved! Avg score: ${res.average_score} / 75`, 'success');
           // Silently refresh the desktop seminar table so marks appear without page reload
           if (typeof fetchSeminarEvaluations === 'function') {
-            fetchSeminarEvaluations();
+            try {
+              fetchSeminarEvaluations();
+            } catch (err) {
+              console.warn("Silent background table refresh failed:", err);
+            }
           }
           setTimeout(() => backToSeminarList(), 1500);
         } else {
