@@ -564,7 +564,7 @@
         </div>
         
         <div id="lecturerBatchGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div class="col-span-full py-12 text-center text-slate-500 font-bold text-[10px] animate-pulse">Loading batches...</div>
+          <div class="col-span-full py-12 text-center text-slate-500 font-bold text-sm animate-pulse">Loading batches...</div>
         </div>
       </div>
 
@@ -577,17 +577,17 @@
                 <span class="material-symbols-rounded text-lg text-blue-500 group-hover:text-blue-400">arrow_back</span> Back to Console
               </a>
             @else
-              <button onclick="switchPanel('dashboard')" class="text-[10px] font-bold text-slate-400 hover:text-white uppercase tracking-wider flex items-center gap-1 transition-premium mb-1 cursor-pointer">
-                <span class="material-symbols-rounded text-[10px]">arrow_back</span> Back to Dashboard
+              <button onclick="switchPanel('dashboard')" class="text-sm font-bold text-slate-300 hover:text-white uppercase tracking-wider flex items-center gap-1.5 transition-premium mb-1 cursor-pointer">
+                <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Dashboard
               </button>
             @endif
-            <h3 id="vcTitle" class="text-[10px] font-black text-slate-200 flex items-center gap-2 mt-1">
-              <span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> Virtual Classroom
+            <h3 id="vcTitle" class="text-base font-black text-slate-200 flex items-center gap-2 mt-1">
+              <span class="material-symbols-rounded text-blue-400 text-lg">meeting_room</span> Virtual Classroom
             </h3>
-            <p id="vcSubtitle" class="text-[10px] text-slate-400 mt-0.5 font-mono">Loading...</p>
+            <p id="vcSubtitle" class="text-sm text-slate-400 mt-0.5 font-mono">Loading...</p>
           </div>
-          <button id="vcViewStudentsBtn" onclick="showVcStudentsList()" class="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl text-[10px] font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-md border border-slate-700/60">
-            <span class="material-symbols-rounded text-[10px]">groups</span> View Students
+          <button id="vcViewStudentsBtn" onclick="showVcStudentsList()" class="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-md border border-slate-700/60">
+            <span class="material-symbols-rounded text-sm">groups</span> View Students
           </button>
         </div>
 
@@ -599,14 +599,14 @@
                   <div id="syllabusUploadBox" class="border border-dashed border-slate-700/60 rounded-xl px-4 py-2 text-center hover:border-blue-500/50 hover:bg-slate-900/40 transition-premium cursor-pointer relative z-10 flex items-center gap-3" onclick="document.getElementById('syllabusFileInput').click()">
                     <span class="material-symbols-rounded text-base text-slate-500">picture_as_pdf</span>
                     <div class="text-left">
-                      <p class="text-[10px] font-bold text-slate-300">Upload Syllabus PDF</p>
-                      <p class="text-[10px] text-slate-500">Max 10MB</p>
+                      <p class="text-sm font-bold text-slate-300">Upload Syllabus PDF</p>
+                      <p class="text-xs text-slate-500">Max 10MB</p>
                     </div>
                     <input type="file" id="syllabusFileInput" class="hidden" accept="application/pdf" onchange="handleSyllabusUpload(this)">
                   </div>
                   
                   <div id="syllabusUploadProgress" class="hidden relative z-10 flex-col justify-center min-w-[200px]">
-                    <div class="flex justify-between text-[10px] font-bold text-blue-400 mb-1">
+                    <div class="flex justify-between text-xs font-bold text-blue-400 mb-1">
                       <span>Extracting...</span>
                       <span id="syllabusProgressText" class="animate-pulse">Processing</span>
                     </div>
@@ -615,7 +615,7 @@
                     </div>
                   </div>
                 </div>
-                <span id="parseStatusBadge" class="text-[10px] font-bold px-3 py-1.5 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/50 whitespace-nowrap">Waiting for upload</span>
+                 <span id="parseStatusBadge" class="text-xs font-bold px-3 py-1.5 rounded-md bg-slate-800/80 text-slate-300 border border-slate-700/50 whitespace-nowrap">Waiting for upload</span>
              </div>
 
              <!-- Download Active Syllabus Card -->
@@ -624,11 +624,11 @@
                   <span class="material-symbols-rounded text-emerald-400 text-xs block">check_circle</span>
                 </div>
                 <div class="flex-grow">
-                  <h4 class="text-[10px] font-black text-slate-200">Active Syllabus</h4>
-                  <p class="text-[10px] text-slate-400">Parsed & ready</p>
+                  <h4 class="text-sm font-black text-slate-200">Active Syllabus</h4>
+                   <p class="text-xs text-slate-400">Parsed &amp; ready</p>
                 </div>
                 <a id="downloadSyllabusBtn" href="#" target="_blank" class="text-slate-400 hover:text-blue-400 transition-premium bg-slate-900/50 p-1.5 rounded-lg border border-slate-800 hover:border-blue-500/50">
-                  <span class="material-symbols-rounded text-[10px] block">download</span>
+                   <span class="material-symbols-rounded text-sm block">download</span>
                 </a>
              </div>
         </div>
@@ -671,8 +671,8 @@
                 <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
                   <span class="material-symbols-rounded text-xl text-slate-600">inventory_2</span>
                 </div>
-                <p class="text-[10px] font-bold text-slate-400">No syllabus loaded.</p>
-                <p class="text-[10px] mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus PDF to automatically populate Course Outcomes, Modules, and Textbooks.</p>
+                <p class="text-sm font-bold text-slate-300">No syllabus loaded.</p>
+                <p class="text-sm mt-1.5 max-w-xs text-slate-400 leading-relaxed">Upload a syllabus PDF to automatically populate Course Outcomes, Modules, and Textbooks.</p>
               </div>
             </div>
             
@@ -681,8 +681,8 @@
                 <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
                   <span class="material-symbols-rounded text-xl text-slate-600">event_note</span>
                 </div>
-                <p class="text-[10px] font-bold text-slate-400">Planner not generated.</p>
-                <p class="text-[10px] mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to automatically generate the lesson plan.</p>
+                <p class="text-sm font-bold text-slate-300">Planner not generated.</p>
+                <p class="text-sm mt-1.5 max-w-xs text-slate-400 leading-relaxed">Upload a syllabus to automatically generate the lesson plan.</p>
               </div>
             </div>
 
@@ -691,8 +691,8 @@
                 <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
                   <span class="material-symbols-rounded text-xl text-slate-600">quiz</span>
                 </div>
-                <p class="text-[10px] font-bold text-slate-400">No students or COs available.</p>
-                <p class="text-[10px] mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to activate formative assessment tasks.</p>
+                <p class="text-sm font-bold text-slate-300">No students or COs available.</p>
+                <p class="text-sm mt-1.5 max-w-xs text-slate-400 leading-relaxed">Upload a syllabus to activate formative assessment tasks.</p>
               </div>
             </div>
 
@@ -701,7 +701,7 @@
                 <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
                   <span class="material-symbols-rounded text-xl text-slate-600">school</span>
                 </div>
-                <p class="text-[10px] font-bold text-slate-400">Loading summative assessments...</p>
+                <p class="text-sm font-bold text-slate-300">Loading summative assessments...</p>
               </div>
             </div>
 
@@ -804,7 +804,7 @@
                 <div class="overflow-x-auto">
                   <table class="w-full text-left border-collapse">
                     <thead>
-                      <tr class="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[11px] bg-slate-900/60">
+                      <tr class="border-b border-slate-800 text-slate-300 font-bold uppercase tracking-wider text-xs bg-slate-900/60">
                         <th class="p-3">Roll No</th>
                         <th class="p-3">Student Name</th>
                         <th class="p-3">Topic</th>
@@ -823,7 +823,7 @@
                     </thead>
                     <tbody id="seminarEvaluationsTableBody" class="divide-y divide-slate-800/50">
                       <tr>
-                        <td colspan="14" class="p-8 text-center text-slate-500 font-bold text-xs">Loading evaluations...</td>
+                        <td colspan="14" class="p-8 text-center text-slate-400 font-bold text-sm">Loading evaluations...</td>
                       </tr>
                     </tbody>
                   </table>
@@ -1175,7 +1175,7 @@
         'dashboard': 'My Batches',
         'security': 'My Profile Security Log',
         'classroom': 'Virtual Classroom',
-        'mobileSeminar': 'Mobile Seminar Evaluation'
+        'mobileSeminar': 'Seminar Evaluation'
       };
       document.getElementById('panelTitle').innerText = titles[panelId] || 'Lecturer Console';
 
