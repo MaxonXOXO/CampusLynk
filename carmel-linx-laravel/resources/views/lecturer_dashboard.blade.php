@@ -779,8 +779,9 @@
       #lecturerBatchGrid h5 {
         font-size: 14px !important; /* "Assigned Subjects" title */
       }
+      #lecturerBatchGrid .text-base,
       #lecturerBatchGrid .text-sm {
-        font-size: 15px !important; /* Assigned subject name */
+        font-size: 17px !important; /* Assigned subject name */
       }
       #lecturerBatchGrid .text-xs {
         font-size: 13px !important; /* Semester details, student count */
