@@ -606,11 +606,11 @@
       #mobSemTotalDisplay,
       #mobSemTotalNum,
       #semTotalScoreLabel {
-        font-size: 2rem !important;
+        font-size: 2.75rem !important;
         font-weight: 900 !important;
       }
       #mobSemTotalDisplay span.text-xl {
-        font-size: 1.25rem !important;
+        font-size: 2.75rem !important;
       }
       
       /* Evaluate details slider & input adjustments in Mobile Seminar Room */
