@@ -745,6 +745,36 @@
         margin: 0 0 0 auto !important;
         text-align: center !important;
       }
+
+      /* Enlarge Seminar Day notification card texts in mobile view */
+      #mobileSeminarNotificationsContainer h5,
+      #seminarNotificationsContainer h5 {
+        font-size: 15px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 13px !important;
+      }
+
+      /* Enlarge lecturer batch cards text sizes in mobile view */
+      #lecturerBatchGrid h4 {
+        font-size: 19px !important; /* "Admission 2026" main title */
+      }
+      #lecturerBatchGrid h5 {
+        font-size: 14px !important; /* "Assigned Subjects" title */
+      }
+      #lecturerBatchGrid .text-sm {
+        font-size: 15px !important; /* Assigned subject name */
+      }
+      #lecturerBatchGrid .text-xs {
+        font-size: 13px !important; /* Semester details, student count */
+      }
+      #lecturerBatchGrid span.font-mono {
+        font-size: 14px !important; /* Batch code badge */
+      }
+      #lecturerBatchGrid span.text-[11px] {
+        font-size: 12px !important; /* Roles, engaged hours text */
+      }
     }
   </style>
 </head>
