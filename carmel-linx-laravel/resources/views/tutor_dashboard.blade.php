@@ -61,12 +61,128 @@
     .transition-premium {
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .scrollbar-hidden::-webkit-scrollbar {
-      display: none;
-    }
     .scrollbar-hidden {
       -ms-overflow-style: none;
       scrollbar-width: none;
+    }
+
+    /* MOBILE-SPECIFIC SIDEBAR & CARD FIXES (MD breakpoint is 768px) */
+    @media (max-width: 767px) {
+      html, body {
+        font-size: 15px !important;
+      }
+      p, span, a, button, input, select, textarea, td, th {
+        font-size: 14px !important;
+      }
+      h1, .text-2xl {
+        font-size: 20px !important;
+      }
+      h2, .text-xl {
+        font-size: 18px !important;
+      }
+      h3, .text-lg {
+        font-size: 16px !important;
+      }
+
+      /* Sidebar changes: multi-row horizontal block on mobile */
+      aside {
+        width: 100% !important;
+        position: relative !important;
+        border-right: none !important;
+        border-bottom: 1px solid #1e293b !important;
+        flex-direction: column !important; /* Stack rows vertically */
+        align-items: stretch !important;
+        padding: 0.75rem 1rem 0.5rem !important;
+        gap: 0.75rem !important;
+      }
+      
+      /* Make sidebar brand logo header container visible inline on Row 1 */
+      aside > div.border-b {
+        display: flex !important;
+        border-bottom: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+      }
+
+      aside > div.border-b img {
+        width: 2.25rem !important;
+        height: 2.25rem !important;
+      }
+
+      aside > div.border-b h2 {
+        font-size: 18px !important;
+        font-weight: 900 !important;
+      }
+
+      aside > div.border-b span {
+        display: none !important; /* Hide subtitle to keep Row 1 clean */
+      }
+      
+      /* Make logout block sit inline on Row 1 (far right) with extra top offset spacing */
+      aside > div.border-t {
+        border-top: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        display: block !important;
+        width: auto !important;
+        position: absolute !important;
+        right: 1rem !important;
+        top: 0.85rem !important;
+      }
+      
+      aside > div.border-t a {
+        padding: 0.4rem 0.65rem !important;
+        border-radius: 0.5rem !important;
+        font-size: 13px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.25rem !important;
+        white-space: nowrap !important;
+        background-color: rgba(239, 68, 68, 0.18) !important;
+        color: #f87171 !important;
+        border: 1px solid rgba(239, 68, 68, 0.4) !important;
+      }
+
+      /* Convert vertical nav list to an inline horizontal row on Row 2 with a dark gradient */
+      aside nav {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+        padding: 0.4rem 0.5rem !important;
+        margin: 0 !important;
+        justify-content: space-between !important;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
+        border: 1px solid rgba(51, 65, 85, 0.4) !important;
+        border-radius: 0.75rem !important;
+      }
+      
+      /* Reset standard padding on links/buttons for inline fit */
+      aside nav a, aside nav button {
+        padding: 0.4rem 0.65rem !important;
+        margin: 0 !important;
+        border-radius: 0.5rem !important;
+        font-size: 13px !important; /* compact font to fit */
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.25rem !important;
+        white-space: nowrap !important;
+        width: auto !important;
+        border-left: none !important; /* Remove custom vertical border indicators */
+      }
+      
+      /* Hide all links in mobile navigation except those explicitly marked as mobile-link */
+      aside nav > :not(.mobile-link) {
+        display: none !important;
+      }
+      
+      /* Active profile avatar banner is too large on mobile - hide */
+      #sidebarAvatarContainer, aside > div:nth-child(2) {
+        display: none !important;
+      }
     }
   </style>
 </head>
@@ -85,7 +201,7 @@
     </div>
 
     <!-- Active Profile Info -->
-    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3">
+    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3" id="sidebarAvatarContainer">
       <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
       <div class="overflow-hidden">
         <span class="font-bold block truncate text-slate-200 text-[10px] text-xs">{{ session('userName') }}</span>
@@ -95,14 +211,14 @@
 
     <!-- Navigation Menus -->
     <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navRoster" onclick="switchPanel('roster')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500   text-sm">
+      <button id="navRoster" onclick="switchPanel('roster')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500   text-sm mobile-link">
         <span class="material-symbols-rounded text-lg">group</span> Supervised Class Roster
       </button>
       <button id="navRollNumbers" onclick="switchPanel('rollNumbers')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">format_list_numbered</span> Student Roll Numbers
       </button>
 
-      <button id="navMentoring" onclick="switchPanel('mentoring')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+      <button id="navMentoring" onclick="switchPanel('mentoring')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm mobile-link">
         <span class="material-symbols-rounded text-lg">diversity_3</span> Mentoring Batches
       </button>
       <button id="navLeaveApproval" onclick="switchPanel('leaveApproval')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
@@ -112,7 +228,7 @@
         <span class="material-symbols-rounded text-lg">verified</span> Activity Points
       </button>
 
-      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline block text-sm">
+      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline block text-sm mobile-link">
          <span class="material-symbols-rounded text-lg">co_present</span> Log & Attendance
       </a>
 
@@ -126,7 +242,7 @@
         if ($role === 'Gen_Dept_Coordinator_Aided') $backLink = '/dashboard/general-coordinator-aided';
         if ($role === 'Gen_Dept_Coordinator_Self_Finance') $backLink = '/dashboard/general-coordinator-sf';
       @endphp
-      <a href="{{ $backLink }}" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block mt-4 border border-sky-900/50 text-sm">
+      <a href="{{ $backLink }}" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block mt-4 border border-sky-900/50 text-sm mobile-link">
         <span class="material-symbols-rounded text-lg">arrow_back</span> Back to Staff Console
       </a>
     </nav>

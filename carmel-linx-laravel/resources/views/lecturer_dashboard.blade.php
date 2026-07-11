@@ -1186,90 +1186,114 @@
 
             <!-- Lab Evaluation Workspace (Revision 2021) -->
             <div id="labEvaluationContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
-              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/60 pb-4">
-                <div>
-                  <h4 class="text-sm font-black text-slate-200">Practical/Lab Evaluation Register</h4>
-                  <p class="text-sm text-slate-400 mt-1">Grade day-to-day experiments (37.5), model tests (15), micro-projects (7.5), and board exam marks (50).</p>
+              <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 border-b border-slate-800/80 pb-5">
+                <div class="max-w-xl shrink-0">
+                  <h4 class="text-base font-black text-white tracking-wide">Practical / Lab Evaluation Register</h4>
+                  <p class="text-sm text-slate-400 mt-1.5 leading-relaxed">Grade day-to-day experiments (37.5), model tests (15),<br>micro-projects (7.5), and board exam marks (50).</p>
                 </div>
-                <div class="flex items-center gap-2.5 flex-wrap">
-                  <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl">
-                    <span class="text-xs font-bold text-slate-400 uppercase">Batch Filter:</span>
-                    <select id="labBatchFilterSelect" onchange="filterLabGridByBatch()" class="bg-transparent border-0 text-white font-bold text-xs outline-none cursor-pointer">
+                <div class="flex items-center gap-3 w-full lg:w-auto overflow-x-auto whitespace-nowrap pb-1 lg:pb-0 scrollbar-none">
+                  <div class="flex items-center gap-2.5 bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl shadow-sm focus-within:border-blue-500/50 transition-all shrink-0">
+                    <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Batch Filter:</span>
+                    <select id="labBatchFilterSelect" onchange="filterLabGridByBatch()" class="bg-transparent border-0 text-white font-bold text-sm outline-none cursor-pointer">
                       <option value="combined" class="bg-slate-950">Combined (Full Class)</option>
                       <option value="1" class="bg-slate-950">Lab Batch 1 (First 50%)</option>
                       <option value="2" class="bg-slate-950">Lab Batch 2 (Second 50%)</option>
                     </select>
                   </div>
-                  <button onclick="openManageExperimentsModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 text-slate-200 rounded-xl text-xs font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-md">
-                    <span class="material-symbols-rounded text-sm">settings</span> Manage Experiments
+                  <button onclick="openManageExperimentsModal()" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-200 rounded-xl text-sm font-bold transition-premium flex items-center gap-2 cursor-pointer shadow-md shrink-0">
+                    <span class="material-symbols-rounded text-base text-teal-400">settings</span> Manage Experiments
                   </button>
-                  <button onclick="openManageTestsModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 text-slate-200 rounded-xl text-xs font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-md">
-                    <span class="material-symbols-rounded text-sm">assignment_turned_in</span> Configure Tests
+                  <button onclick="openManageTestsModal()" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-200 rounded-xl text-sm font-bold transition-premium flex items-center gap-2 cursor-pointer shadow-md shrink-0">
+                    <span class="material-symbols-rounded text-base text-blue-400">assignment_turned_in</span> Configure Tests
                   </button>
-                  <a id="printLabReportBtn" href="#" target="_blank" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer shadow-md">
-                    <span class="material-symbols-rounded text-sm">print</span> Print Register
+                  <a id="printLabReportBtn" href="#" target="_blank" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-500/15 shrink-0">
+                    <span class="material-symbols-rounded text-base">print</span> Print Register
                   </a>
                 </div>
               </div>
 
               <!-- Lab Statistics Widgets -->
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl">
-                  <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Avg Internal Mark</span>
-                  <div class="text-xl font-bold text-teal-400 mt-1" id="statLabAvgInternal">0.00 / 75</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <!-- Card 1: Avg Internal Mark -->
+                <div class="bg-gradient-to-br from-slate-900/90 to-teal-950/20 border border-teal-500/15 hover:border-teal-500/40 p-5 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col justify-between">
+                  <div class="flex justify-between items-start">
+                    <span class="text-sm font-bold text-teal-400 uppercase tracking-wider">Avg Internal Mark</span>
+                    <span class="material-symbols-rounded text-teal-450 bg-teal-500/10 p-2 rounded-xl text-xl">analytics</span>
+                  </div>
+                  <div class="text-2xl font-black text-slate-100 mt-4 tracking-tight" id="statLabAvgInternal">0.00 / 75</div>
                 </div>
-                <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl">
-                  <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Avg Board Exam Mark</span>
-                  <div class="text-xl font-bold text-blue-400 mt-1" id="statLabAvgBoard">0.00 / 50</div>
+
+                <!-- Card 2: Avg Board Exam Mark -->
+                <div class="bg-gradient-to-br from-slate-900/90 to-blue-950/20 border border-blue-500/15 hover:border-blue-500/40 p-5 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col justify-between">
+                  <div class="flex justify-between items-start">
+                    <span class="text-sm font-bold text-blue-400 uppercase tracking-wider">Avg Board Exam Mark</span>
+                    <span class="material-symbols-rounded text-blue-450 bg-blue-500/10 p-2 rounded-xl text-xl">school</span>
+                  </div>
+                  <div class="text-2xl font-black text-slate-100 mt-4 tracking-tight" id="statLabAvgBoard">0.00 / 50</div>
                 </div>
-                <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl">
-                  <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pass Percentage</span>
-                  <div class="text-xl font-bold text-emerald-400 mt-1" id="statLabPassPercent">0%</div>
+
+                <!-- Card 3: Pass Percentage -->
+                <div class="bg-gradient-to-br from-slate-900/90 to-emerald-950/20 border border-emerald-500/15 hover:border-emerald-500/40 p-5 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col justify-between">
+                  <div class="flex justify-between items-start">
+                    <span class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Pass Percentage</span>
+                    <span class="material-symbols-rounded text-emerald-450 bg-emerald-500/10 p-2 rounded-xl text-xl">trending_up</span>
+                  </div>
+                  <div class="text-2xl font-black text-slate-100 mt-4 tracking-tight" id="statLabPassPercent">0%</div>
                 </div>
-                <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl">
-                  <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Experiments</span>
-                  <div class="text-xl font-bold text-slate-300 mt-1" id="statLabTotalExps">0</div>
+
+                <!-- Card 4: Total Experiments -->
+                <div class="bg-gradient-to-br from-slate-900/90 to-purple-950/20 border border-purple-500/15 hover:border-purple-500/40 p-5 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col justify-between">
+                  <div class="flex justify-between items-start">
+                    <span class="text-sm font-bold text-purple-400 uppercase tracking-wider">Total Experiments</span>
+                    <span class="material-symbols-rounded text-purple-450 bg-purple-500/10 p-2 rounded-xl text-xl">biotech</span>
+                  </div>
+                  <div class="text-2xl font-black text-slate-100 mt-4 tracking-tight" id="statLabTotalExps">0</div>
                 </div>
               </div>
 
               <!-- Practical Sub-Reports Quick Access -->
-              <div id="practicalReportsActions" class="hidden flex-wrap gap-2.5 p-4 bg-slate-950/20 border border-slate-850 rounded-xl items-center">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider mr-2">Practical Reports (A4 Landscape):</span>
-                <a id="pRepBtnRegister" target="_blank" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs font-bold transition-premium no-underline flex items-center gap-1">
-                  <span class="material-symbols-rounded text-xs">grid_on</span> Consolidated Register
-                </a>
-                <a id="pRepBtnAttendance" target="_blank" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs font-bold transition-premium no-underline flex items-center gap-1">
-                  <span class="material-symbols-rounded text-xs">playlist_add_check</span> Attendance Log
-                </a>
-                <a id="pRepBtnExperiments" target="_blank" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs font-bold transition-premium no-underline flex items-center gap-1">
-                  <span class="material-symbols-rounded text-xs">list_alt</span> Experiments List
-                </a>
-                <a id="pRepBtnPlanner" target="_blank" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs font-bold transition-premium no-underline flex items-center gap-1">
-                  <span class="material-symbols-rounded text-xs">calendar_today</span> Lesson Planner
-                </a>
-                <a id="pRepBtnProjects" target="_blank" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 rounded-lg text-xs font-bold transition-premium no-underline flex items-center gap-1">
-                  <span class="material-symbols-rounded text-xs">assignment</span> Open-Ended Projects
-                </a>
+              <div id="practicalReportsActions" class="hidden flex-wrap gap-3.5 p-5 bg-gradient-to-r from-slate-950/45 to-slate-900/20 border border-slate-800/80 rounded-2xl items-center shadow-md">
+                <span class="text-sm font-black text-slate-350 uppercase tracking-wider mr-2 flex items-center gap-2">
+                  <span class="material-symbols-rounded text-base text-blue-400">description</span>
+                  Practical Reports (A4 Landscape):
+                </span>
+                <div class="flex flex-wrap gap-2.5">
+                  <a id="pRepBtnRegister" target="_blank" class="px-4 py-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
+                    <span class="material-symbols-rounded text-sm text-teal-400">grid_on</span> Consolidated Register
+                  </a>
+                  <a id="pRepBtnAttendance" target="_blank" class="px-4 py-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
+                    <span class="material-symbols-rounded text-sm text-emerald-400">playlist_add_check</span> Attendance Log
+                  </a>
+                  <a id="pRepBtnExperiments" target="_blank" class="px-4 py-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
+                    <span class="material-symbols-rounded text-sm text-amber-400">list_alt</span> Experiments List
+                  </a>
+                  <a id="pRepBtnPlanner" target="_blank" class="px-4 py-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
+                    <span class="material-symbols-rounded text-sm text-purple-400">calendar_today</span> Lesson Planner
+                  </a>
+                  <a id="pRepBtnProjects" target="_blank" class="px-4 py-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
+                    <span class="material-symbols-rounded text-sm text-rose-400">assignment</span> Open-Ended Projects
+                  </a>
+                </div>
               </div>
 
               <!-- Lab Evaluation Student Grid -->
-              <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner">
+              <div class="bg-slate-950/50 border border-slate-800/60 rounded-2xl overflow-hidden shadow-xl">
                 <div class="overflow-x-auto">
-                  <table class="w-full text-left border-collapse min-w-[1000px]">
+                  <table class="w-full text-left border-collapse min-w-[1100px]">
                     <thead>
-                      <tr class="border-b border-slate-800 text-slate-300 font-bold uppercase tracking-wider text-sm bg-slate-900/60">
-                        <th class="p-3 w-16">Roll No</th>
-                        <th class="p-3">Student Name</th>
-                        <th class="p-3 text-center">Graded Exps</th>
-                        <th class="p-3 text-center">Exp Avg (37.5)</th>
-                        <th class="p-3 text-center">Test 1 (15)</th>
-                        <th class="p-3 text-center">Test 2 (15)</th>
-                        <th class="p-3 text-center">Test Avg (15)</th>
-                        <th class="p-3 text-center">Project (7.5)</th>
-                        <th class="p-3 text-center">Attendance (15)</th>
-                        <th class="p-3 text-center text-teal-400">Total CA (75)</th>
-                        <th class="p-3 text-center text-blue-400">Board Exam (50)</th>
-                        <th class="p-3 text-center">Action</th>
+                      <tr class="border-b border-slate-800/80 text-slate-350 font-bold uppercase tracking-wider text-sm bg-slate-900/80">
+                        <th class="p-4 w-20 text-center">Roll No</th>
+                        <th class="p-4">Student Name</th>
+                        <th class="p-4 text-center">Graded Exps</th>
+                        <th class="p-4 text-center">Exp Avg (37.5)</th>
+                        <th class="p-4 text-center">Test 1 (15)</th>
+                        <th class="p-4 text-center">Test 2 (15)</th>
+                        <th class="p-4 text-center">Test Avg (15)</th>
+                        <th class="p-4 text-center">Project (7.5)</th>
+                        <th class="p-4 text-center">Attendance (15)</th>
+                        <th class="p-4 text-center text-teal-400 bg-teal-500/5">Total CA (75)</th>
+                        <th class="p-4 text-center text-blue-400 bg-blue-500/5">Board Exam (50)</th>
+                        <th class="p-4 text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody id="labEvaluationsTableBody" class="divide-y divide-slate-800/50">
