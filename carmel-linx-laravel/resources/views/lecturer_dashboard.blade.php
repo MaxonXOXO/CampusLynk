@@ -601,6 +601,15 @@
       #panelMobileSeminar .text-[11px] {
         font-size: 13px !important;
       }
+
+      /* Enforce large font sizes for total score display on mobile */
+      #mobSemTotalDisplay,
+      #mobSemTotalNum {
+        font-size: 2.25rem !important;
+      }
+      #mobSemTotalDisplay span.text-xl {
+        font-size: 1.25rem !important;
+      }
       
       /* Evaluate details slider & input adjustments in Mobile Seminar Room */
       #mobileSeminarForm input[type="number"] {
@@ -5237,7 +5246,7 @@
       const attendance = parseFloat(document.getElementById('semAttendance').value) || 0;
 
       const total = relevance + literature + presentation + interaction + report + attendance;
-      document.getElementById('semTotalScoreLabel').innerText = `${total.toFixed(2)} / 75`;
+      document.getElementById('semTotalScoreLabel').innerText = `${total.toFixed(0)} / 75`;
     }
 
     function submitSeminarEvaluation(e) {
@@ -5567,7 +5576,7 @@
       // Update number display
       const numEl = document.getElementById('mobSemTotalNum');
       if (numEl) {
-        numEl.innerText = total.toFixed(2);
+        numEl.innerText = total.toFixed(0);
         numEl.style.color = total >= 60 ? '#34d399' : total >= 45 ? '#60a5fa' : total >= 30 ? '#fbbf24' : '#f87171';
       }
 
@@ -5583,7 +5592,7 @@
 
       // Compat: old label
       const oldLabel = document.getElementById('mobSemTotalScoreLabel');
-      if (oldLabel) oldLabel.innerText = `${total.toFixed(2)} / 75`;
+      if (oldLabel) oldLabel.innerText = `${total.toFixed(0)} / 75`;
     }
 
     // Keep old name as alias for compat
