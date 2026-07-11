@@ -335,6 +335,22 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/classroom/{subjectId}/question-bank/seed-ai', [App\Http\Controllers\ClassroomController::class, 'seedQuestionBankWithAi']);
     Route::post('/api/classroom/{subjectId}/question-bank/upload-json', [App\Http\Controllers\ClassroomController::class, 'uploadQuestionBankJson']);
 
+    // Practical / Lab Evaluation (Revision 2021)
+    Route::get('/api/classroom/{subjectId}/practical/experiments', [App\Http\Controllers\ClassroomController::class, 'getPracticalExperiments']);
+    Route::post('/api/classroom/{subjectId}/practical/experiments/save', [App\Http\Controllers\ClassroomController::class, 'savePracticalExperiment']);
+    Route::delete('/api/classroom/{subjectId}/practical/experiments/{experimentId}', [App\Http\Controllers\ClassroomController::class, 'deletePracticalExperiment']);
+    Route::get('/api/classroom/{subjectId}/practical/evaluations', [App\Http\Controllers\ClassroomController::class, 'getPracticalEvaluations']);
+    Route::post('/api/classroom/{subjectId}/practical/evaluate', [App\Http\Controllers\ClassroomController::class, 'savePracticalEvaluation']);
+    Route::post('/api/classroom/{subjectId}/practical/tests/save', [App\Http\Controllers\ClassroomController::class, 'savePracticalTestConfig']);
+    Route::post('/api/classroom/{subjectId}/practical/tests/evaluate', [App\Http\Controllers\ClassroomController::class, 'savePracticalTestMarks']);
+    Route::get('/classroom/{subjectId}/practical-report', [App\Http\Controllers\ClassroomController::class, 'printPracticalReport']);
+    Route::get('/api/classroom/{subjectId}/practical/experiments/databank', [App\Http\Controllers\ClassroomController::class, 'getPracticalExperimentsDatabank']);
+    Route::post('/api/classroom/{subjectId}/practical/experiments/import', [App\Http\Controllers\ClassroomController::class, 'importPracticalExperiments']);
+    Route::post('/api/classroom/{subjectId}/practical/lesson-plans/generate', [App\Http\Controllers\ClassroomController::class, 'generateLessonPlansFromExperiments']);
+    Route::get('/api/classroom/{subjectId}/practical/copo-mapping', [App\Http\Controllers\ClassroomController::class, 'getPracticalCoPoMapping']);
+    Route::post('/api/classroom/{subjectId}/practical/copo-mapping/save', [App\Http\Controllers\ClassroomController::class, 'savePracticalCoPoMapping']);
+    Route::get('/classroom/{subjectId}/practical-report/print', [App\Http\Controllers\ClassroomController::class, 'printPracticalReportByType']);
+
     // Mentoring Endpoints
     Route::get('/api/mentoring/my-batches', [MentoringController::class, 'getMyBatches']);
     Route::get('/api/mentoring/students/{classroomId}', [MentoringController::class, 'getClassroomStudents']);

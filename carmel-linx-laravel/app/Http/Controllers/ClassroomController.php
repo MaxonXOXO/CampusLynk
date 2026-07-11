@@ -2000,6 +2000,127 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
     }
 
     /**
+     * Print consolidated practical evaluation register
+     */
+    public function printPracticalReport($subjectId)
+    {
+        $batchSubject = \App\Models\BatchSubject::find($subjectId);
+        if (!$batchSubject) return response("Subject not found.", 404);
+
+        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+            ->where('status', 'Approved')
+            ->orderByRaw('ISNULL(roll_no), roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $experiments = \App\Models\PracticalExperiment::where('batch_subject_id', $subjectId)->get();
+        $expIds = $experiments->pluck('id')->toArray();
+        $experimentMarks = \App\Models\PracticalExperimentMark::whereIn('practical_experiment_id', $expIds)->get();
+
+        $evaluations = \App\Models\PracticalEvaluation::where('batch_subject_id', $subjectId)->get();
+
+        $tests = \App\Models\PracticalTest::where('batch_subject_id', $subjectId)->get();
+        $testIds = $tests->pluck('id')->toArray();
+        $testMarks = \App\Models\PracticalTestMark::whereIn('practical_test_id', $testIds)->get();
+
+        $students = $students->map(function ($student) use ($batchSubject, $experiments, $experimentMarks, $evaluations, $tests, $testMarks) {
+            $regNo = $student->reg_no;
+
+            // Compute dynamic attendance percentage & suggested mark
+            $totalAttendance = \DB::table('student_attendance')
+                ->where('reg_no', $regNo)
+                ->where('subject_code', $batchSubject->subject_code)
+                ->count();
+            if ($totalAttendance > 0) {
+                $present = \DB::table('student_attendance')
+                    ->where('reg_no', $regNo)
+                    ->where('subject_code', $batchSubject->subject_code)
+                    ->whereIn('status', ['Present', 'Late'])
+                    ->count();
+                $attendancePercentage = ($present / $totalAttendance) * 100;
+            } else {
+                $attendancePercentage = 100.00;
+            }
+            $suggestedAttendanceMarks = round(($attendancePercentage / 100) * 15, 2);
+
+            // Consolidated eval
+            $eval = $evaluations->where('reg_no', $regNo)->first();
+            $microProject = $eval ? (float)$eval->micro_project : 0.00;
+            $attendanceMarks = $eval ? (float)$eval->attendance_marks : $suggestedAttendanceMarks;
+            $boardExam = $eval ? ($eval->board_exam_marks !== null ? (float)$eval->board_exam_marks : null) : null;
+
+            // Graded experiments list & average calculation
+            $sumExpMarks = 0;
+            $countExpMarks = 0;
+            foreach ($experiments as $exp) {
+                $mark = $experimentMarks->where('practical_experiment_id', $exp->id)->where('reg_no', $regNo)->first();
+                if ($mark) {
+                    $sumExpMarks += (float)$mark->total_mark;
+                    $countExpMarks++;
+                }
+            }
+            $avgLabWork = $countExpMarks > 0 ? round($sumExpMarks / $countExpMarks, 2) : 0.00;
+
+            // Practical tests marks per CO
+            $t1 = $tests->where('test_name', 'Test 1')->first();
+            $t2 = $tests->where('test_name', 'Test 2')->first();
+
+            $t1Co1 = $t1 ? $testMarks->where('practical_test_id', $t1->id)->where('reg_no', $regNo)->where('co_tag', 'CO1')->first() : null;
+            $t1Co2 = $t1 ? $testMarks->where('practical_test_id', $t1->id)->where('reg_no', $regNo)->where('co_tag', 'CO2')->first() : null;
+            $t2Co3 = $t2 ? $testMarks->where('practical_test_id', $t2->id)->where('reg_no', $regNo)->where('co_tag', 'CO3')->first() : null;
+            $t2Co4 = $t2 ? $testMarks->where('practical_test_id', $t2->id)->where('reg_no', $regNo)->where('co_tag', 'CO4')->first() : null;
+
+            $scoreT1 = ($t1Co1 ? (float)$t1Co1->marks_obtained : 0.0) + ($t1Co2 ? (float)$t1Co2->marks_obtained : 0.0);
+            $scoreT2 = ($t2Co3 ? (float)$t2Co3->marks_obtained : 0.0) + ($t2Co4 ? (float)$t2Co4->marks_obtained : 0.0);
+            $avgTests = round(($scoreT1 + $scoreT2) / 2, 2);
+
+            // Total CIA (75) = Tests Avg [15] + Lab Work Avg [37.5] + Micro Project [7.5] + Attendance Marks [15]
+            $totalInternal = round($avgTests + $avgLabWork + $microProject + $attendanceMarks, 2);
+
+            $student->avg_lab_work = $avgLabWork;
+            $student->tests = [
+                'Test 1' => ['total' => $scoreT1],
+                'Test 2' => ['total' => $scoreT2],
+                'average' => $avgTests
+            ];
+            $student->micro_project = $microProject;
+            $student->attendance_marks = $attendanceMarks;
+            $student->total_internal = $totalInternal;
+            $student->board_exam_marks = $boardExam;
+
+            return $student;
+        });
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'EEE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+            'CT' => 'Computer Engineering',
+            'AU' => 'Automobile Engineering',
+        ];
+        
+        $branchKey = strtoupper(explode('_', $batchSubject->classroom_id)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? $branchKey;
+        
+        $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $batchSubject->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        return view('classroom_practical_report_print', [
+            'subject' => $batchSubject,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'students' => $students,
+            'totalStudents' => $students->count(),
+            'currentYear' => date('Y')
+        ]);
+    }
+
+
+    /**
      * Fetch active seminars scheduled for today in the lecturer's department
      */
     public function getTodaySeminars()
@@ -2071,5 +2192,615 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
         );
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Invitation accepted successfully.']);
+    }
+
+    /**
+     * Fetch practical experiments
+     */
+    public function getPracticalExperiments(Request $request, $subjectId)
+    {
+        $experiments = \App\Models\PracticalExperiment::where('batch_subject_id', $subjectId)
+            ->orderByRaw('CAST(experiment_no AS UNSIGNED) ASC, experiment_no ASC')
+            ->get();
+        return response()->json(['status' => 'SUCCESS', 'data' => $experiments]);
+    }
+
+    /**
+     * Save practical experiment
+     */
+    public function savePracticalExperiment(Request $request, $subjectId)
+    {
+        $request->validate([
+            'experiment_no' => 'required|string|max:10',
+            'title' => 'required|string|max:255',
+            'co_tag' => 'required|string|in:CO1,CO2,CO3,CO4',
+            'conducted_date' => 'nullable|date'
+        ]);
+
+        $exp = \App\Models\PracticalExperiment::updateOrCreate(
+            [
+                'batch_subject_id' => $subjectId,
+                'experiment_no' => $request->input('experiment_no')
+            ],
+            [
+                'title' => $request->input('title'),
+                'co_tag' => $request->input('co_tag'),
+                'conducted_date' => $request->input('conducted_date')
+            ]
+        );
+
+        return response()->json(['status' => 'SUCCESS', 'data' => $exp]);
+    }
+
+    /**
+     * Delete practical experiment
+     */
+    public function deletePracticalExperiment(Request $request, $subjectId, $experimentId)
+    {
+        $exp = \App\Models\PracticalExperiment::where('batch_subject_id', $subjectId)->findOrFail($experimentId);
+        $exp->delete();
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Experiment deleted successfully.']);
+    }
+
+    /**
+     * Fetch all students and their detailed practical evaluations
+     */
+    public function getPracticalEvaluations(Request $request, $subjectId)
+    {
+        $batchSubject = \App\Models\BatchSubject::findOrFail($subjectId);
+        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+            ->where('status', 'Approved')
+            ->orderByRaw('ISNULL(roll_no), roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'roll_no']);
+
+        $experiments = \App\Models\PracticalExperiment::where('batch_subject_id', $subjectId)
+            ->orderByRaw('CAST(experiment_no AS UNSIGNED) ASC, experiment_no ASC')
+            ->get();
+        $expIds = $experiments->pluck('id')->toArray();
+
+        // Load experiment marks
+        $experimentMarks = \App\Models\PracticalExperimentMark::whereIn('practical_experiment_id', $expIds)->get();
+
+        // Load consolidated evaluations
+        $evaluations = \App\Models\PracticalEvaluation::where('batch_subject_id', $subjectId)->get();
+
+        // Load practical tests and test marks
+        $tests = \App\Models\PracticalTest::where('batch_subject_id', $subjectId)->get();
+        $testIds = $tests->pluck('id')->toArray();
+        $testMarks = \App\Models\PracticalTestMark::whereIn('practical_test_id', $testIds)->get();
+
+        $data = $students->map(function ($student) use ($batchSubject, $experiments, $experimentMarks, $evaluations, $tests, $testMarks) {
+            $regNo = $student->reg_no;
+
+            // Compute dynamic attendance percentage & suggested mark
+            $totalAttendance = \DB::table('student_attendance')
+                ->where('reg_no', $regNo)
+                ->where('subject_code', $batchSubject->subject_code)
+                ->count();
+            if ($totalAttendance > 0) {
+                $present = \DB::table('student_attendance')
+                    ->where('reg_no', $regNo)
+                    ->where('subject_code', $batchSubject->subject_code)
+                    ->whereIn('status', ['Present', 'Late'])
+                    ->count();
+                $attendancePercentage = ($present / $totalAttendance) * 100;
+            } else {
+                $attendancePercentage = 100.00;
+            }
+            $suggestedAttendanceMarks = round(($attendancePercentage / 100) * 15, 2);
+
+            // Consolidated eval
+            $eval = $evaluations->where('reg_no', $regNo)->first();
+            $microProject = $eval ? (float)$eval->micro_project : 0.00;
+            $openEndedTopic = $eval ? $eval->open_ended_topic : '';
+            $attendanceMarks = $eval ? (float)$eval->attendance_marks : $suggestedAttendanceMarks;
+            $boardExam = $eval ? ($eval->board_exam_marks !== null ? (float)$eval->board_exam_marks : null) : null;
+
+            // Graded experiments list & average calculation
+            $studentExpMarks = [];
+            $sumExpMarks = 0;
+            $countExpMarks = 0;
+            foreach ($experiments as $exp) {
+                $mark = $experimentMarks->where('practical_experiment_id', $exp->id)->where('reg_no', $regNo)->first();
+                $studentExpMarks[$exp->id] = $mark ? [
+                    'prerequisites' => (float)$mark->prerequisites,
+                    'work_done' => (float)$mark->work_done,
+                    'result' => (float)$mark->result,
+                    'rough_record' => (float)$mark->rough_record,
+                    'fair_record' => (float)$mark->fair_record,
+                    'total' => (float)$mark->total_mark,
+                ] : null;
+
+                if ($mark) {
+                    $sumExpMarks += (float)$mark->total_mark;
+                    $countExpMarks++;
+                }
+            }
+            $avgLabWork = $countExpMarks > 0 ? round($sumExpMarks / $countExpMarks, 2) : 0.00;
+
+            // Practical tests marks per CO
+            $t1 = $tests->where('test_name', 'Test 1')->first();
+            $t2 = $tests->where('test_name', 'Test 2')->first();
+
+            $t1Co1 = $t1 ? $testMarks->where('practical_test_id', $t1->id)->where('reg_no', $regNo)->where('co_tag', 'CO1')->first() : null;
+            $t1Co2 = $t1 ? $testMarks->where('practical_test_id', $t1->id)->where('reg_no', $regNo)->where('co_tag', 'CO2')->first() : null;
+            $t2Co3 = $t2 ? $testMarks->where('practical_test_id', $t2->id)->where('reg_no', $regNo)->where('co_tag', 'CO3')->first() : null;
+            $t2Co4 = $t2 ? $testMarks->where('practical_test_id', $t2->id)->where('reg_no', $regNo)->where('co_tag', 'CO4')->first() : null;
+
+            $scoreT1 = ($t1Co1 ? (float)$t1Co1->marks_obtained : 0.0) + ($t1Co2 ? (float)$t1Co2->marks_obtained : 0.0);
+            $scoreT2 = ($t2Co3 ? (float)$t2Co3->marks_obtained : 0.0) + ($t2Co4 ? (float)$t2Co4->marks_obtained : 0.0);
+            $avgTests = round(($scoreT1 + $scoreT2) / 2, 2);
+
+            // Total CIA (75) = Tests Avg [15] + Lab Work Avg [37.5] + Micro Project [7.5] + Attendance Marks [15]
+            $totalInternal = round($avgTests + $avgLabWork + $microProject + $attendanceMarks, 2);
+
+            return [
+                'reg_no' => $regNo,
+                'name' => $student->name,
+                'roll_no' => $student->roll_no,
+                'attendance_percentage' => round($attendancePercentage, 2),
+                'suggested_attendance_marks' => $suggestedAttendanceMarks,
+                'attendance_marks' => $attendanceMarks,
+                'micro_project' => $microProject,
+                'open_ended_topic' => $openEndedTopic,
+                'board_exam_marks' => $boardExam,
+                'experiments_marks' => $studentExpMarks,
+                'avg_lab_work' => $avgLabWork,
+                'tests' => [
+                    'Test 1' => [
+                        'CO1' => $t1Co1 ? (float)$t1Co1->marks_obtained : 0.0,
+                        'CO2' => $t1Co2 ? (float)$t1Co2->marks_obtained : 0.0,
+                        'total' => $scoreT1
+                    ],
+                    'Test 2' => [
+                        'CO3' => $t2Co3 ? (float)$t2Co3->marks_obtained : 0.0,
+                        'CO4' => $t2Co4 ? (float)$t2Co4->marks_obtained : 0.0,
+                        'total' => $scoreT2
+                    ],
+                    'average' => $avgTests
+                ],
+                'total_internal' => $totalInternal
+            ];
+        });
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'students' => $data,
+            'experiments' => $experiments,
+            'tests' => $tests->map(function($t) {
+                return [
+                    'id' => $t->id,
+                    'test_name' => $t->test_name,
+                    'questions' => $t->questions
+                ];
+            })
+        ]);
+    }
+
+    /**
+     * Save practical student evaluation (experiment-wise or overall components)
+     */
+    public function savePracticalEvaluation(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+
+        $request->validate([
+            'reg_no' => 'required|string',
+            'micro_project' => 'required|numeric|min:0|max:7.5',
+            'open_ended_project_topic' => 'nullable|string|max:255',
+            'attendance_marks' => 'required|numeric|min:0|max:15',
+            'board_exam_marks' => 'nullable|numeric|min:0|max:50',
+            'tests' => 'nullable|array',
+            'experiments' => 'nullable|array'
+        ]);
+
+        $regNo = $request->input('reg_no');
+
+        // Save consolidated evaluation
+        \App\Models\PracticalEvaluation::updateOrCreate(
+            [
+                'batch_subject_id' => $subjectId,
+                'reg_no' => $regNo
+            ],
+            [
+                'assessor_mobile_no' => $userId,
+                'micro_project' => $request->input('micro_project'),
+                'open_ended_topic' => $request->input('open_ended_project_topic'),
+                'attendance_marks' => $request->input('attendance_marks'),
+                'board_exam_marks' => $request->input('board_exam_marks')
+            ]
+        );
+
+        // Save experiment-wise marks if provided
+        if ($request->has('experiments')) {
+            $experimentsData = $request->input('experiments');
+            foreach ($experimentsData as $expId => $val) {
+                $prerequisites = isset($val['prerequisite']) && $val['prerequisite'] !== '' ? (float)$val['prerequisite'] : 0;
+                $work_done = isset($val['execution']) && $val['execution'] !== '' ? (float)$val['execution'] : 0;
+                $result = isset($val['output']) && $val['output'] !== '' ? (float)$val['output'] : 0;
+                $rough_record = isset($val['rough_record']) && $val['rough_record'] !== '' ? (float)$val['rough_record'] : 0;
+                $fair_record = isset($val['fair_record']) && $val['fair_record'] !== '' ? (float)$val['fair_record'] : 0;
+
+                $totalExpMark = $prerequisites + $work_done + $result + $rough_record + $fair_record;
+
+                \App\Models\PracticalExperimentMark::updateOrCreate(
+                    [
+                        'practical_experiment_id' => $expId,
+                        'reg_no' => $regNo
+                    ],
+                    [
+                        'assessor_mobile_no' => $userId,
+                        'prerequisites' => $prerequisites,
+                        'work_done' => $work_done,
+                        'result' => $result,
+                        'rough_record' => $rough_record,
+                        'fair_record' => $fair_record,
+                        'total_mark' => $totalExpMark
+                    ]
+                );
+            }
+        }
+
+        // Save test-marks if provided
+        if ($request->has('tests')) {
+            $testMarksData = $request->input('tests');
+            foreach ($testMarksData as $testName => $coScores) {
+                $test = \App\Models\PracticalTest::firstOrCreate([
+                    'batch_subject_id' => $subjectId,
+                    'test_name' => $testName
+                ], [
+                    'questions' => []
+                ]);
+
+                foreach ($coScores as $co => $score) {
+                    if ($score !== '' && $score !== null) {
+                        \App\Models\PracticalTestMark::updateOrCreate(
+                            [
+                                'practical_test_id' => $test->id,
+                                'reg_no' => $regNo,
+                                'co_tag' => $co
+                            ],
+                            [
+                                'marks_obtained' => (float)$score
+                            ]
+                        );
+                    }
+                }
+            }
+        }
+
+        // Perform overall semester marks synchronization
+        $this->syncPracticalMarksToSemesterTable($subjectId, $regNo);
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Practical evaluation saved successfully.']);
+    }
+
+    /**
+     * Save practical test config questions
+     */
+    public function savePracticalTestConfig(Request $request, $subjectId)
+    {
+        $request->validate([
+            'test_name' => 'required|string',
+            'questions' => 'required|array'
+        ]);
+
+        $test = \App\Models\PracticalTest::updateOrCreate(
+            [
+                'batch_subject_id' => $subjectId,
+                'test_name' => $request->input('test_name')
+            ],
+            [
+                'questions' => $request->input('questions')
+            ]
+        );
+
+        return response()->json(['status' => 'SUCCESS', 'data' => $test]);
+    }
+
+    /**
+     * Helper: Sync calculated practical scores to student_semester_marks table
+     */
+    private function syncPracticalMarksToSemesterTable($subjectId, $regNo)
+    {
+        $batchSubject = \App\Models\BatchSubject::findOrFail($subjectId);
+        
+        // Calculate experiment average
+        $experiments = \App\Models\PracticalExperiment::where('batch_subject_id', $subjectId)->get();
+        $expIds = $experiments->pluck('id')->toArray();
+        $sumExpMarks = \App\Models\PracticalExperimentMark::whereIn('practical_experiment_id', $expIds)
+            ->where('reg_no', $regNo)
+            ->sum('total_mark');
+        $countExpMarks = \App\Models\PracticalExperimentMark::whereIn('practical_experiment_id', $expIds)
+            ->where('reg_no', $regNo)
+            ->count();
+        $avgLabWork = $countExpMarks > 0 ? ($sumExpMarks / $countExpMarks) : 0.00;
+
+        // Calculate practical tests average
+        $tests = \App\Models\PracticalTest::where('batch_subject_id', $subjectId)->get();
+        $testIds = $tests->pluck('id')->toArray();
+        
+        $sumTestMarks = \App\Models\PracticalTestMark::whereIn('practical_test_id', $testIds)
+            ->where('reg_no', $regNo)
+            ->sum('marks_obtained');
+        $avgTests = ($sumTestMarks / 2); // (Test 1 score + Test 2 score) / 2
+
+        // Consolidated
+        $eval = \App\Models\PracticalEvaluation::where('batch_subject_id', $subjectId)->where('reg_no', $regNo)->first();
+        $microProject = $eval ? (float)$eval->micro_project : 0.00;
+        $attendanceMarks = $eval ? (float)$eval->attendance_marks : 0.00;
+        $boardExam = $eval ? $eval->board_exam_marks : null;
+
+        $totalInternal = round($avgTests + $avgLabWork + $microProject + $attendanceMarks, 2);
+
+        // Retrieve attendance percentage to keep synced
+        $totalAttendance = \DB::table('student_attendance')
+            ->where('reg_no', $regNo)
+            ->where('subject_code', $batchSubject->subject_code)
+            ->count();
+        if ($totalAttendance > 0) {
+            $present = \DB::table('student_attendance')
+                ->where('reg_no', $regNo)
+                ->where('subject_code', $batchSubject->subject_code)
+                ->whereIn('status', ['Present', 'Late'])
+                ->count();
+            $attendancePercentage = ($present / $totalAttendance) * 100;
+        } else {
+            $attendancePercentage = 100.00;
+        }
+
+        // Update or Create semester marks record
+        \App\Models\StudentSemesterMarks::updateOrCreate(
+            [
+                'reg_no' => $regNo,
+                'subject_code' => $batchSubject->subject_code,
+                'semester' => $batchSubject->semester
+            ],
+            [
+                'subject_name' => $batchSubject->subject_name,
+                'internal_marks' => $totalInternal,
+                'board_marks' => $boardExam,
+                'total_marks' => $boardExam !== null ? ($totalInternal + $boardExam) : null,
+                'attendance_percentage' => $attendancePercentage
+            ]
+        );
+    }
+
+    /**
+     * Get list of other batches with same subject code that have experiments configured
+     */
+    public function getPracticalExperimentsDatabank($subjectId)
+    {
+        $batchSubject = \App\Models\BatchSubject::findOrFail($subjectId);
+
+        $databank = \DB::table('practical_experiments')
+            ->join('batch_subjects', 'practical_experiments.batch_subject_id', '=', 'batch_subjects.id')
+            ->where('batch_subjects.subject_code', $batchSubject->subject_code)
+            ->where('batch_subjects.id', '!=', $subjectId)
+            ->select('batch_subjects.id', 'batch_subjects.classroom_id', 'batch_subjects.subject_name')
+            ->selectRaw('count(practical_experiments.id) as experiment_count')
+            ->groupBy('batch_subjects.id', 'batch_subjects.classroom_id', 'batch_subjects.subject_name')
+            ->get();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'databank' => $databank
+        ]);
+    }
+
+    /**
+     * Import experiments from another batch subject code databank
+     */
+    public function importPracticalExperiments(Request $request, $subjectId)
+    {
+        $request->validate([
+            'source_subject_id' => 'required|integer'
+        ]);
+
+        $sourceId = $request->input('source_subject_id');
+        $experiments = \App\Models\PracticalExperiment::where('batch_subject_id', $sourceId)->get();
+
+        if ($experiments->isEmpty()) {
+            return response()->json(['status' => 'ERROR', 'message' => 'No experiments found in source batch.']);
+        }
+
+        foreach ($experiments as $exp) {
+            \App\Models\PracticalExperiment::create([
+                'batch_subject_id' => $subjectId,
+                'experiment_no' => $exp->experiment_no,
+                'co_tag' => $exp->co_tag,
+                'title' => $exp->title
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => count($experiments) . ' experiments imported successfully.'
+        ]);
+    }
+
+    /**
+     * Generate Lesson Plan entries dynamically based on configured experiments list
+     */
+    public function generateLessonPlansFromExperiments(Request $request, $subjectId)
+    {
+        $request->validate([
+            'session_type' => 'required|in:combined,separate',
+            'allocated_hours' => 'required|integer|min:1|max:6'
+        ]);
+
+        $sessionType = $request->input('session_type');
+        $hours = $request->input('allocated_hours');
+
+        $experiments = \App\Models\PracticalExperiment::where('batch_subject_id', $subjectId)
+            ->orderByRaw('CAST(experiment_no AS UNSIGNED) ASC')
+            ->orderBy('experiment_no', 'asc')
+            ->get();
+
+        if ($experiments->isEmpty()) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Please set up experiments first before generating the lesson planner.']);
+        }
+
+        // Delete existing planner logs for this batch subject
+        \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->delete();
+
+        $dayNo = 1;
+
+        foreach ($experiments as $exp) {
+            if ($sessionType === 'combined') {
+                \App\Models\LessonPlan::create([
+                    'batch_subject_id' => $subjectId,
+                    'day_no' => $dayNo++,
+                    'co_id' => $exp->co_tag,
+                    'topic_content' => "Practical Experiment " . $exp->experiment_no . ": " . $exp->title,
+                    'allocated_hours' => $hours,
+                    'pedagogy' => 'Demonstration/Practical',
+                    'status' => 'Pending'
+                ]);
+            } else {
+                // Generate two entries for Batch 1 and Batch 2
+                \App\Models\LessonPlan::create([
+                    'batch_subject_id' => $subjectId,
+                    'day_no' => $dayNo++,
+                    'co_id' => $exp->co_tag,
+                    'topic_content' => "Practical Experiment " . $exp->experiment_no . ": " . $exp->title . " (Batch 1)",
+                    'allocated_hours' => $hours,
+                    'pedagogy' => 'Demonstration/Practical',
+                    'status' => 'Pending'
+                ]);
+                \App\Models\LessonPlan::create([
+                    'batch_subject_id' => $subjectId,
+                    'day_no' => $dayNo++,
+                    'co_id' => $exp->co_tag,
+                    'topic_content' => "Practical Experiment " . $exp->experiment_no . ": " . $exp->title . " (Batch 2)",
+                    'allocated_hours' => $hours,
+                    'pedagogy' => 'Demonstration/Practical',
+                    'status' => 'Pending'
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Lesson plan successfully generated from experiments.'
+        ]);
+    }
+
+    /**
+     * Retrieve CO-PO/PSO mapping from syllabus registry
+     */
+    public function getPracticalCoPoMapping($subjectId)
+    {
+        $batchSubject = \App\Models\BatchSubject::findOrFail($subjectId);
+        $registry = \DB::table('syllabus_registry')->where('subject_code', $batchSubject->subject_code)->first();
+
+        $mapping = null;
+        if ($registry && !empty($registry->co_po_mapping)) {
+            $mapping = json_decode($registry->co_po_mapping, true);
+        }
+
+        if (!$mapping) {
+            $mapping = [];
+            for ($i = 1; $i <= 4; $i++) {
+                $row = ['co' => 'CO' . $i, 'description' => ''];
+                for ($j = 1; $j <= 11; $j++) $row['po' . $j] = '';
+                for ($k = 1; $k <= 3; $k++) $row['pso' . $k] = '';
+                $mapping[] = $row;
+            }
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'mapping' => $mapping
+        ]);
+    }
+
+    /**
+     * Save CO-PO/PSO mapping to syllabus registry
+     */
+    public function savePracticalCoPoMapping(Request $request, $subjectId)
+    {
+        $batchSubject = \App\Models\BatchSubject::findOrFail($subjectId);
+        $mapping = $request->input('co_po_mapping');
+
+        \DB::table('syllabus_registry')->updateOrInsert(
+            ['subject_code' => $batchSubject->subject_code],
+            ['co_po_mapping' => json_encode($mapping), 'updated_at' => now()]
+        );
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'CO-PO & PSO Mapping saved successfully.'
+        ]);
+    }
+
+    /**
+     * Print consolidated practical sub-reports
+     */
+    public function printPracticalReportByType(Request $request, $subjectId)
+    {
+        $batchSubject = \App\Models\BatchSubject::findOrFail($subjectId);
+        $type = $request->query('type', 'attendance'); // attendance, experiments, planner, projects
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'EEE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+            'CT' => 'Computer Engineering',
+            'AU' => 'Automobile Engineering',
+        ];
+        
+        $branchKey = strtoupper(explode('_', $batchSubject->classroom_id)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? $branchKey;
+        
+        $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $batchSubject->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+            ->where('status', 'Approved')
+            ->orderByRaw('ISNULL(roll_no), roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $experiments = \App\Models\PracticalExperiment::where('batch_subject_id', $subjectId)
+            ->orderByRaw('CAST(experiment_no AS UNSIGNED) ASC')
+            ->get();
+
+        $lessonPlans = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)
+            ->orderBy('day_no', 'asc')
+            ->get();
+
+        $evaluations = \App\Models\PracticalEvaluation::where('batch_subject_id', $subjectId)->get();
+
+        // Consolidated attendance matrix
+        $attendanceLogs = \DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $subjectId)
+            ->orderBy('date', 'asc')
+            ->orderBy('period', 'asc')
+            ->get();
+
+        $studentAttendance = \DB::table('student_attendance')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->get();
+
+        return view('classroom_practical_reports_print', [
+            'subject' => $batchSubject,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'type' => $type,
+            'students' => $students,
+            'experiments' => $experiments,
+            'lessonPlans' => $lessonPlans,
+            'evaluations' => $evaluations,
+            'attendanceLogs' => $attendanceLogs,
+            'studentAttendance' => $studentAttendance,
+            'currentYear' => date('Y')
+        ]);
     }
 }
