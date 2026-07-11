@@ -5275,6 +5275,10 @@
         btn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Save';
         if (res.status === 'SUCCESS') {
           showMobileSemToast(`Evaluation saved! Avg score: ${res.average_score} / 75`, 'success');
+          // Silently refresh the desktop seminar table so marks appear without page reload
+          if (typeof fetchSeminarEvaluations === 'function') {
+            fetchSeminarEvaluations();
+          }
           setTimeout(() => backToSeminarList(), 1500);
         } else {
           showMobileSemToast(res.message || 'Failed to save.', 'error');
