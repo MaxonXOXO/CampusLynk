@@ -792,7 +792,10 @@
                   <h4 class="text-sm font-black text-slate-200">Seminar Evaluation (Revision 2021)</h4>
                   <p class="text-sm text-slate-400 mt-1">Grade student seminars based on CIA criteria. Multiple assessors' scores will be averaged to formulate the final mark.</p>
                 </div>
-                <div>
+                <div class="flex items-center gap-2">
+                  <button onclick="fetchSeminarEvaluations()" title="Sync latest evaluations" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-md border border-slate-700/60">
+                    <span class="material-symbols-rounded text-base">refresh</span> Refresh
+                  </button>
                   <a id="printSeminarReportBtn" href="#" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer shadow-md">
                     <span class="material-symbols-rounded text-base">print</span> Print Seminar Report
                   </a>
