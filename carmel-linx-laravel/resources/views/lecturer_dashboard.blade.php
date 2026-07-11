@@ -436,6 +436,264 @@
       #lecturerBatchGrid > div {
         border-color: rgba(148, 163, 184, 0.45) !important; /* light slate-400 border */
       }
+
+      /* ENHANCED MOBILE STYLING FOR SEMINAR ROOM & ASSESSMENT MARK ENTRY FIELDS */
+      
+      /* Make sure that inside classroom, today's seminar evaluations list table transforms to clean cards on mobile */
+      #seminarEvaluationContent table, 
+      #seminarEvaluationContent thead, 
+      #seminarEvaluationContent tbody, 
+      #seminarEvaluationContent th, 
+      #seminarEvaluationContent td, 
+      #seminarEvaluationContent tr { 
+        display: block !important; 
+      }
+      
+      #seminarEvaluationContent thead {
+        display: none !important; /* Hide header row on mobile */
+      }
+      
+      #seminarEvaluationContent tr {
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(51, 65, 85, 0.6) !important;
+        border-radius: 1rem !important;
+        padding: 1.25rem !important;
+        margin-bottom: 1.25rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.65rem !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+      }
+      
+      #seminarEvaluationContent td {
+        padding: 0.35rem 0 !important;
+        border: none !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        text-align: left !important;
+        font-size: 15px !important;
+      }
+      
+      #seminarEvaluationContent td:nth-child(1)::before { content: "Roll No: "; font-weight: bold; color: #94a3b8; }
+      #seminarEvaluationContent td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #94a3b8; }
+      #seminarEvaluationContent td:nth-child(3)::before { content: "Topic: "; font-weight: bold; color: #94a3b8; }
+      #seminarEvaluationContent td:nth-child(4)::before { content: "Guide: "; font-weight: bold; color: #94a3b8; }
+      #seminarEvaluationContent td:nth-child(5)::before { content: "Presentation Date: "; font-weight: bold; color: #94a3b8; }
+      #seminarEvaluationContent td:nth-child(6)::before { content: "Relevance (7.5): "; font-weight: bold; color: #94a3b8; }
+      #seminarEvaluationContent td:nth-child(7)::before { content: "Literature (7.5): "; font-weight: bold; color: #94a3b8; }
+      #seminarEvaluationContent td:nth-child(8)::before { content: "Presentation (37.5): "; font-weight: bold; color: #94a3b8; }
+      #seminarEvaluationContent td:nth-child(9)::before { content: "Interaction (7.5): "; font-weight: bold; color: #94a3b8; }
+      #seminarEvaluationContent td:nth-child(10)::before { content: "Report (7.5): "; font-weight: bold; color: #94a3b8; }
+      #seminarEvaluationContent td:nth-child(11)::before { content: "Attendance (7.5): "; font-weight: bold; color: #94a3b8; }
+      #seminarEvaluationContent td:nth-child(12)::before { content: "My Total (75): "; font-weight: bold; color: #38bdf8; }
+      #seminarEvaluationContent td:nth-child(13)::before { content: "Class Average (75): "; font-weight: bold; color: #2dd4bf; }
+      
+      #seminarEvaluationContent td:nth-child(14) {
+        margin-top: 0.75rem !important;
+        border-top: 1px solid rgba(51, 65, 85, 0.4) !important;
+        padding-top: 1rem !important;
+        justify-content: center !important;
+      }
+      
+      #seminarEvaluationContent td:nth-child(14) button {
+        width: 100% !important;
+        padding: 0.75rem !important;
+        font-size: 15px !important;
+        border-radius: 0.75rem !important;
+      }
+
+      /* Seminar Evaluation Modal mobile enhancements */
+      #seminarEvaluationModal .bg-slate-950 {
+        max-width: 95% !important;
+        margin: auto !important;
+        border-radius: 1.25rem !important;
+      }
+      #seminarEvaluationModal label {
+        font-size: 14px !important;
+      }
+      #seminarEvaluationModal input[type="number"] {
+        font-size: 16px !important;
+        padding: 0.6rem !important;
+        min-height: 44px !important;
+        width: 5.5rem !important;
+      }
+      #seminarEvaluationModal input[type="range"] {
+        height: 14px !important;
+      }
+      #seminarEvaluationModal .grid-cols-3 {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+      }
+      #seminarEvaluationModal .grid-cols-3 > div {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        text-align: left !important;
+        padding: 0.85rem !important;
+        space-y: 0 !important;
+      }
+      #seminarEvaluationModal .grid-cols-3 > div label {
+        margin: 0 !important;
+        font-size: 14px !important;
+      }
+      #seminarEvaluationModal .grid-cols-3 > div input {
+        width: 5rem !important;
+        margin: 0 0 0 auto !important;
+        font-size: 16px !important;
+        min-height: 44px !important;
+      }
+      #seminarEvaluationModal .grid-cols-3 > div .text-[9px] {
+        display: none !important;
+      }
+
+      /* Mobile Seminar Room Panel (#panelMobileSeminar) enhancements */
+      #panelMobileSeminar {
+        padding: 0.5rem !important;
+      }
+      #panelMobileSeminar,
+      #panelMobileSeminar div,
+      #panelMobileSeminar p,
+      #panelMobileSeminar span,
+      #panelMobileSeminar button,
+      #panelMobileSeminar input,
+      #panelMobileSeminar label {
+        font-size: 14px !important;
+      }
+      #panelMobileSeminar h3,
+      #panelMobileSeminar .text-xl,
+      #mobSemStudentName {
+        font-size: 18px !important;
+      }
+      #panelMobileSeminar h4,
+      #panelMobileSeminar .text-lg {
+        font-size: 16px !important;
+      }
+      #panelMobileSeminar .text-xs,
+      #panelMobileSeminar .text-[10px],
+      #panelMobileSeminar .text-[11px] {
+        font-size: 13px !important;
+      }
+      
+      /* Evaluate details slider & input adjustments in Mobile Seminar Room */
+      #mobileSeminarForm input[type="number"] {
+        font-size: 16px !important;
+        padding: 0.6rem !important;
+        min-height: 44px !important;
+      }
+      #mobileSeminarForm .grid-cols-3 {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+      }
+      #mobileSeminarForm .grid-cols-3 > div {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        text-align: left !important;
+        padding: 0.85rem !important;
+        space-y: 0 !important;
+      }
+      #mobileSeminarForm .grid-cols-3 > div label {
+        margin: 0 !important;
+        font-size: 14px !important;
+      }
+      #mobileSeminarForm .grid-cols-3 > div input {
+        width: 5rem !important;
+        margin: 0 0 0 auto !important;
+        font-size: 16px !important;
+        min-height: 44px !important;
+      }
+      #mobileSeminarForm .grid-cols-3 > div .text-xs {
+        display: none !important;
+      }
+
+      /* Assessment Mark Entry Fields Font Enlargement & App-like Layout */
+      .co-mark, .summ-mark,
+      #manualMarksWrapper input,
+      #markEntryTbody input,
+      #summativeMarkEntryTbody input {
+        font-size: 16px !important;
+        padding: 0.6rem !important;
+        min-height: 44px !important;
+        background-color: #0f172a !important;
+        border-color: #334155 !important;
+        border-radius: 0.5rem !important;
+      }
+
+      /* Transform assignment mark entry tables into list cards on mobile view */
+      #markEntryTbody,
+      #markEntryTbody tr,
+      #markEntryTbody td,
+      #manualMarksWrapper tbody,
+      #manualMarksWrapper tr,
+      #manualMarksWrapper td {
+        display: block !important;
+      }
+      
+      #panelClassroom table thead {
+        display: none !important;
+      }
+      
+      #markEntryTbody tr,
+      #manualMarksWrapper table tr {
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(51, 65, 85, 0.6) !important;
+        border-radius: 1rem !important;
+        padding: 1.25rem !important;
+        margin-bottom: 1.25rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.65rem !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+      }
+      
+      #markEntryTbody td,
+      #manualMarksWrapper td {
+        padding: 0.35rem 0 !important;
+        border: none !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        text-align: left !important;
+        font-size: 14px !important;
+      }
+      
+      /* Assignment marks details helper labels */
+      #markEntryTbody td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #94a3b8; }
+      #markEntryTbody td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #94a3b8; }
+      #markEntryTbody td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #94a3b8; }
+      #markEntryTbody td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #94a3b8; }
+      #markEntryTbody td:nth-child(5)::before { content: "CO1 (10): "; font-weight: bold; color: #38bdf8; }
+      #markEntryTbody td:nth-child(6)::before { content: "CO2 (10): "; font-weight: bold; color: #38bdf8; }
+      #markEntryTbody td:nth-child(7)::before { content: "CO3 (10): "; font-weight: bold; color: #38bdf8; }
+      #markEntryTbody td:nth-child(8)::before { content: "CO4 (10): "; font-weight: bold; color: #38bdf8; }
+      
+      /* Summative marks details helper labels */
+      #manualMarksWrapper td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #94a3b8; }
+      #manualMarksWrapper td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #94a3b8; }
+      #manualMarksWrapper td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #94a3b8; }
+      #manualMarksWrapper td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #94a3b8; }
+      #manualMarksWrapper td:nth-child(5)::before { content: "CO1: "; font-weight: bold; color: #38bdf8; }
+      #manualMarksWrapper td:nth-child(6)::before { content: "CO2: "; font-weight: bold; color: #38bdf8; }
+      #manualMarksWrapper td:nth-child(7)::before { content: "CO3: "; font-weight: bold; color: #38bdf8; }
+      #manualMarksWrapper td:nth-child(8)::before { content: "CO4: "; font-weight: bold; color: #38bdf8; }
+      
+      /* Make inputs larger in card layout and right-aligned */
+      #markEntryTbody td div.relative,
+      #manualMarksWrapper td div.relative {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+      }
+      #markEntryTbody td input,
+      #manualMarksWrapper td input {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+        text-align: center !important;
+      }
     }
   </style>
 </head>
