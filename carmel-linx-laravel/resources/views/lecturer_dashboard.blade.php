@@ -96,6 +96,14 @@
       }
     }
 
+    #panelClassroom {
+      background-color: #060b13 !important; /* Darker slate/black background */
+      border: 1px solid #111827 !important;
+      border-radius: 1.5rem !important;
+      padding: 1.5rem !important;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3) !important;
+    }
+
     /* Clean overrides to enlarge fonts in the virtual classroom and related containers to normal readable sizes */
     #panelClassroom, 
     #panelClassroom button,
