@@ -602,15 +602,12 @@
         font-size: 13px !important;
       }
 
-      /* Enforce large font sizes for total score display on mobile */
+      /* Enforce uniform font size for total score display on mobile */
       #mobSemTotalDisplay,
-      #mobSemTotalNum,
+      #mobSemTotalDisplay *,
       #semTotalScoreLabel {
         font-size: 1.25rem !important;
         font-weight: 900 !important;
-      }
-      #mobSemTotalDisplay span.text-xl {
-        font-size: 1.25rem !important;
       }
       
       /* Evaluate details slider & input adjustments in Mobile Seminar Room */
@@ -1429,9 +1426,8 @@
             <div class="bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-600/60 rounded-2xl p-5 flex items-center justify-between gap-4 shadow-xl">
               <div>
                 <div class="text-sm text-slate-400 font-bold uppercase tracking-wider mb-1">Total Score</div>
-                <div class="text-4xl font-black" id="mobSemTotalDisplay">
-                  <span id="mobSemTotalNum" class="text-blue-400">0.00</span>
-                  <span class="text-slate-500 text-xl"> / 75</span>
+                <div class="text-xl font-black text-slate-500" id="mobSemTotalDisplay">
+                  <span id="mobSemTotalNum" class="text-blue-400">0.00</span> / 75
                 </div>
                 <!-- keep old ID for backward compat -->
                 <div id="mobSemTotalScoreLabel" class="hidden"></div>
