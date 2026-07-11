@@ -604,8 +604,10 @@
 
       /* Enforce large font sizes for total score display on mobile */
       #mobSemTotalDisplay,
-      #mobSemTotalNum {
-        font-size: 2.25rem !important;
+      #mobSemTotalNum,
+      #semTotalScoreLabel {
+        font-size: 2rem !important;
+        font-weight: 900 !important;
       }
       #mobSemTotalDisplay span.text-xl {
         font-size: 1.25rem !important;
