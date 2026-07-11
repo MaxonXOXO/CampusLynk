@@ -636,25 +636,18 @@
         margin: 0 !important;
       }
 
-      /* Convert horizontal nav links into styled app-buttons on mobile view */
+      /* Reset standard padding on links/buttons for inline fit */
       aside nav a, aside nav button {
-        background-color: rgba(30, 41, 59, 0.8) !important;
-        border: 1px solid rgba(51, 65, 85, 0.8) !important;
-        padding: 0.55rem 0.75rem !important;
-        border-radius: 0.65rem !important;
-        font-size: 13px !important;
-        font-weight: bold !important;
-        color: #f1f5f9 !important;
-        flex-grow: 1 !important;
-        justify-content: center !important;
-        text-align: center !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+        padding: 0.4rem 0.65rem !important;
+        margin: 0 !important;
+        border-radius: 0.5rem !important;
+        font-size: 11px !important; /* compact font to fit */
         display: flex !important;
         align-items: center !important;
-        gap: 0.35rem !important;
+        gap: 0.25rem !important;
         white-space: nowrap !important;
         width: auto !important;
-        border-left: none !important;
+        border-left: none !important; /* Remove custom vertical border indicators */
       }
 
       /* Clean dashboard title bar on mobile */
