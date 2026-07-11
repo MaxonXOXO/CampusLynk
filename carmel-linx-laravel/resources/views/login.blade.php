@@ -58,6 +58,44 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
+    /* Mobile Login & Registration Screen Adjustments */
+    @media (max-width: 767px) {
+      /* Make card container slightly wider and more spacious on mobile */
+      .max-w-md {
+        max-width: 95% !important;
+        width: 95% !important;
+        padding: 1.75rem 1.25rem !important;
+      }
+
+      /* Make ID and Password fields text-lg for high readability */
+      #loginUserId,
+      #loginMobileId,
+      #loginPassword {
+        font-size: 1.125rem !important; /* text-lg */
+        padding-top: 0.85rem !important;
+        padding-bottom: 0.85rem !important;
+      }
+
+      #loginSection label {
+        font-size: 0.875rem !important; /* text-sm */
+      }
+
+      /* Make text entry fields on the registration card big fonts */
+      #registerSection input[type="text"],
+      #registerSection input[type="email"],
+      #registerSection input[type="number"],
+      #registerSection input[type="password"],
+      #registerSection select {
+        font-size: 1.125rem !important; /* text-lg */
+        padding-top: 0.85rem !important;
+        padding-bottom: 0.85rem !important;
+      }
+
+      #registerSection label {
+        font-size: 0.875rem !important; /* text-sm */
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-950 min-h-screen flex items-center justify-center p-4 overflow-x-hidden relative">
