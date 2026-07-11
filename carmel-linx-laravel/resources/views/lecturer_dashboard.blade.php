@@ -898,22 +898,17 @@
       <!-- PANEL: MOBILE SEMINAR EVALUATION -->
       <div id="panelMobileSeminar" class="hidden fade-up">
 
-        <!-- Header -->
-        <div class="flex items-center justify-between gap-3 mb-5">
-          <div class="flex items-center gap-3">
-            <button onclick="switchPanel('dashboard')" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-premium cursor-pointer">
-              <span class="material-symbols-rounded text-slate-300 text-base">arrow_back</span>
-            </button>
-            <div>
-              <h3 class="text-base font-black text-slate-200 flex items-center gap-2">
-                <span class="material-symbols-rounded text-blue-400">co_present</span> Seminar Evaluation
-              </h3>
-              <p class="text-xs text-slate-400 mt-0.5">Evaluate student seminars presented today.</p>
-            </div>
+        <!-- Header — NO Sign Out here, sidebar already has it -->
+        <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-700/60">
+          <button onclick="switchPanel('dashboard')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-premium cursor-pointer shrink-0">
+            <span class="material-symbols-rounded text-slate-200 text-lg">arrow_back</span>
+          </button>
+          <div>
+            <h3 class="text-lg font-black text-white flex items-center gap-2 leading-tight">
+              <span class="material-symbols-rounded text-blue-400 text-xl">co_present</span> Virtual Seminar Room
+            </h3>
+            <p class="text-sm text-slate-400 mt-0.5">Evaluate student seminar presentations for today.</p>
           </div>
-          <a href="{{ url('/logout') }}" class="px-3.5 py-2 bg-rose-950/40 hover:bg-red-600 text-rose-400 hover:text-white border border-rose-500/30 hover:border-red-500 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-premium no-underline select-none cursor-pointer">
-            <span class="material-symbols-rounded text-sm">logout</span> Sign Out
-          </a>
         </div>
 
         <!-- Seminar Presentations Today dynamic notifications section (Mobile Panel) -->
@@ -928,25 +923,25 @@
         <div id="mobileSemStep1" class="space-y-4">
 
           <!-- Pending Invitations -->
-          <div class="bg-slate-950/40 border border-amber-600/20 rounded-2xl overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-800/60 flex items-center gap-2">
-              <span class="material-symbols-rounded text-amber-400 text-lg">mark_email_unread</span>
-              <h4 class="text-sm font-black text-slate-200">Pending Invitations</h4>
+          <div class="bg-slate-900/60 border border-amber-600/30 rounded-2xl overflow-hidden shadow-lg">
+            <div class="px-5 py-4 border-b border-amber-600/20 flex items-center gap-3 bg-amber-950/20">
+              <span class="material-symbols-rounded text-amber-400 text-xl">mark_email_unread</span>
+              <h4 class="text-base font-black text-amber-200">Pending Invitations</h4>
             </div>
             <div id="mobilePendingInvitationsList" class="p-4 space-y-3">
-              <div class="text-xs text-slate-500 text-center py-3">Loading...</div>
+              <div class="text-sm text-slate-400 text-center py-4">Loading...</div>
             </div>
           </div>
 
           <!-- Accepted / Start Evaluation -->
-          <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-800/60 flex items-center gap-2">
-              <span class="material-symbols-rounded text-emerald-400 text-lg">how_to_reg</span>
-              <h4 class="text-sm font-black text-slate-200">Attending Seminars</h4>
+          <div class="bg-slate-900/60 border border-emerald-700/30 rounded-2xl overflow-hidden shadow-lg">
+            <div class="px-5 py-4 border-b border-emerald-700/20 flex items-center gap-3 bg-emerald-950/20">
+              <span class="material-symbols-rounded text-emerald-400 text-xl">how_to_reg</span>
+              <h4 class="text-base font-black text-emerald-200">Attending Seminars</h4>
             </div>
             <div class="p-4 space-y-3">
               <div id="mobileSemAttendingList" class="space-y-2">
-                <div class="text-xs text-slate-500 text-center py-3">No accepted seminars yet.</div>
+                <div class="text-sm text-slate-400 text-center py-4">No accepted seminars yet.</div>
               </div>
             </div>
           </div>
@@ -957,31 +952,31 @@
         <div id="mobileSemStep2" class="hidden space-y-4">
 
           <!-- Student Info Card -->
-          <div class="bg-gradient-to-r from-blue-950/60 to-indigo-950/60 border border-blue-700/30 rounded-2xl p-5">
-            <div class="flex items-start justify-between">
-              <div>
-                <div id="mobSemStudentName" class="text-lg font-black text-white">-</div>
-                <div class="text-xs text-slate-400 mt-0.5">SBTE Reg: <span id="mobSemSbteRegV2" class="font-mono text-slate-200">-</span></div>
-                <div class="mt-2 bg-blue-950/60 rounded-xl px-3 py-2">
-                  <div class="text-[10px] text-slate-500 uppercase tracking-wider">Seminar Topic</div>
-                  <div id="mobSemTopicV2" class="text-sm font-bold text-white mt-0.5 leading-snug">-</div>
+          <div class="bg-gradient-to-br from-blue-950/80 to-indigo-950/80 border border-blue-600/40 rounded-2xl p-5 shadow-xl shadow-blue-900/20">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex-1 min-w-0">
+                <div id="mobSemStudentName" class="text-xl font-black text-white leading-tight">-</div>
+                <div class="text-sm text-slate-300 mt-1">SBTE Reg: <span id="mobSemSbteRegV2" class="font-mono text-blue-300 font-bold">-</span></div>
+                <div class="mt-3 bg-blue-950/60 border border-blue-800/40 rounded-xl px-4 py-3">
+                  <div class="text-xs text-blue-400 uppercase tracking-wider font-bold mb-1">Seminar Topic</div>
+                  <div id="mobSemTopicV2" class="text-base font-bold text-white leading-snug">-</div>
                 </div>
               </div>
               <!-- Live Score Ring -->
-              <div class="shrink-0 ml-4 flex flex-col items-center">
-                <div class="relative w-16 h-16">
-                  <svg class="w-16 h-16 -rotate-90" viewBox="0 0 64 64">
+              <div class="shrink-0 flex flex-col items-center">
+                <div class="relative w-20 h-20">
+                  <svg class="w-20 h-20 -rotate-90" viewBox="0 0 64 64">
                     <circle cx="32" cy="32" r="26" fill="none" stroke="#1e293b" stroke-width="6"/>
                     <circle id="mobScoreRingCircle" cx="32" cy="32" r="26" fill="none" stroke="#3b82f6" stroke-width="6"
                       stroke-dasharray="163.36" stroke-dashoffset="163.36" stroke-linecap="round"
                       style="transition: stroke-dashoffset 0.4s ease, stroke 0.3s ease"/>
                   </svg>
                   <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span id="mobSemRingScore" class="text-sm font-black text-white leading-none">0</span>
-                    <span class="text-[9px] text-slate-500 leading-none">/75</span>
+                    <span id="mobSemRingScore" class="text-lg font-black text-white leading-none">0</span>
+                    <span class="text-xs text-slate-400 leading-none mt-0.5">/75</span>
                   </div>
                 </div>
-                <span class="text-[9px] text-slate-500 mt-1 uppercase tracking-wide">Your Score</span>
+                <span class="text-xs text-slate-400 mt-1.5 font-bold uppercase tracking-wide">Your Score</span>
               </div>
             </div>
           </div>
@@ -990,118 +985,120 @@
           <form id="mobileSeminarForm" onsubmit="submitMobileSeminarEvaluation(event)" class="space-y-3">
 
             <!-- Relevance -->
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4">
+            <div class="bg-slate-900/70 border border-slate-700/70 rounded-2xl p-5 shadow-md">
               <div class="flex justify-between items-center mb-3">
                 <div>
-                  <div class="text-sm font-bold text-slate-200">Relevance</div>
-                  <div class="text-[10px] text-slate-500">Topic alignment &amp; suitability</div>
+                  <div class="text-base font-bold text-slate-100">Relevance</div>
+                  <div class="text-xs text-slate-400 mt-0.5">Topic alignment & suitability</div>
                 </div>
-                <div class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-1">
+                <div class="bg-slate-800 border border-slate-600 rounded-xl px-3 py-2 flex items-center gap-1 shadow-inner">
                   <input type="number" step="0.5" min="0" max="7.5" id="mobSemRelevance" required
                     oninput="clampMobSem(this,7.5); calcMobSemTotal()"
-                    class="w-12 bg-transparent text-white font-black text-base text-right outline-none" placeholder="0">
-                  <span class="text-slate-500 text-xs font-bold">/7.5</span>
+                    class="w-14 bg-transparent text-white font-black text-lg text-right outline-none" placeholder="0">
+                  <span class="text-slate-400 text-sm font-bold">/7.5</span>
                 </div>
               </div>
               <input type="range" min="0" max="7.5" step="0.5" value="0"
                 oninput="document.getElementById('mobSemRelevance').value=this.value; calcMobSemTotal()"
-                class="w-full h-2 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
+                class="w-full h-3 rounded-full accent-blue-500 bg-slate-700 cursor-pointer">
             </div>
 
             <!-- Literature -->
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4">
+            <div class="bg-slate-900/70 border border-slate-700/70 rounded-2xl p-5 shadow-md">
               <div class="flex justify-between items-center mb-3">
                 <div>
-                  <div class="text-sm font-bold text-slate-200">Literature Survey</div>
-                  <div class="text-[10px] text-slate-500">Depth of research &amp; references</div>
+                  <div class="text-base font-bold text-slate-100">Literature Survey</div>
+                  <div class="text-xs text-slate-400 mt-0.5">Depth of research & references</div>
                 </div>
-                <div class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5 flex items-center gap-1">
+                <div class="bg-slate-800 border border-slate-600 rounded-xl px-3 py-2 flex items-center gap-1 shadow-inner">
                   <input type="number" step="0.5" min="0" max="7.5" id="mobSemLiterature" required
                     oninput="clampMobSem(this,7.5); calcMobSemTotal()"
-                    class="w-12 bg-transparent text-white font-black text-base text-right outline-none" placeholder="0">
-                  <span class="text-slate-500 text-xs font-bold">/7.5</span>
+                    class="w-14 bg-transparent text-white font-black text-lg text-right outline-none" placeholder="0">
+                  <span class="text-slate-400 text-sm font-bold">/7.5</span>
                 </div>
               </div>
               <input type="range" min="0" max="7.5" step="0.5" value="0"
                 oninput="document.getElementById('mobSemLiterature').value=this.value; calcMobSemTotal()"
-                class="w-full h-2 rounded-full accent-indigo-500 bg-slate-800 cursor-pointer">
+                class="w-full h-3 rounded-full accent-indigo-500 bg-slate-700 cursor-pointer">
             </div>
 
             <!-- Presentation (largest weight) -->
-            <div class="bg-slate-950/40 border border-blue-700/20 rounded-2xl p-4">
+            <div class="bg-slate-900/70 border border-blue-600/40 rounded-2xl p-5 shadow-md">
               <div class="flex justify-between items-center mb-3">
                 <div>
-                  <div class="text-sm font-bold text-blue-300">Presentation Quality</div>
-                  <div class="text-[10px] text-slate-500">Clarity, structure &amp; delivery — highest weight</div>
+                  <div class="text-base font-bold text-blue-300">Presentation Quality</div>
+                  <div class="text-xs text-slate-400 mt-0.5">Clarity, structure & delivery — highest weight</div>
                 </div>
-                <div class="bg-slate-900 border border-blue-700/40 rounded-xl px-3 py-1.5 flex items-center gap-1">
+                <div class="bg-slate-800 border border-blue-700/50 rounded-xl px-3 py-2 flex items-center gap-1 shadow-inner">
                   <input type="number" step="0.5" min="0" max="37.5" id="mobSemPresentation" required
                     oninput="clampMobSem(this,37.5); calcMobSemTotal()"
-                    class="w-14 bg-transparent text-blue-300 font-black text-base text-right outline-none" placeholder="0">
-                  <span class="text-slate-500 text-xs font-bold">/37.5</span>
+                    class="w-16 bg-transparent text-blue-300 font-black text-lg text-right outline-none" placeholder="0">
+                  <span class="text-slate-400 text-sm font-bold">/37.5</span>
                 </div>
               </div>
               <input type="range" min="0" max="37.5" step="0.5" value="0"
                 oninput="document.getElementById('mobSemPresentation').value=this.value; calcMobSemTotal()"
-                class="w-full h-2 rounded-full accent-blue-400 bg-slate-800 cursor-pointer">
+                class="w-full h-3 rounded-full accent-blue-400 bg-slate-700 cursor-pointer">
             </div>
 
             <!-- Last 3 criteria in a row -->
             <div class="grid grid-cols-3 gap-3">
               <!-- Interaction -->
-              <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-3 flex flex-col items-center gap-2">
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide text-center">Interaction</div>
-                <div class="text-[10px] text-slate-600 text-center">Q&amp;A</div>
+              <div class="bg-slate-900/70 border border-purple-700/30 rounded-2xl p-3.5 flex flex-col items-center gap-2 shadow-md">
+                <div class="text-xs font-black text-purple-300 uppercase tracking-wide text-center">Interaction</div>
+                <div class="text-xs text-slate-400 text-center">Q&A</div>
                 <input type="number" step="0.5" min="0" max="7.5" id="mobSemInteraction" required
                   oninput="clampMobSem(this,7.5); calcMobSemTotal()"
-                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-black text-base text-center outline-none focus:border-purple-500">
-                <div class="text-[9px] text-slate-600">max 7.5</div>
+                  class="w-full bg-slate-800 border border-purple-700/40 rounded-xl px-2 py-2.5 text-white font-black text-base text-center outline-none focus:border-purple-400 transition-premium">
+                <div class="text-xs text-slate-500 font-bold">max 7.5</div>
               </div>
               <!-- Report -->
-              <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-3 flex flex-col items-center gap-2">
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide text-center">Report</div>
-                <div class="text-[10px] text-slate-600 text-center">Written</div>
+              <div class="bg-slate-900/70 border border-teal-700/30 rounded-2xl p-3.5 flex flex-col items-center gap-2 shadow-md">
+                <div class="text-xs font-black text-teal-300 uppercase tracking-wide text-center">Report</div>
+                <div class="text-xs text-slate-400 text-center">Written</div>
                 <input type="number" step="0.5" min="0" max="7.5" id="mobSemReport" required
                   oninput="clampMobSem(this,7.5); calcMobSemTotal()"
-                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-black text-base text-center outline-none focus:border-teal-500">
-                <div class="text-[9px] text-slate-600">max 7.5</div>
+                  class="w-full bg-slate-800 border border-teal-700/40 rounded-xl px-2 py-2.5 text-white font-black text-base text-center outline-none focus:border-teal-400 transition-premium">
+                <div class="text-xs text-slate-500 font-bold">max 7.5</div>
               </div>
               <!-- Attendance -->
-              <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-3 flex flex-col items-center gap-2">
-                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wide text-center">Attendance</div>
-                <div class="text-[10px] text-slate-600 text-center">Presence</div>
+              <div class="bg-slate-900/70 border border-emerald-700/30 rounded-2xl p-3.5 flex flex-col items-center gap-2 shadow-md">
+                <div class="text-xs font-black text-emerald-300 uppercase tracking-wide text-center">Attendance</div>
+                <div class="text-xs text-slate-400 text-center">Presence</div>
                 <input type="number" step="0.5" min="0" max="7.5" id="mobSemAttendance" required
                   oninput="clampMobSem(this,7.5); calcMobSemTotal()"
-                  class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2 py-2 text-white font-black text-base text-center outline-none focus:border-emerald-500">
-                <div class="text-[9px] text-slate-600">max 7.5</div>
+                  class="w-full bg-slate-800 border border-emerald-700/40 rounded-xl px-2 py-2.5 text-white font-black text-base text-center outline-none focus:border-emerald-400 transition-premium">
+                <div class="text-xs text-slate-500 font-bold">max 7.5</div>
               </div>
             </div>
 
             <!-- Total + Submit -->
-            <div class="bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-700/60 rounded-2xl p-5 flex items-center justify-between gap-4">
+            <div class="bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-600/60 rounded-2xl p-5 flex items-center justify-between gap-4 shadow-xl">
               <div>
-                <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Score</div>
-                <div class="text-3xl font-black" id="mobSemTotalDisplay">
+                <div class="text-sm text-slate-400 font-bold uppercase tracking-wider mb-1">Total Score</div>
+                <div class="text-4xl font-black" id="mobSemTotalDisplay">
                   <span id="mobSemTotalNum" class="text-blue-400">0.00</span>
-                  <span class="text-slate-600 text-lg"> / 75</span>
+                  <span class="text-slate-500 text-xl"> / 75</span>
                 </div>
                 <!-- keep old ID for backward compat -->
                 <div id="mobSemTotalScoreLabel" class="hidden"></div>
               </div>
               <button type="submit" id="mobSemSubmitBtn"
-                class="px-6 py-3.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-xl font-black text-sm shadow-lg shadow-blue-500/30 transition-premium cursor-pointer flex items-center gap-2">
-                <span class="material-symbols-rounded text-base">save</span> Save
+                class="px-6 py-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-xl font-black text-base shadow-lg shadow-blue-500/30 transition-premium cursor-pointer flex items-center gap-2">
+                <span class="material-symbols-rounded text-lg">save</span> Save
               </button>
             </div>
 
-            <button type="button" onclick="backToSeminarList()" class="w-full py-2.5 text-slate-400 text-xs font-bold flex items-center justify-center gap-1 cursor-pointer hover:text-white transition-premium">
-              <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Seminar List
+            <button type="button" onclick="backToSeminarList()" class="w-full py-3.5 text-slate-300 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer hover:text-white transition-premium border border-slate-700/50 rounded-xl hover:bg-slate-800/50">
+              <span class="material-symbols-rounded text-base">arrow_back</span> Back to Seminar List
             </button>
 
           </form>
         </div>
 
       </div>
+
+
 
     </div>
   </main>
