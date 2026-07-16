@@ -432,8 +432,8 @@ Syllabus text:
                 $part = trim($part, ' ,.');
                 if (strlen($part) > 4) {
                     // ── Step 3: further split on ' – ' / ' - ' (dash notation) ──────
-                    $dashParts = preg_split('/\s+[\u2013\-]\s+/', $part, -1, PREG_SPLIT_NO_EMPTY);
-                    $dashParts = array_values(array_filter(array_map('trim', $dashParts), fn($s) => strlen($s) > 4));
+                    $dashParts = preg_split('/\s+[\x{2013}\-]\s+/u', $part, -1, PREG_SPLIT_NO_EMPTY);
+                    $dashParts = array_values(array_filter(array_map('trim', $dashParts), fn($s) => strlen($s) > 12));
                     if (count($dashParts) >= 2) {
                         foreach ($dashParts as $dp) $topics[] = ucfirst($dp);
                     } else {
@@ -486,9 +486,14 @@ Syllabus text:
             'Applications, System Design, and Practical Implementation',
             'Advanced Topics, Modern Trends, and Case Studies',
             'Topics for CO',
+            'Standard Reference Textbook',
         ];
         foreach ($genericPhrases as $phrase) {
             if (stripos($content, $phrase) !== false) return true;
+        }
+        // Also catch "Unit N: ..." patterns that are clearly fallback
+        if (preg_match('/^Unit\s+\d+\s*:\s*(Fundamentals|Theoretical|Applications|Advanced)/i', $content)) {
+            return true;
         }
         return false;
     }
