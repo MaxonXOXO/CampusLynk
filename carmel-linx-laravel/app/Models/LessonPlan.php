@@ -11,13 +11,16 @@ class LessonPlan extends Model
 
     protected $fillable = [
         'batch_subject_id',
+        'day_no',
         'co_id',
         'topic_content',
         'allocated_hours',
+        'pedagogy',
         'proposed_date',
         'actual_date',
         'actual_hours',
         'status',
+        'remarks',
     ];
 
     public function batchSubject()

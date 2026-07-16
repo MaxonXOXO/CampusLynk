@@ -297,12 +297,13 @@ Syllabus text:
                 foreach ($lessonPlans as $lp) {
                     \App\Models\LessonPlan::create([
                         'batch_subject_id' => $subjectId,
-                        'day_no' => $lp['day_no'] ?? null,
-                        'co_id' => $lp['co_id'] ?? null,
-                        'topic_content' => $lp['topic_content'] ?? 'Topic',
-                        'allocated_hours' => $lp['allocated_hours'] ?? 1,
-                        'pedagogy' => $lp['pedagogy'] ?? 'Lecture',
-                        'remarks' => $lp['remarks'] ?? null,
+                        'day_no'           => $lp['day_no'] ?? null,
+                        'co_id'            => $lp['co_id'] ?? null,
+                        'topic_content'    => $lp['topic_content'] ?? 'Topic',
+                        'allocated_hours'  => $lp['allocated_hours'] ?? 1,
+                        'pedagogy'         => $lp['pedagogy'] ?? 'Lecture',
+                        'remarks'          => $lp['remarks'] ?? null,
+                        'status'           => 'Pending',
                     ]);
                 }
             }
