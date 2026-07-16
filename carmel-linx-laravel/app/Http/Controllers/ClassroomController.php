@@ -134,46 +134,44 @@ class ClassroomController extends Controller
                 $apiKey = env('GEMINI_API_KEY');
                 if ($apiKey) {
                     try {
-                    $prompt = "You are a Syllabus Parser. Extract the following from the raw syllabus text:
-1. Course Outcomes (CO1, CO2, etc) and descriptions, including a duration (estimated hours, integer value) and a cognitive_level (e.g. Remembering, Understanding, Applying, Analyzing).
-2. Modules.
-3. Textbooks.
-4. CO-PO mapping strengths (copo) matching each CO (CO1, CO2, etc) to Program Outcomes (PO1 to PO12) with values from 1 (Low), 2 (Medium), 3 (High) or null/0 if not mapped.
-5. Structured Lesson Plan mapping each CO to the specific topics covered and the allocated_hours.
+                    $prompt = "You are an expert academic syllabus parser. Carefully extract structured information from the raw syllabus text provided.
 
-Return ONLY valid JSON matching this schema:
+Return ONLY valid JSON with NO markdown, NO code fences, NO explanation — just the raw JSON object.
+
+The JSON must match this schema exactly:
 {
   \"cos\": [
-    {
-      \"id\": \"CO1\",
-      \"description\": \"...\",
-      \"duration\": 12,
-      \"cognitive_level\": \"Understanding\"
-    }
+    { \"id\": \"CO1\", \"description\": \"...\", \"duration\": 13, \"cognitive_level\": \"Understanding\" }
   ],
   \"copo\": {
-    \"CO1\": {\"PO1\": 3, \"PO2\": 2, \"PO3\": null},
-    \"CO2\": {...}
+    \"CO1\": { \"PO1\": 3, \"PO2\": 2, \"PO3\": 1, \"PO4\": null, \"PO5\": null, \"PO6\": null, \"PO7\": null, \"PO8\": null, \"PO9\": null, \"PO10\": null, \"PO11\": null, \"PO12\": null }
   },
   \"modules\": [
-    {
-      \"module_id\": \"I\",
-      \"content\": \"...\"
-    }
+    { \"module_id\": \"I\", \"content\": \"Exact text of the module contents section\" }
   ],
-  \"textbooks\": [\"...\"],
+  \"textbooks\": [\"Author Name, Title, Publisher, Year\"],
   \"lesson_plan\": [
-    {
-      \"co_id\": \"CO1\",
-      \"topic_content\": \"...\",
-      \"allocated_hours\": 5
-    }
+    { \"co_id\": \"CO1\", \"topic_content\": \"Exact topic text as written in syllabus\", \"allocated_hours\": 2, \"pedagogy\": \"Lecture\" }
   ]
 }
 
+CRITICAL RULES FOR lesson_plan:
+- Generate ONE row per MODULE OUTCOME row (e.g. M1.01, M1.02, M1.03, etc. for each CO).
+- Use the EXACT topic text from each row of the Course Outline table (e.g. \"Describe embedded system, illustrate difference from general purpose computer\").
+- Use the EXACT duration (hours) from each row of the Course Outline table (e.g. 2).
+- DO NOT summarize or combine multiple rows into one — keep each row separate.
+- If the syllabus does not have a Course Outline table, generate one lesson_plan entry per topic sentence in each module's contents, using 1 or 2 hours per topic.
+- The co_id must match the CO number that each module outcome belongs to.
+- pedagogy should be Lecture for theory topics, Lab for practical topics, Demo for demonstrations.
+
+CRITICAL RULES FOR modules:
+- Copy the EXACT text from the Contents section of each module.
+- Do NOT use generic placeholder text.
+
 Syllabus text:
 
-" . substr($text, 0, 15000);
+" . substr($text, 0, 18000);
+
 
                     $response = \Illuminate\Support\Facades\Http::post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [
                         'contents' => [['parts' => [['text' => $prompt]]]],
@@ -554,9 +552,14 @@ Syllabus text:
     }
 
     /**
-     * Universal helper: assign sequential day_no to all plans.
-     * Since generateBasicLessonPlans already outputs 1-hour rows, this just stamps day numbers.
-     * Also ensures exactly 2 test days appear at the end.
+     * Expand lesson plans to 1-hour-per-day entries with day_no stamped.
+     *
+     * IMPORTANT: When Gemini returns a row like:
+     *   {topic_content: "Describe embedded system, illustrate difference from general purpose computer", allocated_hours: 2}
+     * we must split it into 2 DISTINCT day entries using atomic topic extraction:
+     *   Day 1: "Describe embedded system"
+     *   Day 2: "Illustrate difference from general purpose computer"
+     * NOT: "Describe embedded system... (Part 1/2)" and "(Part 2/2)"
      */
     private function expandLessonPlansToHourly(array $plans): array
     {
@@ -564,23 +567,35 @@ Syllabus text:
         $dayNo    = 1;
 
         foreach ($plans as $lp) {
-            $hours = max(1, (int)($lp['allocated_hours'] ?? 1));
-            for ($h = 0; $h < $hours; $h++) {
-                // Only add (Part x/y) suffix when hours > 1 AND topic doesn't already have unique labels
-                $topic   = $lp['topic_content'] ?? 'Lecture';
-                $suffix  = ($hours > 1) ? ' (Part ' . ($h + 1) . "/{$hours})" : '';
-                // If topic already ends with a stage label, don't double-suffix
-                if ($hours > 1 && (str_contains($topic, 'Introduction to') || str_contains($topic, ' – '))) {
-                    $suffix = '';
-                }
+            $hours   = max(1, (int)($lp['allocated_hours'] ?? 1));
+            $topic   = trim($lp['topic_content'] ?? 'Lecture');
+            $coId    = $lp['co_id'] ?? null;
+            $pedagogy= $lp['pedagogy'] ?? 'Lecture';
+            $remarks = $lp['remarks'] ?? null;
+
+            if ($hours === 1) {
+                // Single hour — use as-is
                 $expanded[] = [
                     'day_no'          => $dayNo++,
-                    'co_id'           => $lp['co_id'] ?? null,
-                    'topic_content'   => $topic . $suffix,
+                    'co_id'           => $coId,
+                    'topic_content'   => $topic,
                     'allocated_hours' => 1,
-                    'pedagogy'        => $lp['pedagogy'] ?? 'Lecture',
-                    'remarks'         => $lp['remarks'] ?? null,
+                    'pedagogy'        => $pedagogy,
+                    'remarks'         => $remarks,
                 ];
+            } else {
+                // Multi-hour entry — split into atomic topics
+                $atomicTopics = $this->splitTopicIntoAtomicDays($topic, $hours);
+                foreach ($atomicTopics as $atomicTopic) {
+                    $expanded[] = [
+                        'day_no'          => $dayNo++,
+                        'co_id'           => $coId,
+                        'topic_content'   => $atomicTopic,
+                        'allocated_hours' => 1,
+                        'pedagogy'        => $pedagogy,
+                        'remarks'         => $remarks,
+                    ];
+                }
             }
         }
 
@@ -596,6 +611,74 @@ Syllabus text:
         }
 
         return $expanded;
+    }
+
+    /**
+     * Split a multi-hour topic into N distinct atomic day-topics.
+     *
+     * Example: "Describe embedded system, illustrate difference from general purpose computer", hours=2
+     * → ["Describe embedded system", "Illustrate difference from general purpose computer"]
+     *
+     * Example: "Classify embedded systems, explain application areas and summarize purpose", hours=2
+     * → ["Classify embedded systems", "Explain application areas and summarize purpose"]
+     *
+     * If atomic count matches hours → use directly.
+     * If fewer atomics than hours → pad with revision/practice.
+     * If more atomics than hours → use first N.
+     */
+    private function splitTopicIntoAtomicDays(string $topic, int $hours): array
+    {
+        if ($hours <= 1) return [$topic];
+
+        // Try comma-split first (most common in Indian syllabi)
+        $commaParts = array_values(array_filter(
+            array_map('trim', explode(',', $topic)),
+            fn($s) => strlen($s) > 5
+        ));
+
+        // Merge very short fragments back with previous item
+        $merged = [];
+        $buffer = '';
+        foreach ($commaParts as $part) {
+            if (strlen($buffer) > 0 && strlen($part) < 10 && !preg_match('/^[A-Z]/', $part)) {
+                $buffer .= ', ' . $part;
+            } else {
+                if ($buffer !== '') $merged[] = ucfirst($buffer);
+                $buffer = $part;
+            }
+        }
+        if ($buffer !== '') $merged[] = ucfirst($buffer);
+
+        // If we got enough meaningful pieces from comma-split, use them
+        if (count($merged) >= $hours) {
+            return array_slice($merged, 0, $hours);
+        }
+
+        // Try semicolon/period split
+        $sentenceParts = array_values(array_filter(
+            preg_split('/[.;]\s+/', $topic, -1, PREG_SPLIT_NO_EMPTY),
+            fn($s) => strlen(trim($s)) > 5
+        ));
+        $sentenceParts = array_map('trim', $sentenceParts);
+        if (count($sentenceParts) >= $hours) {
+            return array_slice(array_map('ucfirst', $sentenceParts), 0, $hours);
+        }
+
+        // Use merged comma-parts plus padding if still short
+        $base = !empty($merged) ? $merged : [$topic];
+        $padTypes = [
+            'Revision & Problem Solving',
+            'Practice Problems & Exercises',
+            'Doubt Clearing & Discussion',
+            'Worked Examples',
+            'Tutorial Session',
+        ];
+        $result = $base;
+        $needed = $hours - count($result);
+        for ($i = 0; $i < $needed; $i++) {
+            $result[] = end($base) . ' – ' . $padTypes[$i % count($padTypes)];
+        }
+        return array_slice($result, 0, $hours);
     }
 
     // ────────────────────────────────────────────────────────────────────────────
@@ -774,33 +857,102 @@ Syllabus text:
     private function extractCourseOutcomes($text)
     {
         $cos = [];
-        if (preg_match_all('/CO\s*\d[\:\-\.]\s*(.*)/i', $text, $matches)) {
-            foreach ($matches[1] as $index => $match) {
+        
+        // Match Kerala SBTE Diploma format:
+        // CO1 / CO1 [new line] Explain the basics of... [new line] 13 Understanding
+        // Or table style: CO1 [tab/space] Description [tab/space] Duration [tab/space] Cognitive Level
+        if (preg_match_all('/CO(\d+)\s+([\s\S]*?)(?=\bCO\d+\b|Series Test|CO\s*-\s*PO|Course Outline|\z)/i', $text, $matches)) {
+            foreach ($matches[1] as $idx => $coNum) {
+                $rawContent = trim($matches[2][$idx]);
+                // Split lines to find description, duration, and cognitive level
+                $lines = array_values(array_filter(array_map('trim', explode("\n", $rawContent))));
+                
+                $description = '';
+                $duration = 15;
+                $cognitiveLevel = 'Understanding';
+                
+                foreach ($lines as $line) {
+                    if (preg_match('/^(\d+)\s+([a-zA-Z]+)$/i', $line, $lm)) {
+                        $duration = (int)$lm[1];
+                        $cognitiveLevel = trim($lm[2]);
+                    } elseif (preg_match('/Duration|Cognitive/i', $line)) {
+                        continue;
+                    } else {
+                        if (strlen($line) > 5) {
+                            $description .= ($description ? ' ' : '') . $line;
+                        }
+                    }
+                }
+                
+                // Clean description of trailing numbers/cognitive levels if they stayed
+                $description = preg_replace('/\s+\d+\s+[a-zA-Z]+$/i', '', trim($description));
+                
                 $cos[] = [
-                    'id' => 'CO' . ($index + 1),
-                    'description' => trim($match)
+                    'id' => 'CO' . $coNum,
+                    'description' => $description ?: 'Course Outcome ' . $coNum,
+                    'duration' => $duration,
+                    'cognitive_level' => $cognitiveLevel
                 ];
             }
         }
+        
+        // Fallback to simple regex if nothing matched
+        if (empty($cos)) {
+            if (preg_match_all('/CO\s*(\d+)[\:\-\.\s]+(.*)/i', $text, $matches)) {
+                foreach ($matches[2] as $index => $match) {
+                    $cos[] = [
+                        'id' => 'CO' . $matches[1][$index],
+                        'description' => trim($match),
+                        'duration' => 15,
+                        'cognitive_level' => 'Understanding'
+                    ];
+                }
+            }
+        }
+        
         return $cos;
     }
 
     private function extractModules($text)
     {
         $modules = [];
-        $parts = preg_split('/(Module\s+[IVX\d]+)/i', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
         
-        $currentModule = null;
-        foreach ($parts as $part) {
-            if (preg_match('/^Module\s+([IVX\d]+)$/i', trim($part), $m)) {
-                if ($currentModule) $modules[] = $currentModule;
-                $currentModule = ['module_id' => strtoupper($m[1]), 'content' => ''];
-            } else if ($currentModule) {
-                $cleanText = preg_replace('/\s+/', ' ', trim($part));
-                $currentModule['content'] = substr($cleanText, 0, 800) . (strlen($cleanText) > 800 ? '...' : '');
+        // Search for Course Outline sections where M1.01, M2.01, etc. are listed
+        // Or Module contents
+        $moduleIds = ['I', 'II', 'III', 'IV', 'V', 'VI'];
+        
+        foreach ($moduleIds as $idx => $mId) {
+            $num = $idx + 1;
+            
+            // Look for "CO1 ... Contents: [text] ... CO2" or similar
+            $pattern = '/CO' . $num . '\s+[\s\S]*?Contents:\s*([\s\S]*?)(?=CO' . ($num + 1) . '|Series Test - I|Series Test - II|Text \/ Reference|\z)/i';
+            if (preg_match($pattern, $text, $match)) {
+                $content = trim($match[1]);
+                // Clean up multiple spaces/newlines
+                $content = preg_replace('/\s+/', ' ', $content);
+                $modules[] = [
+                    'module_id' => $mId,
+                    'content' => substr($content, 0, 1000)
+                ];
             }
         }
-        if ($currentModule) $modules[] = $currentModule;
+        
+        // Fallback to splitting by "Module X"
+        if (empty($modules)) {
+            $parts = preg_split('/(Module\s+[IVX\d]+)/i', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+            $currentModule = null;
+            foreach ($parts as $part) {
+                if (preg_match('/^Module\s+([IVX\d]+)$/i', trim($part), $m)) {
+                    if ($currentModule) $modules[] = $currentModule;
+                    $currentModule = ['module_id' => strtoupper($m[1]), 'content' => ''];
+                } else if ($currentModule) {
+                    $cleanText = preg_replace('/\s+/', ' ', trim($part));
+                    $currentModule['content'] = substr($cleanText, 0, 800) . (strlen($cleanText) > 800 ? '...' : '');
+                }
+            }
+            if ($currentModule) $modules[] = $currentModule;
+        }
+        
         return $modules;
     }
 
