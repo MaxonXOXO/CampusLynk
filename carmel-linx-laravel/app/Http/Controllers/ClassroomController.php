@@ -359,9 +359,10 @@ Syllabus text:
     }
 
     /**
-     * Smart lesson plan generator: distributes module content across allocated hours
-     * so each day gets a unique, pedagogically meaningful topic label.
-     * Sub-topics are extracted from module content and hours are spread proportionally.
+     * Content-first lesson plan generator.
+     * Each atomic topic from module content = exactly 1 day.
+     * Topics are split from REAL syllabus content (commas, verbs, dashes).
+     * Only when topic count < target hours, padding sessions are added.
      */
     private function generateBasicLessonPlans(array $modules, array $cos): array
     {
@@ -372,118 +373,179 @@ Syllabus text:
             $hours   = isset($co['duration']) && (int)$co['duration'] > 0 ? (int)$co['duration'] : 15;
             $content = isset($modules[$idx]) ? ($modules[$idx]['content'] ?? '') : '';
 
-            // Parse module content into meaningful sub-topics
-            $subTopics = $this->parseModuleIntoSubTopics($content, $coId);
-            $topicCount = count($subTopics);
+            // Extract REAL atomic topics from module content
+            $topics = $this->extractAtomicTopics($content, $coId, $hours);
 
-            // Distribute hours across sub-topics (some get more hours than others)
-            $baseHours  = (int)floor($hours / $topicCount);
-            $extraHours = $hours - ($baseHours * $topicCount); // leftover given to first topics
-
-            foreach ($subTopics as $tIdx => $subTopic) {
-                $allocatedHours = $baseHours + ($tIdx < $extraHours ? 1 : 0);
-                if ($allocatedHours < 1) $allocatedHours = 1;
-
-                // Generate unique day labels for this sub-topic
-                $stages = $this->getTopicStages($allocatedHours, $subTopic);
-                foreach ($stages as $stage) {
-                    $rawPlans[] = [
-                        'co_id'          => $coId,
-                        'topic_content'  => $stage,
-                        'allocated_hours'=> 1,
-                        'pedagogy'       => 'Lecture',
-                        'remarks'        => null,
-                    ];
-                }
+            foreach ($topics as $topic) {
+                $rawPlans[] = [
+                    'co_id'          => $coId,
+                    'topic_content'  => $topic,
+                    'allocated_hours'=> 1,
+                    'pedagogy'       => 'Lecture',
+                    'remarks'        => null,
+                ];
             }
         }
 
         // Append 2 series test days
-        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test – 1'];
-        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test – 2'];
+        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test –1'];
+        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test –2'];
 
         return $rawPlans;
     }
 
     /**
-     * Parse a module content string into a list of distinct sub-topics.
-     * Tries multiple split strategies to extract meaningful phrases.
+     * Extract individual atomic topics from a module's content string.
+     *
+     * Priority:
+     *  1. Split by period/semicolon into sentences.
+     *  2. Within each sentence, split by comma + optional action verb (covers
+     *     syllabi written as "Describe X, illustrate Y, explain Z").
+     *  3. Further split each piece by " – " or " - " (dash-notation used in
+     *     many Indian board/university syllabi).
+     *
+     * After splitting, the count is matched to $targetHours:
+     *  - More topics than hours → keep all (slight over-run is fine).
+     *  - Fewer topics than hours → pad with clearly-labelled review sessions.
+     *  - Generic/fallback content detected → generate descriptive generics.
      */
-    private function parseModuleIntoSubTopics(string $content, string $coId): array
+    private function extractAtomicTopics(string $content, string $coId, int $targetHours): array
     {
         $content = trim($content);
-        if (strlen($content) < 10) {
-            return ["Topics for {$coId}"];
+        $isGeneric = $this->isGenericFallbackContent($content);
+
+        if ($isGeneric || strlen($content) < 10) {
+            return $this->generateGenericDayTopics($coId, $targetHours);
         }
 
-        // Strategy 1: split by period or semicolon followed by space + capital letter
-        $parts = preg_split('/(?<=[.;])\s+(?=[A-Z])/', $content, -1, PREG_SPLIT_NO_EMPTY);
-        $parts = array_values(array_filter(array_map('trim', $parts), fn($s) => strlen($s) > 8));
-        if (count($parts) >= 2) return $parts;
+        // ── Step 1: split into sentences by period / semicolon ───────────────
+        $sentences = preg_split('/(?<=[.;])\s+/', $content, -1, PREG_SPLIT_NO_EMPTY);
+        $sentences = array_values(array_filter(array_map('trim', $sentences), fn($s) => strlen($s) > 4));
+        if (empty($sentences)) $sentences = [$content];
 
-        // Strategy 2: split by ' – ' or ' - ' (dash-separated topics common in Indian syllabi)
-        $parts = preg_split('/\s+[–\-]\s+/', $content, -1, PREG_SPLIT_NO_EMPTY);
-        $parts = array_values(array_filter(array_map('trim', $parts), fn($s) => strlen($s) > 8));
-        if (count($parts) >= 2) {
-            // Group into pairs to avoid too many tiny topics
-            $grouped = [];
-            for ($i = 0; $i < count($parts); $i += 2) {
-                $grouped[] = isset($parts[$i + 1]) ? $parts[$i] . ' – ' . $parts[$i + 1] : $parts[$i];
+        // ── Step 2: within each sentence, split on comma + optional whitespace
+        //    This handles syllabi like: "Describe X, illustrate Y, compare Z"
+        $topics = [];
+        foreach ($sentences as $sentence) {
+            $parts = $this->splitByCommaAndVerb($sentence);
+            foreach ($parts as $part) {
+                $part = trim($part, ' ,.');
+                if (strlen($part) > 4) {
+                    // ── Step 3: further split on ' – ' / ' - ' (dash notation) ──────
+                    $dashParts = preg_split('/\s+[\u2013\-]\s+/', $part, -1, PREG_SPLIT_NO_EMPTY);
+                    $dashParts = array_values(array_filter(array_map('trim', $dashParts), fn($s) => strlen($s) > 4));
+                    if (count($dashParts) >= 2) {
+                        foreach ($dashParts as $dp) $topics[] = ucfirst($dp);
+                    } else {
+                        $topics[] = ucfirst($part);
+                    }
+                }
             }
-            return $grouped;
         }
 
-        // Strategy 3: split by comma before known keywords
-        $parts = preg_split('/,\s+(?=[A-Z]|types|methods|concepts|analysis|design|application|principle|study)/', $content, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-        $parts = array_values(array_filter(array_map('trim', $parts), fn($s) => strlen($s) > 8));
-        if (count($parts) >= 2) return $parts;
+        $topics = array_values(array_unique(array_filter($topics, fn($t) => strlen($t) > 4)));
 
-        // Fallback: treat the whole content as one topic
-        return [trim($content)];
+        if (empty($topics)) {
+            return $this->generateGenericDayTopics($coId, $targetHours);
+        }
+
+        $count = count($topics);
+
+        // More topics than hours → keep all (slight over-run is acceptable)
+        if ($count >= $targetHours) {
+            return $topics;
+        }
+
+        // Fewer topics than hours → pad with review/practice sessions
+        $padTypes = [
+            'Revision & Problem Solving',
+            'Practice Problems & Exercises',
+            'Doubt Clearing Session',
+            'Worked Examples & Applications',
+            'Previous Year Questions Discussion',
+            'Tutorial & Discussion',
+        ];
+        $padded = $topics;
+        $needed = $targetHours - $count;
+        for ($i = 0; $i < $needed; $i++) {
+            $label    = $padTypes[$i % count($padTypes)];
+            $lastReal = $topics[min($i, $count - 1)];
+            $padded[] = $lastReal . ' – ' . $label;
+        }
+        return $padded;
     }
 
     /**
-     * Given a topic name and number of hours, generate unique pedagogically-progressed
-     * stage labels: Introduction → Core → Analysis → Application → Problem Solving → Revision.
+     * Detect generic/fallback module content (produced when PDF parsing fails).
      */
-    private function getTopicStages(int $hours, string $topic): array
+    private function isGenericFallbackContent(string $content): bool
     {
-        // Shorten very long topic names for readability
-        $shortTopic = strlen($topic) > 70 ? substr($topic, 0, 67) . '…' : $topic;
-
-        if ($hours <= 1) return [$shortTopic];
-
-        $progressionSequence = [
-            'Introduction & Overview',
-            'Core Concepts',
-            'Theoretical Foundations',
-            'Detailed Study',
-            'Analysis & Discussion',
-            'Worked Examples',
-            'Applications',
-            'Problem Solving',
-            'Advanced Topics',
-            'Case Studies & Real-World Contexts',
-            'Revision & Summary',
+        $genericPhrases = [
+            'Fundamentals, Core Concepts, and Introductory Principles',
+            'Theoretical Analysis, Detailed Operations, and Core Methodologies',
+            'Applications, System Design, and Practical Implementation',
+            'Advanced Topics, Modern Trends, and Case Studies',
+            'Topics for CO',
         ];
+        foreach ($genericPhrases as $phrase) {
+            if (stripos($content, $phrase) !== false) return true;
+        }
+        return false;
+    }
 
-        $stages = [];
-        for ($i = 0; $i < $hours; $i++) {
-            if ($hours === 2) {
-                $labels = ["Introduction to {$shortTopic}", "{$shortTopic} – Core Concepts & Discussion"];
-                $stages[] = $labels[$i];
-            } elseif ($i === 0) {
-                $stages[] = "Introduction to {$shortTopic}";
-            } elseif ($i === $hours - 1) {
-                $stages[] = "{$shortTopic} – Revision & Summary";
+    /**
+     * Split a sentence on commas, paying attention to whether each piece
+     * is a meaningful standalone topic (length > 4 chars).
+     * Handles: "Describe X, illustrate Y, compare Z with A"
+     */
+    private function splitByCommaAndVerb(string $sentence): array
+    {
+        // Split on comma (greedy — split all commas)
+        $parts = explode(',', $sentence);
+        $parts = array_map('trim', $parts);
+
+        // If many very-short fragments result, the comma was used within a list
+        // that should stay together — merge back pairs that are < 8 chars
+        $merged = [];
+        $buffer = '';
+        foreach ($parts as $part) {
+            if (strlen($buffer) > 0 && strlen($part) < 8) {
+                $buffer .= ', ' . $part;
             } else {
-                // Pick from the middle of progression sequence
-                $labelIdx = min($i, count($progressionSequence) - 2);
-                $stages[] = "{$shortTopic} – " . $progressionSequence[$labelIdx];
+                if (strlen($buffer) > 4) $merged[] = $buffer;
+                $buffer = $part;
             }
         }
+        if (strlen($buffer) > 4) $merged[] = $buffer;
 
-        return $stages;
+        return count($merged) >= 2 ? $merged : [$sentence];
+    }
+
+    /**
+     * Generate generic-but-descriptive day topic names when actual content
+     * is unavailable (e.g. image-based PDF, or no syllabus uploaded yet).
+     */
+    private function generateGenericDayTopics(string $coId, int $hours): array
+    {
+        $templates = [
+            "Introduction and overview of {$coId} concepts",
+            "Fundamental principles and definitions for {$coId}",
+            "Core theory and key concepts of {$coId}",
+            "Detailed study: analysis and discussion ({$coId})",
+            "Worked examples and solved problems ({$coId})",
+            "Design considerations and methodology ({$coId})",
+            "Applications and practical usage ({$coId})",
+            "Problem solving session ({$coId})",
+            "Advanced concepts and extensions ({$coId})",
+            "Case studies and real-world scenarios ({$coId})",
+            "Revision, Q&A and doubt clearing ({$coId})",
+            "Tutorial and additional problems ({$coId})",
+        ];
+        $topics = [];
+        for ($i = 0; $i < $hours; $i++) {
+            $topics[] = $templates[$i % count($templates)];
+        }
+        return $topics;
     }
 
     /**
