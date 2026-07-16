@@ -305,6 +305,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/api/student/academic-report', [DataController::class, 'getAcademicReport']);
 
     Route::post('/api/classroom/{subjectId}/syllabus', [App\Http\Controllers\ClassroomController::class, 'uploadSyllabus']);
+    Route::get('/api/classroom/{subjectId}/syllabus/download', [App\Http\Controllers\ClassroomController::class, 'downloadSyllabusFile']);
     Route::get('/api/classroom/{subjectId}/details', [App\Http\Controllers\ClassroomController::class, 'getCourseDetails']);
     Route::get('/api/classroom/{subjectId}/generate-questions', [App\Http\Controllers\ClassroomController::class, 'generateAssignmentQuestions']);
     Route::post('/api/classroom/{subjectId}/save-assignment-deadline', [App\Http\Controllers\ClassroomController::class, 'saveAssignmentDeadline']);

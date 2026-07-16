@@ -970,6 +970,11 @@
                       <div class="bg-gradient-to-r from-blue-600 to-sky-400 h-1.5 rounded-full w-full animate-[progress_2s_ease-in-out_infinite]"></div>
                     </div>
                   </div>
+
+                  <div id="vcSubjectInfo" class="hidden flex-col justify-center border-l border-slate-800/80 pl-4 relative z-10">
+                    <span id="vcSubjectName" class="text-sm font-bold text-slate-200"></span>
+                    <span id="vcSubjectCode" class="text-sm font-semibold text-blue-400 mt-1"></span>
+                  </div>
                 </div>
                  <span id="parseStatusBadge" class="text-xs font-bold px-3 py-1.5 rounded-md bg-slate-800/80 text-slate-300 border border-slate-700/50 whitespace-nowrap">Waiting for upload</span>
              </div>
@@ -2014,6 +2019,11 @@
         </div>
       `;
       document.getElementById('activeSyllabusCard').classList.add('hidden');
+      const vcSubInfo = document.getElementById('vcSubjectInfo');
+      if (vcSubInfo) {
+        vcSubInfo.classList.add('hidden');
+        vcSubInfo.classList.remove('flex');
+      }
       document.getElementById('parseStatusBadge').innerText = 'Syncing...';
       document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-blue-900/30 text-blue-400 border border-blue-500/30';
 
@@ -2026,6 +2036,15 @@
           currentSummativeTests = data.data.summative_manual_tests || {};
           currentSubjectName = data.data.subject_name || '';
           currentSubjectCode = data.data.subject_code || '';
+          const vcSubName = document.getElementById('vcSubjectName');
+          const vcSubCode = document.getElementById('vcSubjectCode');
+          const vcSubInfo = document.getElementById('vcSubjectInfo');
+          if (vcSubName) vcSubName.innerText = currentSubjectName;
+          if (vcSubCode) vcSubCode.innerText = currentSubjectCode;
+          if (vcSubInfo) {
+            vcSubInfo.classList.remove('hidden');
+            vcSubInfo.classList.add('flex');
+          }
           currentSubjectSemester = data.data.semester || '';
           currentSubjectAcademicYear = data.data.academic_year || '';
           currentSubjectClassroomId = data.data.classroom_id || '';
@@ -2105,7 +2124,7 @@
 
           if (data.data.syllabus_pdf_path) {
             document.getElementById('activeSyllabusCard').classList.remove('hidden');
-            document.getElementById('downloadSyllabusBtn').href = data.data.syllabus_pdf_path;
+            document.getElementById('downloadSyllabusBtn').href = `/api/classroom/${subjectId}/syllabus/download`;
             document.getElementById('parseStatusBadge').innerText = 'Parsed & Synced';
             document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-emerald-900/30 text-emerald-400 border border-emerald-500/30';
           } else {

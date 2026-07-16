@@ -328,6 +328,36 @@ Syllabus text:
     }
 
     /**
+     * Download or stream syllabus PDF
+     */
+    public function downloadSyllabusFile($subjectId)
+    {
+        $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$courseFile || !$courseFile->syllabus_pdf_path) {
+            abort(404, 'Syllabus not found.');
+        }
+
+        $path = str_replace('/storage/', '', $courseFile->syllabus_pdf_path);
+
+        if (\Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+            try {
+                $filePath = \Illuminate\Support\Facades\Storage::disk('public')->path($path);
+                return response()->file($filePath, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="syllabus.pdf"'
+                ]);
+            } catch (\Exception $e) {
+                return response(\Illuminate\Support\Facades\Storage::disk('public')->get($path), 200, [
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="syllabus.pdf"'
+                ]);
+            }
+        }
+
+        abort(404, 'File not found on storage.');
+    }
+
+    /**
      * Generate 1-hour-per-day lesson plan entries from COs and modules.
      * Each CO's duration is used to determine how many days to allocate.
      * Module content is distributed across those days.
