@@ -2639,10 +2639,21 @@
     }
 
     function renderCourseStructure(cos, modules, textbooks, copo) {
-      document.getElementById('parseStatusBadge').innerText = 'Parsed Successfully';
-      document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-emerald-900/30 text-emerald-400 border border-emerald-500/30';
-      
-      let html = '';
+      // Debug: log what we received
+      console.log('[renderCourseStructure] cos:', cos ? cos.length : 'null', '| modules:', modules ? modules.length : 'null', '| textbooks:', textbooks ? textbooks.length : 'null', '| copo keys:', copo ? Object.keys(copo).length : 'null');
+      const container = document.getElementById('courseStructureContent');
+      if (!container) { console.error('[renderCourseStructure] courseStructureContent not found!'); return; }
+
+      let html = `
+        <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-800/60">
+          <span class="material-symbols-rounded text-sky-400 text-base">library_books</span>
+          <div class="flex gap-3 text-xs font-bold text-slate-400">
+            <span class="bg-sky-900/20 border border-sky-500/20 text-sky-400 px-2 py-0.5 rounded-lg">${cos ? cos.length : 0} COs</span>
+            <span class="bg-violet-900/20 border border-violet-500/20 text-violet-400 px-2 py-0.5 rounded-lg">${modules ? modules.length : 0} Modules</span>
+            <span class="bg-amber-900/20 border border-amber-500/20 text-amber-400 px-2 py-0.5 rounded-lg">${textbooks ? textbooks.length : 0} Textbooks</span>
+          </div>
+        </div>
+      `;
 
       if (cos && cos.length > 0) {
         let cosList = cos.map(co => `
@@ -2764,7 +2775,8 @@
         html = `<div class="p-6 text-center text-sm text-slate-500 border border-dashed border-slate-700/50 rounded-xl">Could not extract structured data. The syllabus might have an unparseable format.</div>`;
       }
 
-      document.getElementById('courseStructureContent').innerHTML = html;
+      console.log('[renderCourseStructure] Writing HTML to courseStructureContent, length:', html.length);
+      container.innerHTML = html;
     }
 
     function renderSummativeAssessment(cos, students) {
