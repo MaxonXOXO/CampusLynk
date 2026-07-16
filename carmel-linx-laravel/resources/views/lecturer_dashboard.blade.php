@@ -971,9 +971,9 @@
                     </div>
                   </div>
 
-                  <div id="vcSubjectInfo" class="hidden flex-col justify-center border-l border-slate-800/80 pl-4 relative z-10">
+                  <div id="vcSubjectInfo" style="display:none" class="flex-col justify-center border-l border-slate-800/80 pl-4 relative z-10">
                     <span id="vcSubjectName" class="text-sm font-bold text-slate-200"></span>
-                    <span id="vcSubjectCode" class="text-sm font-semibold text-blue-400 mt-1"></span>
+                    <span id="vcSubjectCode" class="text-xs font-semibold text-blue-400 mt-0.5 font-mono"></span>
                   </div>
                 </div>
                  <span id="parseStatusBadge" class="text-xs font-bold px-3 py-1.5 rounded-md bg-slate-800/80 text-slate-300 border border-slate-700/50 whitespace-nowrap">Waiting for upload</span>
@@ -988,9 +988,9 @@
                   <h4 class="text-sm font-black text-slate-200">Active Syllabus</h4>
                    <p class="text-xs text-slate-400">Parsed &amp; ready</p>
                 </div>
-                <a id="downloadSyllabusBtn" href="#" target="_blank" class="text-slate-400 hover:text-blue-400 transition-premium bg-slate-900/50 p-1.5 rounded-lg border border-slate-800 hover:border-blue-500/50">
-                   <span class="material-symbols-rounded text-sm block">download</span>
-                </a>
+                <button id="downloadSyllabusBtn" onclick="downloadSyllabusPDF()" title="View / Download Syllabus PDF" class="text-slate-400 hover:text-blue-400 transition-premium bg-slate-900/50 p-1.5 rounded-lg border border-slate-800 hover:border-blue-500/50 cursor-pointer">
+                   <span class="material-symbols-rounded text-sm block">open_in_new</span>
+                </button>
              </div>
         </div>
         
@@ -1792,7 +1792,7 @@
 
             subjectsHtml += `
               <div class="w-full px-3 py-2.5 bg-slate-900/60 border border-slate-800/60 rounded-xl transition-premium group hover:border-blue-500/50">
-                <div class="flex justify-between items-center cursor-pointer" onclick="openClassroom('${b.classroom_id}', '${s.id}', '${s.name} (${s.code})')">
+                <div class="flex justify-between items-center cursor-pointer" onclick="openClassroom('${b.classroom_id}', '${s.id}', '${s.name}', '${s.code}')">
                   <div class="flex-1 min-w-0 pr-2">
                     <div class="text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-premium truncate">${s.name}</div>
                     <div class="text-xs text-slate-400 font-mono mt-0.5">Sem ${s.semester} · ${s.type} · ${s.code}</div>
@@ -1854,7 +1854,7 @@
                 return `
                   <div class="${idx > 0 ? 'pt-3' : ''} w-full">
                     <div class="w-full px-3.5 py-3 bg-slate-900/80 border border-slate-800 rounded-xl transition-premium group hover:border-blue-500/50 hover:bg-slate-900 flex flex-col gap-2">
-                      <div class="flex justify-between items-center cursor-pointer" onclick="openClassroom('${b.classroom_id}', '${s.id}', '${s.name} (${s.code})')">
+                      <div class="flex justify-between items-center cursor-pointer" onclick="openClassroom('${b.classroom_id}', '${s.id}', '${s.name}', '${s.code}')">
                         <div class="flex-1 min-w-0 pr-2">
                           <div class="text-base font-extrabold text-slate-200 group-hover:text-blue-400 transition-premium truncate">${s.name}</div>
                           <div class="text-xs text-slate-450 font-mono mt-0.5">Sem ${s.semester} · ${s.type} · ${s.code}</div>
@@ -1883,11 +1883,18 @@
     window.currentVirtualBatchId = '';
     window.currentVirtualSemester = '';
 
-    function openClassroom(batchId, subjectId, subjectName) {
+    function openClassroom(batchId, subjectId, subjectName, subjectCode) {
       currentSubjectId = subjectId;
       window.currentVirtualBatchId = batchId;
       document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> ${subjectName}`;
       document.getElementById('vcSubtitle').innerText = `Batch: ${batchId}`;
+      // Show subject name and code immediately near the upload button (before API loads)
+      const vcSubName = document.getElementById('vcSubjectName');
+      const vcSubCode = document.getElementById('vcSubjectCode');
+      const vcSubInfo = document.getElementById('vcSubjectInfo');
+      if (vcSubName) vcSubName.innerText = subjectName || '';
+      if (vcSubCode) vcSubCode.innerText = subjectCode || '';
+      if (vcSubInfo) vcSubInfo.style.display = (subjectName || subjectCode) ? 'flex' : 'none';
       switchPanel('classroom');
       loadCourseDetails(subjectId);
     }
@@ -1908,25 +1915,34 @@
 
       fetch(`/api/classroom/${currentSubjectId}/syllabus`, {
         method: 'POST',
+        credentials: 'same-origin',
         body: formData
       })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Server error: ' + res.status);
+        return res.json();
+      })
       .then(data => {
         document.getElementById('syllabusUploadBox').classList.remove('hidden');
         document.getElementById('syllabusUploadProgress').classList.add('hidden');
+        // Reset file input so same file can be re-uploaded
+        document.getElementById('syllabusFileInput').value = '';
         if (data.status === 'SUCCESS') {
-          alert('Syllabus successfully parsed!');
+          document.getElementById('parseStatusBadge').innerText = 'Parsed & Synced ✓';
+          document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-900/30 text-emerald-400 border border-emerald-500/30';
+          // Reload course details — it will auto-switch to Course Structure tab
           loadCourseDetails(currentSubjectId);
         } else {
-          alert(data.message);
+          alert(data.message || 'Upload failed.');
           document.getElementById('parseStatusBadge').innerText = 'Upload Failed';
-          document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-red-900/30 text-red-400 border border-red-500/30';
+          document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-red-900/30 text-red-400 border border-red-500/30';
         }
       })
       .catch(err => {
         document.getElementById('syllabusUploadBox').classList.remove('hidden');
         document.getElementById('syllabusUploadProgress').classList.add('hidden');
-        alert('Failed to upload syllabus.');
+        document.getElementById('syllabusFileInput').value = '';
+        alert('Failed to upload syllabus: ' + err.message);
       });
     }
 
@@ -2019,15 +2035,11 @@
         </div>
       `;
       document.getElementById('activeSyllabusCard').classList.add('hidden');
-      const vcSubInfo = document.getElementById('vcSubjectInfo');
-      if (vcSubInfo) {
-        vcSubInfo.classList.add('hidden');
-        vcSubInfo.classList.remove('flex');
-      }
+      // Note: vcSubjectInfo is set by openClassroom immediately - don't hide it during load
       document.getElementById('parseStatusBadge').innerText = 'Syncing...';
-      document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-blue-900/30 text-blue-400 border border-blue-500/30';
+      document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-blue-900/30 text-blue-400 border border-blue-500/30';
 
-      fetch(`/api/classroom/${subjectId}/details`)
+      return fetch(`/api/classroom/${subjectId}/details`)
       .then(res => res.json())
       .then(data => {
         if (data.status === 'SUCCESS' && data.data) {
@@ -2041,10 +2053,7 @@
           const vcSubInfo = document.getElementById('vcSubjectInfo');
           if (vcSubName) vcSubName.innerText = currentSubjectName;
           if (vcSubCode) vcSubCode.innerText = currentSubjectCode;
-          if (vcSubInfo) {
-            vcSubInfo.classList.remove('hidden');
-            vcSubInfo.classList.add('flex');
-          }
+          if (vcSubInfo) vcSubInfo.style.display = (currentSubjectName || currentSubjectCode) ? 'flex' : 'none';
           currentSubjectSemester = data.data.semester || '';
           currentSubjectAcademicYear = data.data.academic_year || '';
           currentSubjectClassroomId = data.data.classroom_id || '';
@@ -2061,8 +2070,9 @@
           // Always render the formative questions section (show prompt if none generated yet)
           renderAIQuestionsList(currentQuestions, subjectId);
 
-          const isSeminar = data.data.subject_type === 'Seminar';
-          const isPractical = data.data.subject_type === 'Practical' || data.data.subject_type === 'Lab' || data.data.subject_type.toLowerCase().includes('lab') || data.data.subject_type.toLowerCase().includes('practical') || data.data.subject_type.toLowerCase().includes('practicum');
+          const subjectTypeRaw = (data.data.subject_type || '').toLowerCase();
+          const isSeminar = subjectTypeRaw === 'seminar';
+          const isPractical = subjectTypeRaw === 'practical' || subjectTypeRaw === 'lab' || subjectTypeRaw.includes('lab') || subjectTypeRaw.includes('practical') || subjectTypeRaw.includes('practicum');
           window.isCurrentSubjectPractical = isPractical;
 
           const tabSeminar = document.getElementById('tabSeminar');
@@ -2122,11 +2132,17 @@
             toggleClassroomTab('structure');
           }
 
+          // Update vcTitle to include subject name for regular classrooms
+          if (!isSeminar && !isPractical) {
+            document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> ${currentSubjectName || 'Virtual Classroom'}`;
+          }
+
           if (data.data.syllabus_pdf_path) {
             document.getElementById('activeSyllabusCard').classList.remove('hidden');
-            document.getElementById('downloadSyllabusBtn').href = `/api/classroom/${subjectId}/syllabus/download`;
+            const dlBtn = document.getElementById('downloadSyllabusBtn');
+            if (dlBtn) dlBtn.dataset.url = `/api/classroom/${subjectId}/syllabus/download`;
             document.getElementById('parseStatusBadge').innerText = 'Parsed & Synced';
-            document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-emerald-900/30 text-emerald-400 border border-emerald-500/30';
+            document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-900/30 text-emerald-400 border border-emerald-500/30';
           } else {
             document.getElementById('parseStatusBadge').innerText = 'Waiting for upload';
             document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/50';
@@ -2183,7 +2199,41 @@
               `;
           }
         }
+      })
+      .catch(err => {
+        console.error('[loadCourseDetails] Error:', err);
+        document.getElementById('parseStatusBadge').innerText = 'Load Error';
+        document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-red-900/30 text-red-400 border border-red-500/30';
+        document.getElementById('courseStructureContent').innerHTML = `
+          <div class="flex flex-col items-center justify-center py-16 text-center h-full">
+            <span class="material-symbols-rounded text-2xl text-red-500 mb-3">error</span>
+            <p class="text-sm font-bold text-red-400">Failed to load course data</p>
+            <p class="text-xs text-slate-500 mt-1.5 max-w-xs">${err.message}</p>
+            <button onclick="loadCourseDetails(currentSubjectId)" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer transition-premium">
+              Retry
+            </button>
+          </div>
+        `;
       });
+    }
+
+    /**
+     * Opens the syllabus PDF by opening the controller URL via a hidden anchor click.
+     * This keeps the session cookie active (same-origin) and avoids popup blockers.
+     */
+    function downloadSyllabusPDF() {
+      const btn = document.getElementById('downloadSyllabusBtn');
+      if (!btn) return;
+      const url = btn.dataset.url;
+      if (!url) { alert('No syllabus attached to this subject yet.'); return; }
+      // Use a hidden anchor element — same-origin navigation, no popup blocker
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
 
     function renderCoursePlanner(lessonPlans) {
@@ -2668,8 +2718,50 @@
         `;
       }
 
+      // Render Modules section
+      if (modules && modules.length > 0) {
+        let modulesList = modules.map((m, idx) => `
+          <div class="border-b border-slate-800/40 last:border-0 px-4 py-3 hover:bg-slate-900/30 transition-premium">
+            <div class="flex items-start gap-3">
+              <span class="flex-shrink-0 w-7 h-7 rounded-lg bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-400 text-xs font-black">${m.module_id || (idx + 1)}</span>
+              <p class="text-sm text-slate-300 leading-relaxed">${m.content || ''}</p>
+            </div>
+          </div>
+        `).join('');
+        html += `
+          <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner mb-6">
+            <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 font-bold text-xs text-slate-400 flex items-center gap-2 tracking-wider uppercase">
+              <span class="material-symbols-rounded text-xs text-violet-400">layers</span> Modules / Units
+            </div>
+            <div class="divide-y divide-slate-800/40">
+              ${modulesList}
+            </div>
+          </div>
+        `;
+      }
+
+      // Render Textbooks section
+      if (textbooks && textbooks.length > 0) {
+        let textbooksList = textbooks.map((tb, idx) => `
+          <div class="flex items-start gap-3 px-4 py-3 border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium">
+            <span class="flex-shrink-0 w-5 h-5 mt-0.5 rounded bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xs font-bold">${idx + 1}</span>
+            <p class="text-sm text-slate-300 leading-relaxed">${tb}</p>
+          </div>
+        `).join('');
+        html += `
+          <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner mb-6">
+            <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 font-bold text-xs text-slate-400 flex items-center gap-2 tracking-wider uppercase">
+              <span class="material-symbols-rounded text-xs text-amber-400">menu_book</span> Textbooks &amp; References
+            </div>
+            <div class="divide-y divide-slate-800/40">
+              ${textbooksList}
+            </div>
+          </div>
+        `;
+      }
+
       if (html === '') {
-        html = `<div class="p-6 text-center text-[10px] text-slate-500 border border-dashed border-slate-700/50 rounded-xl">Could not extract structured data. The syllabus might have an unparseable format.</div>`;
+        html = `<div class="p-6 text-center text-sm text-slate-500 border border-dashed border-slate-700/50 rounded-xl">Could not extract structured data. The syllabus might have an unparseable format.</div>`;
       }
 
       document.getElementById('courseStructureContent').innerHTML = html;
