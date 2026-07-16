@@ -359,118 +359,349 @@ Syllabus text:
     }
 
     /**
-     * Generate 1-hour-per-day lesson plan entries from COs and modules.
-     * Each CO's duration is used to determine how many days to allocate.
-     * Module content is distributed across those days.
-     * Two test days (1 hr each) are appended at the end.
+     * Smart lesson plan generator: distributes module content across allocated hours
+     * so each day gets a unique, pedagogically meaningful topic label.
+     * Sub-topics are extracted from module content and hours are spread proportionally.
      */
-    private function generateBasicLessonPlans($modules, $cos)
+    private function generateBasicLessonPlans(array $modules, array $cos): array
     {
         $rawPlans = [];
 
-        // Build a map of CO id -> duration (hours)
-        $coDurations = [];
-        foreach ($cos as $co) {
-            $coDurations[$co['id']] = isset($co['duration']) && $co['duration'] > 0 ? (int)$co['duration'] : 15;
-        }
-
-        // Distribute module content across COs
-        $totalCos = count($cos);
         foreach ($cos as $idx => $co) {
-            $coId = $co['id'];
-            $hours = $coDurations[$coId];
-            // Pick the module for this CO if available, else use a generic description
-            $moduleContent = isset($modules[$idx]) ? $modules[$idx]['content'] : "Topics for {$coId}";
+            $coId    = $co['id'] ?? ('CO' . ($idx + 1));
+            $hours   = isset($co['duration']) && (int)$co['duration'] > 0 ? (int)$co['duration'] : 15;
+            $content = isset($modules[$idx]) ? ($modules[$idx]['content'] ?? '') : '';
 
-            // Split module content into topic sentences for distribution
-            $sentences = preg_split('/[.;]\s+/', $moduleContent, -1, PREG_SPLIT_NO_EMPTY);
-            $sentences = array_values(array_filter(array_map('trim', $sentences), fn($s) => strlen($s) > 5));
-            $topicCount = count($sentences);
+            // Parse module content into meaningful sub-topics
+            $subTopics = $this->parseModuleIntoSubTopics($content, $coId);
+            $topicCount = count($subTopics);
 
-            for ($day = 0; $day < $hours; $day++) {
-                // Cycle through sentences if more hours than sentences
-                $topicIdx = $topicCount > 0 ? ($day % $topicCount) : 0;
-                $topic = $topicCount > 0 ? $sentences[$topicIdx] : "Lecture on {$coId} topics";
-                $rawPlans[] = [
-                    'co_id'          => $coId,
-                    'topic_content'  => $topic,
-                    'allocated_hours'=> 1,
-                    'pedagogy'       => 'Lecture',
-                    'remarks'        => null,
-                ];
+            // Distribute hours across sub-topics (some get more hours than others)
+            $baseHours  = (int)floor($hours / $topicCount);
+            $extraHours = $hours - ($baseHours * $topicCount); // leftover given to first topics
+
+            foreach ($subTopics as $tIdx => $subTopic) {
+                $allocatedHours = $baseHours + ($tIdx < $extraHours ? 1 : 0);
+                if ($allocatedHours < 1) $allocatedHours = 1;
+
+                // Generate unique day labels for this sub-topic
+                $stages = $this->getTopicStages($allocatedHours, $subTopic);
+                foreach ($stages as $stage) {
+                    $rawPlans[] = [
+                        'co_id'          => $coId,
+                        'topic_content'  => $stage,
+                        'allocated_hours'=> 1,
+                        'pedagogy'       => 'Lecture',
+                        'remarks'        => null,
+                    ];
+                }
             }
         }
 
-        // Append 2 test/series test days at the end
-        $rawPlans[] = [
-            'co_id'          => null,
-            'topic_content'  => 'Series Test / Internal Assessment',
-            'allocated_hours'=> 1,
-            'pedagogy'       => 'Test',
-            'remarks'        => 'Series Test Day 1',
-        ];
-        $rawPlans[] = [
-            'co_id'          => null,
-            'topic_content'  => 'Series Test / Internal Assessment',
-            'allocated_hours'=> 1,
-            'pedagogy'       => 'Test',
-            'remarks'        => 'Series Test Day 2',
-        ];
+        // Append 2 series test days
+        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test – 1'];
+        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test – 2'];
 
         return $rawPlans;
     }
 
     /**
-     * Universal helper: expand any lesson plan array so every entry is exactly 1 hour.
-     * Multi-hour entries are split into N × 1-hour rows with the same topic.
-     * Adds day_no sequentially. Appends 2 test days at the very end.
+     * Parse a module content string into a list of distinct sub-topics.
+     * Tries multiple split strategies to extract meaningful phrases.
+     */
+    private function parseModuleIntoSubTopics(string $content, string $coId): array
+    {
+        $content = trim($content);
+        if (strlen($content) < 10) {
+            return ["Topics for {$coId}"];
+        }
+
+        // Strategy 1: split by period or semicolon followed by space + capital letter
+        $parts = preg_split('/(?<=[.;])\s+(?=[A-Z])/', $content, -1, PREG_SPLIT_NO_EMPTY);
+        $parts = array_values(array_filter(array_map('trim', $parts), fn($s) => strlen($s) > 8));
+        if (count($parts) >= 2) return $parts;
+
+        // Strategy 2: split by ' – ' or ' - ' (dash-separated topics common in Indian syllabi)
+        $parts = preg_split('/\s+[–\-]\s+/', $content, -1, PREG_SPLIT_NO_EMPTY);
+        $parts = array_values(array_filter(array_map('trim', $parts), fn($s) => strlen($s) > 8));
+        if (count($parts) >= 2) {
+            // Group into pairs to avoid too many tiny topics
+            $grouped = [];
+            for ($i = 0; $i < count($parts); $i += 2) {
+                $grouped[] = isset($parts[$i + 1]) ? $parts[$i] . ' – ' . $parts[$i + 1] : $parts[$i];
+            }
+            return $grouped;
+        }
+
+        // Strategy 3: split by comma before known keywords
+        $parts = preg_split('/,\s+(?=[A-Z]|types|methods|concepts|analysis|design|application|principle|study)/', $content, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+        $parts = array_values(array_filter(array_map('trim', $parts), fn($s) => strlen($s) > 8));
+        if (count($parts) >= 2) return $parts;
+
+        // Fallback: treat the whole content as one topic
+        return [trim($content)];
+    }
+
+    /**
+     * Given a topic name and number of hours, generate unique pedagogically-progressed
+     * stage labels: Introduction → Core → Analysis → Application → Problem Solving → Revision.
+     */
+    private function getTopicStages(int $hours, string $topic): array
+    {
+        // Shorten very long topic names for readability
+        $shortTopic = strlen($topic) > 70 ? substr($topic, 0, 67) . '…' : $topic;
+
+        if ($hours <= 1) return [$shortTopic];
+
+        $progressionSequence = [
+            'Introduction & Overview',
+            'Core Concepts',
+            'Theoretical Foundations',
+            'Detailed Study',
+            'Analysis & Discussion',
+            'Worked Examples',
+            'Applications',
+            'Problem Solving',
+            'Advanced Topics',
+            'Case Studies & Real-World Contexts',
+            'Revision & Summary',
+        ];
+
+        $stages = [];
+        for ($i = 0; $i < $hours; $i++) {
+            if ($hours === 2) {
+                $labels = ["Introduction to {$shortTopic}", "{$shortTopic} – Core Concepts & Discussion"];
+                $stages[] = $labels[$i];
+            } elseif ($i === 0) {
+                $stages[] = "Introduction to {$shortTopic}";
+            } elseif ($i === $hours - 1) {
+                $stages[] = "{$shortTopic} – Revision & Summary";
+            } else {
+                // Pick from the middle of progression sequence
+                $labelIdx = min($i, count($progressionSequence) - 2);
+                $stages[] = "{$shortTopic} – " . $progressionSequence[$labelIdx];
+            }
+        }
+
+        return $stages;
+    }
+
+    /**
+     * Universal helper: assign sequential day_no to all plans.
+     * Since generateBasicLessonPlans already outputs 1-hour rows, this just stamps day numbers.
+     * Also ensures exactly 2 test days appear at the end.
      */
     private function expandLessonPlansToHourly(array $plans): array
     {
         $expanded = [];
-        $dayNo = 1;
+        $dayNo    = 1;
 
         foreach ($plans as $lp) {
             $hours = max(1, (int)($lp['allocated_hours'] ?? 1));
             for ($h = 0; $h < $hours; $h++) {
-                $suffix = ($hours > 1) ? " (Part " . ($h + 1) . "/{$hours})" : '';
+                // Only add (Part x/y) suffix when hours > 1 AND topic doesn't already have unique labels
+                $topic   = $lp['topic_content'] ?? 'Lecture';
+                $suffix  = ($hours > 1) ? ' (Part ' . ($h + 1) . "/{$hours})" : '';
+                // If topic already ends with a stage label, don't double-suffix
+                if ($hours > 1 && (str_contains($topic, 'Introduction to') || str_contains($topic, ' – '))) {
+                    $suffix = '';
+                }
                 $expanded[] = [
-                    'day_no'         => $dayNo++,
-                    'co_id'          => $lp['co_id'] ?? null,
-                    'topic_content'  => ($lp['topic_content'] ?? 'Lecture') . $suffix,
-                    'allocated_hours'=> 1,
-                    'pedagogy'       => $lp['pedagogy'] ?? 'Lecture',
-                    'remarks'        => $lp['remarks'] ?? null,
+                    'day_no'          => $dayNo++,
+                    'co_id'           => $lp['co_id'] ?? null,
+                    'topic_content'   => $topic . $suffix,
+                    'allocated_hours' => 1,
+                    'pedagogy'        => $lp['pedagogy'] ?? 'Lecture',
+                    'remarks'         => $lp['remarks'] ?? null,
                 ];
             }
         }
 
-        // Always ensure 2 test days exist at the end (only if not already present)
-        $lastTwo = array_slice($expanded, -2);
-        $lastAreBothTests = count($lastTwo) === 2
-            && ($lastTwo[0]['pedagogy'] ?? '') === 'Test'
-            && ($lastTwo[1]['pedagogy'] ?? '') === 'Test';
+        // Ensure exactly 2 test days at the end
+        $last2 = array_slice($expanded, -2);
+        $alreadyHasTests = count($last2) === 2
+            && ($last2[0]['pedagogy'] ?? '') === 'Test'
+            && ($last2[1]['pedagogy'] ?? '') === 'Test';
 
-        if (!$lastAreBothTests) {
-            $expanded[] = [
-                'day_no'         => $dayNo++,
-                'co_id'          => null,
-                'topic_content'  => 'Series Test / Internal Assessment',
-                'allocated_hours'=> 1,
-                'pedagogy'       => 'Test',
-                'remarks'        => 'Series Test Day 1',
-            ];
-            $expanded[] = [
-                'day_no'         => $dayNo++,
-                'co_id'          => null,
-                'topic_content'  => 'Series Test / Internal Assessment',
-                'allocated_hours'=> 1,
-                'pedagogy'       => 'Test',
-                'remarks'        => 'Series Test Day 2',
-            ];
+        if (!$alreadyHasTests) {
+            $expanded[] = ['day_no' => $dayNo++, 'co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test – 1'];
+            $expanded[] = ['day_no' => $dayNo,   'co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test – 2'];
         }
 
         return $expanded;
+    }
+
+    // ────────────────────────────────────────────────────────────────────────────
+    // Lesson Plan API Methods
+    // ────────────────────────────────────────────────────────────────────────────
+
+    /**
+     * POST /api/classroom/{subjectId}/lesson-plans/regenerate
+     * Regenerate lesson plans from stored COs + modules without re-uploading PDF.
+     */
+    public function regenerateLessonPlans(Request $request, $subjectId)
+    {
+        $userId = \Illuminate\Support\Facades\Session::get('userId');
+        if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 401);
+
+        $cf = CourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$cf) return response()->json(['status' => 'ERROR', 'message' => 'No syllabus found for this subject.']);
+
+        $cos     = $cf->parsed_cos     ?? [];
+        $modules = $cf->parsed_modules ?? [];
+
+        if (empty($cos)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'No Course Outcomes stored. Please upload the syllabus PDF first.']);
+        }
+
+        $rawPlans      = $this->generateBasicLessonPlans($modules, $cos);
+        $expandedPlans = $this->expandLessonPlansToHourly($rawPlans);
+
+        \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->delete();
+
+        $now = now();
+        foreach ($expandedPlans as $lp) {
+            \App\Models\LessonPlan::create([
+                'batch_subject_id' => $subjectId,
+                'day_no'           => $lp['day_no'],
+                'co_id'            => $lp['co_id'],
+                'topic_content'    => $lp['topic_content'],
+                'allocated_hours'  => $lp['allocated_hours'],
+                'pedagogy'         => $lp['pedagogy'],
+                'remarks'          => $lp['remarks'],
+                'status'           => 'Pending',
+            ]);
+        }
+
+        $newPlans = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->orderBy('day_no')->get();
+
+        return response()->json([
+            'status'  => 'SUCCESS',
+            'message' => 'Lesson plan regenerated with ' . count($newPlans) . ' entries.',
+            'data'    => $newPlans,
+        ]);
+    }
+
+    /**
+     * POST /api/classroom/{subjectId}/lesson-plans/bulk-update
+     * Save all manual edits (topic, date, pedagogy, remarks) in bulk.
+     * Body: { rows: [{id, topic_content, proposed_date, pedagogy, remarks}, ...] }
+     */
+    public function bulkUpdateLessonPlans(Request $request, $subjectId)
+    {
+        $userId = \Illuminate\Support\Facades\Session::get('userId');
+        if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 401);
+
+        $rows = $request->input('rows', []);
+        if (empty($rows)) return response()->json(['status' => 'ERROR', 'message' => 'No rows provided.']);
+
+        $updated = 0;
+        foreach ($rows as $row) {
+            $id = $row['id'] ?? null;
+            if (!$id) continue;
+            $plan = \App\Models\LessonPlan::where('id', $id)
+                ->where('batch_subject_id', $subjectId)
+                ->first();
+            if (!$plan) continue;
+
+            $plan->topic_content  = $row['topic_content']  ?? $plan->topic_content;
+            $plan->proposed_date  = $row['proposed_date']  ?? $plan->proposed_date;
+            $plan->pedagogy       = $row['pedagogy']        ?? $plan->pedagogy;
+            $plan->remarks        = $row['remarks']         ?? $plan->remarks;
+            $plan->save();
+            $updated++;
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => "{$updated} lesson plan rows saved."]);
+    }
+
+    /**
+     * POST /api/classroom/{subjectId}/lesson-plans/save-as-template
+     * Save the confirmed lesson plan as a reusable template (keyed by subject_code).
+     */
+    public function saveAsTemplate(Request $request, $subjectId)
+    {
+        $userId = \Illuminate\Support\Facades\Session::get('userId');
+        if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 401);
+
+        $bs = \DB::table('batch_subjects')->where('id', $subjectId)->first();
+        if (!$bs) return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
+
+        $subjectCode = $bs->subject_code;
+        $plans = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->orderBy('day_no')->get();
+
+        if ($plans->isEmpty()) {
+            return response()->json(['status' => 'ERROR', 'message' => 'No lesson plans to save as template.']);
+        }
+
+        // Clear old template for this subject code
+        \DB::table('lesson_plan_templates')->where('subject_code', $subjectCode)->delete();
+
+        $now = now();
+        foreach ($plans as $plan) {
+            \DB::table('lesson_plan_templates')->insert([
+                'subject_code'  => $subjectCode,
+                'day_no'        => $plan->day_no,
+                'co_id'         => $plan->co_id,
+                'topic_content' => $plan->topic_content,
+                'pedagogy'      => $plan->pedagogy ?? 'Lecture',
+                'remarks'       => $plan->remarks,
+                'created_at'    => $now,
+                'updated_at'    => $now,
+            ]);
+        }
+
+        return response()->json([
+            'status'  => 'SUCCESS',
+            'message' => 'Lesson plan saved as template for ' . $subjectCode . ' (' . count($plans) . ' rows).',
+        ]);
+    }
+
+    /**
+     * GET /api/classroom/{subjectId}/lesson-plans/load-template
+     * Load a saved template into the current subject's lesson plans.
+     */
+    public function loadTemplate(Request $request, $subjectId)
+    {
+        $userId = \Illuminate\Support\Facades\Session::get('userId');
+        if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 401);
+
+        $bs = \DB::table('batch_subjects')->where('id', $subjectId)->first();
+        if (!$bs) return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
+
+        $templateRows = \DB::table('lesson_plan_templates')
+            ->where('subject_code', $bs->subject_code)
+            ->orderBy('day_no')
+            ->get();
+
+        if ($templateRows->isEmpty()) {
+            return response()->json(['status' => 'ERROR', 'message' => 'No template found for subject code ' . $bs->subject_code . '.']);
+        }
+
+        // Replace current lesson plans with template
+        \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->delete();
+
+        $now = now();
+        foreach ($templateRows as $row) {
+            \App\Models\LessonPlan::create([
+                'batch_subject_id' => $subjectId,
+                'day_no'           => $row->day_no,
+                'co_id'            => $row->co_id,
+                'topic_content'    => $row->topic_content,
+                'allocated_hours'  => 1,
+                'pedagogy'         => $row->pedagogy ?? 'Lecture',
+                'remarks'          => $row->remarks,
+                'status'           => 'Pending',
+            ]);
+        }
+
+        $newPlans = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->orderBy('day_no')->get();
+
+        return response()->json([
+            'status'  => 'SUCCESS',
+            'message' => 'Template loaded: ' . count($newPlans) . ' lesson plan rows applied.',
+            'data'    => $newPlans,
+        ]);
     }
 
     private function extractCourseOutcomes($text)

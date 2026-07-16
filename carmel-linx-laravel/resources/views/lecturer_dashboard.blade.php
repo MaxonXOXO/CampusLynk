@@ -2236,108 +2236,304 @@
       document.body.removeChild(a);
     }
 
+    // CO colour palette for lesson planner badges
+    const CO_COLORS = {
+      'CO1': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+      'CO2': 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+      'CO3': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+      'CO4': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+      'CO5': 'bg-rose-500/10 text-rose-400 border-rose-500/20',
+      'CO6': 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+    };
+
     function renderCoursePlanner(lessonPlans) {
+      const container = document.getElementById('coursePlannerContent');
+      if (!container) return;
+
+      // ── Empty state ──────────────────────────────────────────────────────────
       if (!lessonPlans || lessonPlans.length === 0) {
-        if (window.isCurrentSubjectPractical) {
-          document.getElementById('coursePlannerContent').innerHTML = `
-            <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
-              <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
-                <span class="material-symbols-rounded text-xl text-teal-400">science</span>
-              </div>
-              <p class="text-sm font-bold text-slate-400">Lesson Planner is Empty</p>
-              <p class="text-xs mt-1.5 max-w-xs text-slate-500 leading-relaxed mb-6">No lesson plan has been generated for this practical subject yet. You can auto-generate the plan using the experiments list.</p>
-              <div class="flex items-center gap-3">
-                <button onclick="openGeneratePlannerModal()" class="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-teal-900/20">
-                  <span class="material-symbols-rounded text-sm">auto_awesome</span> Auto-Generate Planner
-                </button>
-                <button onclick="toggleClassroomTab('lab_evaluation')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition-premium cursor-pointer border border-slate-700/50">
-                  Setup Experiments
-                </button>
-              </div>
+        let emptyIcon  = window.isCurrentSubjectPractical ? 'science' : 'event_note';
+        let emptyColor = window.isCurrentSubjectPractical ? 'text-teal-400' : 'text-sky-400';
+        let genBtn = window.isCurrentSubjectPractical
+          ? `<button onclick="openGeneratePlannerModal()" class="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-teal-900/20">
+              <span class="material-symbols-rounded text-sm">auto_awesome</span> Auto-Generate (Lab)
+             </button>`
+          : `<button onclick="regenerateLessonPlan()" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-900/20">
+              <span class="material-symbols-rounded text-sm">auto_awesome</span> Generate Lesson Plan
+             </button>`;
+        let loadBtn = `<button onclick="loadLessonPlanTemplate()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-premium cursor-pointer border border-slate-700/50 flex items-center gap-1.5">
+              <span class="material-symbols-rounded text-sm">download</span> Load Template
+            </button>`;
+        container.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-16 text-center h-full">
+            <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+              <span class="material-symbols-rounded text-xl ${emptyColor}">${emptyIcon}</span>
             </div>
-          `;
-        }
+            <p class="text-sm font-bold text-slate-400">No Lesson Plan Generated Yet</p>
+            <p class="text-xs mt-1.5 max-w-xs text-slate-500 leading-relaxed mb-6">
+              Generate a smart plan based on Course Outcomes and Modules, or load a saved template.
+            </p>
+            <div class="flex items-center gap-3 flex-wrap justify-center">
+              ${genBtn}
+              ${loadBtn}
+            </div>
+          </div>
+        `;
         return;
       }
-      
+
+      // ── Populated state ──────────────────────────────────────────────────────
       let totalHours = lessonPlans.reduce((sum, lp) => sum + (lp.allocated_hours || 0), 0);
+      let testDays   = lessonPlans.filter(lp => (lp.pedagogy || '').toLowerCase() === 'test').length;
+      let lectureDays = lessonPlans.length - testDays;
+
+      // Header buttons
+      let practicalRegenBtn = window.isCurrentSubjectPractical
+        ? `<button onclick="openGeneratePlannerModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/50 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1">
+             <span class="material-symbols-rounded text-xs">science</span> Regenerate (Lab)
+           </button>` : '';
+
       let html = `
-        <div class="flex justify-between items-end mb-4">
+        <div class="flex flex-wrap justify-between items-center gap-3 mb-4 pb-3 border-b border-slate-800/60">
           <div>
-            <h4 class="text-[10px] font-black text-slate-200">Interactive Lesson Planner</h4>
-            <p class="text-[10px] text-slate-500 mt-1">Set proposed dates and pedagogy. Remarks can be added after class completion.</p>
+            <h4 class="text-sm font-black text-slate-200">Lesson Planner</h4>
+            <p class="text-xs text-slate-500 mt-0.5">${lectureDays} lecture days · ${testDays} test days · ${totalHours} total hours · Click any topic to edit inline</p>
           </div>
-          <div class="flex items-center gap-2">
-            ${window.isCurrentSubjectPractical ? `
-              <button onclick="openGeneratePlannerModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/50 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1">
-                <span class="material-symbols-rounded text-xs">auto_awesome</span> Regenerate
-              </button>
-            ` : ''}
-            <div class="text-[10px] font-bold text-slate-400 bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-800/50">
-              Total Est. Hours: <span class="text-emerald-400 ml-1 text-[10px]">${totalHours}</span>
-            </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            ${practicalRegenBtn}
+            <button onclick="regenerateLessonPlan()" id="btnRegenPlan" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/50 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1" title="Re-generate all lesson plans from stored syllabus data">
+              <span class="material-symbols-rounded text-xs">refresh</span> Regenerate
+            </button>
+            <button onclick="saveLessonPlanChanges()" id="btnSavePlan" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1">
+              <span class="material-symbols-rounded text-xs">save</span> Save Changes
+            </button>
+            <button onclick="saveLessonPlanAsTemplate()" id="btnSavePlanTemplate" class="px-3 py-1.5 bg-violet-800/80 hover:bg-violet-700/80 text-violet-200 border border-violet-600/30 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1" title="Save as reusable template for other batches with the same subject">
+              <span class="material-symbols-rounded text-xs">bookmark_add</span> Save as Template
+            </button>
+            <button onclick="loadLessonPlanTemplate()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/50 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1" title="Load previously saved template">
+              <span class="material-symbols-rounded text-xs">download</span> Load Template
+            </button>
           </div>
         </div>
-        
+
         <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner">
           <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse min-w-[800px]">
-                <thead>
-                  <tr class="bg-slate-900/80 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/60">
-                    <th class="p-3 w-12 text-center">Day No</th>
-                    <th class="p-3 w-32">Proposed Date</th>
-                    <th class="p-3">Topic / Content</th>
-                    <th class="p-3 text-center w-20">Hours</th>
-                    <th class="p-3 w-32">Actual Date</th>
-                    <th class="p-3 w-32">Pedagogy</th>
-                    <th class="p-3 w-40">Remarks</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <table class="w-full text-left border-collapse min-w-[900px]" id="lessonPlanTable">
+              <thead>
+                <tr class="bg-slate-900/80 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/60">
+                  <th class="p-3 w-10 text-center">#</th>
+                  <th class="p-3 w-8 text-center">CO</th>
+                  <th class="p-3">Topic / Content <span class="text-slate-600 normal-case font-normal">(editable)</span></th>
+                  <th class="p-3 w-32">Proposed Date</th>
+                  <th class="p-3 w-24 text-center">Hrs</th>
+                  <th class="p-3 w-28">Pedagogy</th>
+                  <th class="p-3 w-36">Remarks</th>
+                </tr>
+              </thead>
+              <tbody>
       `;
 
       lessonPlans.forEach((lp, index) => {
-        let coBadge = lp.co_id ? `<span class="px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] ml-2">${lp.co_id}</span>` : '';
-        let proposed = lp.proposed_date ? lp.proposed_date : '';
-        let actual = lp.actual_date ? `<span class="text-emerald-400 font-mono">${lp.actual_date}</span>` : `<span class="text-slate-600 font-mono italic">Pending</span>`;
-        let pedagogy = lp.pedagogy || 'Lecture';
-        let remarks = lp.remarks || '';
-        let dayNo = lp.day_no || (index + 1);
-        
+        let co        = lp.co_id || '';
+        let coColor   = CO_COLORS[co] || 'bg-slate-700/30 text-slate-400 border-slate-600/30';
+        let coBadge   = co ? `<span class="px-1.5 py-0.5 rounded border text-[10px] font-bold ${coColor}">${co}</span>` : `<span class="text-slate-700 text-[10px]">—</span>`;
+        let proposed  = lp.proposed_date || '';
+        let pedagogy  = lp.pedagogy || 'Lecture';
+        let remarks   = (lp.remarks || '').replace(/"/g, '&quot;');
+        let topic     = (lp.topic_content || '').replace(/"/g, '&quot;');
+        let dayNo     = lp.day_no || (index + 1);
+        let isTest    = pedagogy.toLowerCase() === 'test';
+        let rowBg     = isTest ? 'bg-amber-950/20 border-amber-900/20' : 'border-slate-800/40';
+        let actual    = lp.actual_date
+          ? `<span class="text-emerald-400 font-mono text-[10px]">${lp.actual_date}</span>`
+          : `<span class="text-slate-700 text-[10px]">—</span>`;
+
         html += `
-          <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[10px]">
-            <td class="p-3 text-center font-bold text-slate-500">${dayNo}</td>
-            <td class="p-3">
-              <input type="date" value="${proposed}" class="w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50 font-mono" onchange="updateProposedDate(${lp.id}, this.value)">
+          <tr class="border-b ${rowBg} last:border-0 hover:bg-slate-900/20 transition-premium" data-lp-id="${lp.id}">
+            <td class="p-2 text-center text-xs font-bold text-slate-600">${dayNo}</td>
+            <td class="p-2 text-center">${coBadge}</td>
+            <td class="p-2">
+              <input type="text" value="${topic}" data-field="topic"
+                class="w-full bg-transparent border border-transparent hover:border-slate-700/60 focus:border-blue-500/50 focus:bg-slate-900/60 rounded px-2 py-1 text-slate-300 text-xs focus:outline-none transition-all placeholder:text-slate-600"
+                placeholder="Enter topic..."
+                onchange="markPlanDirty(${lp.id})">
             </td>
-            <td class="p-3 text-slate-300 leading-relaxed">${lp.topic_content} ${coBadge}</td>
-            <td class="p-3 text-center font-mono text-slate-400 bg-slate-900/20">${lp.allocated_hours}</td>
-            <td class="p-3">${actual}</td>
-            <td class="p-3">
-              <input type="text" value="${pedagogy}" class="w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50" placeholder="Lecture, Demo...">
+            <td class="p-2">
+              <input type="date" value="${proposed}" data-field="proposed_date"
+                class="w-full bg-slate-900/60 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-xs focus:outline-none focus:border-blue-500/50 font-mono"
+                onchange="markPlanDirty(${lp.id}); autoSavePlanRow(${lp.id}, this.closest('tr'))">
             </td>
-            <td class="p-3">
-              <input type="text" value="${remarks}" class="w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-[10px] focus:outline-none focus:border-blue-500/50" placeholder="Add remarks...">
+            <td class="p-2 text-center text-xs font-mono text-slate-500">${lp.allocated_hours || 1}</td>
+            <td class="p-2">
+              <input type="text" value="${pedagogy}" data-field="pedagogy"
+                class="w-full bg-transparent border border-transparent hover:border-slate-700/60 focus:border-blue-500/50 focus:bg-slate-900/60 rounded px-2 py-1 text-slate-400 text-xs focus:outline-none transition-all"
+                placeholder="Lecture, Demo, Lab..."
+                onchange="markPlanDirty(${lp.id})">
+            </td>
+            <td class="p-2">
+              <input type="text" value="${remarks}" data-field="remarks"
+                class="w-full bg-transparent border border-transparent hover:border-slate-700/60 focus:border-blue-500/50 focus:bg-slate-900/60 rounded px-2 py-1 text-slate-500 text-xs focus:outline-none transition-all"
+                placeholder="Add remarks..."
+                onchange="markPlanDirty(${lp.id})">
             </td>
           </tr>
         `;
       });
 
       html += `
-                </tbody>
-              </table>
+              </tbody>
+            </table>
           </div>
+        </div>
+
+        <div id="planSaveStatusBar" class="hidden mt-3 px-4 py-2.5 bg-amber-900/20 border border-amber-500/20 rounded-xl flex items-center gap-3 text-xs font-bold text-amber-400">
+          <span class="material-symbols-rounded text-sm animate-pulse">edit</span>
+          <span>You have unsaved changes.</span>
+          <button onclick="saveLessonPlanChanges()" class="ml-auto px-3 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg cursor-pointer transition-premium">
+            Save Now
+          </button>
         </div>
       `;
 
-      document.getElementById('coursePlannerContent').innerHTML = html;
+      container.innerHTML = html;
     }
+
+    // Track which rows have been edited
+    window._dirtyPlanRows = new Set();
+
+    function markPlanDirty(lpId) {
+      window._dirtyPlanRows.add(lpId);
+      const bar = document.getElementById('planSaveStatusBar');
+      if (bar) { bar.classList.remove('hidden'); bar.classList.add('flex'); }
+    }
+
+    // Auto-save a single row immediately (for date changes)
+    function autoSavePlanRow(lpId, row) {
+      if (!row) return;
+      const rowData = collectPlanRow(lpId, row);
+      if (!rowData) return;
+      fetch(`/api/classroom/${currentSubjectId}/lesson-plans/bulk-update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({ rows: [rowData] })
+      }).then(r => r.json()).then(d => {
+        if (d.status === 'SUCCESS') window._dirtyPlanRows.delete(lpId);
+      }).catch(e => console.error('Auto-save failed:', e));
+    }
+
+    function collectPlanRow(lpId, row) {
+      if (!row) {
+        row = document.querySelector(`#lessonPlanTable tr[data-lp-id="${lpId}"]`);
+        if (!row) return null;
+      }
+      return {
+        id:            lpId,
+        topic_content: row.querySelector('[data-field="topic"]')?.value          || '',
+        proposed_date: row.querySelector('[data-field="proposed_date"]')?.value  || null,
+        pedagogy:      row.querySelector('[data-field="pedagogy"]')?.value        || 'Lecture',
+        remarks:       row.querySelector('[data-field="remarks"]')?.value         || '',
+      };
+    }
+
+    function saveLessonPlanChanges() {
+      const btn = document.getElementById('btnSavePlan');
+      const rows = [];
+      document.querySelectorAll('#lessonPlanTable tbody tr[data-lp-id]').forEach(row => {
+        const lpId = parseInt(row.getAttribute('data-lp-id'));
+        const data = collectPlanRow(lpId, row);
+        if (data) rows.push(data);
+      });
+      if (rows.length === 0) { alert('Nothing to save.'); return; }
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-rounded text-xs animate-spin">progress_activity</span> Saving...'; }
+
+      fetch(`/api/classroom/${currentSubjectId}/lesson-plans/bulk-update`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({ rows })
+      }).then(r => r.json()).then(d => {
+        if (d.status === 'SUCCESS') {
+          window._dirtyPlanRows.clear();
+          const bar = document.getElementById('planSaveStatusBar');
+          if (bar) { bar.classList.add('hidden'); bar.classList.remove('flex'); }
+          if (btn) btn.innerHTML = '<span class="material-symbols-rounded text-xs">check_circle</span> Saved!';
+          setTimeout(() => { if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded text-xs">save</span> Save Changes'; } }, 2500);
+        } else {
+          alert(d.message || 'Save failed.');
+          if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded text-xs">save</span> Save Changes'; }
+        }
+      }).catch(e => {
+        alert('Save failed: ' + e.message);
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded text-xs">save</span> Save Changes'; }
+      });
+    }
+
+    function regenerateLessonPlan() {
+      if (!confirm('This will delete the current lesson plan and regenerate it from the stored syllabus data.\n\nAny manually entered dates and remarks will be lost.\n\nContinue?')) return;
+      const btn = document.getElementById('btnRegenPlan');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-rounded text-xs animate-spin">progress_activity</span> Generating...'; }
+
+      fetch(`/api/classroom/${currentSubjectId}/lesson-plans/regenerate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({})
+      }).then(r => r.json()).then(d => {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded text-xs">refresh</span> Regenerate'; }
+        if (d.status === 'SUCCESS') {
+          renderCoursePlanner(d.data);
+          toggleClassroomTab('planner');
+        } else {
+          alert(d.message || 'Regeneration failed.');
+        }
+      }).catch(e => {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded text-xs">refresh</span> Regenerate'; }
+        alert('Error: ' + e.message);
+      });
+    }
+
+    function saveLessonPlanAsTemplate() {
+      if (!confirm('Save the current lesson plan as a reusable template for all future batches of this subject?\n\nThis will overwrite any previously saved template for this subject code.')) return;
+      const btn = document.getElementById('btnSavePlanTemplate');
+      if (btn) { btn.disabled = true; }
+
+      fetch(`/api/classroom/${currentSubjectId}/lesson-plans/save-as-template`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({})
+      }).then(r => r.json()).then(d => {
+        if (btn) { btn.disabled = false; }
+        alert(d.status === 'SUCCESS' ? '✓ ' + d.message : '✗ ' + (d.message || 'Save failed.'));
+      }).catch(e => {
+        if (btn) { btn.disabled = false; }
+        alert('Error: ' + e.message);
+      });
+    }
+
+    function loadLessonPlanTemplate() {
+      if (!confirm('Load the saved template for this subject?\n\nThis will replace the current lesson plan with the template. Existing proposed dates will be cleared.')) return;
+
+      fetch(`/api/classroom/${currentSubjectId}/lesson-plans/load-template`, {
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
+      }).then(r => r.json()).then(d => {
+        if (d.status === 'SUCCESS') {
+          renderCoursePlanner(d.data);
+          toggleClassroomTab('planner');
+        } else {
+          alert(d.message || 'No template found for this subject.');
+        }
+      }).catch(e => alert('Error: ' + e.message));
+    }
+
+    // Wire up updateProposedDate (was a stub) — now handled by autoSavePlanRow via onchange
+    function updateProposedDate(lpId, dateValue) {
+      const row = document.querySelector(`#lessonPlanTable tr[data-lp-id="${lpId}"]`);
+      autoSavePlanRow(lpId, row);
+    }
+
 
     function renderFormativeAssessment(students) {
       let html = `
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h4 class="text-sm font-black text-slate-200">Formative Assessment (Assignments)</h4>
             <p class="text-sm text-slate-500 mt-1">Generate AI questions for each CO and record 10-mark evaluations.</p>
           </div>
           <div class="flex items-center gap-2">
