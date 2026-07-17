@@ -1927,7 +1927,9 @@
       }
 
       const card = document.createElement('div');
-      card.className = `bg-slate-950/40 border border-slate-800/80 rounded-2xl p-6 transition-premium hover:border-slate-700/60 shadow-xl flex flex-col xl:flex-row gap-6 min-h-[280px] w-full ${isLetBatch ? 'ring-1 ring-purple-500/20 bg-purple-950/10' : ''}`;
+      card.className = isLetBatch
+        ? `bg-purple-950/20 border-2 border-purple-500/70 rounded-2xl p-6 transition-premium hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`
+        : `bg-slate-950/40 border border-slate-800/80 rounded-2xl p-6 transition-premium hover:border-slate-700/60 shadow-xl flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`;
 
       const tutorHtml = batch.tutor_name
         ? `<div class="flex items-center gap-2"><span class="material-symbols-rounded text-sky-400 text-sm">person_pin</span><span class="text-slate-300 font-medium">${batch.tutor_name}</span></div>`
