@@ -1030,38 +1030,50 @@ class DataController extends Controller
         $currentRole   = Session::get('userRole');
         $currentBranch = $branch;
 
-        $request->validate([
-            'admission_year'    => 'required|integer|min:2000|max:2100',
-            'tutor_mobile_no'   => 'nullable|string',
-            'mentor_mobile_no'  => 'nullable|string',
-            'current_semester'  => 'nullable|integer|min:1|max:8',
-            'is_lateral_entry'  => 'nullable|boolean',
-        ]);
+        $isLET = filter_var($request->input('is_lateral_entry'), FILTER_VALIDATE_BOOLEAN);
 
-        $admYear    = (int) $request->input('admission_year');
-        $branchCode = strtoupper($currentBranch);
-        $startYear  = $admYear;
-        $endYear    = $admYear + 3;
-        $classroomId = "{$branchCode}_{$startYear}_{$endYear}";
-        if ($request->input('is_lateral_entry')) {
-            $classroomId .= "_LET";
-        }
-        $semester = (int) $request->input('current_semester', 1);
-
-        // Validate optional tutor/mentor belong to same branch
-        $tutorMobile  = $request->input('tutor_mobile_no');
-        $mentorMobile = $request->input('mentor_mobile_no');
-
-        if ($tutorMobile) {
-            $tutor = StaffProfile::where('mobile_no', $tutorMobile)->first();
-            if (!$tutor || strtoupper($tutor->branch) !== $branchCode) {
-                return response()->json(['status' => 'ERROR', 'message' => 'Selected Tutor does not belong to your department.']);
+        if ($isLET) {
+            $request->validate([
+                'base_classroom_id' => 'required|string',
+            ]);
+            $baseClassroomId = $request->input('base_classroom_id');
+            $baseBatch = ClassManagement::where('classroom_id', $baseClassroomId)->first();
+            if (!$baseBatch) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Base admission batch not found.']);
             }
-        }
-        if ($mentorMobile) {
-            $mentor = StaffProfile::where('mobile_no', $mentorMobile)->first();
-            if (!$mentor || strtoupper($mentor->branch) !== $branchCode) {
-                return response()->json(['status' => 'ERROR', 'message' => 'Selected Mentor does not belong to your department.']);
+            $classroomId = "{$baseClassroomId}_LET";
+            $semester = 3; // Starts at S3
+            $tutorMobile = $baseBatch->tutor_mobile_no;
+            $mentorMobile = $baseBatch->mentor_mobile_no;
+            $admYear = $baseBatch->batch_year;
+            $branchCode = strtoupper($currentBranch);
+        } else {
+            $request->validate([
+                'admission_year'    => 'required|integer|min:2000|max:2100',
+                'tutor_mobile_no'   => 'nullable|string',
+                'mentor_mobile_no'  => 'nullable|string',
+                'current_semester'  => 'nullable|integer|min:1|max:8',
+            ]);
+            $admYear    = (int) $request->input('admission_year');
+            $branchCode = strtoupper($currentBranch);
+            $startYear  = $admYear;
+            $endYear    = $admYear + 3;
+            $classroomId = "{$branchCode}_{$startYear}_{$endYear}";
+            $semester = (int) $request->input('current_semester', 1);
+            $tutorMobile  = $request->input('tutor_mobile_no');
+            $mentorMobile = $request->input('mentor_mobile_no');
+
+            if ($tutorMobile) {
+                $tutor = StaffProfile::where('mobile_no', $tutorMobile)->first();
+                if (!$tutor || strtoupper($tutor->branch) !== $branchCode) {
+                    return response()->json(['status' => 'ERROR', 'message' => 'Selected Tutor does not belong to your department.']);
+                }
+            }
+            if ($mentorMobile) {
+                $mentor = StaffProfile::where('mobile_no', $mentorMobile)->first();
+                if (!$mentor || strtoupper($mentor->branch) !== $branchCode) {
+                    return response()->json(['status' => 'ERROR', 'message' => 'Selected Mentor does not belong to your department.']);
+                }
             }
         }
 
@@ -1105,34 +1117,45 @@ class DataController extends Controller
             $batch = ClassManagement::create([
                 'classroom_id'     => $classroomId,
                 'branch'           => $branchCode,
-                'batch_year'       => $startYear,
+                'batch_year'       => $admYear,
                 'tutor_mobile_no'  => $tutorMobile  ?: null,
                 'mentor_mobile_no' => $mentorMobile ?: null,
                 'current_semester' => $semester,
             ]);
 
-            // Backfill: assign any already-registered students that computed this
-            // classroom_id but were left with classroom_id = NULL because the batch
-            // didn't exist at time of registration.
-            $backfilledCount = Student::where('branch', $branchCode)
-                ->where('admission_year', $admYear)
-                ->whereNull('classroom_id')
-                ->update([
-                    'classroom_id' => $classroomId,
-                    'semester'     => $semester
-                ]);
+            $backfilledCount = 0;
+            if ($isLET) {
+                // Auto-migrate all L-suffix students currently in the base batch
+                $backfilledCount = Student::where('classroom_id', $baseClassroomId)
+                    ->where(function($q) {
+                        $q->where('reg_no', 'like', '%L')
+                          ->orWhere('sbte_reg_no', 'like', '%L');
+                    })
+                    ->update([
+                        'classroom_id' => $classroomId,
+                        'semester'     => $semester
+                    ]);
+            } else {
+                $backfilledCount = Student::where('branch', $branchCode)
+                    ->where('admission_year', $admYear)
+                    ->whereNull('classroom_id')
+                    ->update([
+                        'classroom_id' => $classroomId,
+                        'semester'     => $semester
+                    ]);
 
-            // Also handle LET students (they join in year 2 → admYear = startYear+1)
-            $letBackfilled = Student::where('branch', $branchCode)
-                ->where('admission_year', $admYear + 1)
-                ->where('admission_type', 'LET')
-                ->whereNull('classroom_id')
-                ->update([
-                    'classroom_id' => $classroomId,
-                    'semester'     => $semester
-                ]);
+                // Also handle LET students (they join in year 2 → admYear = startYear+1)
+                $letBackfilled = Student::where('branch', $branchCode)
+                    ->where('admission_year', $admYear + 1)
+                    ->where('admission_type', 'LET')
+                    ->whereNull('classroom_id')
+                    ->update([
+                        'classroom_id' => $classroomId,
+                        'semester'     => $semester
+                    ]);
 
-            $backfilledCount += $letBackfilled;
+                $backfilledCount += $letBackfilled;
+            }
 
             AuditLog::create([
                 'performed_by'      => $currentUserId,
