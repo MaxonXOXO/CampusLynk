@@ -887,10 +887,13 @@
     <!-- Top Header -->
     <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-10">
       <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-2xl">My Batches</h1>
-      <button onclick="toggleTheme()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700/80 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-premium cursor-pointer" title="Toggle Light/Dark Theme">
-        <span id="themeToggleIcon" class="material-symbols-rounded text-lg">light_mode</span>
-        <span id="themeToggleText" class="text-xs font-bold uppercase tracking-wider">Light Mode</span>
-      </button>
+      <div class="flex items-center gap-3">
+        <div id="aiStatusBadge" class="hidden"></div>
+        <button onclick="toggleTheme()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700/80 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-premium cursor-pointer" title="Toggle Light/Dark Theme">
+          <span id="themeToggleIcon" class="material-symbols-rounded text-lg">light_mode</span>
+          <span id="themeToggleText" class="text-xs font-bold uppercase tracking-wider">Light Mode</span>
+        </button>
+      </div>
     </header>
 
     <!-- Panel Container -->
@@ -7361,6 +7364,24 @@
       })
       .catch(() => alert('Failed to save mapping matrix.'));
     }
+
+    // Live AI Status Indicator for Faculty
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch('/api/system/ai-status')
+        .then(res => res.json())
+        .then(data => {
+          const badge = document.getElementById('aiStatusBadge');
+          if (badge && data.status === 'SUCCESS') {
+            badge.classList.remove('hidden');
+            if (data.ai_generation_enabled) {
+              badge.innerHTML = `<span class="px-2.5 py-1.5 bg-emerald-950/40 text-emerald-400 border border-emerald-900/60 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span> AI Active</span>`;
+            } else {
+              badge.innerHTML = `<span class="px-2.5 py-1.5 bg-amber-950/40 text-amber-400 border border-amber-900/60 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm" title="Gemini AI is deactivated to save API credits. Lesson plans, descriptive questions, and MCQs are generated from local databases and question banks."><span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span> AI Offline (Local DB)</span>`;
+            }
+          }
+        })
+        .catch(err => console.error("Failed to load system AI status:", err));
+    });
   </script>
 
 </body>

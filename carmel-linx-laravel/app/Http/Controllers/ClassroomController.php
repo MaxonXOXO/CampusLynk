@@ -238,7 +238,7 @@ class ClassroomController extends Controller
                 }
             } else {
                 $apiKey = env('GEMINI_API_KEY');
-                if ($apiKey) {
+                if ($apiKey && \App\Http\Controllers\SystemSettingController::isAiEnabled()) {
                     try {
                     $prompt = "You are an expert academic syllabus parser. Carefully extract structured information from the raw syllabus text provided.
 
@@ -1434,7 +1434,13 @@ Syllabus text:
 
             $questionsList = [];
 
-            if ($mode === 'bank') {
+            // Force local bank mode if AI is disabled globally
+            $currentMode = $mode;
+            if (!\App\Http\Controllers\SystemSettingController::isAiEnabled()) {
+                $currentMode = 'bank';
+            }
+
+            if ($currentMode === 'bank') {
                 // Option 1: Pull from local shared Question Bank pool
                 $pool = \Illuminate\Support\Facades\DB::table('question_bank')
                     ->where('subject_code', $subjectCode)
@@ -1448,11 +1454,11 @@ Syllabus text:
                 if (count($pool) >= 1) {
                     $questionsList = $pool;
                 } else {
-                    $mode = 'ai'; // fallback
+                    $currentMode = \App\Http\Controllers\SystemSettingController::isAiEnabled() ? 'ai' : 'fallback';
                 }
             }
 
-            if ($mode === 'ai' || empty($questionsList)) {
+            if ($currentMode === 'ai' && \App\Http\Controllers\SystemSettingController::isAiEnabled()) {
                 // Option 2: Generate via AI
                 $generatedWithAi = false;
                 if ($apiKey) {
@@ -2323,6 +2329,22 @@ Syllabus text:
             }
         }
 
+        if (!\App\Http\Controllers\SystemSettingController::isAiEnabled()) {
+            $count = \Illuminate\Support\Facades\DB::table('question_bank')
+                ->where('subject_code', $batchSubject->subject_code)
+                ->count();
+            if ($count === 0) {
+                return response()->json([
+                    'status' => 'ERROR',
+                    'message' => 'AI generation is deactivated, and no local questions were found in the database. Please activate AI in System Settings or import a local question bank.'
+                ]);
+            }
+            return response()->json([
+                'status' => 'SUCCESS',
+                'message' => "AI generation is deactivated. Found {$count} local questions in the question bank."
+            ]);
+        }
+
         $apiKey = env('GEMINI_API_KEY');
         if (!$apiKey) {
             return response()->json(['status' => 'ERROR', 'message' => 'Gemini API key is not configured in the environment.']);
@@ -2498,6 +2520,22 @@ Return ONLY a valid JSON array of objects with the exact schema:
         $questions = $request->input('questions', []);
         if (empty($questions)) {
             return response()->json(['status' => 'ERROR', 'message' => 'No questions provided.']);
+        }
+
+        if (!\App\Http\Controllers\SystemSettingController::isAiEnabled()) {
+            $answers = [];
+            foreach ($questions as $q) {
+                $answers[] = [
+                    'question' => $q,
+                    'answer_outline' => 'AI Generation is disabled. Please edit and draft the answer key outline manually.',
+                    'marks_distribution' => 'AI Generation is disabled. Please edit and allocate marks distribution manually.'
+                ];
+            }
+            return response()->json([
+                'status' => 'SUCCESS',
+                'answers' => $answers,
+                'note' => 'AI generation is offline. Loaded blank answer outlines.'
+            ]);
         }
 
         $apiKey = env('GEMINI_API_KEY');

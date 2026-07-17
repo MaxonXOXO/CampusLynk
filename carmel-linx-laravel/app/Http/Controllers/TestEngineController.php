@@ -158,7 +158,7 @@ class TestEngineController extends Controller
                 $apiKey = env('GEMINI_API_KEY');
                 $generatedWithAi = false;
                 
-                if ($apiKey) {
+                if ($apiKey && \App\Http\Controllers\SystemSettingController::isAiEnabled()) {
                     try {
                         $prompt = "You are an examiner generating MCQs for an engineering exam. Generate exactly {$currentLimit} multiple-choice questions for Course Outcome '{$co}' based strictly on the syllabus topic: '{$coDesc}'. Return ONLY a valid JSON array of objects exactly matching this schema: [{\"q\": \"question text?\", \"options\": [\"Option 1\", \"Option 2\", \"Option 3\", \"Option 4\"], \"ans\": \"Exact string of the correct option\"}]";
                         $response = \Illuminate\Support\Facades\Http::post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}", [

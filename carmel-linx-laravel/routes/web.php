@@ -326,6 +326,11 @@ Route::middleware(['web'])->group(function () {
     Route::get('/classroom/{subjectId}/summative-report', [App\Http\Controllers\ClassroomController::class, 'printSummativeReport']);
     Route::get('/classroom/{subjectId}/lesson-plan/print', [App\Http\Controllers\ClassroomController::class, 'printLessonPlan']);
 
+    // Universal System Settings
+    Route::get('/api/admin/settings', [App\Http\Controllers\SystemSettingController::class, 'getSettings']);
+    Route::post('/api/admin/settings', [App\Http\Controllers\SystemSettingController::class, 'saveSettings']);
+    Route::get('/api/system/ai-status', [App\Http\Controllers\SystemSettingController::class, 'getAiStatus']);
+
      Route::get('/api/classroom/{subjectId}/question-bank', [App\Http\Controllers\ClassroomController::class, 'getQuestionBank']);
      Route::get('/api/classroom/question-bank/template', [App\Http\Controllers\ClassroomController::class, 'downloadQuestionTemplate']);
      Route::post('/api/classroom/{subjectId}/question-bank/upload', [App\Http\Controllers\ClassroomController::class, 'uploadQuestionBank']);

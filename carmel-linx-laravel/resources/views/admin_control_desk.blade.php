@@ -112,6 +112,9 @@
       <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
         <span class="material-symbols-rounded text-lg">receipt_long</span> Audit Trail
       </button>
+      <button id="navSettings" onclick="switchPanel('settings')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
+        <span class="material-symbols-rounded text-lg">settings</span> System Settings
+      </button>
 
       <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 cursor-pointer no-underline block text-sm">
          <span class="material-symbols-rounded text-lg">school</span> Academic Activities
@@ -434,6 +437,35 @@
         </div>
       </div>
 
+      <!-- PANEL 5: SYSTEM SETTINGS -->
+      <div id="panelSettings" class="hidden space-y-6">
+        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl">
+          <h3 class="font-black text-slate-200 text-sm">System Settings &amp; API Controls</h3>
+          <p class="text-xs text-slate-400 mt-1">Configure global API integrations, AI credits saving switches, and local fallbacks.</p>
+        </div>
+
+        <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl p-6 space-y-6">
+          <div class="flex items-center justify-between p-4 bg-slate-900/40 border border-slate-800/60 rounded-xl">
+            <div class="space-y-1 pr-4">
+              <h4 class="font-bold text-slate-200 text-sm flex items-center gap-2">
+                <span class="material-symbols-rounded text-indigo-400 text-lg">auto_awesome</span> Gemini AI Generation
+              </h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Toggle Gemini 2.5 Flash AI integration across the portal. When deactivated (Offline Mode), all syllabus planners, MCQs, and question generation operations will read strictly from local databases and question banks to save API credit costs.
+              </p>
+            </div>
+            <div class="shrink-0 flex items-center">
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="settingAiEnabled" class="sr-only peer" onchange="saveSystemSettings()">
+                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+              </label>
+            </div>
+          </div>
+          
+          <div id="settingsSaveAlert" class="hidden p-3 rounded-xl font-bold border text-sm"></div>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -732,7 +764,7 @@
     function switchPanel(panelId) {
       activePanel = panelId;
       
-      const panels = ['dashboard', 'directory', 'backups', 'audit'];
+      const panels = ['dashboard', 'directory', 'backups', 'audit', 'settings'];
       panels.forEach(id => {
         const el = document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1));
         const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
@@ -751,13 +783,67 @@
         'dashboard': 'Dashboard Overview',
         'directory': 'User Accounts Directory',
         'backups': 'Database Sync & Backup',
-        'audit': 'System Audit Trail'
+        'audit': 'System Audit Trail',
+        'settings': 'System Settings & Controls'
       };
       document.getElementById('panelTitle').innerText = titles[panelId];
 
       if (panelId === 'dashboard') loadStats();
       if (panelId === 'directory') loadUsers();
       if (panelId === 'audit') loadAuditTrail();
+      if (panelId === 'settings') loadSettings();
+    }
+
+    // Load settings from backend
+    function loadSettings() {
+      const indicator = document.getElementById('loadingIndicator');
+      indicator.classList.remove('hidden');
+
+      fetch('/api/admin/settings')
+        .then(res => res.json())
+        .then(data => {
+          indicator.classList.add('hidden');
+          if (data.status === 'SUCCESS') {
+            document.getElementById('settingAiEnabled').checked = data.settings.ai_generation_enabled;
+          }
+        })
+        .catch(() => indicator.classList.add('hidden'));
+    }
+
+    // Save settings to backend
+    function saveSystemSettings() {
+      const indicator = document.getElementById('loadingIndicator');
+      indicator.classList.remove('hidden');
+      
+      const aiEnabled = document.getElementById('settingAiEnabled').checked;
+      const alert = document.getElementById('settingsSaveAlert');
+      alert.classList.add('hidden');
+
+      fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ ai_generation_enabled: aiEnabled })
+      })
+      .then(res => res.json())
+      .then(data => {
+        indicator.classList.add('hidden');
+        if (data.status === 'SUCCESS') {
+          alert.className = "p-3 rounded-xl bg-green-950/40 text-green-400 border border-green-900/60 block text-xs font-bold";
+          alert.innerText = data.message;
+          alert.classList.remove('hidden');
+          setTimeout(() => alert.classList.add('hidden'), 3000);
+        } else {
+          alert.className = "p-3 rounded-xl bg-red-950/40 text-red-400 border border-red-900/60 block text-xs font-bold";
+          alert.innerText = data.message;
+          alert.classList.remove('hidden');
+        }
+      })
+      .catch(() => {
+        indicator.classList.add('hidden');
+        alert.className = "p-3 rounded-xl bg-red-950/40 text-red-400 border border-red-900/60 block text-xs font-bold";
+        alert.innerText = "Failed to save settings.";
+        alert.classList.remove('hidden');
+      });
     }
 
     // Display messages

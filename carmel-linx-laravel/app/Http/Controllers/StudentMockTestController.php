@@ -148,7 +148,7 @@ class StudentMockTestController extends Controller
             $needed = $numQuestions - count($questions);
             if ($needed > 0) {
                 $apiKey = env('GEMINI_API_KEY');
-                if ($apiKey) {
+                if ($apiKey && \App\Http\Controllers\SystemSettingController::isAiEnabled()) {
                     // Load course file details as context
                     $cf = DB::table('course_files')->where('batch_subject_id', $subj->id)->first();
                     $coContext = "";

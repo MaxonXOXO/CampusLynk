@@ -283,9 +283,12 @@
     <!-- Top Header -->
     <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-10">
       <h1 id="panelTitle" class="font-bold text-slate-100 tracking-tight text-lg">Batch & Class Management</h1>
-      <div id="loadingIndicator" class="hidden items-center gap-2 text-sm text-slate-400 text-sm">
-        <div class="w-4 h-4 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin"></div>
-        <span>Syncing...</span>
+      <div class="flex items-center gap-3">
+        <div id="aiStatusBadge" class="hidden"></div>
+        <div id="loadingIndicator" class="hidden items-center gap-2 text-sm text-slate-400 text-sm">
+          <div class="w-4 h-4 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin"></div>
+          <span>Syncing...</span>
+        </div>
       </div>
     </header>
 
@@ -3876,6 +3879,24 @@
       })
       .catch(err => console.error('Failed to load today seminars:', err));
     }
+
+    // Live AI Status Indicator for HOD
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch('/api/system/ai-status')
+        .then(res => res.json())
+        .then(data => {
+          const badge = document.getElementById('aiStatusBadge');
+          if (badge && data.status === 'SUCCESS') {
+            badge.classList.remove('hidden');
+            if (data.ai_generation_enabled) {
+              badge.innerHTML = `<span class="px-2.5 py-1.5 bg-emerald-950/40 text-emerald-400 border border-emerald-900/60 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span> AI Active</span>`;
+            } else {
+              badge.innerHTML = `<span class="px-2.5 py-1.5 bg-amber-950/40 text-amber-400 border border-amber-900/60 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm" title="Gemini AI is deactivated to save API credits. Lesson plans, descriptive questions, and MCQs are generated from local databases and question banks."><span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span> AI Offline (Local DB)</span>`;
+            }
+          }
+        })
+        .catch(err => console.error("Failed to load system AI status:", err));
+    });
   </script>
 
   <!-- SUBJECT PROGRESS POPUP CARD -->
