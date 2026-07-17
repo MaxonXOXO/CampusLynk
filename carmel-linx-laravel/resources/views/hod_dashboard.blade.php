@@ -1928,7 +1928,7 @@
 
       const card = document.createElement('div');
       card.className = isLetBatch
-        ? `bg-purple-950/20 border-2 border-purple-500/70 rounded-2xl p-6 transition-premium hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`
+        ? `bg-slate-950/40 border-2 border-purple-500/70 rounded-2xl p-6 transition-premium hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`
         : `bg-slate-950/40 border-2 border-slate-700/60 rounded-2xl p-6 transition-premium hover:border-slate-500 shadow-[0_0_15px_rgba(255,255,255,0.03)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`;
 
       const tutorHtml = batch.tutor_name
