@@ -974,6 +974,7 @@
                   <div id="vcSubjectInfo" style="display:none" class="flex-col justify-center border-l border-slate-800/80 pl-4 relative z-10">
                     <span id="vcSubjectName" class="text-sm font-bold text-slate-200"></span>
                     <span id="vcSubjectCode" class="text-xs font-semibold text-blue-400 mt-0.5 font-mono"></span>
+                    <span id="vcSyllabusProposedHours" class="text-[11px] font-bold text-emerald-400 mt-0.5 whitespace-nowrap"></span>
                   </div>
                 </div>
                  <span id="parseStatusBadge" class="text-xs font-bold px-3 py-1.5 rounded-md bg-slate-800/80 text-slate-300 border border-slate-700/50 whitespace-nowrap">Waiting for upload</span>
@@ -2051,8 +2052,13 @@
           const vcSubName = document.getElementById('vcSubjectName');
           const vcSubCode = document.getElementById('vcSubjectCode');
           const vcSubInfo = document.getElementById('vcSubjectInfo');
+          const vcPropHours = document.getElementById('vcSyllabusProposedHours');
           if (vcSubName) vcSubName.innerText = currentSubjectName;
           if (vcSubCode) vcSubCode.innerText = currentSubjectCode;
+          if (vcPropHours) {
+              const pHours = data.data.proposed_total_hours || 60;
+              vcPropHours.innerText = `Proposed Hours: ${pHours} hrs (+2 tests)`;
+          }
           if (vcSubInfo) vcSubInfo.style.display = (currentSubjectName || currentSubjectCode) ? 'flex' : 'none';
           currentSubjectSemester = data.data.semester || '';
           currentSubjectAcademicYear = data.data.academic_year || '';
@@ -2060,6 +2066,7 @@
           window.currentSyllabusRevision = data.data.syllabus_revision || '2021';
           window.currentVirtualStudents = data.data.students || [];
           window.currentVirtualSemester = data.data.semester || '';
+          window.currentProposedTotalHours = data.data.proposed_total_hours || 60;
           
           renderCourseStructure(data.data.cos, data.data.modules, data.data.textbooks, data.data.copo);
           renderCoursePlanner(data.data.lesson_plans);
@@ -2286,6 +2293,7 @@
       let totalHours = lessonPlans.reduce((sum, lp) => sum + (lp.allocated_hours || 0), 0);
       let testDays   = lessonPlans.filter(lp => (lp.pedagogy || '').toLowerCase() === 'test').length;
       let lectureDays = lessonPlans.length - testDays;
+      let proposedVal = window.currentProposedTotalHours || 60;
 
       // Header buttons
       let practicalRegenBtn = window.isCurrentSubjectPractical
@@ -2297,7 +2305,7 @@
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4 pb-3 border-b border-slate-800/60">
           <div>
             <h4 class="text-sm font-black text-slate-200">Lesson Planner</h4>
-            <p class="text-xs text-slate-500 mt-0.5">${lectureDays} lecture days · ${testDays} test days · ${totalHours} total hours · Click any topic to edit inline</p>
+            <p class="text-xs text-slate-500 mt-0.5">${lectureDays} lecture days · ${testDays} test days · ${totalHours} total hours (Syllabus Proposed: ${proposedVal} hours) · Click any topic to edit inline</p>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             ${practicalRegenBtn}
@@ -2313,6 +2321,9 @@
             <button onclick="loadLessonPlanTemplate()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/50 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1" title="Load previously saved template">
               <span class="material-symbols-rounded text-xs">download</span> Load Template
             </button>
+            <a href="/classroom/${currentSubjectId}/lesson-plan/print" target="_blank" class="px-3 py-1.5 bg-sky-800 hover:bg-sky-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1" title="Print Lesson Plan (A4)">
+              <span class="material-symbols-rounded text-xs">print</span> Print Plan
+            </a>
           </div>
         </div>
 
@@ -2325,6 +2336,7 @@
                   <th class="p-3 w-8 text-center">CO</th>
                   <th class="p-3">Topic / Content <span class="text-slate-600 normal-case font-normal">(editable)</span></th>
                   <th class="p-3 w-32">Proposed Date</th>
+                  <th class="p-3 w-32">Actual Date</th>
                   <th class="p-3 w-24 text-center">Hrs</th>
                   <th class="p-3 w-28">Pedagogy</th>
                   <th class="p-3 w-36">Remarks</th>
@@ -2363,6 +2375,7 @@
                 class="w-full bg-slate-900/60 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-xs focus:outline-none focus:border-blue-500/50 font-mono"
                 onchange="markPlanDirty(${lp.id}); autoSavePlanRow(${lp.id}, this.closest('tr'))">
             </td>
+            <td class="p-2 text-center">${actual}</td>
             <td class="p-2 text-center text-xs font-mono text-slate-500">${lp.allocated_hours || 1}</td>
             <td class="p-2">
               <input type="text" value="${pedagogy}" data-field="pedagogy"
@@ -2835,6 +2848,14 @@
     }
 
     function renderCourseStructure(cos, modules, textbooks, copo) {
+      // Filter out empty/blank COs and modules to show only populated ones
+      if (cos && Array.isArray(cos)) {
+        cos = cos.filter(co => co && co.description && co.description.trim() !== '' && co.description.trim() !== 'null');
+      }
+      if (modules && Array.isArray(modules)) {
+        modules = modules.filter(m => m && m.content && m.content.trim() !== '' && m.content.trim() !== 'null');
+      }
+
       // Debug: log what we received
       console.log('[renderCourseStructure] cos:', cos ? cos.length : 'null', '| modules:', modules ? modules.length : 'null', '| textbooks:', textbooks ? textbooks.length : 'null', '| copo keys:', copo ? Object.keys(copo).length : 'null');
       const container = document.getElementById('courseStructureContent');

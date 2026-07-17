@@ -324,6 +324,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/classroom/{subjectId}/assignment-report', [App\Http\Controllers\ClassroomController::class, 'printAssignmentReport']);
     Route::get('/classroom/{subjectId}/assignment-print/{coTag}', [App\Http\Controllers\ClassroomController::class, 'printAssignmentQuestionPaperAndRubrics']);
     Route::get('/classroom/{subjectId}/summative-report', [App\Http\Controllers\ClassroomController::class, 'printSummativeReport']);
+    Route::get('/classroom/{subjectId}/lesson-plan/print', [App\Http\Controllers\ClassroomController::class, 'printLessonPlan']);
 
      Route::get('/api/classroom/{subjectId}/question-bank', [App\Http\Controllers\ClassroomController::class, 'getQuestionBank']);
      Route::get('/api/classroom/question-bank/template', [App\Http\Controllers\ClassroomController::class, 'downloadQuestionTemplate']);

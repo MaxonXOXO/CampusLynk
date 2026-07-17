@@ -58,6 +58,113 @@ class ClassroomController extends Controller
             $extractedTextbooks = [];
             $lessonPlans = [];
 
+            // Extract Total Periods dynamically from the raw text
+            $targetHours = 60; // Default fallback
+            if (preg_match('/periods\s+per\s+semester\s*:\s*(\d+)/i', $text, $matches)) {
+                $targetHours = (int)$matches[1];
+            } elseif (preg_match('/total\s+(?:instructional\s+)?hours\s*:\s*(\d+)/i', $text, $matches)) {
+                $targetHours = (int)$matches[1];
+            } elseif (preg_match('/total\s+hours\s+(\d+)/i', $text, $matches)) {
+                $targetHours = (int)$matches[1];
+            }
+
+            // CROSS-BATCH TEMPLATE AUTO-POPULATION:
+            // If a template already exists for this subject code, load it directly instead of parsing / AI generation
+            $templateRows = \DB::table('lesson_plan_templates')
+                ->where('subject_code', $batchSubject->subject_code)
+                ->orderBy('day_no', 'asc')
+                ->get();
+
+            if ($templateRows->isNotEmpty()) {
+                \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->delete();
+                foreach ($templateRows as $index => $lp) {
+                    \App\Models\LessonPlan::create([
+                        'batch_subject_id' => $subjectId,
+                        'day_no'           => $lp->day_no ?? ($index + 1),
+                        'co_id'            => $lp->co_id ?? null,
+                        'topic_content'    => $lp->topic_content ?? 'Topic',
+                        'allocated_hours'  => 1,
+                        'pedagogy'         => $lp->pedagogy ?? 'Lecture',
+                        'remarks'          => $lp->remarks ?? null,
+                        'status'           => 'Pending',
+                    ]);
+                }
+
+                // Save or update CourseFile to match the template outcomes
+                $tempCos = [];
+                $coIdsSeen = [];
+                foreach ($templateRows as $lp) {
+                    if (!empty($lp->co_id) && !in_array($lp->co_id, $coIdsSeen)) {
+                        $coIdsSeen[] = $lp->co_id;
+                        $tempCos[] = [
+                            'id' => $lp->co_id,
+                            'description' => 'Course Outcome ' . $lp->co_id,
+                            'duration' => 15,
+                            'cognitive_level' => 'Applying'
+                        ];
+                    }
+                }
+                
+                // If the CourseFile has parsed_cos, let's load durations and descriptions from there
+                $existingCf = CourseFile::where('batch_subject_id', $subjectId)->first();
+                if ($existingCf && !empty($existingCf->parsed_cos)) {
+                    $existingCos = is_string($existingCf->parsed_cos) ? json_decode($existingCf->parsed_cos, true) : $existingCf->parsed_cos;
+                    if (is_array($existingCos)) {
+                        foreach ($tempCos as &$tCo) {
+                            foreach ($existingCos as $exCo) {
+                                if (isset($exCo['id']) && $exCo['id'] === $tCo['id']) {
+                                    $tCo['description'] = $exCo['description'] ?? $tCo['description'];
+                                    $tCo['duration'] = $exCo['duration'] ?? $tCo['duration'];
+                                    $tCo['cognitive_level'] = $exCo['cognitive_level'] ?? $tCo['cognitive_level'];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (empty($tempCos)) {
+                    $tempCos = [
+                        ['id' => 'CO1', 'description' => 'Understand the fundamental principles of the subject.', 'duration' => 15, 'cognitive_level' => 'Understanding'],
+                        ['id' => 'CO2', 'description' => 'Analyze and apply concepts.', 'duration' => 15, 'cognitive_level' => 'Applying'],
+                        ['id' => 'CO3', 'description' => 'Design and evaluate systems.', 'duration' => 15, 'cognitive_level' => 'Applying'],
+                        ['id' => 'CO4', 'description' => 'Conduct advanced assessments.', 'duration' => 15, 'cognitive_level' => 'Analyzing']
+                    ];
+                }
+
+                $tempModules = [
+                    ['module_id' => 'I', 'content' => 'Unit 1 content'],
+                    ['module_id' => 'II', 'content' => 'Unit 2 content'],
+                    ['module_id' => 'III', 'content' => 'Unit 3 content'],
+                    ['module_id' => 'IV', 'content' => 'Unit 4 content']
+                ];
+                if ($existingCf && !empty($existingCf->parsed_modules)) {
+                    $existingMods = is_string($existingCf->parsed_modules) ? json_decode($existingCf->parsed_modules, true) : $existingCf->parsed_modules;
+                    if (is_array($existingMods) && count($existingMods) > 0) {
+                        $tempModules = $existingMods;
+                    }
+                }
+
+                CourseFile::updateOrCreate(
+                    ['batch_subject_id' => $subjectId],
+                    [
+                        'syllabus_pdf_path' => '/storage/' . $path,
+                        'parsed_cos' => $tempCos,
+                        'parsed_modules' => $tempModules
+                    ]
+                );
+
+                $newLessonPlans = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->orderBy('day_no', 'asc')->get();
+                return response()->json([
+                    'status' => 'SUCCESS',
+                    'message' => 'Syllabus loaded from stored template successfully.',
+                    'data' => [
+                        'cos' => $tempCos,
+                        'lesson_plans' => $newLessonPlans
+                    ]
+                ]);
+            }
+
+            // Regular parsing block
             $useHardcodedFallback = false;
             if (!env('GEMINI_API_KEY')) {
                 if (strpos(strtolower($text), 'electronic circuits') !== false || 
@@ -69,7 +176,6 @@ class ClassroomController extends Controller
             }
 
             if ($useHardcodedFallback) {
-                
                 $extractedCos = [
                     ['id' => 'CO1', 'description' => 'Develop basic single stage and multistage amplifiers', 'duration' => 14, 'cognitive_level' => 'Applying'],
                     ['id' => 'CO2', 'description' => 'Develop basic tuned amplifiers and power amplifiers.', 'duration' => 15, 'cognitive_level' => 'Applying'],
@@ -234,6 +340,23 @@ Syllabus text:
                 }
             }
 
+            // Dynamically scale/normalize Course Outcome durations proportionally if they don't match targetHours
+            $coSum = array_sum(array_column($extractedCos, 'duration'));
+            if ($coSum > 0 && $coSum !== ($targetHours - 2)) {
+                $scaleFactor = ($targetHours - 2) / $coSum;
+                $runningSum = 0;
+                foreach ($extractedCos as $idx => &$co) {
+                    if ($idx === count($extractedCos) - 1) {
+                        $co['duration'] = ($targetHours - 2) - $runningSum;
+                    } else {
+                        $scaled = (int)round($co['duration'] * $scaleFactor);
+                        $co['duration'] = max(1, $scaled);
+                        $runningSum += $co['duration'];
+                    }
+                }
+                unset($co);
+            }
+
             if (empty($extractedCoPo)) {
                 $extractedCoPo = [
                     'CO1' => ['PO1' => 3, 'PO2' => 2, 'PO3' => 1, 'PO4' => null, 'PO5' => null, 'PO6' => null, 'PO7' => null, 'PO8' => null, 'PO9' => null, 'PO10' => null, 'PO11' => null, 'PO12' => null],
@@ -285,8 +408,8 @@ Syllabus text:
                 ]
             );
 
-            // Expand all plans to 1-hour-per-day sessions universally before saving
-            $lessonPlans = $this->expandLessonPlansToHourly($lessonPlans);
+            // Expand all plans to 1-hour-per-day sessions universally before saving, fitting targetHours perfectly
+            $lessonPlans = $this->expandLessonPlansToHourly($lessonPlans, $targetHours);
 
             // Unconditionally clear previous lesson plans to prevent cross-subject pollution
             \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->delete();
@@ -385,9 +508,11 @@ Syllabus text:
             }
         }
 
-        // Append 2 series test days
-        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test –1'];
-        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test –2'];
+        // Append 4 series test days
+        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test - I / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test - I'];
+        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test - II / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test - II'];
+        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test - III / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test - III'];
+        $rawPlans[] = ['co_id' => null, 'topic_content' => 'Series Test - IV / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test - IV'];
 
         return $rawPlans;
     }
@@ -561,54 +686,178 @@ Syllabus text:
      *   Day 2: "Illustrate difference from general purpose computer"
      * NOT: "Describe embedded system... (Part 1/2)" and "(Part 2/2)"
      */
-    private function expandLessonPlansToHourly(array $plans): array
+    private function expandLessonPlansToHourly(array $plans, int $targetHours = 60): array
     {
-        $expanded = [];
-        $dayNo    = 1;
-
+        // Collect plans grouped by CO first to perform CO-local scaling/normalization
+        $grouped = [];
         foreach ($plans as $lp) {
-            $hours   = max(1, (int)($lp['allocated_hours'] ?? 1));
-            $topic   = trim($lp['topic_content'] ?? 'Lecture');
-            $coId    = $lp['co_id'] ?? null;
-            $pedagogy= $lp['pedagogy'] ?? 'Lecture';
-            $remarks = $lp['remarks'] ?? null;
+            $coId = $lp['co_id'] ?? 'CO1';
+            $grouped[$coId][] = $lp;
+        }
 
-            if ($hours === 1) {
-                // Single hour — use as-is
-                $expanded[] = [
-                    'day_no'          => $dayNo++,
-                    'co_id'           => $coId,
-                    'topic_content'   => $topic,
-                    'allocated_hours' => 1,
-                    'pedagogy'        => $pedagogy,
-                    'remarks'         => $remarks,
-                ];
-            } else {
-                // Multi-hour entry — split into atomic topics
-                $atomicTopics = $this->splitTopicIntoAtomicDays($topic, $hours);
-                foreach ($atomicTopics as $atomicTopic) {
-                    $expanded[] = [
-                        'day_no'          => $dayNo++,
-                        'co_id'           => $coId,
-                        'topic_content'   => $atomicTopic,
-                        'allocated_hours' => 1,
-                        'pedagogy'        => $pedagogy,
-                        'remarks'         => $remarks,
-                    ];
+        // Retrieve CO durations from CourseFile to find exact target duration per CO
+        $coTargets = [];
+        $bsId = request()->route('subjectId') ?? request()->input('subjectId');
+        if ($bsId) {
+            $cf = CourseFile::where('batch_subject_id', $bsId)->first();
+            if ($cf && !empty($cf->parsed_cos)) {
+                foreach ($cf->parsed_cos as $co) {
+                    $coTargets[$co['id']] = (int)($co['duration'] ?? 15);
                 }
             }
         }
 
-        // Ensure exactly 2 test days at the end
-        $last2 = array_slice($expanded, -2);
-        $alreadyHasTests = count($last2) === 2
-            && ($last2[0]['pedagogy'] ?? '') === 'Test'
-            && ($last2[1]['pedagogy'] ?? '') === 'Test';
+        // Fallback targets matching Embedded Systems standard: CO1=13, CO2=18, CO3=19, CO4=10
+        $fallbackDurations = [
+            'CO1' => 13,
+            'CO2' => 18,
+            'CO3' => 19,
+            'CO4' => 10
+        ];
 
-        if (!$alreadyHasTests) {
-            $expanded[] = ['day_no' => $dayNo++, 'co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test – 1'];
-            $expanded[] = ['day_no' => $dayNo,   'co_id' => null, 'topic_content' => 'Series Test / Internal Assessment', 'allocated_hours' => 1, 'pedagogy' => 'Test', 'remarks' => 'Series Test – 2'];
+        $expanded = [];
+        $dayNo = 1;
+
+        foreach ($grouped as $coId => $coPlans) {
+            $targetCoDuration = $coTargets[$coId] ?? ($fallbackDurations[$coId] ?? 15);
+            $coExpanded = [];
+
+            // Expand all plans of this CO to hourly
+            foreach ($coPlans as $lp) {
+                $hours   = max(1, (int)($lp['allocated_hours'] ?? 1));
+                $topic   = trim($lp['topic_content'] ?? 'Lecture');
+                $pedagogy= $lp['pedagogy'] ?? 'Lecture';
+                $remarks = $lp['remarks'] ?? null;
+
+                if ($hours === 1) {
+                    $coExpanded[] = [
+                        'day_no'          => null,
+                        'co_id'           => $coId,
+                        'topic_content'   => $topic,
+                        'allocated_hours' => 1,
+                        'pedagogy'        => $pedagogy,
+                        'remarks'         => $remarks,
+                    ];
+                } else {
+                    $atomicTopics = $this->splitTopicIntoAtomicDays($topic, $hours);
+                    foreach ($atomicTopics as $atomicTopic) {
+                        $coExpanded[] = [
+                            'day_no'          => null,
+                            'co_id'           => $coId,
+                            'topic_content'   => $atomicTopic,
+                            'allocated_hours' => 1,
+                            'pedagogy'        => $pedagogy,
+                            'remarks'         => $remarks,
+                        ];
+                    }
+                }
+            }
+
+            // Remove any series test placeholders inside this CO list
+            $coExpanded = array_values(array_filter($coExpanded, function($row) {
+                $ped = strtolower($row['pedagogy'] ?? '');
+                $top = strtolower($row['topic_content'] ?? '');
+                return ($ped !== 'test' && strpos($top, 'series test') === false);
+            }));
+
+            // Fit this CO's sessions exactly to targetCoDuration
+            if (count($coExpanded) > $targetCoDuration) {
+                // Over limits: First remove padded revision/practice rows
+                $filtered = [];
+                $revisionRows = [];
+                foreach ($coExpanded as $index => $row) {
+                    if (strpos($row['topic_content'], '– Revision') !== false || 
+                        strpos($row['topic_content'], '– Practice') !== false || 
+                        strpos($row['topic_content'], '– Doubt') !== false || 
+                        strpos($row['topic_content'], '– Worked') !== false || 
+                        strpos($row['topic_content'], '– Tutorial') !== false) {
+                        $revisionRows[] = $index;
+                    }
+                }
+
+                $toRemove = count($coExpanded) - $targetCoDuration;
+                $removeIndices = array_slice(array_reverse($revisionRows), 0, $toRemove);
+                foreach ($coExpanded as $index => $row) {
+                    if (!in_array($index, $removeIndices)) {
+                        $filtered[] = $row;
+                    }
+                }
+                $coExpanded = $filtered;
+
+                // Combine topics if still over target limit
+                while (count($coExpanded) > $targetCoDuration) {
+                    $coExpanded[0]['topic_content'] .= " & " . $coExpanded[1]['topic_content'];
+                    array_splice($coExpanded, 1, 1);
+                }
+            } elseif (count($coExpanded) < $targetCoDuration) {
+                // Under limits: Pad with revision days
+                $needed = $targetCoDuration - count($coExpanded);
+                $lastRow = end($coExpanded);
+                $padTypes = [
+                    'Revision & Problem Solving',
+                    'Practice Problems & Exercises',
+                    'Doubt Clearing & Discussion',
+                    'Worked Examples',
+                    'Tutorial Session',
+                ];
+                for ($i = 0; $i < $needed; $i++) {
+                    $label = $padTypes[$i % count($padTypes)];
+                    $coExpanded[] = [
+                        'day_no'          => null,
+                        'co_id'           => $coId,
+                        'topic_content'   => ($lastRow['topic_content'] ?? 'Course Review') . ' – ' . $label,
+                        'allocated_hours' => 1,
+                        'pedagogy'        => 'Lecture',
+                        'remarks'         => null,
+                    ];
+                }
+            }
+
+            // Append to global array
+            foreach ($coExpanded as $row) {
+                $expanded[] = $row;
+            }
         }
+
+        // Stamp overall day numbers sequentially
+        foreach ($expanded as $idx => &$row) {
+            $row['day_no'] = $dayNo++;
+        }
+        unset($row);
+
+        // Finally, append exactly 4 Series Test days at the end
+        $expanded[] = [
+            'day_no'          => $dayNo++,
+            'co_id'           => null,
+            'topic_content'   => 'Series Test - I / Internal Assessment',
+            'allocated_hours' => 1,
+            'pedagogy'        => 'Test',
+            'remarks'         => 'Series Test - I',
+        ];
+        $expanded[] = [
+            'day_no'          => $dayNo++,
+            'co_id'           => null,
+            'topic_content'   => 'Series Test - II / Internal Assessment',
+            'allocated_hours' => 1,
+            'pedagogy'        => 'Test',
+            'remarks' => 'Series Test - II',
+        ];
+        $expanded[] = [
+            'day_no'          => $dayNo++,
+            'co_id'           => null,
+            'topic_content'   => 'Series Test - III / Internal Assessment',
+            'allocated_hours' => 1,
+            'pedagogy'        => 'Test',
+            'remarks'         => 'Series Test - III',
+        ];
+        $expanded[] = [
+            'day_no'          => $dayNo,
+            'co_id'           => null,
+            'topic_content'   => 'Series Test - IV / Internal Assessment',
+            'allocated_hours' => 1,
+            'pedagogy'        => 'Test',
+            'remarks'         => 'Series Test - IV',
+        ];
 
         return $expanded;
     }
@@ -630,17 +879,18 @@ Syllabus text:
     {
         if ($hours <= 1) return [$topic];
 
-        // Try comma-split first (most common in Indian syllabi)
+        // Try comma-split (common in Indian syllabi)
+        // Only accept fragments >= 18 chars as standalone day topics
         $commaParts = array_values(array_filter(
             array_map('trim', explode(',', $topic)),
-            fn($s) => strlen($s) > 5
+            fn($s) => strlen($s) >= 18
         ));
 
-        // Merge very short fragments back with previous item
+        // Merge short fragments (< 20 chars) back with the previous item
         $merged = [];
         $buffer = '';
         foreach ($commaParts as $part) {
-            if (strlen($buffer) > 0 && strlen($part) < 10 && !preg_match('/^[A-Z]/', $part)) {
+            if (strlen($buffer) > 0 && strlen($part) < 20) {
                 $buffer .= ', ' . $part;
             } else {
                 if ($buffer !== '') $merged[] = ucfirst($buffer);
@@ -657,28 +907,23 @@ Syllabus text:
         // Try semicolon/period split
         $sentenceParts = array_values(array_filter(
             preg_split('/[.;]\s+/', $topic, -1, PREG_SPLIT_NO_EMPTY),
-            fn($s) => strlen(trim($s)) > 5
+            fn($s) => strlen(trim($s)) > 15
         ));
         $sentenceParts = array_map('trim', $sentenceParts);
         if (count($sentenceParts) >= $hours) {
             return array_slice(array_map('ucfirst', $sentenceParts), 0, $hours);
         }
 
-        // Use merged comma-parts plus padding if still short
-        $base = !empty($merged) ? $merged : [$topic];
-        $padTypes = [
-            'Revision & Problem Solving',
-            'Practice Problems & Exercises',
-            'Doubt Clearing & Discussion',
-            'Worked Examples',
-            'Tutorial Session',
-        ];
-        $result = $base;
-        $needed = $hours - count($result);
+        // FALLBACK: Not enough clean splits.
+        // Use FULL TOPIC TEXT for first day, then pad with revision sessions.
+        // This is much better than showing partial phrases like "Actuators and I/O sub-systems".
+        $pads = ['Revision & Problem Solving', 'Practice Problems & Exercises', 'Doubt Clearing & Discussion', 'Worked Examples', 'Tutorial Session'];
+        $result = [$topic]; // Full topic for Day 1
+        $needed = $hours - 1;
         for ($i = 0; $i < $needed; $i++) {
-            $result[] = end($base) . ' – ' . $padTypes[$i % count($padTypes)];
+            $result[] = $topic . ' – ' . $pads[$i % count($pads)];
         }
-        return array_slice($result, 0, $hours);
+        return $result;
     }
 
     // ────────────────────────────────────────────────────────────────────────────
@@ -700,12 +945,12 @@ Syllabus text:
         $cos     = $cf->parsed_cos     ?? [];
         $modules = $cf->parsed_modules ?? [];
 
-        if (empty($cos)) {
-            return response()->json(['status' => 'ERROR', 'message' => 'No Course Outcomes stored. Please upload the syllabus PDF first.']);
-        }
+        // Calculate targetHours from stored Course Outcomes duration
+        $coSum = array_sum(array_column($cos, 'duration'));
+        $targetHours = ($coSum > 0) ? ($coSum + 2) : 60;
 
         $rawPlans      = $this->generateBasicLessonPlans($modules, $cos);
-        $expandedPlans = $this->expandLessonPlansToHourly($rawPlans);
+        $expandedPlans = $this->expandLessonPlansToHourly($rawPlans, $targetHours);
 
         \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->delete();
 
@@ -860,9 +1105,18 @@ Syllabus text:
         
         // Match Kerala SBTE Diploma format:
         // CO1 / CO1 [new line] Explain the basics of... [new line] 13 Understanding
+        // Match Kerala SBTE Diploma format:
+        // CO1 / CO1 [new line] Explain the basics of... [new line] 13 Understanding
         // Or table style: CO1 [tab/space] Description [tab/space] Duration [tab/space] Cognitive Level
+        $seenCoIds = [];
         if (preg_match_all('/CO(\d+)\s+([\s\S]*?)(?=\bCO\d+\b|Series Test|CO\s*-\s*PO|Course Outline|\z)/i', $text, $matches)) {
             foreach ($matches[1] as $idx => $coNum) {
+                $coId = 'CO' . $coNum;
+                if (in_array($coId, $seenCoIds)) {
+                    continue;
+                }
+                $seenCoIds[] = $coId;
+                
                 $rawContent = trim($matches[2][$idx]);
                 // Split lines to find description, duration, and cognitive level
                 $lines = array_values(array_filter(array_map('trim', explode("\n", $rawContent))));
@@ -872,14 +1126,27 @@ Syllabus text:
                 $cognitiveLevel = 'Understanding';
                 
                 foreach ($lines as $line) {
+                    // Try to match a standalone duration number and cognitive level line (e.g., "13 Understanding" or "13  Applying")
                     if (preg_match('/^(\d+)\s+([a-zA-Z]+)$/i', $line, $lm)) {
                         $duration = (int)$lm[1];
-                        $cognitiveLevel = trim($lm[2]);
+                        $cognitiveLevel = trim($lm[count($lm) - 1] ?? $lm[2]);
+                    } elseif (preg_match('/^(\d+)$/', $line, $lm)) {
+                        $duration = (int)$lm[1];
                     } elseif (preg_match('/Duration|Cognitive/i', $line)) {
                         continue;
                     } else {
-                        if (strlen($line) > 5) {
-                            $description .= ($description ? ' ' : '') . $line;
+                        // Check if the line ends with a number (duration) followed by a cognitive level
+                        if (preg_match('/(.*)\s+(\d+)\s+([a-zA-Z]+)$/i', $line, $inlineMatch)) {
+                            $lineText = trim($inlineMatch[1]);
+                            if (strlen($lineText) > 5) {
+                                $description .= ($description ? ' ' : '') . $lineText;
+                            }
+                            $duration = (int)$inlineMatch[2];
+                            $cognitiveLevel = trim($inlineMatch[3]);
+                        } else {
+                            if (strlen($line) > 5) {
+                                $description .= ($description ? ' ' : '') . $line;
+                            }
                         }
                     }
                 }
@@ -888,7 +1155,7 @@ Syllabus text:
                 $description = preg_replace('/\s+\d+\s+[a-zA-Z]+$/i', '', trim($description));
                 
                 $cos[] = [
-                    'id' => 'CO' . $coNum,
+                    'id' => $coId,
                     'description' => $description ?: 'Course Outcome ' . $coNum,
                     'duration' => $duration,
                     'cognitive_level' => $cognitiveLevel
@@ -900,10 +1167,23 @@ Syllabus text:
         if (empty($cos)) {
             if (preg_match_all('/CO\s*(\d+)[\:\-\.\s]+(.*)/i', $text, $matches)) {
                 foreach ($matches[2] as $index => $match) {
+                    $coId = 'CO' . $matches[1][$index];
+                    if (in_array($coId, $seenCoIds)) {
+                        continue;
+                    }
+                    $seenCoIds[] = $coId;
+                    
+                    // Search in the surrounding text for a duration near this CO tag
+                    $duration = 15;
+                    $descText = trim($match);
+                    if (preg_match('/(?:duration|periods|hours)\s*:\s*(\d+)/i', $descText, $durMatch)) {
+                        $duration = (int)$durMatch[1];
+                    }
+                    
                     $cos[] = [
-                        'id' => 'CO' . $matches[1][$index],
-                        'description' => trim($match),
-                        'duration' => 15,
+                        'id' => $coId,
+                        'description' => $descText,
+                        'duration' => $duration,
                         'cognitive_level' => 'Understanding'
                     ];
                 }
@@ -916,41 +1196,66 @@ Syllabus text:
     private function extractModules($text)
     {
         $modules = [];
-        
-        // Search for Course Outline sections where M1.01, M2.01, etc. are listed
-        // Or Module contents
         $moduleIds = ['I', 'II', 'III', 'IV', 'V', 'VI'];
         
+        $outlinePos = stripos($text, 'Course Outline');
+        $outlineText = ($outlinePos !== false) ? substr($text, $outlinePos) : $text;
+
+        $hasRealContentCount = 0;
         foreach ($moduleIds as $idx => $mId) {
             $num = $idx + 1;
-            
             // Look for "CO1 ... Contents: [text] ... CO2" or similar
-            $pattern = '/CO' . $num . '\s+[\s\S]*?Contents:\s*([\s\S]*?)(?=CO' . ($num + 1) . '|Series Test - I|Series Test - II|Text \/ Reference|\z)/i';
-            if (preg_match($pattern, $text, $match)) {
+            $pattern = '/CO' . $num . '\s+[\s\S]*?Contents:\s*([\s\S]*?)(?=CO' . ($num + 1) . '|Module\s+[IVX]+|Series Test|Text\s*[\/\-]\s*Reference|References|Text\s*Book|Bibliography|Course Outcomes|\z)/i';
+            if (preg_match($pattern, $outlineText, $match)) {
                 $content = trim($match[1]);
-                // Clean up multiple spaces/newlines
                 $content = preg_replace('/\s+/', ' ', $content);
+                if (strlen($content) > 10) {
+                    $hasRealContentCount++;
+                }
                 $modules[] = [
                     'module_id' => $mId,
                     'content' => substr($content, 0, 1000)
                 ];
+            } else {
+                $modules[] = [
+                    'module_id' => $mId,
+                    'content' => ''
+                ];
             }
         }
         
-        // Fallback to splitting by "Module X"
-        if (empty($modules)) {
-            $parts = preg_split('/(Module\s+[IVX\d]+)/i', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+        // If we didn't extract at least 4 real module contents, use the splitting fallback
+        if ($hasRealContentCount < 4) {
+            $fallbackModules = [];
+            $parts = preg_split('/(Module\s+[IVX\d]+|Unit\s+[IVX\d]+)/i', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
             $currentModule = null;
             foreach ($parts as $part) {
-                if (preg_match('/^Module\s+([IVX\d]+)$/i', trim($part), $m)) {
-                    if ($currentModule) $modules[] = $currentModule;
+                if (preg_match('/^(?:Module|Unit)\s+([IVX\d]+)$/i', trim($part), $m)) {
+                    if ($currentModule) $fallbackModules[] = $currentModule;
                     $currentModule = ['module_id' => strtoupper($m[1]), 'content' => ''];
                 } else if ($currentModule) {
                     $cleanText = preg_replace('/\s+/', ' ', trim($part));
-                    $currentModule['content'] = substr($cleanText, 0, 800) . (strlen($cleanText) > 800 ? '...' : '');
+                    $currentModule['content'] = substr($cleanText, 0, 1000);
                 }
             }
-            if ($currentModule) $modules[] = $currentModule;
+            if ($currentModule) $fallbackModules[] = $currentModule;
+
+            // Merge/Align fallback modules with the main modules list
+            if (!empty($fallbackModules)) {
+                foreach ($moduleIds as $idx => $mId) {
+                    // Try to find the fallback module that matches Roman numeral or index number
+                    $foundContent = '';
+                    foreach ($fallbackModules as $fMod) {
+                        if ($fMod['module_id'] === $mId || $fMod['module_id'] === (string)($idx + 1)) {
+                            $foundContent = $fMod['content'];
+                            break;
+                        }
+                    }
+                    if ($foundContent) {
+                        $modules[$idx]['content'] = $foundContent;
+                    }
+                }
+            }
         }
         
         return $modules;
@@ -1054,11 +1359,15 @@ Syllabus text:
         $syllabus = \DB::table('syllabus_registry')->where('subject_code', $batchSubject->subject_code)->first();
         $syllabusRevision = $syllabus->revision_year ?? '2021';
 
+        $parsedCos = $courseFile ? ($courseFile->parsed_cos ?? []) : [];
+        $coSum = array_sum(array_column($parsedCos, 'duration'));
+        $proposedHours = ($coSum > 0) ? ($coSum + 2) : 60;
+
         return response()->json([
             'status' => 'SUCCESS',
             'data' => [
                 'syllabus_pdf_path' => $courseFile ? $courseFile->syllabus_pdf_path : null,
-                'cos' => $courseFile ? ($courseFile->parsed_cos ?? []) : [],
+                'cos' => $parsedCos,
                 'copo' => $courseFile ? ($courseFile->parsed_copo ?? []) : [],
                 'modules' => $courseFile ? ($courseFile->parsed_modules ?? []) : [],
                 'textbooks' => $courseFile ? ($courseFile->parsed_textbooks ?? []) : [],
@@ -1073,7 +1382,8 @@ Syllabus text:
                 'semester' => $batchSubject->semester ?? '',
                 'academic_year' => $batchSubject->academic_year ?? '',
                 'classroom_id' => $batchSubject->classroom_id ?? '',
-                'syllabus_revision' => $syllabusRevision
+                'syllabus_revision' => $syllabusRevision,
+                'proposed_total_hours' => $proposedHours
             ]
         ]);
     }
@@ -1646,6 +1956,52 @@ Syllabus text:
             'students' => $students,
             'totalStudents' => $students->count(),
             'currentYear' => date('Y')
+        ]);
+    }
+
+    public function printLessonPlan($subjectId)
+    {
+        $batchSubject = \App\Models\BatchSubject::with('classroom')->find($subjectId);
+        if (!$batchSubject) return response("Subject not found.", 404);
+
+        $plans = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)
+            ->orderBy('day_no', 'asc')
+            ->get();
+
+        // Get class logs to verify actual dates
+        $classLogs = \DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $subjectId)
+            ->get()
+            ->keyBy('lesson_plan_id');
+
+        $staff = \DB::table('subject_staff_assignments')
+            ->where('batch_subject_id', $subjectId)
+            ->first();
+        $staffName = '';
+        if ($staff) {
+            $s = \DB::table('staff_profiles')->where('mobile_no', $staff->staff_mobile_no)->first();
+            if ($s) $staffName = $s->name;
+        }
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+        ];
+        
+        $branchKey = strtoupper($batchSubject->classroom->branch ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? $branchKey;
+
+        return view('classroom_lesson_plan_print', [
+            'subject' => $batchSubject,
+            'plans' => $plans,
+            'classLogs' => $classLogs,
+            'staffName' => $staffName,
+            'fullDepartment' => $fullDepartment,
+            'currentDate' => date('d-m-Y')
         ]);
     }
 
