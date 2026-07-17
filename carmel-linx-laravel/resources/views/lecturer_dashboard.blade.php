@@ -5748,7 +5748,7 @@
 
 <!-- Edit Assignment Questions Modal -->
 <div id="editQuestionsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-  <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[85vh]">
+  <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[85vh]">
     <div class="px-6 py-4 bg-slate-950/60 border-b border-slate-800 flex justify-between items-center">
       <div>
         <h3 class="text-base font-black text-white flex items-center gap-2">
