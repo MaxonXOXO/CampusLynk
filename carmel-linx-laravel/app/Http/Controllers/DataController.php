@@ -1034,19 +1034,21 @@ class DataController extends Controller
 
         if ($isLET) {
             $request->validate([
-                'base_classroom_id' => 'required|string',
+                'admission_year' => 'required|integer|min:2000|max:2100',
             ]);
-            $baseClassroomId = $request->input('base_classroom_id');
+            $admYear = (int)$request->input('admission_year');
+            $baseYear = $admYear - 1;
+            $branchCode = strtoupper($currentBranch);
+            $baseClassroomId = "{$branchCode}_{$baseYear}_" . ($baseYear + 3);
+
             $baseBatch = ClassManagement::where('classroom_id', $baseClassroomId)->first();
             if (!$baseBatch) {
-                return response()->json(['status' => 'ERROR', 'message' => 'Base admission batch not found.']);
+                return response()->json(['status' => 'ERROR', 'message' => "Base admission batch {$baseClassroomId} must be created first before setting up its Lateral Entry batch."]);
             }
             $classroomId = "{$baseClassroomId}_LET";
             $semester = 3; // Starts at S3
             $tutorMobile = $baseBatch->tutor_mobile_no;
             $mentorMobile = $baseBatch->mentor_mobile_no;
-            $admYear = $baseBatch->batch_year;
-            $branchCode = strtoupper($currentBranch);
         } else {
             $request->validate([
                 'admission_year'    => 'required|integer|min:2000|max:2100',
@@ -1056,9 +1058,7 @@ class DataController extends Controller
             ]);
             $admYear    = (int) $request->input('admission_year');
             $branchCode = strtoupper($currentBranch);
-            $startYear  = $admYear;
-            $endYear    = $admYear + 3;
-            $classroomId = "{$branchCode}_{$startYear}_{$endYear}";
+            $baseYear   = $admYear;
             $semester = (int) $request->input('current_semester', 1);
             $tutorMobile  = $request->input('tutor_mobile_no');
             $mentorMobile = $request->input('mentor_mobile_no');
@@ -1117,7 +1117,7 @@ class DataController extends Controller
             $batch = ClassManagement::create([
                 'classroom_id'     => $classroomId,
                 'branch'           => $branchCode,
-                'batch_year'       => $admYear,
+                'batch_year'       => $baseYear,
                 'tutor_mobile_no'  => $tutorMobile  ?: null,
                 'mentor_mobile_no' => $mentorMobile ?: null,
                 'current_semester' => $semester,

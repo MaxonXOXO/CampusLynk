@@ -582,23 +582,18 @@
         <!-- Admission Year -->
         <div id="batchAdmYearContainer">
           <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Admission Year</label>
-          <input type="number" id="batchAdmYear" min="2000" max="2100" value="2025"
+          <input type="number" id="batchAdmYear" min="2000" max="2100" value="2026"
             oninput="updateBatchPreview()"
             class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none">
         </div>
 
-        <!-- Base Batch Selection -->
-        <div id="batchBaseClassroomIdContainer" class="hidden">
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Base Admission Batch</label>
-          <select id="batchBaseClassroomIdSelect" onchange="updateBatchPreview()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 outline-none cursor-pointer">
-            <option value="">-- Select Base Batch --</option>
+        <!-- Batch Type -->
+        <div>
+          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Batch Type</label>
+          <select id="batchTypeSelect" onchange="toggleBatchCreationLetView(); updateBatchPreview();" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 outline-none cursor-pointer">
+            <option value="Regular" selected>Regular (Default 3-Year Batch)</option>
+            <option value="LET">Lateral Entry (LET Batch - Copy Tutor/Mentor, Starts S3)</option>
           </select>
-        </div>
-
-        <!-- Lateral Entry Batch -->
-        <div class="flex items-center gap-2.5">
-          <input type="checkbox" id="batchIsLET" onchange="toggleBatchCreationLetView(); updateBatchPreview();" class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-violet-500 focus:ring-violet-500 cursor-pointer">
-          <label for="batchIsLET" class="text-sm font-bold text-slate-350 cursor-pointer">Lateral Entry (LET) Batch</label>
         </div>
 
         <!-- Preview -->
@@ -1899,7 +1894,16 @@
       let iconColorClass = 'text-violet-400';
       let textAccentClass = 'text-violet-400';
 
-      if (batch.batch_year === 2024) {
+      const isLetBatch = batch.classroom_id.includes('_LET');
+
+      if (isLetBatch) {
+        yearColorClass = 'text-purple-450';
+        yearBadgeClass = 'bg-purple-500/20 text-purple-300 border-purple-500/40';
+        borderHoverClass = 'hover:border-purple-500/50';
+        progressColorClass = 'bg-purple-500';
+        iconColorClass = 'text-purple-400';
+        textAccentClass = 'text-purple-400';
+      } else if (batch.batch_year === 2024) {
         yearColorClass = 'text-amber-400';
         yearBadgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
         borderHoverClass = 'hover:border-amber-500/50';
@@ -1923,7 +1927,7 @@
       }
 
       const card = document.createElement('div');
-      card.className = `bg-slate-950/40 border border-slate-800/80 rounded-2xl p-6 transition-premium hover:border-slate-700/60 shadow-xl flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`;
+      card.className = `bg-slate-950/40 border border-slate-800/80 rounded-2xl p-6 transition-premium hover:border-slate-700/60 shadow-xl flex flex-col xl:flex-row gap-6 min-h-[280px] w-full ${isLetBatch ? 'ring-1 ring-purple-500/20 bg-purple-950/10' : ''}`;
 
       const tutorHtml = batch.tutor_name
         ? `<div class="flex items-center gap-2"><span class="material-symbols-rounded text-sky-400 text-sm">person_pin</span><span class="text-slate-300 font-medium">${batch.tutor_name}</span></div>`
@@ -1984,8 +1988,8 @@
             </div>
             
             <div>
-              <h4 class="font-bold text-xl ${yearColorClass}">Admission ${batch.batch_year}</h4>
-              <p class="text-xs text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} Batch</p>
+              <h4 class="font-bold text-xl ${yearColorClass}">Admission ${batch.batch_year}${isLetBatch ? ' (LET)' : ''}</h4>
+              <p class="text-xs text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} ${isLetBatch ? 'Lateral Entry ' : ''}Batch</p>
             </div>
 
             <div class="border-t border-slate-900 pt-3.5 space-y-2 text-sm">
@@ -2036,31 +2040,16 @@
     }
 
     function toggleBatchCreationLetView() {
-      const isLet = document.getElementById('batchIsLET').checked;
-      const admYearContainer = document.getElementById('batchAdmYearContainer');
-      const baseClassroomContainer = document.getElementById('batchBaseClassroomIdContainer');
+      const isLet = document.getElementById('batchTypeSelect').value === 'LET';
       const startSemesterContainer = document.getElementById('batchStartSemesterContainer');
       const tutorContainer = document.getElementById('batchTutorContainer');
       const mentorContainer = document.getElementById('batchMentorContainer');
 
       if (isLet) {
-        admYearContainer.classList.add('hidden');
-        baseClassroomContainer.classList.remove('hidden');
         startSemesterContainer.classList.add('hidden');
         tutorContainer.classList.add('hidden');
         mentorContainer.classList.add('hidden');
-        
-        const select = document.getElementById('batchBaseClassroomIdSelect');
-        select.innerHTML = '<option value="">-- Select Base Batch --</option>';
-        if (window.activeBatchesCache) {
-          const regulars = window.activeBatchesCache.filter(b => !b.classroom_id.includes('_LET'));
-          regulars.forEach(b => {
-            select.innerHTML += `<option value="${b.classroom_id}">${b.classroom_id} (Adm ${b.batch_year})</option>`;
-          });
-        }
       } else {
-        admYearContainer.classList.remove('hidden');
-        baseClassroomContainer.classList.add('hidden');
         startSemesterContainer.classList.remove('hidden');
         tutorContainer.classList.remove('hidden');
         mentorContainer.classList.remove('hidden');
@@ -2070,7 +2059,7 @@
     function openCreateBatchModal() {
       document.getElementById('createBatchAlert').classList.add('hidden');
       document.getElementById('batchAdmYear').value = new Date().getFullYear();
-      document.getElementById('batchIsLET').checked = false;
+      document.getElementById('batchTypeSelect').value = 'Regular';
       toggleBatchCreationLetView();
       updateBatchPreview();
       // Refresh staff cache then populate dropdowns
@@ -2094,13 +2083,13 @@
     }
 
     function updateBatchPreview() {
-      const isLet = document.getElementById('batchIsLET').checked;
+      const isLet = document.getElementById('batchTypeSelect').value === 'LET';
+      const year = parseInt(document.getElementById('batchAdmYear').value) || new Date().getFullYear();
+      const branch = '{{ session("userBranch") }}';
       if (isLet) {
-        const baseClassroomId = document.getElementById('batchBaseClassroomIdSelect').value;
-        document.getElementById('batchIdPreview').innerText = baseClassroomId ? `${baseClassroomId}_LET` : '-- Select Base Batch --';
+        const baseYear = year - 1;
+        document.getElementById('batchIdPreview').innerText = `${branch}_${baseYear}_${baseYear + 3}_LET`;
       } else {
-        const year = parseInt(document.getElementById('batchAdmYear').value) || new Date().getFullYear();
-        const branch = '{{ session("userBranch") }}';
         document.getElementById('batchIdPreview').innerText = `${branch}_${year}_${year + 3}`;
       }
     }
@@ -2108,34 +2097,25 @@
     function submitCreateBatch() {
       const spinner = document.getElementById('createBatchSpinner');
       const alertEl = document.getElementById('createBatchAlert');
-      const isLet = document.getElementById('batchIsLET').checked;
+      const isLet = document.getElementById('batchTypeSelect').value === 'LET';
+      const year = document.getElementById('batchAdmYear').value;
+
+      if (!year) {
+        alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
+        alertEl.innerText = 'Please enter an admission year.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
 
       let payload = {
-        is_lateral_entry: isLet
+        is_lateral_entry: isLet,
+        admission_year: parseInt(year)
       };
 
-      if (isLet) {
-        const baseClassroomId = document.getElementById('batchBaseClassroomIdSelect').value;
-        if (!baseClassroomId) {
-          alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
-          alertEl.innerText = 'Please select a base admission batch.';
-          alertEl.classList.remove('hidden');
-          return;
-        }
-        payload.base_classroom_id = baseClassroomId;
-      } else {
-        const year = document.getElementById('batchAdmYear').value;
+      if (!isLet) {
         const tutor = document.getElementById('batchTutorSelect').value;
         const mentor = document.getElementById('batchMentorSelect').value;
         const semester = document.getElementById('batchStartSemesterSelect').value;
-
-        if (!year) {
-          alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
-          alertEl.innerText = 'Please enter an admission year.';
-          alertEl.classList.remove('hidden');
-          return;
-        }
-        payload.admission_year = parseInt(year);
         payload.tutor_mobile_no = tutor || null;
         payload.mentor_mobile_no = mentor || null;
         payload.current_semester = parseInt(semester);
