@@ -312,6 +312,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/classroom/{subjectId}/lesson-plans/save-as-template', [App\Http\Controllers\ClassroomController::class, 'saveAsTemplate']);
     Route::get('/api/classroom/{subjectId}/lesson-plans/load-template', [App\Http\Controllers\ClassroomController::class, 'loadTemplate']);
     Route::get('/api/classroom/{subjectId}/generate-questions', [App\Http\Controllers\ClassroomController::class, 'generateAssignmentQuestions']);
+    Route::post('/api/classroom/{subjectId}/save-assignment-questions', [App\Http\Controllers\ClassroomController::class, 'saveAssignmentQuestions']);
     Route::post('/api/classroom/{subjectId}/save-assignment-deadline', [App\Http\Controllers\ClassroomController::class, 'saveAssignmentDeadline']);
     Route::post('/api/classroom/{subjectId}/save-assignment-marks', [App\Http\Controllers\ClassroomController::class, 'saveAssignmentMarks']);
     Route::post('/api/classroom/{subjectId}/generate-summative-paper', [App\Http\Controllers\ClassroomController::class, 'generateSummativePaper']);

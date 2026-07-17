@@ -2613,7 +2613,7 @@
 
             return `
               <div class="relative">
-                <input type="number" step="1" max="10" min="0" value="${val !== null ? Math.round(val) : ''}" 
+                <input type="number" step="1" max="20" min="0" value="${val !== null ? Math.round(val) : ''}" 
                        class="${styleClasses}" data-co="${co}">
                 ${indicator}
               </div>
@@ -2660,18 +2660,28 @@
 
       for (const [co, qs] of Object.entries(questionsData)) {
         let qList = qs.map(q => {
+          let qText = typeof q === 'object' ? q.question : q;
+          let bt = typeof q === 'object' ? q.bt_level : null;
+          let marksVal = typeof q === 'object' ? q.marks : null;
+          
           let cog = '';
-          let lower = q.toLowerCase();
-          if (!lower.includes('[remember]') && !lower.includes('[u]') && !lower.includes('[a]') && !lower.includes('[r]') && !lower.includes('cognitive')) {
-            if (lower.includes('define') || lower.includes('list') || lower.includes('what is') || lower.includes('state') || lower.includes('name')) {
-              cog = ' <span class="text-blue-400 font-bold">[Remember - R]</span>';
-            } else if (lower.includes('design') || lower.includes('solve') || lower.includes('calculate') || lower.includes('write') || lower.includes('implement') || lower.includes('apply') || lower.includes('draw')) {
-              cog = ' <span class="text-emerald-400 font-bold">[Apply - A]</span>';
-            } else {
-              cog = ' <span class="text-indigo-400 font-bold">[Understand - U]</span>';
+          if (bt) {
+            let color = bt.toLowerCase() === 'remember' ? 'text-blue-400' : (bt.toLowerCase() === 'apply' ? 'text-emerald-400' : 'text-indigo-400');
+            cog = ` <span class="${color} font-bold">[${bt}]</span>`;
+          } else {
+            let lower = qText.toLowerCase();
+            if (!lower.includes('[remember]') && !lower.includes('[u]') && !lower.includes('[a]') && !lower.includes('[r]') && !lower.includes('cognitive')) {
+              if (lower.includes('define') || lower.includes('list') || lower.includes('what is') || lower.includes('state') || lower.includes('name')) {
+                cog = ' <span class="text-blue-400 font-bold">[Remember - R]</span>';
+              } else if (lower.includes('design') || lower.includes('solve') || lower.includes('calculate') || lower.includes('write') || lower.includes('implement') || lower.includes('apply') || lower.includes('draw')) {
+                cog = ' <span class="text-emerald-400 font-bold">[Apply - A]</span>';
+              } else {
+                cog = ' <span class="text-indigo-400 font-bold">[Understand - U]</span>';
+              }
             }
           }
-          return `<li class="text-sm text-slate-300 mb-2 leading-relaxed font-medium">${q}${cog}</li>`;
+          let marksText = marksVal ? ` <span class="text-slate-500 font-bold">(${marksVal} Marks)</span>` : '';
+          return `<li class="text-sm text-slate-300 mb-2 leading-relaxed font-medium">${qText}${cog}${marksText}</li>`;
         }).join('');
         let schedule = currentDeadlines[co] || { start: '', due: '', locked: false };
         if (typeof schedule === 'string') schedule = { start: '', due: schedule, locked: false }; // Legacy fallback
@@ -2685,6 +2695,11 @@
                 </button>
                 <button onclick="generateAIQuestions('${subjectId}', '${co}', 'bank')" class="p-1 rounded-lg bg-slate-800 hover:bg-indigo-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Pull from Question Bank Pool">
                   <span class="material-symbols-rounded text-[14px] block">database</span>
+                </button>
+        `;
+        let editBtn = isLocked ? '' : `
+                <button onclick="openEditQuestionsModal('${subjectId}', '${co}')" class="p-1 rounded-lg bg-slate-800 hover:bg-amber-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Manually Edit Questions">
+                  <span class="material-symbols-rounded text-[14px] block">edit</span>
                 </button>
         `;
         let lockBtn = isLocked ? '' : `
@@ -2716,6 +2731,7 @@
                   <input type="date" value="${schedule.due || ''}" ${disabledAttr} class="bg-transparent text-[10px] text-slate-300 font-mono outline-none w-20" onchange="updateAssignmentSchedule('${subjectId}', '${co}', 'due', this.value)">
                 </div>
                 ${regenBtn}
+                ${editBtn}
                 ${lockBtn}
                 ${printBtn}
               </div>
@@ -2810,6 +2826,138 @@
            alert(data.message);
         }
       });
+    }
+
+    let currentEditCo = '';
+    let currentEditSubjectId = '';
+
+    function openEditQuestionsModal(subjectId, coTag) {
+      currentEditCo = coTag;
+      currentEditSubjectId = subjectId;
+      document.getElementById('editQuestionsCoBadge').innerText = coTag;
+      
+      const container = document.getElementById('editQuestionsFieldsContainer');
+      container.innerHTML = '';
+
+      let qs = currentQuestions[coTag] || [];
+      if (qs.length === 0) {
+        addManualQuestionField();
+      } else {
+        qs.forEach(q => {
+          let qText = typeof q === 'object' ? q.question : q;
+          let bt = typeof q === 'object' ? q.bt_level : 'Understand';
+          let marksVal = typeof q === 'object' ? q.marks : 5;
+          addManualQuestionField(qText, bt, marksVal);
+        });
+      }
+
+      updateEditQuestionsTotalMarks();
+      
+      const modal = document.getElementById('editQuestionsModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeEditQuestionsModal() {
+      const modal = document.getElementById('editQuestionsModal');
+      modal.classList.remove('flex');
+      modal.classList.add('hidden');
+    }
+
+    function addManualQuestionField(question = '', btLevel = 'Understand', marks = 5) {
+      const container = document.getElementById('editQuestionsFieldsContainer');
+      const div = document.createElement('div');
+      div.className = "p-4 bg-slate-950/40 border border-slate-800 rounded-xl space-y-3 relative question-field-row";
+      
+      div.innerHTML = `
+        <div class="flex justify-between items-center">
+          <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Question</span>
+          <button type="button" onclick="this.closest('.question-field-row').remove(); updateEditQuestionsTotalMarks();" class="text-rose-400 hover:text-rose-350 cursor-pointer">
+            <span class="material-symbols-rounded text-base">delete</span>
+          </button>
+        </div>
+        <div>
+          <textarea class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 text-sm outline-none focus:border-blue-500 resize-y q-text" rows="2" placeholder="Type question description..." required>${question}</textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">BT Level</label>
+            <select class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:border-blue-500 outline-none q-bt">
+              <option value="Remember" ${btLevel === 'Remember' ? 'selected' : ''}>Remember</option>
+              <option value="Understand" ${btLevel === 'Understand' ? 'selected' : ''}>Understand</option>
+              <option value="Apply" ${btLevel === 'Apply' ? 'selected' : ''}>Apply</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Marks</label>
+            <input type="number" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:border-blue-500 outline-none q-marks" value="${marks}" min="1" max="20" onchange="updateEditQuestionsTotalMarks()" required>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+      updateEditQuestionsTotalMarks();
+    }
+
+    function updateEditQuestionsTotalMarks() {
+      let sum = 0;
+      const inputs = document.querySelectorAll('#editQuestionsFieldsContainer .q-marks');
+      inputs.forEach(input => {
+        sum += parseInt(input.value || 0);
+      });
+      document.getElementById('editQuestionsTotalMarks').innerText = sum;
+    }
+
+    function saveManualQuestions() {
+      const rows = document.querySelectorAll('#editQuestionsFieldsContainer .question-field-row');
+      let questions = [];
+      let totalMarks = 0;
+
+      rows.forEach(row => {
+        const text = row.querySelector('.q-text').value.trim();
+        const bt = row.querySelector('.q-bt').value;
+        const marks = parseInt(row.querySelector('.q-marks').value || 0);
+        
+        if (text) {
+          questions.push({
+            question: text,
+            bt_level: bt,
+            marks: marks
+          });
+          totalMarks += marks;
+        }
+      });
+
+      if (questions.length === 0) {
+        alert("Please add at least one question.");
+        return;
+      }
+
+      if (totalMarks !== 20) {
+        if (!confirm(`Warning: Total marks allocated is ${totalMarks}. The target is exactly 20 marks. Do you want to proceed anyway?`)) {
+          return;
+        }
+      }
+
+      fetch(`/api/classroom/${currentEditSubjectId}/save-assignment-questions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({
+          co_tag: currentEditCo,
+          questions: questions
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          currentQuestions[currentEditCo] = questions;
+          renderAIQuestionsList(currentQuestions, currentEditSubjectId);
+          closeEditQuestionsModal();
+          alert("Questions saved successfully.");
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(() => alert("Failed to save assignment questions."));
     }
 
     function saveAssignmentMarks(subjectId) {
@@ -5594,6 +5742,45 @@
       });
     }
 </script>
+
+<!-- Edit Assignment Questions Modal -->
+<div id="editQuestionsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[85vh]">
+    <div class="px-6 py-4 bg-slate-950/60 border-b border-slate-800 flex justify-between items-center">
+      <div>
+        <h3 class="text-base font-black text-white flex items-center gap-2">
+          <span class="material-symbols-rounded text-blue-400 text-lg">edit</span> Manually Edit Questions (<span id="editQuestionsCoBadge"></span>)
+        </h3>
+        <p class="text-xs text-slate-400 mt-0.5">Define one or more descriptive questions for this Course Outcome. Total marks must equal exactly 20.</p>
+      </div>
+      <button onclick="closeEditQuestionsModal()" class="text-slate-400 hover:text-white transition-premium cursor-pointer">
+        <span class="material-symbols-rounded">close</span>
+      </button>
+    </div>
+    
+    <div class="p-6 overflow-y-auto space-y-4 flex-1">
+      <div id="editQuestionsFieldsContainer" class="space-y-4">
+        <!-- Dyn fields -->
+      </div>
+      
+      <button type="button" onclick="addManualQuestionField()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-800 text-slate-355 hover:text-white border border-slate-700/60 rounded-xl text-xs font-bold transition-premium flex items-center justify-center gap-1.5 cursor-pointer">
+        <span class="material-symbols-rounded text-base">add_circle</span> Add Question
+      </button>
+    </div>
+    
+    <div class="px-6 py-4 bg-slate-950/60 border-t border-slate-800 flex justify-between items-center">
+      <div class="text-xs font-bold text-slate-400">
+        Total Marks: <span id="editQuestionsTotalMarks" class="text-slate-200 text-sm font-black">0</span> / 20
+      </div>
+      <div class="flex gap-2">
+        <button type="button" onclick="closeEditQuestionsModal()" class="px-4 py-2 bg-slate-850 hover:bg-slate-800 text-slate-400 hover:text-slate-350 rounded-xl text-xs font-bold transition-premium cursor-pointer">Cancel</button>
+        <button type="button" onclick="saveManualQuestions()" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5">
+          <span class="material-symbols-rounded text-sm">save</span> Save Questions
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Virtual Classroom Students Modal -->
 <div id="vcStudentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">

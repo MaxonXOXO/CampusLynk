@@ -1448,7 +1448,7 @@ Syllabus text:
                     ->where('type', 'Descriptive')
                     ->inRandomOrder()
                     ->limit(3)
-                    ->pluck('question_text')
+                    ->get(['question_text', 'cognitive_level', 'marks'])
                     ->toArray();
 
                 if (count($pool) >= 1) {
@@ -1516,10 +1516,31 @@ Syllabus text:
                 }
             }
 
-            // Format to "1. Question Text"
+            // Format to structured object
             $formatted = [];
-            foreach ($questionsList as $idx => $qText) {
-                $formatted[] = ($idx + 1) . '. ' . preg_replace('/^\d+\.\s*/', '', $qText);
+            foreach ($questionsList as $idx => $item) {
+                if (is_array($item) || is_object($item)) {
+                    $item = (array)$item;
+                    $formatted[] = [
+                        'question' => preg_replace('/^\d+\.\s*/', '', $item['question_text'] ?? $item['question'] ?? ''),
+                        'bt_level' => $item['cognitive_level'] ?? $item['bt_level'] ?? 'Understand',
+                        'marks' => intval($item['marks'] ?? 5)
+                    ];
+                } else {
+                    $cleaned = preg_replace('/^\d+\.\s*/', '', $item);
+                    $lower = strtolower($cleaned);
+                    $bt = 'Understand';
+                    if (strpos($lower, 'define') !== false || strpos($lower, 'list') !== false || strpos($lower, 'what is') !== false || strpos($lower, 'state') !== false || strpos($lower, 'name') !== false) {
+                        $bt = 'Remember';
+                    } elseif (strpos($lower, 'design') !== false || strpos($lower, 'solve') !== false || strpos($lower, 'calculate') !== false || strpos($lower, 'write') !== false || strpos($lower, 'implement') !== false || strpos($lower, 'apply') !== false || strpos($lower, 'draw') !== false) {
+                        $bt = 'Apply';
+                    }
+                    $formatted[] = [
+                        'question' => $cleaned,
+                        'bt_level' => $bt,
+                        'marks' => 5
+                    ];
+                }
             }
 
             $savedQuestions[$currentCo] = $formatted;
@@ -1530,6 +1551,31 @@ Syllabus text:
 
         return response()->json([
             'status' => 'SUCCESS',
+            'data' => $savedQuestions
+        ]);
+    }
+
+    public function saveAssignmentQuestions(Request $request, $subjectId)
+    {
+        $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$courseFile) return response()->json(['status' => 'ERROR', 'message' => 'Course file not found.']);
+
+        $coTag = $request->input('co_tag');
+        $questions = $request->input('questions', []);
+
+        if (!$coTag) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Invalid parameters.']);
+        }
+
+        $savedQuestions = $courseFile->assignment_questions ?? [];
+        $savedQuestions[$coTag] = $questions;
+
+        $courseFile->assignment_questions = $savedQuestions;
+        $courseFile->save();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Assignment questions saved successfully.',
             'data' => $savedQuestions
         ]);
     }
@@ -1584,7 +1630,7 @@ Syllabus text:
                 ],
                 [
                     'subject_code' => $batchSubject->subject_code,
-                    'max_marks' => 10,
+                    'max_marks' => 20,
                     'marks_obtained' => $mark['marks_obtained']
                 ]
             );
@@ -2074,16 +2120,27 @@ Syllabus text:
             }
         }
 
-        foreach ($questions as $idx => $qText) {
-            $cleanedQ = preg_replace('/^\d+\.\s*/', '', $qText);
-            
-            $lower = strtolower($cleanedQ);
-            $btLevel = 'Understand'; // default
-            if (strpos($lower, 'define') !== false || strpos($lower, 'list') !== false || strpos($lower, 'what is') !== false || strpos($lower, 'state') !== false || strpos($lower, 'name') !== false) {
-                $btLevel = 'Remember';
+        foreach ($questions as $idx => $q) {
+            if (is_array($q) || is_object($q)) {
+                $q = (array)$q;
+                $cleanedQ = $q['question'] ?? '';
+                $btLevel = $q['bt_level'] ?? 'Understand';
+                $marks = intval($q['marks'] ?? ($marksAllocated[$idx] ?? 5));
+            } else {
+                $cleanedQ = preg_replace('/^\d+\.\s*/', '', $q);
+                $lower = strtolower($cleanedQ);
+                $btLevel = 'Understand'; // default
+                if (strpos($lower, 'define') !== false || strpos($lower, 'list') !== false || strpos($lower, 'what is') !== false || strpos($lower, 'state') !== false || strpos($lower, 'name') !== false) {
+                    $btLevel = 'Remember';
+                } elseif (strpos($lower, 'design') !== false || strpos($lower, 'solve') !== false || strpos($lower, 'calculate') !== false || strpos($lower, 'write') !== false || strpos($lower, 'implement') !== false || strpos($lower, 'apply') !== false || strpos($lower, 'draw') !== false) {
+                    $btLevel = 'Apply';
+                }
+                $marks = $marksAllocated[$idx] ?? 5;
+            }
+
+            if (strtolower($btLevel) === 'remember') {
                 $rememberCount++;
-            } elseif (strpos($lower, 'design') !== false || strpos($lower, 'solve') !== false || strpos($lower, 'calculate') !== false || strpos($lower, 'write') !== false || strpos($lower, 'implement') !== false || strpos($lower, 'apply') !== false || strpos($lower, 'draw') !== false) {
-                $btLevel = 'Apply';
+            } elseif (strtolower($btLevel) === 'apply') {
                 $applyCount++;
             } else {
                 $understandCount++;
@@ -2093,7 +2150,7 @@ Syllabus text:
                 'q_no' => $idx + 1,
                 'question' => $cleanedQ,
                 'bt_level' => $btLevel,
-                'marks' => $marksAllocated[$idx] ?? 5
+                'marks' => $marks
             ];
         }
 

@@ -430,5 +430,83 @@
         </table>
     </div>
 
+    <!-- PAGE 3: SCHEME OF EVALUATION -->
+    <div class="a4-page page-break">
+        <div class="header">
+            <h1>CARMEL POLYTECHNIC COLLEGE | PUNNAPRA</h1>
+            <h2>DEPARTMENT OF {{ strtoupper($fullDepartment) }}</h2>
+        </div>
+
+        <div class="divider-double"></div>
+
+        <div class="meta-section">
+            <div class="meta-row">
+                <div class="meta-item"><strong>Subject Code & Name:</strong> {{ $subject->subject_code }} - {{ $subject->subject_name }}</div>
+                <div class="meta-item" style="text-align: right;"><strong>Semester:</strong> Semester {{ $romanSem }}</div>
+            </div>
+            <div class="meta-row">
+                <div class="meta-item"><strong>Batch:</strong> {{ $cleanedBatch }}</div>
+                <div class="meta-item" style="text-align: right;"><strong>CO Number:</strong> {{ $coTag }}</div>
+            </div>
+            <div class="meta-row">
+                <div class="meta-item"><strong>Assessment Year:</strong> {{ $assessmentYear }}</div>
+                <div class="meta-item" style="text-align: right;"><strong>Maximum Marks:</strong> 20</div>
+            </div>
+        </div>
+
+        <div class="divider-single"></div>
+
+        <div class="rubrics-title" style="margin-bottom: 20px;">SCHEME OF EVALUATION</div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th style="width: 10%; text-align: center;">Q. No.</th>
+                    <th style="width: 50%;">Answer Outline / Key Points</th>
+                    <th style="width: 25%; text-align: center;">Detailed Mark Split-up</th>
+                    <th style="width: 15%; text-align: center;">Total Marks</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($questions as $q)
+                    <tr>
+                        <td class="text-center" style="vertical-align: top; font-weight: bold;">{{ $q['q_no'] }}.</td>
+                        <td style="vertical-align: top; line-height: 1.5;">
+                            <strong>Key Points for question:</strong><br>
+                            {{ $q['question'] }}<br><br>
+                            - Correct definition, definition/explanation of key terms.<br>
+                            - Relevant block diagram/circuit diagram/equations (where applicable).<br>
+                            - Appropriate examples and descriptions.
+                        </td>
+                        <td style="vertical-align: top; line-height: 1.5;">
+                            - Explanation/Theory: {{ $q['marks'] - 2 > 0 ? $q['marks'] - 2 : 1 }} Marks<br>
+                            - Diagram/Equations: {{ $q['marks'] > 2 ? 2 : 0 }} Marks
+                        </td>
+                        <td class="text-center" style="vertical-align: top; font-weight: bold;">{{ $q['marks'] }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center" style="padding: 20px; color: #666;">No questions available.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+
+        <div class="signature-row" style="margin-top: 100px;">
+            <div class="signature-col">
+                <div class="signature-line">Prepared By</div>
+                <div>Course Coordinator</div>
+            </div>
+            <div class="signature-col">
+                <div class="signature-line">Verified By</div>
+                <div>Module Coordinator</div>
+            </div>
+            <div class="signature-col">
+                <div class="signature-line">Approved By</div>
+                <div>HOD</div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
