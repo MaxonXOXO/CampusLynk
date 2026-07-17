@@ -281,7 +281,7 @@
                 <div class="meta-item" style="text-align: right;"><strong>Semester:</strong> Semester {{ $romanSem }}</div>
             </div>
             <div class="meta-row">
-                <div class="meta-item"><strong>Batch:</strong> {{ $cleanedBatch }}</div>
+                <div class="meta-item"><strong>Batch:</strong> {{ $cleanedBatch }} @if(str_contains($subject->classroom_id, 'LET')) <span style="background:#f3e8ff; border:1px solid #c084fc; color:#6b21a8; font-weight:bold; font-size:10px; padding:1px 4px; border-radius:3px; margin-left:5px;">LATERAL ENTRY (LET)</span> @endif</div>
                 <div class="meta-item" style="text-align: right;"><strong>CO Number:</strong> {{ $coTag }}</div>
             </div>
             <div class="meta-row">
@@ -445,7 +445,7 @@
                 <div class="meta-item" style="text-align: right;"><strong>Semester:</strong> Semester {{ $romanSem }}</div>
             </div>
             <div class="meta-row">
-                <div class="meta-item"><strong>Batch:</strong> {{ $cleanedBatch }}</div>
+                <div class="meta-item"><strong>Batch:</strong> {{ $cleanedBatch }} @if(str_contains($subject->classroom_id, 'LET')) <span style="background:#f3e8ff; border:1px solid #c084fc; color:#6b21a8; font-weight:bold; font-size:10px; padding:1px 4px; border-radius:3px; margin-left:5px;">LATERAL ENTRY (LET)</span> @endif</div>
                 <div class="meta-item" style="text-align: right;"><strong>CO Number:</strong> {{ $coTag }}</div>
             </div>
             <div class="meta-row">

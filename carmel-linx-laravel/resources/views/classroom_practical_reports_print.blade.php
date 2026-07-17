@@ -152,7 +152,12 @@
     <table class="meta-info">
         <tr>
             <td width="15%">Batch / Class:</td>
-            <td width="35%" style="color: #111;">{{ $cleanedBatch }}</td>
+            <td width="35%" style="color: #111;">
+                {{ $cleanedBatch }}
+                @if(str_contains($subject->classroom_id, 'LET'))
+                    <span style="background:#f3e8ff; border:1px solid #c084fc; color:#6b21a8; font-weight:bold; font-size:10px; padding:1px 4px; border-radius:3px; margin-left:5px;">LATERAL ENTRY (LET)</span>
+                @endif
+            </td>
             <td width="15%">Semester:</td>
             <td width="35%">Semester {{ $subject->semester }}</td>
         </tr>

@@ -224,7 +224,12 @@
                 <td class="meta-label">Subject Name:</td>
                 <td class="meta-value">{{ $subject->subject_name }}</td>
                 <td class="meta-label">Classroom:</td>
-                <td class="meta-value">{{ $subject->classroom->name ?? $subject->classroom_id }}</td>
+                <td class="meta-value">
+                    {{ $subject->classroom->name ?? $subject->classroom_id }}
+                    @if(str_contains($subject->classroom_id, 'LET'))
+                        <span style="background:#f3e8ff; border:1px solid #c084fc; color:#6b21a8; font-weight:bold; font-size:10px; padding:1px 4px; border-radius:3px; margin-left:5px;">LATERAL ENTRY (LET)</span>
+                    @endif
+                </td>
             </tr>
             <tr>
                 <td class="meta-label">Faculty:</td>

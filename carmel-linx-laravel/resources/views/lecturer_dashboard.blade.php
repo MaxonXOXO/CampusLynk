@@ -1891,7 +1891,11 @@
       currentSubjectId = subjectId;
       window.currentVirtualBatchId = batchId;
       document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> ${subjectName}`;
-      document.getElementById('vcSubtitle').innerText = `Batch: ${batchId}`;
+      let latText = '';
+      if (batchId.includes('_LET')) {
+        latText = ' <span class="bg-purple-900/60 border border-purple-500/50 text-purple-300 font-extrabold text-xs px-2.5 py-1 rounded-full shadow-inner ml-2">LATERAL ENTRY (LET)</span>';
+      }
+      document.getElementById('vcSubtitle').innerHTML = `Batch: ${batchId}${latText}`;
       // Show subject name and code immediately near the upload button (before API loads)
       const vcSubName = document.getElementById('vcSubjectName');
       const vcSubCode = document.getElementById('vcSubjectCode');

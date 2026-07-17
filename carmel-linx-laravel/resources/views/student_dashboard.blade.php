@@ -159,7 +159,11 @@
         <div class="flex items-center gap-4">
           <div class="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 font-black uppercase tracking-wider text-slate-400 flex flex-wrap gap-4 text-xs">
             <span>Branch: <strong class="text-slate-200">{{ session('userBranch', '-') }}</strong></span>
-            <span>Batch: <strong class="text-slate-200">{{ session('classroomId', '-') }}</strong></span>
+            <span>Batch: <strong class="text-slate-200">{{ session('classroomId', '-') }}</strong>
+              @if(str_contains(session('classroomId', ''), '_LET'))
+                <span class="bg-purple-900/60 border border-purple-500/50 text-purple-300 font-extrabold text-[10px] px-1.5 py-0.5 rounded ml-1 uppercase">LET</span>
+              @endif
+            </span>
             <span id="headerSemesterText">Sem: <strong class="text-teal-400" id="headerSemValue">...</strong></span>
           </div>
         </div>
@@ -420,7 +424,12 @@
               </div>
               <div class="bg-slate-900/40 rounded-xl p-4">
                 <dt class="text-slate-400 font-black uppercase tracking-wider">Classroom ID</dt>
-                <dd class="font-mono font-bold text-white mt-1">{{ session('classroomId', '-') }}</dd>
+                <dd class="font-mono font-bold text-white mt-1">
+                  {{ session('classroomId', '-') }}
+                  @if(str_contains(session('classroomId', ''), '_LET'))
+                    <span class="bg-purple-900/60 border border-purple-500/50 text-purple-300 font-extrabold text-[10px] px-2 py-0.5 rounded ml-2 uppercase">Lateral Entry</span>
+                  @endif
+                </dd>
               </div>
               <div class="bg-slate-900/40 rounded-xl p-4">
                 <dt class="text-slate-400 font-black uppercase tracking-wider">Role</dt>

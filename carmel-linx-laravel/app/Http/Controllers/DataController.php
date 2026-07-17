@@ -102,6 +102,7 @@ class DataController extends Controller
             'phone' => 'nullable|string',
             'sbte_reg_no' => 'nullable|string',
             'semester' => 'nullable|integer|min:1|max:6',
+            'classroom_id' => 'nullable|string',
             'academic_status' => 'nullable|string|in:Active,Discontinued,TC Issued',
             'status_notes' => 'nullable|string',
         ]);
@@ -114,7 +115,7 @@ class DataController extends Controller
             $oldSbte = $student->sbte_reg_no;
             $newSbte = $request->input('sbte_reg_no');
 
-            $fields = array_filter($request->only(['name', 'email', 'password', 'phone', 'sbte_reg_no', 'semester', 'academic_status', 'status_notes']), function ($val) {
+            $fields = array_filter($request->only(['name', 'email', 'password', 'phone', 'sbte_reg_no', 'semester', 'classroom_id', 'academic_status', 'status_notes']), function ($val) {
                 return $val !== null;
             });
             if ($request->hasFile('photo')) {
@@ -447,6 +448,7 @@ class DataController extends Controller
                         'type' => 'student',
                         'sbte_reg_no' => $s->sbte_reg_no,
                         'semester' => $s->semester ? 'S' . $s->semester : 'N/A',
+                        'classroom_id' => $s->classroom_id,
                     ];
                 })->toArray();
 
@@ -1033,6 +1035,7 @@ class DataController extends Controller
             'tutor_mobile_no'   => 'nullable|string',
             'mentor_mobile_no'  => 'nullable|string',
             'current_semester'  => 'nullable|integer|min:1|max:8',
+            'is_lateral_entry'  => 'nullable|boolean',
         ]);
 
         $admYear    = (int) $request->input('admission_year');
@@ -1040,6 +1043,9 @@ class DataController extends Controller
         $startYear  = $admYear;
         $endYear    = $admYear + 3;
         $classroomId = "{$branchCode}_{$startYear}_{$endYear}";
+        if ($request->input('is_lateral_entry')) {
+            $classroomId .= "_LET";
+        }
         $semester = (int) $request->input('current_semester', 1);
 
         // Validate optional tutor/mentor belong to same branch

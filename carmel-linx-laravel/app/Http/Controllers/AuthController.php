@@ -170,6 +170,15 @@ class AuthController extends Controller
         $endYear = $startYear + 3;
         $classroomId = "{$branchCode}_{$startYear}_{$endYear}";
 
+        // If the registration number ends with 'L' or admission type is LET, check for _LET classroom first
+        if ($isLET || str_ends_with(strtoupper($regNo), 'L') || str_ends_with(strtoupper($request->input('sbteRegNo', '')), 'L')) {
+            $letClassroomId = "{$classroomId}_LET";
+            $letExists = \App\Models\ClassManagement::where('classroom_id', $letClassroomId)->exists();
+            if ($letExists) {
+                $classroomId = $letClassroomId;
+            }
+        }
+
         // Only assign if the batch has been created by the HOD.
         // If the HOD hasn't created the batch yet, leave classroom_id as null.
         // The student will be backfilled when the HOD creates the batch later.

@@ -587,6 +587,12 @@
             class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none">
         </div>
 
+        <!-- Lateral Entry Batch -->
+        <div class="flex items-center gap-2.5">
+          <input type="checkbox" id="batchIsLET" onchange="updateBatchPreview()" class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-violet-500 focus:ring-violet-500 cursor-pointer">
+          <label for="batchIsLET" class="text-sm font-bold text-slate-350 cursor-pointer">Lateral Entry (LET) Batch</label>
+        </div>
+
         <!-- Preview -->
         <div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 flex items-center gap-3">
           <span class="material-symbols-rounded text-violet-400 text-sm">info</span>
@@ -1361,6 +1367,9 @@
               <button onclick="editStudentSemester('${user.id}', '${user.semester || 'S1'}')" class="text-indigo-400 hover:text-indigo-300 underline font-bold text-sm cursor-pointer" title="Click to Edit Semester">
                 ${user.semester || 'S1'}
               </button>
+              <button onclick="editStudentBatch('${user.id}', '${user.classroom_id || ''}')" class="text-violet-400 hover:text-violet-300 underline font-bold text-sm cursor-pointer ml-2" title="Move Batch">
+                Move
+              </button>
             ` : '<span class="text-slate-500 font-bold text-sm">N/A</span>'}
           </td>
           <td class="p-2.5 text-sm">${roleCol}</td>
@@ -1449,6 +1458,38 @@
         }
       })
       .catch(() => indicator.classList.add('hidden'));
+    }
+
+    function editStudentBatch(regNo, currentBatch) {
+      let newBatch = prompt("Enter new Classroom ID (Batch) for student " + regNo + ":", currentBatch || '');
+      if (newBatch === null) return;
+      newBatch = newBatch.trim();
+      if (!newBatch) return;
+
+      const indicator = document.getElementById('loadingIndicator');
+      if (indicator) indicator.classList.remove('hidden');
+
+      fetch(`/api/student/update/${regNo}`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ classroom_id: newBatch })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (indicator) indicator.classList.add('hidden');
+        if (data.status === 'SUCCESS') {
+          showGlobalMessage('Student batch updated successfully.');
+          loadUsers();
+          if (typeof activeBatchId !== 'undefined' && activeBatchId) {
+             loadBatchRoster(activeBatchId);
+          }
+        } else {
+          showGlobalMessage(data.message, true);
+        }
+      })
+      .catch(() => {
+        if (indicator) indicator.classList.add('hidden');
+      });
     }
 
     function updateAcademicStatusDirectly(regNo, newVal) {
@@ -1927,6 +1968,7 @@
           <div class="space-y-3">
             <div class="flex items-center gap-2.5">
               <span class="px-2.5 py-1 border rounded-lg font-mono text-sm font-bold ${yearBadgeClass}">${batch.classroom_id}</span>
+              ${batch.classroom_id.includes('_LET') ? `<span class="bg-purple-950/80 border border-purple-500/40 text-purple-400 font-extrabold text-[10px] px-2 py-0.5 rounded uppercase select-none">LET</span>` : ''}
               ${(batch.current_semester || 1) > 6
                 ? `<span class="px-3 py-1 bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 rounded-xl font-bold text-sm tracking-wide flex items-center gap-1 select-none"><span class="material-symbols-rounded" style="font-size:14px">school</span>Graduated</span>`
                 : `<span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-md select-none transition-premium" title="Click to Change Batch Semester">S-${batch.current_semester || 1}</span>`
@@ -2012,7 +2054,8 @@
     function updateBatchPreview() {
       const year = parseInt(document.getElementById('batchAdmYear').value) || new Date().getFullYear();
       const branch = '{{ session("userBranch") }}';
-      document.getElementById('batchIdPreview').innerText = `${branch}_${year}_${year + 3}`;
+      const isLet = document.getElementById('batchIsLET').checked;
+      document.getElementById('batchIdPreview').innerText = `${branch}_${year}_${year + 3}${isLet ? '_LET' : ''}`;
     }
 
     function submitCreateBatch() {
@@ -2021,6 +2064,7 @@
       const year = document.getElementById('batchAdmYear').value;
       const tutor = document.getElementById('batchTutorSelect').value;
       const mentor = document.getElementById('batchMentorSelect').value;
+      const isLet = document.getElementById('batchIsLET').checked;
 
       const semester = document.getElementById('batchStartSemesterSelect').value;
 
@@ -2041,7 +2085,8 @@
           admission_year: parseInt(year),
           tutor_mobile_no: tutor || null,
           mentor_mobile_no: mentor || null,
-          current_semester: parseInt(semester)
+          current_semester: parseInt(semester),
+          is_lateral_entry: isLet
         })
       })
       .then(r => r.json())
@@ -3243,9 +3288,12 @@
               <td class="p-3">${admTypeBadge}</td>
               <td class="p-3 font-bold text-indigo-400 font-mono">S${s.semester || '1'}</td>
               <td class="p-3">${statusBadge}</td>
-              <td class="p-3 text-right">
+              <td class="p-3 text-right space-x-1">
                 <button onclick="openStudentDiary('${s.reg_no}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-teal-500/10 hover:bg-teal-500/20 border border-teal-500/20 text-teal-400 rounded-lg text-sm font-bold transition-premium cursor-pointer">
                   <span class="material-symbols-rounded text-sm">menu_book</span> Diary
+                </button>
+                <button onclick="editStudentBatch('${s.reg_no}', '${classroomId}')" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/20 text-violet-400 rounded-lg text-sm font-bold transition-premium cursor-pointer">
+                  <span class="material-symbols-rounded text-sm">swap_horiz</span> Move
                 </button>
               </td>
             `;
