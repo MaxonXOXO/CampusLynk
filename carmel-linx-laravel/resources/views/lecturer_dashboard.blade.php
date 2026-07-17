@@ -2559,6 +2559,9 @@
             <button onclick="generateAIQuestions('${currentSubjectId}')" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-2 shadow-lg shadow-blue-900/20 cursor-pointer">
               <span class="material-symbols-rounded text-sm">smart_toy</span> AI Generate Questions
             </button>
+            <button onclick="generateAIQuestions('${currentSubjectId}', null, 'bank')" class="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-2 shadow-lg shadow-indigo-900/20 cursor-pointer">
+              <span class="material-symbols-rounded text-sm">database</span> Pull from Question Bank
+            </button>
           </div>
         </div>
 
@@ -2581,10 +2584,10 @@
                   <th class="p-3">Student Name</th>
                   <th class="p-3 w-28">Admission No</th>
                   <th class="p-3 w-32">SBTE Reg No</th>
-                  <th class="p-3 text-center w-20">CO1 (10)</th>
-                  <th class="p-3 text-center w-20">CO2 (10)</th>
-                  <th class="p-3 text-center w-20">CO3 (10)</th>
-                  <th class="p-3 text-center w-20">CO4 (10)</th>
+                  <th class="p-3 text-center w-20">CO1 (20)</th>
+                  <th class="p-3 text-center w-20">CO2 (20)</th>
+                  <th class="p-3 text-center w-20">CO3 (20)</th>
+                  <th class="p-3 text-center w-20">CO4 (20)</th>
                 </tr>
               </thead>
               <tbody id="markEntryTbody">
