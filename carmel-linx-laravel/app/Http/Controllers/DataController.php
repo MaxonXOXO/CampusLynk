@@ -258,7 +258,7 @@ class DataController extends Controller
                 return response()->json(['status' => 'ERROR', 'message' => 'You are not assigned as a Tutor or Mentor to any classroom.']);
             }
 
-            $students = Student::where('classroom_id', $class->classroom_id)->get();
+            $students = Student::getClassroomStudentsQuery($class->classroom_id)->get();
             
             $tutorName = null;
             if ($class->tutor_mobile_no) {
@@ -970,7 +970,7 @@ class DataController extends Controller
                         $mentorName = $mentor ? $mentor->name : null;
                     }
 
-                    $studentCount = Student::where('classroom_id', $cls->classroom_id)->count();
+                    $studentCount = Student::getClassroomStudentsQuery($cls->classroom_id)->count();
 
                     $activeSem = $cls->current_semester ?: 1;
                     $subjects = \App\Models\BatchSubject::where('classroom_id', $cls->classroom_id)
@@ -1125,16 +1125,14 @@ class DataController extends Controller
 
             $backfilledCount = 0;
             if ($isLET) {
-                // Auto-migrate all L-suffix students currently in the base batch
+                // LET students remain in their base/home regular batch, but are dynamically counted
+                // as part of the LET sub-classroom. We do not change their database classroom_id.
                 $backfilledCount = Student::where('classroom_id', $baseClassroomId)
                     ->where(function($q) {
                         $q->where('reg_no', 'like', '%L')
                           ->orWhere('sbte_reg_no', 'like', '%L');
                     })
-                    ->update([
-                        'classroom_id' => $classroomId,
-                        'semester'     => $semester
-                    ]);
+                    ->count();
             } else {
                 $backfilledCount = Student::where('branch', $branchCode)
                     ->where('admission_year', $admYear)
@@ -1199,7 +1197,7 @@ class DataController extends Controller
             $batch->update(['current_semester' => $newSemester]);
 
             // Promote ONLY active/approved students in this batch to the new semester
-            \App\Models\Student::where('classroom_id', $classroomId)
+            \App\Models\Student::getClassroomStudentsQuery($classroomId)
                 ->whereIn('status', ['APPROVED', 'Approved', 'Active', 'active'])
                 ->where(function($q) {
                     $q->whereNull('academic_status')
@@ -1375,7 +1373,7 @@ class DataController extends Controller
         }
 
         try {
-            $students = Student::where('classroom_id', $classroomId)
+            $students = Student::getClassroomStudentsQuery($classroomId)
                 ->orderBy('name')
                 ->get()
                 ->map(function ($s) {
@@ -1580,7 +1578,7 @@ class DataController extends Controller
             $classroom->update(['current_semester' => $request->semester]);
 
             // Update all active students in this batch to this semester
-            Student::where('classroom_id', $request->classroom_id)
+            Student::getClassroomStudentsQuery($request->classroom_id)
                 ->where('academic_status', 'Active')
                 ->update(['semester' => $request->semester]);
 
@@ -1719,7 +1717,7 @@ class DataController extends Controller
             $batch->update(['current_semester' => 7]);
 
             // Mark all Active students in this batch as Graduated
-            $count = \App\Models\Student::where('classroom_id', $classroomId)
+            $count = \App\Models\Student::getClassroomStudentsQuery($classroomId)
                 ->whereIn('status', ['active', 'Active'])
                 ->update(['status' => 'Graduated', 'academic_status' => 'Graduated']);
 
@@ -1753,7 +1751,7 @@ class DataController extends Controller
             }
 
             // Safety check: refuse delete if there are enrolled students
-            $studentCount = \App\Models\Student::where('classroom_id', $classroomId)->count();
+            $studentCount = \App\Models\Student::getClassroomStudentsQuery($classroomId)->count();
             if ($studentCount > 0) {
                 return response()->json([
                     'status'  => 'ERROR',
@@ -1839,7 +1837,7 @@ class DataController extends Controller
                 });
 
             // ---- 2. Students + Attendance ----
-            $students = \App\Models\Student::where('classroom_id', $classroomId)
+            $students = \App\Models\Student::getClassroomStudentsQuery($classroomId)
                 ->orderBy('roll_no')
                 ->orderBy('name')
                 ->get();
@@ -2113,7 +2111,13 @@ class DataController extends Controller
                 ]);
             }
 
-            $batchSubjects = \App\Models\BatchSubject::where('classroom_id', $classroomId)
+            $isLetStudent = str_ends_with(strtoupper($regNo), 'L') || str_ends_with(strtoupper($student->sbte_reg_no ?? ''), 'L');
+            $batchSubjects = \App\Models\BatchSubject::where(function($q) use ($classroomId, $isLetStudent) {
+                    $q->where('classroom_id', $classroomId);
+                    if ($isLetStudent) {
+                        $q->orWhere('classroom_id', $classroomId . '_LET');
+                    }
+                })
                 ->orderBy('semester', 'asc')
                 ->get();
 

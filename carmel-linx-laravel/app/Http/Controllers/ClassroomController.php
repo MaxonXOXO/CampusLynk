@@ -1292,7 +1292,7 @@ Syllabus text:
         $lessonPlans = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->orderBy('id', 'asc')->get();
         
         // Get enrolled students
-        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+        $students = \App\Models\Student::getClassroomStudentsQuery($batchSubject->classroom_id)
                     ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
         
         // Get marks and submissions if students exist
@@ -1959,7 +1959,7 @@ Syllabus text:
         $batchSubject = \App\Models\BatchSubject::find($subjectId);
         if (!$batchSubject) return response("Subject not found.", 404);
 
-        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+        $students = \App\Models\Student::getClassroomStudentsQuery($batchSubject->classroom_id)
                     ->where('semester', $batchSubject->semester)
                     ->get(['reg_no', 'name', 'sbte_reg_no']);
         
@@ -2196,7 +2196,7 @@ Syllabus text:
         $batchSubject = \App\Models\BatchSubject::find($subjectId);
         if (!$batchSubject) return response("Subject not found.", 404);
 
-        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+        $students = \App\Models\Student::getClassroomStudentsQuery($batchSubject->classroom_id)
                     ->where('semester', $batchSubject->semester)
                     ->get(['reg_no', 'name', 'sbte_reg_no']);
         
@@ -2653,7 +2653,7 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
         $batchSubject = \App\Models\BatchSubject::find($subjectId);
         if (!$batchSubject) return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
 
-        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+        $students = \App\Models\Student::getClassroomStudentsQuery($batchSubject->classroom_id)
             ->where('semester', $batchSubject->semester)
             ->get(['reg_no', 'name', 'roll_no', 'sbte_reg_no']);
 
@@ -2867,7 +2867,7 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
         $batchSubject = \App\Models\BatchSubject::find($subjectId);
         if (!$batchSubject) return response("Subject not found.", 404);
 
-        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+        $students = \App\Models\Student::getClassroomStudentsQuery($batchSubject->classroom_id)
             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
 
         $allEvaluations = \App\Models\SeminarEvaluation::where('batch_subject_id', $subjectId)->get();
@@ -2939,7 +2939,7 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
         $batchSubject = \App\Models\BatchSubject::find($subjectId);
         if (!$batchSubject) return response("Subject not found.", 404);
 
-        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+        $students = \App\Models\Student::getClassroomStudentsQuery($batchSubject->classroom_id)
             ->where('status', 'Approved')
             ->orderByRaw('ISNULL(roll_no), roll_no ASC')
             ->orderBy('name', 'asc')
@@ -3180,7 +3180,7 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
     public function getPracticalEvaluations(Request $request, $subjectId)
     {
         $batchSubject = \App\Models\BatchSubject::findOrFail($subjectId);
-        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+        $students = \App\Models\Student::getClassroomStudentsQuery($batchSubject->classroom_id)
             ->where('status', 'Approved')
             ->orderByRaw('ISNULL(roll_no), roll_no ASC')
             ->orderBy('name', 'asc')
@@ -3694,7 +3694,7 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
         $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $batchSubject->classroom_id);
         $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
 
-        $students = \App\Models\Student::where('classroom_id', $batchSubject->classroom_id)
+        $students = \App\Models\Student::getClassroomStudentsQuery($batchSubject->classroom_id)
             ->where('status', 'Approved')
             ->orderByRaw('ISNULL(roll_no), roll_no ASC')
             ->orderBy('name', 'asc')

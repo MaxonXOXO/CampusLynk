@@ -84,4 +84,17 @@ class Student extends Model
     {
         return $this->hasMany(AcademicMark::class, 'reg_no', 'reg_no');
     }
+
+    public static function getClassroomStudentsQuery($classroomId)
+    {
+        if (str_ends_with($classroomId, '_LET')) {
+            $baseClassroomId = substr($classroomId, 0, -4);
+            return self::where('classroom_id', $baseClassroomId)
+                ->where(function($q) {
+                    $q->where('reg_no', 'like', '%L')
+                      ->orWhere('sbte_reg_no', 'like', '%L');
+                });
+        }
+        return self::where('classroom_id', $classroomId);
+    }
 }
