@@ -284,6 +284,14 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r26/classroom/assignment/{subjectId}/print-qp/{coTag}', [R26ClassroomController::class, 'printAssignmentQp']);
     Route::get('/r26/classroom/assignment/{subjectId}/print-scheme/{coTag}', [R26ClassroomController::class, 'printAssignmentScheme']);
 
+    // Revision 2026 Series Examination Management
+    Route::post('/api/r26/classroom/{subjectId}/series-exams/configure', [R26ClassroomController::class, 'configureSeriesExams']);
+    Route::post('/api/r26/classroom/{subjectId}/series-exams/{examId}', [R26ClassroomController::class, 'saveSeriesExam']);
+    Route::post('/api/r26/classroom/{subjectId}/series-exams/{examId}/lock', [R26ClassroomController::class, 'lockSeriesExam']);
+    Route::post('/api/r26/classroom/{subjectId}/series-exams/marks/bulk-update', [R26ClassroomController::class, 'bulkUpdateSeriesExamMarks']);
+    Route::get('/r26/classroom/series-exams/{examId}/print-qp', [R26ClassroomController::class, 'printSeriesExamQp']);
+    Route::get('/r26/classroom/series-exams/{examId}/print-scheme', [R26ClassroomController::class, 'printSeriesExamScheme']);
+
     // HOD Subject Allocation
     Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);
     Route::post('/api/hod/batches/subjects/create', [DataController::class, 'createBatchSubject']);

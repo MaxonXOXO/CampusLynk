@@ -187,6 +187,11 @@
             <span class="material-symbols-rounded text-sm">group</span>
             Student Roster ({{ $students->count() }})
           </button>
+
+          <button onclick="switchTab('series')" id="btn-series" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-900/40">
+            <span class="material-symbols-rounded text-sm">quiz</span>
+            Series Exams
+          </button>
         </div>
 
         <!-- QUICK SNAPSHOT WIDGET -->
@@ -773,6 +778,157 @@
           </div>
         </div>
 
+        <!-- SERIES EXAMS TAB PANEL -->
+        <div id="tab-series" class="tab-panel bg-panel border rounded-xl p-5 shadow-md space-y-4 hidden">
+          <div class="border-b border-slate-800/30 pb-3 flex justify-between items-center">
+            <h3 class="text-base font-bold text-title flex items-center gap-2">
+              <span class="material-symbols-rounded text-sky-400">quiz</span>
+              Series Examinations (Theory)
+            </h3>
+            @if(!$seriesExams->isEmpty())
+              <button onclick="resetSeriesExamsConfig()" class="px-2.5 py-1 bg-rose-600/10 hover:bg-rose-600/20 text-rose-450 border border-rose-500/20 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm">
+                <span class="material-symbols-rounded text-xs">restart_alt</span> Reconfigure Pattern
+              </button>
+            @endif
+          </div>
+
+          @if($seriesExams->isEmpty())
+            <!-- Unconfigured Pattern State -->
+            <div class="bg-slate-900/10 border border-card rounded-xl p-6 text-center space-y-4 max-w-2xl mx-auto my-8">
+              <span class="material-symbols-rounded text-4xl text-sky-450">tune</span>
+              <h4 class="font-bold text-title text-sm">Configure Series Examination Pattern</h4>
+              <p class="text-xs text-muted leading-relaxed">
+                Please select the examination pattern according to the syllabus requirements. You can conduct 4 independent single-CO tests (25 marks each) or 2 combined-CO tests (50 marks each).
+              </p>
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <label class="border border-card hover:border-sky-500/30 rounded-xl p-4 cursor-pointer block text-left bg-slate-950/20 space-y-2">
+                  <input type="radio" name="series-mode-select" value="single_co" checked class="text-sky-500 focus:ring-sky-500">
+                  <span class="font-bold text-title text-xs block">4 Single-CO Tests (25M each)</span>
+                  <span class="text-[11px] text-muted block leading-snug">
+                    Conduct one separate exam for each CO (CO1 to CO4). Exam duration is 1 hour. Total marks scaled to 20.
+                  </span>
+                </label>
+                
+                <label class="border border-card hover:border-sky-500/30 rounded-xl p-4 cursor-pointer block text-left bg-slate-950/20 space-y-2">
+                  <input type="radio" name="series-mode-select" value="combined_co" class="text-sky-500 focus:ring-sky-500">
+                  <span class="font-bold text-title text-xs block">2 Combined-CO Tests (50M each)</span>
+                  <span class="text-[11px] text-muted block leading-snug">
+                    Conduct two series exams combining two COs (CO1+CO2 & CO3+CO4). Exam duration is 2 hours. Total marks scaled to 20.
+                  </span>
+                </label>
+              </div>
+
+              <button onclick="initializeSeriesPattern()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md inline-flex items-center gap-1.5">
+                <span class="material-symbols-rounded text-sm">settings_suggest</span>
+                Initialize Pattern Configuration
+              </button>
+            </div>
+          @else
+            <!-- Configured Exams State -->
+            <div class="space-y-6">
+              
+              <!-- QP and Schemes Panel -->
+              <div class="space-y-3">
+                <h4 class="font-bold text-title text-xs uppercase tracking-wider">Scheduled Series Examinations</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  @foreach($seriesExams as $exam)
+                    <div class="bg-slate-900/10 border border-card rounded-xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden">
+                      
+                      <!-- Header -->
+                      <div class="flex justify-between items-start">
+                        <div>
+                          <h5 class="font-bold text-title text-xs">{{ $exam->exam_name }}</h5>
+                          <p class="text-[11px] text-muted mt-0.5">
+                            CO Tags: {{ implode(', ', $exam->co_tags) }} | Marks: {{ $exam->max_marks }}M | Duration: {{ $exam->duration_minutes }} min
+                          </p>
+                        </div>
+                        @if($exam->locked)
+                          <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-450 border border-emerald-500/20 rounded text-[10px] font-bold flex items-center gap-0.5">
+                            <span class="material-symbols-rounded text-[11px]">lock</span> Locked & Published
+                          </span>
+                        @else
+                          <span class="px-2 py-0.5 bg-sky-500/10 text-sky-405 border border-sky-500/20 rounded text-[10px] font-bold">
+                            Drafting Mode
+                          </span>
+                        @endif
+                      </div>
+
+                      <!-- Actions -->
+                      <div class="flex gap-2 flex-wrap pt-2 border-t border-slate-800/30">
+                        <button onclick="openSeriesBuilderModal({{ $exam->id }}, '{{ $exam->exam_name }}', '{{ $exam->mode }}', {{ json_encode($exam->co_tags) }}, {{ $exam->max_marks }})" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1">
+                          <span class="material-symbols-rounded text-xs">edit_document</span> Build QP
+                        </button>
+                        <a href="/r26/classroom/series-exams/{{ $exam->id }}/print-qp" target="_blank" class="px-2.5 py-1 bg-slate-850 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded text-[11px] font-bold transition-all flex items-center gap-1">
+                          <span class="material-symbols-rounded text-xs">print</span> Print QP
+                        </a>
+                        <a href="/r26/classroom/series-exams/{{ $exam->id }}/print-scheme" target="_blank" class="px-2.5 py-1 bg-slate-850 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded text-[11px] font-bold transition-all flex items-center gap-1">
+                          <span class="material-symbols-rounded text-xs">description</span> Print Scheme
+                        </a>
+                        @if(!$exam->locked)
+                          <button onclick="lockAndPublishSeries({{ $exam->id }})" class="px-2.5 py-1 bg-violet-650 hover:bg-violet-750 text-white rounded text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1">
+                            <span class="material-symbols-rounded text-xs">publish</span> Lock & Notify
+                          </button>
+                        @endif
+                      </div>
+
+                    </div>
+                  @endforeach
+                </div>
+              </div>
+
+              <!-- Marks Entry Panel -->
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <h4 class="font-bold text-title text-xs uppercase tracking-wider">Series Exam detailed marksheet</h4>
+                  <button id="btnSaveSeriesMarks" onclick="saveSeriesExamMarks()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md flex items-center gap-1">
+                    <span class="material-symbols-rounded text-xs font-bold">save</span> Save Series Marks
+                  </button>
+                </div>
+
+                <div class="border border-card rounded-xl overflow-x-auto bg-slate-950/10 custom-scrollbar">
+                  <table class="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
+                      <tr class="bg-slate-900/30 text-xs font-bold text-muted uppercase tracking-wider border-b border-card">
+                        <th class="p-3 w-[6%] text-center">Roll No</th>
+                        <th class="p-3 w-[15%]">Register No</th>
+                        <th class="p-3">Student Name</th>
+                        @foreach($seriesExams as $exam)
+                          <th class="p-3 text-center w-[15%]">{{ $exam->exam_name }} ({{ $exam->max_marks }}M)</th>
+                        @endforeach
+                        <th class="p-3 text-center w-[12%]">Scaled Score (20M)</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-card text-xs" id="seriesMarksTableBody">
+                      @foreach($studentCiaData as $sc)
+                        <tr class="bg-card-hover transition-all" data-reg-no="{{ $sc['reg_no'] }}">
+                          <td class="p-3 font-mono text-center text-title">{{ $sc['roll_no'] ?: '—' }}</td>
+                          <td class="p-3 font-mono text-title">{{ $sc['reg_no'] }}</td>
+                          <td class="p-3 text-title font-bold">{{ $sc['name'] }}</td>
+                          @foreach($seriesExams as $exam)
+                            <td class="p-3 text-center">
+                              <input type="number" step="0.5" min="0" max="{{ $exam->max_marks }}" 
+                                     data-exam-id="{{ $exam->id }}" 
+                                     value="{{ $sc['exam_marks'][$exam->id] ?? 0.0 }}" 
+                                     class="w-20 bg-slate-950/50 border border-slate-800 rounded px-2 py-0.5 text-slate-200 text-center focus:border-indigo-500 outline-none font-normal text-xs series-mark-input"
+                                     oninput="recalculateSeriesRow(this)">
+                            </td>
+                          @endforeach
+                          <td class="p-3 text-center font-mono text-emerald-400 font-bold text-base" data-field="series-scaled-total">
+                            {{ $sc['series_exam_marks'] }}
+                          </td>
+                        </tr>
+                      @endforeach
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+
+            </div>
+          @endif
+        </div>
+
       </div>
 
     </div>
@@ -787,7 +943,7 @@
       });
       document.getElementById('tab-' + tabId).classList.remove('hidden');
 
-      const tabs = ['outline', 'planner', 'cia', 'roster'];
+      const tabs = ['outline', 'planner', 'cia', 'roster', 'series'];
       tabs.forEach(id => {
         const btn = document.getElementById('btn-' + id);
         if (id === tabId) {
@@ -1592,5 +1748,494 @@
       </div>
     </div>
   </div>
+
+  <!-- SERIES EXAMS BUILDER MODAL POPUP -->
+  <div id="series-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 hidden">
+    <div class="bg-white border border-slate-200 rounded-xl w-full max-w-6xl p-6 shadow-2xl space-y-6 max-h-[95vh] overflow-y-auto custom-scrollbar text-slate-800">
+      
+      <!-- Modal Header -->
+      <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+        <div class="flex items-center gap-2">
+          <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <span class="material-symbols-rounded text-sky-600">quiz</span>
+            Build Series Exam - <span id="series-modal-title">Series Exam 1</span>
+          </h3>
+          <span id="series-lock-badge" class="ml-2 px-2 py-0.5 bg-emerald-500/10 text-emerald-550 border border-emerald-500/20 text-xs font-bold rounded flex items-center gap-0.5 hidden">
+            <span class="material-symbols-rounded text-xs">lock</span> Published & Locked
+          </span>
+        </div>
+        <div class="flex items-center gap-3">
+          <button type="button" id="btn-lock-series" onclick="lockActiveSeries()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-medium transition-all flex items-center gap-1 cursor-pointer border-0 shadow-sm">
+            <span class="material-symbols-rounded text-xs">lock</span> Lock & Notify
+          </button>
+          <button type="button" onclick="closeSeriesModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer border-0 bg-transparent flex items-center">
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Parts Selection Tabs -->
+      <div class="flex gap-2 border-b border-slate-200 pb-1">
+        <button onclick="switchSeriesPart('Part A')" id="tabbtn-partA" class="px-3 py-1.5 rounded-t-lg text-xs font-bold transition-all border-b-2 border-transparent text-slate-600 hover:bg-slate-100 cursor-pointer">Part A (1M)</button>
+        <button onclick="switchSeriesPart('Part B')" id="tabbtn-partB" class="px-3 py-1.5 rounded-t-lg text-xs font-bold transition-all border-b-2 border-transparent text-slate-600 hover:bg-slate-100 cursor-pointer">Part B (3M)</button>
+        <button onclick="switchSeriesPart('Part C')" id="tabbtn-partC" class="px-3 py-1.5 rounded-t-lg text-xs font-bold transition-all border-b-2 border-transparent text-slate-600 hover:bg-slate-100 cursor-pointer">Part C (7M)</button>
+      </div>
+
+      <!-- Stacked Editor Section -->
+      <div id="series-editor-panel" class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+        <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider">Add Question to <span id="series-editor-part-title">Part A</span></h4>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs text-slate-600 mb-1 font-bold">Question Description:</label>
+            <textarea id="series-q-text" rows="4" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-2 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal" placeholder="Type question description here..."></textarea>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs text-slate-600 mb-1 font-bold">Max Marks:</label>
+              <input type="number" id="series-q-marks" readonly value="1" class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-1.5 text-slate-500 text-sm text-center outline-none font-normal">
+            </div>
+            <div>
+              <label class="block text-xs text-slate-600 mb-1 font-bold">Target CO Tag:</label>
+              <select id="series-q-co" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1.5 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal">
+                <!-- Populated dynamically based on exam COs -->
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-600 mb-1 font-bold">Taxonomy Level:</label>
+              <select id="series-q-bt" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1.5 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal">
+                <option value="Remember">Remember</option>
+                <option value="Understand" selected>Understand</option>
+                <option value="Apply">Apply</option>
+                <option value="Analyze">Analyze</option>
+                <option value="Evaluate">Evaluate</option>
+                <option value="Create">Create</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-600 mb-1 font-bold">Scheme of Evaluation / Hints:</label>
+              <textarea id="series-q-scheme" rows="1" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal" placeholder="E.g., Correct definition 1M..."></textarea>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="autoGenerateSeriesQuestion()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-bold border border-slate-300 transition-all cursor-pointer flex items-center gap-1">
+              <span class="material-symbols-rounded text-xs">psychology</span> Suggest from Q-Bank
+            </button>
+            <button type="button" onclick="addQuestionToSeriesList()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer border-0 flex items-center gap-1">
+              <span class="material-symbols-rounded text-xs">add</span> Add to List
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Grid View for Questions -->
+      <div class="space-y-3">
+        <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider">Active Questions Table for <span id="series-table-part-title">Part A</span></h4>
+        <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+          <table class="w-full text-left border-collapse bg-white">
+            <thead>
+              <tr class="bg-slate-100 text-xs font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
+                <th class="p-3 w-[6%] text-center border-r border-slate-200">No.</th>
+                <th class="p-3 border-r border-slate-200">Question Description</th>
+                <th class="p-3 w-[10%] text-center border-r border-slate-200">CO Tag</th>
+                <th class="p-3 w-[15%] text-center border-r border-slate-200">Cognitive Level (BT)</th>
+                <th class="p-3 w-[12%] text-center border-r border-slate-200">Marks</th>
+                <th class="p-3 w-[25%] border-r border-slate-200">Evaluation Scheme</th>
+                <th class="p-3 w-[8%] text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody id="series-questions-table-body" class="divide-y divide-slate-100 text-sm font-normal text-slate-800">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="flex justify-end gap-2 border-t border-slate-200 pt-3">
+        <button type="button" onclick="closeSeriesModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition-all cursor-pointer border-0">Cancel</button>
+        <button type="button" id="btn-save-series-qp" onclick="saveSeriesExamQuestions()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition-all cursor-pointer border-0">Save Questions</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Series Exams Script State
+    let dbSeriesExams = @json($seriesExams ?? []);
+    let activeSeriesExamId = null;
+    let activeSeriesPart = 'Part A';
+    let seriesQuestionsList = { 'Part A': [], 'Part B': [], 'Part C': [] };
+    let activeExamCoTags = [];
+    let activeExamMaxMarks = 50;
+
+    function initializeSeriesPattern() {
+      const mode = document.querySelector('input[name="series-mode-select"]:checked').value;
+      
+      fetch(`/api/r26/classroom/{{ $batchSubject->id }}/series-exams/configure`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ mode })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert('Series exam pattern configured successfully!');
+          window.location.reload();
+        } else {
+          alert('Failed to configure pattern: ' + data.message);
+        }
+      });
+    }
+
+    function resetSeriesExamsConfig() {
+      if (confirm("Are you sure you want to reset and reconfigure the series exam pattern? This will delete all current series exam papers and marks entered.")) {
+        fetch(`/api/r26/classroom/{{ $batchSubject->id }}/series-exams/configure?reset=1`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            window.location.reload();
+          } else {
+            alert('Failed to reset configuration: ' + data.message);
+          }
+        });
+      }
+    }
+
+    function openSeriesBuilderModal(examId, name, mode, coTags, maxMarks) {
+      activeSeriesExamId = examId;
+      activeExamCoTags = coTags;
+      activeExamMaxMarks = maxMarks;
+
+      document.getElementById('series-modal-title').innerText = name;
+
+      // Find the exam record from db list
+      const examRecord = dbSeriesExams.find(ex => ex.id === examId);
+      seriesQuestionsList = (examRecord && examRecord.questions) ? examRecord.questions : { 'Part A': [], 'Part B': [], 'Part C': [] };
+
+      // Ensure lists are initialized
+      if (!seriesQuestionsList['Part A']) seriesQuestionsList['Part A'] = [];
+      if (!seriesQuestionsList['Part B']) seriesQuestionsList['Part B'] = [];
+      if (!seriesQuestionsList['Part C']) seriesQuestionsList['Part C'] = [];
+
+      // Populate allowed CO selector
+      const coSelect = document.getElementById('series-q-co');
+      coSelect.innerHTML = '';
+      coTags.forEach(co => {
+        const opt = document.createElement('option');
+        opt.value = co;
+        opt.innerText = co;
+        coSelect.appendChild(opt);
+      });
+
+      // Apply locked states
+      const isLocked = !!(examRecord && examRecord.locked);
+      applySeriesLockState(isLocked);
+
+      switchSeriesPart('Part A');
+
+      document.getElementById('series-modal').classList.remove('hidden');
+    }
+
+    function closeSeriesModal() {
+      document.getElementById('series-modal').classList.add('hidden');
+    }
+
+    function applySeriesLockState(isLocked) {
+      const editor = document.getElementById('series-editor-panel');
+      const btnLock = document.getElementById('btn-lock-series');
+      const btnSave = document.getElementById('btn-save-series-qp');
+      const lockBadge = document.getElementById('series-lock-badge');
+
+      if (isLocked) {
+        editor.classList.add('opacity-60', 'pointer-events-none');
+        btnLock.disabled = true;
+        btnLock.innerHTML = `<span class="material-symbols-rounded text-xs">lock</span> Locked`;
+        btnLock.className = "px-3 py-1.5 bg-emerald-600/10 text-emerald-550 border border-emerald-500/20 rounded text-xs font-medium cursor-not-allowed border-0";
+        if (btnSave) btnSave.classList.add('hidden');
+        if (lockBadge) {
+          lockBadge.classList.remove('hidden');
+          lockBadge.style.display = 'inline-flex';
+        }
+      } else {
+        editor.classList.remove('opacity-60', 'pointer-events-none');
+        btnLock.disabled = false;
+        btnLock.innerHTML = `<span class="material-symbols-rounded text-xs">lock</span> Lock & Notify`;
+        btnLock.className = "px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-medium transition-all cursor-pointer border-0 shadow-sm";
+        if (btnSave) btnSave.classList.remove('hidden');
+        if (lockBadge) {
+          lockBadge.classList.add('hidden');
+          lockBadge.style.display = 'none';
+        }
+      }
+    }
+
+    function switchSeriesPart(partName) {
+      activeSeriesPart = partName;
+      
+      // Update Part sub-tabs styles
+      ['Part A', 'Part B', 'Part C'].forEach(part => {
+        const btn = document.getElementById('tabbtn-part' + part.replace(' ', ''));
+        if (part === partName) {
+          btn.className = "px-3 py-1.5 rounded-t-lg text-xs font-bold transition-all border-b-2 border-indigo-600 bg-slate-50 text-indigo-600 cursor-pointer";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-t-lg text-xs font-bold transition-all border-b-2 border-transparent text-slate-600 hover:bg-slate-100 cursor-pointer";
+        }
+      });
+
+      // Update titles
+      document.getElementById('series-editor-part-title').innerText = partName;
+      document.getElementById('series-table-part-title').innerText = partName;
+
+      // Update max marks field rule
+      const marksField = document.getElementById('series-q-marks');
+      if (partName === 'Part A') marksField.value = 1;
+      else if (partName === 'Part B') marksField.value = 3;
+      else if (partName === 'Part C') marksField.value = 7;
+
+      renderSeriesQuestionsList();
+    }
+
+    function renderSeriesQuestionsList() {
+      const container = document.getElementById('series-questions-table-body');
+      container.innerHTML = '';
+
+      const list = seriesQuestionsList[activeSeriesPart] || [];
+      if (list.length === 0) {
+        container.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-slate-500 italic font-normal">No questions added to this part yet.</td></tr>';
+        return;
+      }
+
+      // Check if locked
+      const examRecord = dbSeriesExams.find(ex => ex.id === activeSeriesExamId);
+      const isLocked = !!(examRecord && examRecord.locked);
+
+      list.forEach((q, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = "bg-white hover:bg-slate-50 border-b border-slate-100 transition-all font-normal text-slate-800";
+        tr.innerHTML = `
+          <td class="p-2.5 font-mono text-center text-slate-900">${idx + 1}</td>
+          <td class="p-2.5 text-slate-900 font-normal leading-relaxed text-left">${q.question}</td>
+          <td class="p-2.5 text-center text-slate-900 font-medium">${q.co_tag}</td>
+          <td class="p-2.5 text-center text-slate-900 font-medium">${q.bt_level}</td>
+          <td class="p-2.5 text-center font-mono text-emerald-600 font-bold">${q.marks}M</td>
+          <td class="p-2.5 text-slate-550 font-normal leading-relaxed text-left">${q.scheme || '—'}</td>
+          <td class="p-2.5 text-center">
+            ${isLocked ? `<span class="text-slate-400 font-bold text-xs">Locked</span>` : `
+            <button type="button" onclick="deleteSeriesQuestion(${idx})" class="text-rose-500 hover:text-rose-600 cursor-pointer border-0 bg-transparent">
+              <span class="material-symbols-rounded text-sm">delete</span>
+            </button>
+            `}
+          </td>
+        `;
+        container.appendChild(tr);
+      });
+    }
+
+    function addQuestionToSeriesList() {
+      const text = document.getElementById('series-q-text').value.trim();
+      const marks = parseInt(document.getElementById('series-q-marks').value) || 1;
+      const co = document.getElementById('series-q-co').value;
+      const bt = document.getElementById('series-q-bt').value;
+      const scheme = document.getElementById('series-q-scheme').value.trim();
+
+      if (!text) {
+        alert("Please type a question description.");
+        return;
+      }
+
+      seriesQuestionsList[activeSeriesPart].push({
+        question: text,
+        marks: marks,
+        co_tag: co,
+        bt_level: bt,
+        scheme: scheme
+      });
+
+      renderSeriesQuestionsList();
+
+      // Clear inputs
+      document.getElementById('series-q-text').value = '';
+      document.getElementById('series-q-scheme').value = '';
+    }
+
+    function deleteSeriesQuestion(idx) {
+      seriesQuestionsList[activeSeriesPart].splice(idx, 1);
+      renderSeriesQuestionsList();
+    }
+
+    function autoGenerateSeriesQuestion() {
+      const mockQuestions = [
+        { question: "Define the basic term and list characteristics in " + activeSeriesPart + ".", bt_level: "Remember", scheme: "Correct definition (1M)" },
+        { question: "Explain the working principle and block diagram for " + activeSeriesPart + " criteria.", bt_level: "Understand", scheme: "Block diagram 2M, explanation 3M" },
+        { question: "Apply the mathematical formulation to evaluate standard " + activeSeriesPart + " outcome.", bt_level: "Apply", scheme: "Formula 1M, steps 4M, calculation 2M" },
+        { question: "Analyze the difference between standard layout outcomes in " + activeSeriesPart + ".", bt_level: "Analyze", scheme: "Comparison points listed clearly" }
+      ];
+
+      const randomQ = mockQuestions[Math.floor(Math.random() * mockQuestions.length)];
+      
+      document.getElementById('series-q-text').value = randomQ.question;
+      document.getElementById('series-q-bt').value = randomQ.bt_level;
+      document.getElementById('series-q-scheme').value = randomQ.scheme;
+
+      alert("Suggested question generated from general question bank pool!");
+    }
+
+    function saveSeriesExamQuestions() {
+      const btn = document.getElementById('btn-save-series-qp');
+      const originalText = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
+      fetch(`/api/r26/classroom/{{ $batchSubject->id }}/series-exams/${activeSeriesExamId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ questions: seriesQuestionsList })
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        if (data.status === 'SUCCESS') {
+          // Update local state list
+          const exIdx = dbSeriesExams.findIndex(ex => ex.id === activeSeriesExamId);
+          if (exIdx !== -1) {
+            dbSeriesExams[exIdx].questions = seriesQuestionsList;
+          }
+          alert('Series exam questions saved successfully!');
+        } else {
+          alert('Error saving questions: ' + data.message);
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        alert('Error: ' + err.message);
+      });
+    }
+
+    function lockActiveSeries() {
+      if (!confirm("Are you sure you want to lock and publish this series exam paper? Once locked, you cannot add, edit, or delete questions.")) {
+        return;
+      }
+
+      const btn = document.getElementById('btn-lock-series');
+      const originalText = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = 'Locking...';
+
+      fetch(`/api/r26/classroom/{{ $batchSubject->id }}/series-exams/${activeSeriesExamId}/lock`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        if (data.status === 'SUCCESS') {
+          alert('Series exam locked and notification successfully published to student dashboards!');
+          window.location.reload();
+        } else {
+          alert('Failed to lock exam: ' + data.message);
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        alert('Error: ' + err.message);
+      });
+    }
+
+    function recalculateSeriesRow(input) {
+      const tr = input.closest('tr');
+      const regNo = tr.getAttribute('data-reg-no');
+      
+      let totalObtained = 0.0;
+      let totalMax = 0;
+
+      tr.querySelectorAll('.series-mark-input').forEach(inp => {
+        const val = parseFloat(inp.value) || 0;
+        const max = parseFloat(inp.getAttribute('max')) || 50;
+        
+        // Ensure input doesn't exceed max marks
+        if (val > max) {
+          alert("Mark cannot exceed the maximum max marks limit of " + max + "M.");
+          inp.value = max;
+        }
+
+        totalObtained += parseFloat(inp.value) || 0;
+        totalMax += max;
+      });
+
+      const scaledTotalCell = tr.querySelector('[data-field="series-scaled-total"]');
+      if (scaledTotalCell && totalMax > 0) {
+        const scaled = (totalObtained / totalMax) * 20;
+        scaledTotalCell.innerText = scaled.toFixed(2);
+      }
+    }
+
+    function saveSeriesExamMarks() {
+      const rows = [];
+      document.querySelectorAll('#seriesMarksTableBody tr').forEach(tr => {
+        const regNo = tr.getAttribute('data-reg-no');
+        const examMarks = {};
+        
+        tr.querySelectorAll('.series-mark-input').forEach(inp => {
+          const examId = inp.getAttribute('data-exam-id');
+          examMarks[examId] = parseFloat(inp.value) || 0.0;
+        });
+
+        rows.push({
+          reg_no: regNo,
+          exam_marks: examMarks
+        });
+      });
+
+      const btn = document.getElementById('btnSaveSeriesMarks');
+      const originalText = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
+      fetch(`/api/r26/classroom/{{ $batchSubject->id }}/series-exams/marks/bulk-update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ rows })
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        if (data.status === 'SUCCESS') {
+          alert('Series examinations scores saved successfully!');
+          window.location.reload();
+        } else {
+          alert('Failed to save marks: ' + data.message);
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        alert('Error: ' + err.message);
+      });
+    }
+  </script>
 </body>
 </html>

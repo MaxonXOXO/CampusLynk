@@ -113,7 +113,9 @@ class R26ClassroomController extends Controller
             ->get()
             ->groupBy('reg_no');
 
-        $studentCiaData = $students->map(function ($student) use ($attendanceData, $academicMarks, $subjectId, $batchSubject, $selfLearningConfigs, $testConfigs, $testAttempts, $submissions) {
+        $seriesExams = \App\Models\SeriesExam::where('batch_subject_id', $subjectId)->get();
+
+        $studentCiaData = $students->map(function ($student) use ($attendanceData, $academicMarks, $subjectId, $batchSubject, $selfLearningConfigs, $testConfigs, $testAttempts, $submissions, $seriesExams) {
             $studentSubmissions = $submissions->get($student->reg_no, collect());
             $studentAttendance = $attendanceData->get($student->reg_no, collect());
             $totalAttendance = $studentAttendance->count();
@@ -195,6 +197,12 @@ class R26ClassroomController extends Controller
             $seriesExamRecord = $studentMarks->where('category', 'Series Exam')->first();
             $seriesExamMarks = $seriesExamRecord ? (float)$seriesExamRecord->marks_obtained : 0.0;
             
+            $examMarks = [];
+            foreach ($seriesExams as $ex) {
+                $eMark = $studentMarks->where('category', 'Series Exam: ' . $ex->exam_name)->first();
+                $examMarks[$ex->id] = $eMark ? (float)$eMark->marks_obtained : 0.0;
+            }
+
             return [
                 'reg_no' => $student->reg_no,
                 'name' => $student->name,
@@ -204,11 +212,12 @@ class R26ClassroomController extends Controller
                 'self_learning_marks' => $selfLearningMarks,
                 'series_exam_marks' => $seriesExamMarks,
                 'total_cia' => $attMarks + $selfLearningMarks + $seriesExamMarks,
-                'co_details' => $coDetails
+                'co_details' => $coDetails,
+                'exam_marks' => $examMarks
             ];
         });
 
-        return view('r26.virtual_classroom_theory', compact('batchSubject', 'classroom', 'students', 'courseFile', 'lessonPlans', 'studentCiaData', 'selfLearningConfigs'));
+        return view('r26.virtual_classroom_theory', compact('batchSubject', 'classroom', 'students', 'courseFile', 'lessonPlans', 'studentCiaData', 'selfLearningConfigs', 'seriesExams'));
     }
 
     /**
@@ -855,5 +864,270 @@ class R26ClassroomController extends Controller
         $questions = $courseFile ? ($courseFile->assignment_questions[$coTag] ?? []) : [];
 
         return view('r26.assignment_scheme_print', compact('batchSubject', 'classroom', 'questions', 'coTag', 'courseFile'));
+    }
+
+    /**
+     * Configure default series exam configurations based on selected mode.
+     */
+    public function configureSeriesExams(Request $request, $subjectId)
+    {
+        if ($request->has('reset') || !$request->has('mode')) {
+            \DB::table('series_exams')->where('batch_subject_id', $subjectId)->delete();
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Configuration reset successfully.']);
+        }
+
+        $mode = $request->input('mode'); // 'single_co' or 'combined_co'
+        if (!in_array($mode, ['single_co', 'combined_co'])) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Invalid mode selected.']);
+        }
+
+        // Delete existing series exams for this subject
+        \DB::table('series_exams')->where('batch_subject_id', $subjectId)->delete();
+
+        if ($mode === 'single_co') {
+            $exams = [
+                ['exam_name' => 'CO1 Test', 'co_tags' => ['CO1'], 'max_marks' => 25, 'duration_minutes' => 60],
+                ['exam_name' => 'CO2 Test', 'co_tags' => ['CO2'], 'max_marks' => 25, 'duration_minutes' => 60],
+                ['exam_name' => 'CO3 Test', 'co_tags' => ['CO3'], 'max_marks' => 25, 'duration_minutes' => 60],
+                ['exam_name' => 'CO4 Test', 'co_tags' => ['CO4'], 'max_marks' => 25, 'duration_minutes' => 60],
+            ];
+        } else {
+            $exams = [
+                ['exam_name' => 'Series Exam 1 (CO1+CO2)', 'co_tags' => ['CO1', 'CO2'], 'max_marks' => 50, 'duration_minutes' => 120],
+                ['exam_name' => 'Series Exam 2 (CO3+CO4)', 'co_tags' => ['CO3', 'CO4'], 'max_marks' => 50, 'duration_minutes' => 120],
+            ];
+        }
+
+        foreach ($exams as $exam) {
+            \DB::table('series_exams')->insert([
+                'batch_subject_id' => $subjectId,
+                'exam_name' => $exam['exam_name'],
+                'mode' => $mode,
+                'co_tags' => json_encode($exam['co_tags']),
+                'max_marks' => $exam['max_marks'],
+                'duration_minutes' => $exam['duration_minutes'],
+                'questions' => json_encode(['Part A' => [], 'Part B' => [], 'Part C' => []]),
+                'locked' => false,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Series exams successfully configured!']);
+    }
+
+    /**
+     * Save questions for a specific series exam.
+     */
+    public function saveSeriesExam(Request $request, $subjectId, $examId)
+    {
+        $exam = \App\Models\SeriesExam::where('batch_subject_id', $subjectId)->where('id', $examId)->first();
+        if (!$exam) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Exam not found.']);
+        }
+        if ($exam->locked) {
+            return response()->json(['status' => 'ERROR', 'message' => 'This exam is locked and cannot be edited.']);
+        }
+
+        $questions = $request->input('questions', ['Part A' => [], 'Part B' => [], 'Part C' => []]);
+        $exam->questions = $questions;
+        $exam->save();
+
+        // Populate question bank pool
+        $batchSubject = BatchSubject::with('classroom')->find($subjectId);
+        $branchCode = $batchSubject->classroom->branch ?? 'General';
+        
+        $btMapping = [
+            'Remember' => 'R', 'Understand' => 'U', 'Apply' => 'Ap', 
+            'Analyze' => 'An', 'Evaluate' => 'E', 'Create' => 'C'
+        ];
+
+        foreach (['Part A', 'Part B', 'Part C'] as $part) {
+            $partQ = $questions[$part] ?? [];
+            foreach ($partQ as $q) {
+                if (empty($q['question'])) continue;
+                $rawBt = $q['bt_level'] ?? 'Understand';
+                $mappedBt = $btMapping[$rawBt] ?? substr($rawBt, 0, 5);
+
+                try {
+                    \DB::table('question_bank')->insert([
+                        'branch_code' => $branchCode,
+                        'subject_code' => $batchSubject->subject_code,
+                        'batch_subject_id' => $subjectId,
+                        'type' => 'Descriptive',
+                        'co_tag' => $q['co_tag'] ?? ($exam->co_tags[0] ?? 'CO1'),
+                        'cognitive_level' => $mappedBt,
+                        'question_text' => $q['question'],
+                        'marks' => intval($q['marks'] ?? 5),
+                        'options' => json_encode([]),
+                        'rubric' => json_encode([
+                            [
+                                'desc' => $q['scheme'] ?: 'Series exam evaluation rubric',
+                                'mark' => intval($q['marks'] ?? 5)
+                            ]
+                        ]),
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::info("Skipped series question_bank pool insertion: " . $e->getMessage());
+                }
+            }
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Questions saved successfully.']);
+    }
+
+    /**
+     * Lock and publish a specific series exam.
+     */
+    public function lockSeriesExam(Request $request, $subjectId, $examId)
+    {
+        $exam = \App\Models\SeriesExam::where('batch_subject_id', $subjectId)->where('id', $examId)->first();
+        if (!$exam) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Exam not found.']);
+        }
+        $exam->locked = true;
+        $exam->save();
+
+        $batchSubject = BatchSubject::find($subjectId);
+        $students = Student::where('classroom_id', $batchSubject->classroom_id)->get();
+
+        foreach ($students as $st) {
+            \DB::table('student_task_submissions')->updateOrInsert(
+                [
+                    'reg_no' => $st->reg_no,
+                    'subject_code' => $batchSubject->subject_code,
+                    'co_tag' => $exam->co_tags[0] ?? 'CO1',
+                    'category' => 'Series Exam: ' . $exam->exam_name,
+                ],
+                [
+                    'status' => 'Assigned',
+                    'updated_at' => now(),
+                ]
+            );
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Exam successfully locked and published.']);
+    }
+
+    /**
+     * Save student series exam marks and calculate consolidated score.
+     */
+    public function bulkUpdateSeriesExamMarks(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 401);
+        }
+
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.'], 404);
+        }
+
+        $rows = $request->input('rows', []);
+        $updated = 0;
+
+        foreach ($rows as $row) {
+            $regNo = $row['reg_no'] ?? null;
+            if (!$regNo) continue;
+
+            $examMarks = $row['exam_marks'] ?? [];
+            $totalMarksObtained = 0.0;
+            $totalMaxMarks = 0;
+
+            foreach ($examMarks as $examId => $score) {
+                $exam = \App\Models\SeriesExam::find($examId);
+                if (!$exam) continue;
+
+                $val = floatval($score);
+                $totalMarksObtained += $val;
+                $totalMaxMarks += $exam->max_marks;
+
+                // Save individual exam mark
+                \DB::table('academic_marks')->updateOrInsert(
+                    [
+                        'reg_no' => $regNo,
+                        'batch_subject_id' => $subjectId,
+                        'category' => 'Series Exam: ' . $exam->exam_name,
+                    ],
+                    [
+                        'subject_code' => $batchSubject->subject_code,
+                        'max_marks' => $exam->max_marks,
+                        'marks_obtained' => $val,
+                        'entered_by' => $userId,
+                        'updated_at' => now(),
+                    ]
+                );
+                
+                // Update submission status to Graded
+                \DB::table('student_task_submissions')
+                    ->where('reg_no', $regNo)
+                    ->where('subject_code', $batchSubject->subject_code)
+                    ->where('category', 'Series Exam: ' . $exam->exam_name)
+                    ->where('status', 'Submitted')
+                    ->update(['status' => 'Graded', 'updated_at' => now()]);
+            }
+
+            // Save scaled total mark out of 20 in general 'Series Exam' category
+            $scaledMark = 0.0;
+            if ($totalMaxMarks > 0) {
+                $scaledMark = round(($totalMarksObtained / $totalMaxMarks) * 20, 2);
+            }
+
+            \DB::table('academic_marks')->updateOrInsert(
+                [
+                    'reg_no' => $regNo,
+                    'batch_subject_id' => $subjectId,
+                    'category' => 'Series Exam',
+                ],
+                [
+                    'subject_code' => $batchSubject->subject_code,
+                    'max_marks' => 20,
+                    'marks_obtained' => $scaledMark,
+                    'entered_by' => $userId,
+                    'updated_at' => now(),
+                ]
+            );
+
+            $updated++;
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => "{$updated} students series marks updated successfully."]);
+    }
+
+    /**
+     * Print Series Exam Question Paper.
+     */
+    public function printSeriesExamQp($subjectId, $examId)
+    {
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) abort(404);
+
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+            ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+
+        $exam = \App\Models\SeriesExam::where('batch_subject_id', $subjectId)->where('id', $examId)->first();
+        if (!$exam) abort(404);
+
+        return view('r26.series_qp_print', compact('batchSubject', 'classroom', 'exam'));
+    }
+
+    /**
+     * Print Series Exam Answer Key / Evaluation Scheme.
+     */
+    public function printSeriesExamScheme($subjectId, $examId)
+    {
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) abort(404);
+
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+            ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+
+        $exam = \App\Models\SeriesExam::where('batch_subject_id', $subjectId)->where('id', $examId)->first();
+        if (!$exam) abort(404);
+
+        return view('r26.series_scheme_print', compact('batchSubject', 'classroom', 'exam'));
     }
 }
