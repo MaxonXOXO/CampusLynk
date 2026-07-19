@@ -136,7 +136,17 @@
           <span class="material-symbols-rounded text-xs">fullscreen</span>
           Fullscreen Mode
         </button>
-        <a href="javascript:history.back()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-xs transition-all border border-rose-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm">
+        @php
+          $role = Session::get('userRole');
+          $backUrl = '/dashboard/lecturer';
+          if ($role === 'HOD') $backUrl = '/dashboard/hod';
+          elseif ($role === 'Admin') $backUrl = '/dashboard/admin';
+          elseif ($role === 'Principal') $backUrl = '/dashboard/principal';
+          elseif ($role === 'Super_Admin') $backUrl = '/dashboard/superadmin';
+          elseif ($role === 'Gen_Dept_Coordinator_Aided') $backUrl = '/dashboard/general-coordinator-aided';
+          elseif ($role === 'Gen_Dept_Coordinator_Self_Finance') $backUrl = '/dashboard/general-coordinator-sf';
+        @endphp
+        <a href="{{ $backUrl }}" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-xs transition-all border border-rose-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm">
           <span class="material-symbols-rounded text-xs">arrow_back</span>
           Go Back
         </a>
