@@ -146,7 +146,7 @@
           elseif ($role === 'Gen_Dept_Coordinator_Aided') $backUrl = '/dashboard/general-coordinator-aided';
           elseif ($role === 'Gen_Dept_Coordinator_Self_Finance') $backUrl = '/dashboard/general-coordinator-sf';
         @endphp
-        <a href="{{ $backUrl }}" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-xs transition-all border border-rose-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm">
+        <a href="{{ $backUrl }}" onclick="window.close(); setTimeout(function(){ window.location.href = '{{ $backUrl }}'; }, 100); return false;" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-xs transition-all border border-rose-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm">
           <span class="material-symbols-rounded text-xs">arrow_back</span>
           Go Back
         </a>
