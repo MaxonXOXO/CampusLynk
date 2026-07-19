@@ -667,7 +667,6 @@
               </table>
             </div>
           </div>
-          </div>
 
           <!-- SUB-VIEW 2: CONSOLIDATED MARKSHEET (HIDDEN BY DEFAULT) -->
           <div id="cia-consolidated-view" class="space-y-4 hidden">
