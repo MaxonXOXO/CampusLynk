@@ -482,7 +482,7 @@
                   <span class="text-xs bg-purple-500/10 text-purple-400 border border-purple-500/20 px-1.5 py-0.5 rounded font-bold">20M Max</span>
                 </div>
                 <p class="text-xs text-muted leading-relaxed">Two written examinations covering all defined course outcomes (COs).</p>
-                <button class="w-full py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm">
+                <button onclick="switchTab('series')" class="w-full py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm">
                   Manage Exams
                 </button>
               </div>
