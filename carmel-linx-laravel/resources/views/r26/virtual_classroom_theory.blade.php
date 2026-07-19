@@ -1391,14 +1391,9 @@
 
     // Initialize default tabs & labels on page load
     document.addEventListener("DOMContentLoaded", function() {
-      const activeTab = localStorage.getItem('activeClassroomTab') || 'outline';
-      switchTab(activeTab);
-      
-      const activeCiaView = localStorage.getItem('activeCiaView') || 'cards';
-      toggleCiaView(activeCiaView);
-
-      const activeSLTab = localStorage.getItem('activeSelfLearningTab') || 'CO1';
-      switchSelfLearningTab(activeSLTab);
+      switchTab('outline');
+      toggleCiaView('cards');
+      switchSelfLearningTab('CO1');
 
       // Restore Fullscreen State
       const isFullscreen = localStorage.getItem('classroomFullscreen') === 'true';
