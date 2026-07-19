@@ -274,6 +274,15 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/r26/hod/batches', [R26DataController::class, 'createBatch']);
     Route::get('/r26/classroom/theory/{subjectId}', [R26ClassroomController::class, 'viewTheoryClassroom']);
     Route::post('/api/r26/classroom/{subjectId}/syllabus', [R26ClassroomController::class, 'uploadSyllabus']);
+    Route::get('/r26/classroom/lesson-plan/print/{subjectId}', [R26ClassroomController::class, 'printLessonPlan']);
+    Route::get('/r26/classroom/self-learning/print/{subjectId}', [R26ClassroomController::class, 'printSelfLearningReport']);
+    Route::post('/api/r26/classroom/{subjectId}/lesson-plans/bulk-update', [R26ClassroomController::class, 'bulkUpdateLessonPlans']);
+    Route::post('/api/r26/classroom/{subjectId}/cia-marks/bulk-update', [R26ClassroomController::class, 'bulkUpdateCiaMarks']);
+    Route::post('/api/r26/classroom/{subjectId}/self-learning/bulk-update', [R26ClassroomController::class, 'bulkUpdateSelfLearningMarks']);
+    Route::post('/api/r26/classroom/{subjectId}/assignment/{coTag}', [R26ClassroomController::class, 'saveAssignment']);
+    Route::post('/api/r26/classroom/{subjectId}/assignment/{coTag}/notify', [R26ClassroomController::class, 'notifyAssignment']);
+    Route::get('/r26/classroom/assignment/{subjectId}/print-qp/{coTag}', [R26ClassroomController::class, 'printAssignmentQp']);
+    Route::get('/r26/classroom/assignment/{subjectId}/print-scheme/{coTag}', [R26ClassroomController::class, 'printAssignmentScheme']);
 
     // HOD Subject Allocation
     Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);

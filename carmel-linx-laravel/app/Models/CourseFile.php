@@ -18,7 +18,8 @@ class CourseFile extends Model
         'parsed_textbooks',
         'assignment_deadlines',
         'assignment_questions',
-        'summative_manual_tests'
+        'summative_manual_tests',
+        'self_learning_configs'
     ];
 
     protected $casts = [
@@ -28,7 +29,8 @@ class CourseFile extends Model
         'parsed_textbooks' => 'array',
         'assignment_deadlines' => 'array',
         'assignment_questions' => 'array',
-        'summative_manual_tests' => 'array'
+        'summative_manual_tests' => 'array',
+        'self_learning_configs' => 'array'
     ];
 
     public function batchSubject()

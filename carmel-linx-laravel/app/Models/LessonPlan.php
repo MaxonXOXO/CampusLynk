@@ -21,6 +21,7 @@ class LessonPlan extends Model
         'actual_hours',
         'status',
         'remarks',
+        'taxonomy',
     ];
 
     public function batchSubject()
