@@ -855,7 +855,7 @@
 
                       <!-- Actions -->
                       <div class="flex gap-2 flex-wrap pt-2 border-t border-slate-800/30">
-                        <button onclick="openSeriesBuilderModal({{ $exam->id }}, '{{ $exam->exam_name }}', '{{ $exam->mode }}', {{ json_encode($exam->co_tags) }}, {{ $exam->max_marks }})" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1">
+                        <button onclick='openSeriesBuilderModal({{ $exam->id }}, "{{ addslashes($exam->exam_name) }}", "{{ $exam->mode }}", {{ json_encode($exam->co_tags) }}, {{ $exam->max_marks }})' class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1">
                           <span class="material-symbols-rounded text-xs">edit_document</span> Build QP
                         </button>
                         <a href="/r26/classroom/series-exams/{{ $exam->id }}/print-qp" target="_blank" class="px-2.5 py-1 bg-slate-850 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded text-[11px] font-bold transition-all flex items-center gap-1">
@@ -2126,16 +2126,15 @@
     }
 
     function lockActiveSeries() {
+      lockAndPublishSeries(activeSeriesExamId);
+    }
+
+    function lockAndPublishSeries(examId) {
       if (!confirm("Are you sure you want to lock and publish this series exam paper? Once locked, you cannot add, edit, or delete questions.")) {
         return;
       }
 
-      const btn = document.getElementById('btn-lock-series');
-      const originalText = btn.innerText;
-      btn.disabled = true;
-      btn.innerText = 'Locking...';
-
-      fetch(`/api/r26/classroom/{{ $batchSubject->id }}/series-exams/${activeSeriesExamId}/lock`, {
+      fetch(`/api/r26/classroom/{{ $batchSubject->id }}/series-exams/${examId}/lock`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2144,8 +2143,6 @@
       })
       .then(res => res.json())
       .then(data => {
-        btn.disabled = false;
-        btn.innerText = originalText;
         if (data.status === 'SUCCESS') {
           alert('Series exam locked and notification successfully published to student dashboards!');
           window.location.reload();
@@ -2154,8 +2151,6 @@
         }
       })
       .catch(err => {
-        btn.disabled = false;
-        btn.innerText = originalText;
         alert('Error: ' + err.message);
       });
     }
