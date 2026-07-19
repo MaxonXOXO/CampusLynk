@@ -435,9 +435,9 @@
             <div class="flex-1">
               <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Select Semester</label>
               <select id="subjectSemesterSelect" onchange="loadSubjects()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
-                <option value="1">Semester 1</option>
+                <option value="1" selected>Semester 1</option>
                 <option value="2">Semester 2</option>
-                <option value="3" selected>Semester 3</option>
+                <option value="3">Semester 3</option>
                 <option value="4">Semester 4</option>
                 <option value="5">Semester 5</option>
                 <option value="6">Semester 6</option>
@@ -731,9 +731,9 @@
             <div class="flex items-center gap-2">
               <label class="text-sm text-slate-400 font-bold uppercase tracking-wider">Select Semester:</label>
               <select id="modalSubjectSemester" onchange="loadModalSubjects()" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-sm text-white focus:border-violet-500 outline-none">
-                <option value="1">Semester 1</option>
+                <option value="1" selected>Semester 1</option>
                 <option value="2">Semester 2</option>
-                <option value="3" selected>Semester 3</option>
+                <option value="3">Semester 3</option>
                 <option value="4">Semester 4</option>
                 <option value="5">Semester 5</option>
                 <option value="6">Semester 6</option>
@@ -1203,11 +1203,57 @@
     let activeBatchId = null;
     let deptStaffCache = [];
 
+    function syncSubjectTypeOptions(revision, preselectedValue = null) {
+      const typeSelect = document.getElementById('subjectType');
+      if (!typeSelect) return;
+
+      const r21Options = [
+        { value: "Theory", text: "Theory" },
+        { value: "Practical / Lab", text: "Practical / Lab" },
+        { value: "Practicum", text: "Practicum" },
+        { value: "Project Based Theory", text: "Project Based Theory" },
+        { value: "Seminar", text: "Seminar" },
+        { value: "Project", text: "Project" }
+      ];
+
+      const r26Options = [
+        { value: "Theory Courses", text: "Theory Courses" },
+        { value: "Project Based Learning", text: "Project Based Learning (PBL)" },
+        { value: "Drawing Courses", text: "Drawing Courses" },
+        { value: "Practicum Courses", text: "Practicum Courses" },
+        { value: "Practicum Courses under Basic Science & Humanities category", text: "Practicum Courses (Basic Science & Humanities)" },
+        { value: "Laboratory/Workshop Courses", text: "Laboratory/Workshop Courses" },
+        { value: "Major Project-Phase II", text: "Major Project-Phase II" },
+        { value: "Seminar / Minor Project / Major Project-Phase I", text: "Seminar / Minor Project / Major Project-Phase I" },
+        { value: "Summer Internship/ Digital 101 Course (Skill Enhancement Course)", text: "Summer Internship/ Digital 101 Course" }
+      ];
+
+      typeSelect.innerHTML = '';
+      const opts = (revision === 'REV2026') ? r26Options : r21Options;
+      opts.forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt.value;
+        o.textContent = opt.text;
+        typeSelect.appendChild(o);
+      });
+
+      if (preselectedValue) {
+        typeSelect.value = preselectedValue;
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       switchPanel(activePanel);
       // Pre-load dept staff for batch modals
       loadDeptStaffCache();
       checkTodaySeminars();
+
+      const revEl = document.getElementById('subjectRevisionYear');
+      if (revEl) {
+        revEl.addEventListener('change', function() {
+          syncSubjectTypeOptions(this.value);
+        });
+      }
     });
     function getHeaders() {
       return {
@@ -1257,15 +1303,22 @@
         loadSubjects();
         return;
       }
-      fetch('/api/hod/batches')
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'SUCCESS') {
-            select.innerHTML = '<option value="">-- Choose a Classroom --</option>';
-            data.batches.forEach(b => {
-              select.innerHTML += `<option value="${b.classroom_id}">${b.classroom_id} (Year ${b.batch_year})</option>`;
-            });
-          }
+      
+      const p1 = fetch('/api/hod/batches').then(res => res.json()).catch(() => ({status: 'ERROR', batches: []}));
+      const p2 = fetch('/api/r26/hod/batches').then(res => res.json()).catch(() => ({status: 'ERROR', batches: []}));
+
+      Promise.all([p1, p2])
+        .then(([res1, res2]) => {
+          select.innerHTML = '<option value="">-- Choose a Classroom --</option>';
+          let b1 = (res1.status === 'SUCCESS' && Array.isArray(res1.batches)) ? res1.batches : [];
+          let b2 = (res2.status === 'SUCCESS' && Array.isArray(res2.batches)) ? res2.batches : [];
+          let combined = b1.concat(b2);
+          
+          combined.sort((x, y) => y.batch_year - x.batch_year);
+
+          combined.forEach(b => {
+            select.innerHTML += `<option value="${b.classroom_id}">${b.classroom_id} (Year ${b.batch_year})${b.is_r26 || b.batch_year === 2026 ? ' [REV2026]' : ''}</option>`;
+          });
         });
     }
 
@@ -1866,15 +1919,30 @@
         document.getElementById('btnHodFilterActive').className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-premium text-slate-500 hover:text-slate-300';
       }
 
-      fetch(`/api/hod/batches?status=${status}`)
-        .then(r => r.json())
-        .then(data => {
+      const p1 = fetch(`/api/hod/batches?status=${status}`).then(r => r.json()).catch(() => ({status: 'ERROR', batches: []}));
+      const p2 = fetch(`/api/r26/hod/batches?status=${status}`).then(r => r.json()).catch(() => ({status: 'ERROR', batches: []}));
+
+      Promise.all([p1, p2])
+        .then(([res1, res2]) => {
           grid.innerHTML = '';
-          if (data.status !== 'SUCCESS' || data.batches.length === 0) {
+          let b1 = (res1.status === 'SUCCESS' && Array.isArray(res1.batches)) ? res1.batches : [];
+          let b2 = (res2.status === 'SUCCESS' && Array.isArray(res2.batches)) ? res2.batches : [];
+          
+          let combined = b1.concat(b2);
+          
+          // sort by batch_year desc, then classroom_id asc
+          combined.sort((x, y) => {
+            if (y.batch_year !== x.batch_year) {
+              return y.batch_year - x.batch_year;
+            }
+            return x.classroom_id.localeCompare(y.classroom_id);
+          });
+
+          if (combined.length === 0) {
             empty.classList.remove('hidden');
             return;
           }
-          data.batches.forEach(batch => renderBatchCard(batch));
+          combined.forEach(batch => renderBatchCard(batch));
         })
         .catch(() => {
           grid.innerHTML = `<div class="col-span-full p-8 text-center text-red-400 font-bold text-sm">Failed to load batches.</div>`;
@@ -1895,8 +1963,16 @@
       let textAccentClass = 'text-violet-400';
 
       const isLetBatch = batch.classroom_id.includes('_LET');
+      const isR26 = batch.is_r26 || batch.batch_year === 2026;
 
-      if (isLetBatch) {
+      if (isR26) {
+        yearColorClass = 'text-emerald-400 font-extrabold';
+        yearBadgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
+        borderHoverClass = 'hover:border-emerald-500/50';
+        progressColorClass = 'bg-emerald-500';
+        iconColorClass = 'text-emerald-400';
+        textAccentClass = 'text-emerald-400';
+      } else if (isLetBatch) {
         yearColorClass = 'text-purple-450';
         yearBadgeClass = 'bg-purple-500/20 text-purple-300 border-purple-500/40';
         borderHoverClass = 'hover:border-purple-500/50';
@@ -1917,19 +1993,14 @@
         progressColorClass = 'bg-sky-500';
         iconColorClass = 'text-sky-400';
         textAccentClass = 'text-sky-400';
-      } else if (batch.batch_year === 2026) {
-        yearColorClass = 'text-emerald-400';
-        yearBadgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-        borderHoverClass = 'hover:border-emerald-500/50';
-        progressColorClass = 'bg-emerald-500';
-        iconColorClass = 'text-emerald-400';
-        textAccentClass = 'text-emerald-400';
       }
 
       const card = document.createElement('div');
-      card.className = isLetBatch
-        ? `bg-slate-950/40 border-2 border-purple-500/70 rounded-2xl p-6 transition-premium hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`
-        : `bg-slate-950/40 border-2 border-slate-700/60 rounded-2xl p-6 transition-premium hover:border-slate-500 shadow-[0_0_15px_rgba(255,255,255,0.03)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`;
+      card.className = isR26
+        ? `bg-slate-950/45 border-2 border-emerald-500/80 rounded-2xl p-6 transition-premium hover:border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.25)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full relative overflow-hidden`
+        : (isLetBatch
+          ? `bg-slate-950/40 border-2 border-purple-500/70 rounded-2xl p-6 transition-premium hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`
+          : `bg-slate-950/40 border-2 border-slate-700/60 rounded-2xl p-6 transition-premium hover:border-slate-500 shadow-[0_0_15px_rgba(255,255,255,0.03)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`);
 
       const tutorHtml = batch.tutor_name
         ? `<div class="flex items-center gap-2"><span class="material-symbols-rounded text-sky-400 text-sm">person_pin</span><span class="text-slate-300 font-medium">${batch.tutor_name}</span></div>`
@@ -1981,17 +2052,22 @@
         <div class="flex-1 flex flex-col justify-between space-y-4">
           <div class="space-y-3">
             <div class="flex items-center gap-2.5">
-              <span class="px-2.5 py-1 border rounded-lg font-mono text-sm font-bold ${yearBadgeClass}">${batch.classroom_id}</span>
-              ${batch.classroom_id.includes('_LET') ? `<span class="bg-purple-950/80 border border-purple-500/40 text-purple-400 font-extrabold text-[10px] px-2 py-0.5 rounded uppercase select-none">LET</span>` : ''}
-              ${(batch.current_semester || 1) > 6
-                ? `<span class="px-3 py-1 bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 rounded-xl font-bold text-sm tracking-wide flex items-center gap-1 select-none"><span class="material-symbols-rounded" style="font-size:14px">school</span>Graduated</span>`
-                : `<span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-md select-none transition-premium" title="Click to Change Batch Semester">S-${batch.current_semester || 1}</span>`
-              }
+              <span class="px-2.5 py-1 border rounded-lg font-mono text-sm font-bold ${yearBadgeClass} whitespace-nowrap">${batch.classroom_id}</span>
+              ${batch.classroom_id.includes('_LET') ? `<span class="bg-purple-950/80 border border-purple-500/40 text-purple-400 font-extrabold text-[10px] px-2 py-0.5 rounded uppercase select-none whitespace-nowrap">LET</span>` : ''}
+              ${isR26 ? `<span class="bg-emerald-950/80 border border-emerald-500/40 text-emerald-450 font-extrabold text-[10px] px-2 py-0.5 rounded uppercase select-none tracking-wide animate-pulse whitespace-nowrap">Revision 2026</span>` : ''}
             </div>
             
-            <div>
-              <h4 class="font-bold text-xl ${yearColorClass}">Admission ${batch.batch_year}${isLetBatch ? ' (LET)' : ''}</h4>
-              <p class="text-xs text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} ${isLetBatch ? 'Lateral Entry ' : ''}Batch</p>
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <h4 class="font-bold text-xl ${yearColorClass}">Admission ${batch.batch_year}${isLetBatch ? ' (LET)' : ''}</h4>
+                <p class="text-xs text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} ${isLetBatch ? 'Lateral Entry ' : ''}Batch</p>
+              </div>
+              <div class="flex-shrink-0">
+                ${(batch.current_semester || 1) > 6
+                  ? `<span class="px-3 py-1 bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 rounded-xl font-bold text-sm tracking-wide flex items-center gap-1 select-none whitespace-nowrap"><span class="material-symbols-rounded" style="font-size:14px">school</span>Graduated</span>`
+                  : `<span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-md select-none transition-premium whitespace-nowrap" title="Click to Change Batch Semester">S-${batch.current_semester || 1}</span>`
+                }
+              </div>
             </div>
 
             <div class="border-t border-slate-900 pt-3.5 space-y-2 text-sm">
@@ -2126,7 +2202,8 @@
       spinner.classList.remove('hidden');
       alertEl.classList.add('hidden');
 
-      fetch('/api/hod/batches', {
+      const url = (parseInt(year) === 2026) ? '/api/r26/hod/batches' : '/api/hod/batches';
+      fetch(url, {
         method: 'POST',
         headers: getHeaders(),
         body: JSON.stringify(payload)
@@ -2564,7 +2641,7 @@
     function loadTimetable() {
       if (!activeBatchId) return;
       
-      const sem = document.getElementById('modalSubjectSemester') ? document.getElementById('modalSubjectSemester').value : 3;
+      const sem = document.getElementById('modalSubjectSemester') ? document.getElementById('modalSubjectSemester').value : 1;
       
       const displayBody = document.getElementById('timetableDisplayBody');
       if (displayBody) displayBody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-slate-500">Loading timetable...</td></tr>';
@@ -2745,7 +2822,7 @@
     }    function printTimetable() {
       if (!activeBatchId) return;
 
-      const sem = document.getElementById('modalSubjectSemester') ? document.getElementById('modalSubjectSemester').value : 3;
+      const sem = document.getElementById('modalSubjectSemester') ? document.getElementById('modalSubjectSemester').value : 1;
       const dept = activeBatchId ? activeBatchId.split('_')[0] : '{{ session("userBranch") }}';
       const currentYear = new Date().getFullYear();
 
@@ -3171,7 +3248,7 @@
                 <td class="p-4">${courseFileBadge}</td>
                 <td class="p-4 text-right space-x-1.5">
                   <button onclick="openAssignStaffModalFromModal(event, this, ${subj.id}, '${currentStaffIds}')" data-subject-name="${subj.subject_name.replace(/"/g, '&quot;')}" class="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-bold transition-premium border border-blue-500/20 cursor-pointer">Assign Staff</button>
-                  <button onclick="deleteBatchSubject(${subj.id}, '${subj.subject_name.replace(/'/g, "\\'")}')" class="px-2.5 py-1.5 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded-lg text-sm font-bold transition-premium cursor-pointer" title="Delete Subject">
+                  <button onclick="deleteSubject(${subj.id})" class="px-2.5 py-1.5 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded-lg text-sm font-bold transition-premium cursor-pointer" title="Delete Subject">
                     Delete
                   </button>
                 </td>
@@ -3445,6 +3522,16 @@
           modal.classList.remove('hidden');
           modal.classList.add('flex');
         }
+
+        const revisionSelect = document.getElementById('subjectRevisionYear');
+        if (revisionSelect) {
+          if (batchSelect.value.includes('2026') || batchSelect.value.includes('REV2026')) {
+            revisionSelect.value = 'REV2026';
+          } else {
+            revisionSelect.value = 'REV2021';
+          }
+          syncSubjectTypeOptions(revisionSelect.value);
+        }
       } catch (err) {
         alert("Error opening subject modal: " + err.message);
         console.error('[openSubjectModal] Error:', err);
@@ -3491,11 +3578,12 @@
         // Pre-fill fields
         document.getElementById('subjectCode').value = subj.subject_code || '';
         document.getElementById('subjectName').value = subj.subject_name || '';
-        document.getElementById('subjectType').value = subj.subject_type || 'Theory';
+        
         const revEl = document.getElementById('subjectRevisionYear');
         if (revEl && subj.syllabus_revision_code) {
           revEl.value = subj.syllabus_revision_code;
         }
+        syncSubjectTypeOptions(revEl ? revEl.value : 'REV2021', subj.subject_type || 'Theory');
 
         // Show batch/semester context (read-only info)
         document.getElementById('displaySubjectBatch').innerText = subj.classroom_id || '';
@@ -3614,7 +3702,10 @@
       })
       .then(r => r.json())
       .then(data => {
-        if(data.status === 'SUCCESS') loadSubjects();
+        if(data.status === 'SUCCESS') {
+          loadSubjects();
+          if (typeof loadModalSubjects === 'function') loadModalSubjects();
+        }
         else alert(data.message);
       })
       .catch(() => alert('Failed to delete subject.'));

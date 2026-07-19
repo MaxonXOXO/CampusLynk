@@ -4,6 +4,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DataController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\MentoringController;
+use App\Http\Controllers\R26DataController;
+use App\Http\Controllers\R26ClassroomController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -266,6 +268,12 @@ Route::middleware(['web'])->group(function () {
     Route::get('/api/hod/batches/{classroomId}/students', [DataController::class, 'getBatchStudents']);
     Route::post('/api/hod/batches/{classroomId}/update-semester', [DataController::class, 'updateBatchSemester']);
     Route::get('/api/hod/dept-staff', [DataController::class, 'getDeptStaff']);
+
+    // Revision 2026 Batch Management
+    Route::get('/api/r26/hod/batches', [R26DataController::class, 'getBatches']);
+    Route::post('/api/r26/hod/batches', [R26DataController::class, 'createBatch']);
+    Route::get('/r26/classroom/theory/{subjectId}', [R26ClassroomController::class, 'viewTheoryClassroom']);
+    Route::post('/api/r26/classroom/{subjectId}/syllabus', [R26ClassroomController::class, 'uploadSyllabus']);
 
     // HOD Subject Allocation
     Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);

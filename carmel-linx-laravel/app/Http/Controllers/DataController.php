@@ -1236,6 +1236,11 @@ class DataController extends Controller
             ->where('branch', $currentBranch)
             ->first();
         if (!$batch) {
+            $batch = \App\Models\R26ClassManagement::where('classroom_id', $classroomId)
+                ->where('branch', $currentBranch)
+                ->first();
+        }
+        if (!$batch) {
             return response()->json(['status' => 'ERROR', 'message' => 'Batch not found or not in your department.']);
         }
 
@@ -1307,6 +1312,11 @@ class DataController extends Controller
         $batch = ClassManagement::where('classroom_id', $classroomId)
             ->where('branch', $currentBranch)
             ->first();
+        if (!$batch) {
+            $batch = \App\Models\R26ClassManagement::where('classroom_id', $classroomId)
+                ->where('branch', $currentBranch)
+                ->first();
+        }
         if (!$batch) {
             return response()->json(['status' => 'ERROR', 'message' => 'Batch not found or not in your department.']);
         }
@@ -1561,6 +1571,9 @@ class DataController extends Controller
         try {
             // Verify HOD branch vs classroom branch
             $classroom = ClassManagement::where('classroom_id', $request->classroom_id)->first();
+            if (!$classroom) {
+                $classroom = \App\Models\R26ClassManagement::where('classroom_id', $request->classroom_id)->first();
+            }
             if (!$classroom || $classroom->branch !== $branch) {
                 return response()->json(['status' => 'ERROR', 'message' => 'Invalid classroom.']);
             }
@@ -1604,8 +1617,15 @@ class DataController extends Controller
         ]);
 
         try {
-            $subject = BatchSubject::with('classroom')->find($subjectId);
-            if (!$subject || $subject->classroom->branch !== $branch) {
+            $subject = BatchSubject::find($subjectId);
+            if (!$subject) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
+            }
+            $cls = ClassManagement::where('classroom_id', $subject->classroom_id)->first();
+            if (!$cls) {
+                $cls = \App\Models\R26ClassManagement::where('classroom_id', $subject->classroom_id)->first();
+            }
+            if (!$cls || $cls->branch !== $branch) {
                 return response()->json(['status' => 'ERROR', 'message' => 'Subject not found or unauthorized.']);
             }
 
@@ -1637,8 +1657,15 @@ class DataController extends Controller
         }
 
         try {
-            $subject = BatchSubject::with('classroom')->find($subjectId);
-            if (!$subject || $subject->classroom->branch !== $branch) {
+            $subject = BatchSubject::find($subjectId);
+            if (!$subject) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
+            }
+            $cls = ClassManagement::where('classroom_id', $subject->classroom_id)->first();
+            if (!$cls) {
+                $cls = \App\Models\R26ClassManagement::where('classroom_id', $subject->classroom_id)->first();
+            }
+            if (!$cls || $cls->branch !== $branch) {
                 return response()->json(['status' => 'ERROR', 'message' => 'Subject not found or unauthorized.']);
             }
 
@@ -1667,8 +1694,15 @@ class DataController extends Controller
         ]);
 
         try {
-            $subject = BatchSubject::with('classroom')->find($subjectId);
-            if (!$subject || $subject->classroom->branch !== $branch) {
+            $subject = BatchSubject::find($subjectId);
+            if (!$subject) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
+            }
+            $cls = ClassManagement::where('classroom_id', $subject->classroom_id)->first();
+            if (!$cls) {
+                $cls = \App\Models\R26ClassManagement::where('classroom_id', $subject->classroom_id)->first();
+            }
+            if (!$cls || $cls->branch !== $branch) {
                 return response()->json(['status' => 'ERROR', 'message' => 'Subject not found or unauthorized.']);
             }
 
@@ -1745,6 +1779,12 @@ class DataController extends Controller
             $batch = \App\Models\ClassManagement::where('classroom_id', $classroomId)
                 ->where('branch', strtoupper($branch))
                 ->first();
+
+            if (!$batch) {
+                $batch = \App\Models\R26ClassManagement::where('classroom_id', $classroomId)
+                    ->where('branch', strtoupper($branch))
+                    ->first();
+            }
 
             if (!$batch) {
                 return response()->json(['status' => 'ERROR', 'message' => 'Batch not found or not in your department.']);
@@ -1938,30 +1978,52 @@ class DataController extends Controller
 
         try {
             // 1. Get batches where user is Tutor or Mentor
-            // For Tutor/Mentor, 'active' means classroom current_semester <= 6 (not yet graduated/fully completed)
-            // If historical, we could show completed ones. Or maybe Tutor/Mentor always sees the batch?
-            // To be precise: If active, show batches where current_semester <= 6. If historical, current_semester > 6.
             $managedQuery = \App\Models\ClassManagement::where(function($q) use ($userId) {
+                $q->where('tutor_mobile_no', $userId)
+                  ->orWhere('mentor_mobile_no', $userId);
+            });
+            $r26ManagedQuery = \App\Models\R26ClassManagement::where(function($q) use ($userId) {
                 $q->where('tutor_mobile_no', $userId)
                   ->orWhere('mentor_mobile_no', $userId);
             });
 
             if ($filterStatus === 'historical') {
                 $managedQuery->where('current_semester', '>', 6);
+                $r26ManagedQuery->where('current_semester', '>', 6);
             } else {
                 $managedQuery->where('current_semester', '<=', 6);
+                $r26ManagedQuery->where('current_semester', '<=', 6);
             }
             $managedBatches = $managedQuery->get();
+            $r26ManagedBatches = $r26ManagedQuery->get();
 
             // 2. Get batches where user is assigned to a subject
-            $subjectAssignments = \App\Models\SubjectStaffAssignment::with(['batchSubject.classroom'])
+            $subjectAssignments = \App\Models\SubjectStaffAssignment::with(['batchSubject'])
                 ->where('staff_mobile_no', $userId)
                 ->get();
 
             $batchesMap = [];
 
-            // Add managed batches
+            // Add managed batches (2021)
             foreach ($managedBatches as $batch) {
+                $cid = $batch->classroom_id;
+                if (!isset($batchesMap[$cid])) {
+                    $batchesMap[$cid] = [
+                        'classroom_id'     => $batch->classroom_id,
+                        'batch_year'       => $batch->batch_year,
+                        'current_semester' => $batch->current_semester,
+                        'branch'           => $batch->branch,
+                        'student_count'    => \App\Models\Student::where('classroom_id', $batch->classroom_id)->count(),
+                        'roles'            => [],
+                        'subjects'         => []
+                    ];
+                }
+                if ($batch->tutor_mobile_no === $userId) $batchesMap[$cid]['roles'][] = 'Tutor';
+                if ($batch->mentor_mobile_no === $userId) $batchesMap[$cid]['roles'][] = 'Mentor';
+            }
+
+            // Add managed batches (2026)
+            foreach ($r26ManagedBatches as $batch) {
                 $cid = $batch->classroom_id;
                 if (!isset($batchesMap[$cid])) {
                     $batchesMap[$cid] = [
@@ -1980,8 +2042,14 @@ class DataController extends Controller
 
             // Add subject assignments
             foreach ($subjectAssignments as $sa) {
-                if ($sa->batchSubject && $sa->batchSubject->classroom) {
-                    $batch = $sa->batchSubject->classroom;
+                if ($sa->batchSubject) {
+                    $batch = $sa->batchSubject->classroom; // Check 2021 relationship
+                    if (!$batch) {
+                        // Fallback to R26 Class Management
+                        $batch = \App\Models\R26ClassManagement::where('classroom_id', $sa->batchSubject->classroom_id)->first();
+                    }
+                    if (!$batch) continue;
+
                     $subjectSem = (int) $sa->batchSubject->semester;
                     $currentSem = (int) $batch->current_semester;
                     
@@ -2025,6 +2093,7 @@ class DataController extends Controller
                         'name' => $sa->batchSubject->subject_name,
                         'semester' => $sa->batchSubject->semester,
                         'type' => $sa->batchSubject->subject_type,
+                        'syllabus_revision_code' => $sa->batchSubject->syllabus_revision_code,
                         'total_topics' => $totalTopics,
                         'covered_topics' => $coveredTopics,
                         'engaged_hours' => $engagedHours,
