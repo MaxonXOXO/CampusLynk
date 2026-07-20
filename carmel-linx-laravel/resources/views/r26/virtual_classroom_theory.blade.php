@@ -1113,35 +1113,45 @@
           <!-- SUBTAB 3: NBA ATTAINMENT -->
           <div id="subtab-nba_attainment" class="space-y-4 hidden">
              <!-- Surveys Control Panel -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div class="bg-slate-900/30 border border-slate-800 rounded-2xl p-6 space-y-4">
-                <div class="flex items-center gap-3">
-                  <span class="material-symbols-rounded text-indigo-400 text-2xl">forum</span>
-                  <h4 class="font-bold text-title text-base">Mid-Semester Online Survey</h4>
+            <div class="flex flex-col gap-6">
+              <div class="bg-slate-900/30 border border-slate-800 rounded-2xl p-7 space-y-4">
+                <div class="flex justify-between items-start md:items-center flex-wrap gap-4">
+                  <div class="flex items-center gap-3">
+                    <span class="material-symbols-rounded text-indigo-400 text-3xl">forum</span>
+                    <div>
+                      <h4 class="font-bold text-title text-base">Mid-Semester Online Survey</h4>
+                      <p class="text-xs text-muted mt-0.5">SAR Criterion 2 Evaluation</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 flex-wrap">
+                    <button id="btn-initiate-midsem" onclick="document.getElementById('modal-midsem-survey-init').classList.remove('hidden')" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer shadow-sm">Open Survey</button>
+                    <button id="btn-close-midsem" onclick="controlSurvey('midsem', 'close')" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer hidden shadow-sm">Close & Lock</button>
+                    <span id="status-midsem" class="text-sm font-bold text-muted bg-slate-950/40 border border-slate-800 rounded-lg px-3 py-1.5 flex items-center">Checking status...</span>
+                  </div>
                 </div>
-                <p class="text-sm text-muted leading-relaxed">
-                  Allows students to submit feedback online. Used for indirect assessment & action plans.
+                <p class="text-sm text-slate-300 leading-relaxed border-t border-slate-800/40 pt-3">
+                  Allows students to submit feedback online. Captures direct feedback on course delivery, syllabus coverage, and early corrective action points.
                 </p>
-                <div class="flex gap-3">
-                  <button id="btn-initiate-midsem" onclick="document.getElementById('modal-midsem-survey-init').classList.remove('hidden')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer">Open Survey</button>
-                  <button id="btn-close-midsem" onclick="controlSurvey('midsem', 'close')" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer hidden">Close & Lock</button>
-                  <span id="status-midsem" class="text-xs font-bold text-muted flex items-center pl-2">Checking status...</span>
-                </div>
               </div>
 
-              <div class="bg-slate-900/30 border border-slate-800 rounded-2xl p-6 space-y-4">
-                <div class="flex items-center gap-3">
-                  <span class="material-symbols-rounded text-indigo-400 text-2xl">assignment_turned_in</span>
-                  <h4 class="font-bold text-title text-base">Course Exit Survey (Indirect CO)</h4>
+              <div class="bg-slate-900/30 border border-slate-800 rounded-2xl p-7 space-y-4">
+                <div class="flex justify-between items-start md:items-center flex-wrap gap-4">
+                  <div class="flex items-center gap-3">
+                    <span class="material-symbols-rounded text-indigo-400 text-3xl">assignment_turned_in</span>
+                    <div>
+                      <h4 class="font-bold text-title text-base">Course Exit Survey (Indirect CO)</h4>
+                      <p class="text-xs text-muted mt-0.5">Indirect Attainment Assessment</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 flex-wrap">
+                    <button id="btn-initiate-exit" onclick="document.getElementById('modal-exit-survey-init').classList.remove('hidden')" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer shadow-sm">Open Survey</button>
+                    <button id="btn-close-exit" onclick="controlSurvey('exit', 'close')" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer hidden shadow-sm">Close & Lock</button>
+                    <span id="status-exit" class="text-sm font-bold text-muted bg-slate-950/40 border border-slate-800 rounded-lg px-3 py-1.5 flex items-center">Checking status...</span>
+                  </div>
                 </div>
-                <p class="text-sm text-muted leading-relaxed">
-                  Evaluates indirect Course Outcome (CO) attainment parameters at semester-end.
+                <p class="text-sm text-slate-300 leading-relaxed border-t border-slate-800/40 pt-3">
+                  Evaluates indirect Course Outcome (CO) attainment parameters at semester-end. Necessary for final PO mapping calculations.
                 </p>
-                <div class="flex gap-3">
-                  <button id="btn-initiate-exit" onclick="document.getElementById('modal-exit-survey-init').classList.remove('hidden')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer">Open Survey</button>
-                  <button id="btn-close-exit" onclick="controlSurvey('exit', 'close')" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer hidden">Close & Lock</button>
-                  <span id="status-exit" class="text-xs font-bold text-muted flex items-center pl-2">Checking status...</span>
-                </div>
               </div>
             </div>
 
