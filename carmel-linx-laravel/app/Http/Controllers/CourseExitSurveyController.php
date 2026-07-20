@@ -37,11 +37,13 @@ class CourseExitSurveyController extends Controller
             }
 
             $facultyName = Session::get('userName') ?? 'Faculty Member';
+            $customQuestions = $request->input('questions');
 
             DB::table('course_exit_surveys')->insert([
                 'batch_subject_id' => $subjectId,
                 'faculty_name' => $facultyName,
                 'status' => 'Active',
+                'custom_questions' => $customQuestions ? json_encode($customQuestions) : null,
                 'initiated_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now()

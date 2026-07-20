@@ -1123,7 +1123,7 @@
                   Allows students to submit feedback. Used for indirect assessment & action plans.
                 </p>
                 <div class="flex gap-2">
-                  <button id="btn-initiate-midsem" onclick="controlSurvey('midsem', 'initiate')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition-all cursor-pointer">Open Survey</button>
+                  <button id="btn-initiate-midsem" onclick="document.getElementById('modal-midsem-survey-init').classList.remove('hidden')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition-all cursor-pointer">Open Survey</button>
                   <button id="btn-close-midsem" onclick="controlSurvey('midsem', 'close')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold transition-all cursor-pointer hidden">Close & Lock</button>
                   <span id="status-midsem" class="text-xs font-bold text-muted flex items-center pl-2">Checking status...</span>
                 </div>
@@ -1138,7 +1138,7 @@
                   Evaluates indirect Course Outcome (CO) attainment parameters at semester-end.
                 </p>
                 <div class="flex gap-2">
-                  <button id="btn-initiate-exit" onclick="controlSurvey('exit', 'initiate')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition-all cursor-pointer">Open Survey</button>
+                  <button id="btn-initiate-exit" onclick="document.getElementById('modal-exit-survey-init').classList.remove('hidden')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition-all cursor-pointer">Open Survey</button>
                   <button id="btn-close-exit" onclick="controlSurvey('exit', 'close')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold transition-all cursor-pointer hidden">Close & Lock</button>
                   <span id="status-exit" class="text-xs font-bold text-muted flex items-center pl-2">Checking status...</span>
                 </div>
@@ -1165,6 +1165,140 @@
           </div>
 
         </div>
+
+        <!-- MODAL: MID-SEM SURVEY INITIATION PREVIEW & EDIT -->
+        <div id="modal-midsem-survey-init" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden text-slate-200">
+          <div class="bg-panel border rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-xl max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+              <h3 class="text-sm font-bold text-title flex items-center gap-2">
+                <span class="material-symbols-rounded text-indigo-400">rate_review</span>
+                Preview & Edit Mid-Semester Survey Questions
+              </h3>
+              <button type="button" onclick="document.getElementById('modal-midsem-survey-init').classList.add('hidden')" class="text-slate-400 hover:text-slate-200 cursor-pointer bg-transparent border-0">
+                <span class="material-symbols-rounded">close</span>
+              </button>
+            </div>
+            
+            <p class="text-xs text-muted leading-relaxed">
+              Review or customize the survey questions below before activating. Students will submit responses matching these descriptions.
+            </p>
+
+            <form id="form-midsem-init" onsubmit="submitMidsemInit(event)" class="space-y-3.5">
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q1. CO1 - Course Outcomes Communication</label>
+                  <input type="text" id="ms-q5" value="The teacher clearly communicates the Course Outcomes (COs) and learning goals at the start of new topics." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q2. CO1 - Syllabus Delivery Pace</label>
+                  <input type="text" id="ms-q6" value="The pace, speed, and coverage of the syllabus completed so far is appropriate." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q3. CO2 - Concept Clarity & Application</label>
+                  <input type="text" id="ms-q7" value="The teacher explains complex concepts clearly and links classroom theory to real-world industrial or field applications." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q4. CO2 - Effectiveness of ICT/PPT Tools</label>
+                  <input type="text" id="ms-q8" value="The use of teaching tools, animations, PPTs, model demonstrations, or ICT tools is effective." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q5. CO3 - Doubt Clearing & Interaction</label>
+                  <input type="text" id="ms-q9" value="The teacher encourages student questions, manages classroom discussions well, and clears doubts patiently." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q6. CO3 - Test & Assignment Relevance</label>
+                  <input type="text" id="ms-q10" value="Internal assessment test questions and assignments match the topics taught in class." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q7. CO4 - Fairness in Evaluation</label>
+                  <input type="text" id="ms-q11" value="Evaluation of mid-semester tests or submissions is fair, timely, and transparent." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q8. CO4 - Guidance for Slow Learners</label>
+                  <input type="text" id="ms-q12" value="The teacher provides extra guidance, remedial tips, or support to slow learners." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+              </div>
+
+              <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                <button type="button" onclick="document.getElementById('modal-midsem-survey-init').classList.add('hidden')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-bold text-xs transition-all cursor-pointer">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold text-xs transition-all cursor-pointer">Activate & Publish Survey</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- MODAL: COURSE EXIT SURVEY INITIATION PREVIEW & EDIT -->
+        <div id="modal-exit-survey-init" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden text-slate-200">
+          <div class="bg-panel border rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-xl max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+              <h3 class="text-sm font-bold text-title flex items-center gap-2">
+                <span class="material-symbols-rounded text-indigo-400">rate_review</span>
+                Preview & Edit Course Exit Survey Questions
+              </h3>
+              <button type="button" onclick="document.getElementById('modal-exit-survey-init').classList.add('hidden')" class="text-slate-400 hover:text-slate-200 cursor-pointer bg-transparent border-0">
+                <span class="material-symbols-rounded">close</span>
+              </button>
+            </div>
+            
+            <p class="text-xs text-muted leading-relaxed">
+              Review or customize the survey questions below before activating. Students will submit responses matching these descriptions.
+            </p>
+
+            <form id="form-exit-init" onsubmit="submitExitInit(event)" class="space-y-3.5">
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q1. CO1 - Subject Knowledge</label>
+                  <input type="text" id="ex-q1" value="How well did the course help you understand and remember the core academic principles, models, and structural fundamentals?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q2. CO1 - Outcome Mapping</label>
+                  <input type="text" id="ex-q2" value="How clearly were the course objectives, scope, and basic terms aligned with the class presentations?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q3. CO2 - Analytical Ability</label>
+                  <input type="text" id="ex-q3" value="How effectively did the course build your reasoning skills, mathematical derivations, or logical analysis capabilities?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q4. CO2 - Design & Analysis</label>
+                  <input type="text" id="ex-q4" value="To what extent can you design models, troubleshoot bugs, or draft structural layouts based on class lessons?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q5. CO3 - Practical Skills</label>
+                  <input type="text" id="ex-q5" value="How confident are you in operating laboratory kits, executing computer programs, or handling workshop machines?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q6. CO3 - Industry Standards</label>
+                  <input type="text" id="ex-q6" value="How clearly do you understand safety regulations, instrumentation limits, and standard protocols?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q7. CO4 - Evaluation Standards</label>
+                  <input type="text" id="ex-q7" value="To what extent did assignments, written internal exams, and presentations evaluate your skills thoroughly?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q8. CO4 - Professional Ethics</label>
+                  <input type="text" id="ex-q8" value="How effectively did the course emphasize engineering ethics, environmental issues, and professional conduct?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q9. CO4 - Lifelong Learning</label>
+                  <input type="text" id="ex-q9" value="How strongly has this course inspired you to self-learn, explore external publications, or research modern field advancements?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-300 mb-1">Q10. Overall Course Rating</label>
+                  <input type="text" id="ex-q10" value="Rate your overall satisfaction with the course syllabus delivery, faculty guidance, and academic outcomes." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                </div>
+              </div>
+
+              <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                <button type="button" onclick="document.getElementById('modal-exit-survey-init').classList.add('hidden')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-bold text-xs transition-all cursor-pointer">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white rounded font-bold text-xs transition-all cursor-pointer">Activate & Publish Survey</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+    </div>
+
+  </div>
 
     </div>
 
@@ -2744,6 +2878,75 @@
           checkSurveyStatuses();
         } else {
           alert(`Error updating survey: ` + data.message);
+        }
+      });
+    }
+
+    function submitMidsemInit(event) {
+      event.preventDefault();
+      const questions = {
+        q5: document.getElementById('ms-q5').value.trim(),
+        q6: document.getElementById('ms-q6').value.trim(),
+        q7: document.getElementById('ms-q7').value.trim(),
+        q8: document.getElementById('ms-q8').value.trim(),
+        q9: document.getElementById('ms-q9').value.trim(),
+        q10: document.getElementById('ms-q10').value.trim(),
+        q11: document.getElementById('ms-q11').value.trim(),
+        q12: document.getElementById('ms-q12').value.trim(),
+      };
+
+      fetch(`/api/classroom/{{ $batchSubject->id }}/survey/initiate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ questions })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert('Mid-Semester survey initiated successfully with customized questions!');
+          document.getElementById('modal-midsem-survey-init').classList.add('hidden');
+          checkSurveyStatuses();
+        } else {
+          alert('Failed to initiate survey: ' + data.message);
+        }
+      });
+    }
+
+    // Submit customized Course Exit questions and activate
+    function submitExitInit(event) {
+      event.preventDefault();
+      const questions = {
+        q1: document.getElementById('ex-q1').value.trim(),
+        q2: document.getElementById('ex-q2').value.trim(),
+        q3: document.getElementById('ex-q3').value.trim(),
+        q4: document.getElementById('ex-q4').value.trim(),
+        q5: document.getElementById('ex-q5').value.trim(),
+        q6: document.getElementById('ex-q6').value.trim(),
+        q7: document.getElementById('ex-q7').value.trim(),
+        q8: document.getElementById('ex-q8').value.trim(),
+        q9: document.getElementById('ex-q9').value.trim(),
+        q10: document.getElementById('ex-q10').value.trim(),
+      };
+
+      fetch(`/api/classroom/{{ $batchSubject->id }}/course-exit/initiate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ questions })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert('Course Exit survey initiated successfully with customized questions!');
+          document.getElementById('modal-exit-survey-init').classList.add('hidden');
+          checkSurveyStatuses();
+        } else {
+          alert('Failed to initiate survey: ' + data.message);
         }
       });
     }

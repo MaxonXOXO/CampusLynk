@@ -54,7 +54,7 @@
       <div class="px-2 py-1 text-xs text-amber-400 font-bold uppercase tracking-wider">Section 1: Course Delivery & Assessment (Required)</div>
 
       @php
-        $questions = [
+        $defaultQuestions = [
           'q5'  => ['icon' => 'co_present',     'label' => '1. Course Outcomes Communication', 'desc' => 'The teacher clearly communicates the Course Outcomes (COs) and learning goals at the start of new topics.'],
           'q6'  => ['icon' => 'speed',          'label' => '2. Syllabus Delivery Pace',        'desc' => 'The pace, speed, and coverage of the syllabus completed so far is appropriate.'],
           'q7'  => ['icon' => 'psychology',     'label' => '3. Concept Clarity & Application', 'desc' => 'The teacher explains complex concepts clearly and links classroom theory to real-world industrial or field applications.'],
@@ -64,6 +64,15 @@
           'q11' => ['icon' => 'assignment_turned_in', 'label' => '7. Fairness in Evaluation',  'desc' => 'Evaluation of mid-semester tests or submissions is fair, timely, and transparent.'],
           'q12' => ['icon' => 'support_agent',  'label' => '8. Guidance for Slow Learners',   'desc' => 'The teacher provides extra guidance, remedial tips, or support to slow learners.'],
         ];
+
+        $custom = json_decode($survey->custom_questions, true) ?: [];
+        $questions = [];
+        foreach ($defaultQuestions as $key => $val) {
+            $questions[$key] = $val;
+            if (isset($custom[$key]) && !empty(trim($custom[$key]))) {
+                $questions[$key]['desc'] = trim($custom[$key]);
+            }
+        }
       @endphp
 
       @foreach($questions as $key => $q)

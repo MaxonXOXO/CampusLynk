@@ -54,7 +54,7 @@
       <div class="px-2 py-1 text-xs text-teal-400 font-bold uppercase tracking-wider">Course Outcome specific questions (Required)</div>
 
       @php
-        $questions = [
+        $defaultQuestions = [
           'q1'  => ['icon' => 'menu_book',       'label' => 'Q1. CO1 - Subject Knowledge', 'desc' => 'How well did the course help you understand and remember the core academic principles, models, and structural fundamentals?'],
           'q2'  => ['icon' => 'auto_stories',    'label' => 'Q2. CO1 - Outcome Mapping',   'desc' => 'How clearly were the course objectives, scope, and basic terms aligned with the class presentations?'],
           'q3'  => ['icon' => 'analytics',       'label' => 'Q3. CO2 - Analytical Ability', 'desc' => 'How effectively did the course build your reasoning skills, mathematical derivations, or logical analysis capabilities?'],
@@ -66,6 +66,15 @@
           'q9'  => ['icon' => 'school',          'label' => 'Q9. CO4 - Lifelong Learning',  'desc' => 'How strongly has this course inspired you to self-learn, explore external publications, or research modern field advancements?'],
           'q10' => ['icon' => 'thumb_up',        'label' => 'Q10. Overall Course Rating',  'desc' => 'Rate your overall satisfaction with the course syllabus delivery, faculty guidance, and academic outcomes.'],
         ];
+
+        $custom = json_decode($survey->custom_questions, true) ?: [];
+        $questions = [];
+        foreach ($defaultQuestions as $key => $val) {
+            $questions[$key] = $val;
+            if (isset($custom[$key]) && !empty(trim($custom[$key]))) {
+                $questions[$key]['desc'] = trim($custom[$key]);
+            }
+        }
       @endphp
 
       @foreach($questions as $key => $q)
