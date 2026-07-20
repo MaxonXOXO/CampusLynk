@@ -253,7 +253,7 @@
         </table>
 
         <div class="footer-signatures">
-            <div>Course Instructor Signature</div>
+            <div>Faculty Signature</div>
             <div>Head of Department Signature</div>
         </div>
 

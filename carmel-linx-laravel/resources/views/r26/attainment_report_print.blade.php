@@ -322,7 +322,7 @@
         </div>
 
         <div class="footer-signatures">
-            <div>Course Instructor Signature</div>
+            <div>Faculty Signature</div>
             <div>NBA Coordinator Signature</div>
             <div>Head of Department Signature</div>
         </div>
