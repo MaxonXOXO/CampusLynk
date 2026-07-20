@@ -853,45 +853,70 @@
               <!-- QP and Schemes Panel -->
               <div class="space-y-3">
                 <h4 class="font-bold text-title text-xs uppercase tracking-wider">Scheduled Series Examinations</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 gap-3.5">
                   @foreach($seriesExams as $exam)
-                    <div class="bg-slate-900/10 border border-card rounded-xl p-4 flex flex-col justify-between space-y-3 relative overflow-hidden">
+                    @php
+                      $firstCo = $exam->co_tags[0] ?? 'CO1';
+                      $borderColor = 'border-l-sky-500';
+                      $bgColor = 'bg-sky-500/10';
+                      $textColor = 'text-sky-600 dark:text-sky-400';
+                      if ($firstCo === 'CO2') {
+                        $borderColor = 'border-l-emerald-500';
+                        $bgColor = 'bg-emerald-500/10';
+                        $textColor = 'text-emerald-600 dark:text-emerald-400';
+                      } elseif ($firstCo === 'CO3') {
+                        $borderColor = 'border-l-indigo-500';
+                        $bgColor = 'bg-indigo-500/10';
+                        $textColor = 'text-indigo-600 dark:text-indigo-400';
+                      } elseif ($firstCo === 'CO4') {
+                        $borderColor = 'border-l-purple-500';
+                        $bgColor = 'bg-purple-500/10';
+                        $textColor = 'text-purple-600 dark:text-purple-400';
+                      }
+                    @endphp
+                    <div class="bg-white dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 border-l-4 {{ $borderColor }} rounded-xl p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-sm">
                       
-                      <!-- Header -->
-                      <div class="flex justify-between items-start">
+                      <!-- Left: Exam Info -->
+                      <div class="flex items-center gap-3">
+                        <div class="px-3 py-1 rounded-lg {{ $bgColor }} {{ $textColor }} font-bold text-xs tracking-wider uppercase">
+                          {{ implode(' + ', $exam->co_tags) }}
+                        </div>
                         <div>
-                          <h5 class="font-bold text-title text-xs">{{ $exam->exam_name }}</h5>
-                          <p class="text-[11px] text-muted mt-0.5">
-                            CO Tags: {{ implode(', ', $exam->co_tags) }} | Marks: {{ $exam->max_marks }}M | Duration: {{ $exam->duration_minutes }} min
+                          <h5 class="font-bold text-slate-800 dark:text-slate-100 text-sm">{{ $exam->exam_name }}</h5>
+                          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                            Marks: <strong class="text-slate-700 dark:text-slate-350 font-bold">{{ $exam->max_marks }} Marks</strong> | Duration: <strong class="text-slate-700 dark:text-slate-350 font-bold">{{ $exam->duration_minutes }} min</strong>
                           </p>
                         </div>
-                        @if($exam->locked)
-                          <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-450 border border-emerald-500/20 rounded text-[10px] font-bold flex items-center gap-0.5">
-                            <span class="material-symbols-rounded text-[11px]">lock</span> Locked & Published
-                          </span>
-                        @else
-                          <span class="px-2 py-0.5 bg-sky-500/10 text-sky-405 border border-sky-500/20 rounded text-[10px] font-bold">
-                            Drafting Mode
-                          </span>
-                        @endif
                       </div>
 
-                      <!-- Actions -->
-                      <div class="flex gap-2 flex-wrap pt-2 border-t border-slate-800/30">
-                        <button onclick='openSeriesBuilderModal({{ $exam->id }}, "{{ addslashes($exam->exam_name) }}", "{{ $exam->mode }}", {{ json_encode($exam->co_tags) }}, {{ $exam->max_marks }})' class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1">
-                          <span class="material-symbols-rounded text-xs">edit_document</span> Build QP
-                        </button>
-                        <a href="/r26/classroom/series-exams/{{ $exam->id }}/print-qp" target="_blank" class="px-2.5 py-1 bg-slate-850 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded text-[11px] font-bold transition-all flex items-center gap-1">
-                          <span class="material-symbols-rounded text-xs">print</span> Print QP
-                        </a>
-                        <a href="/r26/classroom/series-exams/{{ $exam->id }}/print-scheme" target="_blank" class="px-2.5 py-1 bg-slate-850 hover:bg-slate-800 text-slate-200 border border-slate-700 rounded text-[11px] font-bold transition-all flex items-center gap-1">
-                          <span class="material-symbols-rounded text-xs">description</span> Print Scheme
-                        </a>
-                        @if(!$exam->locked)
-                          <button onclick="lockAndPublishSeries({{ $exam->id }})" class="px-2.5 py-1 bg-violet-650 hover:bg-violet-750 text-white rounded text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1">
-                            <span class="material-symbols-rounded text-xs">publish</span> Lock & Notify
-                          </button>
+                      <!-- Right: Status and Actions -->
+                      <div class="flex flex-wrap items-center gap-3">
+                        @if($exam->locked)
+                          <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-rounded text-xs">lock</span> Locked & Published
+                          </span>
+                        @else
+                          <span class="px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-rounded text-xs">edit_note</span> Drafting Mode
+                          </span>
                         @endif
+
+                        <div class="flex gap-2">
+                          <button onclick='openSeriesBuilderModal({{ $exam->id }}, "{{ addslashes($exam->exam_name) }}", "{{ $exam->mode }}", {{ json_encode($exam->co_tags) }}, {{ $exam->max_marks }})' class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-rounded text-xs">edit_document</span> Build QP
+                          </button>
+                          <a href="/r26/classroom/series-exams/{{ $exam->id }}/print-qp" target="_blank" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-rounded text-xs">print</span> Print QP
+                          </a>
+                          <a href="/r26/classroom/series-exams/{{ $exam->id }}/print-scheme" target="_blank" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                            <span class="material-symbols-rounded text-xs">description</span> Print Scheme
+                          </a>
+                          @if(!$exam->locked)
+                            <button onclick="lockAndPublishSeries({{ $exam->id }})" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-750 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm">
+                              <span class="material-symbols-rounded text-xs">publish</span> Lock & Notify
+                            </button>
+                          @endif
+                        </div>
                       </div>
 
                     </div>
