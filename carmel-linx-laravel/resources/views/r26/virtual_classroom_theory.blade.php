@@ -1688,7 +1688,7 @@
             <textarea id="modal-q-text" rows="5" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-2 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal" placeholder="Type assignment question description here..."></textarea>
           </div>
           
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-xs text-slate-600 mb-1 font-bold">Max Marks:</label>
               <input type="number" id="modal-q-marks" value="5" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1.5 text-slate-900 text-sm text-center focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal">
@@ -1705,13 +1705,14 @@
               </select>
             </div>
             <div>
-              <label class="block text-xs text-slate-600 mb-1 font-bold">Scheme of Evaluation / Hints:</label>
-              <textarea id="modal-q-scheme" rows="1" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal" placeholder="E.g., Formula 1M, steps 3M..."></textarea>
-            </div>
-            <div>
               <label class="block text-xs text-slate-600 mb-1 font-bold">Due Date:</label>
-              <input type="date" id="modal-assignment-due-date" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal">
+              <input type="date" id="modal-assignment-due-date" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1.5 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal">
             </div>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-600 mb-1 font-bold">Scheme of Evaluation / Rubrics / Hints:</label>
+            <textarea id="modal-q-scheme" rows="3" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-2 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal" placeholder="Specify evaluation guidelines here (e.g., Correct formula: 2 Marks, Steps and explanation: 3 Marks)"></textarea>
           </div>
 
           <div class="flex justify-end gap-2 pt-2">
