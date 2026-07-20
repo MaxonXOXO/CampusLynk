@@ -1178,7 +1178,7 @@
 
         <!-- MODAL: MID-SEM SURVEY INITIATION PREVIEW & EDIT -->
         <div id="modal-midsem-survey-init" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden text-slate-200">
-          <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto" style="background-color: #0f172a !important;">
+          <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl p-6 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto" style="background-color: #0f172a !important;">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
               <h3 class="text-sm font-bold text-title flex items-center gap-2">
                 <span class="material-symbols-rounded text-indigo-400">rate_review</span>
@@ -1239,7 +1239,7 @@
 
         <!-- MODAL: COURSE EXIT SURVEY INITIATION PREVIEW & EDIT -->
         <div id="modal-exit-survey-init" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden text-slate-200">
-          <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl p-6 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto" style="background-color: #0f172a !important;">
+          <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl p-6 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto" style="background-color: #0f172a !important;">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
               <h3 class="text-sm font-bold text-title flex items-center gap-2">
                 <span class="material-symbols-rounded text-indigo-400">rate_review</span>
