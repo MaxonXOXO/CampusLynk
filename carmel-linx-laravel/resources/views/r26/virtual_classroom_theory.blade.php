@@ -87,6 +87,14 @@
       background: rgba(148, 163, 184, 0.3);
       border-radius: 9999px;
     }
+
+    @keyframes gentle-attention {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); }
+      50% { transform: scale(1.04); box-shadow: 0 0 0 6px rgba(14, 165, 233, 0); }
+    }
+    .animate-attention {
+      animation: gentle-attention 2.5s infinite ease-in-out;
+    }
   </style>
 </head>
 <body class="dark min-h-screen p-4 custom-scrollbar">
@@ -144,7 +152,7 @@
           </div>
         </div>
 
-        <button onclick="toggleSidebarWideMode()" id="btn-fullscreen-toggle" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-bold text-xs transition-all border border-sky-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm">
+        <button onclick="toggleSidebarWideMode()" id="btn-fullscreen-toggle" class="animate-attention px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-bold text-xs transition-all border border-sky-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm">
           <span class="material-symbols-rounded text-xs">fullscreen</span>
           Fullscreen Mode
         </button>
