@@ -507,8 +507,9 @@
                   <span class="material-symbols-rounded text-emerald-450">local_library</span>
                   Self-Learning Activities Marksheet (CO-wise)
                 </h3>
-                <p class="text-xs text-muted mt-1">
-                  Assign self-learning marks (Max 15 per CO) for each Course Outcome. The average of all 4 CO marks will automatically determine the final Self-Learning Marks (out of 15 max) in the consolidated marksheet.
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed max-w-3xl">
+                  Assign self-learning marks (Max 15 per CO) for each Course Outcome.<br>
+                  The average of all 4 CO marks will automatically determine the final Self-Learning Marks (out of 15 max) in the consolidated marksheet.
                 </p>
               </div>
               <div class="flex items-center gap-2">
