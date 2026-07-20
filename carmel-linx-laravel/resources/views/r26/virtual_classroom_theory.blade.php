@@ -91,19 +91,19 @@
     @keyframes gentle-attention {
       0%, 100% { 
         transform: scale(1); 
-        filter: drop-shadow(0 0 2px var(--pulse-color, rgba(14, 165, 233, 0.6)));
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
       }
       50% { 
-        transform: scale(1.08); 
-        filter: drop-shadow(0 0 10px var(--pulse-color, rgba(14, 165, 233, 0.95)));
+        transform: scale(1.04); 
+        filter: drop-shadow(0 0 4px var(--pulse-color, rgba(14, 165, 233, 0.4)));
       }
     }
     .animate-attention {
-      animation: gentle-attention 1.6s infinite ease-in-out;
-      --pulse-color: rgba(56, 189, 248, 0.9);
+      animation: gentle-attention 2s infinite ease-in-out;
+      --pulse-color: rgba(56, 189, 248, 0.6);
     }
     #btn-fullscreen-toggle.bg-amber-600 {
-      --pulse-color: rgba(245, 158, 11, 0.95);
+      --pulse-color: rgba(245, 158, 11, 0.6);
     }
   </style>
 </head>
