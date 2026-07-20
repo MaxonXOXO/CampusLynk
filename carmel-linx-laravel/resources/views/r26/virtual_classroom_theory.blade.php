@@ -538,7 +538,7 @@
             <!-- Max Marks Configuration Panels -->
             @foreach(['CO1', 'CO2', 'CO3', 'CO4'] as $coTag)
               <div id="sl-config-{{ $coTag }}" class="sl-config-panel bg-slate-900/20 border border-card rounded-xl p-3 flex flex-wrap gap-4 items-center text-xs">
-                <span class="font-bold text-title uppercase">{{ $coTag }} Max Marks Configuration (Sum must equal 15):</span>
+                <span class="font-bold text-slate-800 dark:text-slate-200 text-sm tracking-wide mr-3">{{ $coTag }} Max Marks Configuration (Sum must equal 15):</span>
                 <div class="flex items-center gap-1.5">
                   <span class="text-muted">Assignment:</span>
                   <input type="number" step="0.5" id="cfg-{{ $coTag }}-assignment" value="{{ $selfLearningConfigs[$coTag]['assignment'] ?? 5.0 }}" class="w-12 bg-slate-950 border border-slate-800 rounded px-1 text-center font-bold text-title focus:border-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
