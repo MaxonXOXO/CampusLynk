@@ -214,6 +214,11 @@
             <span class="material-symbols-rounded text-sm">quiz</span>
             Series Exams
           </button>
+
+          <button onclick="switchTab('internals')" id="btn-internals" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-900/40">
+            <span class="material-symbols-rounded text-sm">assignment_turned_in</span>
+            Internal Marks
+          </button>
         </div>
 
         <!-- QUICK SNAPSHOT WIDGET -->
@@ -981,6 +986,63 @@
           @endif
         </div>
 
+        <!-- TAB: CONSOLIDATED INTERNAL MARKS (NEW) -->
+        <div id="tab-internals" class="tab-panel bg-panel border rounded-xl p-5 shadow-md space-y-4 hidden">
+          <div class="border-b border-slate-800/30 pb-3 flex justify-between items-center">
+            <div>
+              <h3 class="text-base font-bold text-title flex items-center gap-2">
+                <span class="material-symbols-rounded text-indigo-400">assignment_turned_in</span>
+                Consolidated Internal Assessment Marks (CIE)
+              </h3>
+              <p class="text-xs text-muted mt-1">
+                Final internal marks computed dynamically based on the criteria: Attendance (5M Max), Self-Learning/Assignments (15M Max), and Series Exams (20M Max).
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <a href="/r26/classroom/{{ $batchSubject->id }}/series-exams/print-marks" target="_blank" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                <span class="material-symbols-rounded text-xs">print</span> Print Series Report
+              </a>
+              <a href="/r26/classroom/{{ $batchSubject->id }}/internals/print-cie" target="_blank" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm">
+                <span class="material-symbols-rounded text-xs">print</span> Print Internal Marksheet
+              </a>
+            </div>
+          </div>
+
+          <div class="border border-card rounded-xl overflow-x-auto bg-slate-950/10 custom-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[900px]">
+              <thead>
+                <tr class="bg-slate-900/30 text-xs font-bold text-muted uppercase tracking-wider border-b border-card">
+                  <th class="p-3 w-[6%] text-center">Roll No</th>
+                  <th class="p-3 w-[15%]">Register No</th>
+                  <th class="p-3">Student Name</th>
+                  <th class="p-3 w-[12%] text-center">Attendance %</th>
+                  <th class="p-3 w-[12%] text-center">Attendance (5M)</th>
+                  <th class="p-3 w-[15%] text-center">Self Learning / Assignment (15M)</th>
+                  <th class="p-3 w-[15%] text-center">Series Exam (20M)</th>
+                  <th class="p-3 w-[12%] text-center">Total CIA (40M)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-card text-sm font-normal">
+                @forelse($studentCiaData as $sc)
+                  <tr class="bg-card-hover transition-all font-normal">
+                    <td class="p-2.5 font-mono text-center text-title">{{ $sc['roll_no'] ?: '—' }}</td>
+                    <td class="p-2.5 font-mono text-title">{{ $sc['reg_no'] }}</td>
+                    <td class="p-2.5 text-title font-medium">{{ $sc['name'] }}</td>
+                    <td class="p-2.5 text-center font-mono text-title">{{ $sc['attendance_percent'] }}%</td>
+                    <td class="p-2.5 text-center font-mono text-emerald-500 font-bold">{{ $sc['attendance_marks'] }}</td>
+                    <td class="p-2.5 text-center font-mono text-title">{{ $sc['self_learning_marks'] }}</td>
+                    <td class="p-2.5 text-center font-mono text-title">{{ $sc['series_exam_marks'] }}</td>
+                    <td class="p-2.5 text-center font-mono text-indigo-400 font-bold text-base">{{ $sc['total_cia'] }}</td>
+                  </tr>
+                @empty
+                  <tr>
+                    <td colspan="8" class="p-6 text-center text-muted italic font-normal">No student records enrolled.</td>
+                  </tr>
+                @endforelse
+              </tbody>
+            </table>
+          </div>
+
       </div>
 
     </div>
@@ -995,7 +1057,7 @@
       });
       document.getElementById('tab-' + tabId).classList.remove('hidden');
 
-      const tabs = ['outline', 'planner', 'cia', 'roster', 'series'];
+      const tabs = ['outline', 'planner', 'cia', 'roster', 'series', 'internals'];
       tabs.forEach(id => {
         const btn = document.getElementById('btn-' + id);
         if (id === tabId) {

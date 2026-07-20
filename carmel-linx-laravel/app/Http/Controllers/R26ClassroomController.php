@@ -1189,4 +1189,151 @@ class R26ClassroomController extends Controller
 
         return view('r26.series_marks_print', compact('batchSubject', 'classroom', 'students', 'studentCiaData', 'seriesExams'));
     }
+
+    /**
+     * Print Consolidated CIE Marks Report
+     */
+    public function printInternalMarksheet($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) abort(404);
+
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+            ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        if (!$classroom) abort(404);
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no', 'academic_status']);
+
+        $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$courseFile) abort(404);
+
+        $attendanceData = \DB::table('student_attendance')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->get()
+            ->groupBy('reg_no');
+
+        $academicMarks = \DB::table('academic_marks')
+            ->where('batch_subject_id', $subjectId)
+            ->get()
+            ->groupBy('reg_no');
+
+        $selfLearningConfigs = $courseFile->self_learning_configs ?: [
+            'CO1' => ['assignment' => 5.0, 'mcq' => 5.0, 'act3' => 5.0, 'act3_mode' => 'Case Study', 'act4' => 0.0, 'act4_mode' => 'MCQ', 'act5' => 0.0, 'act5_mode' => 'Exercise'],
+            'CO2' => ['assignment' => 5.0, 'mcq' => 5.0, 'act3' => 5.0, 'act3_mode' => 'Case Study', 'act4' => 0.0, 'act4_mode' => 'MCQ', 'act5' => 0.0, 'act5_mode' => 'Exercise'],
+            'CO3' => ['assignment' => 5.0, 'mcq' => 5.0, 'act3' => 5.0, 'act3_mode' => 'Case Study', 'act4' => 0.0, 'act4_mode' => 'MCQ', 'act5' => 0.0, 'act5_mode' => 'Exercise'],
+            'CO4' => ['assignment' => 5.0, 'mcq' => 5.0, 'act3' => 5.0, 'act3_mode' => 'Case Study', 'act4' => 0.0, 'act4_mode' => 'MCQ', 'act5' => 0.0, 'act5_mode' => 'Exercise'],
+        ];
+
+        $testConfigs = \DB::table('test_configs')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->where('classroom_id', $batchSubject->classroom_id)
+            ->get();
+            
+        $testIds = $testConfigs->pluck('test_id')->toArray();
+        
+        $testAttempts = \DB::table('test_attempts')
+            ->whereIn('test_id', $testIds)
+            ->where('status', 'Completed')
+            ->get()
+            ->groupBy('reg_no');
+
+        $submissions = \DB::table('student_task_submissions')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->where('category', 'Assignment')
+            ->get()
+            ->groupBy('reg_no');
+
+        $seriesExams = \App\Models\SeriesExam::where('batch_subject_id', $subjectId)->get();
+
+        $studentCiaData = $students->map(function ($student) use ($attendanceData, $academicMarks, $subjectId, $batchSubject, $selfLearningConfigs, $testConfigs, $testAttempts, $submissions, $seriesExams) {
+            $studentSubmissions = $submissions->get($student->reg_no, collect());
+            $studentAttendance = $attendanceData->get($student->reg_no, collect());
+            $totalAttendance = $studentAttendance->count();
+            $present = $studentAttendance->whereIn('status', ['Present', 'Late'])->count();
+            $attPercentage = $totalAttendance > 0 ? ($present / $totalAttendance) * 100 : 100.00;
+            
+            // Table 2.1 Attendance Marks Conversion
+            $attMarks = 0;
+            if ($attPercentage >= 90) {
+                $attMarks = 5;
+            } elseif ($attPercentage >= 85) {
+                $attMarks = 4;
+            } elseif ($attPercentage >= 80) {
+                $attMarks = 3;
+            } elseif ($attPercentage >= 75) {
+                $attMarks = 2;
+            } else {
+                $attMarks = 0;
+            }
+            
+            $studentMarks = $academicMarks->get($student->reg_no, collect());
+            $studentAttempts = $testAttempts->get($student->reg_no, collect());
+            
+            $coDetails = [];
+            $totalAvgSum = 0.0;
+            
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+                $coMarks = $studentMarks->where('co_tag', $coTag);
+                
+                $assignmentMark = $coMarks->where('category', 'Self Study: Assignment')->first();
+                $mcqMark        = $coMarks->where('category', 'Self Study: MCQ')->first();
+                $act3Mark       = $coMarks->where('category', 'Self Study: Act 3')->first();
+                $act4Mark       = $coMarks->where('category', 'Self Study: Act 4')->first();
+                $act5Mark       = $coMarks->where('category', 'Self Study: Act 5')->first();
+                
+                $valAssignment = $assignmentMark ? (float)$assignmentMark->marks_obtained : 0.0;
+                $valAct3       = $act3Mark ? (float)$act3Mark->marks_obtained : 0.0;
+                $valAct4       = $act4Mark ? (float)$act4Mark->marks_obtained : 0.0;
+                $valAct5       = $act5Mark ? (float)$act5Mark->marks_obtained : 0.0;
+
+                // MCQ Automated Mark logic
+                if ($mcqMark) {
+                    $valMcq = (float)$mcqMark->marks_obtained;
+                } else {
+                    $valMcq = 0.0;
+                    $coTest = $testConfigs->filter(function($tc) use ($coTag) {
+                        $selected = json_decode($tc->selected_cos, true) ?: [];
+                        return in_array($coTag, $selected);
+                    })->first();
+                    if ($coTest) {
+                        $attemptsForTest = $studentAttempts->where('test_id', $coTest->test_id);
+                        $maxScore = $attemptsForTest->max('total_score');
+                        $mcqMax = (float)($coTest->mcq_count ?: 10);
+                        $configMaxMCQ = (float)($selfLearningConfigs[$coTag]['mcq'] ?? 5.0);
+                        if ($mcqMax > 0 && $maxScore !== null) {
+                            $valMcq = round(($maxScore / $mcqMax) * $configMaxMCQ, 2);
+                        }
+                    }
+                }
+                
+                $coTotal = $valAssignment + $valMcq + $valAct3 + $valAct4 + $valAct5;
+                $totalAvgSum += $coTotal;
+            }
+            
+            $selfLearningMarks = round($totalAvgSum / 4, 2);
+            $seriesExamRecord = $studentMarks->where('category', 'Series Exam')->first();
+            $seriesExamMarks = $seriesExamRecord ? (float)$seriesExamRecord->marks_obtained : 0.0;
+
+            return [
+                'reg_no' => $student->reg_no,
+                'name' => $student->name,
+                'roll_no' => $student->roll_no,
+                'attendance_percent' => round($attPercentage, 2),
+                'attendance_marks' => $attMarks,
+                'self_learning_marks' => $selfLearningMarks,
+                'series_exam_marks' => $seriesExamMarks,
+                'total_cia' => $attMarks + $selfLearningMarks + $seriesExamMarks
+            ];
+        });
+
+        return view('r26.internals_cie_print', compact('batchSubject', 'classroom', 'studentCiaData'));
+    }
 }
