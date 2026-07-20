@@ -2027,7 +2027,7 @@
       
       // Update Part sub-tabs styles
       ['Part A', 'Part B', 'Part C'].forEach(part => {
-        const btn = document.getElementById('tabbtn-part' + part.replace(' ', ''));
+        const btn = document.getElementById('tabbtn-part' + part.replace('Part ', ''));
         if (part === partName) {
           btn.className = "px-3 py-1.5 rounded-t-lg text-xs font-bold transition-all border-b-2 border-indigo-600 bg-slate-50 text-indigo-600 cursor-pointer";
         } else {
