@@ -203,6 +203,9 @@ class R26ClassroomController extends Controller
                 $examMarks[$ex->id] = $eMark ? (float)$eMark->marks_obtained : 0.0;
             }
 
+            $eseRecord = $studentMarks->where('category', 'ESE')->first();
+            $eseMarks = $eseRecord ? (float)$eseRecord->marks_obtained : 0.0;
+
             return [
                 'reg_no' => $student->reg_no,
                 'name' => $student->name,
@@ -212,6 +215,8 @@ class R26ClassroomController extends Controller
                 'self_learning_marks' => $selfLearningMarks,
                 'series_exam_marks' => $seriesExamMarks,
                 'total_cia' => $attMarks + $selfLearningMarks + $seriesExamMarks,
+                'ese_marks' => $eseMarks,
+                'grand_total' => $attMarks + $selfLearningMarks + $seriesExamMarks + $eseMarks,
                 'co_details' => $coDetails,
                 'exam_marks' => $examMarks
             ];
@@ -1097,6 +1102,46 @@ class R26ClassroomController extends Controller
         return response()->json(['status' => 'SUCCESS', 'message' => "{$updated} students series marks updated successfully."]);
     }
 
+    /**
+     * Bulk Update End Semester Exam (ESE) Marks.
+     */
+    public function bulkUpdateEseMarks(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        }
+
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
+        }
+
+        $marks = $request->input('marks', []);
+        $updated = 0;
+
+        foreach ($marks as $regNo => $val) {
+            $val = (float)$val;
+            \DB::table('academic_marks')->updateOrInsert(
+                [
+                    'reg_no' => $regNo,
+                    'batch_subject_id' => $subjectId,
+                    'category' => 'ESE',
+                ],
+                [
+                    'subject_code' => $batchSubject->subject_code,
+                    'max_marks' => 60,
+                    'marks_obtained' => $val,
+                    'entered_by' => $userId,
+                    'updated_at' => now(),
+                ]
+            );
+            $updated++;
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => "{$updated} students ESE marks updated successfully."]);
+    }
+
 
     /**
      * Print Series Exam Question Paper.
@@ -1335,5 +1380,302 @@ class R26ClassroomController extends Controller
         });
 
         return view('r26.internals_cie_print', compact('batchSubject', 'classroom', 'studentCiaData'));
+    }
+
+    /**
+     * Print Consolidated Student Results Report (CIE & ESE)
+     */
+    public function printFinalResults($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) abort(404);
+
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+            ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        if (!$classroom) abort(404);
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no', 'academic_status']);
+
+        $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$courseFile) abort(404);
+
+        $attendanceData = \DB::table('student_attendance')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->get()
+            ->groupBy('reg_no');
+
+        $academicMarks = \DB::table('academic_marks')
+            ->where('batch_subject_id', $subjectId)
+            ->get()
+            ->groupBy('reg_no');
+
+        $selfLearningConfigs = $courseFile->self_learning_configs ?: [
+            'CO1' => ['assignment' => 5.0, 'mcq' => 5.0, 'act3' => 5.0, 'act3_mode' => 'Case Study', 'act4' => 0.0, 'act4_mode' => 'MCQ', 'act5' => 0.0, 'act5_mode' => 'Exercise'],
+            'CO2' => ['assignment' => 5.0, 'mcq' => 5.0, 'act3' => 5.0, 'act3_mode' => 'Case Study', 'act4' => 0.0, 'act4_mode' => 'MCQ', 'act5' => 0.0, 'act5_mode' => 'Exercise'],
+            'CO3' => ['assignment' => 5.0, 'mcq' => 5.0, 'act3' => 5.0, 'act3_mode' => 'Case Study', 'act4' => 0.0, 'act4_mode' => 'MCQ', 'act5' => 0.0, 'act5_mode' => 'Exercise'],
+            'CO4' => ['assignment' => 5.0, 'mcq' => 5.0, 'act3' => 5.0, 'act3_mode' => 'Case Study', 'act4' => 0.0, 'act4_mode' => 'MCQ', 'act5' => 0.0, 'act5_mode' => 'Exercise'],
+        ];
+
+        $testConfigs = \DB::table('test_configs')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->where('classroom_id', $batchSubject->classroom_id)
+            ->get();
+            
+        $testIds = $testConfigs->pluck('test_id')->toArray();
+        
+        $testAttempts = \DB::table('test_attempts')
+            ->whereIn('test_id', $testIds)
+            ->where('status', 'Completed')
+            ->get()
+            ->groupBy('reg_no');
+
+        $submissions = \DB::table('student_task_submissions')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->where('category', 'Assignment')
+            ->get()
+            ->groupBy('reg_no');
+
+        $seriesExams = \App\Models\SeriesExam::where('batch_subject_id', $subjectId)->get();
+
+        $studentCiaData = $students->map(function ($student) use ($attendanceData, $academicMarks, $subjectId, $batchSubject, $selfLearningConfigs, $testConfigs, $testAttempts, $submissions, $seriesExams) {
+            $studentSubmissions = $submissions->get($student->reg_no, collect());
+            $studentAttendance = $attendanceData->get($student->reg_no, collect());
+            $totalAttendance = $studentAttendance->count();
+            $present = $studentAttendance->whereIn('status', ['Present', 'Late'])->count();
+            $attPercentage = $totalAttendance > 0 ? ($present / $totalAttendance) * 100 : 100.00;
+            
+            $attMarks = 0;
+            if ($attPercentage >= 90) {
+                $attMarks = 5;
+            } elseif ($attPercentage >= 85) {
+                $attMarks = 4;
+            } elseif ($attPercentage >= 80) {
+                $attMarks = 3;
+            } elseif ($attPercentage >= 75) {
+                $attMarks = 2;
+            } else {
+                $attMarks = 0;
+            }
+            
+            $studentMarks = $academicMarks->get($student->reg_no, collect());
+            $studentAttempts = $testAttempts->get($student->reg_no, collect());
+            
+            $totalAvgSum = 0.0;
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+                $coMarks = $studentMarks->where('co_tag', $coTag);
+                
+                $assignmentMark = $coMarks->where('category', 'Self Study: Assignment')->first();
+                $mcqMark        = $coMarks->where('category', 'Self Study: MCQ')->first();
+                $act3Mark       = $coMarks->where('category', 'Self Study: Act 3')->first();
+                $act4Mark       = $coMarks->where('category', 'Self Study: Act 4')->first();
+                $act5Mark       = $coMarks->where('category', 'Self Study: Act 5')->first();
+                
+                $valAssignment = $assignmentMark ? (float)$assignmentMark->marks_obtained : 0.0;
+                $valAct3       = $act3Mark ? (float)$act3Mark->marks_obtained : 0.0;
+                $valAct4       = $act4Mark ? (float)$act4Mark->marks_obtained : 0.0;
+                $valAct5       = $act5Mark ? (float)$act5Mark->marks_obtained : 0.0;
+
+                if ($mcqMark) {
+                    $valMcq = (float)$mcqMark->marks_obtained;
+                } else {
+                    $valMcq = 0.0;
+                    $coTest = $testConfigs->filter(function($tc) use ($coTag) {
+                        $selected = json_decode($tc->selected_cos, true) ?: [];
+                        return in_array($coTag, $selected);
+                    })->first();
+                    if ($coTest) {
+                        $attemptsForTest = $studentAttempts->where('test_id', $coTest->test_id);
+                        $maxScore = $attemptsForTest->max('total_score');
+                        $mcqMax = (float)($coTest->mcq_count ?: 10);
+                        $configMaxMCQ = (float)($selfLearningConfigs[$coTag]['mcq'] ?? 5.0);
+                        if ($mcqMax > 0 && $maxScore !== null) {
+                            $valMcq = round(($maxScore / $mcqMax) * $configMaxMCQ, 2);
+                        }
+                    }
+                }
+                
+                $coTotal = $valAssignment + $valMcq + $valAct3 + $valAct4 + $valAct5;
+                $totalAvgSum += $coTotal;
+            }
+            
+            $selfLearningMarks = round($totalAvgSum / 4, 2);
+            $seriesExamRecord = $studentMarks->where('category', 'Series Exam')->first();
+            $seriesExamMarks = $seriesExamRecord ? (float)$seriesExamRecord->marks_obtained : 0.0;
+
+            $eseRecord = $studentMarks->where('category', 'ESE')->first();
+            $eseMarks = $eseRecord ? (float)$eseRecord->marks_obtained : 0.0;
+
+            return [
+                'reg_no' => $student->reg_no,
+                'sbte_reg_no' => $student->sbte_reg_no,
+                'name' => $student->name,
+                'roll_no' => $student->roll_no,
+                'attendance_percent' => round($attPercentage, 2),
+                'attendance_marks' => $attMarks,
+                'self_learning_marks' => $selfLearningMarks,
+                'series_exam_marks' => $seriesExamMarks,
+                'total_cia' => $attMarks + $selfLearningMarks + $seriesExamMarks,
+                'ese_marks' => $eseMarks
+            ];
+        });
+
+        return view('r26.student_final_results_print', compact('batchSubject', 'classroom', 'studentCiaData'));
+    }
+
+    /**
+     * Print NBA 2026 Direct/Indirect CO-PO Attainment Report
+     */
+    public function printAttainmentReport($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) abort(404);
+
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+            ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        if (!$classroom) abort(404);
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no', 'academic_status']);
+
+        $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$courseFile) abort(404);
+
+        $copoData = json_decode($courseFile->parsed_copo_data, true) ?: [];
+        $mappings = $copoData['mappings'] ?? [];
+
+        // Let's get direct assessment marks
+        $academicMarks = \DB::table('academic_marks')
+            ->where('batch_subject_id', $subjectId)
+            ->get()
+            ->groupBy('reg_no');
+
+        // Exit Survey Responses for Indirect
+        $exitSurvey = \DB::table('course_exit_surveys')
+            ->where('batch_subject_id', $subjectId)
+            ->first();
+        
+        $exitResponses = collect();
+        if ($exitSurvey) {
+            $exitResponses = \DB::table('student_course_exit_responses')
+                ->where('exit_survey_id', $exitSurvey->id)
+                ->get();
+        }
+
+        $targetScore = 50.0; // 50% target threshold
+        
+        $directStats = [];
+        foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+            $totalAssessed = 0;
+            $totalMet = 0;
+            
+            foreach ($students as $stud) {
+                $studMarks = $academicMarks->get($stud->reg_no, collect());
+                
+                $coMarks = $studMarks->where('co_tag', $coTag);
+                $assignmentMark = $coMarks->where('category', 'Self Study: Assignment')->first();
+                $mcqMark        = $coMarks->where('category', 'Self Study: MCQ')->first();
+                $act3Mark       = $coMarks->where('category', 'Self Study: Act 3')->first();
+                $act4Mark       = $coMarks->where('category', 'Self Study: Act 4')->first();
+                $act5Mark       = $coMarks->where('category', 'Self Study: Act 5')->first();
+                
+                $valAssignment = $assignmentMark ? (float)$assignmentMark->marks_obtained : 0.0;
+                $valMcq        = $mcqMark ? (float)$mcqMark->marks_obtained : 0.0;
+                $valAct3       = $act3Mark ? (float)$act3Mark->marks_obtained : 0.0;
+                $valAct4       = $act4Mark ? (float)$act4Mark->marks_obtained : 0.0;
+                $valAct5       = $act5Mark ? (float)$act5Mark->marks_obtained : 0.0;
+                
+                $cieScore = $valAssignment + $valMcq + $valAct3 + $valAct4 + $valAct5;
+                
+                $eseRecord = $studMarks->where('category', 'ESE')->first();
+                $eseScore = $eseRecord ? (float)$eseRecord->marks_obtained : 0.0;
+                $eseCoScore = $eseScore / 4; 
+                
+                $totalScore = $cieScore + $eseCoScore; 
+                
+                $percentage = ($totalScore / 30) * 100;
+                if ($percentage >= $targetScore) {
+                    $totalMet++;
+                }
+                $totalAssessed++;
+            }
+            
+            $metPercentage = $totalAssessed > 0 ? ($totalMet / $totalAssessed) * 100 : 0.0;
+            
+            $level = 0;
+            if ($metPercentage >= 70) $level = 3;
+            elseif ($metPercentage >= 60) $level = 2;
+            elseif ($metPercentage >= 50) $level = 1;
+            
+            $directStats[$coTag] = [
+                'met_percent' => round($metPercentage, 1),
+                'level' => $level
+            ];
+        }
+
+        $indirectStats = [];
+        $exitResponsesCount = count($exitResponses);
+        foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+            $level = 0.0;
+            if ($exitResponsesCount > 0) {
+                if ($coTag === 'CO1') {
+                    $avgRating = ($exitResponses->avg('co1_q1') + $exitResponses->avg('co1_q2')) / 2;
+                } elseif ($coTag === 'CO2') {
+                    $avgRating = ($exitResponses->avg('co2_q3') + $exitResponses->avg('co2_q4')) / 2;
+                } elseif ($coTag === 'CO3') {
+                    $avgRating = ($exitResponses->avg('co3_q5') + $exitResponses->avg('co3_q6')) / 2;
+                } else {
+                    $avgRating = ($exitResponses->avg('co4_q7') + $exitResponses->avg('co4_q8') + $exitResponses->avg('co4_q9')) / 3;
+                }
+                $level = round($avgRating, 2);
+            }
+            $indirectStats[$coTag] = [
+                'level' => $level
+            ];
+        }
+
+        $combinedStats = [];
+        foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+            $direct = $directStats[$coTag]['level'];
+            $indirect = $indirectStats[$coTag]['level'];
+            $combined = (0.80 * $direct) + (0.20 * $indirect);
+            $combinedStats[$coTag] = round($combined, 2);
+        }
+
+        $poAttainments = [];
+        for ($p = 1; $p <= 11; $p++) {
+            $poName = "PO" . $p;
+            $sumWeight = 0;
+            $sumAttainment = 0;
+            
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+                $correlation = isset($mappings[$coTag][$poName]) ? (int)$mappings[$coTag][$poName] : 0;
+                if ($correlation > 0) {
+                    $sumWeight += $correlation;
+                    $sumAttainment += $combinedStats[$coTag] * $correlation;
+                }
+            }
+            
+            $poAttainments[$poName] = [
+                'value' => $sumWeight > 0 ? round($sumAttainment / $sumWeight, 2) : 0.0,
+                'weight' => $sumWeight
+            ];
+        }
+
+        return view('r26.attainment_report_print', compact('batchSubject', 'classroom', 'directStats', 'indirectStats', 'combinedStats', 'poAttainments', 'mappings'));
     }
 }

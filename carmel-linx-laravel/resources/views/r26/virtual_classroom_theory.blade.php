@@ -2465,6 +2465,171 @@
         alert('Error: ' + err.message);
       });
     }
+
+    // Consolidated Internals Tab Sub-navigation
+    function switchInternalsSubtab(subTabId) {
+      const subTabs = ['cie_marks', 'ese_results', 'nba_attainment'];
+      subTabs.forEach(id => {
+        const btn = document.getElementById('subbtn-' + id);
+        const pane = document.getElementById('subtab-' + id);
+        if (id === subTabId) {
+          btn.className = "text-sm font-bold text-emerald-400 border-b-2 border-emerald-500 pb-1 cursor-pointer transition-all";
+          pane.classList.remove('hidden');
+        } else {
+          btn.className = "text-sm font-bold text-slate-400 hover:text-slate-200 pb-1 cursor-pointer transition-all";
+          pane.classList.add('hidden');
+        }
+      });
+      if (subTabId === 'ese_results') {
+        document.querySelectorAll('.ese-mark-input').forEach(input => calculateEseRow(input));
+      }
+    }
+
+    function calculateEseRow(input) {
+      const row = input.closest('tr');
+      const cie = parseFloat(row.querySelector('[data-val-cie]').innerText) || 0;
+      const ese = parseFloat(input.value) || 0;
+      const total = cie + ese;
+      row.querySelector('[data-field="total_score"]').innerText = total.toFixed(1);
+
+      let grade = 'F';
+      if (total >= 90) grade = 'S';
+      else if (total >= 80) grade = 'A';
+      else if (total >= 70) grade = 'B';
+      else if (total >= 60) grade = 'C';
+      else if (total >= 50) grade = 'D';
+      else if (total >= 40) grade = 'E';
+      
+      let remark = 'FAIL';
+      if (total >= 40 && ese >= 24) {
+        remark = 'PASS';
+      } else {
+        grade = 'F';
+      }
+
+      const gDisp = row.querySelector('[data-field="grade_display"]');
+      gDisp.innerText = grade;
+      if (grade === 'F') {
+        gDisp.className = "p-2.5 text-center font-bold text-rose-500";
+      } else {
+        gDisp.className = "p-2.5 text-center font-bold text-emerald-400";
+      }
+
+      const rDisp = row.querySelector('[data-field="remark_display"]');
+      rDisp.innerText = remark;
+      if (remark === 'PASS') {
+        rDisp.className = "p-2.5 text-center font-bold text-emerald-400";
+      } else {
+        rDisp.className = "p-2.5 text-center font-bold text-rose-500";
+      }
+    }
+
+    function saveEseMarks() {
+      const marks = {};
+      document.querySelectorAll('.student-ese-row').forEach(row => {
+        const regNo = row.getAttribute('data-reg-no');
+        const val = parseFloat(row.querySelector('.ese-mark-input').value) || 0;
+        marks[regNo] = val;
+      });
+
+      fetch(`/api/r26/classroom/{{ $batchSubject->id }}/ese-marks/bulk-update`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ marks: marks })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert("ESE Marks saved successfully!");
+        } else {
+          alert("Error saving ESE Marks: " + data.message);
+        }
+      });
+    }
+
+    function checkSurveyStatuses() {
+      fetch(`/api/classroom/{{ $batchSubject->id }}/survey/results`)
+      .then(res => res.json())
+      .then(data => {
+        const statusSpan = document.getElementById('status-midsem');
+        const initBtn = document.getElementById('btn-initiate-midsem');
+        const closeBtn = document.getElementById('btn-close-midsem');
+        if (data.status === 'SUCCESS') {
+          const srv = data.data.survey;
+          if (srv.status === 'Active') {
+            statusSpan.innerText = `Active (${data.data.responded_count} responses)`;
+            statusSpan.className = "text-xs font-bold text-emerald-450 flex items-center pl-2";
+            initBtn.classList.add('hidden');
+            closeBtn.classList.remove('hidden');
+          } else {
+            statusSpan.innerText = `Completed & Locked`;
+            statusSpan.className = "text-xs font-bold text-slate-400 flex items-center pl-2";
+            initBtn.classList.add('hidden');
+            closeBtn.classList.add('hidden');
+          }
+        } else {
+          statusSpan.innerText = "Inactive";
+          statusSpan.className = "text-xs font-bold text-rose-450 flex items-center pl-2";
+          initBtn.classList.remove('hidden');
+          closeBtn.classList.add('hidden');
+        }
+      });
+
+      fetch(`/api/classroom/{{ $batchSubject->id }}/course-exit/results`)
+      .then(res => res.json())
+      .then(data => {
+        const statusSpan = document.getElementById('status-exit');
+        const initBtn = document.getElementById('btn-initiate-exit');
+        const closeBtn = document.getElementById('btn-close-exit');
+        if (data.status === 'SUCCESS') {
+          const srv = data.data.survey;
+          if (srv.status === 'Active') {
+            statusSpan.innerText = `Active (${data.data.responded_count} responses)`;
+            statusSpan.className = "text-xs font-bold text-emerald-450 flex items-center pl-2";
+            initBtn.classList.add('hidden');
+            closeBtn.classList.remove('hidden');
+          } else {
+            statusSpan.innerText = `Completed & Locked`;
+            statusSpan.className = "text-xs font-bold text-slate-400 flex items-center pl-2";
+            initBtn.classList.add('hidden');
+            closeBtn.classList.add('hidden');
+          }
+        } else {
+          statusSpan.innerText = "Inactive";
+          statusSpan.className = "text-xs font-bold text-rose-450 flex items-center pl-2";
+          initBtn.classList.remove('hidden');
+          closeBtn.classList.add('hidden');
+        }
+      });
+    }
+
+    function controlSurvey(type, action) {
+      const endpoint = type === 'midsem' ? 'survey' : 'course-exit';
+      const verb = action === 'initiate' ? 'initiate' : 'close';
+      
+      fetch(`/api/classroom/{{ $batchSubject->id }}/${endpoint}/${verb}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert(`${type === 'midsem' ? 'Mid-Semester' : 'Course Exit'} survey updated successfully.`);
+          checkSurveyStatuses();
+        } else {
+          alert(`Error updating survey: ` + data.message);
+        }
+      });
+    }
+
+    // Run surveys status checks on page load
+    checkSurveyStatuses();
   </script>
 </body>
 </html>

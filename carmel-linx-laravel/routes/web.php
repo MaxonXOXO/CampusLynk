@@ -289,10 +289,21 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/r26/classroom/{subjectId}/series-exams/{examId}', [R26ClassroomController::class, 'saveSeriesExam']);
     Route::post('/api/r26/classroom/{subjectId}/series-exams/{examId}/lock', [R26ClassroomController::class, 'lockSeriesExam']);
     Route::post('/api/r26/classroom/{subjectId}/series-exams/marks/bulk-update', [R26ClassroomController::class, 'bulkUpdateSeriesExamMarks']);
+    Route::post('/api/r26/classroom/{subjectId}/ese-marks/bulk-update', [R26ClassroomController::class, 'bulkUpdateEseMarks']);
     Route::get('/r26/classroom/series-exams/{examId}/print-qp', [R26ClassroomController::class, 'printSeriesExamQp']);
     Route::get('/r26/classroom/series-exams/{examId}/print-scheme', [R26ClassroomController::class, 'printSeriesExamScheme']);
     Route::get('/r26/classroom/{subjectId}/series-exams/print-marks', [R26ClassroomController::class, 'printSeriesExamMarks']);
     Route::get('/r26/classroom/{subjectId}/internals/print-cie', [R26ClassroomController::class, 'printInternalMarksheet']);
+    Route::get('/r26/classroom/{subjectId}/final-results/print', [R26ClassroomController::class, 'printFinalResults']);
+    Route::get('/r26/classroom/{subjectId}/nba/attainment-report', [R26ClassroomController::class, 'printAttainmentReport']);
+
+    // Revision 2026 Online Surveys control
+    Route::get('/api/r26/classroom/{subjectId}/midsem-survey/status', [MidSemSurveyController::class, 'getSurveyResults']);
+    Route::post('/api/r26/classroom/{subjectId}/midsem-survey/initiate', [MidSemSurveyController::class, 'initiateSurvey']);
+    Route::post('/api/r26/classroom/{subjectId}/midsem-survey/close', [MidSemSurveyController::class, 'closeSurvey']);
+    Route::get('/api/r26/classroom/{subjectId}/exit-survey/status', [CourseExitSurveyController::class, 'getSurveyResults']);
+    Route::post('/api/r26/classroom/{subjectId}/exit-survey/initiate', [CourseExitSurveyController::class, 'initiateSurvey']);
+    Route::post('/api/r26/classroom/{subjectId}/exit-survey/close', [CourseExitSurveyController::class, 'closeSurvey']);
 
     // HOD Subject Allocation
     Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);
