@@ -61,6 +61,18 @@
       background-color: #f1f5f9;
     }
 
+    /* Custom input/select styles for Light/Dark mode consistency */
+    body.dark input, body.dark select, body.dark textarea {
+      background-color: #0f172a !important;
+      color: #f1f5f9 !important;
+      border-color: #334155 !important;
+    }
+    body.light input, body.light select, body.light textarea {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+
     input, select, textarea {
       font-size: 0.875rem !important; /* 14px minimum */
     }
@@ -539,7 +551,7 @@
             <!-- Max Marks Configuration Panels -->
             @foreach(['CO1', 'CO2', 'CO3', 'CO4'] as $coTag)
               <div id="sl-config-{{ $coTag }}" class="sl-config-panel bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex flex-wrap gap-4 items-center text-xs">
-                <span class="font-bold text-slate-800 dark:text-slate-200 text-sm tracking-wide mr-3">{{ $coTag }} Max Marks Configuration (Sum must equal 15):</span>
+                <span class="font-bold text-slate-800 dark:text-slate-200 text-base tracking-wide mr-3">{{ $coTag }} Max Marks Configuration (Sum must equal 15):</span>
                 <div class="flex items-center gap-1.5">
                   <span class="text-slate-600 dark:text-slate-400 font-medium">Assignment:</span>
                   <input type="number" step="0.5" id="cfg-{{ $coTag }}-assignment" value="{{ $selfLearningConfigs[$coTag]['assignment'] ?? 5.0 }}" class="w-12 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded px-1 text-center font-bold text-slate-850 dark:text-slate-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
