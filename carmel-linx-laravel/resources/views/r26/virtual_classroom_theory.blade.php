@@ -1944,7 +1944,7 @@
         tr.className = "bg-slate-900/10 hover:bg-slate-900/40 border-b border-slate-800 transition-all font-normal text-slate-200";
         tr.innerHTML = `
           <td class="p-2.5 font-mono text-center text-slate-350">${idx + 1}</td>
-          <td class="p-2.5 text-slate-200 font-normal leading-relaxed text-left">${q.question}</td>
+          <td class="p-2.5 text-slate-100 font-medium leading-relaxed text-left text-base">${q.question}</td>
           <td class="p-2.5 text-center text-slate-200 font-medium">${q.bt_level}</td>
           <td class="p-2.5 text-center font-mono text-emerald-450 font-bold">${q.marks}M</td>
           <td class="p-2.5 text-slate-350 font-normal leading-relaxed text-left">${q.scheme || '—'}</td>
@@ -2541,7 +2541,7 @@
           tr.className = "bg-slate-900/10 hover:bg-slate-900/40 border-b border-slate-800 transition-all font-normal text-slate-200";
           tr.innerHTML = `
             <td class="p-2 font-mono text-center text-slate-350">${idx + 1}</td>
-            <td class="p-2 text-slate-200 font-normal leading-relaxed text-left">${q.question}</td>
+            <td class="p-2 text-slate-100 font-medium leading-relaxed text-left text-base">${q.question}</td>
             <td class="p-2 text-center text-slate-200 font-medium series-co-cell" ${isSingle ? 'style="display:none;"' : ''}>${q.co_tag}</td>
             <td class="p-2 text-center text-slate-200 font-medium">${q.bt_level}</td>
             <td class="p-2 text-center font-mono text-emerald-450 font-bold">${q.marks}M</td>
