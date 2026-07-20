@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consolidated Internal Assessment Marks (CIE) - {{ $batchSubject->subject_name }}</title>
+    <title>Consolidated Internal Assessment Marks (CIA) - {{ $batchSubject->subject_name }}</title>
     <style>
         * {
             box-sizing: border-box;
@@ -215,7 +215,7 @@
         </table>
 
         <div class="report-title">
-            CONSOLIDATED INTERNAL ASSESSMENT MARKSHEET (CIE)
+            CONSOLIDATED INTERNAL ASSESSMENT MARKSHEET (CIA)
         </div>
 
         <table class="marks-table">
@@ -228,7 +228,7 @@
                     <th class="text-center" style="width: 12%;">Attendance<br>(5M Max)</th>
                     <th class="text-center" style="width: 15%;">Assignment /<br>Self-Learning (15M Max)</th>
                     <th class="text-center" style="width: 15%;">Series Exam<br>(20M Max)</th>
-                    <th class="text-center font-bold" style="width: 12%;">CIE Marks<br>Awarded (40M Max)</th>
+                    <th class="text-center font-bold" style="width: 12%;">CIA Marks<br>Awarded (40M Max)</th>
                 </tr>
             </thead>
             <tbody>

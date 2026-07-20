@@ -227,7 +227,7 @@
                 <thead>
                     <tr>
                         <th>Course Outcome (CO)</th>
-                        <th class="text-center">Direct Attainment Level<br><span style="font-size: 9px; font-weight: normal;">(CIE & ESE - 80% Weight)</span></th>
+                        <th class="text-center">Direct Attainment Level<br><span style="font-size: 9px; font-weight: normal;">(CIA & ESE - 80% Weight)</span></th>
                         <th class="text-center">Indirect Attainment Level<br><span style="font-size: 9px; font-weight: normal;">(Course Exit Survey - 20% Weight)</span></th>
                         <th class="text-center">Combined CO Attainment Level<br><span style="font-size: 9px; font-weight: normal;">(Max: 3.00)</span></th>
                     </tr>

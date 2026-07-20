@@ -246,7 +246,7 @@
         </table>
 
         <div class="report-title">
-            CONSOLIDATED STUDENT RESULTS SHEET (CIE & ESE)
+            CONSOLIDATED STUDENT RESULTS SHEET (CIA & ESE)
         </div>
 
         <table class="marks-table">

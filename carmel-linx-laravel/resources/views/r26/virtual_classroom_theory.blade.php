@@ -992,7 +992,7 @@
           <!-- Sub-Tab Navigation Header -->
           <div class="flex border-b border-slate-800 pb-2 mb-4 gap-4">
             <button onclick="switchInternalsSubtab('cie_marks')" id="subbtn-cie_marks" class="text-sm font-bold text-emerald-400 border-b-2 border-emerald-500 pb-1 cursor-pointer transition-all">
-              1. CIE Marks (40M)
+              1. CIA Marks (40M)
             </button>
             <button onclick="switchInternalsSubtab('ese_results')" id="subbtn-ese_results" class="text-sm font-bold text-slate-400 hover:text-slate-200 pb-1 cursor-pointer transition-all">
               2. ESE Marks & Final Results (100M)
@@ -1006,7 +1006,7 @@
           <div id="subtab-cie_marks" class="space-y-4">
             <div class="flex justify-between items-center">
               <div>
-                <h4 class="font-bold text-title text-xs uppercase tracking-wider">CIE Consolidated Marksheet</h4>
+                <h4 class="font-bold text-title text-xs uppercase tracking-wider">CIA Consolidated Marksheet</h4>
                 <p class="text-xs text-muted mt-0.5">Scale: Attendance (5M), Self Learning (15M), Series Exam (20M). Total out of 40M.</p>
               </div>
               <div class="flex items-center gap-2">
@@ -1014,7 +1014,7 @@
                   <span class="material-symbols-rounded text-xs">print</span> Print Series Report
                 </a>
                 <a href="/r26/classroom/{{ $batchSubject->id }}/internals/print-cie" target="_blank" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm">
-                  <span class="material-symbols-rounded text-xs">print</span> Print CIE Marksheet
+                  <span class="material-symbols-rounded text-xs">print</span> Print CIA Marksheet
                 </a>
               </div>
             </div>
@@ -1060,7 +1060,7 @@
             <div class="flex justify-between items-center">
               <div>
                 <h4 class="font-bold text-title text-xs uppercase tracking-wider">End Semester Exam (ESE) Marks entry & Grades</h4>
-                <p class="text-xs text-muted mt-0.5">Enter ESE marks (out of 60) below to view consolidated final scores (CIE 40M + ESE 60M = 100M total).</p>
+                <p class="text-xs text-muted mt-0.5">Enter ESE marks (out of 60) below to view consolidated final scores (CIA 40M + ESE 60M = 100M total).</p>
               </div>
               <div class="flex items-center gap-2">
                 <a href="/r26/classroom/{{ $batchSubject->id }}/final-results/print" target="_blank" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm">
@@ -1079,7 +1079,7 @@
                     <th class="p-3 w-[6%] text-center">Roll No</th>
                     <th class="p-3 w-[15%]">Register No</th>
                     <th class="p-3">Student Name</th>
-                    <th class="p-3 w-[12%] text-center">CIE Marks (40M)</th>
+                    <th class="p-3 w-[12%] text-center">CIA Marks (40M)</th>
                     <th class="p-3 w-[15%] text-center">ESE Marks (60M)</th>
                     <th class="p-3 w-[12%] text-center">Total (100M)</th>
                     <th class="p-3 w-[12%] text-center">Grade</th>
