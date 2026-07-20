@@ -1900,7 +1900,7 @@
     }
 
     function applyLockState(isLocked) {
-      const editor = document.querySelector('#assignment-modal .bg-slate-50');
+      const editor = document.querySelector('#assignment-modal .bg-slate-950\\/40');
       const btnLock = document.getElementById('btn-notify-assignment');
       const btnSave = document.querySelector('button[onclick="saveAssignmentQuestions()"]');
       const lockBadge = document.getElementById('modal-lock-badge');
@@ -1919,7 +1919,7 @@
         editor.classList.remove('opacity-60', 'pointer-events-none');
         btnLock.disabled = false;
         btnLock.innerHTML = `<span class="material-symbols-rounded text-xs">lock</span> Lock & Notify`;
-        btnLock.className = "px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-medium transition-all flex items-center gap-1 cursor-pointer border-0";
+        btnLock.className = "px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer border-0 shadow-sm";
         if (btnSave) btnSave.classList.remove('hidden');
         if (lockBadge) {
           lockBadge.classList.add('hidden');
@@ -1941,13 +1941,13 @@
       
       modalQuestionsList.forEach((q, idx) => {
         const tr = document.createElement('tr');
-        tr.className = "bg-white hover:bg-slate-50 border-b border-slate-100 transition-all font-normal text-slate-800";
+        tr.className = "bg-slate-900/10 hover:bg-slate-900/40 border-b border-slate-800 transition-all font-normal text-slate-200";
         tr.innerHTML = `
-          <td class="p-2.5 font-mono text-center text-slate-900">${idx + 1}</td>
-          <td class="p-2.5 text-slate-900 font-normal leading-relaxed text-left">${q.question}</td>
-          <td class="p-2.5 text-center text-slate-900 font-medium">${q.bt_level}</td>
-          <td class="p-2.5 text-center font-mono text-emerald-600 font-bold">${q.marks}M</td>
-          <td class="p-2.5 text-slate-550 font-normal leading-relaxed text-left">${q.scheme || '—'}</td>
+          <td class="p-2.5 font-mono text-center text-slate-350">${idx + 1}</td>
+          <td class="p-2.5 text-slate-200 font-normal leading-relaxed text-left">${q.question}</td>
+          <td class="p-2.5 text-center text-slate-200 font-medium">${q.bt_level}</td>
+          <td class="p-2.5 text-center font-mono text-emerald-450 font-bold">${q.marks}M</td>
+          <td class="p-2.5 text-slate-350 font-normal leading-relaxed text-left">${q.scheme || '—'}</td>
           <td class="p-2.5 text-center">
             ${isLocked ? `<span class="text-slate-400 font-bold text-xs">Locked</span>` : `
             <button type="button" onclick="deleteModalQuestion(${idx})" class="text-rose-500 hover:text-rose-600 cursor-pointer border-0 bg-transparent">
@@ -2077,45 +2077,45 @@
   </script>
 
   <!-- ASSIGNMENT MODAL POPUP -->
-  <div id="assignment-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 hidden">
-    <div class="bg-white border border-slate-200 rounded-xl w-full max-w-6xl p-6 shadow-2xl space-y-6 max-h-[95vh] overflow-y-auto custom-scrollbar text-slate-800">
-      <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+  <div id="assignment-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-6xl p-6 shadow-2xl space-y-6 max-h-[95vh] overflow-y-auto custom-scrollbar text-slate-200" style="background-color: #0f172a !important;">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2">
-          <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <span class="material-symbols-rounded text-indigo-600">assignment</span>
+          <h3 class="text-sm font-bold text-title flex items-center gap-2">
+            <span class="material-symbols-rounded text-indigo-400">assignment</span>
             Manage Assignment - <span id="assignment-modal-co-title">CO1</span>
           </h3>
-          <span id="modal-lock-badge" class="ml-2 px-2 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-bold rounded flex items-center gap-0.5 hidden">
+          <span id="modal-lock-badge" class="ml-2 px-2 py-0.5 bg-emerald-500/10 text-emerald-450 border border-emerald-500/20 text-xs font-bold rounded flex items-center gap-0.5 hidden">
             <span class="material-symbols-rounded text-xs">lock</span> Published & Locked
           </span>
         </div>
         <div class="flex items-center gap-3">
-          <button type="button" id="btn-notify-assignment" onclick="notifyStudentsAssignment()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-medium transition-all flex items-center gap-1 cursor-pointer border-0 shadow-sm">
+          <button type="button" id="btn-notify-assignment" onclick="notifyStudentsAssignment()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer border-0 shadow-sm">
             <span class="material-symbols-rounded text-xs">lock</span> Lock & Notify
           </button>
-          <button type="button" onclick="closeAssignmentModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer border-0 bg-transparent flex items-center">
+          <button type="button" onclick="closeAssignmentModal()" class="text-slate-400 hover:text-slate-200 cursor-pointer border-0 bg-transparent flex items-center">
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
       </div>
 
       <!-- Stacked Editor Section (Full Width) -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
-        <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider">Add/Edit Question</h4>
-        <div class="space-y-3">
+      <div class="bg-slate-950/40 border border-slate-850 rounded-xl p-5 space-y-4">
+        <h4 class="font-bold text-title text-xs uppercase tracking-wider">Add/Edit Question</h4>
+        <div class="space-y-4">
           <div>
-            <label class="block text-xs text-slate-600 mb-1 font-bold">Question Description:</label>
-            <textarea id="modal-q-text" rows="5" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-2 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal" placeholder="Type assignment question description here..."></textarea>
+            <label class="block text-xs text-slate-400 mb-1.5 font-bold">Question Description:</label>
+            <textarea id="modal-q-text" rows="4" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-slate-100 text-sm focus:border-indigo-500 outline-none font-normal" placeholder="Type assignment question description here..."></textarea>
           </div>
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label class="block text-xs text-slate-600 mb-1 font-bold">Max Marks:</label>
-              <input type="number" id="modal-q-marks" value="5" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1.5 text-slate-900 text-sm text-center focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal">
+              <label class="block text-xs text-slate-400 mb-1.5 font-bold">Max Marks:</label>
+              <input type="number" id="modal-q-marks" value="5" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-sm text-center focus:border-indigo-500 outline-none font-normal">
             </div>
             <div>
-              <label class="block text-xs text-slate-600 mb-1 font-bold">Taxonomy Level:</label>
-              <select id="modal-q-bt" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1.5 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal">
+              <label class="block text-xs text-slate-400 mb-1.5 font-bold">Taxonomy Level:</label>
+              <select id="modal-q-bt" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-sm focus:border-indigo-500 outline-none font-normal">
                 <option value="Remember">Remember</option>
                 <option value="Understand">Understand</option>
                 <option value="Apply">Apply</option>
@@ -2125,18 +2125,18 @@
               </select>
             </div>
             <div>
-              <label class="block text-xs text-slate-600 mb-1 font-bold">Due Date:</label>
-              <input type="date" id="modal-assignment-due-date" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1.5 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal">
+              <label class="block text-xs text-slate-400 mb-1.5 font-bold">Due Date:</label>
+              <input type="date" id="modal-assignment-due-date" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-100 text-sm focus:border-indigo-500 outline-none font-normal">
             </div>
           </div>
 
           <div>
-            <label class="block text-xs text-slate-600 mb-1 font-bold">Scheme of Evaluation / Rubrics / Hints:</label>
-            <textarea id="modal-q-scheme" rows="3" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-2 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal" placeholder="Specify evaluation guidelines here (e.g., Correct formula: 2 Marks, Steps and explanation: 3 Marks)"></textarea>
+            <label class="block text-xs text-slate-400 mb-1.5 font-bold">Scheme of Evaluation / Rubrics / Hints:</label>
+            <textarea id="modal-q-scheme" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2.5 text-slate-100 text-sm focus:border-indigo-500 outline-none font-normal" placeholder="Specify evaluation guidelines here (e.g., Correct formula: 2 Marks, Steps and explanation: 3 Marks)"></textarea>
           </div>
 
           <div class="flex justify-end gap-2 pt-2">
-            <button type="button" onclick="autoGenerateFromBank()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-bold border border-slate-300 transition-all cursor-pointer flex items-center gap-1">
+            <button type="button" onclick="autoGenerateFromBank()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700 transition-all cursor-pointer flex items-center gap-1">
               <span class="material-symbols-rounded text-xs">psychology</span> Suggest from Q-Bank
             </button>
             <button type="button" onclick="addQuestionToModalList()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer border-0 flex items-center gap-1">
@@ -2149,64 +2149,64 @@
       <!-- Table Grid View for Questions (Full Width) -->
       <div class="space-y-3">
         <div class="flex justify-between items-center">
-          <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider">Active Questions Table</h4>
+          <h4 class="font-bold text-title text-xs uppercase tracking-wider">Active Questions Table</h4>
           <!-- Print & Notify Action Panel -->
           <div class="flex gap-2">
-            <a href="#" id="btn-print-qp" target="_blank" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium border border-slate-300 transition-all flex items-center gap-1">
+            <a href="#" id="btn-print-qp" target="_blank" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700 transition-all flex items-center gap-1">
               <span class="material-symbols-rounded text-xs font-normal">print</span> Print Assignment Questions
             </a>
-            <a href="#" id="btn-print-scheme" target="_blank" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium border border-slate-300 transition-all flex items-center gap-1">
+            <a href="#" id="btn-print-scheme" target="_blank" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700 transition-all flex items-center gap-1">
               <span class="material-symbols-rounded text-xs font-normal">description</span> Print Scheme
             </a>
           </div>
         </div>
 
-        <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
-          <table class="w-full text-left border-collapse bg-white">
+        <div class="border border-slate-800 rounded-xl overflow-hidden bg-slate-950/20">
+          <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="bg-slate-100 text-xs font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
-                <th class="p-3 w-[6%] text-center border-r border-slate-200">No.</th>
-                <th class="p-3 border-r border-slate-200">Question Description</th>
-                <th class="p-3 w-[15%] text-center border-r border-slate-200">Cognitive Level (BT)</th>
-                <th class="p-3 w-[12%] text-center border-r border-slate-200">Marks</th>
-                <th class="p-3 w-[25%] border-r border-slate-200">Evaluation Scheme</th>
+              <tr class="bg-slate-900/40 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+                <th class="p-3 w-[6%] text-center border-r border-slate-800">No.</th>
+                <th class="p-3 border-r border-slate-800">Question Description</th>
+                <th class="p-3 w-[15%] text-center border-r border-slate-800">Cognitive Level (BT)</th>
+                <th class="p-3 w-[12%] text-center border-r border-slate-800">Marks</th>
+                <th class="p-3 w-[25%] border-r border-slate-800">Evaluation Scheme</th>
                 <th class="p-3 w-[8%] text-center">Action</th>
               </tr>
             </thead>
-            <tbody id="modal-questions-table-body" class="divide-y divide-slate-100 text-sm font-normal text-slate-800">
+            <tbody id="modal-questions-table-body" class="divide-y divide-slate-850 text-sm font-normal text-slate-200">
               <!-- Rendered dynamically -->
             </tbody>
           </table>
         </div>
       </div>
 
-      <div class="flex justify-end gap-2 border-t border-slate-200 pt-3">
-        <button type="button" onclick="closeAssignmentModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition-all cursor-pointer border-0">Cancel</button>
-        <button type="button" onclick="saveAssignmentQuestions()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition-all cursor-pointer border-0">Save Questions</button>
+      <div class="flex justify-end gap-2 border-t border-slate-800 pt-3">
+        <button type="button" onclick="closeAssignmentModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-350 rounded-lg text-xs font-bold transition-all cursor-pointer border-0">Cancel</button>
+        <button type="button" onclick="saveAssignmentQuestions()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer border-0 shadow-sm">Save Questions</button>
       </div>
     </div>
   </div>
 
   <!-- SERIES EXAMS BUILDER MODAL POPUP -->
-  <div id="series-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 hidden">
-    <div class="bg-white border border-slate-200 rounded-xl w-full max-w-6xl p-6 shadow-2xl space-y-6 max-h-[95vh] overflow-y-auto custom-scrollbar text-slate-800">
+  <div id="series-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-6xl p-6 shadow-2xl space-y-6 max-h-[95vh] overflow-y-auto custom-scrollbar text-slate-200" style="background-color: #0f172a !important;">
       
       <!-- Modal Header -->
-      <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2">
-          <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <span class="material-symbols-rounded text-sky-600">quiz</span>
+          <h3 class="text-sm font-bold text-title flex items-center gap-2">
+            <span class="material-symbols-rounded text-sky-400">quiz</span>
             Build Series Exam - <span id="series-modal-title">Series Exam 1</span>
           </h3>
-          <span id="series-lock-badge" class="ml-2 px-2 py-0.5 bg-emerald-500/10 text-emerald-550 border border-emerald-500/20 text-xs font-bold rounded flex items-center gap-0.5 hidden">
+          <span id="series-lock-badge" class="ml-2 px-2 py-0.5 bg-emerald-500/10 text-emerald-450 border border-emerald-500/20 text-xs font-bold rounded flex items-center gap-0.5 hidden">
             <span class="material-symbols-rounded text-xs">lock</span> Published & Locked
           </span>
         </div>
         <div class="flex items-center gap-3">
-          <button type="button" id="btn-lock-series" onclick="lockActiveSeries()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-medium transition-all flex items-center gap-1 cursor-pointer border-0 shadow-sm">
+          <button type="button" id="btn-lock-series" onclick="lockActiveSeries()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer border-0 shadow-sm">
             <span class="material-symbols-rounded text-xs">lock</span> Lock & Notify
           </button>
-          <button type="button" onclick="closeSeriesModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer border-0 bg-transparent flex items-center">
+          <button type="button" onclick="closeSeriesModal()" class="text-slate-400 hover:text-slate-200 cursor-pointer border-0 bg-transparent flex items-center">
             <span class="material-symbols-rounded">close</span>
           </button>
         </div>
@@ -2216,18 +2216,18 @@
       <div class="space-y-6">
         
         <!-- PART A SECTION -->
-        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-3">
-          <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
-            <h4 class="font-bold text-indigo-700 text-xs uppercase tracking-wider inline-flex items-center gap-1.5 align-middle">
-              <span class="material-symbols-rounded text-sm">filter_1</span> Part A (1 Mark Each)
+        <div class="border border-slate-850 rounded-xl p-4 bg-slate-950/40 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+            <h4 class="font-bold text-title text-xs uppercase tracking-wider inline-flex items-center gap-1.5 align-middle">
+              <span class="material-symbols-rounded text-sm text-indigo-400">filter_1</span> Part A (1 Mark Each)
             </h4>
-            <span class="text-xs font-medium text-slate-500" id="part-a-count-info">Questions required: 2 nos (2 Marks total) / 4 nos (Combined COs)</span>
+            <span class="text-xs font-medium text-slate-400" id="part-a-count-info">Questions required: 2 nos (2 Marks total) / 4 nos (Combined COs)</span>
           </div>
           <!-- Table -->
-          <div class="border border-slate-200 rounded-lg overflow-hidden bg-white">
+          <div class="border border-slate-800 rounded-lg overflow-hidden bg-slate-950/20">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-slate-50 text-xs font-bold text-slate-600 border-b border-slate-200">
+                <tr class="bg-slate-900/40 text-xs font-bold text-slate-450 border-b border-slate-800">
                   <th class="p-2 w-[5%] text-center">No.</th>
                   <th class="p-2">Question Description</th>
                   <th class="p-2 w-[12%] text-center series-co-header">CO Tag</th>
@@ -2236,19 +2236,19 @@
                   <th class="p-2 w-[8%] text-center">Action</th>
                 </tr>
               </thead>
-              <tbody id="series-questions-PartA" class="divide-y divide-slate-100 text-xs font-normal text-slate-800">
+              <tbody id="series-questions-PartA" class="divide-y divide-slate-850 text-xs font-normal text-slate-200">
                 <!-- Rendered dynamically -->
               </tbody>
             </table>
           </div>
           <!-- Inline Form -->
-          <div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/60" id="editor-PartA">
+          <div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-800" id="editor-PartA">
             <div class="flex flex-col md:flex-row gap-2">
-              <input type="text" id="series-q-text-PartA" placeholder="Enter Part A Question Description..." class="flex-1 bg-white border border-slate-350 rounded-lg px-2.5 py-1.5 text-xs outline-none">
-              <select id="series-q-co-PartA" class="w-24 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+              <input type="text" id="series-q-text-PartA" placeholder="Enter Part A Question Description..." class="flex-1 bg-slate-900 border border-slate-800 text-slate-100 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-indigo-500">
+              <select id="series-q-co-PartA" class="w-24 bg-slate-900 border border-slate-800 text-slate-100 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-indigo-500">
                 <!-- Populated dynamically -->
               </select>
-              <select id="series-q-bt-PartA" class="w-28 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+              <select id="series-q-bt-PartA" class="w-28 bg-slate-900 border border-slate-800 text-slate-100 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-indigo-500">
                 <option value="Remember" selected>Remember</option>
                 <option value="Understand">Understand</option>
                 <option value="Apply">Apply</option>
@@ -2256,7 +2256,7 @@
                 <option value="Evaluate">Evaluate</option>
               </select>
               <div class="flex gap-1.5">
-                <button type="button" onclick="autoGenPartQuestion('Part A')" title="Suggest from Q-Bank" class="px-2.5 py-1.5 bg-slate-150 hover:bg-slate-250 text-slate-700 rounded-lg text-xs font-bold transition-all"><span class="material-symbols-rounded text-xs">psychology</span></button>
+                <button type="button" onclick="autoGenPartQuestion('Part A')" title="Suggest from Q-Bank" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold transition-all"><span class="material-symbols-rounded text-xs">psychology</span></button>
                 <button type="button" onclick="addSeriesQuestionDirect('Part A')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-0.5"><span class="material-symbols-rounded text-xs">add</span> Add</button>
               </div>
             </div>
@@ -2264,18 +2264,18 @@
         </div>
 
         <!-- PART B SECTION -->
-        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-3">
-          <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
-            <h4 class="font-bold text-indigo-700 text-xs uppercase tracking-wider inline-flex items-center gap-1.5 align-middle">
-              <span class="material-symbols-rounded text-sm">filter_2</span> Part B (3 Marks Each)
+        <div class="border border-slate-850 rounded-xl p-4 bg-slate-950/40 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+            <h4 class="font-bold text-title text-xs uppercase tracking-wider inline-flex items-center gap-1.5 align-middle">
+              <span class="material-symbols-rounded text-sm text-indigo-400">filter_2</span> Part B (3 Marks Each)
             </h4>
-            <span class="text-xs font-medium text-slate-500" id="part-b-count-info">Questions required: 3 nos (9 Marks total) / 6 nos (18 Marks total)</span>
+            <span class="text-xs font-medium text-slate-400" id="part-b-count-info">Questions required: 3 nos (9 Marks total) / 6 nos (18 Marks total)</span>
           </div>
           <!-- Table -->
-          <div class="border border-slate-200 rounded-lg overflow-hidden bg-white">
+          <div class="border border-slate-800 rounded-lg overflow-hidden bg-slate-950/20">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-slate-50 text-xs font-bold text-slate-600 border-b border-slate-200">
+                <tr class="bg-slate-900/40 text-xs font-bold text-slate-455 border-b border-slate-800">
                   <th class="p-2 w-[5%] text-center">No.</th>
                   <th class="p-2">Question Description</th>
                   <th class="p-2 w-[12%] text-center series-co-header">CO Tag</th>
@@ -2284,19 +2284,19 @@
                   <th class="p-2 w-[8%] text-center">Action</th>
                 </tr>
               </thead>
-              <tbody id="series-questions-PartB" class="divide-y divide-slate-100 text-xs font-normal text-slate-800">
+              <tbody id="series-questions-PartB" class="divide-y divide-slate-850 text-xs font-normal text-slate-200">
                 <!-- Rendered dynamically -->
               </tbody>
             </table>
           </div>
           <!-- Inline Form -->
-          <div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/60" id="editor-PartB">
+          <div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-800" id="editor-PartB">
             <div class="flex flex-col md:flex-row gap-2">
-              <input type="text" id="series-q-text-PartB" placeholder="Enter Part B Question Description..." class="flex-1 bg-white border border-slate-350 rounded-lg px-2.5 py-1.5 text-xs outline-none">
-              <select id="series-q-co-PartB" class="w-24 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+              <input type="text" id="series-q-text-PartB" placeholder="Enter Part B Question Description..." class="flex-1 bg-slate-900 border border-slate-800 text-slate-100 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-indigo-500">
+              <select id="series-q-co-PartB" class="w-24 bg-slate-900 border border-slate-800 text-slate-100 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-indigo-500">
                 <!-- Populated dynamically -->
               </select>
-              <select id="series-q-bt-PartB" class="w-28 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+              <select id="series-q-bt-PartB" class="w-28 bg-slate-900 border border-slate-800 text-slate-100 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-indigo-500">
                 <option value="Remember">Remember</option>
                 <option value="Understand" selected>Understand</option>
                 <option value="Apply">Apply</option>
@@ -2304,7 +2304,7 @@
                 <option value="Evaluate">Evaluate</option>
               </select>
               <div class="flex gap-1.5">
-                <button type="button" onclick="autoGenPartQuestion('Part B')" title="Suggest from Q-Bank" class="px-2.5 py-1.5 bg-slate-150 hover:bg-slate-250 text-slate-700 rounded-lg text-xs font-bold transition-all"><span class="material-symbols-rounded text-xs">psychology</span></button>
+                <button type="button" onclick="autoGenPartQuestion('Part B')" title="Suggest from Q-Bank" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold transition-all"><span class="material-symbols-rounded text-xs">psychology</span></button>
                 <button type="button" onclick="addSeriesQuestionDirect('Part B')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-0.5"><span class="material-symbols-rounded text-xs">add</span> Add</button>
               </div>
             </div>
@@ -2312,18 +2312,18 @@
         </div>
 
         <!-- PART C SECTION -->
-        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-3">
-          <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
-            <h4 class="font-bold text-indigo-700 text-xs uppercase tracking-wider inline-flex items-center gap-1.5 align-middle">
-              <span class="material-symbols-rounded text-sm">filter_3</span> Part C (7 Marks Each)
+        <div class="border border-slate-850 rounded-xl p-4 bg-slate-950/40 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-1.5">
+            <h4 class="font-bold text-title text-xs uppercase tracking-wider inline-flex items-center gap-1.5 align-middle">
+              <span class="material-symbols-rounded text-sm text-indigo-400">filter_3</span> Part C (7 Marks Each)
             </h4>
-            <span class="text-xs font-medium text-slate-500" id="part-c-count-info">Questions required: 2 nos (14 Marks total) / 4 nos (28 Marks total)</span>
+            <span class="text-xs font-medium text-slate-400" id="part-c-count-info">Questions required: 2 nos (14 Marks total) / 4 nos (28 Marks total)</span>
           </div>
           <!-- Table -->
-          <div class="border border-slate-200 rounded-lg overflow-hidden bg-white">
+          <div class="border border-slate-800 rounded-lg overflow-hidden bg-slate-950/20">
             <table class="w-full text-left border-collapse">
               <thead>
-                <tr class="bg-slate-50 text-xs font-bold text-slate-600 border-b border-slate-200">
+                <tr class="bg-slate-900/40 text-xs font-bold text-slate-455 border-b border-slate-800">
                   <th class="p-2 w-[5%] text-center">No.</th>
                   <th class="p-2">Question Description</th>
                   <th class="p-2 w-[12%] text-center series-co-header">CO Tag</th>
@@ -2332,19 +2332,19 @@
                   <th class="p-2 w-[8%] text-center">Action</th>
                 </tr>
               </thead>
-              <tbody id="series-questions-PartC" class="divide-y divide-slate-100 text-xs font-normal text-slate-800">
+              <tbody id="series-questions-PartC" class="divide-y divide-slate-850 text-xs font-normal text-slate-200">
                 <!-- Rendered dynamically -->
               </tbody>
             </table>
           </div>
           <!-- Inline Form -->
-          <div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/60" id="editor-PartC">
+          <div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-800" id="editor-PartC">
             <div class="flex flex-col md:flex-row gap-2">
-              <input type="text" id="series-q-text-PartC" placeholder="Enter Part C Question Description..." class="flex-1 bg-white border border-slate-350 rounded-lg px-2.5 py-1.5 text-xs outline-none">
-              <select id="series-q-co-PartC" class="w-24 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+              <input type="text" id="series-q-text-PartC" placeholder="Enter Part C Question Description..." class="flex-1 bg-slate-900 border border-slate-800 text-slate-100 rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-indigo-500">
+              <select id="series-q-co-PartC" class="w-24 bg-slate-900 border border-slate-800 text-slate-100 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-indigo-500">
                 <!-- Populated dynamically -->
               </select>
-              <select id="series-q-bt-PartC" class="w-28 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+              <select id="series-q-bt-PartC" class="w-28 bg-slate-900 border border-slate-800 text-slate-100 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-indigo-500">
                 <option value="Remember">Remember</option>
                 <option value="Understand">Understand</option>
                 <option value="Apply" selected>Apply</option>
@@ -2352,7 +2352,7 @@
                 <option value="Evaluate">Evaluate</option>
               </select>
               <div class="flex gap-1.5">
-                <button type="button" onclick="autoGenPartQuestion('Part C')" title="Suggest from Q-Bank" class="px-2.5 py-1.5 bg-slate-150 hover:bg-slate-250 text-slate-700 rounded-lg text-xs font-bold transition-all"><span class="material-symbols-rounded text-xs">psychology</span></button>
+                <button type="button" onclick="autoGenPartQuestion('Part C')" title="Suggest from Q-Bank" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold transition-all"><span class="material-symbols-rounded text-xs">psychology</span></button>
                 <button type="button" onclick="addSeriesQuestionDirect('Part C')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-0.5"><span class="material-symbols-rounded text-xs">add</span> Add</button>
               </div>
             </div>
@@ -2362,9 +2362,9 @@
       </div>
 
       <!-- Footer Actions -->
-      <div class="flex justify-end gap-2 border-t border-slate-200 pt-3">
-        <button type="button" onclick="closeSeriesModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition-all cursor-pointer border-0">Cancel</button>
-        <button type="button" id="btn-save-series-qp" onclick="saveSeriesExamQuestions()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition-all cursor-pointer border-0">Save Questions</button>
+      <div class="flex justify-end gap-2 border-t border-slate-800 pt-3">
+        <button type="button" onclick="closeSeriesModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-350 rounded-lg text-xs font-bold transition-all cursor-pointer border-0">Cancel</button>
+        <button type="button" id="btn-save-series-qp" onclick="saveSeriesExamQuestions()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer border-0 shadow-sm">Save Questions</button>
       </div>
 
     </div>
@@ -2538,13 +2538,13 @@
 
         list.forEach((q, idx) => {
           const tr = document.createElement('tr');
-          tr.className = "bg-white hover:bg-slate-50 border-b border-slate-100 transition-all font-normal text-slate-800";
+          tr.className = "bg-slate-900/10 hover:bg-slate-900/40 border-b border-slate-800 transition-all font-normal text-slate-200";
           tr.innerHTML = `
-            <td class="p-2 font-mono text-center text-slate-900">${idx + 1}</td>
-            <td class="p-2 text-slate-900 font-normal leading-relaxed text-left">${q.question}</td>
-            <td class="p-2 text-center text-slate-900 font-medium series-co-cell" ${isSingle ? 'style="display:none;"' : ''}>${q.co_tag}</td>
-            <td class="p-2 text-center text-slate-900 font-medium">${q.bt_level}</td>
-            <td class="p-2 text-center font-mono text-emerald-600 font-bold">${q.marks}M</td>
+            <td class="p-2 font-mono text-center text-slate-350">${idx + 1}</td>
+            <td class="p-2 text-slate-200 font-normal leading-relaxed text-left">${q.question}</td>
+            <td class="p-2 text-center text-slate-200 font-medium series-co-cell" ${isSingle ? 'style="display:none;"' : ''}>${q.co_tag}</td>
+            <td class="p-2 text-center text-slate-200 font-medium">${q.bt_level}</td>
+            <td class="p-2 text-center font-mono text-emerald-450 font-bold">${q.marks}M</td>
             <td class="p-2 text-center">
               ${isLocked ? `<span class="text-slate-400 font-bold text-xs">Locked</span>` : `
               <button type="button" onclick="deleteSeriesQuestionDirect('${partName}', ${idx})" class="text-rose-500 hover:text-rose-600 cursor-pointer border-0 bg-transparent">
