@@ -1179,43 +1179,43 @@
               </button>
             </div>
             
-            <p class="text-xs text-muted leading-relaxed">
+            <p class="text-sm text-muted leading-relaxed">
               Review or customize the survey questions below before activating. Students will submit responses matching these descriptions.
             </p>
 
-            <form id="form-midsem-init" onsubmit="submitMidsemInit(event)" class="space-y-3.5">
-              <div class="space-y-3">
+            <form id="form-midsem-init" onsubmit="submitMidsemInit(event)" class="space-y-4">
+              <div class="space-y-4">
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q1. CO1 - Course Outcomes Communication</label>
-                  <input type="text" id="ms-q5" value="The teacher clearly communicates the Course Outcomes (COs) and learning goals at the start of new topics." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q1. CO1 - Course Outcomes Communication</label>
+                  <input type="text" id="ms-q5" value="The teacher clearly communicates the Course Outcomes (COs) and learning goals at the start of new topics." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q2. CO1 - Syllabus Delivery Pace</label>
-                  <input type="text" id="ms-q6" value="The pace, speed, and coverage of the syllabus completed so far is appropriate." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q2. CO1 - Syllabus Delivery Pace</label>
+                  <input type="text" id="ms-q6" value="The pace, speed, and coverage of the syllabus completed so far is appropriate." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q3. CO2 - Concept Clarity & Application</label>
-                  <input type="text" id="ms-q7" value="The teacher explains complex concepts clearly and links classroom theory to real-world industrial or field applications." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q3. CO2 - Concept Clarity & Application</label>
+                  <input type="text" id="ms-q7" value="The teacher explains complex concepts clearly and links classroom theory to real-world industrial or field applications." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q4. CO2 - Effectiveness of ICT/PPT Tools</label>
-                  <input type="text" id="ms-q8" value="The use of teaching tools, animations, PPTs, model demonstrations, or ICT tools is effective." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q4. CO2 - Effectiveness of ICT/PPT Tools</label>
+                  <input type="text" id="ms-q8" value="The use of teaching tools, animations, PPTs, model demonstrations, or ICT tools is effective." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q5. CO3 - Doubt Clearing & Interaction</label>
-                  <input type="text" id="ms-q9" value="The teacher encourages student questions, manages classroom discussions well, and clears doubts patiently." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q5. CO3 - Doubt Clearing & Interaction</label>
+                  <input type="text" id="ms-q9" value="The teacher encourages student questions, manages classroom discussions well, and clears doubts patiently." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q6. CO3 - Test & Assignment Relevance</label>
-                  <input type="text" id="ms-q10" value="Internal assessment test questions and assignments match the topics taught in class." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q6. CO3 - Test & Assignment Relevance</label>
+                  <input type="text" id="ms-q10" value="Internal assessment test questions and assignments match the topics taught in class." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q7. CO4 - Fairness in Evaluation</label>
-                  <input type="text" id="ms-q11" value="Evaluation of mid-semester tests or submissions is fair, timely, and transparent." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q7. CO4 - Fairness in Evaluation</label>
+                  <input type="text" id="ms-q11" value="Evaluation of mid-semester tests or submissions is fair, timely, and transparent." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q8. CO4 - Guidance for Slow Learners</label>
-                  <input type="text" id="ms-q12" value="The teacher provides extra guidance, remedial tips, or support to slow learners." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q8. CO4 - Guidance for Slow Learners</label>
+                  <input type="text" id="ms-q12" value="The teacher provides extra guidance, remedial tips, or support to slow learners." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
               </div>
 
@@ -1240,51 +1240,51 @@
               </button>
             </div>
             
-            <p class="text-xs text-muted leading-relaxed">
+            <p class="text-sm text-muted leading-relaxed">
               Review or customize the survey questions below before activating. Students will submit responses matching these descriptions.
             </p>
 
-            <form id="form-exit-init" onsubmit="submitExitInit(event)" class="space-y-3.5">
-              <div class="space-y-3">
+            <form id="form-exit-init" onsubmit="submitExitInit(event)" class="space-y-4">
+              <div class="space-y-4">
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q1. CO1 - Subject Knowledge</label>
-                  <input type="text" id="ex-q1" value="How well did the course help you understand and remember the core academic principles, models, and structural fundamentals?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q1. CO1 - Subject Knowledge</label>
+                  <input type="text" id="ex-q1" value="How well did the course help you understand and remember the core academic principles, models, and structural fundamentals?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q2. CO1 - Outcome Mapping</label>
-                  <input type="text" id="ex-q2" value="How clearly were the course objectives, scope, and basic terms aligned with the class presentations?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q2. CO1 - Outcome Mapping</label>
+                  <input type="text" id="ex-q2" value="How clearly were the course objectives, scope, and basic terms aligned with the class presentations?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q3. CO2 - Analytical Ability</label>
-                  <input type="text" id="ex-q3" value="How effectively did the course build your reasoning skills, mathematical derivations, or logical analysis capabilities?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q3. CO2 - Analytical Ability</label>
+                  <input type="text" id="ex-q3" value="How effectively did the course build your reasoning skills, mathematical derivations, or logical analysis capabilities?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q4. CO2 - Design & Analysis</label>
-                  <input type="text" id="ex-q4" value="To what extent can you design models, troubleshoot bugs, or draft structural layouts based on class lessons?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q4. CO2 - Design & Analysis</label>
+                  <input type="text" id="ex-q4" value="To what extent can you design models, troubleshoot bugs, or draft structural layouts based on class lessons?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q5. CO3 - Practical Skills</label>
-                  <input type="text" id="ex-q5" value="How confident are you in operating laboratory kits, executing computer programs, or handling workshop machines?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q5. CO3 - Practical Skills</label>
+                  <input type="text" id="ex-q5" value="How confident are you in operating laboratory kits, executing computer programs, or handling workshop machines?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q6. CO3 - Industry Standards</label>
-                  <input type="text" id="ex-q6" value="How clearly do you understand safety regulations, instrumentation limits, and standard protocols?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q6. CO3 - Industry Standards</label>
+                  <input type="text" id="ex-q6" value="How clearly do you understand safety regulations, instrumentation limits, and standard protocols?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q7. CO4 - Evaluation Standards</label>
-                  <input type="text" id="ex-q7" value="To what extent did assignments, written internal exams, and presentations evaluate your skills thoroughly?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q7. CO4 - Evaluation Standards</label>
+                  <input type="text" id="ex-q7" value="To what extent did assignments, written internal exams, and presentations evaluate your skills thoroughly?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q8. CO4 - Professional Ethics</label>
-                  <input type="text" id="ex-q8" value="How effectively did the course emphasize engineering ethics, environmental issues, and professional conduct?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q8. CO4 - Professional Ethics</label>
+                  <input type="text" id="ex-q8" value="How effectively did the course emphasize engineering ethics, environmental issues, and professional conduct?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q9. CO4 - Lifelong Learning</label>
-                  <input type="text" id="ex-q9" value="How strongly has this course inspired you to self-learn, explore external publications, or research modern field advancements?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q9. CO4 - Lifelong Learning</label>
+                  <input type="text" id="ex-q9" value="How strongly has this course inspired you to self-learn, explore external publications, or research modern field advancements?" class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-300 mb-1">Q10. Overall Course Rating</label>
-                  <input type="text" id="ex-q10" value="Rate your overall satisfaction with the course syllabus delivery, faculty guidance, and academic outcomes." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2 text-slate-200 text-xs focus:border-indigo-500 outline-none font-normal">
+                  <label class="block text-sm font-bold text-slate-250 mb-1">Q10. Overall Course Rating</label>
+                  <input type="text" id="ex-q10" value="Rate your overall satisfaction with the course syllabus delivery, faculty guidance, and academic outcomes." class="w-full bg-slate-950/60 border border-slate-800 rounded p-2.5 text-slate-200 text-sm focus:border-indigo-500 outline-none font-normal">
                 </div>
               </div>
 

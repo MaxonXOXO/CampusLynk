@@ -80,8 +80,8 @@
         <div class="flex items-start gap-3 mb-4">
           <span class="material-symbols-rounded text-amber-500 text-xl mt-0.5">{{ $q['icon'] }}</span>
           <div>
-            <h3 class="font-black text-slate-100 text-sm">{{ $q['label'] }}</h3>
-            <p class="text-xs text-slate-400 mt-0.5 leading-relaxed">{{ $q['desc'] }}</p>
+            <h3 class="font-bold text-slate-100 text-base">{{ $q['label'] }}</h3>
+            <p class="text-sm text-slate-350 mt-1.5 leading-relaxed">{{ $q['desc'] }}</p>
           </div>
         </div>
         <div class="grid grid-cols-3 gap-3" id="rg_{{ $key }}">
