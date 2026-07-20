@@ -1131,4 +1131,62 @@ class R26ClassroomController extends Controller
 
         return view('r26.series_scheme_print', compact('batchSubject', 'classroom', 'exam'));
     }
+
+    /**
+     * Print Series Examination Detailed Marks Report
+     */
+    public function printSeriesExamMarks($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) {
+            abort(404, 'Subject not found.');
+        }
+
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+            ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+
+        if (!$classroom) {
+            abort(404, 'Classroom association not found.');
+        }
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $academicMarks = \DB::table('academic_marks')
+            ->where('batch_subject_id', $subjectId)
+            ->get()
+            ->groupBy('reg_no');
+
+        $seriesExams = \App\Models\SeriesExam::where('batch_subject_id', $subjectId)->get();
+
+        $studentCiaData = $students->map(function ($student) use ($academicMarks, $seriesExams) {
+            $studentMarks = $academicMarks->get($student->reg_no, collect());
+            
+            $seriesExamRecord = $studentMarks->where('category', 'Series Exam')->first();
+            $seriesExamMarks = $seriesExamRecord ? (float)$seriesExamRecord->marks_obtained : 0.0;
+            
+            $examMarks = [];
+            foreach ($seriesExams as $ex) {
+                $eMark = $studentMarks->where('category', 'Series Exam: ' . $ex->exam_name)->first();
+                $examMarks[$ex->id] = $eMark ? (float)$eMark->marks_obtained : 0.0;
+            }
+
+            return [
+                'reg_no' => $student->reg_no,
+                'name' => $student->name,
+                'roll_no' => $student->roll_no,
+                'series_exam_marks' => $seriesExamMarks,
+                'exam_marks' => $examMarks
+            ];
+        });
+
+        return view('r26.series_marks_print', compact('batchSubject', 'classroom', 'students', 'studentCiaData', 'seriesExams'));
+    }
 }

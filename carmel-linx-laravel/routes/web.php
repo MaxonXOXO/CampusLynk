@@ -291,6 +291,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/r26/classroom/{subjectId}/series-exams/marks/bulk-update', [R26ClassroomController::class, 'bulkUpdateSeriesExamMarks']);
     Route::get('/r26/classroom/series-exams/{examId}/print-qp', [R26ClassroomController::class, 'printSeriesExamQp']);
     Route::get('/r26/classroom/series-exams/{examId}/print-scheme', [R26ClassroomController::class, 'printSeriesExamScheme']);
+    Route::get('/r26/classroom/{subjectId}/series-exams/print-marks', [R26ClassroomController::class, 'printSeriesExamMarks']);
 
     // HOD Subject Allocation
     Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);

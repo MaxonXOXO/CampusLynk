@@ -928,9 +928,14 @@
               <div class="space-y-3">
                 <div class="flex justify-between items-center">
                   <h4 class="font-bold text-title text-xs uppercase tracking-wider">Series Exam detailed marksheet</h4>
-                  <button id="btnSaveSeriesMarks" onclick="saveSeriesExamMarks()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md flex items-center gap-1">
-                    <span class="material-symbols-rounded text-xs font-bold">save</span> Save Series Marks
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <a href="/r26/classroom/{{ $batchSubject->id }}/series-exams/print-marks" target="_blank" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                      <span class="material-symbols-rounded text-xs">print</span> Print Marks Report
+                    </a>
+                    <button id="btnSaveSeriesMarks" onclick="saveSeriesExamMarks()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md flex items-center gap-1">
+                      <span class="material-symbols-rounded text-xs font-bold">save</span> Save Series Marks
+                    </button>
+                  </div>
                 </div>
 
                 <div class="border border-card rounded-xl overflow-x-auto bg-slate-950/10 custom-scrollbar">
