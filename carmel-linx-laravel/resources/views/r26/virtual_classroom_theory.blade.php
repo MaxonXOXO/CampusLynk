@@ -995,7 +995,8 @@
                 Consolidated Internal Assessment Marks (CIE)
               </h3>
               <p class="text-xs text-muted mt-1">
-                Final internal marks computed dynamically based on the criteria: Attendance (5M Max), Self-Learning/Assignments (15M Max), and Series Exams (20M Max).
+                Final internal marks computed dynamically based on the criteria:<br>
+                Attendance (5M Max), Self-Learning/Assignments (15M Max), and Series Exams (20M Max).
               </p>
             </div>
             <div class="flex items-center gap-2">
