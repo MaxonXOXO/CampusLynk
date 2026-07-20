@@ -1783,7 +1783,7 @@
         sidebar.classList.add('hidden');
         details.className = "lg:col-span-4 transition-all duration-300";
         btn.innerHTML = `<span class="material-symbols-rounded text-xs">fullscreen_exit</span> Exit Fullscreen`;
-        btn.className = "px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-xs transition-all border border-amber-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm";
+        btn.className = "animate-attention px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-xs transition-all border border-amber-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm";
       }
 
       ['CO1', 'CO2', 'CO3', 'CO4'].forEach(co => {
@@ -1800,13 +1800,13 @@
         sidebar.classList.remove('hidden');
         details.className = "lg:col-span-3 transition-all duration-300";
         btn.innerHTML = `<span class="material-symbols-rounded text-xs">fullscreen</span> Fullscreen Mode`;
-        btn.className = "px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-bold text-xs transition-all border border-sky-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm";
+        btn.className = "animate-attention px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg font-bold text-xs transition-all border border-sky-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm";
         localStorage.setItem('classroomFullscreen', 'false');
       } else {
         sidebar.classList.add('hidden');
         details.className = "lg:col-span-4 transition-all duration-300";
         btn.innerHTML = `<span class="material-symbols-rounded text-xs">fullscreen_exit</span> Exit Fullscreen`;
-        btn.className = "px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-xs transition-all border border-amber-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm";
+        btn.className = "animate-attention px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-xs transition-all border border-amber-500/20 cursor-pointer flex items-center gap-1.5 shadow-sm";
         localStorage.setItem('classroomFullscreen', 'true');
       }
     }
