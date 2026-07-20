@@ -16,7 +16,7 @@
 
         @page {
             size: A4 portrait;
-            margin: 20mm 15mm;
+            margin: 15mm 15mm;
         }
 
         body {
@@ -24,6 +24,7 @@
             color: #000;
             font-size: 13px;
             line-height: 1.4;
+            padding: 10px;
         }
 
         .a4-page {
@@ -38,9 +39,11 @@
             background: white;
             padding: 15px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid #e2e8f0;
             z-index: 50;
             display: flex;
+            align-items: center;
             gap: 10px;
         }
 
@@ -53,6 +56,7 @@
             cursor: pointer;
             font-family: Arial, sans-serif;
             font-size: 13px;
+            font-weight: bold;
         }
 
         .btn-print:hover {
@@ -61,46 +65,65 @@
 
         .header {
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            border-bottom: 2px double #000;
+            padding-bottom: 8px;
         }
 
         .header h1 {
-            font-size: 18px;
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        .header h2 {
+            font-size: 14px;
             font-weight: bold;
             text-transform: uppercase;
             margin-bottom: 2px;
         }
 
-        .header h2 {
+        .header h3 {
             font-size: 13px;
             font-weight: normal;
-            text-transform: uppercase;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         .header-meta {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .header-meta td {
-            padding: 4px 8px;
-            font-weight: bold;
-            font-size: 12px;
+            padding: 6px 10px;
+            font-size: 13px;
             border: 1px solid #000;
+        }
+        
+        .header-meta td.label {
+            font-weight: bold;
+            background-color: #f8fafc;
+            width: 18%;
+        }
+        
+        .header-meta td.value {
+            font-weight: normal;
+            width: 32%;
         }
 
         .part-header {
             font-weight: bold;
             text-align: center;
             text-transform: uppercase;
-            margin-top: 20px;
+            margin-top: 25px;
             margin-bottom: 10px;
             border-bottom: 1.5px solid #000;
             padding-bottom: 3px;
-            font-size: 14px;
+            font-size: 13px;
+            letter-spacing: 0.5px;
         }
 
         .questions-table {
@@ -111,13 +134,18 @@
 
         .questions-table th, .questions-table td {
             border: 1px solid #000;
-            padding: 8px;
+            padding: 8px 10px;
             font-size: 13px;
-            vertical-align: top;
+            vertical-align: middle;
         }
 
         .questions-table th {
             font-weight: bold;
+            text-align: center;
+            background-color: #f1f5f9;
+        }
+
+        .text-center {
             text-align: center;
         }
 
@@ -125,12 +153,17 @@
             .print-controls {
                 display: none !important;
             }
+            .header-meta td.label, .questions-table th {
+                background-color: transparent !important;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="print-controls">
+        <label style="font-family: Arial, sans-serif; font-size: 13px; font-weight: bold; color: #334155;">Select Exam Date:</label>
+        <input type="date" id="print-exam-date" onchange="document.getElementById('display-exam-date').innerText = this.value ? new Date(this.value).toLocaleDateString('en-GB') : 'N/A'" class="print-input" style="padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; margin-right: 15px; outline: none; font-family: Arial, sans-serif;">
         <button class="btn-print" onclick="window.print()">Print Paper</button>
         <button class="btn-print" onclick="window.close()" style="background:#dc2626;">Close Window</button>
     </div>
@@ -140,28 +173,34 @@
         <div class="header">
             <h1>Carmel College of Engineering</h1>
             <h2>Department of {{ getFullBranchName($classroom->branch ?? '') }}</h2>
-            <h2>Revision 2026 Scheme - Theory Examination</h2>
-            <h2 style="font-weight: bold; margin-top: 8px;">{{ $exam->exam_name }}</h2>
+            <h3>Revision 2026 Scheme - Internal Assessment Examination</h3>
+            <h2 style="font-size: 15px; margin-top: 4px; letter-spacing: 0.5px;">{{ $exam->exam_name }}</h2>
         </div>
 
         <table class="header-meta">
             <tr>
-                <td style="width: 25%;">Course Title:</td>
-                <td style="width: 45%; font-weight: normal;">{{ $batchSubject->subject_name }}</td>
-                <td style="width: 15%;">Course Code:</td>
-                <td style="width: 15%; font-weight: normal;">{{ $batchSubject->subject_code }}</td>
+                <td class="label">Course Title:</td>
+                <td class="value">{{ $batchSubject->subject_name }}</td>
+                <td class="label">Course Code:</td>
+                <td class="value">{{ $batchSubject->subject_code }}</td>
             </tr>
             <tr>
-                <td>Batch ID / Classroom:</td>
-                <td style="font-weight: normal;">{{ $batchSubject->classroom_id }}</td>
-                <td>Max Marks:</td>
-                <td style="font-weight: normal;">{{ $exam->max_marks }} Marks</td>
+                <td class="label">Class / Batch:</td>
+                <td class="value">{{ $classroom->classroom_name ?? $batchSubject->classroom_id }}</td>
+                <td class="label">Semester:</td>
+                <td class="value">Semester {{ $classroom->current_semester ?? 'N/A' }}</td>
             </tr>
             <tr>
-                <td>Academic Year:</td>
-                <td style="font-weight: normal;">2026 Revision</td>
-                <td>Duration:</td>
-                <td style="font-weight: normal;">{{ $exam->duration_minutes }} Minutes</td>
+                <td class="label">Max Marks:</td>
+                <td class="value" style="font-weight: bold;">{{ $exam->max_marks }} Marks</td>
+                <td class="label">Duration:</td>
+                <td class="value">{{ $exam->duration_minutes }} Minutes</td>
+            </tr>
+            <tr>
+                <td class="label">Academic Year:</td>
+                <td class="value">2026 Revision</td>
+                <td class="label">Exam Date:</td>
+                <td class="value" id="display-exam-date" style="font-weight: bold;">N/A</td>
             </tr>
         </table>
 
@@ -182,21 +221,21 @@
                 <table class="questions-table">
                     <thead>
                         <tr>
-                            <th style="width: 5%;">No.</th>
-                            <th>Question</th>
+                            <th style="width: 6%;">Q.No</th>
+                            <th style="text-align: left;">Question Description</th>
                             <th style="width: 10%;">CO Tag</th>
                             <th style="width: 15%;">BT Level</th>
-                            <th style="width: 10%;">Marks</th>
+                            <th style="width: 12%;">Marks</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($partQ as $idx => $q)
                             <tr>
-                                <td style="text-align: center; font-weight: bold;">{{ $idx + 1 }}</td>
+                                <td class="text-center" style="font-weight: bold;">{{ $idx + 1 }}</td>
                                 <td>{{ $q['question'] }}</td>
-                                <td style="text-align: center;">{{ $q['co_tag'] ?? 'CO1' }}</td>
-                                <td style="text-align: center;">{{ $q['bt_level'] ?? 'Understand' }}</td>
-                                <td style="text-align: center; font-weight: bold;">{{ $q['marks'] ?? $defaultMarks }}M</td>
+                                <td class="text-center" style="font-weight: bold;">{{ $q['co_tag'] ?? 'CO1' }}</td>
+                                <td class="text-center">{{ $q['bt_level'] ?? 'Understand' }}</td>
+                                <td class="text-center" style="font-weight: bold;">{{ $q['marks'] ?? $defaultMarks }}M</td>
                             </tr>
                         @endforeach
                     </tbody>

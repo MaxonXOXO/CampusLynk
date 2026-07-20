@@ -1817,82 +1817,159 @@
         </div>
       </div>
 
-      <!-- Parts Selection Tabs -->
-      <div class="flex gap-2 border-b border-slate-200 pb-1">
-        <button onclick="switchSeriesPart('Part A')" id="tabbtn-partA" class="px-3 py-1.5 rounded-t-lg text-xs font-bold transition-all border-b-2 border-transparent text-slate-600 hover:bg-slate-100 cursor-pointer">Part A (1M)</button>
-        <button onclick="switchSeriesPart('Part B')" id="tabbtn-partB" class="px-3 py-1.5 rounded-t-lg text-xs font-bold transition-all border-b-2 border-transparent text-slate-600 hover:bg-slate-100 cursor-pointer">Part B (3M)</button>
-        <button onclick="switchSeriesPart('Part C')" id="tabbtn-partC" class="px-3 py-1.5 rounded-t-lg text-xs font-bold transition-all border-b-2 border-transparent text-slate-600 hover:bg-slate-100 cursor-pointer">Part C (7M)</button>
-      </div>
-
-      <!-- Stacked Editor Section -->
-      <div id="series-editor-panel" class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
-        <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider">Add Question to <span id="series-editor-part-title">Part A</span></h4>
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs text-slate-600 mb-1 font-bold">Question Description:</label>
-            <textarea id="series-q-text" rows="4" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-2 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal" placeholder="Type question description here..."></textarea>
+      <!-- Unified Stacked Sections -->
+      <div class="space-y-6">
+        
+        <!-- PART A SECTION -->
+        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+            <h4 class="font-bold text-indigo-700 text-xs uppercase tracking-wider flex items-center gap-1">
+              <span class="material-symbols-rounded text-sm">filter_1</span> Part A (1 Mark Each)
+            </h4>
+            <span class="text-xs font-medium text-slate-500" id="part-a-count-info">Questions required: 2 nos (2 Marks total) / 4 nos (Combined COs)</span>
           </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-xs text-slate-600 mb-1 font-bold">Max Marks:</label>
-              <input type="number" id="series-q-marks" readonly value="1" class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-1.5 text-slate-500 text-sm text-center outline-none font-normal">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-600 mb-1 font-bold">Target CO Tag:</label>
-              <select id="series-q-co" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1.5 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal">
-                <!-- Populated dynamically based on exam COs -->
+          <!-- Table -->
+          <div class="border border-slate-200 rounded-lg overflow-hidden bg-white">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 text-xs font-bold text-slate-600 border-b border-slate-200">
+                  <th class="p-2 w-[5%] text-center">No.</th>
+                  <th class="p-2">Question Description</th>
+                  <th class="p-2 w-[12%] text-center">CO Tag</th>
+                  <th class="p-2 w-[15%] text-center">BT Level</th>
+                  <th class="p-2 w-[10%] text-center">Marks</th>
+                  <th class="p-2 w-[25%]">Scheme of Evaluation</th>
+                  <th class="p-2 w-[8%] text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="series-questions-PartA" class="divide-y divide-slate-100 text-xs font-normal text-slate-800">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+          <!-- Inline Form -->
+          <div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/60" id="editor-PartA">
+            <div class="flex flex-col md:flex-row gap-2">
+              <input type="text" id="series-q-text-PartA" placeholder="Enter Part A Question..." class="flex-1 bg-white border border-slate-350 rounded-lg px-2.5 py-1.5 text-xs outline-none">
+              <select id="series-q-co-PartA" class="w-24 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+                <!-- Populated dynamically -->
               </select>
+              <select id="series-q-bt-PartA" class="w-28 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+                <option value="Remember" selected>Remember</option>
+                <option value="Understand">Understand</option>
+                <option value="Apply">Apply</option>
+                <option value="Analyze">Analyze</option>
+                <option value="Evaluate">Evaluate</option>
+              </select>
+              <input type="text" id="series-q-scheme-PartA" placeholder="Scheme of Evaluation / Hints..." class="w-48 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+              <div class="flex gap-1.5">
+                <button type="button" onclick="autoGenPartQuestion('Part A')" title="Suggest from Q-Bank" class="px-2.5 py-1.5 bg-slate-150 hover:bg-slate-250 text-slate-700 rounded-lg text-xs font-bold transition-all"><span class="material-symbols-rounded text-xs">psychology</span></button>
+                <button type="button" onclick="addSeriesQuestionDirect('Part A')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-0.5"><span class="material-symbols-rounded text-xs">add</span> Add</button>
+              </div>
             </div>
-            <div>
-              <label class="block text-xs text-slate-600 mb-1 font-bold">Taxonomy Level:</label>
-              <select id="series-q-bt" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1.5 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal">
+          </div>
+        </div>
+
+        <!-- PART B SECTION -->
+        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+            <h4 class="font-bold text-indigo-700 text-xs uppercase tracking-wider flex items-center gap-1">
+              <span class="material-symbols-rounded text-sm">filter_2</span> Part B (3 Marks Each)
+            </h4>
+            <span class="text-xs font-medium text-slate-500" id="part-b-count-info">Questions required: 3 nos (9 Marks total) / 6 nos (18 Marks total)</span>
+          </div>
+          <!-- Table -->
+          <div class="border border-slate-200 rounded-lg overflow-hidden bg-white">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 text-xs font-bold text-slate-600 border-b border-slate-200">
+                  <th class="p-2 w-[5%] text-center">No.</th>
+                  <th class="p-2">Question Description</th>
+                  <th class="p-2 w-[12%] text-center">CO Tag</th>
+                  <th class="p-2 w-[15%] text-center">BT Level</th>
+                  <th class="p-2 w-[10%] text-center">Marks</th>
+                  <th class="p-2 w-[25%]">Scheme of Evaluation</th>
+                  <th class="p-2 w-[8%] text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="series-questions-PartB" class="divide-y divide-slate-100 text-xs font-normal text-slate-800">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+          <!-- Inline Form -->
+          <div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/60" id="editor-PartB">
+            <div class="flex flex-col md:flex-row gap-2">
+              <input type="text" id="series-q-text-PartB" placeholder="Enter Part B Question..." class="flex-1 bg-white border border-slate-350 rounded-lg px-2.5 py-1.5 text-xs outline-none">
+              <select id="series-q-co-PartB" class="w-24 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+                <!-- Populated dynamically -->
+              </select>
+              <select id="series-q-bt-PartB" class="w-28 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
                 <option value="Remember">Remember</option>
                 <option value="Understand" selected>Understand</option>
                 <option value="Apply">Apply</option>
                 <option value="Analyze">Analyze</option>
                 <option value="Evaluate">Evaluate</option>
-                <option value="Create">Create</option>
               </select>
-            </div>
-            <div>
-              <label class="block text-xs text-slate-600 mb-1 font-bold">Scheme of Evaluation / Hints:</label>
-              <textarea id="series-q-scheme" rows="1" class="w-full bg-white border border-slate-350 rounded-lg px-3 py-1 text-slate-900 text-sm focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 outline-none font-normal" placeholder="E.g., Correct definition 1M..."></textarea>
+              <input type="text" id="series-q-scheme-PartB" placeholder="Scheme of Evaluation / Hints..." class="w-48 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+              <div class="flex gap-1.5">
+                <button type="button" onclick="autoGenPartQuestion('Part B')" title="Suggest from Q-Bank" class="px-2.5 py-1.5 bg-slate-150 hover:bg-slate-250 text-slate-700 rounded-lg text-xs font-bold transition-all"><span class="material-symbols-rounded text-xs">psychology</span></button>
+                <button type="button" onclick="addSeriesQuestionDirect('Part B')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-0.5"><span class="material-symbols-rounded text-xs">add</span> Add</button>
+              </div>
             </div>
           </div>
+        </div>
 
-          <div class="flex justify-end gap-2 pt-2">
-            <button type="button" onclick="autoGenerateSeriesQuestion()" class="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-bold border border-slate-300 transition-all cursor-pointer flex items-center gap-1">
-              <span class="material-symbols-rounded text-xs">psychology</span> Suggest from Q-Bank
-            </button>
-            <button type="button" onclick="addQuestionToSeriesList()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer border-0 flex items-center gap-1">
-              <span class="material-symbols-rounded text-xs">add</span> Add to List
-            </button>
+        <!-- PART C SECTION -->
+        <div class="border border-slate-200 rounded-xl p-4 bg-slate-50 space-y-3">
+          <div class="flex justify-between items-center border-b border-slate-200 pb-1.5">
+            <h4 class="font-bold text-indigo-700 text-xs uppercase tracking-wider flex items-center gap-1">
+              <span class="material-symbols-rounded text-sm">filter_3</span> Part C (7 Marks Each)
+            </h4>
+            <span class="text-xs font-medium text-slate-500" id="part-c-count-info">Questions required: 2 nos (14 Marks total) / 4 nos (28 Marks total)</span>
+          </div>
+          <!-- Table -->
+          <div class="border border-slate-200 rounded-lg overflow-hidden bg-white">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 text-xs font-bold text-slate-600 border-b border-slate-200">
+                  <th class="p-2 w-[5%] text-center">No.</th>
+                  <th class="p-2">Question Description</th>
+                  <th class="p-2 w-[12%] text-center">CO Tag</th>
+                  <th class="p-2 w-[15%] text-center">BT Level</th>
+                  <th class="p-2 w-[10%] text-center">Marks</th>
+                  <th class="p-2 w-[25%]">Scheme of Evaluation</th>
+                  <th class="p-2 w-[8%] text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="series-questions-PartC" class="divide-y divide-slate-100 text-xs font-normal text-slate-800">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+          <!-- Inline Form -->
+          <div class="grid grid-cols-1 gap-2 pt-2 border-t border-slate-200/60" id="editor-PartC">
+            <div class="flex flex-col md:flex-row gap-2">
+              <input type="text" id="series-q-text-PartC" placeholder="Enter Part C Question..." class="flex-1 bg-white border border-slate-350 rounded-lg px-2.5 py-1.5 text-xs outline-none">
+              <select id="series-q-co-PartC" class="w-24 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+                <!-- Populated dynamically -->
+              </select>
+              <select id="series-q-bt-PartC" class="w-28 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+                <option value="Remember">Remember</option>
+                <option value="Understand">Understand</option>
+                <option value="Apply" selected>Apply</option>
+                <option value="Analyze">Analyze</option>
+                <option value="Evaluate">Evaluate</option>
+              </select>
+              <input type="text" id="series-q-scheme-PartC" placeholder="Scheme of Evaluation / Hints..." class="w-48 bg-white border border-slate-350 rounded-lg px-2 py-1.5 text-xs outline-none">
+              <div class="flex gap-1.5">
+                <button type="button" onclick="autoGenPartQuestion('Part C')" title="Suggest from Q-Bank" class="px-2.5 py-1.5 bg-slate-150 hover:bg-slate-250 text-slate-700 rounded-lg text-xs font-bold transition-all"><span class="material-symbols-rounded text-xs">psychology</span></button>
+                <button type="button" onclick="addSeriesQuestionDirect('Part C')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-0.5"><span class="material-symbols-rounded text-xs">add</span> Add</button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Table Grid View for Questions -->
-      <div class="space-y-3">
-        <h4 class="font-bold text-slate-800 text-xs uppercase tracking-wider">Active Questions Table for <span id="series-table-part-title">Part A</span></h4>
-        <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
-          <table class="w-full text-left border-collapse bg-white">
-            <thead>
-              <tr class="bg-slate-100 text-xs font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
-                <th class="p-3 w-[6%] text-center border-r border-slate-200">No.</th>
-                <th class="p-3 border-r border-slate-200">Question Description</th>
-                <th class="p-3 w-[10%] text-center border-r border-slate-200">CO Tag</th>
-                <th class="p-3 w-[15%] text-center border-r border-slate-200">Cognitive Level (BT)</th>
-                <th class="p-3 w-[12%] text-center border-r border-slate-200">Marks</th>
-                <th class="p-3 w-[25%] border-r border-slate-200">Evaluation Scheme</th>
-                <th class="p-3 w-[8%] text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody id="series-questions-table-body" class="divide-y divide-slate-100 text-sm font-normal text-slate-800">
-              <!-- Rendered dynamically -->
-            </tbody>
-          </table>
-        </div>
       </div>
 
       <!-- Footer Actions -->
@@ -1970,21 +2047,32 @@
       if (!seriesQuestionsList['Part B']) seriesQuestionsList['Part B'] = [];
       if (!seriesQuestionsList['Part C']) seriesQuestionsList['Part C'] = [];
 
-      // Populate allowed CO selector
-      const coSelect = document.getElementById('series-q-co');
-      coSelect.innerHTML = '';
-      coTags.forEach(co => {
-        const opt = document.createElement('option');
-        opt.value = co;
-        opt.innerText = co;
-        coSelect.appendChild(opt);
+      // Update count requirements label based on mode
+      const isSingle = (mode === 'single_co');
+      document.getElementById('part-a-count-info').innerText = isSingle ? 'Questions required: 2 nos (2 Marks total)' : 'Questions required: 4 nos (4 Marks total)';
+      document.getElementById('part-b-count-info').innerText = isSingle ? 'Questions required: 3 nos (9 Marks total)' : 'Questions required: 6 nos (18 Marks total)';
+      document.getElementById('part-c-count-info').innerText = isSingle ? 'Questions required: 2 nos (14 Marks total)' : 'Questions required: 4 nos (28 Marks total)';
+
+      // Populate allowed CO selector for each Part
+      ['Part A', 'Part B', 'Part C'].forEach(partName => {
+        const key = partName.replace(' ', '');
+        const coSelect = document.getElementById('series-q-co-' + key);
+        if (coSelect) {
+          coSelect.innerHTML = '';
+          coTags.forEach(co => {
+            const opt = document.createElement('option');
+            opt.value = co;
+            opt.innerText = co;
+            coSelect.appendChild(opt);
+          });
+        }
       });
 
       // Apply locked states
       const isLocked = !!(examRecord && examRecord.locked);
       applySeriesLockState(isLocked);
 
-      switchSeriesPart('Part A');
+      renderSeriesQuestionsList();
 
       document.getElementById('series-modal').classList.remove('hidden');
     }
@@ -1994,13 +2082,22 @@
     }
 
     function applySeriesLockState(isLocked) {
-      const editor = document.getElementById('series-editor-panel');
       const btnLock = document.getElementById('btn-lock-series');
       const btnSave = document.getElementById('btn-save-series-qp');
       const lockBadge = document.getElementById('series-lock-badge');
 
+      ['PartA', 'PartB', 'PartC'].forEach(key => {
+        const editor = document.getElementById('editor-' + key);
+        if (editor) {
+          if (isLocked) {
+            editor.classList.add('opacity-60', 'pointer-events-none');
+          } else {
+            editor.classList.remove('opacity-60', 'pointer-events-none');
+          }
+        }
+      });
+
       if (isLocked) {
-        editor.classList.add('opacity-60', 'pointer-events-none');
         btnLock.disabled = true;
         btnLock.innerHTML = `<span class="material-symbols-rounded text-xs">lock</span> Locked`;
         btnLock.className = "px-3 py-1.5 bg-emerald-600/10 text-emerald-550 border border-emerald-500/20 rounded text-xs font-medium cursor-not-allowed border-0";
@@ -2010,7 +2107,6 @@
           lockBadge.style.display = 'inline-flex';
         }
       } else {
-        editor.classList.remove('opacity-60', 'pointer-events-none');
         btnLock.disabled = false;
         btnLock.innerHTML = `<span class="material-symbols-rounded text-xs">lock</span> Lock & Notify`;
         btnLock.className = "px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-medium transition-all cursor-pointer border-0 shadow-sm";
@@ -2022,81 +2118,63 @@
       }
     }
 
-    function switchSeriesPart(partName) {
-      activeSeriesPart = partName;
-      
-      // Update Part sub-tabs styles
-      ['Part A', 'Part B', 'Part C'].forEach(part => {
-        const btn = document.getElementById('tabbtn-part' + part.replace('Part ', ''));
-        if (part === partName) {
-          btn.className = "px-3 py-1.5 rounded-t-lg text-xs font-bold transition-all border-b-2 border-indigo-600 bg-slate-50 text-indigo-600 cursor-pointer";
-        } else {
-          btn.className = "px-3 py-1.5 rounded-t-lg text-xs font-bold transition-all border-b-2 border-transparent text-slate-600 hover:bg-slate-100 cursor-pointer";
-        }
-      });
-
-      // Update titles
-      document.getElementById('series-editor-part-title').innerText = partName;
-      document.getElementById('series-table-part-title').innerText = partName;
-
-      // Update max marks field rule
-      const marksField = document.getElementById('series-q-marks');
-      if (partName === 'Part A') marksField.value = 1;
-      else if (partName === 'Part B') marksField.value = 3;
-      else if (partName === 'Part C') marksField.value = 7;
-
-      renderSeriesQuestionsList();
-    }
-
     function renderSeriesQuestionsList() {
-      const container = document.getElementById('series-questions-table-body');
-      container.innerHTML = '';
-
-      const list = seriesQuestionsList[activeSeriesPart] || [];
-      if (list.length === 0) {
-        container.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-slate-500 italic font-normal">No questions added to this part yet.</td></tr>';
-        return;
-      }
-
-      // Check if locked
+      // Find lock status
       const examRecord = dbSeriesExams.find(ex => ex.id === activeSeriesExamId);
       const isLocked = !!(examRecord && examRecord.locked);
 
-      list.forEach((q, idx) => {
-        const tr = document.createElement('tr');
-        tr.className = "bg-white hover:bg-slate-50 border-b border-slate-100 transition-all font-normal text-slate-800";
-        tr.innerHTML = `
-          <td class="p-2.5 font-mono text-center text-slate-900">${idx + 1}</td>
-          <td class="p-2.5 text-slate-900 font-normal leading-relaxed text-left">${q.question}</td>
-          <td class="p-2.5 text-center text-slate-900 font-medium">${q.co_tag}</td>
-          <td class="p-2.5 text-center text-slate-900 font-medium">${q.bt_level}</td>
-          <td class="p-2.5 text-center font-mono text-emerald-600 font-bold">${q.marks}M</td>
-          <td class="p-2.5 text-slate-550 font-normal leading-relaxed text-left">${q.scheme || '—'}</td>
-          <td class="p-2.5 text-center">
-            ${isLocked ? `<span class="text-slate-400 font-bold text-xs">Locked</span>` : `
-            <button type="button" onclick="deleteSeriesQuestion(${idx})" class="text-rose-500 hover:text-rose-600 cursor-pointer border-0 bg-transparent">
-              <span class="material-symbols-rounded text-sm">delete</span>
-            </button>
-            `}
-          </td>
-        `;
-        container.appendChild(tr);
+      ['Part A', 'Part B', 'Part C'].forEach(partName => {
+        const key = partName.replace(' ', '');
+        const container = document.getElementById('series-questions-' + key);
+        if (!container) return;
+        container.innerHTML = '';
+
+        const list = seriesQuestionsList[partName] || [];
+        if (list.length === 0) {
+          container.innerHTML = `<tr><td colspan="7" class="p-3 text-center text-slate-500 italic font-normal">No questions added to ${partName} yet.</td></tr>`;
+          return;
+        }
+
+        list.forEach((q, idx) => {
+          const tr = document.createElement('tr');
+          tr.className = "bg-white hover:bg-slate-50 border-b border-slate-100 transition-all font-normal text-slate-800";
+          tr.innerHTML = `
+            <td class="p-2 font-mono text-center text-slate-900">${idx + 1}</td>
+            <td class="p-2 text-slate-900 font-normal leading-relaxed text-left">${q.question}</td>
+            <td class="p-2 text-center text-slate-900 font-medium">${q.co_tag}</td>
+            <td class="p-2 text-center text-slate-900 font-medium">${q.bt_level}</td>
+            <td class="p-2 text-center font-mono text-emerald-600 font-bold">${q.marks}M</td>
+            <td class="p-2 text-slate-550 font-normal leading-relaxed text-left">${q.scheme || '—'}</td>
+            <td class="p-2 text-center">
+              ${isLocked ? `<span class="text-slate-400 font-bold text-xs">Locked</span>` : `
+              <button type="button" onclick="deleteSeriesQuestionDirect('${partName}', ${idx})" class="text-rose-500 hover:text-rose-600 cursor-pointer border-0 bg-transparent">
+                <span class="material-symbols-rounded text-sm">delete</span>
+              </button>
+              `}
+            </td>
+          `;
+          container.appendChild(tr);
+        });
       });
     }
 
-    function addQuestionToSeriesList() {
-      const text = document.getElementById('series-q-text').value.trim();
-      const marks = parseInt(document.getElementById('series-q-marks').value) || 1;
-      const co = document.getElementById('series-q-co').value;
-      const bt = document.getElementById('series-q-bt').value;
-      const scheme = document.getElementById('series-q-scheme').value.trim();
+    function addSeriesQuestionDirect(partName) {
+      const key = partName.replace(' ', '');
+      const text = document.getElementById('series-q-text-' + key).value.trim();
+      const co = document.getElementById('series-q-co-' + key).value;
+      const bt = document.getElementById('series-q-bt-' + key).value;
+      const scheme = document.getElementById('series-q-scheme-' + key).value.trim();
+      
+      let marks = 1;
+      if (partName === 'Part B') marks = 3;
+      else if (partName === 'Part C') marks = 7;
 
       if (!text) {
-        alert("Please type a question description.");
+        alert("Please enter a question description.");
         return;
       }
 
-      seriesQuestionsList[activeSeriesPart].push({
+      seriesQuestionsList[partName].push({
         question: text,
         marks: marks,
         co_tag: co,
@@ -2107,30 +2185,31 @@
       renderSeriesQuestionsList();
 
       // Clear inputs
-      document.getElementById('series-q-text').value = '';
-      document.getElementById('series-q-scheme').value = '';
+      document.getElementById('series-q-text-' + key).value = '';
+      document.getElementById('series-q-scheme-' + key).value = '';
     }
 
-    function deleteSeriesQuestion(idx) {
-      seriesQuestionsList[activeSeriesPart].splice(idx, 1);
+    function deleteSeriesQuestionDirect(partName, idx) {
+      seriesQuestionsList[partName].splice(idx, 1);
       renderSeriesQuestionsList();
     }
 
-    function autoGenerateSeriesQuestion() {
+    function autoGenPartQuestion(partName) {
+      const key = partName.replace(' ', '');
       const mockQuestions = [
-        { question: "Define the basic term and list characteristics in " + activeSeriesPart + ".", bt_level: "Remember", scheme: "Correct definition (1M)" },
-        { question: "Explain the working principle and block diagram for " + activeSeriesPart + " criteria.", bt_level: "Understand", scheme: "Block diagram 2M, explanation 3M" },
-        { question: "Apply the mathematical formulation to evaluate standard " + activeSeriesPart + " outcome.", bt_level: "Apply", scheme: "Formula 1M, steps 4M, calculation 2M" },
-        { question: "Analyze the difference between standard layout outcomes in " + activeSeriesPart + ".", bt_level: "Analyze", scheme: "Comparison points listed clearly" }
+        { question: "Define the fundamental concept and basic operations of " + partName + ".", bt_level: "Remember", scheme: "Accurate definition 1M" },
+        { question: "Explain the working architecture and execution flow for " + partName + " module.", bt_level: "Understand", scheme: "Layout design 2M, explanations 3M" },
+        { question: "Develop a functional model based on guidelines defined in " + partName + ".", bt_level: "Apply", scheme: "Formula 1M, steps 4M, validation 2M" },
+        { question: "Compare and contrast key components relative to " + partName + " outcomes.", bt_level: "Analyze", scheme: "Tabulation and key points 5M" }
       ];
 
       const randomQ = mockQuestions[Math.floor(Math.random() * mockQuestions.length)];
       
-      document.getElementById('series-q-text').value = randomQ.question;
-      document.getElementById('series-q-bt').value = randomQ.bt_level;
-      document.getElementById('series-q-scheme').value = randomQ.scheme;
-
-      alert("Suggested question generated from general question bank pool!");
+      document.getElementById('series-q-text-' + key).value = randomQ.question;
+      document.getElementById('series-q-bt-' + key).value = randomQ.bt_level;
+      document.getElementById('series-q-scheme-' + key).value = randomQ.scheme;
+      
+      alert("Suggested question populated from Question Bank pool!");
     }
 
     function saveSeriesExamQuestions() {
