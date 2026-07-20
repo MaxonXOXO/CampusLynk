@@ -292,6 +292,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r26/classroom/series-exams/{examId}/print-qp', [R26ClassroomController::class, 'printSeriesExamQp']);
     Route::get('/r26/classroom/series-exams/{examId}/print-scheme', [R26ClassroomController::class, 'printSeriesExamScheme']);
     Route::get('/r26/classroom/{subjectId}/series-exams/print-marks', [R26ClassroomController::class, 'printSeriesExamMarks']);
+    Route::get('/r26/classroom/{subjectId}/internals/print-cie', [R26ClassroomController::class, 'printInternalMarksheet']);
 
     // HOD Subject Allocation
     Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);
