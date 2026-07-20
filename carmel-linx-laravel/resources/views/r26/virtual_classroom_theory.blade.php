@@ -553,11 +553,11 @@
               <div id="sl-config-{{ $coTag }}" class="sl-config-panel bg-slate-100 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-3 flex flex-wrap gap-4 items-center text-xs">
                 <span class="font-bold text-slate-800 dark:text-slate-200 text-base tracking-wide mr-3">{{ $coTag }} Max Marks Configuration (Sum must equal 15):</span>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-slate-600 dark:text-slate-400 font-medium">Assignment:</span>
+                  <span class="text-slate-800 dark:text-slate-200 text-sm font-bold">Assignment:</span>
                   <input type="number" step="0.5" id="cfg-{{ $coTag }}-assignment" value="{{ $selfLearningConfigs[$coTag]['assignment'] ?? 5.0 }}" class="w-12 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded px-1 text-center font-bold text-slate-850 dark:text-slate-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
                 </div>
                 <div class="flex items-center gap-1.5">
-                  <span class="text-slate-600 dark:text-slate-400 font-medium">MCQ Test:</span>
+                  <span class="text-slate-800 dark:text-slate-200 text-sm font-bold">MCQ Test:</span>
                   <input type="number" step="0.5" id="cfg-{{ $coTag }}-mcq" value="{{ $selfLearningConfigs[$coTag]['mcq'] ?? 5.0 }}" class="w-12 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded px-1 text-center font-bold text-slate-855 dark:text-slate-100 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
                 </div>
                 <div class="flex items-center gap-1.5">
@@ -1247,13 +1247,13 @@
       const statusEl = document.getElementById('cfg-' + co + '-status');
       
       if (total === 15) {
-        statusEl.innerText = "✓ Valid (Total: 15M)";
-        statusEl.className = "font-bold text-emerald-500 ml-auto";
+        statusEl.innerText = "✓ Valid (Total: 15 Marks)";
+        statusEl.className = "font-bold text-emerald-500 text-sm ml-auto";
         updateActivityHeaders(co);
         return true;
       } else {
-        statusEl.innerText = "⚠ Warning: Sum is " + total + "M (Must be 15M)";
-        statusEl.className = "font-bold text-rose-500 ml-auto animate-pulse";
+        statusEl.innerText = "⚠ Warning: Sum is " + total + " Marks (Must be 15 Marks)";
+        statusEl.className = "font-bold text-rose-500 text-sm ml-auto animate-pulse";
         return false;
       }
     }
