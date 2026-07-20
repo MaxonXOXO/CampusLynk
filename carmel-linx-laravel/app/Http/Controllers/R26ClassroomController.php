@@ -1097,19 +1097,20 @@ class R26ClassroomController extends Controller
         return response()->json(['status' => 'SUCCESS', 'message' => "{$updated} students series marks updated successfully."]);
     }
 
+
     /**
      * Print Series Exam Question Paper.
      */
-    public function printSeriesExamQp($subjectId, $examId)
+    public function printSeriesExamQp($examId)
     {
-        $batchSubject = BatchSubject::find($subjectId);
+        $exam = \App\Models\SeriesExam::find($examId);
+        if (!$exam) abort(404);
+
+        $batchSubject = BatchSubject::find($exam->batch_subject_id);
         if (!$batchSubject) abort(404);
 
         $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
             ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
-
-        $exam = \App\Models\SeriesExam::where('batch_subject_id', $subjectId)->where('id', $examId)->first();
-        if (!$exam) abort(404);
 
         return view('r26.series_qp_print', compact('batchSubject', 'classroom', 'exam'));
     }
@@ -1117,16 +1118,16 @@ class R26ClassroomController extends Controller
     /**
      * Print Series Exam Answer Key / Evaluation Scheme.
      */
-    public function printSeriesExamScheme($subjectId, $examId)
+    public function printSeriesExamScheme($examId)
     {
-        $batchSubject = BatchSubject::find($subjectId);
+        $exam = \App\Models\SeriesExam::find($examId);
+        if (!$exam) abort(404);
+
+        $batchSubject = BatchSubject::find($exam->batch_subject_id);
         if (!$batchSubject) abort(404);
 
         $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
             ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
-
-        $exam = \App\Models\SeriesExam::where('batch_subject_id', $subjectId)->where('id', $examId)->first();
-        if (!$exam) abort(404);
 
         return view('r26.series_scheme_print', compact('batchSubject', 'classroom', 'exam'));
     }

@@ -2170,6 +2170,26 @@
       const co = (coSelect && coSelect.style.display !== 'none' && coSelect.value) ? coSelect.value : (activeExamCoTags[0] || 'CO1');
       const bt = document.getElementById('series-q-bt-' + key).value;
       
+      const examRecord = dbSeriesExams.find(ex => ex.id === activeSeriesExamId);
+      const isSingle = examRecord ? (examRecord.mode === 'single_co') : false;
+
+      let maxQuestions = 0;
+      if (isSingle) {
+        if (partName === 'Part A') maxQuestions = 2;
+        else if (partName === 'Part B') maxQuestions = 3;
+        else if (partName === 'Part C') maxQuestions = 2;
+      } else {
+        if (partName === 'Part A') maxQuestions = 4;
+        else if (partName === 'Part B') maxQuestions = 6;
+        else if (partName === 'Part C') maxQuestions = 4;
+      }
+
+      const currentCount = (seriesQuestionsList[partName] || []).length;
+      if (currentCount >= maxQuestions) {
+        alert(`Cannot add more questions. ${partName} is restricted to a maximum of ${maxQuestions} questions in ${isSingle ? 'Single CO' : 'Combined COs'} mode.`);
+        return;
+      }
+
       let marks = 1;
       if (partName === 'Part B') marks = 3;
       else if (partName === 'Part C') marks = 7;
@@ -2200,6 +2220,27 @@
 
     function autoGenPartQuestion(partName) {
       const key = partName.replace(' ', '');
+
+      const examRecord = dbSeriesExams.find(ex => ex.id === activeSeriesExamId);
+      const isSingle = examRecord ? (examRecord.mode === 'single_co') : false;
+
+      let maxQuestions = 0;
+      if (isSingle) {
+        if (partName === 'Part A') maxQuestions = 2;
+        else if (partName === 'Part B') maxQuestions = 3;
+        else if (partName === 'Part C') maxQuestions = 2;
+      } else {
+        if (partName === 'Part A') maxQuestions = 4;
+        else if (partName === 'Part B') maxQuestions = 6;
+        else if (partName === 'Part C') maxQuestions = 4;
+      }
+
+      const currentCount = (seriesQuestionsList[partName] || []).length;
+      if (currentCount >= maxQuestions) {
+        alert(`Cannot suggest questions. ${partName} is restricted to a maximum of ${maxQuestions} questions in ${isSingle ? 'Single CO' : 'Combined COs'} mode.`);
+        return;
+      }
+
       const mockQuestions = [
         { question: "Define the fundamental concept and basic operations of " + partName + ".", bt_level: "Remember" },
         { question: "Explain the working architecture and execution flow for " + partName + " module.", bt_level: "Understand" },
