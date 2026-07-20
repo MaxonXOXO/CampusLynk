@@ -573,56 +573,92 @@
 
             <!-- Max Marks Configuration Panels -->
             @foreach(['CO1', 'CO2', 'CO3', 'CO4'] as $coTag)
-              <div id="sl-config-{{ $coTag }}" class="sl-config-panel bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex flex-col gap-1">
-                  <span class="font-bold text-slate-800 dark:text-slate-200 text-sm tracking-wide">{{ $coTag }} Max Marks Configuration</span>
-                  <span class="text-xs text-muted">Activity score sum must equal exactly 15 Marks</span>
-                </div>
-                
-                <div class="flex flex-wrap items-center gap-4 text-xs font-medium">
+              <div id="sl-config-{{ $coTag }}" class="sl-config-panel bg-slate-900/30 border border-slate-800 rounded-xl p-4 space-y-4">
+                <!-- Header Row -->
+                <div class="flex justify-between items-center border-b border-slate-850 pb-3 flex-wrap gap-2">
                   <div class="flex items-center gap-2">
-                    <span class="text-slate-600 dark:text-slate-400 font-semibold">Assignment:</span>
-                    <input type="number" step="0.5" id="cfg-{{ $coTag }}-assignment" value="{{ $selfLearningConfigs[$coTag]['assignment'] ?? 5.0 }}" class="w-12 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg py-1 text-center font-bold text-slate-800 dark:text-slate-100 focus:border-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
+                    <span class="material-symbols-rounded text-indigo-400 text-base">settings</span>
+                    <h5 class="font-bold text-title text-xs uppercase tracking-wider">{{ $coTag }} Marks Allocation Setup (Total: 15 Marks)</h5>
                   </div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-slate-600 dark:text-slate-400 font-semibold">MCQ Test:</span>
-                    <input type="number" step="0.5" id="cfg-{{ $coTag }}-mcq" value="{{ $selfLearningConfigs[$coTag]['mcq'] ?? 5.0 }}" class="w-12 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg py-1 text-center font-bold text-slate-800 dark:text-slate-100 focus:border-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <select id="cfg-{{ $coTag }}-act3_mode" class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-2 py-1 text-slate-800 dark:text-slate-100 focus:border-indigo-500 outline-none font-semibold">
-                      <option value="Case Study" {{ ($selfLearningConfigs[$coTag]['act3_mode'] ?? '') == 'Case Study' ? 'selected' : '' }}>Case Study</option>
-                      <option value="Activity" {{ ($selfLearningConfigs[$coTag]['act3_mode'] ?? '') == 'Activity' ? 'selected' : '' }}>Activity/Seminar</option>
-                      <option value="Minor Project" {{ ($selfLearningConfigs[$coTag]['act3_mode'] ?? '') == 'Minor Project' ? 'selected' : '' }}>Minor Project</option>
-                      <option value="Exercises" {{ ($selfLearningConfigs[$coTag]['act3_mode'] ?? '') == 'Exercises' ? 'selected' : '' }}>Exercises</option>
-                    </select>
-                    <input type="number" step="0.5" id="cfg-{{ $coTag }}-act3" value="{{ $selfLearningConfigs[$coTag]['act3'] ?? 5.0 }}" class="w-12 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg py-1 text-center font-bold text-slate-800 dark:text-slate-100 focus:border-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <select id="cfg-{{ $coTag }}-act4_mode" class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-2 py-1 text-slate-800 dark:text-slate-100 focus:border-indigo-500 outline-none font-semibold">
-                      <option value="Case Study" {{ ($selfLearningConfigs[$coTag]['act4_mode'] ?? '') == 'Case Study' ? 'selected' : '' }}>Case Study</option>
-                      <option value="Activity" {{ ($selfLearningConfigs[$coTag]['act4_mode'] ?? '') == 'Activity' ? 'selected' : '' }}>Activity/Seminar</option>
-                      <option value="Minor Project" {{ ($selfLearningConfigs[$coTag]['act4_mode'] ?? '') == 'Minor Project' ? 'selected' : '' }}>Minor Project</option>
-                      <option value="Exercises" {{ ($selfLearningConfigs[$coTag]['act4_mode'] ?? '') == 'Exercises' ? 'selected' : '' }}>Exercises</option>
-                    </select>
-                    <input type="number" step="0.5" id="cfg-{{ $coTag }}-act4" value="{{ $selfLearningConfigs[$coTag]['act4'] ?? 0.0 }}" class="w-12 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg py-1 text-center font-bold text-slate-800 dark:text-slate-100 focus:border-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
-                  </div>
-                  <div class="flex items-center gap-1.5">
-                    <select id="cfg-{{ $coTag }}-act5_mode" class="bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-2 py-1 text-slate-800 dark:text-slate-100 focus:border-indigo-500 outline-none font-semibold">
-                      <option value="Case Study" {{ ($selfLearningConfigs[$coTag]['act5_mode'] ?? '') == 'Case Study' ? 'selected' : '' }}>Case Study</option>
-                      <option value="Activity" {{ ($selfLearningConfigs[$coTag]['act5_mode'] ?? '') == 'Activity' ? 'selected' : '' }}>Activity/Seminar</option>
-                      <option value="Minor Project" {{ ($selfLearningConfigs[$coTag]['act5_mode'] ?? '') == 'Minor Project' ? 'selected' : '' }}>Minor Project</option>
-                      <option value="Exercises" {{ ($selfLearningConfigs[$coTag]['act5_mode'] ?? '') == 'Exercises' ? 'selected' : '' }}>Exercises</option>
-                    </select>
-                    <input type="number" step="0.5" id="cfg-{{ $coTag }}-act5" value="{{ $selfLearningConfigs[$coTag]['act5'] ?? 0.0 }}" class="w-12 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg py-1 text-center font-bold text-slate-800 dark:text-slate-100 focus:border-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
+                  <div class="flex items-center gap-3">
+                    <span id="cfg-{{ $coTag }}-status" class="font-bold text-emerald-500 text-xs"></span>
+                    <button type="button" onclick="openAssignmentModal('{{ $coTag }}')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1">
+                      <span class="material-symbols-rounded text-xs">assignment</span>
+                      Manage Assignments
+                    </button>
                   </div>
                 </div>
 
-                <div class="flex items-center gap-3">
-                  <span id="cfg-{{ $coTag }}-status" class="font-bold text-emerald-500 text-xs"></span>
-                  <button type="button" onclick="openAssignmentModal('{{ $coTag }}')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1">
-                    <span class="material-symbols-rounded text-xs">assignment</span>
-                    Manage Assignments
-                  </button>
+                <!-- Grid of 5 Activities -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-3.5">
+                  <!-- Activity 1 -->
+                  <div class="bg-slate-950/40 border border-slate-850 rounded-xl p-3 space-y-2">
+                    <label class="block text-xs font-bold text-slate-400">Activity 1 (Assignment)</label>
+                    <div class="flex items-center gap-2">
+                      <input type="number" step="0.5" id="cfg-{{ $coTag }}-assignment" value="{{ $selfLearningConfigs[$coTag]['assignment'] ?? 5.0 }}" class="w-full bg-slate-900 border border-slate-800 rounded-lg py-1 px-2.5 font-bold text-slate-100 text-xs text-center focus:border-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
+                      <span class="text-xs text-slate-400">M</span>
+                    </div>
+                  </div>
+
+                  <!-- Activity 2 -->
+                  <div class="bg-slate-950/40 border border-slate-850 rounded-xl p-3 space-y-2">
+                    <label class="block text-xs font-bold text-slate-400">Activity 2 (MCQ Test)</label>
+                    <div class="flex items-center gap-2">
+                      <input type="number" step="0.5" id="cfg-{{ $coTag }}-mcq" value="{{ $selfLearningConfigs[$coTag]['mcq'] ?? 5.0 }}" class="w-full bg-slate-900 border border-slate-800 rounded-lg py-1 px-2.5 font-bold text-slate-100 text-xs text-center focus:border-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
+                      <span class="text-xs text-slate-400">M</span>
+                    </div>
+                  </div>
+
+                  <!-- Activity 3 -->
+                  <div class="bg-slate-950/40 border border-slate-850 rounded-xl p-3 space-y-2">
+                    <label class="block text-xs font-bold text-slate-400">Activity 3 (Type & Marks)</label>
+                    <div class="flex flex-col gap-2">
+                      <select id="cfg-{{ $coTag }}-act3_mode" class="w-full bg-slate-900 border border-slate-800 rounded-lg py-1 px-2 text-slate-100 text-xs font-semibold focus:border-indigo-500 outline-none">
+                        <option value="Case Study" {{ ($selfLearningConfigs[$coTag]['act3_mode'] ?? '') == 'Case Study' ? 'selected' : '' }}>Case Study</option>
+                        <option value="Activity" {{ ($selfLearningConfigs[$coTag]['act3_mode'] ?? '') == 'Activity' ? 'selected' : '' }}>Activity/Seminar</option>
+                        <option value="Minor Project" {{ ($selfLearningConfigs[$coTag]['act3_mode'] ?? '') == 'Minor Project' ? 'selected' : '' }}>Minor Project</option>
+                        <option value="Exercises" {{ ($selfLearningConfigs[$coTag]['act3_mode'] ?? '') == 'Exercises' ? 'selected' : '' }}>Exercises</option>
+                      </select>
+                      <div class="flex items-center gap-2">
+                        <input type="number" step="0.5" id="cfg-{{ $coTag }}-act3" value="{{ $selfLearningConfigs[$coTag]['act3'] ?? 5.0 }}" class="w-full bg-slate-900 border border-slate-800 rounded-lg py-1 px-2.5 font-bold text-slate-100 text-xs text-center focus:border-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
+                        <span class="text-xs text-slate-400">M</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Activity 4 -->
+                  <div class="bg-slate-950/40 border border-slate-850 rounded-xl p-3 space-y-2">
+                    <label class="block text-xs font-bold text-slate-400">Activity 4 (Type & Marks)</label>
+                    <div class="flex flex-col gap-2">
+                      <select id="cfg-{{ $coTag }}-act4_mode" class="w-full bg-slate-900 border border-slate-800 rounded-lg py-1 px-2 text-slate-100 text-xs font-semibold focus:border-indigo-500 outline-none">
+                        <option value="Case Study" {{ ($selfLearningConfigs[$coTag]['act4_mode'] ?? '') == 'Case Study' ? 'selected' : '' }}>Case Study</option>
+                        <option value="Activity" {{ ($selfLearningConfigs[$coTag]['act4_mode'] ?? '') == 'Activity' ? 'selected' : '' }}>Activity/Seminar</option>
+                        <option value="Minor Project" {{ ($selfLearningConfigs[$coTag]['act4_mode'] ?? '') == 'Minor Project' ? 'selected' : '' }}>Minor Project</option>
+                        <option value="Exercises" {{ ($selfLearningConfigs[$coTag]['act4_mode'] ?? '') == 'Exercises' ? 'selected' : '' }}>Exercises</option>
+                      </select>
+                      <div class="flex items-center gap-2">
+                        <input type="number" step="0.5" id="cfg-{{ $coTag }}-act4" value="{{ $selfLearningConfigs[$coTag]['act4'] ?? 0.0 }}" class="w-full bg-slate-900 border border-slate-800 rounded-lg py-1 px-2.5 font-bold text-slate-100 text-xs text-center focus:border-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
+                        <span class="text-xs text-slate-400">M</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Activity 5 -->
+                  <div class="bg-slate-950/40 border border-slate-850 rounded-xl p-3 space-y-2">
+                    <label class="block text-xs font-bold text-slate-400">Activity 5 (Type & Marks)</label>
+                    <div class="flex flex-col gap-2">
+                      <select id="cfg-{{ $coTag }}-act5_mode" class="w-full bg-slate-900 border border-slate-800 rounded-lg py-1 px-2 text-slate-100 text-xs font-semibold focus:border-indigo-500 outline-none">
+                        <option value="Case Study" {{ ($selfLearningConfigs[$coTag]['act5_mode'] ?? '') == 'Case Study' ? 'selected' : '' }}>Case Study</option>
+                        <option value="Activity" {{ ($selfLearningConfigs[$coTag]['act5_mode'] ?? '') == 'Activity' ? 'selected' : '' }}>Activity/Seminar</option>
+                        <option value="Minor Project" {{ ($selfLearningConfigs[$coTag]['act5_mode'] ?? '') == 'Minor Project' ? 'selected' : '' }}>Minor Project</option>
+                        <option value="Exercises" {{ ($selfLearningConfigs[$coTag]['act5_mode'] ?? '') == 'Exercises' ? 'selected' : '' }}>Exercises</option>
+                      </select>
+                      <div class="flex items-center gap-2">
+                        <input type="number" step="0.5" id="cfg-{{ $coTag }}-act5" value="{{ $selfLearningConfigs[$coTag]['act5'] ?? 0.0 }}" class="w-full bg-slate-900 border border-slate-800 rounded-lg py-1 px-2.5 font-bold text-slate-100 text-xs text-center focus:border-indigo-500 outline-none" oninput="validateConfigSum('{{ $coTag }}')">
+                        <span class="text-xs text-slate-400">M</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             @endforeach
