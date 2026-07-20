@@ -208,32 +208,32 @@
       <!-- NAVIGATION PANEL (COMPACT) -->
       <div id="sidebar-panel-column" class="lg:col-span-1 space-y-3 transition-all duration-300">
         <div class="bg-panel border rounded-xl p-3 shadow-md space-y-1">
-          <button onclick="switchTab('outline')" id="btn-outline" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all bg-emerald-500/10 text-emerald-450 border-l-2 border-emerald-500">
+          <button onclick="switchTab('outline')" id="btn-outline" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all bg-emerald-500/10 text-emerald-450 border-l-2 border-emerald-500 cursor-pointer">
             <span class="material-symbols-rounded text-sm">import_contacts</span>
             Course Outline
           </button>
           
-          <button onclick="switchTab('planner')" id="btn-planner" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-900/40">
+          <button onclick="switchTab('planner')" id="btn-planner" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer">
             <span class="material-symbols-rounded text-sm">calendar_month</span>
             Lesson Planner
           </button>
           
-          <button onclick="switchTab('cia')" id="btn-cia" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-900/40">
+          <button onclick="switchTab('cia')" id="btn-cia" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer">
             <span class="material-symbols-rounded text-sm">fact_check</span>
             Continuous Assessment
           </button>
           
-          <button onclick="switchTab('roster')" id="btn-roster" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-900/40">
+          <button onclick="switchTab('roster')" id="btn-roster" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer">
             <span class="material-symbols-rounded text-sm">group</span>
             Student Roster ({{ $students->count() }})
           </button>
 
-          <button onclick="switchTab('series')" id="btn-series" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-900/40">
+          <button onclick="switchTab('series')" id="btn-series" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer">
             <span class="material-symbols-rounded text-sm">quiz</span>
             Series Exams
           </button>
 
-          <button onclick="switchTab('internals')" id="btn-internals" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-900/40">
+          <button onclick="switchTab('internals')" id="btn-internals" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer">
             <span class="material-symbols-rounded text-sm">assignment_turned_in</span>
             Internal Marks
           </button>
@@ -1344,9 +1344,9 @@
       tabs.forEach(id => {
         const btn = document.getElementById('btn-' + id);
         if (id === tabId) {
-          btn.className = "w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all bg-emerald-500/10 text-emerald-450 border-l-2 border-emerald-500";
+          btn.className = "w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all bg-emerald-500/10 text-emerald-450 border-l-2 border-emerald-500 cursor-pointer";
         } else {
-          btn.className = "w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-900/40";
+          btn.className = "w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer";
         }
       });
     }
