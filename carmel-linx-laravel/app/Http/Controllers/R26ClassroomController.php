@@ -123,19 +123,39 @@ class R26ClassroomController extends Controller
             $totalAttendance = $studentAttendance->count();
             $present = $studentAttendance->whereIn('status', ['Present', 'Late'])->count();
             $attPercentage = $totalAttendance > 0 ? ($present / $totalAttendance) * 100 : 100.00;
+            $attPercentage = round($attPercentage, 2);
             
             // Table 2.1 Attendance Marks Conversion
             $attMarks = 0;
             if ($attPercentage >= 90) {
                 $attMarks = 5;
-            } elseif ($attPercentage >= 85) {
-                $attMarks = 4;
             } elseif ($attPercentage >= 80) {
-                $attMarks = 3;
+                $attMarks = 4;
             } elseif ($attPercentage >= 75) {
+                $attMarks = 3;
+            } elseif ($attPercentage >= 70) {
                 $attMarks = 2;
+            } elseif ($attPercentage >= 65) {
+                $attMarks = 1;
             } else {
                 $attMarks = 0;
+            }
+
+            // Attendance eligibility & condonation possibilities
+            $attStatus = 'Eligible';
+            $attColor = 'emerald-500';
+            if ($attPercentage >= 75) {
+                $attStatus = 'Eligible';
+                $attColor = 'emerald-450';
+            } elseif ($attPercentage >= 60) {
+                $attStatus = 'Condonation Possible';
+                $attColor = 'amber-500';
+            } elseif ($attPercentage >= 50) {
+                $attStatus = 'Special Condonation';
+                $attColor = 'purple-400';
+            } else {
+                $attStatus = 'Shortage (Detained)';
+                $attColor = 'rose-500';
             }
             
             $studentMarks = $academicMarks->get($student->reg_no, collect());
@@ -214,6 +234,8 @@ class R26ClassroomController extends Controller
                 'roll_no' => $student->roll_no,
                 'attendance_percent' => round($attPercentage, 2),
                 'attendance_marks' => $attMarks,
+                'attendance_status' => $attStatus,
+                'attendance_color' => $attColor,
                 'self_learning_marks' => $selfLearningMarks,
                 'series_exam_marks' => $seriesExamMarks,
                 'total_cia' => $attMarks + $selfLearningMarks + $seriesExamMarks,
@@ -1306,19 +1328,39 @@ class R26ClassroomController extends Controller
             $totalAttendance = $studentAttendance->count();
             $present = $studentAttendance->whereIn('status', ['Present', 'Late'])->count();
             $attPercentage = $totalAttendance > 0 ? ($present / $totalAttendance) * 100 : 100.00;
+            $attPercentage = round($attPercentage, 2);
             
             // Table 2.1 Attendance Marks Conversion
             $attMarks = 0;
             if ($attPercentage >= 90) {
                 $attMarks = 5;
-            } elseif ($attPercentage >= 85) {
-                $attMarks = 4;
             } elseif ($attPercentage >= 80) {
-                $attMarks = 3;
+                $attMarks = 4;
             } elseif ($attPercentage >= 75) {
+                $attMarks = 3;
+            } elseif ($attPercentage >= 70) {
                 $attMarks = 2;
+            } elseif ($attPercentage >= 65) {
+                $attMarks = 1;
             } else {
                 $attMarks = 0;
+            }
+
+            // Attendance eligibility & condonation possibilities
+            $attStatus = 'Eligible';
+            $attColor = 'emerald-500';
+            if ($attPercentage >= 75) {
+                $attStatus = 'Eligible';
+                $attColor = 'emerald-450';
+            } elseif ($attPercentage >= 60) {
+                $attStatus = 'Condonation Possible';
+                $attColor = 'amber-500';
+            } elseif ($attPercentage >= 50) {
+                $attStatus = 'Special Condonation';
+                $attColor = 'purple-400';
+            } else {
+                $attStatus = 'Shortage (Detained)';
+                $attColor = 'rose-500';
             }
             
             $studentMarks = $academicMarks->get($student->reg_no, collect());
@@ -1375,6 +1417,8 @@ class R26ClassroomController extends Controller
                 'roll_no' => $student->roll_no,
                 'attendance_percent' => round($attPercentage, 2),
                 'attendance_marks' => $attMarks,
+                'attendance_status' => $attStatus,
+                'attendance_color' => $attColor,
                 'self_learning_marks' => $selfLearningMarks,
                 'series_exam_marks' => $seriesExamMarks,
                 'total_cia' => $attMarks + $selfLearningMarks + $seriesExamMarks
@@ -1453,18 +1497,39 @@ class R26ClassroomController extends Controller
             $totalAttendance = $studentAttendance->count();
             $present = $studentAttendance->whereIn('status', ['Present', 'Late'])->count();
             $attPercentage = $totalAttendance > 0 ? ($present / $totalAttendance) * 100 : 100.00;
+            $attPercentage = round($attPercentage, 2);
             
+            // Table 2.1 Attendance Marks Conversion
             $attMarks = 0;
             if ($attPercentage >= 90) {
                 $attMarks = 5;
-            } elseif ($attPercentage >= 85) {
-                $attMarks = 4;
             } elseif ($attPercentage >= 80) {
-                $attMarks = 3;
+                $attMarks = 4;
             } elseif ($attPercentage >= 75) {
+                $attMarks = 3;
+            } elseif ($attPercentage >= 70) {
                 $attMarks = 2;
+            } elseif ($attPercentage >= 65) {
+                $attMarks = 1;
             } else {
                 $attMarks = 0;
+            }
+
+            // Attendance eligibility & condonation possibilities
+            $attStatus = 'Eligible';
+            $attColor = 'emerald-500';
+            if ($attPercentage >= 75) {
+                $attStatus = 'Eligible';
+                $attColor = 'emerald-450';
+            } elseif ($attPercentage >= 60) {
+                $attStatus = 'Condonation Possible';
+                $attColor = 'amber-500';
+            } elseif ($attPercentage >= 50) {
+                $attStatus = 'Special Condonation';
+                $attColor = 'purple-400';
+            } else {
+                $attStatus = 'Shortage (Detained)';
+                $attColor = 'rose-500';
             }
             
             $studentMarks = $academicMarks->get($student->reg_no, collect());
@@ -1522,6 +1587,8 @@ class R26ClassroomController extends Controller
                 'roll_no' => $student->roll_no,
                 'attendance_percent' => round($attPercentage, 2),
                 'attendance_marks' => $attMarks,
+                'attendance_status' => $attStatus,
+                'attendance_color' => $attColor,
                 'self_learning_marks' => $selfLearningMarks,
                 'series_exam_marks' => $seriesExamMarks,
                 'total_cia' => $attMarks + $selfLearningMarks + $seriesExamMarks,

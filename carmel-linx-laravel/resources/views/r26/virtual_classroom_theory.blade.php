@@ -778,7 +778,7 @@
                   Consolidated CIA Marks Sheet
                 </h3>
                 <p class="text-xs text-muted mt-1">
-                  Attendance is fetched from class logs. Marks are mapped out of 5 based on Table 2.1 (90%+ = 5M, 85%+ = 4M, 80%+ = 3M, 75%+ = 2M, &lt;75% = 0M).
+                  Attendance is fetched from class logs. Marks are mapped out of 5 based on Table 2.1 (90%+ = 5M, 80%-90% = 4M, 75%-80% = 3M, 70%-75% = 2M, 65%-70% = 1M, &lt;65% = 0M).
                 </p>
               </div>
               <div class="flex items-center gap-2">
@@ -798,9 +798,10 @@
                   <tr class="bg-slate-900/30 text-xs font-bold text-muted uppercase tracking-wider border-b border-card">
                     <th class="p-3 w-[6%] text-center">Roll No</th>
                     <th class="p-3 w-[12%]">Register No</th>
-                    <th class="p-3 w-[25%]">Student Name</th>
-                    <th class="p-3 w-[12%] text-center">Attendance %</th>
-                    <th class="p-3 w-[12%] text-center">Attendance Marks (5M)</th>
+                    <th class="p-3 w-[20%]">Student Name</th>
+                    <th class="p-3 w-[10%] text-center">Attendance %</th>
+                    <th class="p-3 w-[10%] text-center">Attendance Marks (5M)</th>
+                    <th class="p-3 w-[15%] text-center">Eligibility / Status</th>
                     <th class="p-3 w-[12%] text-center">Self Learning (15M)</th>
                     <th class="p-3 w-[12%] text-center">Series Exams (20M)</th>
                     <th class="p-3 w-[10%] text-center">Total CIA (40M)</th>
@@ -817,6 +818,11 @@
                         {{ $sc['attendance_marks'] }}
                       </td>
                       <td class="p-2.5 text-center">
+                        <span class="px-2 py-0.5 rounded text-xs font-bold" style="color: {{ $sc['attendance_color'] === 'emerald-450' ? '#10b981' : ($sc['attendance_color'] === 'amber-500' ? '#f59e0b' : ($sc['attendance_color'] === 'purple-400' ? '#c084fc' : '#f43f5e')) }}; background-color: {{ $sc['attendance_color'] === 'emerald-450' ? 'rgba(16,185,129,0.1)' : ($sc['attendance_color'] === 'amber-500' ? 'rgba(245,158,11,0.1)' : ($sc['attendance_color'] === 'purple-400' ? 'rgba(192,132,252,0.1)' : 'rgba(244,63,94,0.1)')) }}; border: 1px solid currentColor;">
+                          {{ $sc['attendance_status'] }}
+                        </span>
+                      </td>
+                      <td class="p-2.5 text-center">
                         <input type="number" step="0.5" min="0" max="15" data-field="self_learning" value="{{ $sc['self_learning_marks'] }}" class="w-20 bg-slate-950/50 border border-slate-800 rounded px-2 py-1 text-slate-200 text-center focus:border-indigo-500 outline-none font-normal" oninput="calculateRowCia(this)">
                       </td>
                       <td class="p-2.5 text-center">
@@ -828,7 +834,7 @@
                     </tr>
                   @empty
                     <tr>
-                      <td colspan="8" class="p-6 text-center text-muted italic font-normal">No student records enrolled.</td>
+                      <td colspan="9" class="p-6 text-center text-muted italic font-normal">No student records enrolled.</td>
                     </tr>
                   @endforelse
                 </tbody>
