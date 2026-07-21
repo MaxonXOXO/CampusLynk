@@ -1704,18 +1704,33 @@ class R26ClassroomController extends Controller
             ['status' => 'Draft']
         );
 
-        // Seed 10 documents
+        // Seed 25 documents
         $docs = [
-            1 => 'Syllabus & Course Outcomes (CO) Definition',
-            2 => 'Course Information Sheet (CIS) & CO-PO Mappings',
-            3 => 'Academic Calendar & Semester Layout',
-            4 => 'Lesson Planner & Actual Lecture Delivery Logs',
-            5 => 'Assignments, Homeworks & Rubrics Mapped to COs',
-            6 => 'Continuous Internal Assessment (CIA) Marksheet',
-            7 => 'Series Exam Question Papers & Answer Schemes',
-            8 => 'End Semester Exam (ESE) Marks & Consolidated Grades',
-            9 => 'Indirect Attainment Online Surveys (Midsem & Exit)',
-            10 => 'Direct & Indirect Attainment & CO-PO Mapping Reports'
+            1 => 'Class Time table (current semester Program timetable)',
+            2 => 'Faculty Workload',
+            3 => 'Student List with register numbers',
+            4 => 'Course Syllabus with Recommended Books (SITTTR)',
+            5 => 'Course information sheet',
+            6 => 'Course outcomes & CO-PO Mappings',
+            7 => 'Academic calender & Semester Layout',
+            8 => 'Course Plan / Lesson Planner',
+            9 => 'Course log and Attendance',
+            10 => 'Internal Exam Question Papers CO 1,2,3,4 with mark splitup / Scheme',
+            11 => 'Internal Examination Result Analysis NBA',
+            12 => 'Weaker student coaching schedule and proof',
+            13 => 'Teaching and Learning Methods Proof - handouts, capsule notes etc.',
+            14 => 'Assignment questions with rubrics',
+            15 => 'Internal Marks - SBTE (CIA)',
+            16 => 'Grade Sheet - Proof of CO evaluations',
+            17 => 'External Exam Question Papers / Question bank',
+            18 => 'SBTE examination result',
+            19 => 'Attainment of Course Outcome (CO) Co-Po-Pso Map',
+            20 => 'Attainment of PO/PSO report',
+            21 => 'Mid semester survey & report',
+            22 => 'End semester / Course exit survey & report',
+            23 => 'Internal Examination sample answer scripts',
+            24 => 'Assignment sample scripts',
+            25 => 'Others'
         ];
 
         foreach ($docs as $no => $name) {
@@ -1753,12 +1768,12 @@ class R26ClassroomController extends Controller
         $doc->remarks = $request->input('remarks', '');
         $doc->save();
 
-        // If all 10 are checked, mark course file as Complete, else Draft
+        // If all 25 are checked, mark course file as Complete, else Draft
         $totalChecked = R26CourseFileDocument::where('r26_course_file_id', $courseFile->id)
             ->where('is_checked', true)
             ->count();
 
-        $courseFile->status = ($totalChecked === 10) ? 'Complete' : 'Draft';
+        $courseFile->status = ($totalChecked === 25) ? 'Complete' : 'Draft';
         $courseFile->save();
 
         return response()->json([
