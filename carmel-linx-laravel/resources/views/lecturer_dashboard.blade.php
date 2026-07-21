@@ -852,7 +852,7 @@
       @endif
       
       <a href="/course-files" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-amber-400 hover:bg-amber-900/30 hover:text-amber-300 cursor-pointer no-underline ">
-         <span class="material-symbols-rounded text-lg">folder_open</span> Course Files
+         <span class="material-symbols-rounded text-lg">folder_open</span> Course Files (2021)
       </a>
 
       <a href="/remedial-sessions" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 hover:text-purple-300 cursor-pointer no-underline">
