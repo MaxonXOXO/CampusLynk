@@ -275,6 +275,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r26/classroom/theory/{subjectId}', [R26ClassroomController::class, 'viewTheoryClassroom']);
     Route::get('/r26/classroom/course-file/{subjectId}', [R26ClassroomController::class, 'viewCourseFile']);
     Route::post('/api/r26/classroom/course-file/{subjectId}/save-doc', [R26ClassroomController::class, 'saveCourseFileDoc']);
+    Route::post('/api/r26/classroom/course-file/{subjectId}/upload-doc', [R26ClassroomController::class, 'uploadCourseFileDocAttachment']);
     Route::get('/r26/classroom/course-file/{subjectId}/print-pdf', [R26ClassroomController::class, 'printCourseFilePdf']);
     Route::post('/api/r26/classroom/{subjectId}/syllabus', [R26ClassroomController::class, 'uploadSyllabus']);
     Route::get('/r26/classroom/lesson-plan/print/{subjectId}', [R26ClassroomController::class, 'printLessonPlan']);

@@ -124,8 +124,18 @@
                     @php
                       $previewUrl = null;
                       $num = $doc->document_number;
+                      $manualUpload = in_array($num, [1, 2, 12, 13, 17, 18, 23, 24, 25]);
+                      
+                      $filePath = null;
+                      if ($doc->data_payload) {
+                          $payload = json_decode($doc->data_payload, true);
+                          $filePath = $payload['file_path'] ?? null;
+                      }
+
                       if ($num == 3 || $num == 4 || $num == 10 || $num == 14) {
                           $previewUrl = "/r26/classroom/theory/" . $batchSubject->id;
+                      } elseif ($num == 7 && isset($calendarId) && $calendarId) {
+                          $previewUrl = "/hod/academic-calendar/" . $calendarId . "/print";
                       } elseif ($num == 8) {
                           $previewUrl = "/r26/classroom/lesson-plan/print/" . $batchSubject->id;
                       } elseif ($num == 15) {
@@ -136,8 +146,23 @@
                           $previewUrl = "/r26/classroom/" . $batchSubject->id . "/nba/attainment-report";
                       }
                     @endphp
-                  <div class="grid grid-cols-2 gap-2 w-44 mx-auto">
-                    @if($previewUrl)
+                  <div class="grid grid-cols-2 gap-2 w-48 mx-auto">
+                    @if($manualUpload)
+                      @if($filePath)
+                        <a href="/{{ $filePath }}" target="_blank" class="px-2.5 py-1.5 bg-sky-650 hover:bg-sky-700 text-white rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1 no-underline w-full">
+                          <span class="material-symbols-rounded text-sm">download</span>
+                          File
+                        </a>
+                      @else
+                        <div>
+                          <input type="file" id="file-input-{{ $doc->id }}" class="hidden" onchange="uploadAttachment({{ $doc->id }})">
+                          <button type="button" onclick="document.getElementById('file-input-{{ $doc->id }}').click()" class="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1 w-full">
+                            <span class="material-symbols-rounded text-sm">upload</span>
+                            Upload
+                          </button>
+                        </div>
+                      @endif
+                    @elseif($previewUrl)
                       <a href="{{ $previewUrl }}" target="_blank" class="px-2.5 py-1.5 bg-indigo-650 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1 no-underline w-full">
                         <span class="material-symbols-rounded text-sm">visibility</span>
                         Preview
@@ -215,6 +240,68 @@
       .catch(err => {
         console.error(err);
         alert('An error occurred while saving.');
+      });
+    }
+
+    function uploadAttachment(docId) {
+      const fileInput = document.getElementById('file-input-' + docId);
+      if (!fileInput.files.length) return;
+      
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('doc_id', docId);
+
+      const uploadBtn = fileInput.nextElementSibling;
+      const originalText = uploadBtn.innerHTML;
+      uploadBtn.disabled = true;
+      uploadBtn.innerHTML = `<span class="material-symbols-rounded text-sm animate-spin">sync</span>`;
+
+      fetch(`/api/r26/classroom/course-file/{{ $batchSubject->id }}/upload-doc`, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          // Check the verification checkbox
+          document.getElementById('check-' + docId).checked = true;
+          const statusLbl = document.getElementById('lbl-status-' + docId);
+          statusLbl.innerText = 'Verified';
+          statusLbl.className = 'text-sm font-bold uppercase text-emerald-450';
+
+          // Replace upload button with download button
+          const container = fileInput.parentElement.parentElement;
+          container.firstElementChild.outerHTML = `
+            <a href="/${data.file_path}" target="_blank" class="px-2.5 py-1.5 bg-sky-650 hover:bg-sky-700 text-white rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1 no-underline w-full">
+              <span class="material-symbols-rounded text-sm">download</span>
+              File
+            </a>
+          `;
+
+          // Show saved toast
+          const toast = document.createElement('div');
+          toast.className = 'fixed bottom-4 right-4 bg-emerald-600/90 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg transition-opacity duration-300';
+          toast.innerText = '✓ File uploaded and verified!';
+          document.body.appendChild(toast);
+          setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+          }, 1500);
+        } else {
+          alert('Upload failed: ' + data.message);
+          uploadBtn.disabled = false;
+          uploadBtn.innerHTML = originalText;
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('An error occurred during upload.');
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = originalText;
       });
     }
   </script>

@@ -1732,7 +1732,6 @@ class R26ClassroomController extends Controller
             24 => 'Assignment sample scripts',
             25 => 'Others'
         ];
-
         foreach ($docs as $no => $name) {
             R26CourseFileDocument::firstOrCreate([
                 'r26_course_file_id' => $courseFile->id,
@@ -1748,7 +1747,10 @@ class R26ClassroomController extends Controller
             ->orderBy('document_number', 'asc')
             ->get();
 
-        return view('r26.course_file_preparation', compact('batchSubject', 'classroom', 'courseFile', 'documents'));
+        $activeCalendar = \DB::table('academic_calendars')->orderBy('id', 'desc')->first();
+        $calendarId = $activeCalendar ? $activeCalendar->id : null;
+
+        return view('r26.course_file_preparation', compact('batchSubject', 'classroom', 'courseFile', 'documents', 'calendarId'));
     }
 
     public function saveCourseFileDoc(Request $request, $subjectId)
@@ -1781,6 +1783,39 @@ class R26ClassroomController extends Controller
             'message' => 'Document status updated successfully.',
             'file_status' => $courseFile->status,
             'checked_count' => $totalChecked
+        ]);
+    }
+
+    public function uploadCourseFileDocAttachment(Request $request, $subjectId)
+    {
+        $courseFile = R26CourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$courseFile) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Course file record not found.'], 404);
+        }
+
+        $docId = $request->input('doc_id');
+        $doc = R26CourseFileDocument::where('r26_course_file_id', $courseFile->id)->where('id', $docId)->first();
+        if (!$doc) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Document not found.'], 404);
+        }
+
+        if (!$request->hasFile('file')) {
+            return response()->json(['status' => 'ERROR', 'message' => 'No file uploaded.'], 400);
+        }
+
+        $file = $request->file('file');
+        $fileName = 'doc_' . $doc->document_number . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('public/r26_course_files', $fileName);
+        $publicUrl = 'storage/r26_course_files/' . $fileName;
+
+        $doc->data_payload = json_encode(['file_path' => $publicUrl]);
+        $doc->is_checked = true; // Auto-verify upon successful upload
+        $doc->save();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'File uploaded successfully.',
+            'file_path' => $publicUrl
         ]);
     }
 
