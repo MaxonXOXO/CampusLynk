@@ -129,21 +129,31 @@
                           $previewUrl = "/r26/classroom/theory/" . $batchSubject->id;
                       } elseif ($num == 8) {
                           $previewUrl = "/r26/classroom/lesson-plan/print/" . $batchSubject->id;
-                      } elseif ($num == 15) {
-                          $previewUrl = "/r26/classroom/" . $batchSubject->id . "/internals/print-cie";
-                      } elseif ($num == 16) {
-                          $previewUrl = "/r26/classroom/" . $batchSubject->id . "/final-results/print";
-                      } elseif ($num == 19 || $num == 20) {
-                          $previewUrl = "/r26/classroom/" . $batchSubject->id . "/nba/attainment-report";
-                      }
-                    @endphp
+                  @php
+                    $previewUrl = null;
+                    $num = $doc->document_number;
+                    if ($num == 3 || $num == 4 || $num == 10 || $num == 14) {
+                        $previewUrl = "/r26/classroom/theory/" . $batchSubject->id;
+                    } elseif ($num == 8) {
+                        $previewUrl = "/r26/classroom/lesson-plan/print/" . $batchSubject->id;
+                    } elseif ($num == 15) {
+                        $previewUrl = "/r26/classroom/" . $batchSubject->id . "/internals/print-cie";
+                    } elseif ($num == 16) {
+                        $previewUrl = "/r26/classroom/" . $batchSubject->id . "/final-results/print";
+                    } elseif ($num == 19 || $num == 20) {
+                        $previewUrl = "/r26/classroom/" . $batchSubject->id . "/nba/attainment-report";
+                    }
+                  @endphp
+                  <div class="grid grid-cols-2 gap-2 w-44 mx-auto">
                     @if($previewUrl)
-                      <a href="{{ $previewUrl }}" target="_blank" class="px-3 py-1.5 bg-indigo-650 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold transition-all flex items-center gap-1 no-underline">
+                      <a href="{{ $previewUrl }}" target="_blank" class="px-2.5 py-1.5 bg-indigo-650 hover:bg-indigo-700 text-white rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-1 no-underline w-full">
                         <span class="material-symbols-rounded text-sm">visibility</span>
                         Preview
                       </a>
+                    @else
+                      <div></div>
                     @endif
-                    <button type="button" onclick="saveDocumentStatus({{ $doc->id }})" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-350 border border-slate-750 hover:text-white rounded-lg text-sm font-bold transition-all cursor-pointer flex items-center gap-1">
+                    <button type="button" onclick="saveDocumentStatus({{ $doc->id }})" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-350 border border-slate-750 hover:text-white rounded-lg text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1 w-full">
                       <span class="material-symbols-rounded text-sm">save</span>
                       Save
                     </button>
