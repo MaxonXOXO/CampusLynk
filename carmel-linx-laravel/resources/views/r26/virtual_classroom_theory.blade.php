@@ -1265,7 +1265,7 @@
 
           <div class="flex flex-col gap-6">
             <!-- Mid Sem Survey -->
-            <div class="bg-slate-900/30 border border-slate-800 rounded-2xl p-7 space-y-4">
+            <div class="bg-slate-900/30 border-2 border-indigo-500/40 rounded-2xl p-7 space-y-4 shadow-[0_0_15px_rgba(99,102,241,0.12)]">
               <div class="flex justify-between items-start md:items-center flex-wrap gap-4">
                 <div class="flex items-center gap-3">
                   <span class="material-symbols-rounded text-indigo-400 text-3xl">forum</span>
@@ -1286,7 +1286,7 @@
             </div>
 
             <!-- Course Exit Survey -->
-            <div class="bg-slate-900/30 border border-slate-800 rounded-2xl p-7 space-y-4">
+            <div class="bg-slate-900/30 border-2 border-indigo-500/40 rounded-2xl p-7 space-y-4 shadow-[0_0_15px_rgba(99,102,241,0.12)]">
               <div class="flex justify-between items-start md:items-center flex-wrap gap-4">
                 <div class="flex items-center gap-3">
                   <span class="material-symbols-rounded text-indigo-400 text-3xl">assignment_turned_in</span>
@@ -1307,11 +1307,11 @@
             </div>
 
             <!-- NBA Attainment Calculations -->
-            <div class="bg-slate-900/10 border border-slate-800 rounded-xl p-4 space-y-3">
+            <div class="bg-slate-900/10 border-2 border-emerald-500/40 rounded-2xl p-6 space-y-4 shadow-[0_0_15px_rgba(16,185,129,0.12)]">
               <div class="flex justify-between items-center">
                 <div>
                   <h4 class="font-bold text-title text-sm flex items-center gap-1.5">
-                    <span class="material-symbols-rounded text-indigo-400">equalizer</span>
+                    <span class="material-symbols-rounded text-emerald-400">equalizer</span>
                     NBA 2026 Direct/Indirect CO-PO Attainment Calculation (11 POs)
                   </h4>
                   <p class="text-xs text-muted mt-0.5">Calculated using 80% Direct Attainment (CIA & ESE) + 20% Indirect Attainment (Course Exit Survey).</p>
