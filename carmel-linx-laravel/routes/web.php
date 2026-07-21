@@ -273,6 +273,9 @@ Route::middleware(['web'])->group(function () {
     Route::get('/api/r26/hod/batches', [R26DataController::class, 'getBatches']);
     Route::post('/api/r26/hod/batches', [R26DataController::class, 'createBatch']);
     Route::get('/r26/classroom/theory/{subjectId}', [R26ClassroomController::class, 'viewTheoryClassroom']);
+    Route::get('/r26/classroom/course-file/{subjectId}', [R26ClassroomController::class, 'viewCourseFile']);
+    Route::post('/api/r26/classroom/course-file/{subjectId}/save-doc', [R26ClassroomController::class, 'saveCourseFileDoc']);
+    Route::get('/r26/classroom/course-file/{subjectId}/print-pdf', [R26ClassroomController::class, 'printCourseFilePdf']);
     Route::post('/api/r26/classroom/{subjectId}/syllabus', [R26ClassroomController::class, 'uploadSyllabus']);
     Route::get('/r26/classroom/lesson-plan/print/{subjectId}', [R26ClassroomController::class, 'printLessonPlan']);
     Route::get('/r26/classroom/self-learning/print/{subjectId}', [R26ClassroomController::class, 'printSelfLearningReport']);

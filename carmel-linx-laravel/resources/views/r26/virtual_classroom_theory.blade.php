@@ -237,6 +237,16 @@
             <span class="material-symbols-rounded text-sm">assignment_turned_in</span>
             Internal Marks
           </button>
+
+          <button onclick="switchTab('attainment')" id="btn-attainment" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer">
+            <span class="material-symbols-rounded text-sm">equalizer</span>
+            Course Attainment & Surveys
+          </button>
+
+          <a href="/r26/classroom/course-file/{{ $batchSubject->id }}" target="_blank" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer no-underline">
+            <span class="material-symbols-rounded text-sm">folder_open</span>
+            Course File Preparation R2026
+          </a>
         </div>
 
         <!-- QUICK SNAPSHOT WIDGET -->
@@ -1239,6 +1249,82 @@
 
         </div>
 
+        <!-- TAB: COURSE ATTAINMENT & SURVEYS (NEW) -->
+        <div id="tab-attainment" class="tab-panel bg-panel border rounded-xl p-5 shadow-md space-y-4 hidden">
+          <div class="border-b border-slate-800/30 pb-3 flex justify-between items-center">
+            <div>
+              <h3 class="text-base font-bold text-title flex items-center gap-2">
+                <span class="material-symbols-rounded text-sky-400">equalizer</span>
+                Course Attainment & Surveys
+              </h3>
+              <p class="text-xs text-muted mt-1">
+                Access surveys and generate PO/CO attainment calculations for Revision 2026.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-6">
+            <!-- Mid Sem Survey -->
+            <div class="bg-slate-900/30 border border-slate-800 rounded-2xl p-7 space-y-4">
+              <div class="flex justify-between items-start md:items-center flex-wrap gap-4">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-rounded text-indigo-400 text-3xl">forum</span>
+                  <div>
+                    <h4 class="font-bold text-title text-base">Mid-Semester Online Survey</h4>
+                    <p class="text-xs text-muted mt-0.5">SAR Criterion 2 Evaluation</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                  <button id="btn-initiate-midsem-tab" onclick="document.getElementById('modal-midsem-survey-init').classList.remove('hidden')" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer shadow-sm">Open Survey</button>
+                  <button id="btn-close-midsem-tab" onclick="controlSurvey('midsem', 'close')" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer hidden shadow-sm">Close & Lock</button>
+                  <span id="status-midsem-tab" class="text-sm font-bold text-muted bg-slate-950/40 border border-slate-800 rounded-lg px-3 py-1.5 flex items-center">Checking status...</span>
+                </div>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed border-t border-slate-800/40 pt-3">
+                Allows students to submit feedback online. Captures direct feedback on course delivery, syllabus coverage, and early corrective action points.
+              </p>
+            </div>
+
+            <!-- Course Exit Survey -->
+            <div class="bg-slate-900/30 border border-slate-800 rounded-2xl p-7 space-y-4">
+              <div class="flex justify-between items-start md:items-center flex-wrap gap-4">
+                <div class="flex items-center gap-3">
+                  <span class="material-symbols-rounded text-indigo-400 text-3xl">assignment_turned_in</span>
+                  <div>
+                    <h4 class="font-bold text-title text-base">Course Exit Survey (Indirect CO)</h4>
+                    <p class="text-xs text-muted mt-0.5">Indirect Attainment Assessment</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-3 flex-wrap">
+                  <button id="btn-initiate-exit-tab" onclick="document.getElementById('modal-exit-survey-init').classList.remove('hidden')" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer shadow-sm">Open Survey</button>
+                  <button id="btn-close-exit-tab" onclick="controlSurvey('exit', 'close')" class="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-sm font-bold transition-all cursor-pointer hidden shadow-sm">Close & Lock</button>
+                  <span id="status-exit-tab" class="text-sm font-bold text-muted bg-slate-950/40 border border-slate-800 rounded-lg px-3 py-1.5 flex items-center">Checking status...</span>
+                </div>
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed border-t border-slate-800/40 pt-3">
+                Evaluates indirect Course Outcome (CO) attainment parameters at semester-end. Necessary for final PO mapping calculations.
+              </p>
+            </div>
+
+            <!-- NBA Attainment Calculations -->
+            <div class="bg-slate-900/10 border border-slate-800 rounded-xl p-4 space-y-3">
+              <div class="flex justify-between items-center">
+                <div>
+                  <h4 class="font-bold text-title text-sm flex items-center gap-1.5">
+                    <span class="material-symbols-rounded text-indigo-400">equalizer</span>
+                    NBA 2026 Direct/Indirect CO-PO Attainment Calculation (11 POs)
+                  </h4>
+                  <p class="text-xs text-muted mt-0.5">Calculated using 80% Direct Attainment (CIA & ESE) + 20% Indirect Attainment (Course Exit Survey).</p>
+                </div>
+                <a href="/r26/classroom/{{ $batchSubject->id }}/nba/attainment-report" target="_blank" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow-md">
+                  <span class="material-symbols-rounded text-sm">print</span>
+                  Print Final NBA Attainment Report
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- MODAL: MID-SEM SURVEY INITIATION PREVIEW & EDIT -->
         <div id="modal-midsem-survey-init" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center hidden text-slate-200">
           <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl p-6 space-y-4 shadow-2xl max-h-[85vh] overflow-y-auto" style="background-color: #0f172a !important;">
@@ -1385,9 +1471,10 @@
       });
       document.getElementById('tab-' + tabId).classList.remove('hidden');
 
-      const tabs = ['outline', 'planner', 'cia', 'roster', 'series', 'internals'];
+      const tabs = ['outline', 'planner', 'cia', 'roster', 'series', 'internals', 'attainment'];
       tabs.forEach(id => {
         const btn = document.getElementById('btn-' + id);
+        if (!btn) return;
         if (id === tabId) {
           btn.className = "w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all bg-emerald-500/10 text-emerald-450 border-l-2 border-emerald-500 cursor-pointer";
         } else {
@@ -2881,54 +2968,48 @@
       fetch(`/api/classroom/{{ $batchSubject->id }}/survey/results`)
       .then(res => res.json())
       .then(data => {
-        const statusSpan = document.getElementById('status-midsem');
-        const initBtn = document.getElementById('btn-initiate-midsem');
-        const closeBtn = document.getElementById('btn-close-midsem');
+        const statusSpans = [document.getElementById('status-midsem'), document.getElementById('status-midsem-tab')];
+        const initBtns = [document.getElementById('btn-initiate-midsem'), document.getElementById('btn-initiate-midsem-tab')];
+        const closeBtns = [document.getElementById('btn-close-midsem'), document.getElementById('btn-close-midsem-tab')];
         if (data.status === 'SUCCESS') {
           const srv = data.data.survey;
           if (srv.status === 'Active') {
-            statusSpan.innerText = `Active (${data.data.responded_count} responses)`;
-            statusSpan.className = "text-xs font-bold text-emerald-450 flex items-center pl-2";
-            initBtn.classList.add('hidden');
-            closeBtn.classList.remove('hidden');
+            statusSpans.forEach(el => { if(el) { el.innerText = `Active (${data.data.responded_count} responses)`; el.className = "text-xs font-bold text-emerald-450 flex items-center pl-2"; } });
+            initBtns.forEach(el => el && el.classList.add('hidden'));
+            closeBtns.forEach(el => el && el.classList.remove('hidden'));
           } else {
-            statusSpan.innerText = `Completed & Locked`;
-            statusSpan.className = "text-xs font-bold text-slate-400 flex items-center pl-2";
-            initBtn.classList.add('hidden');
-            closeBtn.classList.add('hidden');
+            statusSpans.forEach(el => { if(el) { el.innerText = `Completed & Locked`; el.className = "text-xs font-bold text-slate-400 flex items-center pl-2"; } });
+            initBtns.forEach(el => el && el.classList.add('hidden'));
+            closeBtns.forEach(el => el && el.classList.add('hidden'));
           }
         } else {
-          statusSpan.innerText = "Inactive";
-          statusSpan.className = "text-xs font-bold text-rose-450 flex items-center pl-2";
-          initBtn.classList.remove('hidden');
-          closeBtn.classList.add('hidden');
+          statusSpans.forEach(el => { if(el) { el.innerText = "Inactive"; el.className = "text-xs font-bold text-rose-450 flex items-center pl-2"; } });
+          initBtns.forEach(el => el && el.classList.remove('hidden'));
+          closeBtns.forEach(el => el && el.classList.add('hidden'));
         }
       });
 
       fetch(`/api/classroom/{{ $batchSubject->id }}/course-exit/results`)
       .then(res => res.json())
       .then(data => {
-        const statusSpan = document.getElementById('status-exit');
-        const initBtn = document.getElementById('btn-initiate-exit');
-        const closeBtn = document.getElementById('btn-close-exit');
+        const statusSpans = [document.getElementById('status-exit'), document.getElementById('status-exit-tab')];
+        const initBtns = [document.getElementById('btn-initiate-exit'), document.getElementById('btn-initiate-exit-tab')];
+        const closeBtns = [document.getElementById('btn-close-exit'), document.getElementById('btn-close-exit-tab')];
         if (data.status === 'SUCCESS') {
           const srv = data.data.survey;
           if (srv.status === 'Active') {
-            statusSpan.innerText = `Active (${data.data.responded_count} responses)`;
-            statusSpan.className = "text-xs font-bold text-emerald-450 flex items-center pl-2";
-            initBtn.classList.add('hidden');
-            closeBtn.classList.remove('hidden');
+            statusSpans.forEach(el => { if(el) { el.innerText = `Active (${data.data.responded_count} responses)`; el.className = "text-xs font-bold text-emerald-450 flex items-center pl-2"; } });
+            initBtns.forEach(el => el && el.classList.add('hidden'));
+            closeBtns.forEach(el => el && el.classList.remove('hidden'));
           } else {
-            statusSpan.innerText = `Completed & Locked`;
-            statusSpan.className = "text-xs font-bold text-slate-400 flex items-center pl-2";
-            initBtn.classList.add('hidden');
-            closeBtn.classList.add('hidden');
+            statusSpans.forEach(el => { if(el) { el.innerText = `Completed & Locked`; el.className = "text-xs font-bold text-slate-400 flex items-center pl-2"; } });
+            initBtns.forEach(el => el && el.classList.add('hidden'));
+            closeBtns.forEach(el => el && el.classList.add('hidden'));
           }
         } else {
-          statusSpan.innerText = "Inactive";
-          statusSpan.className = "text-xs font-bold text-rose-450 flex items-center pl-2";
-          initBtn.classList.remove('hidden');
-          closeBtn.classList.add('hidden');
+          statusSpans.forEach(el => { if(el) { el.innerText = "Inactive"; el.className = "text-xs font-bold text-rose-450 flex items-center pl-2"; } });
+          initBtns.forEach(el => el && el.classList.remove('hidden'));
+          closeBtns.forEach(el => el && el.classList.add('hidden'));
         }
       });
     }

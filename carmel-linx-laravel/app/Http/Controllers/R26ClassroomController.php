@@ -11,6 +11,8 @@ use App\Models\R26ClassManagement;
 use App\Models\Student;
 use App\Models\CourseFile;
 use App\Models\LessonPlan;
+use App\Models\R26CourseFile;
+use App\Models\R26CourseFileDocument;
 
 class R26ClassroomController extends Controller
 {
@@ -1677,5 +1679,132 @@ class R26ClassroomController extends Controller
         }
 
         return view('r26.attainment_report_print', compact('batchSubject', 'classroom', 'directStats', 'indirectStats', 'combinedStats', 'poAttainments', 'mappings'));
+    }
+
+    public function viewCourseFile($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) {
+            abort(404, 'Subject not found.');
+        }
+
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        if (!$classroom) {
+            $classroom = R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        }
+
+        // Initialize / Get R26 course file record
+        $courseFile = R26CourseFile::firstOrCreate(
+            ['batch_subject_id' => $subjectId, 'academic_year' => '2026-2027'],
+            ['status' => 'Draft']
+        );
+
+        // Seed 10 documents
+        $docs = [
+            1 => 'Syllabus & Course Outcomes (CO) Definition',
+            2 => 'Course Information Sheet (CIS) & CO-PO Mappings',
+            3 => 'Academic Calendar & Semester Layout',
+            4 => 'Lesson Planner & Actual Lecture Delivery Logs',
+            5 => 'Assignments, Homeworks & Rubrics Mapped to COs',
+            6 => 'Continuous Internal Assessment (CIA) Marksheet',
+            7 => 'Series Exam Question Papers & Answer Schemes',
+            8 => 'End Semester Exam (ESE) Marks & Consolidated Grades',
+            9 => 'Indirect Attainment Online Surveys (Midsem & Exit)',
+            10 => 'Direct & Indirect Attainment & CO-PO Mapping Reports'
+        ];
+
+        foreach ($docs as $no => $name) {
+            R26CourseFileDocument::firstOrCreate([
+                'r26_course_file_id' => $courseFile->id,
+                'document_number' => $no
+            ], [
+                'document_name' => $name,
+                'is_checked' => false,
+                'remarks' => ''
+            ]);
+        }
+
+        $documents = R26CourseFileDocument::where('r26_course_file_id', $courseFile->id)
+            ->orderBy('document_number', 'asc')
+            ->get();
+
+        return view('r26.course_file_preparation', compact('batchSubject', 'classroom', 'courseFile', 'documents'));
+    }
+
+    public function saveCourseFileDoc(Request $request, $subjectId)
+    {
+        $courseFile = R26CourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$courseFile) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Course file record not found.'], 404);
+        }
+
+        $docId = $request->input('doc_id');
+        $doc = R26CourseFileDocument::where('r26_course_file_id', $courseFile->id)->where('id', $docId)->first();
+        if (!$doc) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Document not found.'], 404);
+        }
+
+        $doc->is_checked = filter_var($request->input('is_checked'), FILTER_VALIDATE_BOOLEAN);
+        $doc->remarks = $request->input('remarks', '');
+        $doc->save();
+
+        // If all 10 are checked, mark course file as Complete, else Draft
+        $totalChecked = R26CourseFileDocument::where('r26_course_file_id', $courseFile->id)
+            ->where('is_checked', true)
+            ->count();
+
+        $courseFile->status = ($totalChecked === 10) ? 'Complete' : 'Draft';
+        $courseFile->save();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Document status updated successfully.',
+            'file_status' => $courseFile->status,
+            'checked_count' => $totalChecked
+        ]);
+    }
+
+    public function printCourseFilePdf($subjectId)
+    {
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) {
+            abort(404, 'Subject not found.');
+        }
+
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        if (!$classroom) {
+            $classroom = R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        }
+
+        $courseFile = R26CourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$courseFile) {
+            abort(404, 'Course file not initialized.');
+        }
+
+        $documents = R26CourseFileDocument::where('r26_course_file_id', $courseFile->id)
+            ->orderBy('document_number', 'asc')
+            ->get();
+
+        try {
+            $pdf = \PDF::loadView('r26.course_file_pdf', compact('batchSubject', 'classroom', 'courseFile', 'documents'));
+            $pdf->setPaper('a4', 'portrait');
+            
+            $fileName = 'CourseFile_R2026_' . ($batchSubject->subject_code ?? 'Sub') . '.pdf';
+            
+            $path = 'public/course_files_r2026/' . $fileName;
+            \Storage::put($path, $pdf->output());
+            
+            $courseFile->generated_pdf_path = 'storage/course_files_r2026/' . $fileName;
+            $courseFile->save();
+
+            return $pdf->download($fileName);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to generate PDF: ' . $e->getMessage());
+        }
     }
 }
