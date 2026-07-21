@@ -124,7 +124,7 @@
                     @php
                       $previewUrl = null;
                       $num = $doc->document_number;
-                      $manualUpload = in_array($num, [1, 2, 12, 13, 17, 18, 23, 24, 25]);
+                      $manualUpload = in_array($num, [1, 2, 13, 17, 18, 23, 24, 25]);
                       
                       $filePath = null;
                       if ($doc->data_payload) {
@@ -138,6 +138,8 @@
                           $previewUrl = "/hod/academic-calendar/" . $calendarId . "/print";
                       } elseif ($num == 8) {
                           $previewUrl = "/r26/classroom/lesson-plan/print/" . $batchSubject->id;
+                      } elseif ($num == 12) {
+                          $previewUrl = "/hod/remedial-report/print?classroom_id=" . ($classroom->classroom_id ?? '');
                       } elseif ($num == 15) {
                           $previewUrl = "/r26/classroom/" . $batchSubject->id . "/internals/print-cie";
                       } elseif ($num == 16) {
