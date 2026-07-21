@@ -124,7 +124,7 @@
                     @php
                       $previewUrl = null;
                       $num = $doc->document_number;
-                      $manualUpload = in_array($num, [1, 2, 13, 17, 18, 23, 24, 25]);
+                      $manualUpload = in_array($num, [1, 2, 13, 17, 18, 25]);
                       
                       $filePath = null;
                       if ($doc->data_payload) {
