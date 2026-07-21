@@ -406,7 +406,7 @@
             
             const grid = document.getElementById("cfLevel3");
             grid.innerHTML = selectedSemester.courses.map(c => `
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all cursor-pointer group shadow-sm hover:shadow-emerald-500/5" onclick="cfOpenBuilder('${c.course_file_id}', '${c.subject_name.replace(/'/g, "\\'")}')">
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 hover:border-emerald-500/50 hover:bg-slate-800/80 transition-all cursor-pointer group shadow-sm hover:shadow-emerald-500/5" onclick="cfHandleOpen('${c.course_file_id}', '${c.batch_subject_id}', '${c.subject_name.replace(/'/g, "\\'")}', '${c.revision}')">
                     <div class="flex justify-between items-start mb-3">
                         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 flex items-center justify-center border border-emerald-500/20">
                             <span class="material-symbols-rounded text-emerald-400 text-sm">school</span>
@@ -423,6 +423,14 @@
                 </div>
             `).join("");
             cfShowLevel(3);
+        }
+
+        function cfHandleOpen(courseFileId, subjectId, subjectName, revision) {
+            if (revision === 'REV2026') {
+                window.open(`/r26/classroom/course-file/${subjectId}`, '_blank');
+            } else {
+                cfOpenBuilder(courseFileId, subjectName);
+            }
         }
 
         function cfOpenBuilder(id, subjectName) {

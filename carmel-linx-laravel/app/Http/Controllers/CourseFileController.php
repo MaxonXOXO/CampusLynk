@@ -72,7 +72,8 @@ class CourseFileController extends Controller
                 'subject_code'     => $bs->subject_code,
                 'subject_name'     => $bs->subject_name,
                 'status'           => $courseFile->status,
-                'pdf_url'          => $courseFile->generated_pdf_path ? url($courseFile->generated_pdf_path) : null
+                'pdf_url'          => $courseFile->generated_pdf_path ? url($courseFile->generated_pdf_path) : null,
+                'revision'         => $bs->syllabus_revision_code ?: 'REV2021'
             ];
         }
 
