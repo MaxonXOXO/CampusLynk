@@ -51,9 +51,9 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <a href="/r26/classroom/theory/{{ $batchSubject->id }}" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 rounded-lg font-bold text-sm transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
+        <a href="/r26/classroom/theory/{{ $batchSubject->id }}" onclick="window.close(); return false;" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700/60 rounded-lg font-bold text-sm transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
           <span class="material-symbols-rounded text-sm">arrow_back</span>
-          Back to Classroom
+          Close & Back to Classroom
         </a>
       </div>
     </div>
