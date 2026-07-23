@@ -342,8 +342,9 @@
         <!-- Row 1: Back · Badge · Subject Name · Actions -->
         <div class="row1">
             <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-                <a href="/dashboard/lecturer" class="vl-btn vl-btn-icon" title="Back to Dashboard" style="background:#2d1f0e;border-color:#7c4a00;color:#ffa340;">
-                    <i class="fa-solid fa-arrow-left"></i>
+                <a href="javascript:void(0)" onclick="handleVirtualLabBack(event)" class="exp-btn-touch" title="Back / Close Tab" style="padding:7px 14px;background:#f59e0b;border:1px solid #fbbf24;color:#0f172a;border-radius:8px;font-size:13px;font-weight:800;display:inline-flex;align-items:center;gap:7px;text-decoration:none;box-shadow:0 2px 8px rgba(245,158,11,0.4);">
+                    <i class="fa-solid fa-arrow-left-long" style="font-size:15px;color:#0f172a;"></i>
+                    <span>Back</span>
                 </a>
 
 
@@ -1377,6 +1378,24 @@
                 } : { c1:0, c2:0, c3:0, c4:0, c5:0 }
             };
         });
+
+        function handleVirtualLabBack(e) {
+            if (e) e.preventDefault();
+            if (window.opener && !window.opener.closed) {
+                window.close();
+                return false;
+            }
+            if (window.history.length <= 1) {
+                window.close();
+                return false;
+            }
+            if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+                window.history.back();
+                return false;
+            }
+            window.close();
+            return false;
+        }
 
         // Initialize experiment dropdown and handlers
         function initExperimentSelect() {
