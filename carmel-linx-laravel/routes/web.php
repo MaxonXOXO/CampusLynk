@@ -309,6 +309,24 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/r26/classroom/{subjectId}/exit-survey/initiate', [CourseExitSurveyController::class, 'initiateSurvey']);
     Route::post('/api/r26/classroom/{subjectId}/exit-survey/close', [CourseExitSurveyController::class, 'closeSurvey']);
 
+    // Revision 2026 Practical Classroom Management
+    Route::get('/r26/classroom/practical/{subjectId}', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'show']);
+    Route::post('/api/r26/classroom/practical/{subjectId}/syllabus', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'uploadSyllabus']);
+    Route::post('/api/r26/classroom/practical/{subjectId}/copo', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'saveCoPoMapping']);
+    Route::post('/api/r26/classroom/practical/{subjectId}/experiments', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'saveExperimentsList']);
+    Route::post('/api/r26/classroom/practical/{subjectId}/lesson-plan/generate', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'generateLessonPlan']);
+    Route::post('/api/r26/classroom/practical/{subjectId}/lesson-plans/bulk-update', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'bulkUpdateLessonPlans']);
+    Route::post('/api/r26/classroom/practical/{subjectId}/evaluate/experiment', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'saveExperimentMarks']);
+    Route::post('/api/r26/classroom/practical/{subjectId}/evaluate/open-ended', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'saveOpenEndedMarks']);
+    Route::post('/api/r26/classroom/practical/{subjectId}/evaluate/series', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'saveSeriesExamMarks']);
+    Route::post('/api/r26/classroom/practical/{subjectId}/series-exams/configure', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'configureSeriesExam']);
+    Route::post('/api/r26/classroom/practical/{subjectId}/ese-marks', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'saveEseMarks']);
+    Route::get('/r26/classroom/practical/{subjectId}/print/{type}', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'printReport']);
+    Route::post('/api/r26/classroom/practical/{subjectId}/lab-batch', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'assignLabBatch']);
+    Route::get('/r26/classroom/practical/course-file/{subjectId}', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'viewCourseFile']);
+    Route::post('/api/r26/classroom/practical/course-file/{subjectId}/save-doc', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'saveCourseFileDoc']);
+    Route::post('/api/r26/classroom/practical/course-file/{subjectId}/upload-doc', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'uploadCourseFileDocAttachment']);
+
     // HOD Subject Allocation
     Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);
     Route::post('/api/hod/batches/subjects/create', [DataController::class, 'createBatchSubject']);
@@ -404,6 +422,14 @@ Route::middleware(['web'])->group(function () {
     Route::get('/api/classroom/{subjectId}/practical/copo-mapping', [App\Http\Controllers\ClassroomController::class, 'getPracticalCoPoMapping']);
     Route::post('/api/classroom/{subjectId}/practical/copo-mapping/save', [App\Http\Controllers\ClassroomController::class, 'savePracticalCoPoMapping']);
     Route::get('/classroom/{subjectId}/practical-report/print', [App\Http\Controllers\ClassroomController::class, 'printPracticalReportByType']);
+
+    // Practical / Lab Evaluation (Revision 2026)
+    Route::get('/classroom/practical/{subjectId}', [App\Http\Controllers\VirtualClassroomPracticalController::class, 'show']);
+    Route::post('/classroom/practical/{subjectId}/experiment', [App\Http\Controllers\VirtualClassroomPracticalController::class, 'saveExperimentMarks']);
+    Route::post('/classroom/practical/{subjectId}/open-ended', [App\Http\Controllers\VirtualClassroomPracticalController::class, 'saveOpenEndedMarks']);
+    Route::post('/classroom/practical/{subjectId}/series-exam', [App\Http\Controllers\VirtualClassroomPracticalController::class, 'saveSeriesExamMarks']);
+    Route::post('/classroom/practical/{subjectId}/lab-batch', [App\Http\Controllers\VirtualClassroomPracticalController::class, 'assignLabBatch']);
+    Route::get('/classroom/practical/{subjectId}/report/print', [App\Http\Controllers\VirtualClassroomPracticalController::class, 'printReport']);
 
     // Mentoring Endpoints
     Route::get('/api/mentoring/my-batches', [MentoringController::class, 'getMyBatches']);

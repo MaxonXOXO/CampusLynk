@@ -1892,6 +1892,9 @@
         if (type.includes('Theory')) {
           window.open(`/r26/classroom/theory/${subjectId}`, '_blank');
           return;
+        } else if (type.includes('Practical') || type.includes('Lab')) {
+          window.open(`/r26/classroom/practical/${subjectId}`, '_blank');
+          return;
         }
       }
       currentSubjectId = subjectId;

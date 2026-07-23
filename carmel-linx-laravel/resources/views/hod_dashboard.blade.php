@@ -1086,7 +1086,12 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Subject Code</label>
-            <input type="text" id="subjectCode" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none" placeholder="e.g. ENG101">
+            <div class="flex items-stretch rounded-xl overflow-hidden border border-slate-800 focus-within:border-emerald-500 bg-slate-950">
+              <span id="subjectCodePrefix" class="hidden items-center px-3 bg-slate-900 text-emerald-400 font-bold font-mono text-sm border-r border-slate-800 select-none whitespace-nowrap"></span>
+              <input type="text" id="subjectCodeRaw" class="flex-1 bg-transparent px-3 py-2 text-sm text-white outline-none" placeholder="e.g. ENG101">
+            </div>
+            <!-- Keep hidden field to maintain integration with save handlers -->
+            <input type="hidden" id="subjectCode">
           </div>
           <div>
             <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Subject Type</label>
@@ -3488,6 +3493,68 @@
         });
     }
 
+    // ---- Branch prefix helpers ----
+    function _getBranchPrefix() {
+      const modalBatch = document.getElementById('modalFormSubjectBatch');
+      const displayBatch = document.getElementById('displaySubjectBatch');
+      const batchSelect = document.getElementById('subjectBatchSelect');
+      
+      let val = '';
+      if (modalBatch && modalBatch.value) {
+        val = modalBatch.value;
+      } else if (displayBatch && displayBatch.innerText) {
+        val = displayBatch.innerText;
+      } else if (batchSelect && batchSelect.value) {
+        val = batchSelect.value;
+      }
+      
+      if (!val) return '';
+      // classroom_id format: EL_2026_2029 or EL
+      return (val.split('_')[0] || '').toUpperCase();
+    }
+
+    function _applyCodePrefix(isRev2026) {
+      const prefixEl  = document.getElementById('subjectCodePrefix');
+      const rawInput  = document.getElementById('subjectCodeRaw');
+      const hiddenEl  = document.getElementById('subjectCode');
+      if (!prefixEl || !rawInput || !hiddenEl) return;
+
+      if (isRev2026) {
+        const prefix = _getBranchPrefix();
+        prefixEl.innerText = prefix + '-';
+        prefixEl.classList.remove('hidden');
+        prefixEl.classList.add('flex');
+        rawInput.placeholder = 'e.g. 1008';
+        // Sync hidden field
+        const raw = rawInput.value.trim();
+        hiddenEl.value = raw ? (prefix + '-' + raw) : '';
+      } else {
+        prefixEl.classList.add('hidden');
+        prefixEl.classList.remove('flex');
+        rawInput.placeholder = 'e.g. ENG101';
+        hiddenEl.value = rawInput.value.trim();
+      }
+    }
+
+    // Keep hidden field in sync whenever the user types
+    document.addEventListener('DOMContentLoaded', function() {
+      const rawInput = document.getElementById('subjectCodeRaw');
+      if (rawInput) {
+        rawInput.addEventListener('input', function() {
+          const isRev2026 = (document.getElementById('subjectRevisionYear') || {}).value === 'REV2026';
+          _applyCodePrefix(isRev2026);
+        });
+      }
+      // Also re-sync when revision changes
+      const revEl = document.getElementById('subjectRevisionYear');
+      if (revEl) {
+        revEl.addEventListener('change', function() {
+          _applyCodePrefix(this.value === 'REV2026');
+        });
+      }
+    });
+    // ---- End branch prefix helpers ----
+
     function openSubjectModal() {
       try {
         const batchSelect = document.getElementById('subjectBatchSelect');
@@ -3499,6 +3566,12 @@
         
         const formEl = document.getElementById('subjectForm');
         if (formEl) formEl.reset();
+
+        // Reset raw code input & hidden field
+        const rawInput = document.getElementById('subjectCodeRaw');
+        if (rawInput) rawInput.value = '';
+        const hiddenCode = document.getElementById('subjectCode');
+        if (hiddenCode) hiddenCode.value = '';
         
         const alertEl = document.getElementById('subjectAlert');
         if (alertEl) alertEl.classList.add('hidden');
@@ -3531,6 +3604,7 @@
             revisionSelect.value = 'REV2021';
           }
           syncSubjectTypeOptions(revisionSelect.value);
+          _applyCodePrefix(revisionSelect.value === 'REV2026');
         }
       } catch (err) {
         alert("Error opening subject modal: " + err.message);
@@ -3575,19 +3649,51 @@
         // Store the subject ID
         document.getElementById('modalEditSubjectId').value = subj.id;
 
+        // Set batch/semester context immediately (so prefix helper can read it)
+        const modalBatch = document.getElementById('modalFormSubjectBatch');
+        if (modalBatch) modalBatch.value = subj.classroom_id || '';
+        const modalSem = document.getElementById('modalFormSubjectSemester');
+        if (modalSem) modalSem.value = subj.semester || '';
+
+        const displayBatch = document.getElementById('displaySubjectBatch');
+        if (displayBatch) displayBatch.innerText = subj.classroom_id || '';
+        const displaySem = document.getElementById('displaySubjectSemester');
+        if (displaySem) displaySem.innerText = subj.semester ? 'S' + subj.semester : '';
+
         // Pre-fill fields
-        document.getElementById('subjectCode').value = subj.subject_code || '';
-        document.getElementById('subjectName').value = subj.subject_name || '';
-        
         const revEl = document.getElementById('subjectRevisionYear');
         if (revEl && subj.syllabus_revision_code) {
           revEl.value = subj.syllabus_revision_code;
         }
+        
+        const isRev2026Edit = (revEl ? revEl.value : '') === 'REV2026';
+        const rawInput = document.getElementById('subjectCodeRaw');
+        const hiddenCode = document.getElementById('subjectCode');
+        
+        if (isRev2026Edit) {
+          // Extract the prefix and code (e.g. "EL-1008" -> "1008")
+          const storedCode = subj.subject_code || '';
+          const dashIndex = storedCode.indexOf('-');
+          if (rawInput) {
+            rawInput.value = dashIndex !== -1 ? storedCode.substring(dashIndex + 1) : storedCode;
+          }
+          if (hiddenCode) {
+            hiddenCode.value = storedCode;
+          }
+        } else {
+          if (rawInput) {
+            rawInput.value = subj.subject_code || '';
+          }
+          if (hiddenCode) {
+            hiddenCode.value = subj.subject_code || '';
+          }
+        }
+        
+        // Sync badge UI prefix display (reads displayBatch or modalBatch now)
+        _applyCodePrefix(isRev2026Edit);
+        
+        document.getElementById('subjectName').value = subj.subject_name || '';
         syncSubjectTypeOptions(revEl ? revEl.value : 'REV2021', subj.subject_type || 'Theory');
-
-        // Show batch/semester context (read-only info)
-        document.getElementById('displaySubjectBatch').innerText = subj.classroom_id || '';
-        document.getElementById('displaySubjectSemester').innerText = subj.semester ? 'S' + subj.semester : '';
 
         // Clear any previous alert
         const alertEl = document.getElementById('subjectAlert');
@@ -3602,11 +3708,13 @@
       }
     }
 
-    /**
-     * Unified form submit handler — routes to create or update based on modal mode.
-     */
     function saveSubject(e) {
       e.preventDefault();
+      
+      // Ensure prefix gets synchronized from the fields right before submit
+      const isRev2026 = (document.getElementById('subjectRevisionYear') || {}).value === 'REV2026';
+      _applyCodePrefix(isRev2026);
+
       const editId = document.getElementById('modalEditSubjectId').value;
       if (editId) {
         // EDIT mode

@@ -6,8 +6,10 @@ from pypdf import PdfReader
 def parse_syllabus(pdf_path):
     reader = PdfReader(pdf_path)
     full_text = ""
+    standard_text = ""
     for page in reader.pages:
         full_text += page.extract_text(extraction_mode="layout") + "\n\n"
+        standard_text += page.extract_text() + "\n\n"
 
     # 1. Parse Meta Details
     course_code = "1002"
@@ -89,7 +91,7 @@ def parse_syllabus(pdf_path):
 
     # 3. Parse CO-PO Matrix (11 PO columns)
     copo_matrix = {}
-    matrix_lines = re.findall(r'^\s*(CO\d+)\s+([0-9\-\s]+)', full_text, re.MULTILINE)
+    matrix_lines = re.findall(r'^\s*(CO\d+)\s+([0-9\-\s]+)', standard_text, re.MULTILINE)
     for ml in matrix_lines:
         co_tag = ml[0].upper()
         # Parse the 11 PO columns
