@@ -401,36 +401,48 @@ class R26VirtualClassroomPracticalController extends Controller
 
         LessonPlan::where('batch_subject_id', $subjectId)->delete();
 
-        $dayNo = 1;
-        $seriesInserted = ['Series 1' => false, 'Series 2' => false];
+        // 1. Filter out non-experiment rows (like Tests or OEE that were parsed from syllabus)
+        $filteredExpts = array_values(array_filter($experiments, function($expt) {
+            $exptNo = $expt['expt_no'] ?? '';
+            return $exptNo !== 'Test' && $exptNo !== 'OEE';
+        }));
 
-        foreach ($experiments as $idx => $expt) {
-            $title    = $expt['title']   ?? ('Experiment ' . ($idx + 1));
-            $exptNo   = $expt['expt_no'] ?? ('Expt ' . ($idx + 1));
-            $co       = $expt['co']      ?? 'CO1';
-            $hours    = (int)($expt['hours'] ?? 2);
+        $totalProposed = (int)($pcf->total_hours ?? 30);
+        if ($totalProposed <= 0) $totalProposed = 30;
 
-            // If experiment is a Series Test, skip here (we'll add at end) or add inline
-            if ($expt['expt_no'] === 'Test') {
-                $sName = (stripos($title, '2') !== false || stripos($title, 'Second') !== false) ? 'Series 2' : 'Series 1';
-                if (!$seriesInserted[$sName]) {
-                    LessonPlan::create([
-                        'batch_subject_id' => $subjectId,
-                        'day_no'           => $dayNo++,
-                        'co_id'            => $co,
-                        'topic_content'    => $title . ' (Practical Exam)',
-                        'allocated_hours'  => $hours,
-                        'pedagogy'         => 'Exam',
-                        'sub_batch'        => 'Whole',
-                        'status'           => 'Pending',
-                    ]);
-                    $seriesInserted[$sName] = true;
+        $numExpts = count($filteredExpts);
+        $assignedHours = [];
+
+        if ($numExpts > 0) {
+            $targetHours = ($mode === 'split') ? (int)($totalProposed / 2) : $totalProposed;
+
+            // Distribute targetHours among the filtered experiments
+            $baseHours = (int)($targetHours / $numExpts);
+            if ($baseHours < 1) $baseHours = 1;
+            
+            $remainder = $targetHours - ($baseHours * $numExpts);
+            
+            for ($i = 0; $i < $numExpts; $i++) {
+                $h = $baseHours;
+                if ($remainder > 0) {
+                    $h++;
+                    $remainder--;
+                } elseif ($remainder < 0 && $h > 1) {
+                    $h--;
+                    $remainder++;
                 }
-                continue;
+                $assignedHours[$i] = $h;
             }
+        }
 
-            // Skip open-ended from auto-plan
-            if ($expt['expt_no'] === 'OEE') continue;
+        $dayNo = 1;
+
+        // 2. Insert Experiment Rows
+        foreach ($filteredExpts as $idx => $expt) {
+            $title  = $expt['title']   ?? ('Experiment ' . ($idx + 1));
+            $exptNo = $expt['expt_no'] ?? ('Expt ' . ($idx + 1));
+            $co     = $expt['co']      ?? 'CO1';
+            $hours  = $assignedHours[$idx] ?? 2;
 
             if ($mode === 'split') {
                 foreach (['Batch A', 'Batch B'] as $batch) {
@@ -459,20 +471,56 @@ class R26VirtualClassroomPracticalController extends Controller
             }
         }
 
-        // Always ensure Series 1 & 2 appear at end if not already inserted from PDF
-        foreach (['Series 1' => 'CO2', 'Series 2' => 'CO4'] as $sName => $coDefault) {
-            if (!$seriesInserted[$sName]) {
+        // 3. Always add two more days with lab for series exams at the end
+        if ($mode === 'split') {
+            // Series 1 for Batch A & Batch B
+            foreach (['Batch A', 'Batch B'] as $batch) {
                 LessonPlan::create([
                     'batch_subject_id' => $subjectId,
                     'day_no'           => $dayNo++,
-                    'co_id'            => $coDefault,
-                    'topic_content'    => $sName . ' (Practical Exam)',
+                    'co_id'            => 'CO2',
+                    'topic_content'    => 'Series 1 (Practical Exam)',
                     'allocated_hours'  => 2,
                     'pedagogy'         => 'Exam',
-                    'sub_batch'        => 'Whole',
+                    'sub_batch'        => $batch,
                     'status'           => 'Pending',
                 ]);
             }
+            // Series 2 for Batch A & Batch B
+            foreach (['Batch A', 'Batch B'] as $batch) {
+                LessonPlan::create([
+                    'batch_subject_id' => $subjectId,
+                    'day_no'           => $dayNo++,
+                    'co_id'            => 'CO4',
+                    'topic_content'    => 'Series 2 (Practical Exam)',
+                    'allocated_hours'  => 2,
+                    'pedagogy'         => 'Exam',
+                    'sub_batch'        => $batch,
+                    'status'           => 'Pending',
+                ]);
+            }
+        } else {
+            // Series 1 & 2 for Whole batch
+            LessonPlan::create([
+                'batch_subject_id' => $subjectId,
+                'day_no'           => $dayNo++,
+                'co_id'            => 'CO2',
+                'topic_content'    => 'Series 1 (Practical Exam)',
+                'allocated_hours'  => 2,
+                'pedagogy'         => 'Exam',
+                'sub_batch'        => 'Whole',
+                'status'           => 'Pending',
+            ]);
+            LessonPlan::create([
+                'batch_subject_id' => $subjectId,
+                'day_no'           => $dayNo++,
+                'co_id'            => 'CO4',
+                'topic_content'    => 'Series 2 (Practical Exam)',
+                'allocated_hours'  => 2,
+                'pedagogy'         => 'Exam',
+                'sub_batch'        => 'Whole',
+                'status'           => 'Pending',
+            ]);
         }
 
         $totalRows = LessonPlan::where('batch_subject_id', $subjectId)->count();
