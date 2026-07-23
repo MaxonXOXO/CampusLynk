@@ -221,6 +221,22 @@
         .tab-content:not(.hidden) { display: block; }
         .tab-content.hidden { display: none !important; }
 
+        /* Tactile click feel for experiment inventory buttons */
+        .exp-btn-touch {
+            transition: transform 0.1s ease, filter 0.15s ease, box-shadow 0.15s ease;
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .exp-btn-touch:hover {
+            filter: brightness(1.18);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        }
+        .exp-btn-touch:active {
+            transform: scale(0.94);
+            filter: brightness(0.9);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
         /* ── Tables ───────────────────────────────────────── */
         .vl-table {
             width: 100%;
@@ -344,29 +360,40 @@
                 </h1>
             </div>
 
-            <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-                <button onclick="toggleFullscreen()" id="fullscreen-btn" class="vl-btn" title="Toggle Fullscreen">
-                    <i class="fa-solid fa-expand" id="fullscreen-icon"></i>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <button onclick="toggleFullscreen()" id="fullscreen-btn" class="exp-btn-touch" style="padding:7px 13px;background:rgba(6,182,212,.2);border:1px solid rgba(6,182,212,.5);color:#67e8f9;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;" title="Toggle Fullscreen">
+                    <i class="fa-solid fa-expand" id="fullscreen-icon" style="color:#22d3ee;"></i>
                     <span class="hide-xs">Fullscreen</span>
                 </button>
-                <button onclick="toggleSidebar()" id="sidebar-toggle-btn" class="vl-btn" title="Toggle Sidebar">
-                    <i class="fa-solid fa-table-columns"></i>
+                <button onclick="toggleSidebar()" id="sidebar-toggle-btn" class="exp-btn-touch" style="padding:7px 13px;background:rgba(147,51,234,.2);border:1px solid rgba(147,51,234,.5);color:#c084fc;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;" title="Toggle Sidebar">
+                    <i class="fa-solid fa-table-columns" style="color:#a855f7;"></i>
                     <span class="hide-xs">Sidebar</span>
                 </button>
-                <a href="/r26/classroom/practical/course-file/{{ $batchSubject->id }}" target="_blank" class="vl-btn" title="Course File">
-                    <i class="fa-solid fa-folder-open"></i>
+                <a href="/r26/classroom/practical/course-file/{{ $batchSubject->id }}" target="_blank" class="exp-btn-touch" style="padding:7px 13px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.5);color:#fcd34d;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;" title="Course File">
+                    <i class="fa-solid fa-folder-open" style="color:#fbbf24;"></i>
                     <span class="hide-xs">Course File</span>
                 </a>
             </div>
         </div>
 
         <!-- Row 2: Lecturer · Branch · Batch · Semester · Parse Mode -->
+        <!-- Row 2: Staff Assignments (Lecturer, Demonstrator, etc.) · Branch · Batch · Semester · Parse Mode -->
         <div class="row2">
-            <span class="vl-badge vl-badge-slate">
-                <i class="fa-solid fa-chalkboard-user" style="color:var(--text-muted);"></i>
-                <span style="color:var(--text-muted);">Lecturer:</span>
-                <strong style="color:var(--text-primary);font-weight:600;">{{ $staff?->name ?? 'N/A' }}</strong>
-            </span>
+            @if(isset($assignedStaffList) && count($assignedStaffList) > 0)
+                @foreach($assignedStaffList as $st)
+                <span class="vl-badge vl-badge-slate" style="border-left:2px solid var(--accent);">
+                    <i class="fa-solid fa-chalkboard-user" style="color:var(--accent);"></i>
+                    <span style="color:var(--text-muted);">{{ $st['designation'] }}:</span>
+                    <strong style="color:var(--text-primary);font-weight:600;">{{ $st['name'] }}</strong>
+                </span>
+                @endforeach
+            @else
+                <span class="vl-badge vl-badge-slate">
+                    <i class="fa-solid fa-chalkboard-user" style="color:var(--text-muted);"></i>
+                    <span style="color:var(--text-muted);">Lecturer:</span>
+                    <strong style="color:var(--text-primary);font-weight:600;">{{ $staff?->name ?? 'N/A' }}</strong>
+                </span>
+            @endif
             <span class="vl-badge vl-badge-slate">
                 <i class="fa-solid fa-code-branch" style="color:var(--text-muted);"></i>
                 <span style="color:var(--text-muted);">Branch:</span>
@@ -398,8 +425,10 @@
         <aside id="workspaceSidebar" style="display:flex;flex-direction:column;gap:12px;padding:14px;overflow-y:auto;">
 
             <!-- Navigation -->
-            <div class="sidebar-nav-group">
-                <div class="sidebar-nav-header">Workspace Modules</div>
+            <div class="sidebar-nav-group" style="border: 1.5px solid rgba(99, 102, 241, 0.45); border-left: 4px solid #6366f1; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
+                <div class="sidebar-nav-header" style="display:flex;align-items:center;gap:6px;color:#a5b4fc;font-weight:700;">
+                    <i class="fa-solid fa-cubes"></i> Workspace Modules
+                </div>
 
                 <button onclick="switchTab('outline')" id="btn-outline" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
@@ -418,21 +447,18 @@
                 </button>
                 <button onclick="switchTab('table22')" id="btn-table22" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
-                        <i class="fa-solid fa-flask tab-icon"></i> Continuous Log (CE)
+                        <i class="fa-solid fa-flask tab-icon"></i> Daywork Log
                     </span>
-                    <span class="tab-badge">T-2.2</span>
                 </button>
                 <button onclick="switchTab('table23')" id="btn-table23" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-lightbulb tab-icon"></i> Open-Ended (OEE)
                     </span>
-                    <span class="tab-badge">T-2.3</span>
                 </button>
                 <button onclick="switchTab('series_qp')" id="btn-series_qp" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-clipboard-question tab-icon"></i> Series QP &amp; Scheme
                     </span>
-                    <span class="tab-badge">T-3.1</span>
                 </button>
                 <button onclick="switchTab('table31')" id="btn-table31" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
@@ -459,8 +485,10 @@
             </div>
 
             <!-- Lab Batch Filter -->
-            <div class="sidebar-nav-group">
-                <div class="sidebar-nav-header">Lab Batch Filter</div>
+            <div class="sidebar-nav-group" style="border: 1.5px solid rgba(79, 110, 247, 0.45); border-left: 4px solid var(--accent); box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
+                <div class="sidebar-nav-header" style="display:flex;align-items:center;gap:6px;color:#818cf8;font-weight:700;">
+                    <i class="fa-solid fa-filter"></i> Lab Batch Filter
+                </div>
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px;">
                     <button onclick="filterLabBatch('All')" id="batch-filter-All" class="batch-filter-btn vl-btn vl-btn-primary" style="font-size:12px;justify-content:center;">All</button>
                     <button onclick="filterLabBatch('Unassigned')" id="batch-filter-Unassigned" class="batch-filter-btn vl-btn" style="font-size:12px;justify-content:center;">Unassigned</button>
@@ -512,11 +540,16 @@
                             <i class="fa-solid fa-file-pdf" style="-webkit-text-fill-color:#38bdf8;color:#38bdf8;"></i> Syllabus &amp; Course Articulation
                         </h2>
 
-                        <p class="text-xs text-slate-500 mt-1">Upload the practical syllabus PDF to automatically map Course Outcomes, Credits, and Schemes.</p>
+                        <p class="text-xs text-slate-400 mt-1">Upload the practical syllabus PDF to automatically map Course Outcomes, Credits, and Schemes.</p>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                        @if($practicalCourseFile && $practicalCourseFile->syllabus_pdf_path)
+                            <a href="/storage/{{ $practicalCourseFile->syllabus_pdf_path }}" target="_blank" class="exp-btn-touch" style="padding:8px 16px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.5);color:#fca5a5;border-radius:8px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;text-decoration:none;" title="View Syllabus PDF">
+                                <i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> View PDF
+                            </a>
+                        @endif
                         <input type="file" id="syllabus_pdf_input" accept=".pdf" class="hidden" onchange="uploadSyllabusPdf()">
-                        <button id="syllabus-upload-btn" onclick="document.getElementById('syllabus_pdf_input').click()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm rounded-xl shadow-lg transition flex items-center gap-2">
+                        <button id="syllabus-upload-btn" onclick="document.getElementById('syllabus_pdf_input').click()" class="exp-btn-touch" style="padding:8px 16px;background:#3b5bdb;border:1px solid #4c6ef5;color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
                             <i class="fa-solid fa-upload"></i> Upload Syllabus PDF
                         </button>
                     </div>
@@ -525,13 +558,12 @@
                 {{-- Upload Status Bar --}}
                 <div id="syllabus-upload-status" class="hidden mt-4 p-3 rounded-xl text-sm font-semibold flex items-center gap-3"></div>
 
-                {{-- Uploaded File Badge --}}
+                {{-- Uploaded File Banner --}}
                 @if($practicalCourseFile && $practicalCourseFile->syllabus_pdf_path)
-                <div class="mt-3 flex items-center gap-2 text-xs">
-                    <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                    <span class="text-emerald-400 font-medium">Syllabus loaded:</span>
-                    <span class="text-slate-300 font-medium">{{ $practicalCourseFile->course_title ?: $batchSubject->subject_name }}</span>
-                    <a href="/storage/{{ $practicalCourseFile->syllabus_pdf_path }}" target="_blank" class="text-slate-500 hover:text-slate-300 hover:underline ml-1"><i class="fa-solid fa-external-link-alt text-[10px]"></i> View PDF</a>
+                <div style="margin-top:12px;padding:10px 14px;background:rgba(48,209,88,.08);border:1px solid rgba(48,209,88,.25);border-radius:8px;display:flex;align-items:center;gap:8px;font-size:13px;">
+                    <i class="fa-solid fa-circle-check" style="color:#30d158;font-size:15px;"></i>
+                    <span style="color:#30d158;font-weight:600;">Syllabus Loaded:</span>
+                    <strong style="color:var(--text-primary);">{{ $practicalCourseFile->course_title ?: $batchSubject->subject_name }}</strong>
                 </div>
                 @endif
 
@@ -643,45 +675,96 @@
 
             <!-- TAB: List of Experiments -->
             <div id="tab-experiments" class="tab-content glass-panel p-6 hidden">
-                <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+                {{-- Header --}}
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--border);">
                     <div>
-                        <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-list-check text-slate-500"></i> Course Experiments Inventory
+                        <h2 style="font-size:16px;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:8px;margin:0;">
+                            <i class="fa-solid fa-list-check" style="color:#818cf8;"></i> Course Experiments Inventory
                         </h2>
-                        <p class="text-xs text-slate-400 mt-1">Add, update, or import list of experiments mapped to curriculum standards.</p>
+                        <p style="font-size:13px;color:var(--text-secondary);margin:4px 0 0 0;">
+                            Edit experiment details inline and click Save List to update.
+                            @if($practicalCourseFile && count($practicalCourseFile->getExperimentsArray()) > 0)
+                                <span style="margin-left:8px;padding:2px 10px;background:rgba(48,209,88,.12);border:1px solid rgba(48,209,88,.25);color:#30d158;border-radius:6px;font-size:12px;font-weight:600;">
+                                    {{ count($practicalCourseFile->getExperimentsArray()) }} experiments
+                                </span>
+                            @endif
+                        </p>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <button onclick="importDefaults()" class="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-300 text-xs font-bold rounded-xl hover:border-slate-700 transition">
-                            Import default experiments
+                    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                        <button id="btn-load-pdf" onclick="loadFromPdfExperiments()" class="exp-btn-touch" style="padding:8px 16px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.5);color:#fca5a5;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                            <i class="fa-solid fa-file-pdf"></i> Load from PDF
                         </button>
-                        <button onclick="addNewExperimentRow()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow transition">
-                            + Add Experiment
+                        <button id="btn-add-row" onclick="addNewExperimentRow()" class="exp-btn-touch" style="padding:8px 16px;background:#3b5bdb;border:1px solid #4c6ef5;color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                            <i class="fa-solid fa-plus"></i> Add Row
+                        </button>
+                        <button id="save-experiments-btn" onclick="saveExperimentsInventory()" class="exp-btn-touch" style="padding:8px 18px;background:#087f5b;border:1px solid #0ca678;color:#fff;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save List
                         </button>
                     </div>
                 </div>
 
-                <div class="mt-6 overflow-x-auto">
-                    <table class="w-full text-left text-xs border border-slate-800 border-collapse" id="experiments-inventory-table">
+                {{-- Status banner (shown by JS) --}}
+                <div id="exp-pdf-status" style="display:none;margin-top:10px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;align-items:center;gap:8px;"></div>
+
+                {{-- Table --}}
+                <div style="margin-top:14px;overflow-x:auto;">
+                    <table id="experiments-inventory-table" style="width:100%;border-collapse:collapse;font-size:13px;color:var(--text-primary);">
                         <thead>
-                            <tr class="bg-slate-900/60 font-bold border-b border-slate-850 text-slate-400">
-                                <th class="p-3 w-20">Expt No</th>
-                                <th class="p-3 w-64">Experiment Title</th>
-                                <th class="p-3">Practical Outcomes / Details</th>
-                                <th class="p-3 w-28">Mapped CO</th>
-                                <th class="p-3 w-20">Hours</th>
-                                <th class="p-3 w-16 text-center">Action</th>
+                            <tr style="background:var(--bg-stripe);border-bottom:2px solid var(--border-light);">
+                                <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;width:90px;">Expt No</th>
+                                <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Experiment Title</th>
+                                <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;">Practical Outcomes / Details</th>
+                                <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;width:90px;">CO</th>
+                                <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;width:70px;">Hrs</th>
+                                <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;width:50px;">Del</th>
                             </tr>
                         </thead>
                         <tbody id="experiments-rows-container">
-                            <!-- Populated dynamically -->
+                            @php
+                                $expList  = $practicalCourseFile ? $practicalCourseFile->getExperimentsArray() : [];
+                                $coOptions = ['CO1','CO2','CO3','CO4','CO5','CO6'];
+                                $inputStyle = 'background:#0f1117;border:1px solid #2a2d3e;color:#e2e5f0;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;outline:none;';
+                            @endphp
+                            @if(count($expList) > 0)
+                                @foreach($expList as $idx => $exp)
+                                <tr style="border-bottom:1px solid var(--border);transition:background .1s;" onmouseover="this.style.background='var(--bg-card-hover)'" onmouseout="this.style.background='transparent'">
+                                    <td style="padding:6px 8px;">
+                                        <input type="text" class="exp-no" style="{{ $inputStyle }}width:80px;font-family:monospace;" value="{{ $exp['expt_no'] ?? '' }}">
+                                    </td>
+                                    <td style="padding:6px 8px;">
+                                        <input type="text" class="exp-title" style="{{ $inputStyle }}" value="{{ $exp['title'] ?? '' }}">
+                                    </td>
+                                    <td style="padding:6px 8px;">
+                                        <input type="text" class="exp-desc" style="{{ $inputStyle }}color:#a0a7be;" value="{{ $exp['description'] ?? '' }}">
+                                    </td>
+                                    <td style="padding:6px 8px;">
+                                        <select class="exp-co" style="{{ $inputStyle }}">
+                                            @foreach($coOptions as $co)
+                                            <option value="{{ $co }}" {{ ($exp['co'] ?? '') === $co ? 'selected' : '' }}>{{ $co }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td style="padding:6px 8px;text-align:center;">
+                                        <input type="number" class="exp-hours" style="{{ $inputStyle }}width:60px;text-align:center;" value="{{ $exp['hours'] ?? 2 }}" min="1" max="6">
+                                    </td>
+                                    <td style="padding:6px 8px;text-align:center;">
+                                        <button onclick="removeExperimentRow(this)" style="width:32px;height:32px;background:#7f1d1d;border:1px solid #991b1b;color:#fca5a5;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;" title="Remove">
+                                            <i class="fa-solid fa-trash-can" style="font-size:11px;"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            @else
+                                <tr id="exp-empty-row">
+                                    <td colspan="6" class="p-8 text-center text-slate-400 italic text-sm">
+                                        <i class="fa-solid fa-inbox text-slate-600 text-2xl block mb-2"></i>
+                                        No experiments loaded yet.<br>
+                                        <span class="text-xs">Click <strong class="text-red-400">Load from PDF</strong> to fetch from the uploaded syllabus.</span>
+                                    </td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
-                </div>
-
-                <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
-                    <button onclick="saveExperimentsInventory()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-lg transition">
-                        Save Experiments List
-                    </button>
                 </div>
             </div>
 
@@ -715,6 +798,8 @@
                             <tr class="bg-slate-900/60 font-bold text-slate-400">
                                 <th class="p-3 w-16">Day No</th>
                                 <th class="p-3 w-28">Sub-Batch</th>
+                                <th class="p-3 w-36">Proposed Date</th>
+                                <th class="p-3 w-36">Actual Date</th>
                                 <th class="p-3">Topic Content / Target Experiment</th>
                                 <th class="p-3 w-24">Mapped CO</th>
                                 <th class="p-3 w-20">Hours</th>
@@ -724,12 +809,18 @@
                         </thead>
                         <tbody id="lesson-plan-rows-container">
                             @forelse($lessonPlans as $lp)
-                            <tr class="lesson-plan-row hover:bg-slate-900/20 border-b border-slate-850" data-id="{{ $lp->id }}">
+                            <tr class="lesson-plan-row hover:bg-slate-900/20 border-b border-slate-855" data-id="{{ $lp->id }}">
                                 <td class="p-3 font-mono">{{ $lp->day_no }}</td>
                                 <td class="p-3">
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $lp->sub_batch == 'Batch A' ? 'bg-indigo-500/10 text-indigo-400' : ($lp->sub_batch == 'Batch B' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-slate-800 text-slate-350') }}">
                                         {{ $lp->sub_batch ?? 'Whole' }}
                                     </span>
+                                </td>
+                                <td class="p-2">
+                                    <input type="date" value="{{ $lp->proposed_date }}" class="lp-proposed px-2 py-1 bg-slate-950 border border-slate-850 rounded text-slate-200 focus:outline-none w-full font-sans">
+                                </td>
+                                <td class="p-2">
+                                    <input type="date" value="{{ $lp->actual_date }}" class="lp-actual px-2 py-1 bg-slate-950 border border-slate-850 rounded text-slate-200 focus:outline-none w-full font-sans">
                                 </td>
                                 <td class="p-2">
                                     <input type="text" value="{{ $lp->topic_content }}" class="lp-topic px-2 py-1 bg-slate-950 border border-slate-850 rounded text-slate-200 focus:outline-none w-full">
@@ -760,7 +851,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td class="p-6 text-center text-slate-500 italic" colspan="7">No planner generated yet. Select batch option and click Generate.</td>
+                                <td class="p-6 text-center text-slate-500 italic" colspan="10">No planner generated yet. Select batch option and click Generate.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -781,18 +872,24 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
                     <div>
                         <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-flask text-slate-500"></i> Day Work Continuous Log (Table 2.2)
+                            <i class="fa-solid fa-flask text-slate-500"></i> Daywork Log
                         </h2>
                         <p class="text-xs text-slate-400 mt-1">Continuous laboratory evaluation log out of 50. Total averages scale to 30 marks.</p>
                     </div>
 
-                    <div class="flex items-center gap-3">
+                    <div class="flex flex-wrap items-center gap-3">
                         <div>
-                            <label class="block text-[10px] uppercase font-black text-slate-500 tracking-wider mb-1">Active Experiment</label>
-                            <input type="text" id="exp_no" value="Exp 1" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 font-mono w-24">
+                            <label class="block text-[10px] uppercase font-black text-slate-400 tracking-wider mb-1">Select Experiment</label>
+                            <select id="exp_select" onchange="switchActiveExperiment(this.value)" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 font-mono font-bold">
+                                <!-- Dynamic options -->
+                            </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] uppercase font-black text-slate-500 tracking-wider mb-1">Experiment Title</label>
+                            <label class="block text-[10px] uppercase font-black text-slate-400 tracking-wider mb-1">Experiment No</label>
+                            <input type="text" id="exp_no" value="Exp 1" oninput="onManualExpNoChange()" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 font-mono w-24">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase font-black text-slate-400 tracking-wider mb-1">Experiment Title</label>
                             <input type="text" id="exp_title" placeholder="e.g. Verification of Ohm's Law" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 w-48 sm:w-64">
                         </div>
                     </div>
@@ -811,19 +908,19 @@
                          data-batch="{{ $batchVal }}">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-slate-500 font-black text-xs flex items-center justify-center border border-blue-500/20">
+                                <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 font-black text-xs flex items-center justify-center border border-blue-500/20">
                                     {{ $student->roll_no ?? ($index + 1) }}
                                 </span>
                                 <div>
                                     <h4 class="text-sm font-bold text-slate-200">{{ $student->name }}</h4>
-                                    <span class="text-xs font-mono text-slate-500">{{ $student->reg_no }}</span>
+                                    <span class="text-xs font-mono text-slate-400">{{ $student->reg_no }}</span>
                                 </div>
                             </div>
 
                             <div class="flex items-center gap-4">
                                 <div class="flex items-center gap-1">
-                                    <span class="text-[10px] font-black uppercase text-slate-500">Lab Batch:</span>
-                                    <select onchange="updateLabBatch('{{ $student->reg_no }}', this.value)" class="student-batch-select-{{ $student->reg_no }} bg-slate-950 border border-slate-850 text-xs rounded py-1 px-1.5 text-slate-300 focus:outline-none focus:border-blue-500">
+                                    <span class="text-[10px] font-black uppercase text-slate-400">Lab Batch:</span>
+                                    <select onchange="updateLabBatch('{{ $student->reg_no }}', this.value)" class="student-batch-select-{{ $student->reg_no }} bg-slate-950 border border-slate-855 text-xs rounded py-1 px-1.5 text-slate-300 focus:outline-none focus:border-blue-500">
                                         <option value="" {{ empty($savedBatch) ? '' : ($batchVal == 'Unassigned' || empty($batchVal) ? 'selected' : '') }}>Unassigned</option>
                                         <option value="Batch A" {{ $batchVal == 'Batch A' ? 'selected' : '' }}>Batch A</option>
                                         <option value="Batch B" {{ $batchVal == 'Batch B' ? 'selected' : '' }}>Batch B</option>
@@ -831,13 +928,13 @@
                                 </div>
 
 
-                                <button onclick="openGradingModal('{{ $student->reg_no }}', 'table22')" class="px-4 py-2 bg-blue-600/15 border border-blue-500/20 hover:bg-blue-600/25 text-slate-500 text-xs font-black rounded-xl transition flex items-center gap-1.5">
+                                <button onclick="openGradingModal('{{ $student->reg_no }}', 'table22')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-md shadow-blue-900/30 border border-blue-500">
                                     <i class="fa-solid fa-sliders"></i> Evaluate
                                 </button>
 
                                 <div class="text-right min-w-[70px]">
-                                    <span class="text-[10px] uppercase font-bold text-slate-500 block">Score</span>
-                                    <span id="score-text-exp-{{ $student->reg_no }}" class="font-mono text-xs font-bold text-blue-450">
+                                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Score</span>
+                                    <span id="score-text-exp-{{ $student->reg_no }}" class="font-mono text-xs font-bold text-slate-200">
                                         {{ $expLog ? floatval($expLog->total_score_50) : '0.00' }} / 50
                                     </span>
                                 </div>
@@ -858,7 +955,7 @@
             <div id="tab-table23" class="tab-content glass-panel p-6 hidden">
                 <div class="pb-6 border-b border-slate-800">
                     <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
-                        <i class="fa-solid fa-lightbulb text-amber-400"></i> Open-Ended Experiment (Table 2.3)
+                        <i class="fa-solid fa-lightbulb text-amber-400"></i> Open-Ended Experiments
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">Assess originality and execution of open-ended projects out of 50. Normalized to 10 marks.</p>
                 </div>
@@ -881,20 +978,20 @@
                                 </span>
                                 <div>
                                     <h4 class="text-sm font-bold text-slate-200">{{ $student->name }}</h4>
-                                    <span class="text-xs font-mono text-slate-500">{{ $student->reg_no }}</span>
+                                    <span class="text-xs font-mono text-slate-400">{{ $student->reg_no }}</span>
                                 </div>
                             </div>
 
                             <div class="flex items-center gap-4">
                                 <input type="text" id="open-title-{{ $student->reg_no }}" value="{{ $openLog ? $openLog->project_title : '' }}" placeholder="Project Title..." class="px-3 py-2 bg-slate-950 border border-slate-850 rounded-xl text-xs text-white focus:outline-none w-44">
 
-                                <button onclick="openGradingModal('{{ $student->reg_no }}', 'table23')" class="px-4 py-2 bg-amber-500/15 border border-amber-500/20 hover:bg-amber-500/25 text-amber-400 text-xs font-black rounded-xl transition flex items-center gap-1.5">
+                                <button onclick="openGradingModal('{{ $student->reg_no }}', 'table23')" class="px-4 py-2 bg-amber-600 hover:bg-amber-550 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-md shadow-amber-900/30 border border-amber-500">
                                     <i class="fa-solid fa-sliders"></i> Evaluate
                                 </button>
 
                                 <div class="text-right min-w-[70px]">
-                                    <span class="text-[10px] uppercase font-bold text-slate-500 block">Score</span>
-                                    <span id="score-text-open-{{ $student->reg_no }}" class="font-mono text-xs font-bold text-amber-450">
+                                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Score</span>
+                                    <span id="score-text-open-{{ $student->reg_no }}" class="font-mono text-xs font-bold text-slate-200">
                                         {{ $openLog ? floatval($openLog->total_score_50) : '0.00' }} / 50
                                     </span>
                                 </div>
@@ -967,7 +1064,7 @@
                 <div class="flex items-center justify-between pb-6 border-b border-slate-800">
                     <div>
                         <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-signature text-purple-400"></i> Practical Series Exam Evaluation (Table 3.1)
+                            <i class="fa-solid fa-signature text-purple-400"></i> Series Marks (CA)
                         </h2>
                         <p class="text-xs text-slate-400 mt-1">Practical examinations out of 40. Consolidated average represents 15 CIA marks.</p>
                     </div>
@@ -996,18 +1093,18 @@
                                 </span>
                                 <div>
                                     <h4 class="text-sm font-bold text-slate-200">{{ $student->name }}</h4>
-                                    <span class="text-xs font-mono text-slate-500">{{ $student->reg_no }}</span>
+                                    <span class="text-xs font-mono text-slate-400">{{ $student->reg_no }}</span>
                                 </div>
                             </div>
 
                             <div class="flex items-center gap-4">
-                                <button onclick="openGradingModal('{{ $student->reg_no }}', 'table31')" class="px-4 py-2 bg-purple-600/15 border border-purple-500/20 hover:bg-purple-600/25 text-purple-400 text-xs font-black rounded-xl transition flex items-center gap-1.5">
+                                <button onclick="openGradingModal('{{ $student->reg_no }}', 'table31')" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-md shadow-purple-900/30 border border-purple-550">
                                     <i class="fa-solid fa-sliders"></i> Evaluate
                                 </button>
 
                                 <div class="text-right min-w-[70px]">
-                                    <span class="text-[10px] uppercase font-bold text-slate-500 block">Score</span>
-                                    <span id="score-text-series-{{ $student->reg_no }}" class="font-mono text-xs font-bold text-purple-450"
+                                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Score</span>
+                                    <span id="score-text-series-{{ $student->reg_no }}" class="font-mono text-xs font-bold text-slate-200"
                                           data-s1="{{ $series1Log ? floatval($series1Log->total_score_40) : '0.00' }}"
                                           data-s2="{{ $series2Log ? floatval($series2Log->total_score_40) : '0.00' }}">
                                         {{ $series1Log ? floatval($series1Log->total_score_40) : '0.00' }} / 40
@@ -1184,7 +1281,7 @@
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <div>
                     <h3 id="modalStudentName" class="font-black text-white text-base">Student Name</h3>
-                    <span id="modalStudentReg" class="text-xs font-mono text-slate-500">Reg No</span>
+                    <span id="modalStudentReg" class="text-xs font-mono text-slate-400">Reg No</span>
                 </div>
                 <button onclick="closeGradingModal()" class="w-8 h-8 rounded-full bg-slate-850 hover:bg-slate-800 text-slate-400 hover:text-white transition flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
@@ -1201,8 +1298,8 @@
                 </button>
 
                 <div class="text-center">
-                    <span class="text-[10px] uppercase font-bold text-slate-500 block">Total</span>
-                    <span id="modalTotalScore" class="font-mono text-sm font-black text-slate-500">0.00</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Total</span>
+                    <span id="modalTotalScore" class="font-mono text-lg font-black text-emerald-400">0.00</span>
                 </div>
 
                 <button onclick="navigateStudent(1)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5">
@@ -1281,6 +1378,123 @@
             };
         });
 
+        // Initialize experiment dropdown and handlers
+        function initExperimentSelect() {
+            const select = document.getElementById('exp_select');
+            if (!select) return;
+            select.innerHTML = '';
+            
+            // Collect unique experiment numbers from localExperiments and experimentLogs
+            const uniqueExps = new Set();
+            if (typeof localExperiments !== 'undefined' && localExperiments && localExperiments.length > 0) {
+                localExperiments.forEach(e => {
+                    if (e.expt_no) uniqueExps.add(e.expt_no);
+                });
+            }
+            // Add any other experiments found in saved logs
+            if (typeof experimentLogs !== 'undefined' && experimentLogs) {
+                Object.keys(experimentLogs).forEach(k => {
+                    uniqueExps.add(k);
+                });
+            }
+
+            // Ensure at least "Exp 1" is present
+            if (uniqueExps.size === 0) {
+                uniqueExps.add("Exp 1");
+            }
+
+            // Convert to array and sort naturally
+            const sorted = Array.from(uniqueExps).sort((a, b) => {
+                return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            });
+
+            sorted.forEach(expNo => {
+                const opt = document.createElement('option');
+                opt.value = expNo;
+                opt.textContent = expNo;
+                select.appendChild(opt);
+            });
+
+            // Set default value matching text box
+            const activeExp = document.getElementById('exp_no')?.value || 'Exp 1';
+            select.value = activeExp;
+            
+            updateExperimentTitleFromList(activeExp);
+        }
+
+        function updateExperimentTitleFromList(expNo) {
+            // Find title from localExperiments
+            const matched = (typeof localExperiments !== 'undefined' ? localExperiments : []).find(e => e.expt_no === expNo);
+            if (matched && matched.title) {
+                document.getElementById('exp_title').value = matched.title;
+            } else {
+                // Fallback: look in experimentLogs
+                const logs = experimentLogs[expNo];
+                if (logs && logs.length > 0 && logs[0].title) {
+                    document.getElementById('exp_title').value = logs[0].title;
+                } else {
+                    document.getElementById('exp_title').value = '';
+                }
+            }
+        }
+
+        function switchActiveExperiment(expNo) {
+            const expNoInput = document.getElementById('exp_no');
+            if (expNoInput) expNoInput.value = expNo;
+            updateExperimentTitleFromList(expNo);
+
+            // Populate scoresState.table22 with the selected experiment's marks
+            studentList.forEach(s => {
+                const reg = s.reg_no;
+                const expLog = experimentLogs[expNo] ? experimentLogs[expNo].find(x => x.reg_no === reg) : null;
+                
+                scoresState.table22[reg] = expLog ? {
+                    c1: parseFloat(expLog.prep_punctuality) || 0,
+                    c2: parseFloat(expLog.setup_procedure) || 0,
+                    c3: parseFloat(expLog.observation_recording) || 0,
+                    c4: parseFloat(expLog.analysis_interpretation) || 0,
+                    c5: parseFloat(expLog.viva_voce) || 0,
+                    c6: parseFloat(expLog.teamwork_discipline) || 0
+                } : { c1:0, c2:0, c3:0, c4:0, c5:0, c6:0 };
+
+                // Update the student row score display on screen
+                const sum = (scoresState.table22[reg].c1||0) + (scoresState.table22[reg].c2||0) + (scoresState.table22[reg].c3||0) + (scoresState.table22[reg].c4||0) + (scoresState.table22[reg].c5||0) + (scoresState.table22[reg].c6||0);
+                const scoreTextSpan = document.getElementById(`score-text-exp-${reg}`);
+                if (scoreTextSpan) {
+                    scoreTextSpan.innerText = sum.toFixed(2) + ' / 50';
+                }
+
+                // Recalculate consolidated CIA values for this student on the client side
+                recalculateCIA(reg);
+            });
+        }
+
+        function onManualExpNoChange() {
+            const val = document.getElementById('exp_no').value;
+            const select = document.getElementById('exp_select');
+            if (select) {
+                let exists = false;
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === val) {
+                        select.value = val;
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists && val.trim() !== '') {
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    opt.textContent = val;
+                    select.appendChild(opt);
+                    select.value = val;
+                }
+            }
+            switchActiveExperiment(val);
+        }
+
+        // Initialize on load
+        initExperimentSelect();
+
         // Initialise first tab active state and filter on page load
         document.getElementById('btn-outline')?.classList.add('active');
         
@@ -1300,9 +1514,7 @@
             const btn = document.getElementById('btn-' + tabId);
             if (btn) btn.classList.add('active');
 
-            if (tabId === 'experiments') {
-                loadExperimentsInventoryTable();
-            } else if (tabId === 'series_qp') {
+            if (tabId === 'series_qp') {
                 loadSeriesQpConfig('Series 1');
             }
             
@@ -1459,82 +1671,143 @@
             }
         }
 
-        // Manual Experiments Inventory List
+        // Manual Experiments Inventory List (for JS-driven operations: Load from PDF, Add Row)
         let localExperiments = @json($practicalCourseFile ? ($practicalCourseFile->getExperimentsArray()) : []);
+        const pdfParsedExperiments = @json($practicalCourseFile ? (json_decode($practicalCourseFile->parsed_experiments, true) ?? []) : []);
+        // NOTE: initial rows are server-rendered by Blade; JS only re-renders when user clicks Load from PDF or Add Row
+
+
+        function loadFromPdfExperiments() {
+            const statusEl = document.getElementById('exp-pdf-status');
+            if (!pdfParsedExperiments || pdfParsedExperiments.length === 0) {
+                if (statusEl) {
+                    statusEl.className = 'mt-3 p-3 rounded-xl text-sm font-semibold flex items-center gap-2 bg-amber-950/40 border border-amber-700/40 text-amber-300';
+                    statusEl.style.display = 'flex';
+                    statusEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> No experiments found in uploaded PDF. Please upload a syllabus PDF first from the Course Outline tab.';
+                }
+                alert('No experiments found in uploaded PDF. Please upload a syllabus PDF first from the Course Outline tab.');
+                return;
+            }
+            localExperiments = JSON.parse(JSON.stringify(pdfParsedExperiments));
+            loadExperimentsInventoryTable();
+            if (statusEl) {
+                statusEl.className = 'mt-3 p-3 rounded-xl text-sm font-semibold flex items-center gap-2 bg-emerald-950/40 border border-emerald-700/40 text-emerald-300';
+                statusEl.style.display = 'flex';
+                statusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> Loaded ${pdfParsedExperiments.length} experiments from the syllabus PDF. Edit below and click Save List.`;
+            }
+        }
 
         function loadExperimentsInventoryTable() {
             const container = document.getElementById('experiments-rows-container');
-            container.innerHTML = '';
-            
+            if (!container) return;
+
+            const IS = 'background:#0f1117;border:1px solid #2a2d3e;color:#e2e5f0;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;outline:none;';
+
             if (!localExperiments || localExperiments.length === 0) {
-                container.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 italic">No experiments configured. Import default list or click Add.</td></tr>`;
+                container.innerHTML = `<tr><td colspan="6" style="padding:40px;text-align:center;color:#5a6180;font-style:italic;"><i class="fa-solid fa-inbox" style="font-size:28px;display:block;margin-bottom:8px;color:#323552;"></i>No experiments loaded.<br><span style="font-size:12px;">Click <strong style="color:#fca5a5;">Load from PDF</strong> to fetch experiments.</span></td></tr>`;
                 return;
             }
 
-            localExperiments.forEach((exp, idx) => {
-                const row = `
-                    <tr class="border-b border-slate-850 hover:bg-slate-900/10">
-                        <td class="p-2"><input type="text" class="exp-no bg-slate-950 border border-slate-850 px-2 py-1.5 rounded w-16 font-mono text-white" value="${exp.expt_no || ''}"></td>
-                        <td class="p-2"><input type="text" class="exp-title bg-slate-950 border border-slate-850 px-2 py-1.5 rounded w-full text-white" value="${exp.title || ''}"></td>
-                        <td class="p-2"><input type="text" class="exp-desc bg-slate-950 border border-slate-850 px-2 py-1.5 rounded w-full text-white" value="${exp.description || ''}"></td>
-                        <td class="p-2">
-                            <select class="exp-co bg-slate-950 border border-slate-850 px-2 py-1.5 rounded w-full">
-                                <option value="CO1" ${exp.co === 'CO1' ? 'selected' : ''}>CO1</option>
-                                <option value="CO2" ${exp.co === 'CO2' ? 'selected' : ''}>CO2</option>
-                                <option value="CO3" ${exp.co === 'CO3' ? 'selected' : ''}>CO3</option>
-                                <option value="CO4" ${exp.co === 'CO4' ? 'selected' : ''}>CO4</option>
-                            </select>
-                        </td>
-                        <td class="p-2"><input type="number" class="exp-hours bg-slate-950 border border-slate-850 px-2 py-1.5 rounded text-center w-16 text-white" value="${exp.hours || 2}"></td>
-                        <td class="p-2 text-center">
-                            <button onclick="removeExperimentRow(${idx})" class="w-8 h-8 rounded-lg bg-red-950/20 border border-red-900/30 hover:bg-red-900/20 text-red-400 transition flex items-center justify-center">
-                                <i class="fa-solid fa-trash-can"></i>
+            const esc = str => String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/[\r\n]+/g, ' ');
+
+            let html = '';
+            localExperiments.forEach((exp) => {
+                const coOptions = ['CO1','CO2','CO3','CO4','CO5','CO6'].map(c =>
+                    `<option value="${c}" ${(exp.co||'') === c ? 'selected' : ''}>${c}</option>`
+                ).join('');
+                html += `
+                    <tr style="border-bottom:1px solid #2a2d3e;" onmouseover="this.style.background='#1f2233'" onmouseout="this.style.background='transparent'">
+                        <td style="padding:6px 8px;"><input type="text" class="exp-no" style="${IS}width:80px;font-family:monospace;" value="${esc(exp.expt_no)}"></td>
+                        <td style="padding:6px 8px;"><input type="text" class="exp-title" style="${IS}" value="${esc(exp.title)}"></td>
+                        <td style="padding:6px 8px;"><input type="text" class="exp-desc" style="${IS}color:#a0a7be;" value="${esc(exp.description)}"></td>
+                        <td style="padding:6px 8px;"><select class="exp-co" style="${IS}">${coOptions}</select></td>
+                        <td style="padding:6px 8px;text-align:center;"><input type="number" class="exp-hours" style="${IS}width:60px;text-align:center;" value="${exp.hours || 2}" min="1" max="6"></td>
+                        <td style="padding:6px 8px;text-align:center;">
+                            <button onclick="removeExperimentRow(this)" style="width:32px;height:32px;background:#7f1d1d;border:1px solid #991b1b;color:#fca5a5;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;" title="Remove">
+                                <i class="fa-solid fa-trash-can" style="font-size:11px;"></i>
                             </button>
                         </td>
-                    </tr>
-                `;
-                container.innerHTML += row;
+                    </tr>`;
             });
+            container.innerHTML = html;
         }
 
         function addNewExperimentRow() {
-            if (!localExperiments) localExperiments = [];
-            localExperiments.push({
-                expt_no: 'Expt ' + (localExperiments.length + 1),
-                title: '',
-                description: '',
-                co: 'CO1',
-                hours: 2
+            const container = document.getElementById('experiments-rows-container');
+            if (!container) return;
+
+            const emptyRow = document.getElementById('exp-empty-row');
+            if (emptyRow) emptyRow.remove();
+
+            const count = container.querySelectorAll('tr').length + 1;
+            const IS = 'background:#0f1117;border:1px solid #2a2d3e;color:#e2e5f0;border-radius:6px;padding:6px 8px;font-size:13px;width:100%;outline:none;';
+
+            const newTr = document.createElement('tr');
+            newTr.style.borderBottom = '1px solid #2a2d3e';
+            newTr.style.transition = 'background .1s';
+            newTr.onmouseover = function() { this.style.background = '#1f2233'; };
+            newTr.onmouseout = function() { this.style.background = 'transparent'; };
+
+            newTr.innerHTML = `
+                <td style="padding:6px 8px;"><input type="text" class="exp-no" style="${IS}width:80px;font-family:monospace;" value="Expt ${count}"></td>
+                <td style="padding:6px 8px;"><input type="text" class="exp-title" style="${IS}" value="" placeholder="Experiment title..."></td>
+                <td style="padding:6px 8px;"><input type="text" class="exp-desc" style="${IS}color:#a0a7be;" value="" placeholder="Practical details / outcomes..."></td>
+                <td style="padding:6px 8px;">
+                    <select class="exp-co" style="${IS}">
+                        <option value="CO1">CO1</option>
+                        <option value="CO2">CO2</option>
+                        <option value="CO3">CO3</option>
+                        <option value="CO4">CO4</option>
+                        <option value="CO5">CO5</option>
+                        <option value="CO6">CO6</option>
+                    </select>
+                </td>
+                <td style="padding:6px 8px;text-align:center;"><input type="number" class="exp-hours" style="${IS}width:60px;text-align:center;" value="2" min="1" max="6"></td>
+                <td style="padding:6px 8px;text-align:center;">
+                    <button onclick="removeExperimentRow(this)" style="width:32px;height:32px;background:#7f1d1d;border:1px solid #991b1b;color:#fca5a5;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;" title="Remove">
+                        <i class="fa-solid fa-trash-can" style="font-size:11px;"></i>
+                    </button>
+                </td>
+            `;
+            container.appendChild(newTr);
+        }
+
+        function removeExperimentRow(target) {
+            if (target && target.closest) {
+                const tr = target.closest('tr');
+                if (tr) tr.remove();
+            } else if (typeof target === 'number') {
+                const trs = document.querySelectorAll('#experiments-rows-container tr');
+                if (trs[target]) trs[target].remove();
+            }
+        }
+
+        function syncLocalExperimentsFromDom() {
+            const rows = [];
+            document.querySelectorAll('#experiments-rows-container tr').forEach(tr => {
+                const noInput = tr.querySelector('.exp-no');
+                if (!noInput) return;
+                rows.push({
+                    expt_no: noInput.value,
+                    title: tr.querySelector('.exp-title').value,
+                    description: tr.querySelector('.exp-desc').value,
+                    co: tr.querySelector('.exp-co').value,
+                    hours: parseInt(tr.querySelector('.exp-hours').value || 2)
+                });
             });
-            loadExperimentsInventoryTable();
+            if (rows.length > 0) localExperiments = rows;
         }
 
-        function removeExperimentRow(idx) {
-            localExperiments.splice(idx, 1);
-            loadExperimentsInventoryTable();
-        }
-
-        function importDefaults() {
-            localExperiments = [
-                { expt_no: 'Expt 1', title: 'Hardware & Software Exploration', description: 'Identify CPU, RAM, SSD, and application/system software configurations.', co: 'CO1', hours: 2 },
-                { expt_no: 'Expt 2', title: 'File and Folder Management in Linux', description: 'Folder and file operations in Linux CLI/GUI structures.', co: 'CO1', hours: 2 },
-                { expt_no: 'Expt 3', title: 'Web & Connectivity', description: 'Advanced search operators, email etiquette, and LMS classroom setups.', co: 'CO1', hours: 2 },
-                { expt_no: 'Expt 4', title: 'Professional Documentation', description: 'Create formal reports with Word tables, cover sheets, and styles.', co: 'CO2', hours: 2 },
-                { expt_no: 'Expt 5', title: 'Spreadsheet Basics', description: 'Formulas (SUM, AVG, COUNT, COUNTIF, IF) and referencing.', co: 'CO2', hours: 2 },
-                { expt_no: 'Expt 6', title: 'Presentation Design', description: 'Design 5-slide pitch decks with Slide Master templates and transitions.', co: 'CO2', hours: 2 },
-                { expt_no: 'Expt 7', title: 'Cloud Collaboration', description: 'Google Docs/Sheets version history tracking and editing workflows.', co: 'CO2', hours: 2 },
-                { expt_no: 'Expt 8', title: 'Data Analysis', description: 'Pivot tables, filters, and slicers to analyze datasets.', co: 'CO3', hours: 2 },
-                { expt_no: 'Expt 9', title: 'Data Visualization', description: 'Chart layouts (Pie/horizontal bar charts) and styles.', co: 'CO3', hours: 2 },
-                { expt_no: 'Expt 10', title: 'AI Slide Generation', description: 'Generative AI slide transformation decks (Gamma.app/Manus AI).', co: 'CO3', hours: 2 },
-                { expt_no: 'Expt 11', title: 'GPT Guided Learning', description: 'Prompt engineering Study Assistant setups (C-R-T-O framework).', co: 'CO4', hours: 2 },
-                { expt_no: 'Expt 12', title: 'Graphic Design', description: 'Poster and logo design using web-based editors (Canva).', co: 'CO4', hours: 2 }
-            ];
-            loadExperimentsInventoryTable();
-        }
+        // keep importDefaults as alias for backward compat
+        function importDefaults() { loadFromPdfExperiments(); }
 
         async function saveExperimentsInventory() {
+            const btn = document.getElementById('save-experiments-btn');
+            const originalHtml = btn ? btn.innerHTML : '<i class="fa-solid fa-floppy-disk"></i> Save List';
+            
             const rows = [];
             const container = document.getElementById('experiments-rows-container');
+            if (!container) return;
             const trs = container.querySelectorAll('tr');
             
             trs.forEach(tr => {
@@ -1549,17 +1822,51 @@
                 });
             });
 
+            if (rows.length === 0) {
+                alert('No experiment rows to save.');
+                return;
+            }
+
             localExperiments = rows;
+
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+            }
 
             try {
                 const res = await fetch(`/api/r26/classroom/practical/${subjectId}/experiments`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify({ experiments: localExperiments })
                 });
                 const data = await res.json();
-                alert(data.message);
+                
+                if (btn) {
+                    btn.style.background = '#059669';
+                    btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Saved!';
+                    setTimeout(() => {
+                        btn.style.background = '#087f5b';
+                        btn.innerHTML = originalHtml;
+                        btn.disabled = false;
+                    }, 2500);
+                }
+
+                const statusEl = document.getElementById('exp-pdf-status');
+                if (statusEl) {
+                    statusEl.className = 'mt-3 p-3 rounded-xl text-sm font-semibold flex items-center gap-2 bg-emerald-950/60 border border-emerald-700/60 text-emerald-300';
+                    statusEl.style.display = 'flex';
+                    statusEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${data.message || 'Experiments saved successfully and preserved in Databank!'}`;
+                }
             } catch(e) {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
                 alert("Failed to save experiments.");
             }
         }
@@ -1669,7 +1976,7 @@
                     <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-850">
                         <div class="flex justify-between font-bold text-xs mb-1">
                             <span class="text-slate-400">${r.label}</span>
-                            <span class="text-slate-500 font-mono text-sm" id="modal-val-${r.key}">${val}</span>
+                            <span class="text-emerald-400 font-mono font-black text-sm" id="modal-val-${r.key}">${val}</span>
                         </div>
                         <div class="flex items-center gap-3">
                             <button onclick="stepSlider('${r.key}', -${r.step})" class="w-8 h-8 rounded-lg bg-slate-850 hover:bg-slate-800 border border-slate-800 text-white font-bold">-</button>
@@ -1797,6 +2104,24 @@
                 });
                 const data = await res.json();
                 alert(data.message);
+                if (data.success) {
+                    // Update client-side experimentLogs cache
+                    experimentLogs[expNoVal] = studentList.map(s => {
+                        const m = marks[s.reg_no] || {};
+                        return {
+                            reg_no: s.reg_no,
+                            title: titleVal,
+                            prep_punctuality: m.c1 || 0,
+                            setup_procedure: m.c2 || 0,
+                            observation_recording: m.c3 || 0,
+                            analysis_interpretation: m.c4 || 0,
+                            viva_voce: m.c5 || 0,
+                            teamwork_discipline: m.c6 || 0,
+                            total_score_50: (m.c1||0) + (m.c2||0) + (m.c3||0) + (m.c4||0) + (m.c5||0) + (m.c6||0)
+                        };
+                    });
+                    initExperimentSelect();
+                }
             } catch(e) {
                 alert("Failed to save continuous log.");
             }

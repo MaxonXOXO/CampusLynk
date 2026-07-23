@@ -20,6 +20,7 @@ use App\Models\R26PracticalSeriesExam;
 use App\Models\R26PracticalEseMark;
 use App\Models\R26PracticalCourseFile;
 use App\Models\StaffProfile;
+use App\Models\SubjectStaffAssignment;
 
 class R26VirtualClassroomPracticalController extends Controller
 {
@@ -133,6 +134,23 @@ class R26VirtualClassroomPracticalController extends Controller
         $practicalCourseFile = R26PracticalCourseFile::where('batch_subject_id', $subjectId)->first();
 
         $lessonPlans    = LessonPlan::where('batch_subject_id', $subjectId)->orderBy('day_no')->get();
+        
+        // Dynamically fetch actual date from class log if not set in DB
+        $classLogs = DB::table('class_logs_attendance')
+            ->whereIn('lesson_plan_id', $lessonPlans->pluck('id'))
+            ->whereNotNull('date')
+            ->get()
+            ->groupBy('lesson_plan_id');
+
+        foreach ($lessonPlans as $lp) {
+            if (!$lp->actual_date && isset($classLogs[$lp->id])) {
+                $lp->actual_date = $classLogs[$lp->id]->sortByDesc('date')->first()->date;
+                if ($lp->status === 'Pending') {
+                    $lp->status = 'Completed';
+                }
+            }
+        }
+
         $experimentLogs = R26PracticalExperimentEvaluation::where('batch_subject_id', $subjectId)->get()->groupBy('experiment_no');
         $openEndedLogs  = R26OpenEndedEvaluation::where('batch_subject_id', $subjectId)->get()->keyBy('reg_no');
         $seriesExamLogs = R26PracticalSeriesEvaluation::where('batch_subject_id', $subjectId)->get()->groupBy('series_no');
@@ -150,12 +168,35 @@ class R26VirtualClassroomPracticalController extends Controller
 
         $consolidatedScores = $this->buildConsolidatedScores($students, $experimentLogs, $openEndedLogs, $seriesExamLogs, $eseMarks, $attendanceMarks);
 
+        // Fetch all assigned staff members for this lab/subject
+        $assignedStaffList = \App\Models\SubjectStaffAssignment::where('batch_subject_id', $subjectId)
+            ->with('staffProfile')
+            ->get()
+            ->map(function($assignment, $idx) {
+                $sp = $assignment->staffProfile;
+                if (!$sp) return null;
+                $role = $sp->designation ?: ($idx === 0 ? 'Lecturer' : 'Demonstrator');
+                return [
+                    'name' => $sp->name,
+                    'designation' => $role
+                ];
+            })
+            ->filter()
+            ->values();
+
+        if ($assignedStaffList->isEmpty() && $staff) {
+            $assignedStaffList = collect([[
+                'name' => $staff->name,
+                'designation' => $staff->designation ?: 'Lecturer'
+            ]]);
+        }
+
         // Parser mode indicator
         $parseModeLabel = 'Local PDF Algorithm';
 
         return view('r26_practical.virtual_classroom_practical', compact(
             'batchSubject', 'classroom', 'students', 'labBatches',
-            'practicalCourseFile', 'staff',
+            'practicalCourseFile', 'staff', 'assignedStaffList',
             'lessonPlans', 'experimentLogs', 'openEndedLogs',
             'seriesExamLogs', 'seriesExams', 'eseMarks',
             'attendanceMarks', 'consolidatedScores', 'parseModeLabel'
@@ -220,6 +261,7 @@ class R26VirtualClassroomPracticalController extends Controller
             $dumpPy = storage_path('app/scratch_r26_dump.py');
             file_put_contents($dumpPy,
                 "import pypdf, sys\n" .
+                "sys.stdout.reconfigure(encoding='utf-8')\n" .
                 "r = pypdf.PdfReader(sys.argv[1])\n" .
                 "print(''.join([p.extract_text() for p in r.pages]))\n"
             );
@@ -380,7 +422,28 @@ class R26VirtualClassroomPracticalController extends Controller
         $experiments = $request->input('experiments', []);
         $pcf->manual_experiments = json_encode($experiments);
         $pcf->save();
-        return response()->json(['success' => true, 'message' => 'Experiments list saved!']);
+
+        // Sync into practical_experiments table so future/other batches can reuse databank
+        if (is_array($experiments)) {
+            foreach ($experiments as $exp) {
+                $exptNo = $exp['expt_no'] ?? '';
+                if (!$exptNo) continue;
+                \DB::table('practical_experiments')->updateOrInsert(
+                    [
+                        'batch_subject_id' => $subjectId,
+                        'experiment_no'    => $exptNo
+                    ],
+                    [
+                        'title'      => $exp['title'] ?? '',
+                        'co_tag'     => $exp['co'] ?? 'CO1',
+                        'updated_at' => now(),
+                        'created_at' => now()
+                    ]
+                );
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Experiments list saved successfully and preserved in Databank!']);
     }
 
     /**
@@ -442,36 +505,54 @@ class R26VirtualClassroomPracticalController extends Controller
             $title  = $expt['title']   ?? ('Experiment ' . ($idx + 1));
             $exptNo = $expt['expt_no'] ?? ('Expt ' . ($idx + 1));
             $co     = $expt['co']      ?? 'CO1';
-            $hours  = $assignedHours[$idx] ?? 2;
+            
+            $hours = $assignedHours[$idx] ?? 2;
+
+            // Split into chunks of max 2 hours
+            $chunks = [];
+            $hTemp = $hours;
+            while ($hTemp > 0) {
+                if ($hTemp >= 2) {
+                    $chunks[] = 2;
+                    $hTemp -= 2;
+                } else {
+                    $chunks[] = 1;
+                    $hTemp -= 1;
+                }
+            }
 
             if ($mode === 'split') {
-                foreach (['Batch A', 'Batch B'] as $batch) {
+                foreach ($chunks as $chunkHours) {
+                    foreach (['Batch A', 'Batch B'] as $batch) {
+                        LessonPlan::create([
+                            'batch_subject_id' => $subjectId,
+                            'day_no'           => $dayNo++,
+                            'co_id'            => $co,
+                            'topic_content'    => "{$exptNo}: {$title}",
+                            'allocated_hours'  => $chunkHours,
+                            'pedagogy'         => 'Practical',
+                            'sub_batch'        => $batch,
+                            'status'           => 'Pending',
+                        ]);
+                    }
+                }
+            } else {
+                foreach ($chunks as $chunkHours) {
                     LessonPlan::create([
                         'batch_subject_id' => $subjectId,
                         'day_no'           => $dayNo++,
                         'co_id'            => $co,
                         'topic_content'    => "{$exptNo}: {$title}",
-                        'allocated_hours'  => $hours,
+                        'allocated_hours'  => $chunkHours,
                         'pedagogy'         => 'Practical',
-                        'sub_batch'        => $batch,
+                        'sub_batch'        => 'Whole',
                         'status'           => 'Pending',
                     ]);
                 }
-            } else {
-                LessonPlan::create([
-                    'batch_subject_id' => $subjectId,
-                    'day_no'           => $dayNo++,
-                    'co_id'            => $co,
-                    'topic_content'    => "{$exptNo}: {$title}",
-                    'allocated_hours'  => $hours,
-                    'pedagogy'         => 'Practical',
-                    'sub_batch'        => 'Whole',
-                    'status'           => 'Pending',
-                ]);
             }
         }
 
-        // 3. Always add two more days with lab for series exams at the end
+        // 3. Always add two more days with lab for series exams at the end (1 hour each)
         if ($mode === 'split') {
             // Series 1 for Batch A & Batch B
             foreach (['Batch A', 'Batch B'] as $batch) {
@@ -480,7 +561,7 @@ class R26VirtualClassroomPracticalController extends Controller
                     'day_no'           => $dayNo++,
                     'co_id'            => 'CO2',
                     'topic_content'    => 'Series 1 (Practical Exam)',
-                    'allocated_hours'  => 2,
+                    'allocated_hours'  => 1,
                     'pedagogy'         => 'Exam',
                     'sub_batch'        => $batch,
                     'status'           => 'Pending',
@@ -493,7 +574,7 @@ class R26VirtualClassroomPracticalController extends Controller
                     'day_no'           => $dayNo++,
                     'co_id'            => 'CO4',
                     'topic_content'    => 'Series 2 (Practical Exam)',
-                    'allocated_hours'  => 2,
+                    'allocated_hours'  => 1,
                     'pedagogy'         => 'Exam',
                     'sub_batch'        => $batch,
                     'status'           => 'Pending',
@@ -506,7 +587,7 @@ class R26VirtualClassroomPracticalController extends Controller
                 'day_no'           => $dayNo++,
                 'co_id'            => 'CO2',
                 'topic_content'    => 'Series 1 (Practical Exam)',
-                'allocated_hours'  => 2,
+                'allocated_hours'  => 1,
                 'pedagogy'         => 'Exam',
                 'sub_batch'        => 'Whole',
                 'status'           => 'Pending',
@@ -516,7 +597,7 @@ class R26VirtualClassroomPracticalController extends Controller
                 'day_no'           => $dayNo++,
                 'co_id'            => 'CO4',
                 'topic_content'    => 'Series 2 (Practical Exam)',
-                'allocated_hours'  => 2,
+                'allocated_hours'  => 1,
                 'pedagogy'         => 'Exam',
                 'sub_batch'        => 'Whole',
                 'status'           => 'Pending',
@@ -534,12 +615,20 @@ class R26VirtualClassroomPracticalController extends Controller
     {
         $plans = $request->input('plans', []);
         foreach ($plans as $id => $data) {
+            $actualDate = $data['actual_date'] ?? null;
+            $status     = $data['status'] ?? 'Pending';
+            if ($actualDate && $status === 'Pending') {
+                $status = 'Completed';
+            }
+
             LessonPlan::where('id', $id)->where('batch_subject_id', $subjectId)->update([
                 'topic_content'   => $data['topic_content'] ?? '',
                 'co_id'           => $data['co_id'] ?? 'CO1',
                 'allocated_hours' => (int)($data['allocated_hours'] ?? 1),
                 'pedagogy'        => $data['pedagogy'] ?? 'Practical',
-                'status'          => $data['status'] ?? 'Pending',
+                'proposed_date'   => $data['proposed_date'] ?? null,
+                'actual_date'     => $actualDate,
+                'status'          => $status,
             ]);
         }
         return response()->json(['success' => true, 'message' => 'Lesson plan saved!']);
