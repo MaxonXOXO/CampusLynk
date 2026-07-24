@@ -463,47 +463,74 @@
                     </div>
                 </div>
 
-                <!-- QP Generator Panel -->
+                <!-- QP Generator Panel — 4 Cards -->
                 <div class="glass-card p-5 rounded-xl border border-amber-700/40 bg-amber-900/10">
-                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                        <div>
-                            <h3 class="text-base font-bold text-amber-300">📄 Question Paper, Evaluation Scheme & Answer Key Generator</h3>
-                            <p class="text-slate-400 text-xs mt-1">
-                                @if(($subjectType['pattern'] ?? '') === 'table_4_2_design')
-                                    Table 4.2 Design Paper Pattern: Part A (6×5=30M) + Part B (2×10=20M) = 50 Marks
-                                @else
-                                    Table 4.1 Standard Pattern: Part A (4×1=4M) + Part B (6×3=18M) + Part C (4×7=28M) = 50 Marks
-                                @endif
-                                | 2 Hours | Scaled to 10 CIA Marks
-                            </p>
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            @foreach(['Series 1' => 'CO1', 'Series 2' => 'CO2', 'Series 3' => 'CO3', 'Series 4' => 'CO4'] as $series => $co)
-                            <div class="flex flex-col items-center gap-1 bg-slate-800/60 border border-slate-700 rounded-lg p-2 min-w-[110px]">
-                                <span class="text-slate-300 text-xs font-bold">{{ $series }} ({{ $co }})</span>
-                                @if(isset($seriesQps[$series]))
-                                    <span class="text-emerald-400 text-xs">✅ QP Ready</span>
-                                @else
-                                    <span class="text-slate-500 text-xs">Not generated</span>
-                                @endif
-                                <div class="flex gap-1 mt-1 flex-wrap justify-center">
-                                    <button onclick="generateSeriesQp('{{ $series }}')"
-                                        class="px-2 py-1 rounded text-xs bg-amber-600 hover:bg-amber-500 text-white font-bold">
-                                        ⚡ Generate
-                                    </button>
-                                    @if(isset($seriesQps[$series]))
-                                    <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-qp/'.urlencode($series)) }}" target="_blank"
-                                        class="px-2 py-1 rounded text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold">🖨️ QP</a>
-                                    <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-scheme/'.urlencode($series)) }}" target="_blank"
-                                        class="px-2 py-1 rounded text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold">📋 Scheme</a>
-                                    @endif
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
+                    <div class="mb-4">
+                        <h3 class="text-base font-bold text-amber-300">📄 Series Exam QP Generator — SBTE 2026</h3>
+                        <p class="text-slate-400 text-xs mt-1">
+                            @if(($subjectType['pattern'] ?? '') === 'table_4_2_design')
+                                Table 4.2 Design Paper: Part A (6×5=30M) + Part B (2×10=20M) = 50 Marks
+                            @else
+                                Table 4.1 Standard: Part A (4×1=4M) + Part B (6×3=18M) + Part C (4×7=28M) = 50 Marks
+                            @endif
+                            | 2 Hours | Scaled to 10 CIA Marks
+                        </p>
                     </div>
-                    <div id="qp-gen-status" class="mt-2 text-xs text-slate-400 hidden"></div>
-                </div>
+
+                    <!-- 4 Series Cards -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        @foreach(['Series 1' => 'CO1', 'Series 2' => 'CO2', 'Series 3' => 'CO3', 'Series 4' => 'CO4'] as $series => $co)
+                        @php $savedQp = $seriesQps[$series] ?? null; @endphp
+                        <div class="rounded-xl border {{ $savedQp ? 'border-emerald-600/50 bg-emerald-900/15' : 'border-slate-700 bg-slate-800/50' }} p-3 flex flex-col gap-2">
+                            <!-- Card Header -->
+                            <div class="flex items-center justify-between">
+                                <span class="font-bold text-white text-sm">{{ $series }}</span>
+                                <span class="text-xs px-2 py-0.5 rounded-full {{ $savedQp ? 'bg-emerald-600/30 text-emerald-300' : 'bg-slate-700 text-slate-400' }}">{{ $co }}</span>
+                            </div>
+
+                            <!-- Status -->
+                            @if($savedQp)
+                            <div class="text-xs text-emerald-400 font-semibold">✅ QP Saved</div>
+                            @else
+                            <div class="text-xs text-slate-500">⬜ Not generated</div>
+                            @endif
+
+                            <!-- Generate buttons -->
+                            <div class="flex flex-col gap-1.5 mt-1">
+                                <button onclick="openQpPreviewModal('{{ $series }}', '{{ $co }}', 'ai')"
+                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white transition-all text-center">
+                                    ⚡ AI Generate
+                                </button>
+                                <button onclick="openQpPreviewModal('{{ $series }}', '{{ $co }}', 'manual')"
+                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-slate-600 hover:bg-slate-500 text-white transition-all text-center">
+                                    ✏ Manual Entry
+                                </button>
+                            </div>
+
+                            <!-- Print buttons (only if saved) -->
+                            @if($savedQp)
+                            <div class="border-t border-slate-700/50 pt-2 flex flex-col gap-1">
+                                <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-qp/'.urlencode($series)) }}" target="_blank"
+                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white text-center block">
+                                    🖨️ Print QP
+                                </a>
+                                <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-scheme/'.urlencode($series)) }}" target="_blank"
+                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white text-center block">
+                                    📋 Eval Scheme
+                                </a>
+                                <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-key/'.urlencode($series)) }}" target="_blank"
+                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-red-700 hover:bg-red-600 text-white text-center block">
+                                    🔑 Answer Key
+                                </a>
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div><!-- /grid -->
+
+                    <div id="qp-gen-status" class="mt-3 text-xs text-slate-400 hidden"></div>
+                </div><!-- /QP Generator Panel -->
+
 
                 <!-- Theory Series Marks -->
                 <div class="glass-card p-5 rounded-xl border border-slate-800">
@@ -1359,35 +1386,241 @@
         }
 
     // =====================================================================
-    // Series QP Generator
+    // Series QP Generator — Preview / Edit Modal System
     // =====================================================================
-    async function generateSeriesQp(seriesNo) {
+
+    const SUBJECT_ID = {{ $batchSubject->id }};
+    const QP_PATTERN = '{{ ($subjectType['pattern'] ?? 'table_4_1_standard') }}';
+    const CSRF = document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}';
+
+    let _currentSeries = '', _currentCo = '', _draftQp = {};
+
+    async function openQpPreviewModal(seriesNo, coTag, mode) {
+        _currentSeries = seriesNo;
+        _currentCo     = coTag;
         const statusEl = document.getElementById('qp-gen-status');
         statusEl.classList.remove('hidden');
-        statusEl.innerHTML = `⚡ Generating Question Paper & Scheme for <strong>${seriesNo}</strong>...`;
+        statusEl.style.color = '#94a3b8';
+
+        const modal = document.getElementById('qp-preview-modal');
+        modal.classList.remove('hidden');
+        document.getElementById('qp-modal-title').textContent = `Series Exam QP — ${seriesNo} (${coTag}) | ${QP_PATTERN === 'table_4_2_design' ? 'Table 4.2 Design' : 'Table 4.1 Standard'}`;
+
+        document.getElementById('qp-editor-body').innerHTML = '<div class="text-slate-400 text-sm p-8 text-center animate-pulse">⚡ Loading questions…</div>';
+        switchQpTab('qp');
+
+        if (mode === 'ai') {
+            statusEl.innerHTML = `⚡ Fetching AI/Bank questions for <strong>${seriesNo}</strong>...`;
+            try {
+                const res = await fetch(`/api/r26/classroom/practicum/${SUBJECT_ID}/series-qp/generate/${encodeURIComponent(seriesNo)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF }
+                });
+                const data = await res.json();
+                if (data.status === 'SUCCESS') {
+                    _draftQp = data.qp_data;
+                    statusEl.innerHTML = `<span style="color:#4ade80">${data.message}</span>`;
+                    renderQpEditor(_draftQp, data.pattern_type);
+                } else {
+                    document.getElementById('qp-editor-body').innerHTML = `<div class="text-red-400 p-6">${data.message}</div>`;
+                }
+            } catch(e) {
+                document.getElementById('qp-editor-body').innerHTML = `<div class="text-red-400 p-6">Network Error: ${e.message}</div>`;
+            }
+        } else {
+            // Manual entry — blank template
+            statusEl.innerHTML = `✏ Manual mode — fill in questions for <strong>${seriesNo}</strong>`;
+            _draftQp = buildEmptyQpTemplate(QP_PATTERN, coTag);
+            renderQpEditor(_draftQp, QP_PATTERN);
+        }
+    }
+
+    function buildEmptyQpTemplate(pattern, coTag) {
+        if (pattern === 'table_4_2_design') {
+            return {
+                part_a: Array.from({length:6}, (_,i) => ({q_no:String(i+1), text:'', marks:5, co:coTag, bloom:'L2', scheme_key:'', answer_key:''})),
+                part_b: [
+                    {q_no:'7(a)', text:'', marks:10, co:coTag, bloom:'L4', choice_group:'Set 1', scheme_key:'', answer_key:''},
+                    {q_no:'7(b)', text:'OR: ', marks:10, co:coTag, bloom:'L4', choice_group:'Set 1', scheme_key:'', answer_key:''},
+                    {q_no:'8(a)', text:'', marks:10, co:coTag, bloom:'L4', choice_group:'Set 2', scheme_key:'', answer_key:''},
+                    {q_no:'8(b)', text:'OR: ', marks:10, co:coTag, bloom:'L4', choice_group:'Set 2', scheme_key:'', answer_key:''},
+                ]
+            };
+        } else {
+            return {
+                part_a: Array.from({length:4}, (_,i) => ({q_no:String(i+1), text:'', marks:1, co:coTag, bloom:'L1', scheme_key:'', answer_key:''})),
+                part_b: Array.from({length:6}, (_,i) => ({q_no:String(i+5), text:'', marks:3, co:coTag, bloom:'L2', scheme_key:'', answer_key:''})),
+                part_c: [
+                    {q_no:'11(a)', text:'', marks:7, co:coTag, bloom:'L4', choice_group:'Set 1', scheme_key:'', answer_key:''},
+                    {q_no:'11(b)', text:'OR: ', marks:7, co:coTag, bloom:'L4', choice_group:'Set 1', scheme_key:'', answer_key:''},
+                    {q_no:'12(a)', text:'', marks:7, co:coTag, bloom:'L4', choice_group:'Set 2', scheme_key:'', answer_key:''},
+                    {q_no:'12(b)', text:'OR: ', marks:7, co:coTag, bloom:'L4', choice_group:'Set 2', scheme_key:'', answer_key:''},
+                ]
+            };
+        }
+    }
+
+    function renderQpEditor(qpData, pattern) {
+        const container = document.getElementById('qp-editor-body');
+        const activeTab = document.getElementById('qp-tab-active')?.dataset.tab || 'qp';
+        const parts = pattern === 'table_4_2_design'
+            ? [['part_a','PART A (5 Marks each)','5'],['part_b','PART B — Choices (10 Marks each)','10']]
+            : [['part_a','PART A (1 Mark each)','1'],['part_b','PART B (3 Marks each)','3'],['part_c','PART C — Choices (7 Marks each)','7']];
+
+        let html = '';
+        for (const [partKey, partLabel, defaultMark] of parts) {
+            const rows = qpData[partKey] || [];
+            html += `<div class="mb-4">
+                <div class="flex items-center justify-between bg-slate-700/60 px-3 py-2 rounded-t-lg">
+                    <span class="font-bold text-amber-300 text-sm">${partLabel}</span>
+                    <button onclick="addQpRow('${partKey}','${defaultMark}')" class="text-xs px-2 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white font-bold">+ Add Question</button>
+                </div>
+                <div class="border border-slate-700 rounded-b-lg overflow-hidden">
+                    <table class="w-full text-sm" id="tbl-${partKey}">
+                        <thead class="bg-slate-800 text-slate-400 text-xs">
+                            <tr>
+                                <th class="p-2 w-14">Q.No</th>
+                                <th class="p-2">Question Text</th>
+                                ${activeTab !== 'qp' ? '<th class="p-2">Scheme / Key</th>' : ''}
+                                <th class="p-2 w-16">Bloom</th>
+                                <th class="p-2 w-14">Marks</th>
+                                <th class="p-2 w-20">Choice</th>
+                                <th class="p-2 w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            rows.forEach((q, idx) => {
+                const keyField = activeTab === 'key' ? (q.answer_key||'') : (q.scheme_key||'');
+                const keyLabel = activeTab === 'key' ? 'Model Answer' : 'Scheme Key';
+                html += `<tr class="border-b border-slate-800 hover:bg-slate-800/40" data-part="${partKey}" data-idx="${idx}">
+                    <td class="p-1.5"><input type="text" value="${q.q_no||''}" onchange="updateQpField('${partKey}',${idx},'q_no',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-white font-mono"></td>
+                    <td class="p-1.5"><textarea rows="2" onchange="updateQpField('${partKey}',${idx},'text',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-white resize-none">${q.text||''}</textarea></td>
+                    ${activeTab !== 'qp' ? `<td class="p-1.5"><textarea rows="2" onchange="updateQpField('${partKey}',${idx},'${activeTab==='key'?'answer_key':'scheme_key'}',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-emerald-300 resize-none" placeholder="${keyLabel}…">${keyField}</textarea></td>` : ''}
+                    <td class="p-1.5"><select onchange="updateQpField('${partKey}',${idx},'bloom',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1 py-1 text-xs text-white">
+                        ${['L1','L2','L3','L4','L5','L6'].map(l=>`<option ${q.bloom===l?'selected':''}>${l}</option>`).join('')}
+                    </select></td>
+                    <td class="p-1.5"><input type="number" min="1" max="30" value="${q.marks||defaultMark}" onchange="updateQpField('${partKey}',${idx},'marks',parseInt(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-amber-300 font-bold"></td>
+                    <td class="p-1.5"><input type="text" value="${q.choice_group||''}" placeholder="Set 1…" onchange="updateQpField('${partKey}',${idx},'choice_group',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-purple-300"></td>
+                    <td class="p-1.5 text-center"><button onclick="removeQpRow('${partKey}',${idx})" class="text-red-400 hover:text-red-300 text-xs">✕</button></td>
+                </tr>`;
+            });
+            html += `</tbody></table></div></div>`;
+        }
+        container.innerHTML = html;
+    }
+
+    function switchQpTab(tab) {
+        document.getElementById('qp-tab-active').dataset.tab = tab;
+        ['qp','scheme','key'].forEach(t => {
+            const btn = document.getElementById(`qp-tab-btn-${t}`);
+            if(btn) btn.className = t === tab
+                ? 'px-4 py-2 text-sm font-bold rounded-t-lg bg-amber-600 text-white border-b-2 border-amber-400'
+                : 'px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-800 text-slate-400 hover:text-white';
+        });
+        if(_draftQp && Object.keys(_draftQp).length) renderQpEditor(_draftQp, QP_PATTERN);
+    }
+
+    function updateQpField(part, idx, field, value) {
+        if (!_draftQp[part]) return;
+        _draftQp[part][idx][field] = value;
+    }
+
+    function addQpRow(partKey, defaultMark) {
+        if (!_draftQp[partKey]) _draftQp[partKey] = [];
+        const idx = _draftQp[partKey].length + 1;
+        _draftQp[partKey].push({q_no: String(idx), text: '', marks: parseInt(defaultMark), co: _currentCo, bloom: 'L2', scheme_key: '', answer_key: ''});
+        renderQpEditor(_draftQp, QP_PATTERN);
+    }
+
+    function removeQpRow(partKey, idx) {
+        if (!_draftQp[partKey]) return;
+        _draftQp[partKey].splice(idx, 1);
+        renderQpEditor(_draftQp, QP_PATTERN);
+    }
+
+    function closeQpModal() {
+        document.getElementById('qp-preview-modal').classList.add('hidden');
+    }
+
+    async function saveQpFromModal() {
+        const statusEl = document.getElementById('qp-gen-status');
+        const saveBtn  = document.getElementById('qp-save-btn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving…';
 
         try {
-            const res = await fetch(`/api/r26/classroom/practicum/{{ $batchSubject->id }}/series-qp/generate/${encodeURIComponent(seriesNo)}`, {
+            const res = await fetch(`/api/r26/classroom/practicum/${SUBJECT_ID}/series-qp/save/${encodeURIComponent(_currentSeries)}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
-                }
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                body: JSON.stringify({
+                    co_tag: _currentCo,
+                    pattern_type: QP_PATTERN,
+                    qp_data: _draftQp,
+                    scheme_data: _draftQp,
+                    answer_key: _draftQp,
+                })
             });
             const data = await res.json();
             if (data.status === 'SUCCESS') {
-                statusEl.innerHTML = `✅ <strong>${seriesNo}</strong> Question Paper & Scheme generated successfully! Refresh the page to see Print buttons.`;
+                statusEl.innerHTML = `✅ <strong>${_currentSeries}</strong> QP saved to Question Bank!`;
                 statusEl.style.color = '#4ade80';
-                setTimeout(() => { location.reload(); }, 1500);
+                statusEl.classList.remove('hidden');
+                closeQpModal();
+                setTimeout(() => location.reload(), 1200);
             } else {
-                statusEl.innerHTML = `❌ Error: ${data.message}`;
-                statusEl.style.color = '#f87171';
+                saveBtn.disabled = false;
+                saveBtn.textContent = '💾 Save & Add to Question Bank';
+                alert('Error: ' + data.message);
             }
-        } catch (e) {
-            statusEl.innerHTML = `❌ Network Error: ${e.message}`;
-            statusEl.style.color = '#f87171';
+        } catch(e) {
+            saveBtn.disabled = false;
+            saveBtn.textContent = '💾 Save & Add to Question Bank';
+            alert('Network error: ' + e.message);
         }
     }
     </script>
+
+    <!-- ================================================================
+         QP Preview / Edit Modal
+    ================================================================= -->
+    <div id="qp-preview-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-start justify-center p-4 overflow-auto">
+        <div class="w-full max-w-6xl bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 flex flex-col" style="max-height:95vh">
+
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-800 rounded-t-2xl">
+                <div>
+                    <h2 class="text-lg font-bold text-white" id="qp-modal-title">Series QP Preview</h2>
+                    <p class="text-slate-400 text-xs mt-0.5">Review, edit questions, add/remove rows — then Save to Question Bank</p>
+                </div>
+                <button onclick="closeQpModal()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex items-center gap-1 px-6 pt-3 border-b border-slate-700 bg-slate-850">
+                <span id="qp-tab-active" data-tab="qp" class="hidden"></span>
+                <button id="qp-tab-btn-qp"     onclick="switchQpTab('qp')"     class="px-4 py-2 text-sm font-bold rounded-t-lg bg-amber-600 text-white border-b-2 border-amber-400">📄 Question Paper</button>
+                <button id="qp-tab-btn-scheme"  onclick="switchQpTab('scheme')" class="px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-800 text-slate-400 hover:text-white">📋 Eval Scheme</button>
+                <button id="qp-tab-btn-key"     onclick="switchQpTab('key')"    class="px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-800 text-slate-400 hover:text-white">🔑 Answer Key</button>
+            </div>
+
+            <!-- Editor Body -->
+            <div id="qp-editor-body" class="flex-1 overflow-y-auto p-6 space-y-2">
+                <div class="text-slate-500 text-sm text-center py-12">Loading…</div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-between px-6 py-4 border-t border-slate-700 bg-slate-800 rounded-b-2xl">
+                <button onclick="closeQpModal()" class="px-5 py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold text-sm">Cancel</button>
+                <div class="flex items-center gap-3">
+                    <span class="text-slate-500 text-xs">All 3 tabs (QP, Scheme, Key) are saved together</span>
+                    <button id="qp-save-btn" onclick="saveQpFromModal()" class="px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg">
+                        💾 Save &amp; Add to Question Bank
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
+

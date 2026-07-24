@@ -352,6 +352,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/r26/classroom/practicum/{subjectId}/series-qp/save/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveSeriesQp']);
     Route::get('/r26/classroom/practicum/{subjectId}/series-qp/print-qp/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSeriesQpPdf']);
     Route::get('/r26/classroom/practicum/{subjectId}/series-qp/print-scheme/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSeriesSchemePdf']);
+    Route::get('/r26/classroom/practicum/{subjectId}/series-qp/print-key/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSeriesAnswerKeyPdf']);
 
 
 
