@@ -451,14 +451,69 @@
             </div>
 
             <!-- Subtab 4: Theory Series Examinations -->
-            <div id="theory-subcontent-series" class="glass-card p-5 rounded-xl border border-slate-800 hidden">
-                <div class="flex flex-col md:flex-row items-center justify-between mb-4 gap-3">
-                    <div>
-                        <h3 class="text-lg font-bold text-white">Theory Series Examinations (Four 1-Hour CO Tests - 10 CIA Marks)</h3>
-                        <p class="text-slate-400 text-xs mt-0.5">4 Series Tests (CO1, CO2, CO3, CO4 - 1 Hour each out of 50 marks), averaged and scaled to 10 CIA marks</p>
+            <div id="theory-subcontent-series" class="space-y-4 hidden">
+
+                <!-- Subject Type Classification Badge -->
+                <div class="glass-card p-3 rounded-xl border border-slate-700 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-300 font-bold text-sm border border-blue-500/30">
+                            {{ $subjectType['label'] ?? '💻 Program Core (Table 6.4 - ESE 100M)' }}
+                        </span>
+                        <span class="text-slate-400 text-xs">SBTE Revision 2026 Annexure IV — Internal Test Pattern Classification</span>
                     </div>
-                    <button onclick="openSeriesTheoryModal()" class="px-3.5 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold shadow-md">Enter Theory Series Marks</button>
                 </div>
+
+                <!-- QP Generator Panel -->
+                <div class="glass-card p-5 rounded-xl border border-amber-700/40 bg-amber-900/10">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <h3 class="text-base font-bold text-amber-300">📄 Question Paper, Evaluation Scheme & Answer Key Generator</h3>
+                            <p class="text-slate-400 text-xs mt-1">
+                                @if(($subjectType['pattern'] ?? '') === 'table_4_2_design')
+                                    Table 4.2 Design Paper Pattern: Part A (6×5=30M) + Part B (2×10=20M) = 50 Marks
+                                @else
+                                    Table 4.1 Standard Pattern: Part A (4×1=4M) + Part B (6×3=18M) + Part C (4×7=28M) = 50 Marks
+                                @endif
+                                | 2 Hours | Scaled to 10 CIA Marks
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach(['Series 1' => 'CO1', 'Series 2' => 'CO2', 'Series 3' => 'CO3', 'Series 4' => 'CO4'] as $series => $co)
+                            <div class="flex flex-col items-center gap-1 bg-slate-800/60 border border-slate-700 rounded-lg p-2 min-w-[110px]">
+                                <span class="text-slate-300 text-xs font-bold">{{ $series }} ({{ $co }})</span>
+                                @if(isset($seriesQps[$series]))
+                                    <span class="text-emerald-400 text-xs">✅ QP Ready</span>
+                                @else
+                                    <span class="text-slate-500 text-xs">Not generated</span>
+                                @endif
+                                <div class="flex gap-1 mt-1 flex-wrap justify-center">
+                                    <button onclick="generateSeriesQp('{{ $series }}')"
+                                        class="px-2 py-1 rounded text-xs bg-amber-600 hover:bg-amber-500 text-white font-bold">
+                                        ⚡ Generate
+                                    </button>
+                                    @if(isset($seriesQps[$series]))
+                                    <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-qp/'.urlencode($series)) }}" target="_blank"
+                                        class="px-2 py-1 rounded text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold">🖨️ QP</a>
+                                    <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-scheme/'.urlencode($series)) }}" target="_blank"
+                                        class="px-2 py-1 rounded text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold">📋 Scheme</a>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <div id="qp-gen-status" class="mt-2 text-xs text-slate-400 hidden"></div>
+                </div>
+
+                <!-- Theory Series Marks -->
+                <div class="glass-card p-5 rounded-xl border border-slate-800">
+                    <div class="flex flex-col md:flex-row items-center justify-between mb-4 gap-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Theory Series Examinations (Four 1-Hour CO Tests - 10 CIA Marks)</h3>
+                            <p class="text-slate-400 text-xs mt-0.5">4 Series Tests (CO1, CO2, CO3, CO4 - 2 Hours each out of 50 marks), averaged and scaled to 10 CIA marks</p>
+                        </div>
+                        <button onclick="openSeriesTheoryModal()" class="px-3.5 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold shadow-md">Enter Theory Series Marks</button>
+                    </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -500,6 +555,9 @@
                     </table>
                 </div>
             </div>
+            <!-- /inner glass-card (marks table) -->
+            </div>
+            <!-- /outer space-y-4 (theory-subcontent-series) -->
 
             <!-- Subtab 5: Theory ESE & Consolidated Results -->
             <div id="theory-subcontent-ese" class="space-y-5 hidden">
@@ -1299,6 +1357,37 @@
                 `;
             }
         }
+
+    // =====================================================================
+    // Series QP Generator
+    // =====================================================================
+    async function generateSeriesQp(seriesNo) {
+        const statusEl = document.getElementById('qp-gen-status');
+        statusEl.classList.remove('hidden');
+        statusEl.innerHTML = `⚡ Generating Question Paper & Scheme for <strong>${seriesNo}</strong>...`;
+
+        try {
+            const res = await fetch(`/api/r26/classroom/practicum/{{ $batchSubject->id }}/series-qp/generate/${encodeURIComponent(seriesNo)}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '{{ csrf_token() }}'
+                }
+            });
+            const data = await res.json();
+            if (data.status === 'SUCCESS') {
+                statusEl.innerHTML = `✅ <strong>${seriesNo}</strong> Question Paper & Scheme generated successfully! Refresh the page to see Print buttons.`;
+                statusEl.style.color = '#4ade80';
+                setTimeout(() => { location.reload(); }, 1500);
+            } else {
+                statusEl.innerHTML = `❌ Error: ${data.message}`;
+                statusEl.style.color = '#f87171';
+            }
+        } catch (e) {
+            statusEl.innerHTML = `❌ Network Error: ${e.message}`;
+            statusEl.style.color = '#f87171';
+        }
+    }
     </script>
 </body>
 </html>

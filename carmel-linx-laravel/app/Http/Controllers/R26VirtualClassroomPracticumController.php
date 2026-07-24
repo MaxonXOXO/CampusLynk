@@ -399,6 +399,9 @@ class R26VirtualClassroomPracticumController extends Controller
             'CO4' => ['assignment' => true, 'mcq' => true]
         ];
 
+        $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
+        $seriesQps = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->get()->keyBy('series_no');
+
         return view('r26_practicum.virtual_classroom_practicum', compact(
             'batchSubject',
             'classroom',
@@ -420,7 +423,9 @@ class R26VirtualClassroomPracticumController extends Controller
             'combinedStats',
             'poAttainments',
             'slStudentSplitup',
-            'slConfigs'
+            'slConfigs',
+            'subjectType',
+            'seriesQps'
         ));
     }
 
@@ -1138,6 +1143,40 @@ class R26VirtualClassroomPracticumController extends Controller
     }
 
     /**
+     * Resolve Global Practicum Subject Type Classification (SBTE 2026 Table 6.4 vs 6.3 vs Table 4.2 Design)
+     */
+    private function resolveSubjectType($practicumCourseFile, $batchSubject)
+    {
+        $title = strtolower(($practicumCourseFile ? $practicumCourseFile->course_title : '') . ' ' . ($batchSubject ? $batchSubject->subject_name : ''));
+        
+        if (str_contains($title, 'design') || str_contains($title, 'drawing') || str_contains($title, 'cad') || str_contains($title, 'drafting')) {
+            return [
+                'type' => 'design_paper',
+                'label' => '📐 Design / Drawing Paper (Table 4.2 Pattern)',
+                'pattern' => 'table_4_2_design',
+                'ese_marks' => $practicumCourseFile->ese_marks ?? 60
+            ];
+        }
+
+        $ese = $practicumCourseFile->ese_marks ?? 100;
+        if ($ese >= 100) {
+            return [
+                'type' => 'program_core',
+                'label' => '💻 Program Core / Code (Table 6.4 - ESE 100M)',
+                'pattern' => 'table_4_1_standard',
+                'ese_marks' => 100
+            ];
+        } else {
+            return [
+                'type' => 'basic_science',
+                'label' => '🔬 Basic Science (Table 6.3 - ESE 60M)',
+                'pattern' => 'table_4_1_standard',
+                'ese_marks' => 60
+            ];
+        }
+    }
+
+    /**
      * Helper to get classroom and resolve DB department/batch metadata
      */
     private function resolveClassroomMeta($subjectId, $classroom_id)
@@ -1409,5 +1448,152 @@ class R26VirtualClassroomPracticumController extends Controller
         });
 
         return view('r26_practicum.self_learning_summary_print', compact('batchSubject', 'classroom', 'practicumCourseFile', 'studentResults', 'assignedStaff', 'departmentName', 'batchName', 'batchYear', 'lecturerName'));
+    }
+
+    /**
+     * Generate Series Exam Question Paper, Evaluation Scheme & Answer Key (Table 4.1 / Table 4.2 Pattern)
+     */
+    public function generateSeriesQp(Request $request, $subjectId, $seriesNo)
+    {
+        try {
+            $batchSubject = BatchSubject::findOrFail($subjectId);
+            $practicumFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->first();
+            $subjectType = $this->resolveSubjectType($practicumFile, $batchSubject);
+            $patternType = $subjectType['pattern'];
+
+            $coTag = match($seriesNo) {
+                'Series 1', 'CO1' => 'CO1',
+                'Series 2', 'CO2' => 'CO2',
+                'Series 3', 'CO3' => 'CO3',
+                'Series 4', 'CO4' => 'CO4',
+                default => 'CO1'
+            };
+
+            if ($patternType === 'table_4_2_design') {
+                $qpData = [
+                    'part_a' => [
+                        ['q_no' => '1', 'text' => "State the design criteria and basic equations for {$coTag} system.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'L2'],
+                        ['q_no' => '2', 'text' => "Define the safety margins and stress factors applicable in {$coTag}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'L2'],
+                        ['q_no' => '3', 'text' => "Explain the step-by-step drafting procedure for {$coTag} assembly.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'L2'],
+                        ['q_no' => '4', 'text' => "List the key material specifications and dimensions for {$coTag}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'L2'],
+                        ['q_no' => '5', 'text' => "Describe the tolerance standards and fits used in {$coTag}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'L3'],
+                        ['q_no' => '6', 'text' => "Explain the functional requirements and boundary conditions for {$coTag}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'L3'],
+                    ],
+                    'part_b' => [
+                        ['q_no' => '7(a)', 'text' => "Design and calculate the structural dimensions for {$coTag} component given loading condition P=50kN.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 1'],
+                        ['q_no' => '7(b)', 'text' => "OR: Develop a comprehensive schematic design layout and CAD drafting plan for {$coTag}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 1'],
+                        ['q_no' => '8(a)', 'text' => "Perform complete stress/performance analysis and dimension optimization for {$coTag}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 2'],
+                        ['q_no' => '8(b)', 'text' => "OR: Formulate the design equations and draw detailed cross-sectional views for {$coTag}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 2'],
+                    ]
+                ];
+            } else {
+                $qpData = [
+                    'part_a' => [
+                        ['q_no' => '1', 'text' => "Define the fundamental principle of {$coTag}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'L1'],
+                        ['q_no' => '2', 'text' => "What is the primary function of {$coTag} in modern systems?", 'marks' => 1, 'co' => $coTag, 'bloom' => 'L1'],
+                        ['q_no' => '3', 'text' => "State the governing unit / law for {$coTag}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'L1'],
+                        ['q_no' => '4', 'text' => "Mention one key advantage of {$coTag}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'L1'],
+                    ],
+                    'part_b' => [
+                        ['q_no' => '5', 'text' => "Explain the operating mechanism of {$coTag} with suitable block diagram.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L2'],
+                        ['q_no' => '6', 'text' => "Distinguish between primary and secondary characteristics of {$coTag}.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L2'],
+                        ['q_no' => '7', 'text' => "Derive the mathematical expression for {$coTag} output response.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L2'],
+                        ['q_no' => '8', 'text' => "Describe the calibration procedure for {$coTag} experimental setup.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L3'],
+                        ['q_no' => '9', 'text' => "Analyze the effect of noise and interference on {$coTag} performance.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L3'],
+                        ['q_no' => '10', 'text' => "Outline the practical implementation steps for {$coTag} algorithm/circuit.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L3'],
+                    ],
+                    'part_c' => [
+                        ['q_no' => '11(a)', 'text' => "Design and analyze a complete {$coTag} circuit/system to satisfy prescribed specifications.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 1'],
+                        ['q_no' => '11(b)', 'text' => "OR: Evaluate the performance parameters and construct detailed working equations for {$coTag}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 1'],
+                        ['q_no' => '12(a)', 'text' => "Develop an end-to-end practical solution and troubleshooting flowchart for {$coTag}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 2'],
+                        ['q_no' => '12(b)', 'text' => "OR: Formulate and solve the mathematical/code implementation problem for {$coTag}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 2'],
+                    ]
+                ];
+            }
+
+            $qpRecord = \App\Models\R26SeriesExamQp::updateOrCreate(
+                ['batch_subject_id' => $subjectId, 'series_no' => $seriesNo],
+                [
+                    'co_tag' => $coTag,
+                    'pattern_type' => $patternType,
+                    'max_marks' => 50,
+                    'duration_minutes' => 120,
+                    'qp_data' => $qpData,
+                    'scheme_data' => $qpData,
+                    'answer_key' => $qpData,
+                    'created_by' => Session::get('userId')
+                ]
+            );
+
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Series Question Paper & Scheme generated successfully!', 'qp' => $qpRecord]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Save Customized Series Exam Question Paper & Scheme
+     */
+    public function saveSeriesQp(Request $request, $subjectId, $seriesNo)
+    {
+        try {
+            $qpRecord = \App\Models\R26SeriesExamQp::updateOrCreate(
+                ['batch_subject_id' => $subjectId, 'series_no' => $seriesNo],
+                [
+                    'co_tag' => $request->input('co_tag', 'CO1'),
+                    'pattern_type' => $request->input('pattern_type', 'table_4_1_standard'),
+                    'max_marks' => 50,
+                    'duration_minutes' => 120,
+                    'qp_data' => $request->input('qp_data'),
+                    'scheme_data' => $request->input('scheme_data'),
+                    'answer_key' => $request->input('answer_key'),
+                    'created_by' => Session::get('userId')
+                ]
+            );
+
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Series Question Paper & Scheme saved successfully!', 'qp' => $qpRecord]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Print Series Question Paper PDF View
+     */
+    public function printSeriesQpPdf($subjectId, $seriesNo)
+    {
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $meta = $this->resolveClassroomMeta($subjectId, $batchSubject->classroom_id);
+        $classroom = $meta['classroom'];
+        $departmentName = $meta['departmentName'];
+        $batchName = $meta['batchName'];
+        $batchYear = $meta['batchYear'];
+        $lecturerName = $meta['lecturerName'];
+
+        $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->firstOrFail();
+        $qpRecord = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->where('series_no', $seriesNo)->firstOrFail();
+        $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
+
+        return view('r26_practicum.series_qp_print', compact('batchSubject', 'classroom', 'practicumCourseFile', 'qpRecord', 'departmentName', 'batchName', 'batchYear', 'lecturerName', 'seriesNo', 'subjectType'));
+    }
+
+    /**
+     * Print Series Evaluation Scheme & Answer Key PDF View
+     */
+    public function printSeriesSchemePdf($subjectId, $seriesNo)
+    {
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $meta = $this->resolveClassroomMeta($subjectId, $batchSubject->classroom_id);
+        $classroom = $meta['classroom'];
+        $departmentName = $meta['departmentName'];
+        $batchName = $meta['batchName'];
+        $batchYear = $meta['batchYear'];
+        $lecturerName = $meta['lecturerName'];
+
+        $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->firstOrFail();
+        $qpRecord = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->where('series_no', $seriesNo)->firstOrFail();
+        $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
+
+        return view('r26_practicum.series_scheme_print', compact('batchSubject', 'classroom', 'practicumCourseFile', 'qpRecord', 'departmentName', 'batchName', 'batchYear', 'lecturerName', 'seriesNo', 'subjectType'));
     }
 }
