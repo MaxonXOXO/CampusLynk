@@ -469,11 +469,11 @@
                         <h3 class="text-base font-bold text-amber-300">📄 Series Exam QP Generator — SBTE 2026</h3>
                         <p class="text-slate-400 text-xs mt-1">
                             @if(($subjectType['pattern'] ?? '') === 'table_4_2_design')
-                                Table 4.2 Design Paper: Part A (6×5=30M) + Part B (2×10=20M) = 50 Marks
+                                Table 4.2 Design Paper: Part A (6×5=30M) + Part B (2×10=20M) = 50 Marks | 2 Hours
                             @else
-                                Table 4.1 Standard: Part A (4×1=4M) + Part B (6×3=18M) + Part C (4×7=28M) = 50 Marks
+                                Single CO Test: Part A (2×1=2M) + Part B (3×3=9M) + Part C (answer any 2 of 3 × 7=14M) = 25 Marks | 1½ Hours
                             @endif
-                            | 2 Hours | Scaled to 10 CIA Marks
+                            | Scaled to 10 CIA Marks
                         </p>
                     </div>
 
@@ -1447,14 +1447,21 @@
                 ]
             };
         } else {
+            // Single CO Test: 2×1M + 3×3M + 3×7M (answer any 2) = 25M
             return {
-                part_a: Array.from({length:4}, (_,i) => ({q_no:String(i+1), text:'', marks:1, co:coTag, bloom:'L1', scheme_key:'', answer_key:''})),
-                part_b: Array.from({length:6}, (_,i) => ({q_no:String(i+5), text:'', marks:3, co:coTag, bloom:'L2', scheme_key:'', answer_key:''})),
+                part_a: [
+                    {q_no:'1', text:'', marks:1, co:coTag, bloom:'L1', scheme_key:'', answer_key:''},
+                    {q_no:'2', text:'', marks:1, co:coTag, bloom:'L1', scheme_key:'', answer_key:''},
+                ],
+                part_b: [
+                    {q_no:'3', text:'', marks:3, co:coTag, bloom:'L2', scheme_key:'', answer_key:''},
+                    {q_no:'4', text:'', marks:3, co:coTag, bloom:'L2', scheme_key:'', answer_key:''},
+                    {q_no:'5', text:'', marks:3, co:coTag, bloom:'L3', scheme_key:'', answer_key:''},
+                ],
                 part_c: [
-                    {q_no:'11(a)', text:'', marks:7, co:coTag, bloom:'L4', choice_group:'Set 1', scheme_key:'', answer_key:''},
-                    {q_no:'11(b)', text:'OR: ', marks:7, co:coTag, bloom:'L4', choice_group:'Set 1', scheme_key:'', answer_key:''},
-                    {q_no:'12(a)', text:'', marks:7, co:coTag, bloom:'L4', choice_group:'Set 2', scheme_key:'', answer_key:''},
-                    {q_no:'12(b)', text:'OR: ', marks:7, co:coTag, bloom:'L4', choice_group:'Set 2', scheme_key:'', answer_key:''},
+                    {q_no:'6', text:'', marks:7, co:coTag, bloom:'L4', choice_group:'Answer any 2 of 3', scheme_key:'', answer_key:''},
+                    {q_no:'7', text:'', marks:7, co:coTag, bloom:'L4', choice_group:'Answer any 2 of 3', scheme_key:'', answer_key:''},
+                    {q_no:'8', text:'', marks:7, co:coTag, bloom:'L4', choice_group:'Answer any 2 of 3', scheme_key:'', answer_key:''},
                 ]
             };
         }
@@ -1464,8 +1471,8 @@
         const container = document.getElementById('qp-editor-body');
         const activeTab = document.getElementById('qp-tab-active')?.dataset.tab || 'qp';
         const parts = pattern === 'table_4_2_design'
-            ? [['part_a','PART A (5 Marks each)','5'],['part_b','PART B — Choices (10 Marks each)','10']]
-            : [['part_a','PART A (1 Mark each)','1'],['part_b','PART B (3 Marks each)','3'],['part_c','PART C — Choices (7 Marks each)','7']];
+            ? [['part_a','PART A — Answer ALL (6 × 5M = 30M)','5'],['part_b','PART B — Answer ONE per Set (10M each)','10']]
+            : [['part_a','PART A — Answer ALL (2 × 1M = 2M)','1'],['part_b','PART B — Answer ALL (3 × 3M = 9M)','3'],['part_c','PART C — Answer ANY 2 of 3 (7M each = 14M)','7']];
 
         let html = '';
         for (const [partKey, partLabel, defaultMark] of parts) {

@@ -1501,26 +1501,23 @@ class R26VirtualClassroomPracticumController extends Controller
                         ]
                     ];
                 } else {
+                    // SBTE Revision 2026 — Single CO Series Test Pattern:
+                    // Part A: 2 × 1M = 2M | Part B: 3 × 3M = 9M | Part C: 3 Qs, answer any 2 × 7M = 14M | Total = 25M
                     $qpData = [
                         'part_a' => [
                             ['q_no' => '1', 'text' => "Define the fundamental principle of {$coTag}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'L1', 'scheme_key' => 'Correct definition = 1M', 'answer_key' => 'Standard textbook definition with unit if applicable.'],
-                            ['q_no' => '2', 'text' => "What is the primary function of {$coTag} in modern systems?", 'marks' => 1, 'co' => $coTag, 'bloom' => 'L1', 'scheme_key' => 'Correct function = 1M', 'answer_key' => 'One sentence identifying the core role.'],
-                            ['q_no' => '3', 'text' => "State the governing unit / law for {$coTag}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'L1', 'scheme_key' => 'Correct law / unit = 1M', 'answer_key' => 'Law name or SI unit as applicable.'],
-                            ['q_no' => '4', 'text' => "Mention one key advantage of {$coTag}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'L1', 'scheme_key' => 'Any valid advantage = 1M', 'answer_key' => 'Any one relevant advantage accepted.'],
+                            ['q_no' => '2', 'text' => "State one key law / unit / formula applicable to {$coTag}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'L1', 'scheme_key' => 'Correct law / unit = 1M', 'answer_key' => 'Law name or SI unit / formula as applicable.'],
                         ],
                         'part_b' => [
-                            ['q_no' => '5', 'text' => "Explain the operating mechanism of {$coTag} with suitable block diagram.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L2', 'scheme_key' => 'Explanation (2M) + diagram (1M)', 'answer_key' => 'Input → Process → Output block with brief description.'],
-                            ['q_no' => '6', 'text' => "Distinguish between primary and secondary characteristics of {$coTag}.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L2', 'scheme_key' => 'Table or listed comparison (3M)', 'answer_key' => 'At least 3 valid points of distinction.'],
-                            ['q_no' => '7', 'text' => "Derive the mathematical expression for {$coTag} output response.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L2', 'scheme_key' => 'Correct derivation steps (3M)', 'answer_key' => 'Step-by-step derivation reaching the standard expression.'],
-                            ['q_no' => '8', 'text' => "Describe the calibration procedure for {$coTag} experimental setup.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L3', 'scheme_key' => 'Steps (2M) + precautions (1M)', 'answer_key' => 'Sequential steps with zero setting and scale verification.'],
-                            ['q_no' => '9', 'text' => "Analyze the effect of noise and interference on {$coTag} performance.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L3', 'scheme_key' => 'Analysis (2M) + mitigation (1M)', 'answer_key' => 'SNR, shielding, filtering as applicable.'],
-                            ['q_no' => '10', 'text' => "Outline the practical implementation steps for {$coTag} algorithm/circuit.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L3', 'scheme_key' => 'Steps listed correctly (3M)', 'answer_key' => 'Numbered list of implementation stages.'],
+                            ['q_no' => '3', 'text' => "Explain the operating mechanism of {$coTag} with suitable block diagram.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L2', 'scheme_key' => 'Explanation (2M) + diagram (1M)', 'answer_key' => 'Input → Process → Output block with brief description.'],
+                            ['q_no' => '4', 'text' => "Distinguish between the primary and secondary characteristics of {$coTag}.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L2', 'scheme_key' => 'Table or listed comparison (3M)', 'answer_key' => 'At least 3 valid points of distinction.'],
+                            ['q_no' => '5', 'text' => "Derive the mathematical expression for {$coTag} output response.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'L3', 'scheme_key' => 'Correct derivation steps (3M)', 'answer_key' => 'Step-by-step derivation reaching the standard expression.'],
                         ],
                         'part_c' => [
-                            ['q_no' => '11(a)', 'text' => "Design and analyze a complete {$coTag} circuit/system to satisfy prescribed specifications.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 1', 'scheme_key' => 'Setup (1M) + solution (4M) + diagram/output (2M)', 'answer_key' => 'Full design with labeled diagram and validation.'],
-                            ['q_no' => '11(b)', 'text' => "OR: Evaluate the performance parameters and construct detailed working equations for {$coTag}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 1', 'scheme_key' => 'Parameters (2M) + equations (3M) + interpretation (2M)', 'answer_key' => 'Correct equations with tabulated results.'],
-                            ['q_no' => '12(a)', 'text' => "Develop an end-to-end practical solution and troubleshooting flowchart for {$coTag}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 2', 'scheme_key' => 'Flowchart (3M) + solution (3M) + conclusion (1M)', 'answer_key' => 'Decision-tree flowchart with fault identification.'],
-                            ['q_no' => '12(b)', 'text' => "OR: Formulate and solve the mathematical/code implementation problem for {$coTag}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Set 2', 'scheme_key' => 'Formulation (2M) + solution (4M) + verification (1M)', 'answer_key' => 'Code or mathematical derivation with sample output.'],
+                            // 3 questions given — student answers ANY 2 (2 × 7 = 14M)
+                            ['q_no' => '6', 'text' => "Design and analyze a complete {$coTag} circuit/system to satisfy the given specifications.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => 'Setup (1M) + solution (4M) + diagram/output (2M)', 'answer_key' => 'Full design with labeled diagram and validation.'],
+                            ['q_no' => '7', 'text' => "Evaluate the performance parameters and construct detailed working equations for {$coTag}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => 'Parameters (2M) + equations (3M) + interpretation (2M)', 'answer_key' => 'Correct equations with tabulated/graphical results.'],
+                            ['q_no' => '8', 'text' => "Formulate and solve the implementation/application problem for {$coTag} with complete working and result.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'L4', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => 'Formulation (2M) + solution (4M) + verification (1M)', 'answer_key' => 'Code / derivation with sample output or proof.'],
                         ]
                     ];
                 }
@@ -1564,8 +1561,8 @@ class R26VirtualClassroomPracticumController extends Controller
                 [
                     'co_tag'           => $coTag,
                     'pattern_type'     => $patternType,
-                    'max_marks'        => 50,
-                    'duration_minutes' => 120,
+                    'max_marks'        => ($patternType === 'table_4_2_design') ? 50 : 25,
+                    'duration_minutes' => ($patternType === 'table_4_2_design') ? 120 : 90,
                     'qp_data'          => $qpData,
                     'scheme_data'      => $schemeData,
                     'answer_key'       => $answerKey,

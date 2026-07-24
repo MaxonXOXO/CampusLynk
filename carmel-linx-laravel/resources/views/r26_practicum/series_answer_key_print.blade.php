@@ -131,11 +131,11 @@
         <!-- Total -->
         <div class="border-t-2 border-slate-900 pt-3 mt-4 flex justify-between text-sm font-bold text-slate-800">
             @if($qpRecord->pattern_type === 'table_4_2_design')
-            <span>Part A (30M) + Part B (20M) = 50 Marks</span>
+            <span>Part A (30M) + Part B (20M) = 50 Marks | 2 Hours</span>
             @else
-            <span>Part A (4M) + Part B (18M) + Part C (28M) = 50 Marks</span>
+            <span>Part A (2M) + Part B (9M) + Part C (2 of 3 × 7 = 14M) = 25 Marks | 1½ Hours</span>
             @endif
-            <span>Scaled CIA Mark: {{ $qpRecord->max_marks ?? 50 }}M → 10 CIA Marks</span>
+            <span>Scaled CIA Mark: {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }}M → 10 CIA Marks</span>
         </div>
 
         <!-- Signature -->

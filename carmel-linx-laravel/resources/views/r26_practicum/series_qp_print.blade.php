@@ -56,7 +56,7 @@
                 <div><span class="font-bold">Batch / Semester:</span> {{ $batchName }}</div>
                 <div><span class="font-bold">Series Exam:</span> {{ $seriesNo }}</div>
                 <div><span class="font-bold">Date:</span> {{ date('d/m/Y') }}</div>
-                <div class="flex gap-6"><span><span class="font-bold">Duration:</span> 2 Hours</span> <span><span class="font-bold">Max Marks:</span> 50</span></div>
+                <div class="flex gap-6"><span><span class="font-bold">Duration:</span> {{ $qpRecord->pattern_type === 'table_4_2_design' ? '2 Hours' : '1½ Hours' }}</span> <span><span class="font-bold">Max Marks:</span> {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }}</span></div>
             </div>
         </div>
 
@@ -106,7 +106,7 @@
             {{-- TABLE 4.1 STANDARD PATTERN --}}
             <!-- Part A -->
             <div class="mb-4">
-                <div class="part-header">PART A &nbsp;|&nbsp; Answer ALL Questions &nbsp;|&nbsp; (4 × 1 = 4 Marks)</div>
+                <div class="part-header">PART A &nbsp;|&nbsp; Answer ALL Questions &nbsp;|&nbsp; (2 × 1 = 2 Marks)</div>
                 <table class="w-full text-sm mt-1">
                     @foreach ($qp['part_a'] ?? [] as $q)
                     <tr class="q-row">
@@ -123,7 +123,7 @@
 
             <!-- Part B -->
             <div class="mb-4">
-                <div class="part-header">PART B &nbsp;|&nbsp; Answer ALL Questions &nbsp;|&nbsp; (6 × 3 = 18 Marks)</div>
+                <div class="part-header">PART B &nbsp;|&nbsp; Answer ALL Questions &nbsp;|&nbsp; (3 × 3 = 9 Marks)</div>
                 <table class="w-full text-sm mt-1">
                     @foreach ($qp['part_b'] ?? [] as $q)
                     <tr class="q-row">
@@ -140,7 +140,7 @@
 
             <!-- Part C -->
             <div class="mb-4">
-                <div class="part-header">PART C &nbsp;|&nbsp; Answer ANY ONE from EACH Set &nbsp;|&nbsp; (4 × 7 = 28 Marks)</div>
+                <div class="part-header">PART C &nbsp;|&nbsp; Answer ANY TWO out of THREE Questions &nbsp;|&nbsp; (2 × 7 = 14 Marks)</div>
                 @php $choiceGroups = collect($qp['part_c'] ?? [])->groupBy('choice_group'); @endphp
                 @foreach ($choiceGroups as $setName => $qs)
                 <div class="border border-slate-200 rounded-lg mt-2 mb-1">
@@ -160,10 +160,9 @@
             </div>
         @endif
 
-        <!-- Marks Summary -->
         <div class="mt-4 border-t-2 border-slate-900 pt-3 flex justify-between text-sm font-bold">
-            <span>Pattern: {{ $qpRecord->pattern_type === 'table_4_2_design' ? 'Table 4.2 Design Paper' : 'Table 4.1 Standard' }}</span>
-            <span>Total: {{ $qpRecord->max_marks ?? 50 }} Marks | {{ ($qpRecord->duration_minutes ?? 120) >= 60 ? floor(($qpRecord->duration_minutes ?? 120)/60).' Hr' : ($qpRecord->duration_minutes ?? 120).' Min' }}</span>
+            <span>Pattern: {{ $qpRecord->pattern_type === 'table_4_2_design' ? 'Table 4.2 Design Paper' : 'Table 4.1 — Single CO Internal Test' }}</span>
+            <span>Total: {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }} Marks | {{ $qpRecord->pattern_type === 'table_4_2_design' ? '2 Hours' : '1½ Hours' }}</span>
         </div>
 
         <!-- Signature Block -->
