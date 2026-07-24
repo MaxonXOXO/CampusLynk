@@ -6,6 +6,8 @@ use App\Http\Controllers\BackupController;
 use App\Http\Controllers\MentoringController;
 use App\Http\Controllers\R26DataController;
 use App\Http\Controllers\R26ClassroomController;
+use App\Http\Controllers\MidSemSurveyController;
+use App\Http\Controllers\CourseExitSurveyController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -326,6 +328,26 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r26/classroom/practical/course-file/{subjectId}', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'viewCourseFile']);
     Route::post('/api/r26/classroom/practical/course-file/{subjectId}/save-doc', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'saveCourseFileDoc']);
     Route::post('/api/r26/classroom/practical/course-file/{subjectId}/upload-doc', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'uploadCourseFileDocAttachment']);
+
+    // Revision 2026 Practicum Virtual Classroom Management (Joint Theory + Lab)
+    Route::get('/r26/classroom/practicum/{subjectId}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'show']);
+    Route::get('/r26/classroom/practicum/course-file/{subjectId}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'viewCourseFile']);
+    Route::get('/r26/classroom/practicum/{subjectId}/print-lesson-plan', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printLessonPlanPdf']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/syllabus', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'uploadSyllabus']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/lesson-plan/save', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveLessonPlanRow']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/lesson-plan/save-all', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveAllLessonPlans']);
+
+    Route::post('/api/r26/classroom/practicum/{subjectId}/evaluate/experiment', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveExperimentMarks']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/evaluate/series-theory', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveSeriesTheoryMarks']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/evaluate/series-practical', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveSeriesPracticalMarks']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/evaluate/ese', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveEseMarks']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/evaluate/self-learning/configs', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveSelfLearningConfigs']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/evaluate/self-learning/marks', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveSelfLearningMarks']);
+    Route::get('/r26/classroom/practicum/{subjectId}/print-course-file', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printCourseFilePdf']);
+    Route::get('/r26/classroom/practicum/{subjectId}/print-self-learning-splitup', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSelfLearningSplitupPdf']);
+    Route::get('/r26/classroom/practicum/{subjectId}/print-self-learning-summary', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSelfLearningSummaryPdf']);
+
+
 
     // HOD Subject Allocation
     Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);

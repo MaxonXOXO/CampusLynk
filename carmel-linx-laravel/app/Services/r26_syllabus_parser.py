@@ -19,6 +19,30 @@ def parse_syllabus(pdf_path):
     cie_marks = 40
     ese_marks = 60
     total_hours = 60
+    type_of_course = "Theory"
+    semester = "I"
+    program = "Diploma Engineering"
+
+    # Type of Course
+    match_type = re.search(r'Type of Course\s+(Practicum|Theory|Practical|Drawing|PBL|PSI)', full_text, re.IGNORECASE)
+    if match_type:
+        type_of_course = match_type.group(1).strip()
+    else:
+        match_type_raw = re.search(r'Type of Course\s+([A-Za-z]+)', full_text, re.IGNORECASE)
+        if match_type_raw:
+            type_of_course = match_type_raw.group(1).strip()
+
+    # Semester
+    match_sem = re.search(r'Semester\s+([IVXLCDM\d]+)', full_text, re.IGNORECASE)
+    if match_sem: semester = match_sem.group(1).strip()
+
+    # Program
+    match_prog = re.search(r'Program\s+([^\n]+)', full_text, re.IGNORECASE)
+    if match_prog:
+        prog_raw = match_prog.group(1).strip()
+        if "Course Title" in prog_raw:
+            prog_raw = prog_raw.split("Course Title")[0].strip()
+        program = prog_raw[:250]
 
     # CIE Marks
     match_cie = re.search(r'CIE Marks\s+(\d+)', full_text, re.IGNORECASE)
@@ -29,8 +53,8 @@ def parse_syllabus(pdf_path):
     if match_ese: ese_marks = int(match_ese.group(1))
 
     # Credits
-    match_cred = re.search(r'Credits\s+(\d+)', full_text, re.IGNORECASE)
-    if match_cred: credits_val = int(match_cred.group(1))
+    match_cred = re.search(r'Credits\s+([\d\.]+)', full_text, re.IGNORECASE)
+    if match_cred: credits_val = float(match_cred.group(1))
 
     # Course Code
     match_code = re.search(r'Course Code\s+(\d+)', full_text, re.IGNORECASE)
@@ -38,7 +62,11 @@ def parse_syllabus(pdf_path):
 
     # Course Title
     match_title = re.search(r'Course Title\s+([^\n]+)', full_text, re.IGNORECASE)
-    if match_title: course_title = match_title.group(1).strip()
+    if match_title:
+        title_raw = match_title.group(1).strip()
+        if "Course Code" in title_raw:
+            title_raw = title_raw.split("Course Code")[0].strip()
+        course_title = title_raw[:250]
 
     # L:T:P:R Teaching Scheme
     match_ltpr = re.search(r'Teaching Scheme\s+([\d:]+)', full_text, re.IGNORECASE)
@@ -146,7 +174,7 @@ def parse_syllabus(pdf_path):
         'metadata': None
     }
 
-    row_pattern = r'\b([LT])\s+(CO\d+)\s+(Remember|Understand|Apply|Analyze|Evaluate|Create|Remembering|Understanding|Applying|Analyzing|Evaluating|Creating)\s+(\d+)\s*$'
+    row_pattern = r'\b([LTP])\s+(CO\d+)\s+(Remember|Understand|Apply|Analyze|Evaluate|Create|Remembering|Understanding|Applying|Analyzing|Evaluating|Creating)\s+([\d\.]+)\s*$'
 
     def save_block():
         if not current_block['topic_lines'] and not current_block['slo_lines']:
@@ -159,13 +187,20 @@ def parse_syllabus(pdf_path):
         
         meta = current_block['metadata']
         if meta:
+            mode_code = meta[0]
+            pedagogy_name = 'Lecture'
+            if mode_code == 'T':
+                pedagogy_name = 'Tutorial'
+            elif mode_code == 'P':
+                pedagogy_name = 'Practical'
+
             detailed_topics.append({
                 'topic': topic_full,
                 'learning_outcome': slo_full,
-                'pedagogy': 'Lecture' if meta[0] == 'L' else 'Tutorial',
+                'pedagogy': pedagogy_name,
                 'co_id': meta[1],
                 'taxonomy': meta[2],
-                'hours': int(meta[3])
+                'hours': float(meta[3])
             })
         current_block['topic_lines'] = []
         current_block['slo_lines'] = []
@@ -226,10 +261,46 @@ def parse_syllabus(pdf_path):
         mod_hrs = sum(t['hours'] for t in detailed_topics if t['co_id'] == co_tag)
         mod['hours'] = mod_hrs if mod_hrs > 0 else 15
 
+    # Separate Practical Experiments (pedagogy == 'Practical')
+    # Split experiments > 3 hours into 3-hour sessions
+    experiments = []
+    exp_idx = 1
+    for t in detailed_topics:
+        if t['pedagogy'] == 'Practical':
+            total_hrs = float(t['hours'])
+            if total_hrs > 3:
+                num_sessions = int(total_hrs // 3)
+                rem_hrs = total_hrs % 3
+                if rem_hrs > 0:
+                    num_sessions += 1
+                for s in range(1, num_sessions + 1):
+                    sess_hrs = 3 if (s < num_sessions or rem_hrs == 0) else rem_hrs
+                    experiments.append({
+                        'experiment_no': f"EXP-{exp_idx:02d}-S{s}",
+                        'title': f"{t['topic']} (Session {s})",
+                        'student_learning_outcome': t['learning_outcome'],
+                        'co_id': t['co_id'],
+                        'taxonomy': t['taxonomy'],
+                        'hours': sess_hrs
+                    })
+            else:
+                experiments.append({
+                    'experiment_no': f"EXP-{exp_idx:02d}",
+                    'title': t['topic'],
+                    'student_learning_outcome': t['learning_outcome'],
+                    'co_id': t['co_id'],
+                    'taxonomy': t['taxonomy'],
+                    'hours': total_hrs
+                })
+            exp_idx += 1
+
     # Compile the final result
     result = {
         'course_code': course_code,
         'course_title': course_title,
+        'program': program,
+        'semester': semester,
+        'type_of_course': type_of_course,
         'credits': credits_val,
         'teaching_scheme': ltpr_val,
         'cie_marks': cie_marks,
@@ -238,6 +309,7 @@ def parse_syllabus(pdf_path):
         'cos': cos,
         'copo_matrix': copo_matrix,
         'modules': modules,
+        'experiments': experiments,
         'detailed_topics': detailed_topics
     }
     return result

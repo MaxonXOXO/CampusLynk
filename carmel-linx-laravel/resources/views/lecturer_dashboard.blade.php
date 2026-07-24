@@ -1889,7 +1889,10 @@
 
     function openClassroom(batchId, subjectId, subjectName, subjectCode, revision = 'REV2021', type = 'Theory') {
       if (revision === 'REV2026') {
-        if (type.includes('Theory')) {
+        if (type.includes('Practicum')) {
+          window.open(`/r26/classroom/practicum/${subjectId}`, '_blank');
+          return;
+        } else if (type.includes('Theory')) {
           window.open(`/r26/classroom/theory/${subjectId}`, '_blank');
           return;
         } else if (type.includes('Practical') || type.includes('Lab')) {
