@@ -193,7 +193,8 @@ class R26VirtualClassroomPracticumController extends Controller
             $eseMarks,
             $slAcademicMarks,
             $slSubmissions,
-            $practicumCourseFile
+            $practicumCourseFile,
+            $batchSubject
         ) {
             $regNo = $student->reg_no;
 
