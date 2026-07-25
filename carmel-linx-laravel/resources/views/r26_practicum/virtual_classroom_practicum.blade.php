@@ -91,7 +91,15 @@
             padding-left: 0.5rem !important;
             padding-right: 0.5rem !important;
         }
-        .header-btn, .header-btn span, .header-btn svg {
+        .header-btn {
+            font-size: 0.8125rem !important; /* 13px compact font */
+            padding-top: 0.35rem !important;
+            padding-bottom: 0.35rem !important;
+            padding-left: 0.65rem !important;
+            padding-right: 0.65rem !important;
+            border-radius: 8px !important;
+        }
+        .header-btn span, .header-btn svg {
             font-size: 0.8125rem !important; /* 13px compact font */
         }
         /* Custom Scrollbars */
