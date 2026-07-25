@@ -22,12 +22,26 @@
     </style>
 </head>
 <body class="p-8 max-w-3xl mx-auto">
+@php
+if (!function_exists('getBtShort')) {
+    function getBtShort($bloom) {
+        $bloom = strtoupper(trim(strval($bloom)));
+        if (str_contains($bloom, 'REM') || $bloom === 'L1' || $bloom === 'R') return 'R';
+        if (str_contains($bloom, 'UND') || $bloom === 'L2' || $bloom === 'U') return 'U';
+        if (str_contains($bloom, 'APP') || $bloom === 'L3' || $bloom === 'AP' || $bloom === 'A') return 'A';
+        if (str_contains($bloom, 'ANA') || $bloom === 'L4' || $bloom === 'AN') return 'An';
+        if (str_contains($bloom, 'EVA') || $bloom === 'L5' || $bloom === 'E') return 'E';
+        if (str_contains($bloom, 'CRE') || $bloom === 'L6' || $bloom === 'C') return 'C';
+        return $bloom;
+    }
+}
+@endphp
 
     <!-- Action Bar (No Print) -->
     <div class="no-print mb-6 flex items-center justify-between bg-slate-100 p-4 rounded-xl border border-slate-300">
         <div>
             <h2 class="font-bold text-slate-800 text-lg">Series Exam Question Paper — {{ $seriesNo }}</h2>
-            <p class="text-slate-600 text-sm">{{ $subjectType['label'] ?? '📄 Standard (Table 4.1)' }} | Max 50 Marks | 2 Hours</p>
+            <p class="text-slate-600 text-sm">{{ $subjectType['label'] ?? '📄 Standard (Table 4.1)' }} | Max {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }} Marks | {{ (str_contains($qpRecord->co_tag ?? '', '+') || str_contains($qpRecord->co_tag ?? '', ',')) ? '3 Hours' : '1 Hour' }}</p>
         </div>
         <div class="flex items-center space-x-3">
             <button onclick="window.print()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow transition-all flex items-center space-x-2">
@@ -56,7 +70,7 @@
                 <div><span class="font-bold">Batch / Semester:</span> {{ $batchName }}</div>
                 <div><span class="font-bold">Series Exam:</span> {{ $seriesNo }}</div>
                 <div><span class="font-bold">Date:</span> {{ date('d/m/Y') }}</div>
-                <div class="flex gap-6"><span><span class="font-bold">Duration:</span> {{ $qpRecord->pattern_type === 'table_4_2_design' ? '2 Hours' : '1½ Hours' }}</span> <span><span class="font-bold">Max Marks:</span> {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }}</span></div>
+                <div class="flex gap-6"><span><span class="font-bold">Duration:</span> {{ (str_contains($qpRecord->co_tag ?? '', '+') || str_contains($qpRecord->co_tag ?? '', ',')) ? '3 Hours' : '1 Hour' }}</span> <span><span class="font-bold">Max Marks:</span> {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }}</span></div>
             </div>
         </div>
 
@@ -72,10 +86,10 @@
                     <tr class="q-row">
                         <td class="q-no pr-3">{{ $q['q_no'] }}.</td>
                         <td class="py-1">{{ $q['text'] }}
-                            <span class="ml-2 bloom-badge">{{ $q['bloom'] ?? 'L2' }}</span>
+                            <span class="ml-2 bloom-badge">{{ getBtShort($q['bloom'] ?? 'L2') }}</span>
                             <span class="ml-1 co-badge">{{ $q['co'] ?? '' }}</span>
                         </td>
-                        <td class="marks-col pl-3">{{ $q['marks'] }}M</td>
+                        <td class="marks-col pl-3">{{ $q['marks'] }}M ({{ getBtShort($q['bloom'] ?? 'L2') }})</td>
                     </tr>
                     @endforeach
                 </table>
@@ -94,10 +108,10 @@
                     <div class="q-row flex items-start px-3">
                         <div class="q-no pr-3">{{ $q['q_no'] }}.</div>
                         <div class="flex-1 py-1">{{ $q['text'] }}
-                            <span class="ml-2 bloom-badge">{{ $q['bloom'] ?? 'L4' }}</span>
+                            <span class="ml-2 bloom-badge">{{ getBtShort($q['bloom'] ?? 'L4') }}</span>
                             <span class="ml-1 co-badge">{{ $q['co'] ?? '' }}</span>
                         </div>
-                        <div class="marks-col pl-3">{{ $q['marks'] }}M</div>
+                        <div class="marks-col pl-3">{{ $q['marks'] }}M ({{ getBtShort($q['bloom'] ?? 'L4') }})</div>
                     </div>
                     @endforeach
                 </div>
@@ -114,10 +128,10 @@
                     <tr class="q-row">
                         <td class="q-no pr-3">{{ $q['q_no'] }}.</td>
                         <td class="py-1">{{ $q['text'] }}
-                            <span class="ml-2 bloom-badge">{{ $q['bloom'] ?? 'L1' }}</span>
+                            <span class="ml-2 bloom-badge">{{ getBtShort($q['bloom'] ?? 'L1') }}</span>
                             <span class="ml-1 co-badge">{{ $q['co'] ?? '' }}</span>
                         </td>
-                        <td class="marks-col pl-3">{{ $q['marks'] }}M</td>
+                        <td class="marks-col pl-3">{{ $q['marks'] }}M ({{ getBtShort($q['bloom'] ?? 'L1') }})</td>
                     </tr>
                     @endforeach
                 </table>
@@ -131,10 +145,10 @@
                     <tr class="q-row">
                         <td class="q-no pr-3">{{ $q['q_no'] }}.</td>
                         <td class="py-1">{{ $q['text'] }}
-                            <span class="ml-2 bloom-badge">{{ $q['bloom'] ?? 'L2' }}</span>
+                            <span class="ml-2 bloom-badge">{{ getBtShort($q['bloom'] ?? 'L2') }}</span>
                             <span class="ml-1 co-badge">{{ $q['co'] ?? '' }}</span>
                         </td>
-                        <td class="marks-col pl-3">{{ $q['marks'] }}M</td>
+                        <td class="marks-col pl-3">{{ $q['marks'] }}M ({{ getBtShort($q['bloom'] ?? 'L2') }})</td>
                     </tr>
                     @endforeach
                 </table>
@@ -153,10 +167,10 @@
                     <div class="q-row flex items-start px-3">
                         <div class="q-no pr-3">{{ $q['q_no'] }}.</div>
                         <div class="flex-1 py-1">{{ $q['text'] }}
-                            <span class="ml-2 bloom-badge">{{ $q['bloom'] ?? 'L4' }}</span>
+                            <span class="ml-2 bloom-badge">{{ getBtShort($q['bloom'] ?? 'L4') }}</span>
                             <span class="ml-1 co-badge">{{ $q['co'] ?? '' }}</span>
                         </div>
-                        <div class="marks-col pl-3">{{ $q['marks'] }}M</div>
+                        <div class="marks-col pl-3">{{ $q['marks'] }}M ({{ getBtShort($q['bloom'] ?? 'L4') }})</div>
                     </div>
                     @endforeach
                 </div>
@@ -166,7 +180,7 @@
 
         <div class="mt-4 border-t-2 border-slate-900 pt-3 flex justify-between text-sm font-bold">
             <span>Pattern: {{ $qpRecord->pattern_type === 'table_4_2_design' ? 'Table 4.2 Design Paper' : 'Table 4.1 — Single CO Internal Test' }}</span>
-            <span>Total: {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }} Marks | {{ $qpRecord->pattern_type === 'table_4_2_design' ? '2 Hours' : '1½ Hours' }}</span>
+            <span>Total: {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }} Marks | {{ (str_contains($qpRecord->co_tag ?? '', '+') || str_contains($qpRecord->co_tag ?? '', ',')) ? '3 Hours' : '1 Hour' }}</span>
         </div>
 
         <!-- Signature Block -->

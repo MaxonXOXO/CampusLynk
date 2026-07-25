@@ -21,12 +21,26 @@
     </style>
 </head>
 <body class="p-8 max-w-3xl mx-auto">
+@php
+if (!function_exists('getBtShort')) {
+    function getBtShort($bloom) {
+        $bloom = strtoupper(trim(strval($bloom)));
+        if (str_contains($bloom, 'REM') || $bloom === 'L1' || $bloom === 'R') return 'R';
+        if (str_contains($bloom, 'UND') || $bloom === 'L2' || $bloom === 'U') return 'U';
+        if (str_contains($bloom, 'APP') || $bloom === 'L3' || $bloom === 'AP' || $bloom === 'A') return 'A';
+        if (str_contains($bloom, 'ANA') || $bloom === 'L4' || $bloom === 'AN') return 'An';
+        if (str_contains($bloom, 'EVA') || $bloom === 'L5' || $bloom === 'E') return 'E';
+        if (str_contains($bloom, 'CRE') || $bloom === 'L6' || $bloom === 'C') return 'C';
+        return $bloom;
+    }
+}
+@endphp
 
     <!-- Action Bar -->
     <div class="no-print mb-6 flex items-center justify-between bg-slate-100 p-4 rounded-xl border border-slate-300">
         <div>
             <h2 class="font-bold text-slate-800 text-lg">Evaluation Scheme — {{ $seriesNo }}</h2>
-            <p class="text-slate-600 text-sm">{{ $subjectType['label'] ?? '📄 Standard (Table 4.1)' }} | Max 50 Marks | Strictly Confidential</p>
+            <p class="text-slate-600 text-sm">{{ $subjectType['label'] ?? '📄 Standard (Table 4.1)' }} | Max {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }} Marks | Strictly Confidential</p>
         </div>
         <div class="flex items-center space-x-3">
             <button onclick="window.print()" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg shadow transition-all flex items-center space-x-2">
@@ -68,7 +82,7 @@
                 <div class="q-block mt-2">
                     <div class="q-question">
                         Q{{ $q['q_no'] }}: {{ $q['text'] }}
-                        <span class="total-mark-badge">{{ $q['marks'] }} M</span>
+                        <span class="total-mark-badge">{{ $q['marks'] }} M ({{ getBtShort($q['bloom'] ?? 'L2') }})</span>
                     </div>
                     <div class="scheme-text whitespace-pre-line">
                         @if(!empty($q['scheme_key']))
@@ -88,7 +102,7 @@
                 <div class="q-block mt-2">
                     <div class="q-question">
                         Q{{ $q['q_no'] }}: {{ $q['text'] }}
-                        <span class="total-mark-badge">{{ $q['marks'] }} M</span>
+                        <span class="total-mark-badge">{{ $q['marks'] }} M ({{ getBtShort($q['bloom'] ?? 'L4') }})</span>
                     </div>
                     <div class="scheme-text whitespace-pre-line">
                         @if(!empty($q['scheme_key']))
@@ -109,7 +123,7 @@
                 <div class="q-block mt-2">
                     <div class="q-question">
                         Q{{ $q['q_no'] }}: {{ $q['text'] }}
-                        <span class="total-mark-badge">{{ $q['marks'] }} M</span>
+                        <span class="total-mark-badge">{{ $q['marks'] }} M ({{ getBtShort($q['bloom'] ?? 'L1') }})</span>
                     </div>
                     <div class="scheme-text whitespace-pre-line">
                         @if(!empty($q['scheme_key']))
@@ -129,7 +143,7 @@
                 <div class="q-block mt-2">
                     <div class="q-question">
                         Q{{ $q['q_no'] }}: {{ $q['text'] }}
-                        <span class="total-mark-badge">{{ $q['marks'] }} M</span>
+                        <span class="total-mark-badge">{{ $q['marks'] }} M ({{ getBtShort($q['bloom'] ?? 'L2') }})</span>
                     </div>
                     <div class="scheme-text whitespace-pre-line">
                         @if(!empty($q['scheme_key']))
@@ -149,7 +163,7 @@
                 <div class="q-block mt-2">
                     <div class="q-question">
                         Q{{ $q['q_no'] }}: {{ $q['text'] }}
-                        <span class="total-mark-badge">{{ $q['marks'] }} M</span>
+                        <span class="total-mark-badge">{{ $q['marks'] }} M ({{ getBtShort($q['bloom'] ?? 'L4') }})</span>
                     </div>
                     <div class="scheme-text whitespace-pre-line">
                         @if(!empty($q['scheme_key']))
@@ -166,9 +180,9 @@
         <!-- Marks Summary -->
         <div class="border-t-2 border-slate-900 pt-3 mt-5 flex justify-between text-sm font-bold">
             @if ($qpRecord->pattern_type === 'table_4_2_design')
-            <span>Part A (30M) + Part B (20M) = 50 Marks | 2 Hours</span>
+            <span>Part A (30M) + Part B (20M) = 50 Marks | {{ (str_contains($qpRecord->co_tag ?? '', '+') || str_contains($qpRecord->co_tag ?? '', ',')) ? '3 Hours' : '1 Hour' }}</span>
             @else
-            <span>Part A (2M) + Part B (9M) + Part C (2 of 3 × 7 = 14M) = 25 Marks | 1½ Hours</span>
+            <span>Part A (2M) + Part B (9M) + Part C (2 of 3 × 7 = 14M) = 25 Marks | {{ (str_contains($qpRecord->co_tag ?? '', '+') || str_contains($qpRecord->co_tag ?? '', ',')) ? '3 Hours' : '1 Hour' }}</span>
             @endif
             <span>Scaled CIA: {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }}M → 10 CIA Marks</span>
         </div>

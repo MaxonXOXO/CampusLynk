@@ -23,6 +23,20 @@
     </style>
 </head>
 <body class="p-8 max-w-3xl mx-auto">
+@php
+if (!function_exists('getBtShort')) {
+    function getBtShort($bloom) {
+        $bloom = strtoupper(trim(strval($bloom)));
+        if (str_contains($bloom, 'REM') || $bloom === 'L1' || $bloom === 'R') return 'R';
+        if (str_contains($bloom, 'UND') || $bloom === 'L2' || $bloom === 'U') return 'U';
+        if (str_contains($bloom, 'APP') || $bloom === 'L3' || $bloom === 'AP' || $bloom === 'A') return 'A';
+        if (str_contains($bloom, 'ANA') || $bloom === 'L4' || $bloom === 'AN') return 'An';
+        if (str_contains($bloom, 'EVA') || $bloom === 'L5' || $bloom === 'E') return 'E';
+        if (str_contains($bloom, 'CRE') || $bloom === 'L6' || $bloom === 'C') return 'C';
+        return $bloom;
+    }
+}
+@endphp
 
     <!-- Action Bar -->
     <div class="no-print mb-6 flex items-center justify-between bg-red-50 p-4 rounded-xl border border-red-200">
@@ -104,8 +118,8 @@
             <div class="q-card mt-2">
                 <div class="q-title">
                     Q{{ $qNo }}: {{ $q['text'] ?? '' }}
-                    <span class="marks-badge">{{ $q['marks'] ?? 0 }} M</span>
-                    <span class="bloom-chip ml-2">{{ $q['bloom'] ?? 'L2' }}</span>
+                    <span class="marks-badge">{{ $q['marks'] ?? 0 }} M ({{ getBtShort($q['bloom'] ?? 'L2') }})</span>
+                    <span class="bloom-chip ml-2">{{ getBtShort($q['bloom'] ?? 'L2') }}</span>
                     @if(!empty($q['choice_group']))<span class="text-xs text-slate-500 ml-2">({{ $q['choice_group'] }})</span>@endif
                 </div>
 
@@ -131,9 +145,9 @@
         <!-- Total -->
         <div class="border-t-2 border-slate-900 pt-3 mt-4 flex justify-between text-sm font-bold text-slate-800">
             @if($qpRecord->pattern_type === 'table_4_2_design')
-            <span>Part A (30M) + Part B (20M) = 50 Marks | 2 Hours</span>
+            <span>Part A (30M) + Part B (20M) = 50 Marks | {{ (str_contains($qpRecord->co_tag ?? '', '+') || str_contains($qpRecord->co_tag ?? '', ',')) ? '3 Hours' : '1 Hour' }}</span>
             @else
-            <span>Part A (2M) + Part B (9M) + Part C (2 of 3 × 7 = 14M) = 25 Marks | 1½ Hours</span>
+            <span>Part A (2M) + Part B (9M) + Part C (2 of 3 × 7 = 14M) = 25 Marks | {{ (str_contains($qpRecord->co_tag ?? '', '+') || str_contains($qpRecord->co_tag ?? '', ',')) ? '3 Hours' : '1 Hour' }}</span>
             @endif
             <span>Scaled CIA Mark: {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }}M → 10 CIA Marks</span>
         </div>

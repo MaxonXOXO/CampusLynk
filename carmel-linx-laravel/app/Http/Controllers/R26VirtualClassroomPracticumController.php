@@ -1748,7 +1748,7 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
                     'co_tag'           => $coTag,
                     'pattern_type'     => $patternType,
                     'max_marks'        => ($patternType === 'table_4_2_design') ? 50 : 25,
-                    'duration_minutes' => ($patternType === 'table_4_2_design') ? 120 : 90,
+                    'duration_minutes' => (str_contains($coTag, '+') || str_contains($coTag, ',')) ? 180 : 60,
                     'qp_data'          => $qpData,
                     'scheme_data'      => $schemeData,
                     'answer_key'       => $answerKey,
