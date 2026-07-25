@@ -1775,9 +1775,21 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
                 }
             }
 
+            $bloomMap = [
+                'Remember'   => 'L1',
+                'Understand' => 'L2',
+                'Apply'      => 'L3',
+                'Analyze'    => 'L4',
+                'Evaluate'   => 'L5',
+                'Create'     => 'L6'
+            ];
+
             foreach ($allParts as $part => $questions) {
                 foreach ($questions as $q) {
                     $qNo = $q['q_no'] ?? null;
+                    $rawBloom = trim($q['bloom'] ?? 'L2');
+                    $bloomLevel = $bloomMap[$rawBloom] ?? (strlen($rawBloom) > 5 ? substr($rawBloom, 0, 5) : $rawBloom);
+
                     \App\Models\R26QuestionBank::updateOrCreate(
                         [
                             'subject_code' => $batchSubject->subject_code,
@@ -1791,7 +1803,7 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
                             'series_no'        => $seriesNo,
                             'q_no'             => $qNo,
                             'marks'            => $q['marks'] ?? 1,
-                            'bloom_level'      => $q['bloom'] ?? 'L2',
+                            'bloom_level'      => $bloomLevel,
                             'choice_group'     => $q['choice_group'] ?? null,
                             'scheme_key'       => $schemeFlat[$qNo] ?? null,
                             'answer_key'       => $keyFlat[$qNo] ?? null,
