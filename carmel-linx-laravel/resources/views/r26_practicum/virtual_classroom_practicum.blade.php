@@ -16,33 +16,62 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #080d1e;
-            color: #f1f5f9;
+            background-color: #030712;
+            color: #f3f4f6;
+            background-image: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
         }
         h1, h2, h3, h4, .font-heading {
             font-family: 'Outfit', sans-serif;
         }
         .glass-panel {
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
         }
         .glass-card {
-            background: rgba(30, 41, 59, 0.8);
+            background: rgba(17, 24, 39, 0.55);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.08);
+        }
+        .mode-btn {
+            background: rgba(31, 41, 55, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #9ca3af;
+            transition: all 0.25s ease;
+        }
+        .mode-btn:hover {
+            color: #ffffff;
+            background: rgba(31, 41, 55, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
         }
         .mode-btn.active {
-            background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
             color: #ffffff !important;
-            border-color: rgba(139, 92, 246, 0.5);
-            box-shadow: 0 4px 14px 0 rgba(139, 92, 246, 0.39);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+        .subtab-btn {
+            background: transparent;
+            color: #9ca3af;
+            border-bottom: 2px solid transparent;
+            transition: all 0.25s ease;
+        }
+        .subtab-btn:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.03);
         }
         .subtab-btn.active {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            color: #ffffff !important;
-            border-color: rgba(59, 130, 246, 0.5);
-            box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+            color: #818cf8 !important;
+            border-bottom-color: #6366f1;
+            font-weight: 700;
         }
         /* Strict Minimum Font Size Policy Compliance */
         input, select, textarea, button, table, td, th, label, p, span, div {
@@ -51,8 +80,8 @@
         /* Compact Font Size Specifically for 90-Hour Dense Lesson Planner */
         .lp-table input, .lp-table select, .lp-table td, .lp-table th, .lp-table span, .lp-table button {
             font-size: 0.8125rem !important; /* 13px compact font for high density */
-            padding-top: 0.2rem !important;
-            padding-bottom: 0.2rem !important;
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.25rem !important;
         }
         /* Custom Scrollbars */
         ::-webkit-scrollbar {
@@ -60,14 +89,15 @@
             height: 8px;
         }
         ::-webkit-scrollbar-track {
-            background: #0f172a;
+            background: #0b0f19;
         }
         ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
+            background: #1f2937;
+            border-radius: 6px;
+            border: 2px solid #0b0f19;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
+            background: #374151;
         }
     </style>
 </head>
@@ -1438,30 +1468,30 @@
     function buildEmptyQpTemplate(pattern, coTag) {
         if (pattern === 'table_4_2_design') {
             return {
-                part_a: Array.from({length:6}, (_,i) => ({q_no:String(i+1), text:'', marks:5, co:coTag, bloom:'L2', scheme_key:'', answer_key:''})),
+                part_a: Array.from({length:6}, (_,i) => ({q_no:String(i+1), text:'', marks:5, co:coTag, bloom:'Understand', scheme_key:'', answer_key:''})),
                 part_b: [
-                    {q_no:'7(a)', text:'', marks:10, co:coTag, bloom:'L4', choice_group:'Set 1', scheme_key:'', answer_key:''},
-                    {q_no:'7(b)', text:'OR: ', marks:10, co:coTag, bloom:'L4', choice_group:'Set 1', scheme_key:'', answer_key:''},
-                    {q_no:'8(a)', text:'', marks:10, co:coTag, bloom:'L4', choice_group:'Set 2', scheme_key:'', answer_key:''},
-                    {q_no:'8(b)', text:'OR: ', marks:10, co:coTag, bloom:'L4', choice_group:'Set 2', scheme_key:'', answer_key:''},
+                    {q_no:'7(a)', text:'', marks:10, co:coTag, bloom:'Analyze', choice_group:'Set 1', scheme_key:'', answer_key:''},
+                    {q_no:'7(b)', text:'OR: ', marks:10, co:coTag, bloom:'Analyze', choice_group:'Set 1', scheme_key:'', answer_key:''},
+                    {q_no:'8(a)', text:'', marks:10, co:coTag, bloom:'Analyze', choice_group:'Set 2', scheme_key:'', answer_key:''},
+                    {q_no:'8(b)', text:'OR: ', marks:10, co:coTag, bloom:'Analyze', choice_group:'Set 2', scheme_key:'', answer_key:''},
                 ]
             };
         } else {
             // Single CO Test: 2×1M + 3×3M + 3×7M (answer any 2) = 25M
             return {
                 part_a: [
-                    {q_no:'1', text:'', marks:1, co:coTag, bloom:'L1', scheme_key:'', answer_key:''},
-                    {q_no:'2', text:'', marks:1, co:coTag, bloom:'L1', scheme_key:'', answer_key:''},
+                    {q_no:'1', text:'', marks:1, co:coTag, bloom:'Remember', scheme_key:'', answer_key:''},
+                    {q_no:'2', text:'', marks:1, co:coTag, bloom:'Remember', scheme_key:'', answer_key:''},
                 ],
                 part_b: [
-                    {q_no:'3', text:'', marks:3, co:coTag, bloom:'L2', scheme_key:'', answer_key:''},
-                    {q_no:'4', text:'', marks:3, co:coTag, bloom:'L2', scheme_key:'', answer_key:''},
-                    {q_no:'5', text:'', marks:3, co:coTag, bloom:'L3', scheme_key:'', answer_key:''},
+                    {q_no:'3', text:'', marks:3, co:coTag, bloom:'Understand', scheme_key:'', answer_key:''},
+                    {q_no:'4', text:'', marks:3, co:coTag, bloom:'Understand', scheme_key:'', answer_key:''},
+                    {q_no:'5', text:'', marks:3, co:coTag, bloom:'Apply', scheme_key:'', answer_key:''},
                 ],
                 part_c: [
-                    {q_no:'6', text:'', marks:7, co:coTag, bloom:'L4', choice_group:'Answer any 2 of 3', scheme_key:'', answer_key:''},
-                    {q_no:'7', text:'', marks:7, co:coTag, bloom:'L4', choice_group:'Answer any 2 of 3', scheme_key:'', answer_key:''},
-                    {q_no:'8', text:'', marks:7, co:coTag, bloom:'L4', choice_group:'Answer any 2 of 3', scheme_key:'', answer_key:''},
+                    {q_no:'6', text:'', marks:7, co:coTag, bloom:'Analyze', choice_group:'Answer any 2 of 3', scheme_key:'', answer_key:''},
+                    {q_no:'7', text:'', marks:7, co:coTag, bloom:'Analyze', choice_group:'Answer any 2 of 3', scheme_key:'', answer_key:''},
+                    {q_no:'8', text:'', marks:7, co:coTag, bloom:'Analyze', choice_group:'Answer any 2 of 3', scheme_key:'', answer_key:''},
                 ]
             };
         }
@@ -1504,7 +1534,7 @@
                     <td class="p-1.5"><textarea rows="2" onchange="updateQpField('${partKey}',${idx},'text',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-white resize-none">${q.text||''}</textarea></td>
                     ${activeTab !== 'qp' ? `<td class="p-1.5"><textarea rows="2" onchange="updateQpField('${partKey}',${idx},'${activeTab==='key'?'answer_key':'scheme_key'}',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-emerald-300 resize-none" placeholder="${keyLabel}…">${keyField}</textarea></td>` : ''}
                     <td class="p-1.5"><select onchange="updateQpField('${partKey}',${idx},'bloom',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1 py-1 text-xs text-white">
-                        ${['L1','L2','L3','L4','L5','L6'].map(l=>`<option ${q.bloom===l?'selected':''}>${l}</option>`).join('')}
+                        ${['Remember','Understand','Apply','Analyze','Evaluate','Create'].map(l=>`<option ${q.bloom===l?'selected':''}>${l}</option>`).join('')}
                     </select></td>
                     <td class="p-1.5"><input type="number" min="1" max="30" value="${q.marks||defaultMark}" onchange="updateQpField('${partKey}',${idx},'marks',parseInt(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-amber-300 font-bold"></td>
                     <td class="p-1.5"><input type="text" value="${q.choice_group||''}" placeholder="Set 1…" onchange="updateQpField('${partKey}',${idx},'choice_group',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-purple-300"></td>
@@ -1535,7 +1565,7 @@
     function addQpRow(partKey, defaultMark) {
         if (!_draftQp[partKey]) _draftQp[partKey] = [];
         const idx = _draftQp[partKey].length + 1;
-        _draftQp[partKey].push({q_no: String(idx), text: '', marks: parseInt(defaultMark), co: _currentCo, bloom: 'L2', scheme_key: '', answer_key: ''});
+        _draftQp[partKey].push({q_no: String(idx), text: '', marks: parseInt(defaultMark), co: _currentCo, bloom: 'Understand', scheme_key: '', answer_key: ''});
         renderQpEditor(_draftQp, QP_PATTERN);
     }
 
