@@ -1509,43 +1509,112 @@ class R26VirtualClassroomPracticumController extends Controller
                 $qpData = $bankGrouped;
                 $source = 'question_bank';
             } else {
-                // ── Fallback: built-in templates ─────────────────────────
+                // ── Fallback to dynamic syllabus parsing ───────────────────
                 $source = 'template';
+
+                // Decode parsed COS and Modules
+                $parsedCos = null;
+                $parsedModules = null;
+                if ($practicumFile) {
+                    $parsedCos = is_array($practicumFile->parsed_cos) ? $practicumFile->parsed_cos : json_decode($practicumFile->parsed_cos, true);
+                    $parsedModules = is_array($practicumFile->parsed_modules) ? $practicumFile->parsed_modules : json_decode($practicumFile->parsed_modules, true);
+                }
+
+                // Match CO description
+                $coDesc = '';
+                if ($parsedCos) {
+                    foreach ($parsedCos as $coObj) {
+                        if (($coObj['id'] ?? '') === $coTag) {
+                            $coDesc = $coObj['description'] ?? '';
+                            break;
+                        }
+                    }
+                }
+                if (empty($coDesc)) {
+                    $defaults = [
+                        'CO1' => 'Demonstrate basic concepts, electrical quantities, signal types, and electronic measuring instruments.',
+                        'CO2' => 'Construct and analyze basic electronic circuits using passive electronic components.',
+                        'CO3' => 'Apply semiconductor theory to demonstrate the operation of semiconductor devices.',
+                        'CO4' => 'Demonstrate Printed Circuit Boards and apply soldering techniques.'
+                    ];
+                    $coDesc = $defaults[$coTag] ?? 'Apply subject knowledge.';
+                }
+
+                // Match Module Content
+                $moduleTitle = '';
+                $moduleContent = '';
+                if ($parsedModules) {
+                    $moduleIdMap = [
+                        'CO1' => ['I', '1'],
+                        'CO2' => ['II', '2'],
+                        'CO3' => ['III', '3'],
+                        'CO4' => ['IV', '4']
+                    ];
+                    $targetIds = $moduleIdMap[$coTag] ?? [];
+                    foreach ($parsedModules as $mod) {
+                        $mId = strval($mod['module_id'] ?? $mod['id'] ?? '');
+                        if (in_array($mId, $targetIds)) {
+                            $moduleTitle = $mod['title'] ?? '';
+                            $moduleContent = $mod['content'] ?? '';
+                            break;
+                        }
+                    }
+                }
+
+                if (empty($moduleContent)) {
+                    $defaultsMod = [
+                        'CO1' => ['title' => 'Introduction to Electronics, Signals and Measurements', 'content' => 'Introduction, electrical quantities, signals, laboratory measuring instruments (CRO, Multimeter)'],
+                        'CO2' => ['title' => 'Passive Electronic Components', 'content' => 'Resistors, capacitors, inductors, transformers, series and parallel circuit testing'],
+                        'CO3' => ['title' => 'Active Electronic Components', 'content' => 'Semiconductor devices, PN junction diode, Zener diode, LED, VI characteristics'],
+                        'CO4' => ['title' => 'PCB and Soldering', 'content' => 'PCB types, layout design, fabrication steps, soldering practice and techniques']
+                    ];
+                    $moduleTitle = $defaultsMod[$coTag]['title'] ?? 'Syllabus Module';
+                    $moduleContent = $defaultsMod[$coTag]['content'] ?? 'Course topics and practical applications.';
+                }
+
+                // Parse syllabus module content into key topics
+                $topics = array_filter(array_map('trim', explode(',', $moduleContent)));
+                if (count($topics) < 3) {
+                    $topics = array_filter(array_map('trim', explode(';', $moduleContent)));
+                }
+                $topics = array_values(array_unique($topics));
+                while (count($topics) < 8) {
+                    $topics[] = $coDesc;
+                }
+
+                // Generate customized QP Data from the actual syllabus topics
                 if ($patternType === 'table_4_2_design') {
                     $qpData = [
                         'part_a' => [
-                            ['q_no' => '1', 'text' => "State the design criteria and basic equations for {$coTag} system.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => 'Design criteria (2M) + equations (3M)', 'answer_key' => 'Key governing equations with standard notation.'],
-                            ['q_no' => '2', 'text' => "Define the safety margins and stress factors applicable in {$coTag}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => 'Safety factor definition (2M) + application (3M)', 'answer_key' => 'FOS = Failure load / Working load; typical value 1.5–3.'],
-                            ['q_no' => '3', 'text' => "Explain the step-by-step drafting procedure for {$coTag} assembly.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => 'Steps listed correctly (3M) + diagram (2M)', 'answer_key' => 'Sequence of projection, scale selection, dimensioning.'],
-                            ['q_no' => '4', 'text' => "List the key material specifications and dimensions for {$coTag}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => 'Material grade (2M) + dimensions (3M)', 'answer_key' => 'Grade, density, tensile strength with IS code.'],
-                            ['q_no' => '5', 'text' => "Describe the tolerance standards and fits used in {$coTag}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => 'Tolerance grade (2M) + fit type (3M)', 'answer_key' => 'Clearance/Interference/Transition fits with BIS notation.'],
-                            ['q_no' => '6', 'text' => "Explain the functional requirements and boundary conditions for {$coTag}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => 'Requirements (2M) + boundary conditions (3M)', 'answer_key' => 'Load, constraints, support conditions clearly stated.'],
+                            ['q_no' => '1', 'text' => "State the key design criteria and basic working equations for {$topics[0]} system.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Define design criteria (2M) + write standard equations (3M)", 'answer_key' => "Governing mathematical equations and design criteria details for {$topics[0]}."],
+                            ['q_no' => '2', 'text' => "Explain the safety factors, stress margins, and tolerance limits applicable in {$topics[1]}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Safety margin definition (2M) + stress limits explanation (3M)", 'answer_key' => "Stress limits, safety margins, and tolerance values defined for {$topics[1]}."],
+                            ['q_no' => '3', 'text' => "Describe the step-by-step layout design and drafting procedure for {$topics[2]} component.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Procedural steps listed (3M) + block layout diagram (2M)", 'answer_key' => "Complete layout drafting steps and procedural design parameters for {$topics[2]}."],
+                            ['q_no' => '4', 'text' => "List the functional material specifications, standards, and dimensions for {$topics[3]}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Material standard grades (2M) + dimension listing (3M)", 'answer_key' => "BIS / ISO grade specifications and standard dimensions for {$topics[3]}."],
+                            ['q_no' => '5', 'text' => "Apply the principles of {$topics[4]} to explain its functional requirements and fits.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Functional requirements (2M) + fit explanation (3M)", 'answer_key' => "Requirements analysis and selection of correct mechanical/electrical fits for {$topics[4]}."],
+                            ['q_no' => '6', 'text' => "Identify the boundary conditions and load characteristics for {$topics[5]} system under test.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Boundary conditions identified (2M) + load curve (3M)", 'answer_key' => "Load conditions, constraints, and boundary criteria for {$topics[5]}."],
                         ],
                         'part_b' => [
-                            ['q_no' => '7(a)', 'text' => "Design and calculate the structural dimensions for {$coTag} component given loading condition P=50kN.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => 'Setup (2M) + calculations (5M) + diagram (3M)', 'answer_key' => 'Full worked solution with units and standard formula.'],
-                            ['q_no' => '7(b)', 'text' => "OR: Develop a comprehensive schematic design layout and CAD drafting plan for {$coTag}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => 'Layout (4M) + plan (4M) + annotation (2M)', 'answer_key' => 'Proper views, dimension lines, title block.'],
-                            ['q_no' => '8(a)', 'text' => "Perform complete stress/performance analysis and dimension optimization for {$coTag}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => 'Analysis (5M) + optimization (3M) + conclusion (2M)', 'answer_key' => 'Von Mises / bending stress with safety check.'],
-                            ['q_no' => '8(b)', 'text' => "OR: Formulate the design equations and draw detailed cross-sectional views for {$coTag}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => 'Equations (4M) + section views (4M) + labels (2M)', 'answer_key' => 'Correct cross section with hatching and dimensions.'],
+                            ['q_no' => '7(a)', 'text' => "Design and analyze the structural setup for {$topics[6]} given standard operating conditions.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "Design setup (2M) + calculation steps (5M) + schematic diagram (3M)", 'answer_key' => "Complete analytical solution, calculations, and schematic diagram for {$topics[6]}."],
+                            ['q_no' => '7(b)', 'text' => "OR: Develop a comprehensive schematic design layout and detailed CAD drafting plan for {$topics[7]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "Schematic layout (4M) + drafting sequence (4M) + annotations (2M)", 'answer_key' => "CAD drafting plan, annotations, and orthographic projections for {$topics[7]}."],
+                            ['q_no' => '8(a)', 'text' => "Perform complete stress-strain analysis and dimension optimization for {$topics[0]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Optimized design setup (3M) + analysis details (5M) + conclusion (2M)", 'answer_key' => "Optimized parameters and strain analysis calculations for {$topics[0]}."],
+                            ['q_no' => '8(b)', 'text' => "OR: Formulate design equations and draw detailed cross-sectional assembly views for {$topics[1]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Formulated equations (4M) + cross-section layout (4M) + labelling (2M)", 'answer_key' => "Assembled sectional views, labels, and mathematical design for {$topics[1]}."],
                         ]
                     ];
                 } else {
-                    // SBTE Revision 2026 — Single CO Series Test Pattern:
-                    // Part A: 2 × 1M = 2M | Part B: 3 × 3M = 9M | Part C: 3 Qs, answer any 2 × 7M = 14M | Total = 25M
                     $qpData = [
                         'part_a' => [
-                            ['q_no' => '1', 'text' => "Define the fundamental principle of {$coTag}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => 'Correct definition = 1M', 'answer_key' => 'Standard textbook definition with unit if applicable.'],
-                            ['q_no' => '2', 'text' => "State one key law / unit / formula applicable to {$coTag}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => 'Correct law / unit = 1M', 'answer_key' => 'Law name or SI unit / formula as applicable.'],
+                            ['q_no' => '1', 'text' => "Define the fundamental concept and primary function of {$topics[0]}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => "Correct definition or function = 1M", 'answer_key' => "Standard definition of {$topics[0]} as per the syllabus."],
+                            ['q_no' => '2', 'text' => "State the standard unit, formula, or law governing the operation of {$topics[1]}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => "Correct law, unit or formula = 1M", 'answer_key' => "Governing law / formula / SI unit for {$topics[1]}."],
                         ],
                         'part_b' => [
-                            ['q_no' => '3', 'text' => "Explain the operating mechanism of {$coTag} with suitable block diagram.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => 'Explanation (2M) + diagram (1M)', 'answer_key' => 'Input → Process → Output block with brief description.'],
-                            ['q_no' => '4', 'text' => "Distinguish between the primary and secondary characteristics of {$coTag}.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => 'Table or listed comparison (3M)', 'answer_key' => 'At least 3 valid points of distinction.'],
-                            ['q_no' => '5', 'text' => "Derive the mathematical expression for {$coTag} output response.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => 'Correct derivation steps (3M)', 'answer_key' => 'Step-by-step derivation reaching the standard expression.'],
+                            ['q_no' => '3', 'text' => "Explain the operating mechanism of {$topics[2]} using a block schematic or circuit diagram.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Functional explanation (2M) + block/circuit diagram (1M)", 'answer_key' => "Schematic representation and process explanation for {$topics[2]}."],
+                            ['q_no' => '4', 'text' => "Distinguish between the primary features and secondary features of {$topics[3]}.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Comparison points listed (3M)", 'answer_key' => "At least 3 valid comparison points for {$topics[3]} characteristics."],
+                            ['q_no' => '5', 'text' => "Derive the mathematical expression or setup equation for {$topics[4]} output response.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Derivation setup (1M) + step-by-step derivation (2M)", 'answer_key' => "Analytical derivation leading to standard expression for {$topics[4]}."],
                         ],
                         'part_c' => [
-                            // 3 questions given — student answers ANY 2 (2 × 7 = 14M)
-                            ['q_no' => '6', 'text' => "Design and analyze a complete {$coTag} circuit/system to satisfy the given specifications.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => 'Setup (1M) + solution (4M) + diagram/output (2M)', 'answer_key' => 'Full design with labeled diagram and validation.'],
-                            ['q_no' => '7', 'text' => "Evaluate the performance parameters and construct detailed working equations for {$coTag}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => 'Parameters (2M) + equations (3M) + interpretation (2M)', 'answer_key' => 'Correct equations with tabulated/graphical results.'],
-                            ['q_no' => '8', 'text' => "Formulate and solve the implementation/application problem for {$coTag} with complete working and result.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => 'Formulation (2M) + solution (4M) + verification (1M)', 'answer_key' => 'Code / derivation with sample output or proof.'],
+                            ['q_no' => '6', 'text' => "Design and analyze a complete {$topics[5]} system to satisfy the given system specifications.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Circuit/System setup (2M) + calculations (3M) + diagram/schematic (2M)", 'answer_key' => "Complete layout, design specifications, and schematic diagram for {$topics[5]}."],
+                            ['q_no' => '7', 'text' => "Evaluate the performance parameters and construct detailed working equations for {$topics[6]}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Parameters list (2M) + working equations (3M) + validation (2M)", 'answer_key' => "Performance validation and mathematical models for {$topics[6]}."],
+                            ['q_no' => '8', 'text' => "Formulate and solve the implementation or application problem for {$topics[7]} with complete working.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Problem setup (2M) + step-by-step solution (4M) + final results (1M)", 'answer_key' => "Full design solution, steps, and final results for {$topics[7]} application."],
                         ]
                     ];
                 }
