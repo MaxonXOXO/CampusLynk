@@ -1509,7 +1509,7 @@ class R26VirtualClassroomPracticumController extends Controller
                 $qpData = $bankGrouped;
                 $source = 'question_bank';
             } else {
-                // ── Fallback to dynamic syllabus parsing ───────────────────
+                // ── Fallback to dynamic syllabus parsing & AI generation ───
                 $source = 'template';
 
                 // Decode parsed COS and Modules
@@ -1572,51 +1572,140 @@ class R26VirtualClassroomPracticumController extends Controller
                     $moduleContent = $defaultsMod[$coTag]['content'] ?? 'Course topics and practical applications.';
                 }
 
-                // Parse syllabus module content into key topics
-                $topics = array_filter(array_map('trim', explode(',', $moduleContent)));
-                if (count($topics) < 3) {
-                    $topics = array_filter(array_map('trim', explode(';', $moduleContent)));
-                }
-                $topics = array_values(array_unique($topics));
-                while (count($topics) < 8) {
-                    $topics[] = $coDesc;
+                // Try Gemini AI Generation if enabled in settings
+                $apiKey = env('GEMINI_API_KEY');
+                $aiEnabled = \App\Http\Controllers\SystemSettingController::isAiEnabled();
+                $geminiSuccess = false;
+
+                if ($aiEnabled && $apiKey) {
+                    try {
+                        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+                            ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+                        
+                        $prompt = "You are an expert university engineering examiner.
+Generate a complete examination question paper for the course outcome: '{$coTag}'
+Course: '{$batchSubject->subject_name}' (Code: '{$batchSubject->subject_code}')
+Department/Branch: '" . ($classroom->branch ?? 'Engineering') . "'
+Course Outcome Description: '{$coDesc}'
+Module/Syllabus content: '{$moduleContent}'
+
+The question paper must follow the pattern type '{$patternType}'.
+
+" . ($patternType === 'table_4_2_design' ? "
+For 'table_4_2_design', generate:
+- Exactly 6 questions for 'part_a' (5 marks each, cognitive levels should be 'Understand' or 'Apply').
+- Exactly 4 questions for 'part_b' (10 marks each, cognitive levels should be 'Analyze' or 'Evaluate' or 'Create'). Q7(a) and Q7(b) must have choice_group 'Set 1'. Q8(a) and Q8(b) must have choice_group 'Set 2'.
+" : "
+For 'table_4_1_standard', generate:
+- Exactly 2 questions for 'part_a' (1 mark each, cognitive levels should be 'Remember' or 'Understand').
+- Exactly 3 questions for 'part_b' (3 marks each, cognitive levels should be 'Understand' or 'Apply').
+- Exactly 3 questions for 'part_c' (7 marks each, cognitive levels should be 'Apply' or 'Analyze' or 'Evaluate'). All Part C questions must have choice_group 'Answer any 2 of 3'.
+") . "
+
+For EACH question, you must also provide:
+1. 'scheme_key': Short marking breakdown/guidelines (e.g., 'Correct definition (2M) + diagram (3M)').
+2. 'answer_key': The detailed model answer/key details.
+
+Return ONLY a valid JSON object matching the exact schema (do not include markdown code block syntax):
+{
+  \"part_a\": [
+    {
+      \"q_no\": \"1\",
+      \"text\": \"Question text here?\",
+      \"marks\": 5,
+      \"co\": \"{$coTag}\",
+      \"bloom\": \"Understand\",
+      \"choice_group\": \"\",
+      \"scheme_key\": \"Marking split...\",
+      \"answer_key\": \"Detailed model answer...\"
+    }
+  ],
+  \"part_b\": [
+    ...
+  ],
+  \"part_c\": [
+    ...
+  ]
+}";
+
+                        $response = \Illuminate\Support\Facades\Http::timeout(60)->post(
+                            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}",
+                            [
+                                'contents' => [
+                                    [
+                                        'parts' => [
+                                            ['text' => $prompt]
+                                        ]
+                                    ]
+                                ],
+                                'generationConfig' => [
+                                    'responseMimeType' => 'application/json',
+                                ]
+                            ]
+                        );
+
+                        if ($response->successful()) {
+                            $geminiText = $response->json('candidates.0.content.parts.0.text', '');
+                            $cleanText = trim(preg_replace('/```json|```/i', '', $geminiText));
+                            $decoded = json_decode($cleanText, true);
+                            if (is_array($decoded) && (!empty($decoded['part_a']) || !empty($decoded['part_b']))) {
+                                $qpData = $decoded;
+                                $geminiSuccess = true;
+                                $source = 'ai_gemini';
+                            }
+                        }
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::warning("Gemini Practicum QP generation failed: " . $e->getMessage());
+                    }
                 }
 
-                // Generate customized QP Data from the actual syllabus topics
-                if ($patternType === 'table_4_2_design') {
-                    $qpData = [
-                        'part_a' => [
-                            ['q_no' => '1', 'text' => "State the key design criteria and basic working equations for {$topics[0]} system.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Define design criteria (2M) + write standard equations (3M)", 'answer_key' => "Governing mathematical equations and design criteria details for {$topics[0]}."],
-                            ['q_no' => '2', 'text' => "Explain the safety factors, stress margins, and tolerance limits applicable in {$topics[1]}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Safety margin definition (2M) + stress limits explanation (3M)", 'answer_key' => "Stress limits, safety margins, and tolerance values defined for {$topics[1]}."],
-                            ['q_no' => '3', 'text' => "Describe the step-by-step layout design and drafting procedure for {$topics[2]} component.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Procedural steps listed (3M) + block layout diagram (2M)", 'answer_key' => "Complete layout drafting steps and procedural design parameters for {$topics[2]}."],
-                            ['q_no' => '4', 'text' => "List the functional material specifications, standards, and dimensions for {$topics[3]}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Material standard grades (2M) + dimension listing (3M)", 'answer_key' => "BIS / ISO grade specifications and standard dimensions for {$topics[3]}."],
-                            ['q_no' => '5', 'text' => "Apply the principles of {$topics[4]} to explain its functional requirements and fits.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Functional requirements (2M) + fit explanation (3M)", 'answer_key' => "Requirements analysis and selection of correct mechanical/electrical fits for {$topics[4]}."],
-                            ['q_no' => '6', 'text' => "Identify the boundary conditions and load characteristics for {$topics[5]} system under test.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Boundary conditions identified (2M) + load curve (3M)", 'answer_key' => "Load conditions, constraints, and boundary criteria for {$topics[5]}."],
-                        ],
-                        'part_b' => [
-                            ['q_no' => '7(a)', 'text' => "Design and analyze the structural setup for {$topics[6]} given standard operating conditions.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "Design setup (2M) + calculation steps (5M) + schematic diagram (3M)", 'answer_key' => "Complete analytical solution, calculations, and schematic diagram for {$topics[6]}."],
-                            ['q_no' => '7(b)', 'text' => "OR: Develop a comprehensive schematic design layout and detailed CAD drafting plan for {$topics[7]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "Schematic layout (4M) + drafting sequence (4M) + annotations (2M)", 'answer_key' => "CAD drafting plan, annotations, and orthographic projections for {$topics[7]}."],
-                            ['q_no' => '8(a)', 'text' => "Perform complete stress-strain analysis and dimension optimization for {$topics[0]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Optimized design setup (3M) + analysis details (5M) + conclusion (2M)", 'answer_key' => "Optimized parameters and strain analysis calculations for {$topics[0]}."],
-                            ['q_no' => '8(b)', 'text' => "OR: Formulate design equations and draw detailed cross-sectional assembly views for {$topics[1]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Formulated equations (4M) + cross-section layout (4M) + labelling (2M)", 'answer_key' => "Assembled sectional views, labels, and mathematical design for {$topics[1]}."],
-                        ]
-                    ];
-                } else {
-                    $qpData = [
-                        'part_a' => [
-                            ['q_no' => '1', 'text' => "Define the fundamental concept and primary function of {$topics[0]}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => "Correct definition or function = 1M", 'answer_key' => "Standard definition of {$topics[0]} as per the syllabus."],
-                            ['q_no' => '2', 'text' => "State the standard unit, formula, or law governing the operation of {$topics[1]}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => "Correct law, unit or formula = 1M", 'answer_key' => "Governing law / formula / SI unit for {$topics[1]}."],
-                        ],
-                        'part_b' => [
-                            ['q_no' => '3', 'text' => "Explain the operating mechanism of {$topics[2]} using a block schematic or circuit diagram.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Functional explanation (2M) + block/circuit diagram (1M)", 'answer_key' => "Schematic representation and process explanation for {$topics[2]}."],
-                            ['q_no' => '4', 'text' => "Distinguish between the primary features and secondary features of {$topics[3]}.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Comparison points listed (3M)", 'answer_key' => "At least 3 valid comparison points for {$topics[3]} characteristics."],
-                            ['q_no' => '5', 'text' => "Derive the mathematical expression or setup equation for {$topics[4]} output response.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Derivation setup (1M) + step-by-step derivation (2M)", 'answer_key' => "Analytical derivation leading to standard expression for {$topics[4]}."],
-                        ],
-                        'part_c' => [
-                            ['q_no' => '6', 'text' => "Design and analyze a complete {$topics[5]} system to satisfy the given system specifications.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Circuit/System setup (2M) + calculations (3M) + diagram/schematic (2M)", 'answer_key' => "Complete layout, design specifications, and schematic diagram for {$topics[5]}."],
-                            ['q_no' => '7', 'text' => "Evaluate the performance parameters and construct detailed working equations for {$topics[6]}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Parameters list (2M) + working equations (3M) + validation (2M)", 'answer_key' => "Performance validation and mathematical models for {$topics[6]}."],
-                            ['q_no' => '8', 'text' => "Formulate and solve the implementation or application problem for {$topics[7]} with complete working.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Problem setup (2M) + step-by-step solution (4M) + final results (1M)", 'answer_key' => "Full design solution, steps, and final results for {$topics[7]} application."],
-                        ]
-                    ];
+                if (!$geminiSuccess) {
+                    // Parse syllabus module content into key topics
+                    $topics = array_filter(array_map('trim', explode(',', $moduleContent)));
+                    if (count($topics) < 3) {
+                        $topics = array_filter(array_map('trim', explode(';', $moduleContent)));
+                    }
+                    $topics = array_values(array_unique($topics));
+                    while (count($topics) < 8) {
+                        $topics[] = $coDesc;
+                    }
+
+                    // Generate customized QP Data from the actual syllabus topics
+                    if ($patternType === 'table_4_2_design') {
+                        $qpData = [
+                            'part_a' => [
+                                ['q_no' => '1', 'text' => "State the key design criteria and basic working equations for {$topics[0]} system.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Define design criteria (2M) + write standard equations (3M)", 'answer_key' => "Governing mathematical equations and design criteria details for {$topics[0]}."],
+                                ['q_no' => '2', 'text' => "Explain the safety factors, stress margins, and tolerance limits applicable in {$topics[1]}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Safety margin definition (2M) + stress limits explanation (3M)", 'answer_key' => "Stress limits, safety margins, and tolerance values defined for {$topics[1]}."],
+                                ['q_no' => '3', 'text' => "Describe the step-by-step layout design and drafting procedure for {$topics[2]} component.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Procedural steps listed (3M) + block layout diagram (2M)", 'answer_key' => "Complete layout drafting steps and procedural design parameters for {$topics[2]}."],
+                                ['q_no' => '4', 'text' => "List the functional material specifications, standards, and dimensions for {$topics[3]}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Material standard grades (2M) + dimension listing (3M)", 'answer_key' => "BIS / ISO grade specifications and standard dimensions for {$topics[3]}."],
+                                ['q_no' => '5', 'text' => "Apply the principles of {$topics[4]} to explain its functional requirements and fits.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Functional requirements (2M) + fit explanation (3M)", 'answer_key' => "Requirements analysis and selection of correct mechanical/electrical fits for {$topics[4]}."],
+                                ['q_no' => '6', 'text' => "Identify the boundary conditions and load characteristics for {$topics[5]} system under test.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Boundary conditions identified (2M) + load curve (3M)", 'answer_key' => "Load conditions, constraints, and boundary criteria for {$topics[5]}."],
+                            ],
+                            'part_b' => [
+                                ['q_no' => '7(a)', 'text' => "Design and analyze the structural setup for {$topics[6]} given standard operating conditions.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "Design setup (2M) + calculation steps (5M) + schematic diagram (3M)", 'answer_key' => "Complete analytical solution, calculations, and schematic diagram for {$topics[6]}."],
+                                ['q_no' => '7(b)', 'text' => "OR: Develop a comprehensive schematic design layout and detailed CAD drafting plan for {$topics[7]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "Schematic layout (4M) + drafting sequence (4M) + annotations (2M)", 'answer_key' => "CAD drafting plan, annotations, and orthographic projections for {$topics[7]}."],
+                                ['q_no' => '8(a)', 'text' => "Perform complete stress-strain analysis and dimension optimization for {$topics[0]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Optimized design setup (3M) + analysis details (5M) + conclusion (2M)", 'answer_key' => "Optimized parameters and strain analysis calculations for {$topics[0]}."],
+                                ['q_no' => '8(b)', 'text' => "OR: Formulate design equations and draw detailed cross-sectional assembly views for {$topics[1]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Formulated equations (4M) + cross-section layout (4M) + labelling (2M)", 'answer_key' => "Assembled sectional views, labels, and mathematical design for {$topics[1]}."],
+                            ]
+                        ];
+                    } else {
+                        $qpData = [
+                            'part_a' => [
+                                ['q_no' => '1', 'text' => "Define the fundamental concept and primary function of {$topics[0]}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => "Correct definition or function = 1M", 'answer_key' => "Standard definition of {$topics[0]} as per the syllabus."],
+                                ['q_no' => '2', 'text' => "State the standard unit, formula, or law governing the operation of {$topics[1]}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => "Correct law, unit or formula = 1M", 'answer_key' => "Governing law / formula / SI unit for {$topics[1]}."],
+                            ],
+                            'part_b' => [
+                                ['q_no' => '3', 'text' => "Explain the operating mechanism of {$topics[2]} using a block schematic or circuit diagram.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Functional explanation (2M) + block/circuit diagram (1M)", 'answer_key' => "Schematic representation and process explanation for {$topics[2]}."],
+                                ['q_no' => '4', 'text' => "Distinguish between the primary features and secondary features of {$topics[3]}.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Comparison points listed (3M)", 'answer_key' => "At least 3 valid comparison points for {$topics[3]} characteristics."],
+                                ['q_no' => '5', 'text' => "Derive the mathematical expression or setup equation for {$topics[4]} output response.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Derivation setup (1M) + step-by-step derivation (2M)", 'answer_key' => "Analytical derivation leading to standard expression for {$topics[4]}."],
+                            ],
+                            'part_c' => [
+                                ['q_no' => '6', 'text' => "Design and analyze a complete {$topics[5]} system to satisfy the given system specifications.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Circuit/System setup (2M) + calculations (3M) + diagram/schematic (2M)", 'answer_key' => "Complete layout, design specifications, and schematic diagram for {$topics[5]}."],
+                                ['q_no' => '7', 'text' => "Evaluate the performance parameters and construct detailed working equations for {$topics[6]}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Parameters list (2M) + working equations (3M) + validation (2M)", 'answer_key' => "Performance validation and mathematical models for {$topics[6]}."],
+                                ['q_no' => '8', 'text' => "Formulate and solve the implementation or application problem for {$topics[7]} with complete working.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Problem setup (2M) + step-by-step solution (4M) + final results (1M)", 'answer_key' => "Full design solution, steps, and final results for {$topics[7]} application."],
+                            ]
+                        ];
+                    }
                 }
             }
 
@@ -1626,7 +1715,7 @@ class R26VirtualClassroomPracticumController extends Controller
                 'source'       => $source,
                 'message'      => $source === 'question_bank'
                     ? '✅ Questions loaded from Question Bank!'
-                    : '🤖 AI template questions generated (edit before saving)',
+                    : ($source === 'ai_gemini' ? '🤖 AI questions generated using Gemini API!' : '🤖 AI template questions generated (edit before saving)'),
                 'co_tag'       => $coTag,
                 'pattern_type' => $patternType,
                 'qp_data'      => $qpData,

@@ -87,7 +87,9 @@
                 @php $choiceGroups = collect($qp['part_b'] ?? [])->groupBy('choice_group'); @endphp
                 @foreach ($choiceGroups as $setName => $qs)
                 <div class="border border-slate-200 rounded-lg mt-2 mb-1">
+                    @if(trim($setName) !== '')
                     <div class="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1 rounded-t-lg">{{ $setName }}</div>
+                    @endif
                     @foreach ($qs as $q)
                     <div class="q-row flex items-start px-3">
                         <div class="q-no pr-3">{{ $q['q_no'] }}.</div>
@@ -144,7 +146,9 @@
                 @php $choiceGroups = collect($qp['part_c'] ?? [])->groupBy('choice_group'); @endphp
                 @foreach ($choiceGroups as $setName => $qs)
                 <div class="border border-slate-200 rounded-lg mt-2 mb-1">
+                    @if(trim($setName) !== '')
                     <div class="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1 rounded-t-lg">{{ $setName }}</div>
+                    @endif
                     @foreach ($qs as $q)
                     <div class="q-row flex items-start px-3">
                         <div class="q-no pr-3">{{ $q['q_no'] }}.</div>
