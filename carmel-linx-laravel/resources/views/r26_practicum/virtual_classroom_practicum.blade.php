@@ -528,30 +528,32 @@
                             <!-- Generate buttons -->
                             <div class="flex flex-col gap-1.5 mt-1">
                                 <button onclick="openQpPreviewModal('{{ $series }}', '{{ $co }}', 'ai')"
-                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-amber-600 hover:bg-amber-500 text-white transition-all text-center">
+                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all text-center">
                                     ⚡ AI Generate
                                 </button>
                                 <button onclick="openQpPreviewModal('{{ $series }}', '{{ $co }}', 'manual')"
-                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-slate-600 hover:bg-slate-500 text-white transition-all text-center">
+                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-slate-700 hover:bg-slate-800 text-white transition-all text-center">
                                     ✏ Manual Entry
                                 </button>
                             </div>
 
                             <!-- Print buttons (only if saved) -->
                             @if($savedQp)
-                            <div class="border-t border-slate-700/50 pt-2 flex flex-col gap-1">
+                            <div class="border-t border-slate-700/50 pt-2 flex flex-col gap-1.5">
                                 <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-qp/'.urlencode($series)) }}" target="_blank"
-                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white text-center block">
+                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-indigo-950/40 hover:bg-indigo-900/60 border border-indigo-500/30 text-indigo-300 text-center block">
                                     🖨️ Print QP
                                 </a>
-                                <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-scheme/'.urlencode($series)) }}" target="_blank"
-                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white text-center block">
-                                    📋 Eval Scheme
-                                </a>
-                                <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-key/'.urlencode($series)) }}" target="_blank"
-                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-red-700 hover:bg-red-600 text-white text-center block">
-                                    🔑 Answer Key
-                                </a>
+                                <div class="grid grid-cols-2 gap-1.5">
+                                    <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-scheme/'.urlencode($series)) }}" target="_blank"
+                                        class="py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-750 text-slate-300 text-center block">
+                                        📋 Scheme
+                                    </a>
+                                    <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-key/'.urlencode($series)) }}" target="_blank"
+                                        class="py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-750 text-slate-300 text-center block">
+                                        🔑 Key
+                                    </a>
+                                </div>
                             </div>
                             @endif
                         </div>
@@ -1437,7 +1439,6 @@
         document.getElementById('qp-modal-title').textContent = `Series Exam QP — ${seriesNo} (${coTag}) | ${QP_PATTERN === 'table_4_2_design' ? 'Table 4.2 Design' : 'Table 4.1 Standard'}`;
 
         document.getElementById('qp-editor-body').innerHTML = '<div class="text-slate-400 text-sm p-8 text-center animate-pulse">⚡ Loading questions…</div>';
-        switchQpTab('qp');
 
         if (mode === 'ai') {
             statusEl.innerHTML = `⚡ Fetching AI/Bank questions for <strong>${seriesNo}</strong>...`;
@@ -1499,7 +1500,6 @@
 
     function renderQpEditor(qpData, pattern) {
         const container = document.getElementById('qp-editor-body');
-        const activeTab = document.getElementById('qp-tab-active')?.dataset.tab || 'qp';
         const parts = pattern === 'table_4_2_design'
             ? [['part_a','PART A — Answer ALL (6 × 5M = 30M)','5'],['part_b','PART B — Answer ONE per Set (10M each)','10']]
             : [['part_a','PART A — Answer ALL (2 × 1M = 2M)','1'],['part_b','PART B — Answer ALL (3 × 3M = 9M)','3'],['part_c','PART C — Answer ANY 2 of 3 (7M each = 14M)','7']];
@@ -1508,53 +1508,42 @@
         for (const [partKey, partLabel, defaultMark] of parts) {
             const rows = qpData[partKey] || [];
             html += `<div class="mb-4">
-                <div class="flex items-center justify-between bg-slate-700/60 px-3 py-2 rounded-t-lg">
-                    <span class="font-bold text-amber-300 text-sm">${partLabel}</span>
-                    <button onclick="addQpRow('${partKey}','${defaultMark}')" class="text-xs px-2 py-1 rounded bg-amber-600 hover:bg-amber-500 text-white font-bold">+ Add Question</button>
+                <div class="flex items-center justify-between bg-slate-800 px-4 py-2.5 rounded-t-xl border-t border-x border-slate-700">
+                    <span class="font-bold text-indigo-300 text-sm">${partLabel}</span>
+                    <button onclick="addQpRow('${partKey}','${defaultMark}')" class="text-xs px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-all">+ Add Question</button>
                 </div>
-                <div class="border border-slate-700 rounded-b-lg overflow-hidden">
+                <div class="border border-slate-700 rounded-b-xl overflow-hidden bg-slate-900/60">
                     <table class="w-full text-sm" id="tbl-${partKey}">
-                        <thead class="bg-slate-800 text-slate-400 text-xs">
+                        <thead class="bg-slate-850 text-slate-400 text-xs">
                             <tr>
-                                <th class="p-2 w-14">Q.No</th>
-                                <th class="p-2">Question Text</th>
-                                ${activeTab !== 'qp' ? '<th class="p-2">Scheme / Key</th>' : ''}
-                                <th class="p-2 w-16">Bloom</th>
-                                <th class="p-2 w-14">Marks</th>
-                                <th class="p-2 w-20">Choice</th>
-                                <th class="p-2 w-10"></th>
+                                <th class="p-3 w-14 text-center">Q.No</th>
+                                <th class="p-3">Question Text</th>
+                                <th class="p-3 w-1/4">Evaluation Scheme (Key Points)</th>
+                                <th class="p-3 w-1/4">Answer Key / Model Answer</th>
+                                <th class="p-3 w-28">Bloom</th>
+                                <th class="p-3 w-14 text-center">Marks</th>
+                                <th class="p-3 w-28">Choice Group</th>
+                                <th class="p-3 w-10"></th>
                             </tr>
                         </thead>
                         <tbody>`;
             rows.forEach((q, idx) => {
-                const keyField = activeTab === 'key' ? (q.answer_key||'') : (q.scheme_key||'');
-                const keyLabel = activeTab === 'key' ? 'Model Answer' : 'Scheme Key';
                 html += `<tr class="border-b border-slate-800 hover:bg-slate-800/40" data-part="${partKey}" data-idx="${idx}">
-                    <td class="p-1.5"><input type="text" value="${q.q_no||''}" onchange="updateQpField('${partKey}',${idx},'q_no',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-white font-mono"></td>
-                    <td class="p-1.5"><textarea rows="2" onchange="updateQpField('${partKey}',${idx},'text',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-white resize-none">${q.text||''}</textarea></td>
-                    ${activeTab !== 'qp' ? `<td class="p-1.5"><textarea rows="2" onchange="updateQpField('${partKey}',${idx},'${activeTab==='key'?'answer_key':'scheme_key'}',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-emerald-300 resize-none" placeholder="${keyLabel}…">${keyField}</textarea></td>` : ''}
-                    <td class="p-1.5"><select onchange="updateQpField('${partKey}',${idx},'bloom',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1 py-1 text-xs text-white">
+                    <td class="p-2"><input type="text" value="${q.q_no||''}" onchange="updateQpField('${partKey}',${idx},'q_no',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-white font-mono text-center"></td>
+                    <td class="p-2"><textarea rows="3" onchange="updateQpField('${partKey}',${idx},'text',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-white resize-y" placeholder="Type question here…">${q.text||''}</textarea></td>
+                    <td class="p-2"><textarea rows="3" onchange="updateQpField('${partKey}',${idx},'scheme_key',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-emerald-300 resize-y" placeholder="Marking breakdown / keys…">${q.scheme_key||''}</textarea></td>
+                    <td class="p-2"><textarea rows="3" onchange="updateQpField('${partKey}',${idx},'answer_key',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-blue-300 resize-y" placeholder="Model answer text…">${q.answer_key||''}</textarea></td>
+                    <td class="p-2"><select onchange="updateQpField('${partKey}',${idx},'bloom',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-white">
                         ${['Remember','Understand','Apply','Analyze','Evaluate','Create'].map(l=>`<option ${q.bloom===l?'selected':''}>${l}</option>`).join('')}
                     </select></td>
-                    <td class="p-1.5"><input type="number" min="1" max="30" value="${q.marks||defaultMark}" onchange="updateQpField('${partKey}',${idx},'marks',parseInt(this.value))" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-amber-300 font-bold"></td>
-                    <td class="p-1.5"><input type="text" value="${q.choice_group||''}" placeholder="Set 1…" onchange="updateQpField('${partKey}',${idx},'choice_group',this.value)" class="w-full bg-slate-900 border border-slate-700 rounded px-1.5 py-1 text-xs text-purple-300"></td>
-                    <td class="p-1.5 text-center"><button onclick="removeQpRow('${partKey}',${idx})" class="text-red-400 hover:text-red-300 text-xs">✕</button></td>
+                    <td class="p-2"><input type="number" min="1" max="30" value="${q.marks||defaultMark}" onchange="updateQpField('${partKey}',${idx},'marks',parseInt(this.value))" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-amber-300 font-bold text-center"></td>
+                    <td class="p-2"><input type="text" value="${q.choice_group||''}" placeholder="e.g. Answer any 2" onchange="updateQpField('${partKey}',${idx},'choice_group',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-purple-300"></td>
+                    <td class="p-2 text-center"><button onclick="removeQpRow('${partKey}',${idx})" class="text-red-400 hover:text-red-300 text-xs font-bold">✕</button></td>
                 </tr>`;
             });
             html += `</tbody></table></div></div>`;
         }
         container.innerHTML = html;
-    }
-
-    function switchQpTab(tab) {
-        document.getElementById('qp-tab-active').dataset.tab = tab;
-        ['qp','scheme','key'].forEach(t => {
-            const btn = document.getElementById(`qp-tab-btn-${t}`);
-            if(btn) btn.className = t === tab
-                ? 'px-4 py-2 text-sm font-bold rounded-t-lg bg-amber-600 text-white border-b-2 border-amber-400'
-                : 'px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-800 text-slate-400 hover:text-white';
-        });
-        if(_draftQp && Object.keys(_draftQp).length) renderQpEditor(_draftQp, QP_PATTERN);
     }
 
     function updateQpField(part, idx, field, value) {
@@ -1618,26 +1607,18 @@
     </script>
 
     <!-- ================================================================
-         QP Preview / Edit Modal
+         QP Preview / Edit Modal (Unified Columns Layout)
     ================================================================= -->
     <div id="qp-preview-modal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-start justify-center p-4 overflow-auto">
-        <div class="w-full max-w-6xl bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 flex flex-col" style="max-height:95vh">
+        <div class="w-full max-w-[98%] bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 flex flex-col" style="max-height:95vh">
 
             <!-- Modal Header -->
             <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-800 rounded-t-2xl">
                 <div>
                     <h2 class="text-lg font-bold text-white" id="qp-modal-title">Series QP Preview</h2>
-                    <p class="text-slate-400 text-xs mt-0.5">Review, edit questions, add/remove rows — then Save to Question Bank</p>
+                    <p class="text-slate-400 text-xs mt-0.5">Edit questions, marking schemes, and model answers side-by-side — then Save to Question Bank</p>
                 </div>
                 <button onclick="closeQpModal()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
-            </div>
-
-            <!-- Tabs -->
-            <div class="flex items-center gap-1 px-6 pt-3 border-b border-slate-700 bg-slate-850">
-                <span id="qp-tab-active" data-tab="qp" class="hidden"></span>
-                <button id="qp-tab-btn-qp"     onclick="switchQpTab('qp')"     class="px-4 py-2 text-sm font-bold rounded-t-lg bg-amber-600 text-white border-b-2 border-amber-400">📄 Question Paper</button>
-                <button id="qp-tab-btn-scheme"  onclick="switchQpTab('scheme')" class="px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-800 text-slate-400 hover:text-white">📋 Eval Scheme</button>
-                <button id="qp-tab-btn-key"     onclick="switchQpTab('key')"    class="px-4 py-2 text-sm font-semibold rounded-t-lg bg-slate-800 text-slate-400 hover:text-white">🔑 Answer Key</button>
             </div>
 
             <!-- Editor Body -->
@@ -1649,8 +1630,8 @@
             <div class="flex items-center justify-between px-6 py-4 border-t border-slate-700 bg-slate-800 rounded-b-2xl">
                 <button onclick="closeQpModal()" class="px-5 py-2.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-white font-semibold text-sm">Cancel</button>
                 <div class="flex items-center gap-3">
-                    <span class="text-slate-500 text-xs">All 3 tabs (QP, Scheme, Key) are saved together</span>
-                    <button id="qp-save-btn" onclick="saveQpFromModal()" class="px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg">
+                    <span class="text-slate-500 text-xs">Questions, schemes, and model answers are saved together in one step</span>
+                    <button id="qp-save-btn" onclick="saveQpFromModal()" class="px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg transition-all">
                         💾 Save &amp; Add to Question Bank
                     </button>
                 </div>
