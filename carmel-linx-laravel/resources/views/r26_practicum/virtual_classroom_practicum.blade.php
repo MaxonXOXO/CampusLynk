@@ -494,28 +494,25 @@
             <!-- Subtab 4: Theory Series Examinations -->
             <div id="theory-subcontent-series" class="space-y-4 hidden">
 
-                <!-- Subject Type Classification Badge -->
-                <div class="glass-card p-3 rounded-xl border border-slate-700 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <span class="px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-300 font-bold text-sm border border-blue-500/30">
-                            {{ $subjectType['label'] ?? '💻 Program Core (Table 6.4 - ESE 100M)' }}
-                        </span>
-                        <span class="text-slate-400 text-xs">SBTE Revision 2026 Annexure IV — Internal Test Pattern Classification</span>
-                    </div>
-                </div>
-
                 <!-- QP Generator Panel — 4 Cards -->
                 <div class="glass-card p-5 rounded-xl border border-amber-700/40 bg-amber-900/10">
-                    <div class="mb-4">
-                        <h3 class="text-base font-bold text-amber-300">📄 Series Exam QP Generator — SBTE 2026</h3>
-                        <p class="text-slate-400 text-xs mt-1">
-                            @if(($subjectType['pattern'] ?? '') === 'table_4_2_design')
-                                Table 4.2 Design Paper: Part A (6×5=30M) + Part B (2×10=20M) = 50 Marks | 2 Hours
-                            @else
-                                Single CO Test: Part A (2×1=2M) + Part B (3×3=9M) + Part C (answer any 2 of 3 × 7=14M) = 25 Marks | 1½ Hours
-                            @endif
-                            | Scaled to 10 CIA Marks
-                        </p>
+                    <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div>
+                            <h3 class="text-base font-bold text-amber-300 flex items-center gap-2 flex-wrap">
+                                <span>📄 Series Exam QP Generator</span>
+                                <span class="px-2.5 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-semibold">
+                                    {{ $subjectType['label'] ?? '💻 Program Core - ESE 100M' }}
+                                </span>
+                            </h3>
+                            <p class="text-slate-400 text-xs mt-1">
+                                @if(($subjectType['pattern'] ?? '') === 'table_4_2_design')
+                                    Table 4.2 Design Paper: Part A (6×5=30M) + Part B (2×10=20M) = 50 Marks | 2 Hours
+                                @else
+                                    Single CO Test: Part A (2×1=2M) + Part B (3×3=9M) + Part C (answer any 2 of 3 × 7=14M) = 25 Marks | 1½ Hours
+                                @endif
+                                | Scaled to 10 CIA Marks
+                            </p>
+                        </div>
                     </div>
 
                     <!-- 4 Series Cards -->

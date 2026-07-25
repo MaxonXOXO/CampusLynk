@@ -1150,11 +1150,12 @@ class R26VirtualClassroomPracticumController extends Controller
         $title = strtolower(($practicumCourseFile ? $practicumCourseFile->course_title : '') . ' ' . ($batchSubject ? $batchSubject->subject_name : ''));
         
         if (str_contains($title, 'design') || str_contains($title, 'drawing') || str_contains($title, 'cad') || str_contains($title, 'drafting')) {
+            $ese = $practicumCourseFile->ese_marks ?? 60;
             return [
                 'type' => 'design_paper',
-                'label' => '📐 Design / Drawing Paper (Table 4.2 Pattern)',
+                'label' => "📐 Design Paper - ESE {$ese}M",
                 'pattern' => 'table_4_2_design',
-                'ese_marks' => $practicumCourseFile->ese_marks ?? 60
+                'ese_marks' => $ese
             ];
         }
 
@@ -1162,14 +1163,14 @@ class R26VirtualClassroomPracticumController extends Controller
         if ($ese >= 100) {
             return [
                 'type' => 'program_core',
-                'label' => '💻 Program Core / Code (Table 6.4 - ESE 100M)',
+                'label' => '💻 Program Core - ESE 100M',
                 'pattern' => 'table_4_1_standard',
                 'ese_marks' => 100
             ];
         } else {
             return [
                 'type' => 'basic_science',
-                'label' => '🔬 Basic Science (Table 6.3 - ESE 60M)',
+                'label' => '🔬 Basic Science - ESE 60M',
                 'pattern' => 'table_4_1_standard',
                 'ese_marks' => 60
             ];
