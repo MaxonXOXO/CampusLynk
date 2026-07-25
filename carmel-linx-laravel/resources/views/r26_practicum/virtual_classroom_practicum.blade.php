@@ -501,10 +501,10 @@
             <div id="theory-subcontent-series" class="space-y-4 hidden">
 
                 <!-- QP Generator Panel — 4 Cards -->
-                <div class="glass-card p-5 rounded-xl border border-amber-700/40 bg-amber-900/10">
+                <div class="glass-card p-5 rounded-xl border border-slate-800">
                     <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <div>
-                            <h3 class="text-base font-bold text-amber-300 flex items-center gap-2 flex-wrap">
+                            <h3 class="text-base font-bold text-white flex items-center gap-2 flex-wrap">
                                 <span>📄 Series Exam QP Generator</span>
                                 <span class="px-2.5 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-semibold">
                                     {{ $subjectType['label'] ?? '💻 Program Core - ESE 100M' }}
@@ -585,7 +585,7 @@
                             <h3 class="text-lg font-bold text-white">Theory Series Examinations (Four 1-Hour CO Tests - 10 CIA Marks)</h3>
                             <p class="text-slate-400 text-xs mt-0.5">4 Series Tests (CO1, CO2, CO3, CO4 - 2 Hours each out of 50 marks), averaged and scaled to 10 CIA marks</p>
                         </div>
-                        <button onclick="openSeriesTheoryModal()" class="header-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-medium text-xs">Enter Theory Series Marks</button>
+                        <button onclick="openSeriesTheoryModal()" class="header-btn px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-sm">Enter Theory Series Marks</button>
                     </div>
 
                     <div class="overflow-x-auto">
