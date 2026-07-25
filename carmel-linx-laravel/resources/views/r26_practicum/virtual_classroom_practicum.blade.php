@@ -635,27 +635,36 @@
             <!-- Subtab 5: Theory ESE & Consolidated Results -->
             <div id="theory-subcontent-ese" class="space-y-5 hidden">
                 <div class="glass-card p-5 rounded-xl border border-slate-800">
-                    <h3 class="text-lg font-bold text-white mb-3">Written Theory End Semester Exam (60 Marks)</h3>
+                    <div class="flex flex-col md:flex-row items-center justify-between mb-4 gap-3">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Written Theory End Semester Exam (60 Marks)</h3>
+                            <p class="text-slate-400 text-xs mt-0.5">Grades entered manually by staff or automatically retrieved from student portal uploads</p>
+                        </div>
+                        <button onclick="openEseTheoryModal()" class="header-btn px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md">Enter Theory ESE Grades</button>
+                    </div>
+
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="border-b border-slate-800 text-slate-400 font-semibold bg-slate-900/60">
+                                <tr class="border-b border-slate-800 text-slate-400 font-semibold bg-slate-900/60 text-xs">
                                     <th class="p-3">Roll</th>
                                     <th class="p-3">Reg No</th>
                                     <th class="p-3">Student Name</th>
-                                    <th class="p-3">Theory ESE Score (/60)</th>
+                                    <th class="p-3 text-center">Theory ESE Grade</th>
+                                    <th class="p-3 text-center">Mapped Score (/60)</th>
                                     <th class="p-3">Pass Status (Min 24/60)</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-800/60">
+                            <tbody class="divide-y divide-slate-800/60 text-xs">
                                 @foreach($studentResults as $res)
                                 <tr>
                                     <td class="p-3 text-slate-300">{{ $res['roll_no'] }}</td>
                                     <td class="p-3 font-mono text-slate-300">{{ $res['reg_no'] }}</td>
                                     <td class="p-3 font-bold text-white">{{ $res['name'] }}</td>
-                                    <td class="p-3 font-bold text-indigo-400">{{ number_format($res['ese_theory'], 2) }} / 60.00</td>
+                                    <td class="p-3 text-center font-bold text-amber-400">{{ $res['ese_theory_grade'] }}</td>
+                                    <td class="p-3 text-center font-semibold text-indigo-400">{{ number_format($res['ese_theory'], 2) }} / 60.00</td>
                                     <td class="p-3 font-bold {{ $res['ese_theory'] >= 24 ? 'text-emerald-400' : 'text-rose-400' }}">
-                                        {{ $res['ese_theory'] >= 24 ? 'PASSED (Theory)' : 'REAPPEAR' }}
+                                        {{ $res['ese_theory'] >= 24 ? 'PASSED' : 'REAPPEAR' }}
                                     </td>
                                 </tr>
                                 @endforeach
@@ -1618,6 +1627,175 @@
             alert('Network error: ' + e.message);
         }
     }
+
+    // =====================================================================
+    // ESE Theory Grade Modal System
+    // =====================================================================
+    const eseGradesState = {};
+    studentsList.forEach(s => {
+        eseGradesState[s.reg_no] = {
+            ese_theory_grade: s.ese_theory_grade === '-' ? '' : s.ese_theory_grade,
+            theory_absent: (s.ese_theory_grade === 'FE')
+        };
+    });
+
+    function openEseTheoryModal() {
+        document.getElementById('ese-theory-modal').classList.remove('hidden');
+        const sel = document.getElementById('ese-student-select');
+        if (sel && sel.value) {
+            loadEseStudent(sel.value);
+        }
+    }
+
+    function closeEseTheoryModal() {
+        document.getElementById('ese-theory-modal').classList.add('hidden');
+    }
+
+    function loadEseStudent(regNo) {
+        const student = studentsList.find(s => s.reg_no === regNo);
+        if (!student) return;
+
+        document.getElementById('ese-student-reg').innerText = student.reg_no;
+        document.getElementById('ese-student-name').innerText = student.name;
+
+        const state = eseGradesState[regNo] || { ese_theory_grade: '', theory_absent: false };
+        const gradeSelect = document.getElementById('ese-grade-select');
+        const absentCheck = document.getElementById('ese-absent-check');
+
+        gradeSelect.value = state.ese_theory_grade;
+        absentCheck.checked = state.theory_absent;
+        gradeSelect.disabled = state.theory_absent;
+
+        updateEseLiveDisplay(state.ese_theory_grade);
+    }
+
+    function onEseGradeChange(grade) {
+        const sel = document.getElementById('ese-student-select');
+        const regNo = sel.value;
+        if (!regNo) return;
+
+        if (!eseGradesState[regNo]) eseGradesState[regNo] = {};
+        eseGradesState[regNo].ese_theory_grade = grade;
+        eseGradesState[regNo].theory_absent = (grade === 'FE');
+
+        document.getElementById('ese-absent-check').checked = (grade === 'FE');
+        updateEseLiveDisplay(grade);
+    }
+
+    function toggleEseAbsent(isAbsent) {
+        const sel = document.getElementById('ese-student-select');
+        const regNo = sel.value;
+        if (!regNo) return;
+
+        if (!eseGradesState[regNo]) eseGradesState[regNo] = {};
+        eseGradesState[regNo].theory_absent = isAbsent;
+
+        const gradeSelect = document.getElementById('ese-grade-select');
+        if (isAbsent) {
+            eseGradesState[regNo].ese_theory_grade = 'FE';
+            gradeSelect.value = 'FE';
+            gradeSelect.disabled = true;
+            updateEseLiveDisplay('FE');
+        } else {
+            eseGradesState[regNo].ese_theory_grade = '';
+            gradeSelect.value = '';
+            gradeSelect.disabled = false;
+            updateEseLiveDisplay('');
+        }
+    }
+
+    function updateEseLiveDisplay(grade) {
+        const score = convertGradeToScore(grade);
+        document.getElementById('ese-mapped-score').innerText = `${score.toFixed(2)} / 60.00`;
+
+        const isPass = (score >= 24.0 || ['S','A','B','C','D','P'].includes(String(grade).toUpperCase().trim()));
+        const statusEl = document.getElementById('ese-pass-status');
+        if (isPass) {
+            statusEl.innerText = 'PASSED';
+            statusEl.className = 'font-bold text-emerald-400';
+        } else {
+            statusEl.innerText = grade ? 'REAPPEAR' : '-';
+            statusEl.className = 'font-bold text-rose-400';
+        }
+    }
+
+    function convertGradeToScore(grade) {
+        switch (String(grade).toUpperCase().trim()) {
+            case 'S': return 57.0;
+            case 'A': return 51.0;
+            case 'B': return 45.0;
+            case 'C': return 39.0;
+            case 'D': return 33.0;
+            case 'P': return 27.0;
+            default: return 0.0;
+        }
+    }
+
+    function prevEseStudent() {
+        const sel = document.getElementById('ese-student-select');
+        if (!sel || sel.selectedIndex <= 0) return;
+        sel.selectedIndex--;
+        loadEseStudent(sel.value);
+    }
+
+    function nextEseStudent() {
+        const sel = document.getElementById('ese-student-select');
+        if (!sel || sel.selectedIndex >= sel.options.length - 1) return;
+        sel.selectedIndex++;
+        loadEseStudent(sel.value);
+    }
+
+    function saveAndNextEseStudent() {
+        nextEseStudent();
+    }
+
+    function saveAllEseGrades() {
+        const marksData = [];
+        Object.keys(eseGradesState).forEach(regNo => {
+            const student = studentsList.find(s => s.reg_no === regNo);
+            marksData.push({
+                reg_no: regNo,
+                ese_theory_grade: eseGradesState[regNo].ese_theory_grade,
+                theory_absent: eseGradesState[regNo].theory_absent,
+                practical_absent: false,
+                ese_practical_marks: parseFloat(student ? (student.ese_practical || 0) : 0)
+            });
+        });
+
+        Swal.fire({
+            title: 'Saving ESE Grades...',
+            text: 'Updating board theory grades for all students',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        fetch('/api/r26/classroom/practicum/{{ $batchSubject->id }}/evaluate/ese', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ marks_data: marksData })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'SUCCESS') {
+                closeEseTheoryModal();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Saved Successfully!',
+                    text: data.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => location.reload());
+            } else {
+                Swal.fire('Error', data.message, 'error');
+            }
+        })
+        .catch(err => {
+            Swal.fire('Error', err.message, 'error');
+        });
+    }
     </script>
 
     <!-- ================================================================
@@ -1648,6 +1826,97 @@
                     <button id="qp-save-btn" onclick="saveQpFromModal()" class="px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-lg transition-all">
                         💾 Save &amp; Add to Question Bank
                     </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         Enter Theory ESE Grades Modal
+    ================================================================= -->
+    <div id="ese-theory-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center hidden p-3 sm:p-5">
+        <div class="glass-card max-w-2xl w-full p-5 rounded-2xl border border-slate-700 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
+                <div>
+                    <h3 class="text-lg font-bold text-white">End Semester Exam (ESE) Theory Grade Evaluator</h3>
+                    <p class="text-slate-400 text-xs mt-0.5">Select ESE Grade for each student. Mapped score and status will update automatically.</p>
+                </div>
+                <button onclick="closeEseTheoryModal()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <!-- Student Selection & Stepper Bar -->
+            <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 flex items-center justify-between gap-2 flex-shrink-0">
+                <button type="button" onclick="prevEseStudent()" class="header-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center space-x-1">
+                    <span>◀ Prev</span>
+                </button>
+
+                <div class="flex-1 max-w-md">
+                    <select id="ese-student-select" onchange="loadEseStudent(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 font-bold text-xs text-white outline-none focus:border-emerald-500">
+                        @foreach($studentResults as $idx => $res)
+                        <option value="{{ $res['reg_no'] }}" data-idx="{{ $idx }}">#{{ $res['roll_no'] }} - {{ $res['name'] }} (SBTE: {{ $res['sbte_reg_no'] ?: $res['reg_no'] }})</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <button type="button" onclick="nextEseStudent()" class="header-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center space-x-1">
+                    <span>Next ▶</span>
+                </button>
+            </div>
+
+            <!-- Grading Content Card -->
+            <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-4 flex-1 overflow-y-auto">
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400 text-xs font-semibold">Reg No:</span>
+                    <span id="ese-student-reg" class="font-mono text-xs font-bold text-slate-200"></span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-slate-400 text-xs font-semibold">Student Name:</span>
+                    <span id="ese-student-name" class="text-xs font-bold text-white"></span>
+                </div>
+
+                <div class="border-t border-slate-800/80 pt-3 space-y-3">
+                    <div>
+                        <label class="block text-slate-400 text-xs font-semibold mb-1">Theory ESE Grade:</label>
+                        <select id="ese-grade-select" onchange="onEseGradeChange(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 font-bold text-sm text-amber-400 outline-none">
+                            <option value="">- Select Grade -</option>
+                            <option value="S">S (90% - 100%)</option>
+                            <option value="A">A (80% - 89%)</option>
+                            <option value="B">B (70% - 79%)</option>
+                            <option value="C">C (60% - 69%)</option>
+                            <option value="D">D (50% - 59%)</option>
+                            <option value="P">P (40% - 49% - Pass)</option>
+                            <option value="F">F (Fail)</option>
+                            <option value="FE">FE (Absent / Shortage)</option>
+                            <option value="I">I (Incomplete)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="ese-absent-check" onchange="toggleEseAbsent(this.checked)" class="rounded bg-slate-800 border-slate-700 text-rose-500 focus:ring-0">
+                        <label for="ese-absent-check" class="text-xs text-slate-300 font-semibold cursor-pointer">Mark Student as Absent (Grade FE)</label>
+                    </div>
+                </div>
+
+                <!-- Live Conversion Display -->
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-400">Equivalent Marks:</span>
+                        <span id="ese-mapped-score" class="font-bold text-indigo-400">0.00 / 60.00</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-400">Theory Pass Status:</span>
+                        <span id="ese-pass-status" class="font-bold text-rose-400">REAPPEAR</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="flex items-center justify-between pt-3 border-t border-slate-800 flex-shrink-0">
+                <button type="button" onclick="closeEseTheoryModal()" class="header-btn px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700">Close</button>
+                <div class="flex items-center space-x-2">
+                    <button type="button" onclick="saveAndNextEseStudent()" class="header-btn px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md">Next Student ▶</button>
+                    <button type="button" onclick="saveAllEseGrades()" class="header-btn px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg">Save ESE Grades</button>
                 </div>
             </div>
         </div>

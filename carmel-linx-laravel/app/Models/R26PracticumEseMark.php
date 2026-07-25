@@ -15,6 +15,7 @@ class R26PracticumEseMark extends Model
         'batch_subject_id',
         'reg_no',
         'ese_theory_marks',
+        'ese_theory_grade',
         'ese_practical_marks',
         'total_ese_marks',
         'theory_absent',

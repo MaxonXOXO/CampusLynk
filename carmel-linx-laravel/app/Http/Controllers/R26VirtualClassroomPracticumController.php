@@ -260,20 +260,44 @@ class R26VirtualClassroomPracticumController extends Controller
             // Consolidated Total CIA Marks (Max 40)
             $totalCiaMarks = round($attMarks + $slMarks + $continuousEvalMarks + $seriesTheoryMarks + $seriesPracticalMarks, 2);
 
-            // ESE Marks
+            // ESE Marks & Grades (Fetch from stored ESE record, else fetch from student upload tables)
             $stEse = $eseMarks->get($regNo);
-            $eseTheory = $stEse ? $stEse->ese_theory_marks : 0.00;
-            $esePractical = $stEse ? $stEse->ese_practical_marks : 0.00;
-            $totalEse = $stEse ? $stEse->total_ese_marks : ($eseTheory + $esePractical);
+            
+            $eseTheoryGrade = null;
+            if ($stEse && $stEse->ese_theory_grade) {
+                $eseTheoryGrade = $stEse->ese_theory_grade;
+            } else {
+                $eseTheoryGrade = DB::table('student_board_grades')
+                    ->where('reg_no', $regNo)
+                    ->where('subject_code', $batchSubject->subject_code)
+                    ->value('grade');
+                if (!$eseTheoryGrade) {
+                    $eseTheoryGrade = DB::table('student_semester_marks')
+                        ->where('reg_no', $regNo)
+                        ->where('subject_code', $batchSubject->subject_code)
+                        ->value('grade');
+                }
+            }
+
+            // Map grade to marks if grade exists, otherwise use numerical marks from ESE log
+            $eseTheory = 0.00;
+            if ($eseTheoryGrade) {
+                $eseTheory = $this->convertGradeToMarks($eseTheoryGrade);
+            } elseif ($stEse) {
+                $eseTheory = floatval($stEse->ese_theory_marks);
+            }
+
+            $esePractical = $stEse ? floatval($stEse->ese_practical_marks) : 0.00;
+            $totalEse = $eseTheory + $esePractical;
 
             $maxEse = $practicumCourseFile->ese_marks; // 100 or 60
             $totalCourseMarks = $totalCiaMarks + $totalEse;
             $maxCourseMarks = 40 + $maxEse; // 140 or 100
 
             // Pass Criteria Check:
-            // 1. Min 40% in ESE Theory = 24 / 60
+            // 1. Min 40% in ESE Theory = 24 / 60 (or S, A, B, C, D, P grade)
             // 2. Min 40% in Total Combined = 56 / 140 (or 40 / 100)
-            $passTheoryEse = ($eseTheory >= 24.0);
+            $passTheoryEse = ($eseTheory >= 24.0 || (in_array(strtoupper(trim($eseTheoryGrade ?? '')), ['S','A','B','C','D','P'])));
             $passCombined = ($totalCourseMarks >= ($maxCourseMarks * 0.40));
             $isPassed = ($passTheoryEse && $passCombined);
 
@@ -290,6 +314,7 @@ class R26VirtualClassroomPracticumController extends Controller
                 'series_practical_marks' => $seriesPracticalMarks,
                 'total_cia_marks' => $totalCiaMarks,
                 'ese_theory' => $eseTheory,
+                'ese_theory_grade' => $eseTheoryGrade ?: '-',
                 'ese_practical' => $esePractical,
                 'total_ese' => $totalEse,
                 'total_course_marks' => $totalCourseMarks,
@@ -637,9 +662,6 @@ class R26VirtualClassroomPracticumController extends Controller
         return response()->json(['status' => 'SUCCESS', 'message' => 'Practical Series Exam marks saved successfully!']);
     }
 
-    /**
-     * Save End Semester Examination (ESE) Marks (Theory 60 + Practical 40)
-     */
     public function saveEseMarks(Request $request, $subjectId)
     {
         $request->validate([
@@ -650,10 +672,16 @@ class R26VirtualClassroomPracticumController extends Controller
 
         foreach ($marksData as $row) {
             $regNo = $row['reg_no'];
-            $et = floatval($row['ese_theory_marks'] ?? 0);
-            $ep = floatval($row['ese_practical_marks'] ?? 0);
+            $grade = $row['ese_theory_grade'] ?? null;
             $tAbs = !empty($row['theory_absent']);
             $pAbs = !empty($row['practical_absent']);
+
+            if ($tAbs) {
+                $grade = 'FE';
+            }
+
+            $et = $this->convertGradeToMarks($grade);
+            $ep = floatval($row['ese_practical_marks'] ?? 0);
             $totalEse = ($tAbs ? 0.00 : $et) + ($pAbs ? 0.00 : $ep);
 
             R26PracticumEseMark::updateOrCreate(
@@ -663,6 +691,7 @@ class R26VirtualClassroomPracticumController extends Controller
                 ],
                 [
                     'ese_theory_marks' => $tAbs ? 0.00 : $et,
+                    'ese_theory_grade' => $grade,
                     'ese_practical_marks' => $pAbs ? 0.00 : $ep,
                     'total_ese_marks' => $totalEse,
                     'theory_absent' => $tAbs,
@@ -671,7 +700,7 @@ class R26VirtualClassroomPracticumController extends Controller
             );
         }
 
-        return response()->json(['status' => 'SUCCESS', 'message' => 'ESE marks saved successfully!']);
+        return response()->json(['status' => 'SUCCESS', 'message' => 'ESE marks and grades saved successfully!']);
     }
 
     /**
@@ -1660,5 +1689,24 @@ class R26VirtualClassroomPracticumController extends Controller
         $qpRecord = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->where('series_no', $seriesNo)->firstOrFail();
         $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
         return view('r26_practicum.series_answer_key_print', array_merge($meta, compact('batchSubject', 'practicumCourseFile', 'qpRecord', 'seriesNo', 'subjectType')));
+    }
+
+    /**
+     * Map SBTE grade letter to numeric marks out of 60
+     */
+    private function convertGradeToMarks($grade)
+    {
+        switch (strtoupper(trim($grade))) {
+            case 'S': return 57.00; // 95%
+            case 'A': return 51.00; // 85%
+            case 'B': return 45.00; // 75%
+            case 'C': return 39.00; // 65%
+            case 'D': return 33.00; // 55%
+            case 'P': return 27.00; // 45% (Pass)
+            case 'F': return 0.00;  // Fail
+            case 'FE': return 0.00;
+            case 'I': return 0.00;
+            default: return 0.00;
+        }
     }
 }
