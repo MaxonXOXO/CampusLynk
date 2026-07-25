@@ -542,11 +542,11 @@
                             <!-- Generate buttons -->
                             <div class="flex flex-col gap-1.5 mt-1">
                                 <button onclick="openQpPreviewModal('{{ $series }}', '{{ $co }}', 'ai')"
-                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white transition-all text-center">
+                                    class="w-full py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition-all text-center">
                                     ⚡ AI Generate
                                 </button>
                                 <button onclick="openQpPreviewModal('{{ $series }}', '{{ $co }}', 'manual')"
-                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-slate-700 hover:bg-slate-800 text-white transition-all text-center">
+                                    class="w-full py-1.5 rounded-lg text-xs font-semibold bg-slate-700 hover:bg-slate-800 text-white transition-all text-center">
                                     ✏ Manual Entry
                                 </button>
                             </div>
@@ -554,17 +554,17 @@
                             <!-- Print buttons (only if saved) -->
                             @if($savedQp)
                             <div class="border-t border-slate-700/50 pt-2 flex flex-col gap-1.5">
-                                <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-qp/'.urlencode($series)) }}" target="_blank"
-                                    class="w-full py-1.5 rounded-lg text-xs font-bold bg-indigo-950/40 hover:bg-indigo-900/60 border border-indigo-500/30 text-indigo-300 text-center block">
+                                <a href="{{ url('r26/classroom/practicum/'.$batchSubject->id.'/series-qp/print-qp/'.urlencode($series)) }}" target="_blank"
+                                    class="w-full py-1.5 rounded-lg text-xs font-semibold bg-indigo-950/40 hover:bg-indigo-900/60 border border-indigo-500/30 text-indigo-300 text-center block">
                                     🖨️ Print QP
                                 </a>
                                 <div class="grid grid-cols-2 gap-1.5">
-                                    <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-scheme/'.urlencode($series)) }}" target="_blank"
-                                        class="py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-750 text-slate-300 text-center block">
+                                    <a href="{{ url('r26/classroom/practicum/'.$batchSubject->id.'/series-qp/print-scheme/'.urlencode($series)) }}" target="_blank"
+                                        class="py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-750 text-slate-300 text-center block">
                                         📋 Scheme
                                     </a>
-                                    <a href="{{ url('r26/classroom/practicum/'.request()->segment(4).'/series-qp/print-key/'.urlencode($series)) }}" target="_blank"
-                                        class="py-1.5 rounded-lg text-xs font-bold bg-slate-800 hover:bg-slate-700 border border-slate-750 text-slate-300 text-center block">
+                                    <a href="{{ url('r26/classroom/practicum/'.$batchSubject->id.'/series-qp/print-key/'.urlencode($series)) }}" target="_blank"
+                                        class="py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 border border-slate-750 text-slate-300 text-center block">
                                         🔑 Key
                                     </a>
                                 </div>
