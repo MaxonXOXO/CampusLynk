@@ -83,6 +83,17 @@
             padding-top: 0.25rem !important;
             padding-bottom: 0.25rem !important;
         }
+        /* Specific header elements requested by user to be compact */
+        .header-badge, .header-badge span, .header-badge div {
+            font-size: 0.8125rem !important; /* 13px compact font */
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.25rem !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
+        .header-btn, .header-btn span, .header-btn svg {
+            font-size: 0.8125rem !important; /* 13px compact font */
+        }
         /* Custom Scrollbars */
         ::-webkit-scrollbar {
             width: 8px;
@@ -164,16 +175,16 @@
             
             <!-- Hours & Assessment Badges -->
             <div class="flex items-center space-x-3 flex-wrap gap-y-2">
-                <div class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300">
+                <div class="header-badge px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300">
                     Theory: <span class="font-bold text-blue-400">45 Hrs</span> (L)
                 </div>
-                <div class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300">
+                <div class="header-badge px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300">
                     Practical: <span class="font-bold text-emerald-400">45 Hrs</span> (P)
                 </div>
-                <div class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300">
+                <div class="header-badge px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300">
                     Total Schedule: <span class="font-bold text-purple-400">90 Hrs</span>
                 </div>
-                <div class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300">
+                <div class="header-badge px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300">
                     CIA: <span class="font-bold text-amber-400">40M</span> | ESE: <span class="font-bold text-indigo-400">{{ $practicumCourseFile->ese_marks }}M</span>
                 </div>
             </div>
@@ -182,21 +193,21 @@
             <div class="flex items-center space-x-2.5 flex-wrap gap-y-2">
                 
                 <!-- Upload Syllabus -->
-                <button onclick="openSyllabusModal()" class="px-3.5 py-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/35 border border-blue-500/40 text-blue-300 font-bold transition-all flex items-center space-x-1.5">
+                <button onclick="openSyllabusModal()" class="header-btn px-3.5 py-2 rounded-lg bg-blue-600/20 hover:bg-blue-600/35 border border-blue-500/40 text-blue-300 font-bold transition-all flex items-center space-x-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                     <span>Upload Syllabus</span>
                 </button>
 
                 <!-- View Syllabus PDF -->
                 @if($practicumCourseFile->syllabus_pdf_path)
-                <a href="/storage/{{ $practicumCourseFile->syllabus_pdf_path }}" target="_blank" class="px-3.5 py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/35 border border-emerald-500/40 text-emerald-300 font-bold transition-all flex items-center space-x-1.5">
+                <a href="/storage/{{ $practicumCourseFile->syllabus_pdf_path }}" target="_blank" class="header-btn px-3.5 py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/35 border border-emerald-500/40 text-emerald-300 font-bold transition-all flex items-center space-x-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                     <span>View Syllabus PDF</span>
                 </a>
                 @endif
 
                 <!-- Course File Console -->
-                <a href="/r26/classroom/practicum/course-file/{{ $batchSubject->id }}" class="px-3.5 py-2 rounded-lg bg-purple-600/20 hover:bg-purple-600/35 border border-purple-500/40 text-purple-300 font-bold transition-all flex items-center space-x-1.5">
+                <a href="/r26/classroom/practicum/course-file/{{ $batchSubject->id }}" class="header-btn px-3.5 py-2 rounded-lg bg-purple-600/20 hover:bg-purple-600/35 border border-purple-500/40 text-purple-300 font-bold transition-all flex items-center space-x-1.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
                     <span>Course File Console</span>
                 </a>
