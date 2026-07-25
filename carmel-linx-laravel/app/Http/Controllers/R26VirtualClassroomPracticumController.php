@@ -1828,6 +1828,7 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         $batchSubject = BatchSubject::findOrFail($subjectId);
         $meta = $this->resolveClassroomMeta($subjectId, $batchSubject->classroom_id);
         $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->firstOrFail();
+        $seriesNo = str_replace('+', ' ', urldecode($seriesNo));
         $qpRecord = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->where('series_no', $seriesNo)->firstOrFail();
         $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
         return view('r26_practicum.series_qp_print', array_merge($meta, compact('batchSubject', 'practicumCourseFile', 'qpRecord', 'seriesNo', 'subjectType')));
@@ -1841,6 +1842,7 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         $batchSubject = BatchSubject::findOrFail($subjectId);
         $meta = $this->resolveClassroomMeta($subjectId, $batchSubject->classroom_id);
         $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->firstOrFail();
+        $seriesNo = str_replace('+', ' ', urldecode($seriesNo));
         $qpRecord = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->where('series_no', $seriesNo)->firstOrFail();
         $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
         return view('r26_practicum.series_scheme_print', array_merge($meta, compact('batchSubject', 'practicumCourseFile', 'qpRecord', 'seriesNo', 'subjectType')));
@@ -1854,6 +1856,7 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         $batchSubject = BatchSubject::findOrFail($subjectId);
         $meta = $this->resolveClassroomMeta($subjectId, $batchSubject->classroom_id);
         $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->firstOrFail();
+        $seriesNo = str_replace('+', ' ', urldecode($seriesNo));
         $qpRecord = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->where('series_no', $seriesNo)->firstOrFail();
         $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
         return view('r26_practicum.series_answer_key_print', array_merge($meta, compact('batchSubject', 'practicumCourseFile', 'qpRecord', 'seriesNo', 'subjectType')));
