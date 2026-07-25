@@ -1456,6 +1456,8 @@
     async function openQpPreviewModal(seriesNo, coTag, mode) {
         _currentSeries = seriesNo;
         _currentCo     = coTag;
+        _activeQpTab   = 'qp';
+        switchQpEditorTab('qp');
         const statusEl = document.getElementById('qp-gen-status');
         statusEl.classList.remove('hidden');
         statusEl.style.color = '#94a3b8';
@@ -1524,52 +1526,142 @@
         }
     }
 
+    let _activeQpTab = 'qp';
+    function switchQpEditorTab(tab) {
+        _activeQpTab = tab;
+        ['qp', 'scheme', 'key'].forEach(t => {
+            const el = document.getElementById('qp-editor-tab-' + t);
+            if (el) {
+                if (t === tab) el.classList.remove('hidden');
+                else el.classList.add('hidden');
+            }
+            const btn = document.getElementById('qp-edit-btn-' + t);
+            if (btn) {
+                btn.className = t === tab
+                    ? "px-4 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white transition-all"
+                    : "px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-300 transition-all";
+            }
+        });
+    }
+
+    function syncQpQuestionTexts(partKey, idx, val) {
+        const schemeText = document.getElementById(`scheme-qtxt-${partKey}-${idx}`);
+        const keyText = document.getElementById(`key-qtxt-${partKey}-${idx}`);
+        if (schemeText) schemeText.innerText = val;
+        if (keyText) keyText.innerText = val;
+    }
+
+    function syncQpQuestionMarks(partKey, idx, val) {
+        const schemeMarks = document.getElementById(`scheme-qmarks-${partKey}-${idx}`);
+        const keyMarks = document.getElementById(`key-qmarks-${partKey}-${idx}`);
+        if (schemeMarks) schemeMarks.innerText = val + 'M';
+        if (keyMarks) keyMarks.innerText = val + 'M';
+    }
+
     function renderQpEditor(qpData, pattern) {
         const container = document.getElementById('qp-editor-body');
         const parts = pattern === 'table_4_2_design'
             ? [['part_a','PART A — Answer ALL (6 × 5M = 30M)','5'],['part_b','PART B — Answer ONE per Set (10M each)','10']]
             : [['part_a','PART A — Answer ALL (2 × 1M = 2M)','1'],['part_b','PART B — Answer ALL (3 × 3M = 9M)','3'],['part_c','PART C — Answer ANY 2 of 3 (7M each = 14M)','7']];
 
-        let html = '';
+        let htmlQp = '';
+        let htmlScheme = '';
+        let htmlKey = '';
+
         for (const [partKey, partLabel, defaultMark] of parts) {
             const rows = qpData[partKey] || [];
-            html += `<div class="mb-4">
-                <div class="flex items-center justify-between bg-slate-800 px-4 py-2.5 rounded-t-xl border-t border-x border-slate-700">
+            
+            // 1. Question Paper Tab
+            htmlQp += `<div class="mb-4">
+                <div class="flex items-center justify-between bg-slate-800 px-4 py-2 rounded-t-xl border-t border-x border-slate-700">
                     <span class="font-bold text-indigo-300 text-sm">${partLabel}</span>
-                    <button onclick="addQpRow('${partKey}','${defaultMark}')" class="text-xs px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-all">+ Add Question</button>
+                    <button onclick="addQpRow('${partKey}','${defaultMark}')" class="text-xs px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-all">+ Add Question</button>
                 </div>
                 <div class="border border-slate-700 rounded-b-xl overflow-hidden bg-slate-900/60">
-                    <table class="w-full text-sm" id="tbl-${partKey}">
+                    <table class="w-full text-sm" id="tbl-qp-${partKey}">
                         <thead class="bg-slate-850 text-slate-400 text-xs">
                             <tr>
-                                <th class="p-3 w-14 text-center">Q.No</th>
-                                <th class="p-3">Question Text</th>
-                                <th class="p-3 w-1/4">Evaluation Scheme (Key Points)</th>
-                                <th class="p-3 w-1/4">Answer Key / Model Answer</th>
-                                <th class="p-3 w-28">Bloom</th>
-                                <th class="p-3 w-14 text-center">Marks</th>
-                                <th class="p-3 w-28">Choice Group</th>
-                                <th class="p-3 w-10"></th>
+                                <th class="p-2 w-14 text-center">Q.No</th>
+                                <th class="p-2">Question Text</th>
+                                <th class="p-2 w-28 text-center">Bloom (BT)</th>
+                                <th class="p-2 w-14 text-center">Marks</th>
+                                <th class="p-2 w-28 text-center">Choice Group</th>
+                                <th class="p-2 w-10"></th>
                             </tr>
                         </thead>
                         <tbody>`;
             rows.forEach((q, idx) => {
-                html += `<tr class="border-b border-slate-800 hover:bg-slate-800/40" data-part="${partKey}" data-idx="${idx}">
+                htmlQp += `<tr class="border-b border-slate-800 hover:bg-slate-800/40" data-part="${partKey}" data-idx="${idx}">
                     <td class="p-2"><input type="text" value="${q.q_no||''}" onchange="updateQpField('${partKey}',${idx},'q_no',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-white font-mono text-center"></td>
-                    <td class="p-2"><textarea rows="3" onchange="updateQpField('${partKey}',${idx},'text',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-white resize-y" placeholder="Type question here…">${q.text||''}</textarea></td>
-                    <td class="p-2"><textarea rows="3" onchange="updateQpField('${partKey}',${idx},'scheme_key',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-emerald-300 resize-y" placeholder="Marking breakdown / keys…">${q.scheme_key||''}</textarea></td>
-                    <td class="p-2"><textarea rows="3" onchange="updateQpField('${partKey}',${idx},'answer_key',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-blue-300 resize-y" placeholder="Model answer text…">${q.answer_key||''}</textarea></td>
+                    <td class="p-2"><textarea rows="3" onchange="updateQpField('${partKey}',${idx},'text',this.value); syncQpQuestionTexts('${partKey}',${idx},this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-white resize-y" placeholder="Type question here…">${q.text||''}</textarea></td>
                     <td class="p-2"><select onchange="updateQpField('${partKey}',${idx},'bloom',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-white">
                         ${['Remember','Understand','Apply','Analyze','Evaluate','Create'].map(l=>`<option ${q.bloom===l?'selected':''}>${l}</option>`).join('')}
                     </select></td>
-                    <td class="p-2"><input type="number" min="1" max="30" value="${q.marks||defaultMark}" onchange="updateQpField('${partKey}',${idx},'marks',parseInt(this.value))" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-amber-300 font-bold text-center"></td>
-                    <td class="p-2"><input type="text" value="${q.choice_group||''}" placeholder="e.g. Answer any 2" onchange="updateQpField('${partKey}',${idx},'choice_group',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-purple-300"></td>
+                    <td class="p-2"><input type="number" min="1" max="30" value="${q.marks||defaultMark}" onchange="updateQpField('${partKey}',${idx},'marks',parseInt(this.value)); syncQpQuestionMarks('${partKey}',${idx},parseInt(this.value))" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-amber-300 font-bold text-center"></td>
+                    <td class="p-2"><input type="text" value="${q.choice_group||''}" placeholder="e.g. Set A" onchange="updateQpField('${partKey}',${idx},'choice_group',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-purple-300"></td>
                     <td class="p-2 text-center"><button onclick="removeQpRow('${partKey}',${idx})" class="text-red-400 hover:text-red-300 text-xs font-bold">✕</button></td>
                 </tr>`;
             });
-            html += `</tbody></table></div></div>`;
+            htmlQp += `</tbody></table></div></div>`;
+
+            // 2. Evaluation Scheme Tab
+            htmlScheme += `<div class="mb-4">
+                <div class="bg-slate-800 px-4 py-2 rounded-t-xl border-t border-x border-slate-700">
+                    <span class="font-bold text-emerald-400 text-sm">${partLabel} — Scheme</span>
+                </div>
+                <div class="border border-slate-700 rounded-b-xl overflow-hidden bg-slate-900/60">
+                    <table class="w-full text-sm" id="tbl-scheme-${partKey}">
+                        <thead class="bg-slate-850 text-slate-400 text-xs">
+                            <tr>
+                                <th class="p-2 w-14 text-center">Q.No</th>
+                                <th class="p-2 w-1/2">Question Text</th>
+                                <th class="p-2 w-1/2">Evaluation Scheme (Key Points / Mark Split)</th>
+                                <th class="p-2 w-14 text-center">Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            rows.forEach((q, idx) => {
+                htmlScheme += `<tr class="border-b border-slate-800 hover:bg-slate-800/40">
+                    <td class="p-2 text-center text-slate-400 font-mono text-xs">${q.q_no||''}</td>
+                    <td class="p-2 text-xs text-slate-300 bg-slate-950/20 max-w-xs truncate" id="scheme-qtxt-${partKey}-${idx}">${q.text||''}</td>
+                    <td class="p-2"><textarea rows="3" onchange="updateQpField('${partKey}',${idx},'scheme_key',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-emerald-300 resize-y" placeholder="Marking scheme guidelines…">${q.scheme_key||''}</textarea></td>
+                    <td class="p-2 text-center text-amber-300 font-bold text-xs" id="scheme-qmarks-${partKey}-${idx}">${q.marks||defaultMark}M</td>
+                </tr>`;
+            });
+            htmlScheme += `</tbody></table></div></div>`;
+
+            // 3. Answer Key Tab
+            htmlKey += `<div class="mb-4">
+                <div class="bg-slate-800 px-4 py-2 rounded-t-xl border-t border-x border-slate-700">
+                    <span class="font-bold text-blue-400 text-sm">${partLabel} — Answer Key</span>
+                </div>
+                <div class="border border-slate-700 rounded-b-xl overflow-hidden bg-slate-900/60">
+                    <table class="w-full text-sm" id="tbl-key-${partKey}">
+                        <thead class="bg-slate-850 text-slate-400 text-xs">
+                            <tr>
+                                <th class="p-2 w-14 text-center">Q.No</th>
+                                <th class="p-2 w-1/2">Question Text</th>
+                                <th class="p-2 w-1/2">Model Answer / Key Details</th>
+                                <th class="p-2 w-14 text-center">Marks</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+            rows.forEach((q, idx) => {
+                htmlKey += `<tr class="border-b border-slate-800 hover:bg-slate-800/40">
+                    <td class="p-2 text-center text-slate-400 font-mono text-xs">${q.q_no||''}</td>
+                    <td class="p-2 text-xs text-slate-300 bg-slate-950/20 max-w-xs truncate" id="key-qtxt-${partKey}-${idx}">${q.text||''}</td>
+                    <td class="p-2"><textarea rows="3" onchange="updateQpField('${partKey}',${idx},'answer_key',this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-1.5 py-1 text-xs text-blue-300 resize-y" placeholder="Model answer text…">${q.answer_key||''}</textarea></td>
+                    <td class="p-2 text-center text-amber-300 font-bold text-xs" id="key-qmarks-${partKey}-${idx}">${q.marks||defaultMark}M</td>
+                </tr>`;
+            });
+            htmlKey += `</tbody></table></div></div>`;
         }
-        container.innerHTML = html;
+
+        container.innerHTML = `
+            <div id="qp-editor-tab-qp" class="${_activeQpTab === 'qp' ? '' : 'hidden'}">${htmlQp}</div>
+            <div id="qp-editor-tab-scheme" class="${_activeQpTab === 'scheme' ? '' : 'hidden'}">${htmlScheme}</div>
+            <div id="qp-editor-tab-key" class="${_activeQpTab === 'key' ? '' : 'hidden'}">${htmlKey}</div>
+        `;
     }
 
     function updateQpField(part, idx, field, value) {
@@ -2009,6 +2101,13 @@
                     <p class="text-slate-400 text-xs mt-0.5">Edit questions, marking schemes, and model answers side-by-side — then Save to Question Bank</p>
                 </div>
                 <button onclick="closeQpModal()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <!-- Tab Switcher Bar -->
+            <div class="flex border-b border-slate-800 bg-slate-900/90 px-6 py-2 gap-2 flex-shrink-0">
+                <button type="button" onclick="switchQpEditorTab('qp')" id="qp-edit-btn-qp" class="px-4 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white transition-all">📝 1. Edit Questions (QP)</button>
+                <button type="button" onclick="switchQpEditorTab('scheme')" id="qp-edit-btn-scheme" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-300 transition-all">📋 2. Edit Evaluation Scheme</button>
+                <button type="button" onclick="switchQpEditorTab('key')" id="qp-edit-btn-key" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-300 transition-all">🔑 3. Edit Model Answer Key</button>
             </div>
 
             <!-- Editor Body -->
