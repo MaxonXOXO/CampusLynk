@@ -467,31 +467,29 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider bg-slate-900/80">
+                            <tr class="border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider bg-slate-900/80 text-xs">
                                 <th class="p-2 text-center w-12">Roll</th>
-                                <th class="p-2">Reg No</th>
-                                <th class="p-2">SBTE Reg No</th>
-                                <th class="p-2">Student Name</th>
-                                <th class="p-2">Active Activities</th>
-                                <th class="p-2 text-center">Avg Raw Score (/15M)</th>
-                                <th class="p-2 text-center">Converted CIA (/5M)</th>
+                                <th class="p-2">SBTE No</th>
+                                <th class="p-2">Name</th>
+                                <th class="p-2">Activities</th>
+                                <th class="p-2 text-center">Raw Score</th>
+                                <th class="p-2 text-center">Converted CIA (5M)</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-800/60 font-medium">
+                        <tbody class="divide-y divide-slate-800/60 font-normal text-xs text-slate-300">
                             @foreach($studentResults as $res)
                             <tr class="hover:bg-slate-800/40 transition-all">
-                                <td class="p-2 text-center font-bold text-slate-300">{{ $res['roll_no'] }}</td>
-                                <td class="p-2 font-mono text-slate-400 text-xs">{{ $res['reg_no'] }}</td>
-                                <td class="p-2 font-mono text-emerald-400 font-bold text-xs">{{ $res['sbte_reg_no'] ?: '-' }}</td>
-                                <td class="p-2 font-bold text-white text-xs">{{ $res['name'] }}</td>
+                                <td class="p-2 text-center text-slate-400">{{ $res['roll_no'] }}</td>
+                                <td class="p-2 font-mono text-emerald-400/90 text-xs">{{ $res['sbte_reg_no'] ?: '-' }}</td>
+                                <td class="p-2 text-slate-200 text-xs">{{ $res['name'] }}</td>
                                 <td class="p-2">
                                     <div class="flex items-center space-x-1 text-[11px]">
-                                        <span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 font-bold border border-amber-500/20">Assignment</span>
-                                        <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 font-bold border border-emerald-500/20">MCQ</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">Assignment</span>
+                                        <span class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">MCQ</span>
                                     </div>
                                 </td>
-                                <td class="p-2 text-center font-semibold text-slate-200">{{ number_format(($res['sl_marks'] / 5.0) * 15.0, 2) }} / 15.00</td>
-                                <td class="p-2 text-center font-bold text-emerald-400">{{ number_format($res['sl_marks'], 2) }} / 5.00</td>
+                                <td class="p-2 text-center text-slate-300">{{ number_format(($res['sl_marks'] / 5.0) * 15.0, 2) }} / 15.00</td>
+                                <td class="p-2 text-center font-semibold text-emerald-400">{{ number_format($res['sl_marks'], 2) }} / 5.00</td>
                             </tr>
                             @endforeach
                         </tbody>
