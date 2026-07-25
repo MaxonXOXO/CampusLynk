@@ -1060,6 +1060,7 @@
                 document.getElementById('mode-lab-container').classList.remove('hidden');
                 document.getElementById('mode-btn-lab').classList.add('active', 'text-white');
             }
+            localStorage.setItem('active_mode', mode);
         }
 
         function switchTheorySubtab(tab) {
@@ -1069,6 +1070,7 @@
             });
             document.getElementById('theory-subcontent-' + tab)?.classList.remove('hidden');
             document.getElementById('theory-tab-' + tab)?.classList.add('active', 'text-white');
+            localStorage.setItem('active_theory_subtab', tab);
         }
 
         function switchLabSubtab(tab) {
@@ -1078,6 +1080,7 @@
             });
             document.getElementById('lab-subcontent-' + tab)?.classList.remove('hidden');
             document.getElementById('lab-tab-' + tab)?.classList.add('active', 'text-white');
+            localStorage.setItem('active_lab_subtab', tab);
         }
 
         function toggleFullscreen() {
@@ -1975,6 +1978,22 @@
             Swal.fire('Error', err.message, 'error');
         });
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedMode = localStorage.getItem('active_mode');
+        const savedTheoryTab = localStorage.getItem('active_theory_subtab');
+        const savedLabTab = localStorage.getItem('active_lab_subtab');
+
+        if (savedMode) {
+            switchMode(savedMode);
+        }
+        if (savedTheoryTab) {
+            switchTheorySubtab(savedTheoryTab);
+        }
+        if (savedLabTab) {
+            switchLabSubtab(savedLabTab);
+        }
+    });
     </script>
 
     <!-- ================================================================
