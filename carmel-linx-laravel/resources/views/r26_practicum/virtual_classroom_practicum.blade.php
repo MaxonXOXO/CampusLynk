@@ -585,49 +585,49 @@
                             <h3 class="text-lg font-bold text-white">Theory Series Examinations (Four 1-Hour CO Tests - 10 CIA Marks)</h3>
                             <p class="text-slate-400 text-xs mt-0.5">4 Series Tests (CO1, CO2, CO3, CO4 - 2 Hours each out of 50 marks), averaged and scaled to 10 CIA marks</p>
                         </div>
-                        <button onclick="openSeriesTheoryModal()" class="px-3.5 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-bold shadow-md">Enter Theory Series Marks</button>
+                        <button onclick="openSeriesTheoryModal()" class="header-btn px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 font-medium text-xs">Enter Theory Series Marks</button>
                     </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-slate-800 text-slate-400 font-semibold bg-slate-900/60">
-                                <th class="p-3">Roll</th>
-                                <th class="p-3">Reg No</th>
-                                <th class="p-3">Student Name</th>
-                                <th class="p-3 text-center">Test 1 (CO1)</th>
-                                <th class="p-3 text-center">Test 2 (CO2)</th>
-                                <th class="p-3 text-center">Test 3 (CO3)</th>
-                                <th class="p-3 text-center">Test 4 (CO4)</th>
-                                <th class="p-3 text-center">Avg (/50)</th>
-                                <th class="p-3 text-center">Converted CIA (/10M)</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-800/60">
-                            @foreach($studentResults as $res)
-                            @php
-                                $stEvals = $seriesTheoryEvals->get($res['reg_no'], collect());
-                                $s1 = $stEvals->whereIn('series_no', ['Series 1', 'CO1'])->first();
-                                $s2 = $stEvals->whereIn('series_no', ['Series 2', 'CO2'])->first();
-                                $s3 = $stEvals->whereIn('series_no', ['Series 3', 'CO3'])->first();
-                                $s4 = $stEvals->whereIn('series_no', ['Series 4', 'CO4'])->first();
-                            @endphp
-                            <tr>
-                                <td class="p-3 text-slate-300">{{ $res['roll_no'] }}</td>
-                                <td class="p-3 font-mono text-slate-300">{{ $res['reg_no'] }}</td>
-                                <td class="p-3 font-bold text-white">{{ $res['name'] }}</td>
-                                <td class="p-3 text-center text-slate-200">{{ $s1 ? number_format($s1->total_score_50, 2) : '-' }}</td>
-                                <td class="p-3 text-center text-slate-200">{{ $s2 ? number_format($s2->total_score_50, 2) : '-' }}</td>
-                                <td class="p-3 text-center text-slate-200">{{ $s3 ? number_format($s3->total_score_50, 2) : '-' }}</td>
-                                <td class="p-3 text-center text-slate-200">{{ $s4 ? number_format($s4->total_score_50, 2) : '-' }}</td>
-                                <td class="p-3 text-center font-semibold text-slate-200">{{ number_format($res['series_theory_marks'] * 5, 2) }}</td>
-                                <td class="p-3 text-center font-bold text-purple-400">{{ number_format($res['series_theory_marks'], 2) }} / 10.00</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-slate-400 font-medium bg-slate-900/60 text-sm">
+                                    <th class="p-3">Roll</th>
+                                    <th class="p-3">Reg No</th>
+                                    <th class="p-3">Student Name</th>
+                                    <th class="p-3 text-center">Test 1 (CO1)</th>
+                                    <th class="p-3 text-center">Test 2 (CO2)</th>
+                                    <th class="p-3 text-center">Test 3 (CO3)</th>
+                                    <th class="p-3 text-center">Test 4 (CO4)</th>
+                                    <th class="p-3 text-center">Avg (/50)</th>
+                                    <th class="p-3 text-center">Converted CIA (/10M)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60 text-sm">
+                                @foreach($studentResults as $res)
+                                @php
+                                    $stEvals = $seriesTheoryEvals->get($res['reg_no'], collect());
+                                    $s1 = $stEvals->whereIn('series_no', ['Series 1', 'CO1'])->first();
+                                    $s2 = $stEvals->whereIn('series_no', ['Series 2', 'CO2'])->first();
+                                    $s3 = $stEvals->whereIn('series_no', ['Series 3', 'CO3'])->first();
+                                    $s4 = $stEvals->whereIn('series_no', ['Series 4', 'CO4'])->first();
+                                @endphp
+                                <tr>
+                                    <td class="p-3 text-slate-300 font-normal">{{ $res['roll_no'] }}</td>
+                                    <td class="p-3 font-mono text-slate-300 font-normal">{{ $res['reg_no'] }}</td>
+                                    <td class="p-3 text-slate-300 font-normal">{{ $res['name'] }}</td>
+                                    <td class="p-3 text-center text-slate-300 font-normal">{{ $s1 ? number_format($s1->total_score_50, 2) : '-' }}</td>
+                                    <td class="p-3 text-center text-slate-300 font-normal">{{ $s2 ? number_format($s2->total_score_50, 2) : '-' }}</td>
+                                    <td class="p-3 text-center text-slate-300 font-normal">{{ $s3 ? number_format($s3->total_score_50, 2) : '-' }}</td>
+                                    <td class="p-3 text-center text-slate-300 font-normal">{{ $s4 ? number_format($s4->total_score_50, 2) : '-' }}</td>
+                                    <td class="p-3 text-center text-slate-300 font-normal">{{ number_format($res['series_theory_marks'] * 5, 2) }}</td>
+                                    <td class="p-3 text-center text-slate-400 font-normal">{{ number_format($res['series_theory_marks'], 2) }} / 10.00</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
             <!-- /inner glass-card (marks table) -->
             </div>
             <!-- /outer space-y-4 (theory-subcontent-series) -->
@@ -1796,6 +1796,211 @@
             Swal.fire('Error', err.message, 'error');
         });
     }
+
+    // =====================================================================
+    // Theory Series Exam Marks Modal System
+    // =====================================================================
+    const seriesTheoryEvalsDb = @json($seriesTheoryEvals);
+    const seriesTheoryEvalsState = {};
+
+    studentsList.forEach(s => {
+        const regNo = s.reg_no;
+        seriesTheoryEvalsState[regNo] = {
+            'Series 1': { part_a_score: 0, part_b_score: 0, part_c_score: 0, is_absent: false },
+            'Series 2': { part_a_score: 0, part_b_score: 0, part_c_score: 0, is_absent: false },
+            'Series 3': { part_a_score: 0, part_b_score: 0, part_c_score: 0, is_absent: false },
+            'Series 4': { part_a_score: 0, part_b_score: 0, part_c_score: 0, is_absent: false }
+        };
+
+        const dbList = seriesTheoryEvalsDb[regNo] || [];
+        dbList.forEach(evalRecord => {
+            const sNo = evalRecord.series_no;
+            let mappedSeries = sNo;
+            if (sNo === 'CO1') mappedSeries = 'Series 1';
+            if (sNo === 'CO2') mappedSeries = 'Series 2';
+            if (sNo === 'CO3') mappedSeries = 'Series 3';
+            if (sNo === 'CO4') mappedSeries = 'Series 4';
+
+            if (seriesTheoryEvalsState[regNo][mappedSeries]) {
+                seriesTheoryEvalsState[regNo][mappedSeries] = {
+                    part_a_score: parseFloat(evalRecord.part_a_score) || 0,
+                    part_b_score: parseFloat(evalRecord.part_b_score) || 0,
+                    part_c_score: parseFloat(evalRecord.part_c_score) || 0,
+                    is_absent: !!evalRecord.is_absent
+                };
+            }
+        });
+    });
+
+    function openSeriesTheoryModal() {
+        document.getElementById('series-theory-modal').classList.remove('hidden');
+        const sel = document.getElementById('series-theory-student-select');
+        if (sel && sel.value) {
+            loadSeriesTheoryStudent(sel.value);
+        }
+    }
+
+    function closeSeriesTheoryModal() {
+        document.getElementById('series-theory-modal').classList.add('hidden');
+    }
+
+    function onSeriesTheoryTestChange(test) {
+        const sel = document.getElementById('series-theory-student-select');
+        if (sel && sel.value) {
+            loadSeriesTheoryStudent(sel.value);
+        }
+    }
+
+    function loadSeriesTheoryStudent(regNo) {
+        const student = studentsList.find(s => s.reg_no === regNo);
+        if (!student) return;
+
+        document.getElementById('series-theory-student-display').innerText = `${student.name} (${student.reg_no})`;
+
+        const test = document.getElementById('series-theory-test-select').value;
+        const state = seriesTheoryEvalsState[regNo][test] || { part_a_score: 0, part_b_score: 0, part_c_score: 0, is_absent: false };
+
+        const paInput = document.getElementById('series-theory-pa');
+        const pbInput = document.getElementById('series-theory-pb');
+        const pcInput = document.getElementById('series-theory-pc');
+        const absentCheck = document.getElementById('series-theory-absent');
+
+        paInput.value = state.part_a_score;
+        pbInput.value = state.part_b_score;
+        pcInput.value = state.part_c_score;
+        absentCheck.checked = state.is_absent;
+
+        paInput.disabled = state.is_absent;
+        pbInput.disabled = state.is_absent;
+        pcInput.disabled = state.is_absent;
+
+        updateSeriesTheoryLiveTotal();
+    }
+
+    function onSeriesTheoryMarksInput() {
+        const sel = document.getElementById('series-theory-student-select');
+        const regNo = sel.value;
+        if (!regNo) return;
+
+        const test = document.getElementById('series-theory-test-select').value;
+        const pa = parseFloat(document.getElementById('series-theory-pa').value) || 0;
+        const pb = parseFloat(document.getElementById('series-theory-pb').value) || 0;
+        const pc = parseFloat(document.getElementById('series-theory-pc').value) || 0;
+
+        seriesTheoryEvalsState[regNo][test].part_a_score = pa;
+        seriesTheoryEvalsState[regNo][test].part_b_score = pb;
+        seriesTheoryEvalsState[regNo][test].part_c_score = pc;
+
+        updateSeriesTheoryLiveTotal();
+    }
+
+    function toggleSeriesTheoryAbsent(isAbsent) {
+        const sel = document.getElementById('series-theory-student-select');
+        const regNo = sel.value;
+        if (!regNo) return;
+
+        const test = document.getElementById('series-theory-test-select').value;
+        seriesTheoryEvalsState[regNo][test].is_absent = isAbsent;
+
+        const paInput = document.getElementById('series-theory-pa');
+        const pbInput = document.getElementById('series-theory-pb');
+        const pcInput = document.getElementById('series-theory-pc');
+
+        if (isAbsent) {
+            paInput.value = 0;
+            pbInput.value = 0;
+            pcInput.value = 0;
+            paInput.disabled = true;
+            pbInput.disabled = true;
+            pcInput.disabled = true;
+            seriesTheoryEvalsState[regNo][test].part_a_score = 0;
+            seriesTheoryEvalsState[regNo][test].part_b_score = 0;
+            seriesTheoryEvalsState[regNo][test].part_c_score = 0;
+        } else {
+            paInput.disabled = false;
+            pbInput.disabled = false;
+            pcInput.disabled = false;
+        }
+        updateSeriesTheoryLiveTotal();
+    }
+
+    function updateSeriesTheoryLiveTotal() {
+        const pa = parseFloat(document.getElementById('series-theory-pa').value) || 0;
+        const pb = parseFloat(document.getElementById('series-theory-pb').value) || 0;
+        const pc = parseFloat(document.getElementById('series-theory-pc').value) || 0;
+        const isAbsent = document.getElementById('series-theory-absent').checked;
+
+        const total = isAbsent ? 0 : (pa + pb + pc);
+        document.getElementById('series-theory-live-total').innerText = `${total.toFixed(2)} / 50.00`;
+    }
+
+    function prevSeriesTheoryStudent() {
+        const sel = document.getElementById('series-theory-student-select');
+        if (!sel || sel.selectedIndex <= 0) return;
+        sel.selectedIndex--;
+        loadSeriesTheoryStudent(sel.value);
+    }
+
+    function nextSeriesTheoryStudent() {
+        const sel = document.getElementById('series-theory-student-select');
+        if (!sel || sel.selectedIndex >= sel.options.length - 1) return;
+        sel.selectedIndex++;
+        loadSeriesTheoryStudent(sel.value);
+    }
+
+    function saveAndNextSeriesTheoryStudent() {
+        nextSeriesTheoryStudent();
+    }
+
+    function saveAllSeriesTheoryMarks() {
+        const test = document.getElementById('series-theory-test-select').value;
+        const marksData = [];
+
+        Object.keys(seriesTheoryEvalsState).forEach(regNo => {
+            const state = seriesTheoryEvalsState[regNo][test];
+            marksData.push({
+                reg_no: regNo,
+                part_a_score: state.part_a_score,
+                part_b_score: state.part_b_score,
+                part_c_score: state.part_c_score,
+                is_absent: state.is_absent
+            });
+        });
+
+        Swal.fire({
+            title: 'Saving Series Marks...',
+            text: `Updating scores for ${test}`,
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
+        fetch('/api/r26/classroom/practicum/{{ $batchSubject->id }}/evaluate/series-theory', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            },
+            body: JSON.stringify({ series_no: test, marks_data: marksData })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'SUCCESS') {
+                closeSeriesTheoryModal();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Saved Successfully!',
+                    text: data.message,
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => location.reload());
+            } else {
+                Swal.fire('Error', data.message, 'error');
+            }
+        })
+        .catch(err => {
+            Swal.fire('Error', err.message, 'error');
+        });
+    }
     </script>
 
     <!-- ================================================================
@@ -1917,6 +2122,98 @@
                 <div class="flex items-center space-x-2">
                     <button type="button" onclick="saveAndNextEseStudent()" class="header-btn px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md">Next Student ▶</button>
                     <button type="button" onclick="saveAllEseGrades()" class="header-btn px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg">Save ESE Grades</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         Enter Theory Series Marks Modal
+    ================================================================= -->
+    <div id="series-theory-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center hidden p-3 sm:p-5">
+        <div class="glass-card max-w-2xl w-full p-5 rounded-2xl border border-slate-700 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
+                <div>
+                    <h3 class="text-lg font-bold text-white">Theory Series Exam Marks Evaluator</h3>
+                    <p class="text-slate-400 text-xs mt-0.5">Select a series test and enter Part A, B, and C scores for each student.</p>
+                </div>
+                <button onclick="closeSeriesTheoryModal()" class="text-slate-400 hover:text-white text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <!-- Series Selection & Student Selection Bar -->
+            <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 space-y-3 flex-shrink-0">
+                <div class="flex items-center justify-between gap-3">
+                    <label class="text-slate-300 text-xs font-semibold">Select Series Test:</label>
+                    <select id="series-theory-test-select" onchange="onSeriesTheoryTestChange(this.value)" class="bg-slate-950 border border-slate-700 rounded px-2.5 py-1 text-xs text-amber-400 font-bold outline-none focus:border-amber-500">
+                        <option value="Series 1">Test 1 (CO1)</option>
+                        <option value="Series 2">Test 2 (CO2)</option>
+                        <option value="Series 3">Test 3 (CO3)</option>
+                        <option value="Series 4">Test 4 (CO4)</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center justify-between gap-2">
+                    <button type="button" onclick="prevSeriesTheoryStudent()" class="header-btn px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs">
+                        <span>◀ Prev</span>
+                    </button>
+
+                    <div class="flex-1">
+                        <select id="series-theory-student-select" onchange="loadSeriesTheoryStudent(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-3 py-1.5 font-bold text-xs text-white outline-none focus:border-emerald-500">
+                            @foreach($studentResults as $idx => $res)
+                            <option value="{{ $res['reg_no'] }}" data-idx="{{ $idx }}">#{{ $res['roll_no'] }} - {{ $res['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <button type="button" onclick="nextSeriesTheoryStudent()" class="header-btn px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs">
+                        <span>Next ▶</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Marks Form Card -->
+            <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-4 flex-1 overflow-y-auto">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Student:</span>
+                    <span id="series-theory-student-display" class="font-bold text-white"></span>
+                </div>
+
+                <div class="border-t border-slate-800/80 pt-3 space-y-3">
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-slate-400 text-xs font-semibold mb-1">Part A Score:</label>
+                            <input type="number" id="series-theory-pa" min="0" max="50" step="0.5" oninput="onSeriesTheoryMarksInput()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 font-bold text-sm text-white text-center focus:border-emerald-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-xs font-semibold mb-1">Part B Score:</label>
+                            <input type="number" id="series-theory-pb" min="0" max="50" step="0.5" oninput="onSeriesTheoryMarksInput()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 font-bold text-sm text-white text-center focus:border-emerald-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-xs font-semibold mb-1">Part C Score:</label>
+                            <input type="number" id="series-theory-pc" min="0" max="50" step="0.5" oninput="onSeriesTheoryMarksInput()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 font-bold text-sm text-white text-center focus:border-emerald-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="series-theory-absent" onchange="toggleSeriesTheoryAbsent(this.checked)" class="rounded bg-slate-800 border-slate-700 text-rose-500 focus:ring-0">
+                        <label for="series-theory-absent" class="text-xs text-slate-350 font-semibold cursor-pointer">Mark Student as Absent</label>
+                    </div>
+                </div>
+
+                <!-- Live Total Display -->
+                <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                    <span class="text-slate-400 font-semibold">Total Series Test Score:</span>
+                    <span id="series-theory-live-total" class="font-bold text-emerald-400 text-sm">0.00 / 50.00</span>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="flex items-center justify-between pt-3 border-t border-slate-800 flex-shrink-0">
+                <button type="button" onclick="closeSeriesTheoryModal()" class="header-btn px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700">Close</button>
+                <div class="flex items-center space-x-2">
+                    <button type="button" onclick="saveAndNextSeriesTheoryStudent()" class="header-btn px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md">Next Student ▶</button>
+                    <button type="button" onclick="saveAllSeriesTheoryMarks()" class="header-btn px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg">Save All Marks</button>
                 </div>
             </div>
         </div>
