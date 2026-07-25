@@ -141,7 +141,7 @@
                         </span>
                     </div>
                     
-                    <p class="text-slate-400 text-sm">
+                    <p class="text-slate-400 text-xs">
                         Subject Code: <span class="text-white font-semibold">{{ $batchSubject->subject_code }}</span> | 
                         Batch Code: <span class="text-amber-400 font-bold font-mono">{{ $batchSubject->classroom_id }}</span> | 
                         Branch: <span class="text-blue-300 font-semibold">{{ function_exists('getFullBranchName') ? getFullBranchName($classroom->department ?? $classroom->branch ?? '') : ($classroom->department ?? $classroom->branch) }}</span> | 
@@ -151,12 +151,12 @@
             </div>
 
             <!-- Right: Logged-In & Assigned Faculty Info -->
-            <div class="px-4 py-2 rounded-xl bg-slate-900/90 border border-slate-700/80 text-slate-300 flex items-center space-x-3 flex-shrink-0">
-                <div class="p-1.5 rounded-lg bg-purple-500/20 text-purple-400">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <div class="px-3.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-slate-300 flex items-center space-x-3 flex-shrink-0">
+                <div class="p-1 rounded-lg bg-purple-500/20 text-purple-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                 </div>
                 <div class="leading-tight">
-                    <div class="text-white font-semibold text-sm">
+                    <div class="text-white font-semibold text-xs">
                         Faculty: <span class="text-purple-300 font-bold">
                             {{ Session::get('userName') ?? 'Faculty In-Charge' }}
                             @if(isset($assignedStaff) && count($assignedStaff) > 0)
