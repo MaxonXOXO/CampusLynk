@@ -121,6 +121,29 @@
     </style>
 </head>
 <body class="min-h-screen pb-12">
+    @php
+        $role = Session::get('userRole');
+        $dashboardUrl = '/dashboard/lecturer';
+        if ($role === 'HOD') {
+            $dashboardUrl = '/dashboard/hod';
+        } elseif ($role === 'Principal') {
+            $dashboardUrl = '/dashboard/principal';
+        } elseif ($role === 'Demonstrator') {
+            $dashboardUrl = '/dashboard/demonstrator';
+        } elseif ($role === 'Super_Admin') {
+            $dashboardUrl = '/dashboard/superadmin';
+        } elseif ($role === 'Admin') {
+            $dashboardUrl = '/dashboard/admin';
+        } elseif ($role === 'Gen_Dept_Coordinator_Aided') {
+            $dashboardUrl = '/dashboard/general-coordinator-aided';
+        } elseif ($role === 'Gen_Dept_Coordinator_Self_Finance') {
+            $dashboardUrl = '/dashboard/general-coordinator-sf';
+        } elseif ($role === 'Trade_Instructor') {
+            $dashboardUrl = '/dashboard/tradeinstructor';
+        } elseif ($role === 'Workshop_Superintendent') {
+            $dashboardUrl = '/dashboard/workshop';
+        }
+    @endphp
 
     <!-- 1. TOP HEADER CONTAINER -->
     <header class="glass-panel sticky top-0 z-40 border-b border-slate-800 px-4 md:px-8 py-3">
@@ -128,7 +151,7 @@
             
             <!-- Left: Noticeable Back Button & Subject Details -->
             <div class="flex items-center space-x-3.5 w-full xl:w-auto">
-                <a href="javascript:void(0)" onclick="if (document.referrer && !document.referrer.includes(window.location.pathname)) { window.location.href = document.referrer; } else { window.history.back(); }" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-semibold shadow-md transition-all flex items-center space-x-2 border border-rose-400/40 flex-shrink-0">
+                <a href="javascript:void(0)" onclick="window.close(); setTimeout(function() { let ref = document.referrer; if (ref && (ref.includes('/dashboard/') || ref.includes('/classroom/'))) { window.location.href = ref; } else { window.location.href = '{{ $dashboardUrl }}'; } }, 150);" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-semibold shadow-md transition-all flex items-center space-x-2 border border-rose-400/40 flex-shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     <span>Back</span>
                 </a>
