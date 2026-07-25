@@ -640,13 +640,13 @@
                             <h3 class="text-lg font-bold text-white">Written Theory End Semester Exam (60 Marks)</h3>
                             <p class="text-slate-400 text-xs mt-0.5">Grades entered manually by staff or automatically retrieved from student portal uploads</p>
                         </div>
-                        <button onclick="openEseTheoryModal()" class="header-btn px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-md">Enter Theory ESE Grades</button>
+                        <button onclick="openEseTheoryModal()" class="header-btn px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-sm">Enter Theory ESE Grades</button>
                     </div>
 
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="border-b border-slate-800 text-slate-400 font-semibold bg-slate-900/60 text-xs">
+                                <tr class="border-b border-slate-800 text-slate-400 font-medium bg-slate-900/60 text-sm">
                                     <th class="p-3">Roll</th>
                                     <th class="p-3">Reg No</th>
                                     <th class="p-3">Student Name</th>
@@ -655,15 +655,15 @@
                                     <th class="p-3">Pass Status (Min 24/60)</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-800/60 text-xs">
+                            <tbody class="divide-y divide-slate-800/60 text-sm">
                                 @foreach($studentResults as $res)
                                 <tr>
-                                    <td class="p-3 text-slate-300">{{ $res['roll_no'] }}</td>
-                                    <td class="p-3 font-mono text-slate-300">{{ $res['reg_no'] }}</td>
-                                    <td class="p-3 font-bold text-white">{{ $res['name'] }}</td>
-                                    <td class="p-3 text-center font-bold text-amber-400">{{ $res['ese_theory_grade'] }}</td>
-                                    <td class="p-3 text-center font-semibold text-indigo-400">{{ number_format($res['ese_theory'], 2) }} / 60.00</td>
-                                    <td class="p-3 font-bold {{ $res['ese_theory'] >= 24 ? 'text-emerald-400' : 'text-rose-400' }}">
+                                    <td class="p-3 text-slate-300 font-normal">{{ $res['roll_no'] }}</td>
+                                    <td class="p-3 font-mono text-slate-300 font-normal">{{ $res['reg_no'] }}</td>
+                                    <td class="p-3 text-slate-300 font-normal">{{ $res['name'] }}</td>
+                                    <td class="p-3 text-center text-slate-400 font-normal">{{ $res['ese_theory_grade'] }}</td>
+                                    <td class="p-3 text-center text-slate-300 font-normal">{{ number_format($res['ese_theory'], 2) }} / 60.00</td>
+                                    <td class="p-3 font-normal {{ $res['ese_theory'] >= 24 ? 'text-emerald-400' : 'text-rose-400' }}">
                                         {{ $res['ese_theory'] >= 24 ? 'PASSED' : 'REAPPEAR' }}
                                     </td>
                                 </tr>
