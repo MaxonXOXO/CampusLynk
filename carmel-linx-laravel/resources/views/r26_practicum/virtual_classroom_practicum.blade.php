@@ -1806,10 +1806,10 @@
     studentsList.forEach(s => {
         const regNo = s.reg_no;
         seriesTheoryEvalsState[regNo] = {
-            'Series 1': { part_a_score: 0, part_b_score: 0, part_c_score: 0, is_absent: false },
-            'Series 2': { part_a_score: 0, part_b_score: 0, part_c_score: 0, is_absent: false },
-            'Series 3': { part_a_score: 0, part_b_score: 0, part_c_score: 0, is_absent: false },
-            'Series 4': { part_a_score: 0, part_b_score: 0, part_c_score: 0, is_absent: false }
+            'Series 1': { total_score_50: 0, is_absent: false },
+            'Series 2': { total_score_50: 0, is_absent: false },
+            'Series 3': { total_score_50: 0, is_absent: false },
+            'Series 4': { total_score_50: 0, is_absent: false }
         };
 
         const dbList = seriesTheoryEvalsDb[regNo] || [];
@@ -1823,9 +1823,7 @@
 
             if (seriesTheoryEvalsState[regNo][mappedSeries]) {
                 seriesTheoryEvalsState[regNo][mappedSeries] = {
-                    part_a_score: parseFloat(evalRecord.part_a_score) || 0,
-                    part_b_score: parseFloat(evalRecord.part_b_score) || 0,
-                    part_c_score: parseFloat(evalRecord.part_c_score) || 0,
+                    total_score_50: parseFloat(evalRecord.total_score_50) || 0,
                     is_absent: !!evalRecord.is_absent
                 };
             }
@@ -1858,21 +1856,15 @@
         document.getElementById('series-theory-student-display').innerText = `${student.name} (${student.reg_no})`;
 
         const test = document.getElementById('series-theory-test-select').value;
-        const state = seriesTheoryEvalsState[regNo][test] || { part_a_score: 0, part_b_score: 0, part_c_score: 0, is_absent: false };
+        const state = seriesTheoryEvalsState[regNo][test] || { total_score_50: 0, is_absent: false };
 
-        const paInput = document.getElementById('series-theory-pa');
-        const pbInput = document.getElementById('series-theory-pb');
-        const pcInput = document.getElementById('series-theory-pc');
+        const totalInput = document.getElementById('series-theory-total');
         const absentCheck = document.getElementById('series-theory-absent');
 
-        paInput.value = state.part_a_score;
-        pbInput.value = state.part_b_score;
-        pcInput.value = state.part_c_score;
+        totalInput.value = state.total_score_50;
         absentCheck.checked = state.is_absent;
 
-        paInput.disabled = state.is_absent;
-        pbInput.disabled = state.is_absent;
-        pcInput.disabled = state.is_absent;
+        totalInput.disabled = state.is_absent;
 
         updateSeriesTheoryLiveTotal();
     }
@@ -1883,13 +1875,9 @@
         if (!regNo) return;
 
         const test = document.getElementById('series-theory-test-select').value;
-        const pa = parseFloat(document.getElementById('series-theory-pa').value) || 0;
-        const pb = parseFloat(document.getElementById('series-theory-pb').value) || 0;
-        const pc = parseFloat(document.getElementById('series-theory-pc').value) || 0;
+        const total = parseFloat(document.getElementById('series-theory-total').value) || 0;
 
-        seriesTheoryEvalsState[regNo][test].part_a_score = pa;
-        seriesTheoryEvalsState[regNo][test].part_b_score = pb;
-        seriesTheoryEvalsState[regNo][test].part_c_score = pc;
+        seriesTheoryEvalsState[regNo][test].total_score_50 = total;
 
         updateSeriesTheoryLiveTotal();
     }
@@ -1902,36 +1890,24 @@
         const test = document.getElementById('series-theory-test-select').value;
         seriesTheoryEvalsState[regNo][test].is_absent = isAbsent;
 
-        const paInput = document.getElementById('series-theory-pa');
-        const pbInput = document.getElementById('series-theory-pb');
-        const pcInput = document.getElementById('series-theory-pc');
+        const totalInput = document.getElementById('series-theory-total');
 
         if (isAbsent) {
-            paInput.value = 0;
-            pbInput.value = 0;
-            pcInput.value = 0;
-            paInput.disabled = true;
-            pbInput.disabled = true;
-            pcInput.disabled = true;
-            seriesTheoryEvalsState[regNo][test].part_a_score = 0;
-            seriesTheoryEvalsState[regNo][test].part_b_score = 0;
-            seriesTheoryEvalsState[regNo][test].part_c_score = 0;
+            totalInput.value = 0;
+            totalInput.disabled = true;
+            seriesTheoryEvalsState[regNo][test].total_score_50 = 0;
         } else {
-            paInput.disabled = false;
-            pbInput.disabled = false;
-            pcInput.disabled = false;
+            totalInput.disabled = false;
         }
         updateSeriesTheoryLiveTotal();
     }
 
     function updateSeriesTheoryLiveTotal() {
-        const pa = parseFloat(document.getElementById('series-theory-pa').value) || 0;
-        const pb = parseFloat(document.getElementById('series-theory-pb').value) || 0;
-        const pc = parseFloat(document.getElementById('series-theory-pc').value) || 0;
+        const total = parseFloat(document.getElementById('series-theory-total').value) || 0;
         const isAbsent = document.getElementById('series-theory-absent').checked;
 
-        const total = isAbsent ? 0 : (pa + pb + pc);
-        document.getElementById('series-theory-live-total').innerText = `${total.toFixed(2)} / 50.00`;
+        const displayTotal = isAbsent ? 0 : total;
+        document.getElementById('series-theory-live-total').innerText = `${displayTotal.toFixed(2)} / 50.00`;
     }
 
     function prevSeriesTheoryStudent() {
@@ -1960,9 +1936,7 @@
             const state = seriesTheoryEvalsState[regNo][test];
             marksData.push({
                 reg_no: regNo,
-                part_a_score: state.part_a_score,
-                part_b_score: state.part_b_score,
-                part_c_score: state.part_c_score,
+                total_score_50: state.total_score_50,
                 is_absent: state.is_absent
             });
         });
@@ -2180,19 +2154,9 @@
                 </div>
 
                 <div class="border-t border-slate-800/80 pt-3 space-y-3">
-                    <div class="grid grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-slate-400 text-xs font-semibold mb-1">Part A Score:</label>
-                            <input type="number" id="series-theory-pa" min="0" max="50" step="0.5" oninput="onSeriesTheoryMarksInput()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 font-bold text-sm text-white text-center focus:border-emerald-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-slate-400 text-xs font-semibold mb-1">Part B Score:</label>
-                            <input type="number" id="series-theory-pb" min="0" max="50" step="0.5" oninput="onSeriesTheoryMarksInput()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 font-bold text-sm text-white text-center focus:border-emerald-500 outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-slate-400 text-xs font-semibold mb-1">Part C Score:</label>
-                            <input type="number" id="series-theory-pc" min="0" max="50" step="0.5" oninput="onSeriesTheoryMarksInput()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 font-bold text-sm text-white text-center focus:border-emerald-500 outline-none">
-                        </div>
+                    <div>
+                        <label class="block text-slate-400 text-xs font-semibold mb-1">Total Series Test Mark (Max 50):</label>
+                        <input type="number" id="series-theory-total" min="0" max="50" step="0.5" oninput="onSeriesTheoryMarksInput()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 font-bold text-sm text-white text-center focus:border-emerald-500 outline-none">
                     </div>
 
                     <div class="flex items-center space-x-2">

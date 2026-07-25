@@ -594,10 +594,7 @@ class R26VirtualClassroomPracticumController extends Controller
 
         foreach ($marksData as $row) {
             $regNo = $row['reg_no'];
-            $pa = floatval($row['part_a_score'] ?? 0);
-            $pb = floatval($row['part_b_score'] ?? 0);
-            $pc = floatval($row['part_c_score'] ?? 0);
-            $total50 = $pa + $pb + $pc;
+            $total50 = floatval($row['total_score_50'] ?? 0);
             $isAbsent = !empty($row['is_absent']);
 
             R26PracticumSeriesTheory::updateOrCreate(
@@ -607,9 +604,9 @@ class R26VirtualClassroomPracticumController extends Controller
                     'reg_no' => $regNo
                 ],
                 [
-                    'part_a_score' => $pa,
-                    'part_b_score' => $pb,
-                    'part_c_score' => $pc,
+                    'part_a_score' => 0.00,
+                    'part_b_score' => 0.00,
+                    'part_c_score' => 0.00,
                     'total_score_50' => $isAbsent ? 0.00 : $total50,
                     'is_absent' => $isAbsent
                 ]
