@@ -128,7 +128,7 @@
             
             <!-- Left: Noticeable Back Button & Subject Details -->
             <div class="flex items-center space-x-3.5 w-full xl:w-auto">
-                <a href="javascript:void(0)" onclick="if (document.referrer && !document.referrer.includes(window.location.pathname)) { window.location.href = document.referrer; } else { window.history.back(); }" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-extrabold shadow-lg shadow-rose-500/25 transition-all flex items-center space-x-2 border border-rose-400/40 flex-shrink-0">
+                <a href="javascript:void(0)" onclick="if (document.referrer && !document.referrer.includes(window.location.pathname)) { window.location.href = document.referrer; } else { window.history.back(); }" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-semibold shadow-md transition-all flex items-center space-x-2 border border-rose-400/40 flex-shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     <span>Back</span>
                 </a>
@@ -681,13 +681,13 @@
                         @foreach(['CO1', 'CO2', 'CO3', 'CO4'] as $coTag)
                         <div class="p-4 rounded-xl bg-slate-900/70 border border-slate-800 space-y-2">
                             <div class="flex items-center justify-between">
-                                <span class="font-bold text-amber-400 text-base">{{ $coTag }}</span>
-                                <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-xs font-bold">Level {{ $combinedStats[$coTag] ?? 0.0 }} / 3.0</span>
+                                <span class="font-normal text-slate-200 text-sm">{{ $coTag }}</span>
+                                <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-350 text-xs font-normal border border-slate-700">Level {{ $combinedStats[$coTag] ?? 0.0 }} / 3.0</span>
                             </div>
-                            <div class="text-slate-300 text-xs space-y-1">
-                                <div>Direct Attainment: <span class="font-bold text-emerald-400">{{ $directStats[$coTag]['level'] ?? 0 }}</span> ({{ $directStats[$coTag]['percentage'] ?? 0 }}% Students)</div>
-                                <div>Indirect Attainment: <span class="font-bold text-blue-400">{{ $indirectStats[$coTag]['level'] ?? 0 }}</span></div>
-                                <div>Overall (80:20): <span class="font-bold text-amber-300">{{ $combinedStats[$coTag] ?? 0 }}</span></div>
+                            <div class="text-slate-350 text-xs space-y-1">
+                                <div>Direct Attainment: <span class="font-normal text-slate-300">{{ $directStats[$coTag]['level'] ?? 0 }}</span> ({{ $directStats[$coTag]['percentage'] ?? 0 }}% Students)</div>
+                                <div>Indirect Attainment: <span class="font-normal text-slate-300">{{ $indirectStats[$coTag]['level'] ?? 0 }}</span></div>
+                                <div>Overall (80:20): <span class="font-normal text-slate-200">{{ $combinedStats[$coTag] ?? 0 }}</span></div>
                             </div>
                         </div>
                         @endforeach
@@ -695,13 +695,13 @@
 
                     <!-- PO Attainment Row -->
                     <div class="mt-4 pt-4 border-t border-slate-800">
-                        <h4 class="font-bold text-slate-200 text-sm mb-3">Calculated Program Outcome (PO) Attainment Scores</h4>
+                        <h4 class="font-normal text-slate-300 text-sm mb-3">Calculated Program Outcome (PO) Attainment Scores</h4>
                         <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-11 gap-2 text-center">
                             @for($p = 1; $p <= 11; $p++)
                             @php $po = "PO" . $p; @endphp
                             <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
-                                <div class="text-xs text-slate-400 font-bold">{{ $po }}</div>
-                                <div class="font-extrabold text-indigo-400 text-base mt-0.5">{{ $poAttainments[$po]['value'] ?? 0.0 }}</div>
+                                <div class="text-xs text-slate-400 font-normal">{{ $po }}</div>
+                                <div class="font-normal text-slate-200 text-sm mt-0.5">{{ $poAttainments[$po]['value'] ?? 0.0 }}</div>
                             </div>
                             @endfor
                         </div>
@@ -716,7 +716,7 @@
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
-                                <tr class="border-b border-slate-800 text-slate-400 font-semibold bg-slate-900/60">
+                                <tr class="border-b border-slate-800 text-slate-400 font-medium bg-slate-900/60 text-sm">
                                     <th class="p-2.5">Roll</th>
                                     <th class="p-2.5">Reg No</th>
                                     <th class="p-2.5">SBTE Reg No</th>
@@ -729,19 +729,19 @@
                                     <th class="p-2.5 text-center">Total CIA (40M)</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-800/60">
+                            <tbody class="divide-y divide-slate-800/60 text-sm">
                                 @foreach($studentResults as $res)
                                 <tr class="hover:bg-slate-800/30 transition-all">
-                                    <td class="p-2.5 text-slate-300">{{ $res['roll_no'] }}</td>
-                                    <td class="p-2.5 font-mono text-slate-400 text-xs">{{ $res['reg_no'] }}</td>
-                                    <td class="p-2.5 font-mono text-emerald-400 font-bold text-xs">{{ $res['sbte_reg_no'] ?: '-' }}</td>
-                                    <td class="p-2.5 font-bold text-white">{{ $res['name'] }}</td>
-                                    <td class="p-2.5 text-center font-semibold text-blue-400">{{ $res['att_marks'] }}</td>
-                                    <td class="p-2.5 text-center font-semibold text-emerald-400">{{ number_format($res['sl_marks'], 2) }}</td>
-                                    <td class="p-2.5 text-center font-semibold text-amber-400">{{ number_format($res['continuous_eval_marks'], 2) }}</td>
-                                    <td class="p-2.5 text-center font-semibold text-purple-400">{{ number_format($res['series_theory_marks'], 2) }}</td>
-                                    <td class="p-2.5 text-center font-semibold text-indigo-400">{{ number_format($res['series_practical_marks'], 2) }}</td>
-                                    <td class="p-2.5 text-center font-extrabold text-amber-400 bg-amber-500/10 rounded-lg border border-amber-500/20">
+                                    <td class="p-2.5 text-slate-300 font-normal">{{ $res['roll_no'] }}</td>
+                                    <td class="p-2.5 font-mono text-slate-400 text-xs font-normal">{{ $res['reg_no'] }}</td>
+                                    <td class="p-2.5 font-mono text-slate-400 text-xs font-normal">{{ $res['sbte_reg_no'] ?: '-' }}</td>
+                                    <td class="p-2.5 text-slate-300 font-normal">{{ $res['name'] }}</td>
+                                    <td class="p-2.5 text-center text-slate-300 font-normal">{{ $res['att_marks'] }}</td>
+                                    <td class="p-2.5 text-center text-slate-300 font-normal">{{ number_format($res['sl_marks'], 2) }}</td>
+                                    <td class="p-2.5 text-center text-slate-300 font-normal">{{ number_format($res['continuous_eval_marks'], 2) }}</td>
+                                    <td class="p-2.5 text-center text-slate-300 font-normal">{{ number_format($res['series_theory_marks'], 2) }}</td>
+                                    <td class="p-2.5 text-center text-slate-300 font-normal">{{ number_format($res['series_practical_marks'], 2) }}</td>
+                                    <td class="p-2.5 text-center text-slate-200 font-normal">
                                         {{ number_format($res['total_cia_marks'], 2) }} / 40.00
                                     </td>
                                 </tr>
@@ -978,8 +978,8 @@
                 @endforeach
 
                 <div class="flex items-center justify-end space-x-3 pt-2">
-                    <button type="button" onclick="closeSlConfigModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700">Cancel</button>
-                    <button type="submit" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold shadow-lg shadow-purple-500/25">Save Activities Config</button>
+                    <button type="button" onclick="closeSlConfigModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 text-xs">Cancel</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-sm">Save Activities Config</button>
                 </div>
             </form>
         </div>
@@ -1037,8 +1037,8 @@
             <div class="flex items-center justify-between pt-3 border-t border-slate-800 flex-shrink-0">
                 <button type="button" onclick="closeSlMarksModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700">Close</button>
                 <div class="flex items-center space-x-2">
-                    <button type="button" onclick="saveAndNextSlStudent()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md">Next Student ▶</button>
-                    <button type="button" onclick="saveAllSlMarks()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-500/25">Save All Marks</button>
+                    <button type="button" onclick="saveAndNextSlStudent()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-sm">Next Student ▶</button>
+                    <button type="button" onclick="saveAllSlMarks()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm">Save All Marks</button>
                 </div>
             </div>
         </div>
@@ -2113,8 +2113,8 @@
             <div class="flex items-center justify-between pt-3 border-t border-slate-800 flex-shrink-0">
                 <button type="button" onclick="closeEseTheoryModal()" class="header-btn px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700">Close</button>
                 <div class="flex items-center space-x-2">
-                    <button type="button" onclick="saveAndNextEseStudent()" class="header-btn px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md">Next Student ▶</button>
-                    <button type="button" onclick="saveAllEseGrades()" class="header-btn px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg">Save ESE Grades</button>
+                    <button type="button" onclick="saveAndNextEseStudent()" class="header-btn px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-sm">Next Student ▶</button>
+                    <button type="button" onclick="saveAllEseGrades()" class="header-btn px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm">Save ESE Grades</button>
                 </div>
             </div>
         </div>
@@ -2195,8 +2195,8 @@
             <div class="flex items-center justify-between pt-3 border-t border-slate-800 flex-shrink-0">
                 <button type="button" onclick="closeSeriesTheoryModal()" class="header-btn px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700">Close</button>
                 <div class="flex items-center space-x-2">
-                    <button type="button" onclick="saveAndNextSeriesTheoryStudent()" class="header-btn px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md">Next Student ▶</button>
-                    <button type="button" onclick="saveAllSeriesTheoryMarks()" class="header-btn px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg">Save All Marks</button>
+                    <button type="button" onclick="saveAndNextSeriesTheoryStudent()" class="header-btn px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-sm">Next Student ▶</button>
+                    <button type="button" onclick="saveAllSeriesTheoryMarks()" class="header-btn px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm">Save All Marks</button>
                 </div>
             </div>
         </div>
