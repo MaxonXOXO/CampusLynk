@@ -191,14 +191,14 @@
           Virtual Classroom (Theory)
           @php $isAiActive = \App\Http\Controllers\SystemSettingController::isAiEnabled(); @endphp
           @if($isAiActive)
-            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold whitespace-nowrap flex items-center space-x-1" title="AI Support API Active">
-                <span class="material-symbols-rounded text-xs text-emerald-400">auto_awesome</span>
-                <span>AI Support Active</span>
+            <span class="px-2.5 py-0.5 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700 text-xs font-medium whitespace-nowrap flex items-center space-x-1.5" title="AI Support API Active">
+                <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>AI Active</span>
             </span>
           @else
-            <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold whitespace-nowrap flex items-center space-x-1" title="AI Support API Deactivated">
-                <span class="material-symbols-rounded text-xs text-amber-400">cloud_off</span>
-                <span>AI Support Off</span>
+            <span class="px-2.5 py-0.5 rounded-full bg-slate-800/90 text-slate-400 border border-slate-700 text-xs font-medium whitespace-nowrap flex items-center space-x-1.5" title="AI Support API Deactivated">
+                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                <span>AI Off</span>
             </span>
           @endif
         </h1>

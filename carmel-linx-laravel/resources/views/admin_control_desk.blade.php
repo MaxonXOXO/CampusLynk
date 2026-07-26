@@ -138,10 +138,9 @@
         <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Dashboard Overview</h1>
         
         <!-- AI System Status Badge -->
-        <div id="topAiStatusBadge" onclick="switchPanel('settings')" class="hidden items-center gap-2 px-3 py-1 rounded-full text-xs font-bold transition-premium cursor-pointer shadow-sm group" title="Click to manage AI System Settings">
-          <span id="topAiStatusIcon" class="material-symbols-rounded text-sm">auto_awesome</span>
-          <span id="topAiStatusText">AI Service: Active</span>
-          <span class="text-[10px] text-slate-400 group-hover:text-white transition-colors">⚙️ Settings</span>
+        <div id="topAiStatusBadge" onclick="switchPanel('settings')" class="hidden items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800/90 text-slate-300 border border-slate-700 transition-all cursor-pointer group" title="Click to manage AI System Settings">
+          <span id="topAiStatusDot" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          <span id="topAiStatusText">AI Active</span>
         </div>
       </div>
 
@@ -807,26 +806,24 @@
     // Update top header AI status badge
     function updateAiStatusBadge(enabled) {
       const badge = document.getElementById('topAiStatusBadge');
-      const icon = document.getElementById('topAiStatusIcon');
+      const dot = document.getElementById('topAiStatusDot');
       const text = document.getElementById('topAiStatusText');
       const checkbox = document.getElementById('settingAiEnabled');
 
       if (checkbox) checkbox.checked = !!enabled;
-      if (!badge || !icon || !text) return;
+      if (!badge || !text) return;
 
       badge.classList.remove('hidden');
       badge.classList.add('flex');
 
       if (enabled) {
-        badge.className = "flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 transition-premium cursor-pointer shadow-sm hover:bg-emerald-500/20 group";
-        icon.innerText = "auto_awesome";
-        icon.className = "material-symbols-rounded text-sm text-emerald-400";
-        text.innerText = "AI Support: Active";
+        badge.className = "flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800/90 text-slate-300 border border-slate-700 transition-all cursor-pointer group";
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-emerald-400";
+        text.innerText = "AI Active";
       } else {
-        badge.className = "flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30 transition-premium cursor-pointer shadow-sm hover:bg-amber-500/20 group";
-        icon.innerText = "cloud_off";
-        icon.className = "material-symbols-rounded text-sm text-amber-400";
-        text.innerText = "AI Support: Off";
+        badge.className = "flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800/90 text-slate-400 border border-slate-700 transition-all cursor-pointer group";
+        if (dot) dot.className = "w-2 h-2 rounded-full bg-slate-500";
+        text.innerText = "AI Off";
       }
     }
 
