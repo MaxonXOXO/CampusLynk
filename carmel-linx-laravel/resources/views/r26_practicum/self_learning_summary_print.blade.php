@@ -61,7 +61,6 @@
         <thead>
             <tr class="bg-slate-200 text-slate-900 font-bold border-b border-slate-400">
                 <th class="border border-slate-400 p-2 text-center w-10">Roll</th>
-                <th class="border border-slate-400 p-2 w-24">Reg No</th>
                 <th class="border border-slate-400 p-2 w-28">SBTE Reg No</th>
                 <th class="border border-slate-400 p-2">Student Name</th>
                 <th class="border border-slate-400 p-2 text-center w-16">CO1 Avg</th>
@@ -76,8 +75,7 @@
             @foreach($studentResults as $res)
             <tr class="border-b border-slate-300">
                 <td class="border border-slate-300 p-2 text-center font-bold">{{ $res['roll_no'] }}</td>
-                <td class="border border-slate-300 p-2 font-mono">{{ $res['reg_no'] }}</td>
-                <td class="border border-slate-300 p-2 font-mono text-emerald-800 font-bold">{{ $res['sbte_reg_no'] ?: '-' }}</td>
+                <td class="border border-slate-300 p-2 font-mono text-emerald-800 font-bold">{{ $res['sbte_reg_no'] ?: $res['reg_no'] }}</td>
                 <td class="border border-slate-300 p-2 font-bold text-slate-900">{{ $res['name'] }}</td>
                 <td class="border border-slate-300 p-2 text-center font-medium">{{ number_format($res['co_scores']['CO1'] ?? 0, 1) }}</td>
                 <td class="border border-slate-300 p-2 text-center font-medium">{{ number_format($res['co_scores']['CO2'] ?? 0, 1) }}</td>

@@ -70,13 +70,31 @@ if (!function_exists('getBtShort')) {
                 <div><span class="font-bold">Batch / Semester:</span> {{ $batchName }}</div>
                 <div><span class="font-bold">Series Exam:</span> {{ $seriesNo }}</div>
                 <div><span class="font-bold">Date:</span> {{ date('d/m/Y') }}</div>
-                <div class="flex gap-6"><span><span class="font-bold">Duration:</span> {{ (str_contains($qpRecord->co_tag ?? '', '+') || str_contains($qpRecord->co_tag ?? '', ',')) ? '3 Hours' : '1 Hour' }}</span> <span><span class="font-bold">Max Marks:</span> {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }}</span></div>
+                <div class="flex gap-6"><span><span class="font-bold">Duration:</span> {{ ($qpRecord->pattern_type === 'practical_series' || str_contains($qpRecord->co_tag ?? '', '+') || str_contains($qpRecord->co_tag ?? '', ',')) ? '3 Hours' : '1 Hour' }}</span> <span><span class="font-bold">Max Marks:</span> {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'practical_series' ? 40 : ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25)) }}</span></div>
             </div>
         </div>
-
+ 
         @php $qp = $qpRecord->qp_data ?? []; @endphp
-
-        @if ($qpRecord->pattern_type === 'table_4_2_design')
+ 
+        @if ($qpRecord->pattern_type === 'practical_series')
+            {{-- PRACTICAL SERIES EXAM PATTERN --}}
+            <div class="mb-4">
+                <div class="part-header">PART A &nbsp;|&nbsp; Answer any ONE Question &nbsp;|&nbsp; (1 × 40 = 40 Marks)</div>
+                <div class="text-xs text-slate-500 my-2 px-1 font-semibold italic">Grading is based on Table 3.1 Rubrics: Writeup & Procedure (10M), Setup & Execution (10M), Observation & Result (10M), Viva Voce (5M), Record Book (5M).</div>
+                <table class="w-full text-sm mt-1">
+                    @foreach ($qp['part_a'] ?? [] as $q)
+                    <tr class="q-row">
+                        <td class="q-no pr-3">{{ $q['q_no'] }}.</td>
+                        <td class="py-2">{{ $q['text'] }}
+                            <span class="ml-2 bloom-badge">{{ getBtShort($q['bloom'] ?? 'L3') }}</span>
+                            <span class="ml-1 co-badge">{{ $q['co'] ?? '' }}</span>
+                        </td>
+                        <td class="marks-col pl-3">40M</td>
+                    </tr>
+                    @endforeach
+                </table>
+            </div>
+        @elseif ($qpRecord->pattern_type === 'table_4_2_design')
             {{-- TABLE 4.2 DESIGN PAPER PATTERN --}}
             <!-- Part A -->
             <div class="mb-4">

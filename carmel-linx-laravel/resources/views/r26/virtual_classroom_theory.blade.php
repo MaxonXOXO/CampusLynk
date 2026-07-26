@@ -12,11 +12,12 @@
   
   <style>
     body {
-      font-family: 'Outfit', sans-serif;
-      transition: background-color 0.3s, color 0.3s;
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
-    
-    /* Dark Mode (Default) */
+    h1, h2, h3, h4, h5, h6, .font-heading, span, p, label, button, a, th, td {
+      text-shadow: none !important;
+      filter: none !important;
+    }
     body.dark {
       background-color: #0b0f19;
       color: #f1f5f9;
@@ -680,7 +681,7 @@
                   <thead>
                     <tr class="bg-slate-900/30 text-xs font-bold text-muted uppercase tracking-wider border-b border-card">
                       <th class="p-3 w-[6%] text-center">Roll No</th>
-                      <th class="p-3 w-[12%]">Register No</th>
+                      <th class="p-3 w-[12%]">SBTE Reg No</th>
                       <th class="p-3 w-[22%]">Student Name</th>
                       <th class="p-3 w-[12%] text-center">Assignment</th>
                       <th class="p-3 w-[12%] text-center">MCQ Test</th>
@@ -694,7 +695,7 @@
                     @forelse($studentCiaData as $sc)
                       <tr data-reg-no="{{ $sc['reg_no'] }}" class="bg-card-hover transition-all font-normal">
                         <td class="p-2.5 font-mono text-center text-title">{{ $sc['roll_no'] ?: '—' }}</td>
-                        <td class="p-2.5 font-mono text-title">{{ $sc['reg_no'] }}</td>
+                        <td class="p-2.5 font-mono text-title font-bold">{{ $sc['sbte_reg_no'] ?: $sc['reg_no'] }}</td>
                         <td class="p-2.5 text-title font-medium">{{ $sc['name'] }}</td>
                         
                         <td class="p-2.5 text-center relative">
@@ -738,7 +739,7 @@
                 <thead>
                   <tr class="bg-slate-900/30 text-xs font-bold text-muted uppercase tracking-wider border-b border-card">
                     <th class="p-3 w-[6%] text-center">Roll No</th>
-                    <th class="p-3 w-[12%]">Register No</th>
+                    <th class="p-3 w-[12%]">SBTE Reg No</th>
                     <th class="p-3 w-[26%]">Student Name</th>
                     <th class="p-3 w-[12%] text-center">CO1 (15M)</th>
                     <th class="p-3 w-[12%] text-center">CO2 (15M)</th>
@@ -751,7 +752,7 @@
                   @forelse($studentCiaData as $sc)
                     <tr class="bg-card-hover transition-all font-normal">
                       <td class="p-2.5 font-mono text-center text-title">{{ $sc['roll_no'] ?: '—' }}</td>
-                      <td class="p-2.5 font-mono text-title">{{ $sc['reg_no'] }}</td>
+                      <td class="p-2.5 font-mono text-title font-bold">{{ $sc['sbte_reg_no'] ?: $sc['reg_no'] }}</td>
                       <td class="p-2.5 text-title font-medium">{{ $sc['name'] }}</td>
                       <td class="p-2.5 text-center font-mono text-title" id="summary-{{ $sc['reg_no'] }}-CO1">{{ $sc['co_details']['CO1']['total'] ?? 0.0 }}</td>
                       <td class="p-2.5 text-center font-mono text-title" id="summary-{{ $sc['reg_no'] }}-CO2">{{ $sc['co_details']['CO2']['total'] ?? 0.0 }}</td>
@@ -797,7 +798,7 @@
                 <thead>
                   <tr class="bg-slate-900/30 text-xs font-bold text-muted uppercase tracking-wider border-b border-card">
                     <th class="p-3 w-[6%] text-center">Roll No</th>
-                    <th class="p-3 w-[12%]">Register No</th>
+                    <th class="p-3 w-[12%]">SBTE Reg No</th>
                     <th class="p-3 w-[20%]">Student Name</th>
                     <th class="p-3 w-[10%] text-center">Attendance %</th>
                     <th class="p-3 w-[10%] text-center">Attendance Marks (5M)</th>
@@ -811,7 +812,7 @@
                   @forelse($studentCiaData as $sc)
                     <tr data-reg-no="{{ $sc['reg_no'] }}" class="bg-card-hover transition-all font-normal">
                       <td class="p-2.5 font-mono text-center text-title">{{ $sc['roll_no'] ?: '—' }}</td>
-                      <td class="p-2.5 font-mono text-title">{{ $sc['reg_no'] }}</td>
+                      <td class="p-2.5 font-mono text-title font-bold">{{ $sc['sbte_reg_no'] ?: $sc['reg_no'] }}</td>
                       <td class="p-2.5 text-title font-medium">{{ $sc['name'] }}</td>
                       <td class="p-2.5 text-center font-mono text-title">{{ $sc['attendance_percent'] }}%</td>
                       <td class="p-2.5 text-center font-mono text-emerald-500 font-bold" data-val-attendance="{{ $sc['attendance_marks'] }}">
@@ -857,9 +858,8 @@
               <thead>
                 <tr class="bg-slate-900/30 text-xs font-bold text-muted uppercase tracking-wider border-b border-card">
                   <th class="p-3">Roll No</th>
-                  <th class="p-3">Register No</th>
+                  <th class="p-3">SBTE Reg No</th>
                   <th class="p-3">Student Name</th>
-                  <th class="p-3">SBTE ID</th>
                   <th class="p-3 text-right">Status</th>
                 </tr>
               </thead>
@@ -867,9 +867,8 @@
                 @forelse($students as $student)
                   <tr class="bg-card-hover transition-all">
                     <td class="p-3 font-mono font-bold text-muted">{{ $student->roll_no ?? '-' }}</td>
-                    <td class="p-3 font-mono text-title">{{ $student->reg_no }}</td>
+                    <td class="p-3 font-mono font-bold text-title">{{ $student->sbte_reg_no ?: $student->reg_no }}</td>
                     <td class="p-3 font-bold text-title">{{ $student->name }}</td>
-                    <td class="p-3 font-mono text-muted">{{ $student->sbte_reg_no ?? 'Unassigned' }}</td>
                     <td class="p-3 text-right">
                       <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-550 border border-emerald-500/20 rounded-md text-xs font-bold select-none">{{ $student->academic_status }}</span>
                     </td>

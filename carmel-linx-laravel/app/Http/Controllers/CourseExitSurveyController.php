@@ -146,6 +146,16 @@ class CourseExitSurveyController extends Controller
                 ];
             }
 
+            $attainmentLevels = [];
+            $attainmentRatings = [];
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coKey) {
+                $pct = $attainmentPercentages[$coKey] ?? 0;
+                $lvl = ($pct >= 70) ? 3 : (($pct >= 60) ? 2 : (($pct >= 50) ? 1 : 0));
+                $rtg = ($pct >= 70) ? 'High' : (($pct >= 60) ? 'Medium' : (($pct >= 50) ? 'Low' : 'Nil'));
+                $attainmentLevels[$coKey] = $lvl;
+                $attainmentRatings[$coKey] = $rtg;
+            }
+
             return response()->json([
                 'status' => 'SUCCESS',
                 'data' => [
@@ -154,6 +164,8 @@ class CourseExitSurveyController extends Controller
                     'responded_count' => $respondedCount,
                     'averages' => $averages,
                     'attainment_percentages' => $attainmentPercentages,
+                    'attainment_levels' => $attainmentLevels,
+                    'attainment_ratings' => $attainmentRatings,
                 ]
             ]);
         } catch (\Exception $e) {
@@ -198,17 +210,17 @@ class CourseExitSurveyController extends Controller
             return "You have already submitted your response for this Course Exit survey.";
         }
 
-        return view('student_course_exit_survey', ['survey' => $survey]);
+        return view('student_course_exit_survey', compact('survey'));
     }
 
     /**
-     * Submit student course exit survey response.
+     * Submit student course exit survey answers.
      */
     public function studentSubmitSurvey(Request $request)
     {
         $regNo = Session::get('userId');
-        if (!$regNo) {
-            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+        if (!$regNo || Session::get('userRole') !== 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized']);
         }
 
         $request->validate([
@@ -284,7 +296,14 @@ class CourseExitSurveyController extends Controller
             ->where('status', 'Completed')
             ->first();
 
-        if (!$survey) return "No completed Course Exit survey report exists for this classroom subject.";
+        if (!$survey) {
+            $survey = DB::table('course_exit_surveys')
+                ->where('batch_subject_id', $subjectId)
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
+
+        if (!$survey) return "No Course Exit survey report exists for this classroom subject.";
 
         $totalStudents = Student::where('classroom_id', $batchSubject->classroom_id)->count();
 
@@ -319,25 +338,43 @@ class CourseExitSurveyController extends Controller
             }
         }
 
-        // Calculate CO Indirect Attainments (Scale 1 to 3)
-        $coAttainments = [
+        // Calculate CO Indirect Attainments (Scale 1 to 3 & High/Med/Low Rating)
+        $cosData = [
             'CO1' => [
                 'name' => 'CO1: Core subject knowledge, principles, and course Outcomes mapping.',
-                'percent' => $respondedCount > 0 ? round((($averages['co1_q1'] + $averages['co1_q2']) / 2) / 3 * 100, 1) : 0
+                'pct' => $respondedCount > 0 ? round((($averages['co1_q1'] + $averages['co1_q2']) / 2) / 3 * 100, 1) : 0,
+                'avg' => $respondedCount > 0 ? round(($averages['co1_q1'] + $averages['co1_q2']) / 2, 2) : 0
             ],
             'CO2' => [
                 'name' => 'CO2: Analytical reasoning, problem-solving, and design methods.',
-                'percent' => $respondedCount > 0 ? round((($averages['co2_q3'] + $averages['co2_q4']) / 2) / 3 * 100, 1) : 0
+                'pct' => $respondedCount > 0 ? round((($averages['co2_q3'] + $averages['co2_q4']) / 2) / 3 * 100, 1) : 0,
+                'avg' => $respondedCount > 0 ? round(($averages['co2_q3'] + $averages['co2_q4']) / 2, 2) : 0
             ],
             'CO3' => [
                 'name' => 'CO3: Tool usage, lab execution, safety standards, and practical skills.',
-                'percent' => $respondedCount > 0 ? round((($averages['co3_q5'] + $averages['co3_q6']) / 2) / 3 * 100, 1) : 0
+                'pct' => $respondedCount > 0 ? round((($averages['co3_q5'] + $averages['co3_q6']) / 2) / 3 * 100, 1) : 0,
+                'avg' => $respondedCount > 0 ? round(($averages['co3_q5'] + $averages['co3_q6']) / 2, 2) : 0
             ],
             'CO4' => [
                 'name' => 'CO4: Continuous assessments, engineering ethics, and lifelong learning.',
-                'percent' => $respondedCount > 0 ? round((($averages['co4_q7'] + $averages['co4_q8'] + $averages['co4_q9']) / 3) / 3 * 100, 1) : 0
+                'pct' => $respondedCount > 0 ? round((($averages['co4_q7'] + $averages['co4_q8'] + $averages['co4_q9']) / 3) / 3 * 100, 1) : 0,
+                'avg' => $respondedCount > 0 ? round(($averages['co4_q7'] + $averages['co4_q8'] + $averages['co4_q9']) / 3, 2) : 0
             ]
         ];
+
+        $coAttainments = [];
+        foreach ($cosData as $coKey => $item) {
+            $pct = $item['pct'];
+            $level = ($pct >= 70) ? 3 : (($pct >= 60) ? 2 : (($pct >= 50) ? 1 : 0));
+            $rating = ($pct >= 70) ? 'High (Level 3)' : (($pct >= 60) ? 'Medium (Level 2)' : (($pct >= 50) ? 'Low (Level 1)' : 'Nil (Level 0)'));
+            $coAttainments[$coKey] = [
+                'name' => $item['name'],
+                'avg' => $item['avg'],
+                'percent' => $pct,
+                'level' => $level,
+                'rating' => $rating
+            ];
+        }
 
         return view('classroom_course_exit_report_print', [
             'subject' => $batchSubject,

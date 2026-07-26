@@ -121,6 +121,36 @@ class R26VirtualClassroomPracticumController extends Controller
             $lessonPlans = LessonPlan::where('batch_subject_id', $subjectId)
                 ->orderBy('day_no', 'asc')
                 ->get();
+        } else {
+            // Auto-classify P / SP rows if all rows were previously imported as 'L'
+            $hasLabModes = $lessonPlans->whereIn('mode', ['P', 'SP'])->count() > 0;
+            if (!$hasLabModes) {
+                foreach ($lessonPlans as $p) {
+                    $topic = $p->topic_content;
+                    $newMode = 'L';
+                    $newPedagogy = $p->pedagogy;
+
+                    if (str_contains($topic, 'Practical Series Exam') || str_contains($topic, 'Lab Test')) {
+                        $newMode = 'SP';
+                        $newPedagogy = 'Practical Series Exam (SP)';
+                    } elseif (str_contains($topic, 'Theory Series Exam') || str_contains($topic, 'Written Exam') || str_contains($topic, 'Written 1 Hour Test')) {
+                        $newMode = 'ST';
+                        $newPedagogy = 'Theory Series Exam (ST)';
+                    } elseif (str_contains($topic, 'EXP-') || str_contains($topic, 'Practical Session Topic') || str_contains($topic, 'Lab Series') || str_contains($topic, 'Practical Lab')) {
+                        $newMode = 'P';
+                        $newPedagogy = 'Practical Lab (P)';
+                    }
+
+                    if ($newMode !== $p->mode || empty($p->pedagogy)) {
+                        $p->mode = $newMode;
+                        $p->pedagogy = $newPedagogy;
+                        $p->save();
+                    }
+                }
+                $lessonPlans = LessonPlan::where('batch_subject_id', $subjectId)
+                    ->orderBy('day_no', 'asc')
+                    ->get();
+            }
         }
 
         // Fetch Attendance Records
@@ -223,18 +253,18 @@ class R26VirtualClassroomPracticumController extends Controller
             $stSlMarks = $slAcademicMarks->get($regNo, collect());
             if ($stSlMarks->count() > 0) {
                 $slScoreRaw = $stSlMarks->avg('marks_obtained') ?: 0.00;
-                $slMarks = round(($slScoreRaw / 15.0) * 5.0, 2);
+                $slMarks = round((($slScoreRaw / 15.0) * 5.0) * 2) / 2;
             } else {
                 $stSub = $slSubmissions->get($regNo, collect());
                 $slScoreRaw = $stSub->avg('score') ?: 0.00;
-                $slMarks = round(($slScoreRaw / 10.0) * 5.0, 2);
+                $slMarks = round((($slScoreRaw / 10.0) * 5.0) * 2) / 2;
             }
             if ($slMarks > 5.0) $slMarks = 5.0;
 
             // 3. Continuous Practical Evaluation (Max 10 CIA Marks)
             $stExps = $experimentEvals->get($regNo, collect());
             $avgExpScore50 = $stExps->avg('total_score_50') ?: 0.00;
-            $continuousEvalMarks = round(($avgExpScore50 / 50.0) * 10.0, 2);
+            $continuousEvalMarks = round((($avgExpScore50 / 50.0) * 10.0) * 2) / 2;
 
             // 4. Theory Series Exam Marks (4 CO 1-Hour Tests: CO1, CO2, CO3, CO4 - Max 10 CIA Marks)
             $stStEvals = $seriesTheoryEvals->get($regNo, collect());
@@ -247,7 +277,7 @@ class R26VirtualClassroomPracticumController extends Controller
             $st3Score = $st3 ? $st3->total_score_50 : 0.00;
             $st4Score = $st4 ? $st4->total_score_50 : 0.00;
             $avgTheorySeries50 = ($st1Score + $st2Score + $st3Score + $st4Score) / 4.0;
-            $seriesTheoryMarks = round(($avgTheorySeries50 / 50.0) * 10.0, 2);
+            $seriesTheoryMarks = round((($avgTheorySeries50 / 50.0) * 10.0) * 2) / 2;
 
             // 5. Practical Series Exam Marks (2 Tests: Test 1 CO1+CO2 & Test 2 CO3+CO4 - Max 10 CIA Marks)
             $stSpEvals = $seriesPracticalEvals->get($regNo, collect());
@@ -256,10 +286,10 @@ class R26VirtualClassroomPracticumController extends Controller
             $sp1Score = $sp1 ? $sp1->total_score_40 : 0.00;
             $sp2Score = $sp2 ? $sp2->total_score_40 : 0.00;
             $avgPracticalSeries40 = ($sp1Score + $sp2Score) / 2.0;
-            $seriesPracticalMarks = round(($avgPracticalSeries40 / 40.0) * 10.0, 2);
+            $seriesPracticalMarks = round((($avgPracticalSeries40 / 40.0) * 10.0) * 2) / 2;
 
             // Consolidated Total CIA Marks (Max 40)
-            $totalCiaMarks = round($attMarks + $slMarks + $continuousEvalMarks + $seriesTheoryMarks + $seriesPracticalMarks, 2);
+            $totalCiaMarks = round(($attMarks + $slMarks + $continuousEvalMarks + $seriesTheoryMarks + $seriesPracticalMarks) * 2) / 2;
 
             // ESE Marks & Grades (Fetch from stored ESE record, else fetch from student upload tables)
             $stEse = $eseMarks->get($regNo);
@@ -377,6 +407,31 @@ class R26VirtualClassroomPracticumController extends Controller
         $indirectStats = [];
         $combinedStats = [];
 
+        // Check Course Exit Survey data for indirect attainment
+        $exitSurvey = \DB::table('course_exit_surveys')
+            ->where('batch_subject_id', $subjectId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $exitSurveyResponses = collect();
+        if ($exitSurvey) {
+            $exitSurveyResponses = \DB::table('student_course_exit_responses')
+                ->where('exit_survey_id', $exitSurvey->id)
+                ->get();
+        }
+
+        $midSemSurvey = \DB::table('mid_semester_surveys')
+            ->where('batch_subject_id', $subjectId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $midSemResponses = collect();
+        if ($midSemSurvey) {
+            $midSemResponses = \DB::table('student_survey_responses')
+                ->where('survey_id', $midSemSurvey->id)
+                ->get();
+        }
+
         foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
             $attainedCount = $studentResults->filter(function($s) {
                 return $s['total_course_marks'] >= ($s['max_course_marks'] * 0.55);
@@ -391,8 +446,33 @@ class R26VirtualClassroomPracticumController extends Controller
                 'level' => $directLevel
             ];
 
+            // Compute indirect attainment level out of 3.0 from exit survey if available
             $indirectLevel = 2.5;
-            $indirectStats[$coTag] = ['level' => $indirectLevel];
+            $indirectAvg = 2.50;
+            $indirectPct = 83.3;
+
+            if ($exitSurveyResponses->count() > 0) {
+                if ($coTag === 'CO1') {
+                    $indirectAvg = ($exitSurveyResponses->avg('co1_q1') + $exitSurveyResponses->avg('co1_q2')) / 2;
+                } elseif ($coTag === 'CO2') {
+                    $indirectAvg = ($exitSurveyResponses->avg('co2_q3') + $exitSurveyResponses->avg('co2_q4')) / 2;
+                } elseif ($coTag === 'CO3') {
+                    $indirectAvg = ($exitSurveyResponses->avg('co3_q5') + $exitSurveyResponses->avg('co3_q6')) / 2;
+                } else {
+                    $indirectAvg = ($exitSurveyResponses->avg('co4_q7') + $exitSurveyResponses->avg('co4_q8') + $exitSurveyResponses->avg('co4_q9')) / 3;
+                }
+                $indirectPct = ($indirectAvg / 3.0) * 100;
+                $indirectLevel = ($indirectPct >= 70) ? 3.0 : (($indirectPct >= 60) ? 2.0 : (($indirectPct >= 50) ? 1.0 : 0.0));
+            }
+
+            $rating = ($indirectPct >= 70) ? 'High' : (($indirectPct >= 60) ? 'Medium' : (($indirectPct >= 50) ? 'Low' : 'Nil'));
+
+            $indirectStats[$coTag] = [
+                'avg_score' => round($indirectAvg, 2),
+                'percentage' => round($indirectPct, 1),
+                'level' => $indirectLevel,
+                'rating' => $rating
+            ];
 
             $combinedLevel = round((0.80 * $directLevel) + (0.20 * $indirectLevel), 2);
             $combinedStats[$coTag] = $combinedLevel;
@@ -451,7 +531,11 @@ class R26VirtualClassroomPracticumController extends Controller
             'slStudentSplitup',
             'slConfigs',
             'subjectType',
-            'seriesQps'
+            'seriesQps',
+            'midSemSurvey',
+            'exitSurvey',
+            'midSemResponses',
+            'exitSurveyResponses'
         ));
     }
 
@@ -670,32 +754,29 @@ class R26VirtualClassroomPracticumController extends Controller
 
         foreach ($marksData as $row) {
             $regNo = $row['reg_no'];
-            $grade = $row['ese_theory_grade'] ?? null;
-            $tAbs = !empty($row['theory_absent']);
-            $pAbs = !empty($row['practical_absent']);
+            $record = R26PracticumEseMark::firstOrNew([
+                'batch_subject_id' => $subjectId,
+                'reg_no' => $regNo
+            ]);
 
-            if ($tAbs) {
-                $grade = 'FE';
+            if (array_key_exists('ese_theory_grade', $row)) {
+                $grade = $row['ese_theory_grade'];
+                $tAbs = !empty($row['theory_absent']);
+                if ($tAbs) { $grade = 'FE'; }
+                $record->ese_theory_grade = $grade;
+                $record->ese_theory_marks = $tAbs ? 0.00 : $this->convertGradeToMarks($grade);
+                $record->theory_absent = $tAbs;
             }
 
-            $et = $this->convertGradeToMarks($grade);
-            $ep = floatval($row['ese_practical_marks'] ?? 0);
-            $totalEse = ($tAbs ? 0.00 : $et) + ($pAbs ? 0.00 : $ep);
+            if (array_key_exists('ese_practical_marks', $row)) {
+                $pAbs = !empty($row['practical_absent']);
+                $ep = floatval($row['ese_practical_marks']);
+                $record->ese_practical_marks = $pAbs ? 0.00 : $ep;
+                $record->practical_absent = $pAbs;
+            }
 
-            R26PracticumEseMark::updateOrCreate(
-                [
-                    'batch_subject_id' => $subjectId,
-                    'reg_no' => $regNo
-                ],
-                [
-                    'ese_theory_marks' => $tAbs ? 0.00 : $et,
-                    'ese_theory_grade' => $grade,
-                    'ese_practical_marks' => $pAbs ? 0.00 : $ep,
-                    'total_ese_marks' => $totalEse,
-                    'theory_absent' => $tAbs,
-                    'practical_absent' => $pAbs
-                ]
-            );
+            $record->total_ese_marks = ($record->theory_absent ? 0.00 : floatval($record->ese_theory_marks)) + ($record->practical_absent ? 0.00 : floatval($record->ese_practical_marks));
+            $record->save();
         }
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'ESE marks and grades saved successfully!']);
@@ -731,25 +812,25 @@ class R26VirtualClassroomPracticumController extends Controller
 
             $stSub = $slSubmissions->get($regNo, collect());
             $slScoreRaw = $stSub->avg('score') ?: 0.00;
-            $slMarks = min(5.0, round(($slScoreRaw / 10.0) * 5.0, 2));
+            $slMarks = min(5.0, round((($slScoreRaw / 10.0) * 5.0) * 2) / 2);
 
             $stExps = $experimentEvals->get($regNo, collect());
             $avgExpScore50 = $stExps->avg('total_score_50') ?: 0.00;
-            $continuousEvalMarks = round(($avgExpScore50 / 50.0) * 10.0, 2);
+            $continuousEvalMarks = round((($avgExpScore50 / 50.0) * 10.0) * 2) / 2;
 
             $stStEvals = $seriesTheoryEvals->get($regNo, collect());
             $st1 = $stStEvals->where('series_no', 'Series 1')->first();
             $st2 = $stStEvals->where('series_no', 'Series 2')->first();
             $avgTheorySeries50 = (($st1 ? $st1->total_score_50 : 0) + ($st2 ? $st2->total_score_50 : 0)) / 2.0;
-            $seriesTheoryMarks = round(($avgTheorySeries50 / 50.0) * 10.0, 2);
+            $seriesTheoryMarks = round((($avgTheorySeries50 / 50.0) * 10.0) * 2) / 2;
 
             $stSpEvals = $seriesPracticalEvals->get($regNo, collect());
             $sp1 = $stSpEvals->where('series_no', 'Series 1')->first();
             $sp2 = $stSpEvals->where('series_no', 'Series 2')->first();
             $avgPracticalSeries40 = (($sp1 ? $sp1->total_score_40 : 0) + ($sp2 ? $sp2->total_score_40 : 0)) / 2.0;
-            $seriesPracticalMarks = round(($avgPracticalSeries40 / 40.0) * 10.0, 2);
+            $seriesPracticalMarks = round((($avgPracticalSeries40 / 40.0) * 10.0) * 2) / 2;
 
-            $totalCiaMarks = round($attMarks + $slMarks + $continuousEvalMarks + $seriesTheoryMarks + $seriesPracticalMarks, 2);
+            $totalCiaMarks = round(($attMarks + $slMarks + $continuousEvalMarks + $seriesTheoryMarks + $seriesPracticalMarks) * 2) / 2;
 
             return [
                 'reg_no' => $student->reg_no,
@@ -1495,8 +1576,15 @@ class R26VirtualClassroomPracticumController extends Controller
                 'Series 2', 'CO2' => 'CO2',
                 'Series 3', 'CO3' => 'CO3',
                 'Series 4', 'CO4' => 'CO4',
+                'Practical Series 1', 'Test 1 (CO1+CO2)' => 'CO1+CO2',
+                'Practical Series 2', 'Test 2 (CO3+CO4)' => 'CO3+CO4',
                 default => 'CO1'
             };
+
+            $isPractical = (strpos($seriesNo, 'Practical') !== false || strpos($seriesNo, 'Test 1') !== false || strpos($seriesNo, 'Test 2') !== false);
+            if ($isPractical) {
+                $patternType = 'practical_series';
+            }
 
             // ── Try question bank first ────────────────────────────────────
             $bankGrouped = \App\Models\R26QuestionBank::getForSubjectCo(
@@ -1582,7 +1670,36 @@ class R26VirtualClassroomPracticumController extends Controller
                         $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
                             ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
                         
-                        $prompt = "You are an expert university engineering examiner.
+                        if ($patternType === 'practical_series') {
+                            $prompt = "You are an expert engineering college lab examiner.
+Generate a complete practical series exam question paper for: '{$coTag}'
+Course Name: '{$batchSubject->subject_name}' (Code: '{$batchSubject->subject_code}')
+Department: '" . ($classroom->branch ?? 'Engineering') . "'
+
+Generate exactly 2 alternative practical tasks for 'part_a' (each task is worth 40 marks, cognitive level 'Apply' or 'Analyze').
+Each task must be a practical lab experiment task relevant to this course.
+
+For EACH task, you must provide:
+1. 'scheme_key': Detailed rubric marking split based on Table 3.1: Writeup & Procedure (10M) + Setup & Execution (10M) + Observation & Result (10M) + Viva Voce (5M) + Record Completion (5M) = 40 Marks total.
+2. 'answer_key': The model answer/key details (expected circuit/block diagram, apparatus list, steps, and expected readings).
+
+Return ONLY a valid JSON object matching the exact schema:
+{
+  \"part_a\": [
+    {
+      \"q_no\": \"1\",
+      \"text\": \"Practical Task 1 description...\",
+      \"marks\": 40,
+      \"co\": \"{$coTag}\",
+      \"bloom\": \"Apply\",
+      \"choice_group\": \"Answer any ONE\",
+      \"scheme_key\": \"1. Writeup & Procedure: 10 Marks\\n2. Setup & Execution: 10 Marks\\n3. Observation & Result: 10 Marks\\n4. Viva Voce: 5 Marks\\n5. Record Completion: 5 Marks\",
+      \"answer_key\": \"Expected diagram, readings, and procedure...\"
+    }
+  ]
+}";
+                        } else {
+                            $prompt = "You are an expert university engineering examiner.
 Generate a complete examination question paper for the course outcome: '{$coTag}'
 Course: '{$batchSubject->subject_name}' (Code: '{$batchSubject->subject_code}')
 Department/Branch: '" . ($classroom->branch ?? 'Engineering') . "'
@@ -1627,6 +1744,7 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
     ...
   ]
 }";
+                        }
 
                         $response = \Illuminate\Support\Facades\Http::timeout(60)->post(
                             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={$apiKey}",
@@ -1660,51 +1778,92 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
                 }
 
                 if (!$geminiSuccess) {
-                    // Parse syllabus module content into key topics
-                    $topics = array_filter(array_map('trim', explode(',', $moduleContent)));
-                    if (count($topics) < 3) {
-                        $topics = array_filter(array_map('trim', explode(';', $moduleContent)));
-                    }
-                    $topics = array_values(array_unique($topics));
-                    while (count($topics) < 8) {
-                        $topics[] = $coDesc;
-                    }
+                    if ($patternType === 'practical_series') {
+                        $targetCos = ($coTag === 'CO1+CO2') ? ['CO1', 'CO2'] : ['CO3', 'CO4'];
+                        $filteredExps = [];
+                        if ($practicumFile && $practicumFile->parsed_experiments) {
+                            $allExps = is_array($practicumFile->parsed_experiments) ? $practicumFile->parsed_experiments : json_decode($practicumFile->parsed_experiments, true);
+                            foreach ($allExps as $e) {
+                                $eCo = $e['co_id'] ?? $e['co'] ?? '';
+                                if (in_array($eCo, $targetCos)) {
+                                    $filteredExps[] = $e;
+                                }
+                            }
+                        }
 
-                    // Generate customized QP Data from the actual syllabus topics
-                    if ($patternType === 'table_4_2_design') {
+                        if (empty($filteredExps)) {
+                            $filteredExps = [
+                                ['experiment_no' => 'EXP-01', 'title' => 'Identification and testing of passive components', 'co_id' => 'CO1'],
+                                ['experiment_no' => 'EXP-02', 'title' => 'Series and Parallel Resistor circuit construction and testing', 'co_id' => 'CO2'],
+                                ['experiment_no' => 'EXP-03', 'title' => 'PN Junction Diode characteristics plotting', 'co_id' => 'CO3'],
+                                ['experiment_no' => 'EXP-04', 'title' => 'PCB layout preparation and soldering practice', 'co_id' => 'CO4']
+                            ];
+                        }
+
                         $qpData = [
-                            'part_a' => [
-                                ['q_no' => '1', 'text' => "State the key design criteria and basic working equations for {$topics[0]} system.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Define design criteria (2M) + write standard equations (3M)", 'answer_key' => "Governing mathematical equations and design criteria details for {$topics[0]}."],
-                                ['q_no' => '2', 'text' => "Explain the safety factors, stress margins, and tolerance limits applicable in {$topics[1]}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Safety margin definition (2M) + stress limits explanation (3M)", 'answer_key' => "Stress limits, safety margins, and tolerance values defined for {$topics[1]}."],
-                                ['q_no' => '3', 'text' => "Describe the step-by-step layout design and drafting procedure for {$topics[2]} component.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Procedural steps listed (3M) + block layout diagram (2M)", 'answer_key' => "Complete layout drafting steps and procedural design parameters for {$topics[2]}."],
-                                ['q_no' => '4', 'text' => "List the functional material specifications, standards, and dimensions for {$topics[3]}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Material standard grades (2M) + dimension listing (3M)", 'answer_key' => "BIS / ISO grade specifications and standard dimensions for {$topics[3]}."],
-                                ['q_no' => '5', 'text' => "Apply the principles of {$topics[4]} to explain its functional requirements and fits.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Functional requirements (2M) + fit explanation (3M)", 'answer_key' => "Requirements analysis and selection of correct mechanical/electrical fits for {$topics[4]}."],
-                                ['q_no' => '6', 'text' => "Identify the boundary conditions and load characteristics for {$topics[5]} system under test.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Boundary conditions identified (2M) + load curve (3M)", 'answer_key' => "Load conditions, constraints, and boundary criteria for {$topics[5]}."],
-                            ],
-                            'part_b' => [
-                                ['q_no' => '7(a)', 'text' => "Design and analyze the structural setup for {$topics[6]} given standard operating conditions.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "Design setup (2M) + calculation steps (5M) + schematic diagram (3M)", 'answer_key' => "Complete analytical solution, calculations, and schematic diagram for {$topics[6]}."],
-                                ['q_no' => '7(b)', 'text' => "OR: Develop a comprehensive schematic design layout and detailed CAD drafting plan for {$topics[7]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "Schematic layout (4M) + drafting sequence (4M) + annotations (2M)", 'answer_key' => "CAD drafting plan, annotations, and orthographic projections for {$topics[7]}."],
-                                ['q_no' => '8(a)', 'text' => "Perform complete stress-strain analysis and dimension optimization for {$topics[0]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Optimized design setup (3M) + analysis details (5M) + conclusion (2M)", 'answer_key' => "Optimized parameters and strain analysis calculations for {$topics[0]}."],
-                                ['q_no' => '8(b)', 'text' => "OR: Formulate design equations and draw detailed cross-sectional assembly views for {$topics[1]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Formulated equations (4M) + cross-section layout (4M) + labelling (2M)", 'answer_key' => "Assembled sectional views, labels, and mathematical design for {$topics[1]}."],
-                            ]
+                            'part_a' => []
                         ];
+                        $idx = 1;
+                        foreach ($filteredExps as $exp) {
+                            $qpData['part_a'][] = [
+                                'q_no' => strval($idx++),
+                                'text' => "Perform the practical experiment: " . ($exp['title'] ?? ''),
+                                'marks' => 40,
+                                'co' => $exp['co_id'] ?? $coTag,
+                                'bloom' => 'Apply',
+                                'choice_group' => 'Answer any ONE',
+                                'scheme_key' => "1. Writeup & Procedure: 10 Marks\n2. Setup & Execution: 10 Marks\n3. Observation & Result: 10 Marks\n4. Viva Voce: 5 Marks\n5. Record Completion: 5 Marks",
+                                'answer_key' => "Expected circuit/block diagram, apparatus list, standard steps, and sample observation readings for " . ($exp['title'] ?? '')
+                            ];
+                            if ($idx > 2) break; // Limit to 2 choice tasks
+                        }
                     } else {
-                        $qpData = [
-                            'part_a' => [
-                                ['q_no' => '1', 'text' => "Define the fundamental concept and primary function of {$topics[0]}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => "Correct definition or function = 1M", 'answer_key' => "Standard definition of {$topics[0]} as per the syllabus."],
-                                ['q_no' => '2', 'text' => "State the standard unit, formula, or law governing the operation of {$topics[1]}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => "Correct law, unit or formula = 1M", 'answer_key' => "Governing law / formula / SI unit for {$topics[1]}."],
-                            ],
-                            'part_b' => [
-                                ['q_no' => '3', 'text' => "Explain the operating mechanism of {$topics[2]} using a block schematic or circuit diagram.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Functional explanation (2M) + block/circuit diagram (1M)", 'answer_key' => "Schematic representation and process explanation for {$topics[2]}."],
-                                ['q_no' => '4', 'text' => "Distinguish between the primary features and secondary features of {$topics[3]}.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Comparison points listed (3M)", 'answer_key' => "At least 3 valid comparison points for {$topics[3]} characteristics."],
-                                ['q_no' => '5', 'text' => "Derive the mathematical expression or setup equation for {$topics[4]} output response.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Derivation setup (1M) + step-by-step derivation (2M)", 'answer_key' => "Analytical derivation leading to standard expression for {$topics[4]}."],
-                            ],
-                            'part_c' => [
-                                ['q_no' => '6', 'text' => "Design and analyze a complete {$topics[5]} system to satisfy the given system specifications.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Circuit/System setup (2M) + calculations (3M) + diagram/schematic (2M)", 'answer_key' => "Complete layout, design specifications, and schematic diagram for {$topics[5]}."],
-                                ['q_no' => '7', 'text' => "Evaluate the performance parameters and construct detailed working equations for {$topics[6]}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Parameters list (2M) + working equations (3M) + validation (2M)", 'answer_key' => "Performance validation and mathematical models for {$topics[6]}."],
-                                ['q_no' => '8', 'text' => "Formulate and solve the implementation or application problem for {$topics[7]} with complete working.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Problem setup (2M) + step-by-step solution (4M) + final results (1M)", 'answer_key' => "Full design solution, steps, and final results for {$topics[7]} application."],
-                            ]
-                        ];
+                        // Parse syllabus module content into key topics
+                        $topics = array_filter(array_map('trim', explode(',', $moduleContent)));
+                        if (count($topics) < 3) {
+                            $topics = array_filter(array_map('trim', explode(';', $moduleContent)));
+                        }
+                        $topics = array_values(array_unique($topics));
+                        while (count($topics) < 8) {
+                            $topics[] = $coDesc;
+                        }
+
+                        // Generate customized QP Data from the actual syllabus topics
+                        if ($patternType === 'table_4_2_design') {
+                            $qpData = [
+                                'part_a' => [
+                                    ['q_no' => '1', 'text' => "State the key design criteria and basic working equations for {$topics[0]} system.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Define design criteria (2M) + write standard equations (3M)", 'answer_key' => "Governing mathematical equations and design criteria details for {$topics[0]}."],
+                                    ['q_no' => '2', 'text' => "Explain the safety factors, stress margins, and tolerance limits applicable in {$topics[1]}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Safety margin definition (2M) + stress limits explanation (3M)", 'answer_key' => "Stress limits, safety margins, and tolerance values defined for {$topics[1]}."],
+                                    ['q_no' => '3', 'text' => "Describe the step-by-step layout design and drafting procedure for {$topics[2]} component.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Procedural steps listed (3M) + block layout diagram (2M)", 'answer_key' => "Complete layout drafting steps and procedural design parameters for {$topics[2]}."],
+                                    ['q_no' => '4', 'text' => "List the functional material specifications, standards, and dimensions for {$topics[3]}.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Material standard grades (2M) + dimension listing (3M)", 'answer_key' => "BIS / ISO grade specifications and standard dimensions for {$topics[3]}."],
+                                    ['q_no' => '5', 'text' => "Apply the principles of {$topics[4]} to explain its functional requirements and fits.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Functional requirements (2M) + fit explanation (3M)", 'answer_key' => "Requirements analysis and selection of correct mechanical/electrical fits for {$topics[4]}."],
+                                    ['q_no' => '6', 'text' => "Identify the boundary conditions and load characteristics for {$topics[5]} system under test.", 'marks' => 5, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Boundary conditions identified (2M) + load curve (3M)", 'answer_key' => "Load conditions, constraints, and boundary criteria for {$topics[5]}."],
+                                ],
+                                'part_b' => [
+                                    ['q_no' => '7(a)', 'text' => "Design and analyze the structural setup for {$topics[6]} given standard operating conditions.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "Design setup (2M) + calculation steps (5M) + schematic diagram (3M)", 'answer_key' => "Complete analytical solution, calculations, and schematic diagram for {$topics[6]}."],
+                                    ['q_no' => '7(b)', 'text' => "OR: Develop a comprehensive schematic design layout and detailed CAD drafting plan for {$topics[7]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "Schematic layout (4M) + drafting sequence (4M) + annotations (2M)", 'answer_key' => "CAD drafting plan, annotations, and orthographic projections for {$topics[7]}."],
+                                    ['q_no' => '8(a)', 'text' => "Perform complete stress-strain analysis and dimension optimization for {$topics[0]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Optimized design setup (3M) + analysis details (5M) + conclusion (2M)", 'answer_key' => "Optimized parameters and strain analysis calculations for {$topics[0]}."],
+                                    ['q_no' => '8(b)', 'text' => "OR: Formulate design equations and draw detailed cross-sectional assembly views for {$topics[1]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Formulated equations (4M) + cross-section layout (4M) + labelling (2M)", 'answer_key' => "Assembled sectional views, labels, and mathematical design for {$topics[1]}."],
+                                ]
+                            ];
+                        } else {
+                            $qpData = [
+                                'part_a' => [
+                                    ['q_no' => '1', 'text' => "Define the fundamental concept and primary function of {$topics[0]}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => "Correct definition or function = 1M", 'answer_key' => "Standard definition of {$topics[0]} as per the syllabus."],
+                                    ['q_no' => '2', 'text' => "State the standard unit, formula, or law governing the operation of {$topics[1]}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => "Correct law, unit or formula = 1M", 'answer_key' => "Governing law / formula / SI unit for {$topics[1]}."],
+                                ],
+                                'part_b' => [
+                                    ['q_no' => '3', 'text' => "Explain the operating mechanism of {$topics[2]} using a block schematic or circuit diagram.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Functional explanation (2M) + block/circuit diagram (1M)", 'answer_key' => "Schematic representation and process explanation for {$topics[2]}."],
+                                    ['q_no' => '4', 'text' => "Distinguish between the primary features and secondary features of {$topics[3]}.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Understand', 'scheme_key' => "Comparison points listed (3M)", 'answer_key' => "At least 3 valid comparison points for {$topics[3]} characteristics."],
+                                    ['q_no' => '5', 'text' => "Derive the mathematical expression or setup equation for {$topics[4]} output response.", 'marks' => 3, 'co' => $coTag, 'bloom' => 'Apply', 'scheme_key' => "Derivation setup (1M) + step-by-step derivation (2M)", 'answer_key' => "Analytical derivation leading to standard expression for {$topics[4]}."],
+                                ],
+                                'part_c' => [
+                                    ['q_no' => '6', 'text' => "Design and analyze a complete {$topics[5]} system to satisfy the given system specifications.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Circuit/System setup (2M) + calculations (3M) + diagram/schematic (2M)", 'answer_key' => "Complete layout, design specifications, and schematic diagram for {$topics[5]}."],
+                                    ['q_no' => '7', 'text' => "Evaluate the performance parameters and construct detailed working equations for {$topics[6]}.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Parameters list (2M) + working equations (3M) + validation (2M)", 'answer_key' => "Performance validation and mathematical models for {$topics[6]}."],
+                                    ['q_no' => '8', 'text' => "Formulate and solve the implementation or application problem for {$topics[7]} with complete working.", 'marks' => 7, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Answer any 2 of 3', 'scheme_key' => "Problem setup (2M) + step-by-step solution (4M) + final results (1M)", 'answer_key' => "Full design solution, steps, and final results for {$topics[7]} application."],
+                                ]
+                            ];
+                        }
                     }
                 }
             }
@@ -1747,8 +1906,8 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
                 [
                     'co_tag'           => $coTag,
                     'pattern_type'     => $patternType,
-                    'max_marks'        => ($patternType === 'table_4_2_design') ? 50 : 25,
-                    'duration_minutes' => (str_contains($coTag, '+') || str_contains($coTag, ',')) ? 180 : 60,
+                    'max_marks'        => ($patternType === 'practical_series') ? 40 : (($patternType === 'table_4_2_design') ? 50 : 25),
+                    'duration_minutes' => ($patternType === 'practical_series' || str_contains($coTag, '+') || str_contains($coTag, ',')) ? 180 : 60,
                     'qp_data'          => $qpData,
                     'scheme_data'      => $schemeData,
                     'answer_key'       => $answerKey,

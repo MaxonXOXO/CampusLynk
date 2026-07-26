@@ -72,11 +72,11 @@ if (!function_exists('getBtShort')) {
             <div><span class="font-bold">Subject:</span> {{ $practicumCourseFile->course_title ?: $batchSubject->subject_name }}</div>
             <div><span class="font-bold">Code:</span> {{ $batchSubject->subject_code }}</div>
             <div><span class="font-bold">Batch:</span> {{ $batchName }}</div>
-            <div><span class="font-bold">Series Exam:</span> {{ $seriesNo }} | Max: {{ $qpRecord->max_marks ?? 50 }} Marks</div>
-            <div><span class="font-bold">Pattern:</span> {{ $qpRecord->pattern_type === 'table_4_2_design' ? 'Table 4.2 Design Paper' : 'Table 4.1 Standard' }}</div>
+            <div><span class="font-bold">Series Exam:</span> {{ $seriesNo }} | Max: {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'practical_series' ? 40 : ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25)) }} Marks</div>
+            <div><span class="font-bold">Pattern:</span> {{ $qpRecord->pattern_type === 'practical_series' ? 'Practical Series Exam (Table 3.1 Rubrics)' : ($qpRecord->pattern_type === 'table_4_2_design' ? 'Table 4.2 Design Paper' : 'Table 4.1 Standard') }}</div>
             <div><span class="font-bold">Prepared by:</span> {{ $lecturerName }}</div>
         </div>
-
+ 
         @php
             $qp  = $qpRecord->qp_data ?? [];
             $key = $qpRecord->answer_key ?? [];
@@ -88,18 +88,18 @@ if (!function_exists('getBtShort')) {
                 }
             }
         @endphp
-
+ 
         @foreach ([
             'part_a' => $qp['part_a'] ?? [],
             'part_b' => $qp['part_b'] ?? [],
             'part_c' => $qp['part_c'] ?? [],
         ] as $partKey => $questions)
-
+ 
         @if(!empty($questions))
-
+ 
         @php
             $partLabel = match($partKey) {
-                'part_a' => $qpRecord->pattern_type === 'table_4_2_design' ? 'PART A — 6 × 5 = 30 Marks' : 'PART A — 4 × 1 = 4 Marks',
+                'part_a' => $qpRecord->pattern_type === 'practical_series' ? 'PART A — Practical Tasks (Answer any ONE Question × 40 Marks)' : ($qpRecord->pattern_type === 'table_4_2_design' ? 'PART A — 6 × 5 = 30 Marks' : 'PART A — 4 × 1 = 4 Marks'),
                 'part_b' => $qpRecord->pattern_type === 'table_4_2_design' ? 'PART B — 2 × 10 = 20 Marks' : 'PART B — 6 × 3 = 18 Marks',
                 'part_c' => 'PART C — 4 × 7 = 28 Marks',
                 default  => strtoupper($partKey),
@@ -144,12 +144,14 @@ if (!function_exists('getBtShort')) {
 
         <!-- Total -->
         <div class="border-t-2 border-slate-900 pt-3 mt-4 flex justify-between text-sm font-bold text-slate-800">
-            @if($qpRecord->pattern_type === 'table_4_2_design')
+            @if($qpRecord->pattern_type === 'practical_series')
+            <span>PART A (Practical Tasks) = 40 Marks | 3 Hours</span>
+            @elseif($qpRecord->pattern_type === 'table_4_2_design')
             <span>Part A (30M) + Part B (20M) = 50 Marks | {{ (str_contains($qpRecord->co_tag ?? '', '+') || str_contains($qpRecord->co_tag ?? '', ',')) ? '3 Hours' : '1 Hour' }}</span>
             @else
             <span>Part A (2M) + Part B (9M) + Part C (2 of 3 × 7 = 14M) = 25 Marks | {{ (str_contains($qpRecord->co_tag ?? '', '+') || str_contains($qpRecord->co_tag ?? '', ',')) ? '3 Hours' : '1 Hour' }}</span>
             @endif
-            <span>Scaled CIA Mark: {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25) }}M → 10 CIA Marks</span>
+            <span>Scaled CIA Mark: {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'practical_series' ? 40 : ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25)) }}M → 10 CIA Marks</span>
         </div>
 
         <!-- Signature -->

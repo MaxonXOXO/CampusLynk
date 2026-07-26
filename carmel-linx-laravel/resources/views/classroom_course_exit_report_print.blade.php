@@ -248,14 +248,25 @@
         </div>
 
         <!-- CO Attainments Summary -->
-        <div class="section-title">Indirect Course Outcome (CO) Attainment Summaries</div>
+        <div class="section-title">Indirect Course Outcome (CO) Attainment Summaries & Scaling</div>
+        
+        <!-- Scaling Standard Legend Box -->
+        <div style="margin-bottom: 12px; padding: 8px 12px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; color: #334155;">
+            <strong>NBA CO Attainment Scaling Standard:</strong> &nbsp;
+            <span style="display: inline-block; margin-right: 15px;"><strong>Level 3 (High):</strong> &ge; 70%</span>
+            <span style="display: inline-block; margin-right: 15px;"><strong>Level 2 (Medium):</strong> 60% &ndash; 69%</span>
+            <span style="display: inline-block; margin-right: 15px;"><strong>Level 1 (Low):</strong> 50% &ndash; 59%</span>
+            <span style="display: inline-block;"><strong>Level 0 (Nil):</strong> &lt; 50%</span>
+        </div>
+
         <table>
             <thead>
                 <tr>
-                    <th style="width: 15%;">CO Identifier</th>
-                    <th style="width: 55%;">Course Outcome Statement & Mapping Description</th>
-                    <th style="width: 15%; text-align: center;">Average (Scale 1-3)</th>
-                    <th style="width: 15%; text-align: center;">Attainment (%)</th>
+                    <th style="width: 12%;">CO Identifier</th>
+                    <th style="width: 48%;">Course Outcome Statement & Mapping Description</th>
+                    <th style="width: 13%; text-align: center;">Average (1-3)</th>
+                    <th style="width: 12%; text-align: center;">Attainment (%)</th>
+                    <th style="width: 15%; text-align: center;">Level & Scaling</th>
                 </tr>
             </thead>
             <tbody>
@@ -265,18 +276,15 @@
                     <td style="font-weight: 500;">{{ $coData['name'] }}</td>
                     <td style="text-align: center;">
                         <span class="score-badge">
-                            @if($coKey === 'CO1')
-                                {{ round(($averages['co1_q1'] + $averages['co1_q2']) / 2, 2) }}
-                            @elseif($coKey === 'CO2')
-                                {{ round(($averages['co2_q3'] + $averages['co2_q4']) / 2, 2) }}
-                            @elseif($coKey === 'CO3')
-                                {{ round(($averages['co3_q5'] + $averages['co3_q6']) / 2, 2) }}
-                            @elseif($coKey === 'CO4')
-                                {{ round(($averages['co4_q7'] + $averages['co4_q8'] + $averages['co4_q9']) / 3, 2) }}
-                            @endif
+                            {{ number_format($coData['avg'], 2) }} / 3.0
                         </span>
                     </td>
                     <td style="text-align: center;" class="attainment-value">{{ $coData['percent'] }}%</td>
+                    <td style="text-align: center;">
+                        <span style="font-weight: 800; padding: 2px 8px; border-radius: 4px; font-size: 12px; {{ $coData['level'] == 3 ? 'background:#dcfce7; color:#15803d;' : ($coData['level'] == 2 ? 'background:#fef9c3; color:#a16207;' : ($coData['level'] == 1 ? 'background:#ffedd5; color:#c2410c;' : 'background:#fee2e2; color:#b91c1c;')) }}">
+                            Level {{ $coData['level'] }} ({{ $coData['level'] == 3 ? 'High' : ($coData['level'] == 2 ? 'Medium' : ($coData['level'] == 1 ? 'Low' : 'Nil')) }})
+                        </span>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>

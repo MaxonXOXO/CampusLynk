@@ -164,7 +164,7 @@
         <thead>
             <tr>
                 <th style="width: 5%">Roll</th>
-                <th style="width: 12%">Reg No</th>
+                <th style="width: 12%">SBTE Reg No</th>
                 <th style="width: 22%">Student Name</th>
                 <th style="width: 10%">Lab Work<br>(37.5)</th>
                 <th style="width: 8%">Test 1<br>(15)</th>

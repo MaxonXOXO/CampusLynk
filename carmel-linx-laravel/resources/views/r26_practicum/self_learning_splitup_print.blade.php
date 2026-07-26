@@ -61,7 +61,6 @@
         <thead>
             <tr class="bg-slate-200 text-slate-900 font-bold border-b border-slate-400">
                 <th class="border border-slate-400 p-2 text-center w-10">Roll</th>
-                <th class="border border-slate-400 p-2 w-24">Reg No</th>
                 <th class="border border-slate-400 p-2 w-28">SBTE Reg No</th>
                 <th class="border border-slate-400 p-2">Student Name</th>
                 <th class="border border-slate-400 p-2 text-center">CO1 Splitup (/15)</th>
@@ -88,8 +87,7 @@
             @endphp
             <tr class="border-b border-slate-300">
                 <td class="border border-slate-300 p-1.5 text-center font-bold">{{ $st->roll_no }}</td>
-                <td class="border border-slate-300 p-1.5 font-mono">{{ $st->reg_no }}</td>
-                <td class="border border-slate-300 p-1.5 font-mono text-emerald-800 font-bold">{{ $st->sbte_reg_no ?: '-' }}</td>
+                <td class="border border-slate-300 p-1.5 font-mono text-emerald-800 font-bold">{{ $st->sbte_reg_no ?: $st->reg_no }}</td>
                 <td class="border border-slate-300 p-1.5 font-bold text-slate-900">{{ $st->name }}</td>
                 <td class="border border-slate-300 p-1.5 text-[11px]">{{ $co1Str ?: '-' }}</td>
                 <td class="border border-slate-300 p-1.5 text-[11px]">{{ $co2Str ?: '-' }}</td>

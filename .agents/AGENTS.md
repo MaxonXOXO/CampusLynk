@@ -18,3 +18,18 @@
 - **Clean Structure Rendering:** Filter out empty or blank Course Outcomes and Modules (such as V and VI) in dashboard views (`renderCourseStructure`) to dynamically reflect the actual structure.
 - **Series Tests Configuration:** Automatically append exactly 4 Series Tests sequentially at the end of the semester layout, scaling the plan to the target hours perfectly.
 - **Template System Integrity:** Always load cross-batch templates directly by querying rows from the `lesson_plan_templates` table (`day_no`, `co_id`, `topic_content`, etc.), rather than looking for a single non-existent `template_data` JSON column.
+
+## Revision 2026 Official Grading System Standard
+- **Official Letter Grade Scale:** Always use the official 7-grade scale for all Revision 2026 (R2026) courses across theory, lab, and practicum subjects:
+  - **S** (90% and above — Outstanding, Grade Point: 10)
+  - **A** ([80 – 90) — Excellent, Grade Point: 9)
+  - **B** ([70 – 80) — Very Good, Grade Point: 8)
+  - **C** ([60 – 70) — Good, Grade Point: 7)
+  - **D** ([50 – 60) — Average, Grade Point: 6)
+  - **E** ([40 – 50) — Satisfactory, Grade Point: 5)
+  - **F** (Below 40 — Reappearance Required, Grade Point: 0)
+- **Strict Letter Grade Enforcement:** Never use non-standard grades like `A+`, `B+`, or `O` for Revision 2026 evaluation. Always adhere strictly to `S, A, B, C, D, E, F`.
+
+## No Font Glow / Text Shadow Policy
+- **NO Text Glows:** Do not use `text-shadow`, glowing text effects, neon glow CSS, or glowing font shadows on titles, headings, badges, or text anywhere in the interface. Font glows create visual fatigue and eye strain.
+- **Clean Solid Typography:** Always render text, headers, titles, labels, and badges with crisp, solid high-contrast colors (e.g., solid white, slate, indigo, emerald) without blur, neon effects, or glowing text shadows.

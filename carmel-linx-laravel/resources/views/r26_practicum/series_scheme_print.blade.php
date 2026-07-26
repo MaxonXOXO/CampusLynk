@@ -67,14 +67,41 @@ if (!function_exists('getBtShort')) {
             <div><span class="font-bold">Subject:</span> {{ $practicumCourseFile->course_title ?: $batchSubject->subject_name }}</div>
             <div><span class="font-bold">Code:</span> {{ $batchSubject->subject_code }}</div>
             <div><span class="font-bold">Batch:</span> {{ $batchName }}</div>
-            <div><span class="font-bold">Series Exam:</span> {{ $seriesNo }} | Max Marks: 50</div>
-            <div><span class="font-bold">Pattern:</span> {{ $qpRecord->pattern_type === 'table_4_2_design' ? 'Table 4.2 Design Paper' : 'Table 4.1 Standard' }}</div>
+            <div><span class="font-bold">Series Exam:</span> {{ $seriesNo }} | Max Marks: {{ $qpRecord->max_marks ?? ($qpRecord->pattern_type === 'practical_series' ? 40 : ($qpRecord->pattern_type === 'table_4_2_design' ? 50 : 25)) }}</div>
+            <div><span class="font-bold">Pattern:</span> {{ $qpRecord->pattern_type === 'practical_series' ? 'Practical Series Exam (Table 3.1 Rubrics)' : ($qpRecord->pattern_type === 'table_4_2_design' ? 'Table 4.2 Design Paper' : 'Table 4.1 Standard') }}</div>
             <div><span class="font-bold">Lecturer Name:</span> {{ $lecturerName }}</div>
         </div>
-
+ 
         @php $qp = $qpRecord->qp_data ?? []; @endphp
-
-        @if ($qpRecord->pattern_type === 'table_4_2_design')
+ 
+        @if ($qpRecord->pattern_type === 'practical_series')
+            <!-- Practical Series Scheme -->
+            <div class="mb-4">
+                <div class="part-header">PART A — Practical Tasks (Answer any ONE Question × 40 Marks)</div>
+                <div class="text-xs text-slate-500 my-2 px-1 font-semibold italic">Grading is based on Table 3.1 Rubrics: Writeup (10M), Setup (10M), Observation (10M), Viva (5M), Record (5M).</div>
+                @foreach ($qp['part_a'] ?? [] as $q)
+                <div class="q-block mt-2">
+                    <div class="q-question">
+                        Q{{ $q['q_no'] }}: {{ $q['text'] }}
+                        <span class="total-mark-badge">40 Marks ({{ getBtShort($q['bloom'] ?? 'L3') }})</span>
+                    </div>
+                    <div class="scheme-text whitespace-pre-line">
+                        @if(!empty($q['scheme_key']))
+                            {!! nl2br(e($q['scheme_key'])) !!}
+                        @else
+                            <strong>Rubric Evaluation Guidelines:</strong>
+                            1. Writeup & Procedure: 10 Marks
+                            2. Setup & Execution: 10 Marks
+                            3. Observation & Recording: 10 Marks
+                            4. Viva Voce: 5 Marks
+                            5. Record Book: 5 Marks
+                            Total: 40 Marks
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        @elseif ($qpRecord->pattern_type === 'table_4_2_design')
             <!-- Part A Scheme -->
             <div class="mb-4">
                 <div class="part-header">PART A — 6 × 5 = 30 Marks</div>
