@@ -1021,7 +1021,6 @@
                 <div class="glass-card p-6 rounded-xl border border-slate-800 space-y-4">
                     <div>
                         <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <span class="material-symbols-rounded text-indigo-400">assignment_turned_in</span>
                             <span>📅 Course Attendance Reports</span>
                         </h3>
                         <p class="text-slate-400 text-xs mt-1">Select and print the detailed session attendance register or the consolidated final attendance report.</p>
