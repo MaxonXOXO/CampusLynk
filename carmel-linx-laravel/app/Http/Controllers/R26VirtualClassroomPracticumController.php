@@ -122,6 +122,22 @@ class R26VirtualClassroomPracticumController extends Controller
                 ->orderBy('day_no', 'asc')
                 ->get();
         } else {
+            // Self-healing: if no actual class logs have been recorded yet, reset all pre-completed default entries to Pending
+            $classLogsCount = DB::table('class_logs_attendance')->where('batch_subject_id', $subjectId)->count();
+            if ($classLogsCount === 0) {
+                $hasCompleted = LessonPlan::where('batch_subject_id', $subjectId)->where('status', 'Completed')->exists();
+                if ($hasCompleted) {
+                    LessonPlan::where('batch_subject_id', $subjectId)->update([
+                        'status' => 'Pending',
+                        'actual_date' => null,
+                        'actual_hours' => null
+                    ]);
+                    $lessonPlans = LessonPlan::where('batch_subject_id', $subjectId)
+                        ->orderBy('day_no', 'asc')
+                        ->get();
+                }
+            }
+
             // Auto-classify P / SP rows if all rows were previously imported as 'L'
             $hasLabModes = $lessonPlans->whereIn('mode', ['P', 'SP'])->count() > 0;
             if (!$hasLabModes) {
@@ -989,13 +1005,13 @@ class R26VirtualClassroomPracticumController extends Controller
                     'mode' => 'ST',
                     'pedagogy' => 'Theory Series Exam (ST)',
                     'proposed_date' => $proposedDate,
-                    'actual_date' => $proposedDate,
+                    'actual_date' => null,
                     'topic_content' => 'Theory Series Exam 1 (CO1 - Written 1 Hour Test)',
                     'co_id' => 'CO1',
                     'sub_batch' => 'All Students',
                     'allocated_hours' => 1,
-                    'actual_hours' => 1,
-                    'status' => 'Completed',
+                    'actual_hours' => null,
+                    'status' => 'Pending',
                     'remarks' => '1 Hour Written Exam'
                 ]);
             } elseif ($day == 45) {
@@ -1005,13 +1021,13 @@ class R26VirtualClassroomPracticumController extends Controller
                     'mode' => 'ST',
                     'pedagogy' => 'Theory Series Exam (ST)',
                     'proposed_date' => $proposedDate,
-                    'actual_date' => $proposedDate,
+                    'actual_date' => null,
                     'topic_content' => 'Theory Series Exam 2 (CO2 - Written 1 Hour Test)',
                     'co_id' => 'CO2',
                     'sub_batch' => 'All Students',
                     'allocated_hours' => 1,
-                    'actual_hours' => 1,
-                    'status' => 'Completed',
+                    'actual_hours' => null,
+                    'status' => 'Pending',
                     'remarks' => '1 Hour Written Exam'
                 ]);
             } elseif ($day == 67) {
@@ -1021,13 +1037,13 @@ class R26VirtualClassroomPracticumController extends Controller
                     'mode' => 'ST',
                     'pedagogy' => 'Theory Series Exam (ST)',
                     'proposed_date' => $proposedDate,
-                    'actual_date' => $proposedDate,
+                    'actual_date' => null,
                     'topic_content' => 'Theory Series Exam 3 (CO3 - Written 1 Hour Test)',
                     'co_id' => 'CO3',
                     'sub_batch' => 'All Students',
                     'allocated_hours' => 1,
-                    'actual_hours' => 1,
-                    'status' => 'Completed',
+                    'actual_hours' => null,
+                    'status' => 'Pending',
                     'remarks' => '1 Hour Written Exam'
                 ]);
             } elseif ($day == 89) {
@@ -1037,13 +1053,13 @@ class R26VirtualClassroomPracticumController extends Controller
                     'mode' => 'ST',
                     'pedagogy' => 'Theory Series Exam (ST)',
                     'proposed_date' => $proposedDate,
-                    'actual_date' => $proposedDate,
+                    'actual_date' => null,
                     'topic_content' => 'Theory Series Exam 4 (CO4 - Written 1 Hour Test)',
                     'co_id' => 'CO4',
                     'sub_batch' => 'All Students',
                     'allocated_hours' => 1,
-                    'actual_hours' => 1,
-                    'status' => 'Completed',
+                    'actual_hours' => null,
+                    'status' => 'Pending',
                     'remarks' => '1 Hour Written Exam'
                 ]);
             } elseif ($day >= 42 && $day <= 44) {
@@ -1053,13 +1069,13 @@ class R26VirtualClassroomPracticumController extends Controller
                     'mode' => 'SP',
                     'pedagogy' => 'Practical Series Exam (SP)',
                     'proposed_date' => $proposedDate,
-                    'actual_date' => $proposedDate,
+                    'actual_date' => null,
                     'topic_content' => 'Practical Series Exam 1 (CO1+CO2 - 3-Hour Combined Lab Test)',
                     'co_id' => 'CO1',
                     'sub_batch' => 'Batch A & B',
                     'allocated_hours' => 1,
-                    'actual_hours' => 1,
-                    'status' => 'Completed',
+                    'actual_hours' => null,
+                    'status' => 'Pending',
                     'remarks' => '3 Hour Practical Exam'
                 ]);
             } elseif ($day >= 86 && $day <= 88) {
@@ -1069,13 +1085,13 @@ class R26VirtualClassroomPracticumController extends Controller
                     'mode' => 'SP',
                     'pedagogy' => 'Practical Series Exam (SP)',
                     'proposed_date' => $proposedDate,
-                    'actual_date' => $proposedDate,
+                    'actual_date' => null,
                     'topic_content' => 'Practical Series Exam 2 (CO3+CO4 - 3-Hour Combined Lab Test)',
                     'co_id' => 'CO3',
                     'sub_batch' => 'Batch A & B',
                     'allocated_hours' => 1,
-                    'actual_hours' => 1,
-                    'status' => 'Completed',
+                    'actual_hours' => null,
+                    'status' => 'Pending',
                     'remarks' => '3 Hour Practical Exam'
                 ]);
             } elseif (($day % 6 >= 1 && $day % 6 <= 3) && $tIdx < count($theoryList)) {
@@ -1086,13 +1102,13 @@ class R26VirtualClassroomPracticumController extends Controller
                     'mode' => 'L',
                     'pedagogy' => 'Lecture (L)',
                     'proposed_date' => $proposedDate,
-                    'actual_date' => $proposedDate,
+                    'actual_date' => null,
                     'topic_content' => $top['topic'],
                     'co_id' => $top['co_id'],
                     'sub_batch' => 'All Students',
                     'allocated_hours' => 1,
-                    'actual_hours' => 1,
-                    'status' => 'Completed',
+                    'actual_hours' => null,
+                    'status' => 'Pending',
                     'remarks' => 'Lecture Session'
                 ]);
             } elseif ($pIdx < count($practicalList)) {
@@ -1103,13 +1119,13 @@ class R26VirtualClassroomPracticumController extends Controller
                     'mode' => 'P',
                     'pedagogy' => 'Practical Lab (P)',
                     'proposed_date' => $proposedDate,
-                    'actual_date' => $proposedDate,
+                    'actual_date' => null,
                     'topic_content' => $top['topic'],
                     'co_id' => $top['co_id'],
                     'sub_batch' => 'Batch A & B',
                     'allocated_hours' => 1,
-                    'actual_hours' => 1,
-                    'status' => 'Completed',
+                    'actual_hours' => null,
+                    'status' => 'Pending',
                     'remarks' => 'Practical Lab Session'
                 ]);
             } else {
@@ -1121,13 +1137,13 @@ class R26VirtualClassroomPracticumController extends Controller
                     'mode' => 'L',
                     'pedagogy' => 'Lecture (L)',
                     'proposed_date' => $proposedDate,
-                    'actual_date' => $proposedDate,
+                    'actual_date' => null,
                     'topic_content' => $top['topic'],
                     'co_id' => $top['co_id'],
                     'sub_batch' => 'All Students',
                     'allocated_hours' => 1,
-                    'actual_hours' => 1,
-                    'status' => 'Completed',
+                    'actual_hours' => null,
+                    'status' => 'Pending',
                     'remarks' => 'Lecture Session'
                 ]);
             }
@@ -2068,23 +2084,24 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         // Fetch all lesson plans for this subject, separated by mode
         $theoryPlans = LessonPlan::where('batch_subject_id', $subjectId)
             ->where(function($q) {
-                $q->where('mode', 'L')
+                $q->whereIn('mode', ['L', 'ST'])
                   ->orWhereNull('mode')
                   ->orWhere('mode', '');
             })
-            ->whereNotIn('pedagogy', ['Practical Lab (P)', 'Series Practical Test (SP)'])
+            ->where(function($q) {
+                $q->whereNotIn('pedagogy', ['Practical Lab (P)', 'Practical Series Exam (SP)', 'Series Practical Test (SP)'])
+                  ->orWhereNull('pedagogy');
+            })
             ->orderBy('day_no', 'asc')
             ->get(['id', 'day_no', 'proposed_date', 'actual_date', 'topic_content', 'co_id', 'pedagogy', 'mode']);
 
         $labPlans = LessonPlan::where('batch_subject_id', $subjectId)
             ->where(function($q) {
-                $q->where('mode', 'P')
-                  ->orWhereIn('pedagogy', ['Practical Lab (P)', 'Series Practical Test (SP)']);
+                $q->whereIn('mode', ['P', 'SP'])
+                  ->orWhereIn('pedagogy', ['Practical Lab (P)', 'Practical Series Exam (SP)']);
             })
             ->orderBy('day_no', 'asc')
             ->get(['id', 'day_no', 'proposed_date', 'actual_date', 'topic_content', 'co_id', 'pedagogy', 'mode']);
-
-        // Fetch all attendance records for this subject, keyed by lesson_plan_id + reg_no
         $allAttendance = DB::table('student_attendance')
             ->where('subject_code', $batchSubject->subject_code)
             ->get();
