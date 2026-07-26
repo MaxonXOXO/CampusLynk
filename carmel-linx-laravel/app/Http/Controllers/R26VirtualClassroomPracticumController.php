@@ -2162,6 +2162,7 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         }
 
         // Staff info
+        // Staff info
         $assignedStaff = DB::table('subject_staff_assignments')
             ->join('staff_profiles', 'subject_staff_assignments.staff_mobile_no', '=', 'staff_profiles.mobile_no')
             ->where('subject_staff_assignments.batch_subject_id', $subjectId)
@@ -2177,6 +2178,121 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
             'labPlans',
             'theoryMatrix',
             'labMatrix',
+            'theoryTotals',
+            'labTotals',
+            'assignedStaff'
+        ));
+    }
+
+    /**
+     * Print Consolidated Attendance Report (Theory & Lab summaries) for Practicum Subject
+     * Route: GET /r26/classroom/practicum/{subjectId}/attendance-consolidated
+     */
+    public function printConsolidatedAttendanceReport($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        if (!$classroom) {
+            $classroom = \App\Models\R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        }
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $practicumCourseFile = \App\Models\R26PracticumCourseFile::where('batch_subject_id', $subjectId)->first();
+
+        // Fetch all lesson plans for this subject, separated by mode
+        $theoryPlans = LessonPlan::where('batch_subject_id', $subjectId)
+            ->where(function($q) {
+                $q->whereIn('mode', ['L', 'ST'])
+                  ->orWhereNull('mode')
+                  ->orWhere('mode', '');
+            })
+            ->where(function($q) {
+                $q->whereNotIn('pedagogy', ['Practical Lab (P)', 'Practical Series Exam (SP)', 'Series Practical Test (SP)'])
+                  ->orWhereNull('pedagogy');
+            })
+            ->orderBy('day_no', 'asc')
+            ->get(['id', 'day_no', 'proposed_date', 'actual_date', 'topic_content', 'co_id', 'pedagogy', 'mode']);
+
+        $labPlans = LessonPlan::where('batch_subject_id', $subjectId)
+            ->where(function($q) {
+                $q->whereIn('mode', ['P', 'SP'])
+                  ->orWhereIn('pedagogy', ['Practical Lab (P)', 'Practical Series Exam (SP)']);
+            })
+            ->orderBy('day_no', 'asc')
+            ->get(['id', 'day_no', 'proposed_date', 'actual_date', 'topic_content', 'co_id', 'pedagogy', 'mode']);
+
+        // Fetch all attendance records for this subject, keyed by lesson_plan_id + reg_no
+        $allAttendance = DB::table('student_attendance')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->get();
+
+        // Group attendance by lesson_plan_id
+        $attByPlan = $allAttendance->groupBy('lesson_plan_id');
+
+        // Build Theory Totals: [reg_no => ['present' => 0, 'total' => 0]]
+        $theoryTotals = [];
+        foreach ($students as $st) {
+            $theoryTotals[$st->reg_no] = ['present' => 0, 'total' => 0];
+        }
+        foreach ($theoryPlans as $plan) {
+            $planAtt = $attByPlan->get($plan->id, collect());
+            $planAttByReg = $planAtt->keyBy('reg_no');
+            foreach ($students as $st) {
+                $rec = $planAttByReg->get($st->reg_no);
+                $status = $rec ? $rec->status : null;
+                if ($status !== null) {
+                    $theoryTotals[$st->reg_no]['total']++;
+                    if (in_array($status, ['Present', 'Late'])) {
+                        $theoryTotals[$st->reg_no]['present']++;
+                    }
+                }
+            }
+        }
+
+        // Build Lab Totals: [reg_no => ['present' => 0, 'total' => 0]]
+        $labTotals = [];
+        foreach ($students as $st) {
+            $labTotals[$st->reg_no] = ['present' => 0, 'total' => 0];
+        }
+        foreach ($labPlans as $plan) {
+            $planAtt = $attByPlan->get($plan->id, collect());
+            $planAttByReg = $planAtt->keyBy('reg_no');
+            foreach ($students as $st) {
+                $rec = $planAttByReg->get($st->reg_no);
+                $status = $rec ? $rec->status : null;
+                if ($status !== null) {
+                    $labTotals[$st->reg_no]['total']++;
+                    if (in_array($status, ['Present', 'Late'])) {
+                        $labTotals[$st->reg_no]['present']++;
+                    }
+                }
+            }
+        }
+
+        // Staff info
+        $assignedStaff = DB::table('subject_staff_assignments')
+            ->join('staff_profiles', 'subject_staff_assignments.staff_mobile_no', '=', 'staff_profiles.mobile_no')
+            ->where('subject_staff_assignments.batch_subject_id', $subjectId)
+            ->select('staff_profiles.name', 'staff_profiles.designation')
+            ->get();
+
+        return view('r26_practicum.attendance_consolidated_print', compact(
+            'batchSubject',
+            'classroom',
+            'students',
+            'practicumCourseFile',
+            'theoryPlans',
+            'labPlans',
             'theoryTotals',
             'labTotals',
             'assignedStaff'

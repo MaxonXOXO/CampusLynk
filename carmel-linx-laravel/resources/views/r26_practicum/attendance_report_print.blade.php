@@ -66,7 +66,7 @@
   <div><div class="meta-label">Subject</div><div class="meta-val">{{ $batchSubject->subject_name }}</div></div>
   <div><div class="meta-label">Subject Code</div><div class="meta-val">{{ $batchSubject->subject_code }}</div></div>
   <div><div class="meta-label">Semester</div><div class="meta-val">{{ $classroom->current_semester ?? $batchSubject->semester ?? 'N/A' }}</div></div>
-  <div><div class="meta-label">Department</div><div class="meta-val">{{ $classroom->department ?? $classroom->branch ?? 'N/A' }}</div></div>
+  <div><div class="meta-label">Department</div><div class="meta-val">{{ function_exists('getFullBranchName') ? getFullBranchName($classroom->department ?? $classroom->branch ?? '') : ($classroom->department ?? $classroom->branch ?? 'N/A') }}</div></div>
   <div><div class="meta-label">Batch / Division</div><div class="meta-val">{{ $classroom->batch ?? $classroom->division ?? $classroom->classroom_id }}</div></div>
   <div><div class="meta-label">Faculty In-Charge</div><div class="meta-val">{{ $assignedStaff->count() ? $assignedStaff->pluck('name')->implode(', ') : '—' }}</div></div>
   <div><div class="meta-label">Academic Year</div><div class="meta-val">{{ date('Y') . '–' . (date('Y') + 1) }}</div></div>

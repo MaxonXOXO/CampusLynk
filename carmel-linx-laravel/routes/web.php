@@ -347,6 +347,8 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r26/classroom/practicum/{subjectId}/print-self-learning-splitup', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSelfLearningSplitupPdf']);
     Route::get('/r26/classroom/practicum/{subjectId}/print-self-learning-summary', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSelfLearningSummaryPdf']);
     Route::get('/r26/classroom/practicum/{subjectId}/attendance-report', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printAttendanceReport']);
+    Route::get('/r26/classroom/practicum/{subjectId}/attendance-consolidated', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printConsolidatedAttendanceReport']);
+
 
     // Revision 2026 Practicum Series QP / Scheme / Answer Key
     Route::post('/api/r26/classroom/practicum/{subjectId}/series-qp/generate/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'generateSeriesQp']);

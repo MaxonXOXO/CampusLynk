@@ -165,7 +165,7 @@
     <div class="a4-page">
         <div class="header">
             <h1>Carmel Polytechnic College, Alappuzha</h1>
-            <h2>Department of {{ $classroom->branch ?? '' }} Engineering</h2>
+            <h2>Department of {{ function_exists('getFullBranchName') ? getFullBranchName($classroom->branch ?? '') : ($classroom->branch ?? '') }}</h2>
             <h3>Assignment Question Paper ({{ $coTag }})</h3>
         </div>
 
