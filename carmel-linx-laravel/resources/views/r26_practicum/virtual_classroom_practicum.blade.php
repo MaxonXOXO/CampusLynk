@@ -1358,10 +1358,10 @@
             </div>
 
             <!-- Subtab 5: Practical ESE -->
-            <div id="lab-subcontent-ese" class="glass-card p-5 rounded-xl border border-emerald-600/40 bg-gradient-to-br from-slate-900 via-slate-900/95 to-emerald-950/20 hidden">
+            <div id="lab-subcontent-ese" class="glass-card p-5 rounded-xl border border-blue-600/40 bg-gradient-to-br from-slate-900 via-slate-900/95 to-blue-950/20 hidden">
                 <div class="flex flex-col md:flex-row items-center justify-between mb-4 gap-3">
                     <div>
-                        <h3 class="text-base font-semibold text-emerald-300 flex items-center space-x-2">
+                        <h3 class="text-base font-semibold text-blue-300 flex items-center space-x-2">
                             <span>🏆 Institutional Practical End Semester Exam (40 Marks)</span>
                         </h3>
                         <p class="text-slate-400 text-xs mt-0.5">
@@ -1370,7 +1370,7 @@
                     </div>
                     <div class="flex items-center space-x-2">
                         <button onclick="printSubtabReport('Practical End Semester Exam (ESE) Report', 'lab-subcontent-ese')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all no-print">🖨️ Print Report</button>
-                        <button onclick="openEsePracticalModal()" class="px-4 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-semibold shadow-md transition-all flex items-center space-x-2 border border-emerald-500/40">
+                        <button onclick="openEsePracticalModal()" class="px-4 py-2 rounded-lg bg-blue-700 hover:bg-blue-600 text-white font-semibold shadow-md transition-all flex items-center space-x-2 border border-blue-500/40">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             <span>Enter Practical ESE Marks</span>
                         </button>
@@ -1421,7 +1421,7 @@
                                 <td class="p-2.5 text-center text-slate-300 ese-val-result">{{ $score > 0 ? $rInit : '-' }}</td>
                                 <td class="p-2.5 text-center text-slate-300 ese-val-viva">{{ $score > 0 ? $vInit : '-' }}</td>
                                 <td class="p-2.5 text-center text-slate-300 ese-val-record">{{ $score > 0 ? $recInit : '-' }}</td>
-                                <td class="p-2.5 text-center font-bold text-emerald-400 ese-val-total">{{ round($score) }}</td>
+                                <td class="p-2.5 text-center font-bold text-blue-400 ese-val-total">{{ round($score) }}</td>
                                 <td class="p-2.5 text-center ese-val-grade">
                                     <span class="px-2.5 py-0.5 rounded-full border text-xs font-bold {{ $gc }}">{{ $g }}</span>
                                 </td>
@@ -1537,13 +1537,13 @@
         </div>
     </div>
 
-    <!-- Practical ESE Evaluator Modal (Emerald Theme Sliders) -->
+    <!-- Practical ESE Evaluator Modal (Blue Theme Sliders) -->
     <div id="ese-practical-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center hidden p-3 sm:p-5">
-        <div class="glass-card max-w-3xl w-full p-5 rounded-2xl border border-emerald-500/40 shadow-2xl space-y-4 max-h-[92vh] flex flex-col bg-slate-950">
+        <div class="glass-card max-w-3xl w-full p-5 rounded-2xl border border-blue-500/40 shadow-2xl space-y-4 max-h-[92vh] flex flex-col bg-slate-950">
             <!-- Modal Header -->
             <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-shrink-0">
                 <div>
-                    <h3 class="text-xl font-bold text-emerald-300 flex items-center space-x-2">
+                    <h3 class="text-xl font-bold text-blue-300 flex items-center space-x-2">
                         <span>🏆 Institutional Practical ESE Evaluator</span>
                     </h3>
                     <p class="text-slate-400 text-xs mt-0.5">Adjust rubrics sliders or steppers for procedure, setup, result, viva, and record.</p>
@@ -1558,7 +1558,7 @@
                 </button>
 
                 <div class="flex-1 max-w-md">
-                    <select id="ese-student-select" onchange="loadEseStudent(this.value)" class="w-full bg-slate-950 border border-emerald-500/40 rounded-lg px-3 py-1.5 font-bold text-sm text-emerald-200 outline-none focus:border-emerald-400">
+                    <select id="ese-student-select" onchange="loadEseStudent(this.value)" class="w-full bg-slate-950 border border-blue-500/40 rounded-lg px-3 py-1.5 font-bold text-sm text-blue-200 outline-none focus:border-blue-400">
                         @foreach($studentResults as $idx => $res)
                         <option value="{{ $res['reg_no'] }}" data-idx="{{ $idx }}">#{{ $res['roll_no'] }} - {{ $res['name'] }} (SBTE: {{ $res['sbte_reg_no'] ?: $res['reg_no'] }})</option>
                         @endforeach
@@ -1571,14 +1571,14 @@
             </div>
 
             <!-- Live Score Summary Card -->
-            <div class="bg-gradient-to-r from-slate-900 via-emerald-950/40 to-slate-900 p-3 rounded-xl border border-emerald-500/40 flex items-center justify-between text-xs flex-shrink-0">
+            <div class="bg-gradient-to-r from-slate-900 via-blue-950/40 to-slate-900 p-3 rounded-xl border border-blue-500/40 flex items-center justify-between text-xs flex-shrink-0">
                 <div>
                     <span class="text-slate-400 font-medium">Practical ESE Score:</span>
-                    <span id="ese-student-total-raw" class="font-extrabold text-emerald-400 text-base ml-1.5">0.00 / 40.00 Marks</span>
+                    <span id="ese-student-total-raw" class="font-extrabold text-blue-400 text-base ml-1.5">0.00 / 40.00 Marks</span>
                 </div>
                 <div class="flex items-center space-x-1.5">
                     <span class="text-slate-400 font-medium">Evaluated Grade:</span>
-                    <span id="ese-student-grade-badge" class="font-black text-emerald-300 text-base px-3 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30">S</span>
+                    <span id="ese-student-grade-badge" class="font-black text-blue-300 text-base px-3 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/30">S</span>
                 </div>
             </div>
 
@@ -1592,7 +1592,7 @@
                 <button type="button" onclick="closeEsePracticalModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 font-semibold text-xs hover:bg-slate-700">Close</button>
                 <div class="flex items-center space-x-2">
                     <button type="button" onclick="saveAndNextEseStudent()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700">Next Student ▶</button>
-                    <button type="button" onclick="saveAllEseMarks()" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm">Save All ESE Marks</button>
+                    <button type="button" onclick="saveAllEseMarks()" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-sm">Save All ESE Marks</button>
                 </div>
             </div>
         </div>
