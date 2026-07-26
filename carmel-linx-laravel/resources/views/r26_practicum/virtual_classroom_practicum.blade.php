@@ -65,6 +65,7 @@
             color: #9ca3af;
             border-bottom: 2px solid transparent;
             transition: all 0.25s ease;
+            font-size: 13.5px !important;
         }
         .subtab-btn:hover {
             color: #ffffff;
@@ -285,14 +286,14 @@
         <div id="mode-theory-container" class="space-y-5">
             
             <!-- Theory Sub-Tabs Navigation -->
-            <div class="glass-card p-1.5 rounded-xl flex items-center space-x-2 overflow-x-auto">
-                <button onclick="switchTheorySubtab('overview')" id="theory-tab-overview" class="subtab-btn active px-4 py-2 rounded-lg font-semibold whitespace-nowrap">📘 Modules & COs</button>
-                <button onclick="switchTheorySubtab('planner')" id="theory-tab-planner" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📅 Combined 90-Hr Lesson Plan</button>
-                <button onclick="switchTheorySubtab('sl')" id="theory-tab-sl" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📝 Self-Learning</button>
-                <button onclick="switchTheorySubtab('series')" id="theory-tab-series" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">✍️ Theory Series Exams</button>
-                <button onclick="switchTheorySubtab('ese')" id="theory-tab-ese" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">🏆 Theory ESE & Results</button>
-                <button onclick="switchTheorySubtab('surveys')" id="theory-tab-surveys" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📊 Surveys & Indirect Attainment</button>
-                <button onclick="switchTheorySubtab('attendance')" id="theory-tab-attendance" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📅 Attendance Reports</button>
+            <div class="glass-card p-1.5 rounded-xl flex items-center space-x-1.5 overflow-x-auto">
+                <button onclick="switchTheorySubtab('overview')" id="theory-tab-overview" class="subtab-btn active px-2.5 py-1.5 rounded-lg font-semibold whitespace-nowrap">📘 Modules & COs</button>
+                <button onclick="switchTheorySubtab('planner')" id="theory-tab-planner" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📅 Lesson Plan</button>
+                <button onclick="switchTheorySubtab('sl')" id="theory-tab-sl" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📝 Self-Learning</button>
+                <button onclick="switchTheorySubtab('series')" id="theory-tab-series" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">✍️ Theory Series</button>
+                <button onclick="switchTheorySubtab('ese')" id="theory-tab-ese" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">🏆 Theory ESE</button>
+                <button onclick="switchTheorySubtab('surveys')" id="theory-tab-surveys" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📊 Surveys</button>
+                <button onclick="switchTheorySubtab('attendance')" id="theory-tab-attendance" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📅 Attendance</button>
             </div>
 
             <!-- Subtab 1: Theory Modules, COs & CO-PO Mapping Table -->
@@ -1028,15 +1029,15 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Card 1: Detailed Register -->
-                        <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-900/90 to-amber-950/20 border border-amber-500/15 hover:border-amber-500/40 shadow-lg transition-all duration-300 group flex flex-col justify-between space-y-4">
+                        <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-900/90 to-blue-950/20 border border-blue-500/15 hover:border-blue-500/40 shadow-lg transition-all duration-300 group flex flex-col justify-between space-y-4">
                             <div class="flex justify-between items-start">
                                 <div class="space-y-1">
-                                    <h4 class="text-base font-bold text-slate-100 group-hover:text-amber-400 transition-all">Detailed Attendance Register</h4>
+                                    <h4 class="text-base font-bold text-slate-100 group-hover:text-blue-400 transition-all">Detailed Attendance Register</h4>
                                     <p class="text-slate-400 text-xs leading-relaxed">View and print the complete, session-by-session student attendance grid with specific dates, hourly remarks, percentage logs, and marks calculation.</p>
                                 </div>
-                                <span class="material-symbols-rounded text-amber-400 bg-amber-500/10 p-3 rounded-xl text-2xl flex-shrink-0">view_list</span>
+                                <span class="material-symbols-rounded text-blue-400 bg-blue-500/10 p-3 rounded-xl text-2xl flex-shrink-0">view_list</span>
                             </div>
-                            <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/attendance-report" target="_blank" class="w-full text-center px-4 py-2.5 rounded-xl font-bold text-xs bg-amber-600 hover:bg-amber-500 text-white transition-all shadow-sm no-underline block">
+                            <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/attendance-report" target="_blank" class="w-full text-center px-4 py-2.5 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-sm no-underline block">
                                 Open Detailed Register
                             </a>
                         </div>
@@ -1066,12 +1067,12 @@
         <div id="mode-lab-container" class="space-y-5 hidden">
             
             <!-- Lab Sub-Tabs Navigation -->
-            <div class="glass-card p-1.5 rounded-xl flex items-center space-x-2 overflow-x-auto">
-                <button onclick="switchLabSubtab('roster')" id="lab-tab-roster" class="subtab-btn active px-4 py-2 rounded-lg font-semibold whitespace-nowrap">🧪 3-Hour Lab Sessions</button>
-                <button onclick="switchLabSubtab('planner')" id="lab-tab-planner" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📅 Lab Planner</button>
-                <button onclick="switchLabSubtab('eval')" id="lab-tab-eval" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">🔬 Continuous Lab Eval</button>
-                <button onclick="switchLabSubtab('series')" id="lab-tab-series" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📝 Practical Series Tests</button>
-                <button onclick="switchLabSubtab('ese')" id="lab-tab-ese" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">🏆 Practical ESE</button>
+            <div class="glass-card p-1.5 rounded-xl flex items-center space-x-1.5 overflow-x-auto">
+                <button onclick="switchLabSubtab('roster')" id="lab-tab-roster" class="subtab-btn active px-2.5 py-1.5 rounded-lg font-semibold whitespace-nowrap">🧪 Lab Sessions</button>
+                <button onclick="switchLabSubtab('planner')" id="lab-tab-planner" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📅 Lab Planner</button>
+                <button onclick="switchLabSubtab('eval')" id="lab-tab-eval" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">🔬 Lab Eval</button>
+                <button onclick="switchLabSubtab('series')" id="lab-tab-series" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📝 Lab Series</button>
+                <button onclick="switchLabSubtab('ese')" id="lab-tab-ese" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">🏆 Lab ESE</button>
             </div>
 
             <!-- Subtab 1: 3-Hour Session Experiments Roster -->
