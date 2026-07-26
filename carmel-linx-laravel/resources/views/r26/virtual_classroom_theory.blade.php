@@ -189,6 +189,18 @@
       <div>
         <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent flex items-center gap-2">
           Virtual Classroom (Theory)
+          @php $isAiActive = \App\Http\Controllers\SystemSettingController::isAiEnabled(); @endphp
+          @if($isAiActive)
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold whitespace-nowrap flex items-center space-x-1" title="AI Service Integration Active">
+                <span class="material-symbols-rounded text-xs text-emerald-400">auto_awesome</span>
+                <span>AI Mode</span>
+            </span>
+          @else
+            <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold whitespace-nowrap flex items-center space-x-1" title="Offline Local Database Mode Active">
+                <span class="material-symbols-rounded text-xs text-amber-400">storage</span>
+                <span>Local Mode</span>
+            </span>
+          @endif
         </h1>
         <p class="text-sm text-muted font-medium flex items-center gap-2 mt-1">
           <span class="material-symbols-rounded text-sm">auto_stories</span>

@@ -172,6 +172,21 @@
                         <span class="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-semibold whitespace-nowrap">
                             Practicum Course (Rev 2026)
                         </span>
+
+                        @php
+                            $isAiActive = \App\Http\Controllers\SystemSettingController::isAiEnabled();
+                        @endphp
+                        @if($isAiActive)
+                            <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold whitespace-nowrap flex items-center space-x-1" title="AI Service Integration Active">
+                                <span class="material-symbols-rounded text-xs text-emerald-400">auto_awesome</span>
+                                <span>AI Mode</span>
+                            </span>
+                        @else
+                            <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold whitespace-nowrap flex items-center space-x-1" title="Offline Local Database Mode Active">
+                                <span class="material-symbols-rounded text-xs text-amber-400">storage</span>
+                                <span>Local Mode</span>
+                            </span>
+                        @endif
                     </div>
                     
                     <p class="text-slate-400 text-xs header-subtitle">
