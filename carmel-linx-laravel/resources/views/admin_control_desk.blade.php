@@ -134,8 +134,18 @@
     
     <!-- Top Header -->
     <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-10">
-      <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Dashboard Overview</h1>
-      <div id="loadingIndicator" class="hidden items-center gap-2 text-[10px] text-slate-400 text-[10px] text-xs">
+      <div class="flex items-center gap-3 md:gap-4">
+        <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Dashboard Overview</h1>
+        
+        <!-- AI System Status Badge -->
+        <div id="topAiStatusBadge" onclick="switchPanel('settings')" class="hidden items-center gap-2 px-3 py-1 rounded-full text-xs font-bold transition-premium cursor-pointer shadow-sm group" title="Click to manage AI System Settings">
+          <span id="topAiStatusIcon" class="material-symbols-rounded text-sm">auto_awesome</span>
+          <span id="topAiStatusText">AI Service: Active</span>
+          <span class="text-[10px] text-slate-400 group-hover:text-white transition-colors">⚙️ Settings</span>
+        </div>
+      </div>
+
+      <div id="loadingIndicator" class="hidden items-center gap-2 text-xs text-slate-400">
         <div class="w-4 h-4 border-2 border-slate-600 border-t-orange-500 rounded-full animate-spin"></div>
         <span>Syncing...</span>
       </div>
@@ -746,8 +756,8 @@
     document.addEventListener("DOMContentLoaded", () => {
       loadStats();
       loadUsers();
+      loadSettings(); // Loads AI generation status immediately for top header badge
       if (activePanel === 'audit') loadAuditTrail();
-
     });
 
 
@@ -794,30 +804,59 @@
       if (panelId === 'settings') loadSettings();
     }
 
+    // Update top header AI status badge
+    function updateAiStatusBadge(enabled) {
+      const badge = document.getElementById('topAiStatusBadge');
+      const icon = document.getElementById('topAiStatusIcon');
+      const text = document.getElementById('topAiStatusText');
+      const checkbox = document.getElementById('settingAiEnabled');
+
+      if (checkbox) checkbox.checked = !!enabled;
+      if (!badge || !icon || !text) return;
+
+      badge.classList.remove('hidden');
+      badge.classList.add('flex');
+
+      if (enabled) {
+        badge.className = "flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 transition-premium cursor-pointer shadow-sm hover:bg-emerald-500/20 group";
+        icon.innerText = "auto_awesome";
+        icon.className = "material-symbols-rounded text-sm text-emerald-400";
+        text.innerText = "AI System Active";
+      } else {
+        badge.className = "flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30 transition-premium cursor-pointer shadow-sm hover:bg-amber-500/20 group";
+        icon.innerText = "do_not_disturb_on";
+        icon.className = "material-symbols-rounded text-sm text-amber-400";
+        text.innerText = "AI Deactivated (Offline)";
+      }
+    }
+
     // Load settings from backend
     function loadSettings() {
       const indicator = document.getElementById('loadingIndicator');
-      indicator.classList.remove('hidden');
+      if (indicator) indicator.classList.remove('hidden');
 
       fetch('/api/admin/settings')
         .then(res => res.json())
         .then(data => {
-          indicator.classList.add('hidden');
+          if (indicator) indicator.classList.add('hidden');
           if (data.status === 'SUCCESS') {
-            document.getElementById('settingAiEnabled').checked = data.settings.ai_generation_enabled;
+            const isEnabled = !!data.settings.ai_generation_enabled;
+            updateAiStatusBadge(isEnabled);
           }
         })
-        .catch(() => indicator.classList.add('hidden'));
+        .catch(() => {
+          if (indicator) indicator.classList.add('hidden');
+        });
     }
 
     // Save settings to backend
     function saveSystemSettings() {
       const indicator = document.getElementById('loadingIndicator');
-      indicator.classList.remove('hidden');
+      if (indicator) indicator.classList.remove('hidden');
       
       const aiEnabled = document.getElementById('settingAiEnabled').checked;
       const alert = document.getElementById('settingsSaveAlert');
-      alert.classList.add('hidden');
+      if (alert) alert.classList.add('hidden');
 
       fetch('/api/admin/settings', {
         method: 'POST',
@@ -826,23 +865,30 @@
       })
       .then(res => res.json())
       .then(data => {
-        indicator.classList.add('hidden');
+        if (indicator) indicator.classList.add('hidden');
         if (data.status === 'SUCCESS') {
-          alert.className = "p-3 rounded-xl bg-green-950/40 text-green-400 border border-green-900/60 block text-xs font-bold";
-          alert.innerText = data.message;
-          alert.classList.remove('hidden');
-          setTimeout(() => alert.classList.add('hidden'), 3000);
+          updateAiStatusBadge(aiEnabled);
+          if (alert) {
+            alert.className = "p-3 rounded-xl bg-green-950/40 text-green-400 border border-green-900/60 block text-xs font-bold";
+            alert.innerText = data.message;
+            alert.classList.remove('hidden');
+            setTimeout(() => alert.classList.add('hidden'), 3000);
+          }
         } else {
-          alert.className = "p-3 rounded-xl bg-red-950/40 text-red-400 border border-red-900/60 block text-xs font-bold";
-          alert.innerText = data.message;
-          alert.classList.remove('hidden');
+          if (alert) {
+            alert.className = "p-3 rounded-xl bg-red-950/40 text-red-400 border border-red-900/60 block text-xs font-bold";
+            alert.innerText = data.message;
+            alert.classList.remove('hidden');
+          }
         }
       })
       .catch(() => {
-        indicator.classList.add('hidden');
-        alert.className = "p-3 rounded-xl bg-red-950/40 text-red-400 border border-red-900/60 block text-xs font-bold";
-        alert.innerText = "Failed to save settings.";
-        alert.classList.remove('hidden');
+        if (indicator) indicator.classList.add('hidden');
+        if (alert) {
+          alert.className = "p-3 rounded-xl bg-red-950/40 text-red-400 border border-red-900/60 block text-xs font-bold";
+          alert.innerText = "Failed to save settings.";
+          alert.classList.remove('hidden');
+        }
       });
     }
 
