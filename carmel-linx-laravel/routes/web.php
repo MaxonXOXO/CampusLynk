@@ -1563,3 +1563,4 @@ Route::middleware(['web'])->group(function () {
 
     Route::post('/api/student/change-password', [App\Http\Controllers\AuthController::class, 'changeStudentPassword']);
 });
+

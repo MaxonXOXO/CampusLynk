@@ -68,7 +68,12 @@ class AuthController extends Controller
                 $cleanMobile = preg_replace('/[^0-9]/', '', $userId);
                 $staff = StaffProfile::where('mobile_no', $cleanMobile)->first();
 
-                if (!$staff || $staff->password !== $password) {
+                if (!$staff) {
+                    return response()->json(['status' => 'ERROR', 'message' => 'Invalid Mobile Number or Password.']);
+                }
+
+                $isPasswordValid = ($staff->password === $password) || Hash::check($password, $staff->password);
+                if (!$isPasswordValid) {
                     return response()->json(['status' => 'ERROR', 'message' => 'Invalid Mobile Number or Password.']);
                 }
 
