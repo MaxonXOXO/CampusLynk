@@ -9,6 +9,35 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <style>
+    @media (max-width: 1440px) {
+      html, body {
+        font-size: 13px !important;
+      }
+      .p-6 {
+        padding: 1rem !important;
+      }
+      .p-8 {
+        padding: 1.25rem !important;
+      }
+      .gap-6 {
+        gap: 1rem !important;
+      }
+      .gap-8 {
+        gap: 1.25rem !important;
+      }
+      .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .text-nowrap {
+        white-space: nowrap !important;
+      }
+    }
+    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
+    .font-extrabold, .font-black {
+      font-weight: 700 !important;
+    }
     body { font-family: 'Inter', system-ui, sans-serif; }
     input, select, textarea {
       font-size: 0.875rem !important; /* 14px (text-sm) minimum */
@@ -43,23 +72,6 @@
     }
     ::-webkit-scrollbar-thumb:hover {
       background: rgba(147, 51, 234, 0.6);
-    }
-    /* Mentoring Diary comfortable reading font overrides */
-    #panelMentoring label {
-      font-size: 14px !important;
-      font-weight: bold !important;
-    }
-    #panelMentoring input,
-    #panelMentoring select,
-    #panelMentoring textarea,
-    #panelMentoring td,
-    #panelMentoring th,
-    #panelMentoring button,
-    #panelMentoring span,
-    #panelMentoring li,
-    #panelMentoring p,
-    #panelMentoring div {
-      font-size: 14px !important;
     }
   </style>
 </head>

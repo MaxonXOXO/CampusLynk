@@ -9,6 +9,35 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <style>
+    @media (max-width: 1440px) {
+      html, body {
+        font-size: 13px !important;
+      }
+      .p-6 {
+        padding: 1rem !important;
+      }
+      .p-8 {
+        padding: 1.25rem !important;
+      }
+      .gap-6 {
+        gap: 1rem !important;
+      }
+      .gap-8 {
+        gap: 1.25rem !important;
+      }
+      .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .text-nowrap {
+        white-space: nowrap !important;
+      }
+    }
+    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
+    .font-extrabold, .font-black {
+      font-weight: 700 !important;
+    }
     body { font-family: 'Inter', system-ui, sans-serif; }
     input, select, textarea {
       font-size: 0.875rem !important; /* 14px (text-sm) minimum */
@@ -57,49 +86,54 @@
   <!-- Sidebar -->
   <aside id="sidebarMenu" class="fixed inset-y-0 left-0 z-30 w-64 bg-slate-950 flex-shrink-0 flex flex-col border-r border-slate-800/80 shadow-xl transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 md:sticky md:top-0 md:h-screen overflow-y-auto">
     <!-- Branding -->
-    <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
-      <div class="bg-gradient-to-br from-blue-500 to-sky-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-blue-500/20 text-lg">CL</div>
+    <div class="p-5 border-b border-slate-800/60 flex items-center gap-3">
+      <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-slate-800/60">
       <div>
-        <h2 class="font-extrabold tracking-wide text-sm">Carmel Linx</h2>
-        <span class="text-slate-400 font-bold uppercase tracking-wider">Student Portal</span>
+        <h2 class="font-black tracking-tight leading-tight" style="font-size:1.1rem;background:linear-gradient(to right,#60a5fa,#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Carmel Linx</h2>
+        <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Student Portal</span>
       </div>
     </div>
 
     <!-- Profile Card -->
     <div class="p-4 bg-slate-900/40 border-b border-slate-800/40">
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3" id="sidebarAvatarContainer">
         @if(session('userPhoto'))
-          <img src="{{ session('userPhoto') }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
+          <img id="sidebarStudentImg" src="{{ session('userPhoto') }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
         @else
-          <div class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 to-sky-700 flex items-center justify-center font-black shadow text-sm">
+          <div id="sidebarStudentPlaceholder" class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 to-sky-700 flex items-center justify-center font-black shadow text-sm">
             {{ strtoupper(substr(session('userName','S'), 0, 2)) }}
-
           </div>
         @endif
         <div class="overflow-hidden">
-          <span class="font-bold text-sm block truncate text-slate-200">{{ session('userName') }}</span>
-          <span class="text-sm font-bold text-teal-400 block font-mono">{{ session('userId') }}</span>
-          <span class="text-sm text-slate-500 font-semibold">{{ session('userBranch') }} &bull; Student</span>
+          <span class="font-black text-base block truncate text-white leading-tight">{{ session('userName') }}</span>
+          <span class="text-xs font-bold text-teal-400 block font-mono">{{ session('userId') }}</span>
+          <span class="text-xs text-slate-500 font-semibold">{{ session('userBranch') }} &bull; Student</span>
         </div>
       </div>
     </div>
 
     <!-- Nav -->
-    <nav class="flex-grow p-4 space-y-1.5">
-      <a href="/dashboard/student?tab=exams" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
+    <nav class="flex-grow p-4 space-y-1">
+      <a href="/dashboard/student?tab=exams" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
         <span class="material-symbols-rounded text-lg">checklist</span> Works To Do
       </a>
-      <a href="/dashboard/student?tab=marks" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
+      <a href="/dashboard/student?tab=marks" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
         <span class="material-symbols-rounded text-lg">bar_chart_4_bars</span> Academic Stats
       </a>
-      <a href="/dashboard/student?tab=profile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
+      <a href="/dashboard/student?tab=profile" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
         <span class="material-symbols-rounded text-lg">manage_accounts</span> My Profile
       </a>
-      <div class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500">
+      <div class="w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500">
         <span class="material-symbols-rounded text-lg">menu_book</span> Mentoring Diary
       </div>
-      <a href="/dashboard/student?tab=activity" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
+      <a href="/dashboard/student?tab=activity" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
         <span class="material-symbols-rounded text-lg">star</span> Activity Points
+      </a>
+      <a href="/dashboard/student?tab=seminar" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
+        <span class="material-symbols-rounded text-lg">co_present</span> My Seminar
+      </a>
+      <a href="/student/mock-test" target="_blank" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-teal-300 hover:bg-blue-950/20 cursor-pointer text-sm no-underline">
+        <span class="material-symbols-rounded text-lg text-teal-400 animate-pulse">rocket_launch</span> Mock Practice Test
       </a>
     </nav>
 
@@ -121,14 +155,18 @@
             <span class="material-symbols-rounded">menu</span>
           </button>
           <div>
-            <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">My Mentoring Diary</h1>
-            <p class="font-bold text-slate-400 mt-0.5" id="panelSubtitle">View and update your complete academic profile.</p>
+            <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Mentoring Diary</h1>
+            <p class="font-bold text-slate-400 mt-0.5" id="panelSubtitle">View and update your complete mentoring profile.</p>
           </div>
         </div>
         <div class="flex items-center gap-4">
-          <div class="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 font-black uppercase tracking-wider text-slate-400 flex gap-4">
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 font-black uppercase tracking-wider text-slate-400 flex flex-wrap gap-4 text-xs">
             <span>Branch: <strong class="text-slate-200">{{ session('userBranch', '-') }}</strong></span>
-            <span>Batch: <strong class="text-slate-200">{{ session('classroomId', '-') }}</strong></span>
+            <span>Batch: <strong class="text-slate-200">{{ session('classroomId', '-') }}</strong>
+              @if(str_contains(session('classroomId', ''), '_LET'))
+                <span class="bg-purple-900/60 border border-purple-500/50 text-purple-300 font-extrabold text-[10px] px-1.5 py-0.5 rounded ml-1 uppercase">LET</span>
+              @endif
+            </span>
             <span id="headerSemesterText" class="hidden">Sem: <strong class="text-slate-200" id="headerSemValue">-</strong></span>
           </div>
         </div>

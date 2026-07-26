@@ -2159,32 +2159,38 @@ class DataController extends Controller
                 ->get();
 
             $classroomId = $student->classroom_id;
-            $classroom = DB::table('class_management')->where('classroom_id', $classroomId)->first();
+            $classroom = $classroomId ? DB::table('class_management')->where('classroom_id', $classroomId)->first() : null;
             $currentSem = $student->semester ?: ($classroom ? (int)$classroom->current_semester : 1);
 
             // Auto-create a default Seminar type subject if none exists for this classroom and semester
-            $hasSeminarSubject = \App\Models\BatchSubject::where('classroom_id', $classroomId)
-                ->where('semester', $currentSem)
-                ->where('subject_type', 'Seminar')
-                ->exists();
+            if (!empty($classroomId)) {
+                $hasSeminarSubject = \App\Models\BatchSubject::where('classroom_id', $classroomId)
+                    ->where('semester', $currentSem)
+                    ->where('subject_type', 'Seminar')
+                    ->exists();
 
-            if (!$hasSeminarSubject) {
-                $branchKey = strtoupper(explode('_', $classroomId)[0] ?? 'EL');
-                \App\Models\BatchSubject::create([
-                    'classroom_id' => $classroomId,
-                    'semester' => $currentSem,
-                    'subject_code' => $branchKey . '-5008',
-                    'subject_name' => 'Seminar',
-                    'subject_type' => 'Seminar',
-                    'credits' => 1
-                ]);
+                if (!$hasSeminarSubject) {
+                    $branchKey = strtoupper(explode('_', $classroomId)[0] ?? 'EL');
+                    \App\Models\BatchSubject::create([
+                        'classroom_id' => $classroomId,
+                        'semester' => $currentSem,
+                        'subject_code' => $branchKey . '-5008',
+                        'subject_name' => 'Seminar',
+                        'subject_type' => 'Seminar',
+                        'credits' => 1
+                    ]);
+                }
             }
 
             $isLetStudent = str_ends_with(strtoupper($regNo), 'L') || str_ends_with(strtoupper($student->sbte_reg_no ?? ''), 'L');
             $batchSubjects = \App\Models\BatchSubject::where(function($q) use ($classroomId, $isLetStudent) {
-                    $q->where('classroom_id', $classroomId);
-                    if ($isLetStudent) {
-                        $q->orWhere('classroom_id', $classroomId . '_LET');
+                    if (!empty($classroomId)) {
+                        $q->where('classroom_id', $classroomId);
+                        if ($isLetStudent) {
+                            $q->orWhere('classroom_id', $classroomId . '_LET');
+                        }
+                    } else {
+                        $q->whereRaw('1 = 0');
                     }
                 })
                 ->orderBy('semester', 'asc')
