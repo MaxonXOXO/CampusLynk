@@ -257,18 +257,6 @@
                     <span>Course File Console</span>
                 </a>
 
-                <!-- Attendance Report -->
-                <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/attendance-report" target="_blank" class="header-btn px-3.5 py-2 rounded-lg bg-amber-600/20 hover:bg-amber-600/35 border border-amber-500/40 text-amber-300 font-bold transition-all flex items-center space-x-1.5" title="Detailed Session-wise Attendance Register">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-                    <span>Detailed Register</span>
-                </a>
-
-                <!-- Consolidated Attendance -->
-                <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/attendance-consolidated" target="_blank" class="header-btn px-3.5 py-2 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/35 border border-emerald-500/40 text-emerald-300 font-bold transition-all flex items-center space-x-1.5" title="Consolidated Theory & Lab Summary Attendance Report">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2m3.29-3a3 3 0 115.15 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 21h10a2 2 0 002-2v-1a2 2 0 00-2-2H7a2 2 0 00-2 2v1a2 2 0 002 2z"/></svg>
-                    <span>Consolidated Attendance</span>
-                </a>
-
                 <!-- Fullscreen Button -->
                 <button onclick="toggleFullscreen()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all flex items-center space-x-1" title="Toggle Fullscreen">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0-4l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
@@ -304,6 +292,7 @@
                 <button onclick="switchTheorySubtab('series')" id="theory-tab-series" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">✍️ Theory Series Exams</button>
                 <button onclick="switchTheorySubtab('ese')" id="theory-tab-ese" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">🏆 Theory ESE & Results</button>
                 <button onclick="switchTheorySubtab('surveys')" id="theory-tab-surveys" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📊 Surveys & Indirect Attainment</button>
+                <button onclick="switchTheorySubtab('attendance')" id="theory-tab-attendance" class="subtab-btn px-4 py-2 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📅 Attendance Reports</button>
             </div>
 
             <!-- Subtab 1: Theory Modules, COs & CO-PO Mapping Table -->
@@ -1026,6 +1015,49 @@
 
             </div>
 
+            <!-- Subtab 7: Attendance Reports -->
+            <div id="theory-subcontent-attendance" class="space-y-5 hidden">
+                <div class="glass-card p-6 rounded-xl border border-slate-800 space-y-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-white flex items-center space-x-2">
+                            <span class="material-symbols-rounded text-indigo-400">assignment_turned_in</span>
+                            <span>📅 Course Attendance Reports</span>
+                        </h3>
+                        <p class="text-slate-400 text-xs mt-1">Select and print the detailed session attendance register or the consolidated final attendance report.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Card 1: Detailed Register -->
+                        <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-900/90 to-amber-950/20 border border-amber-500/15 hover:border-amber-500/40 shadow-lg transition-all duration-300 group flex flex-col justify-between space-y-4">
+                            <div class="flex justify-between items-start">
+                                <div class="space-y-1">
+                                    <h4 class="text-base font-bold text-slate-100 group-hover:text-amber-400 transition-all">Detailed Attendance Register</h4>
+                                    <p class="text-slate-400 text-xs leading-relaxed">View and print the complete, session-by-session student attendance grid with specific dates, hourly remarks, percentage logs, and marks calculation.</p>
+                                </div>
+                                <span class="material-symbols-rounded text-amber-400 bg-amber-500/10 p-3 rounded-xl text-2xl flex-shrink-0">view_list</span>
+                            </div>
+                            <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/attendance-report" target="_blank" class="w-full text-center px-4 py-2.5 rounded-xl font-bold text-xs bg-amber-600 hover:bg-amber-500 text-white transition-all shadow-sm no-underline block">
+                                Open Detailed Register
+                            </a>
+                        </div>
+
+                        <!-- Card 2: Consolidated Report -->
+                        <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-900/90 to-emerald-950/20 border border-emerald-500/15 hover:border-emerald-500/40 shadow-lg transition-all duration-300 group flex flex-col justify-between space-y-4">
+                            <div class="flex justify-between items-start">
+                                <div class="space-y-1">
+                                    <h4 class="text-base font-bold text-slate-100 group-hover:text-emerald-400 transition-all">Consolidated Attendance Report</h4>
+                                    <p class="text-slate-400 text-xs leading-relaxed">View and print the consolidated A4 report showing the total theory conducted/present, practical conducted/present, and the final average attendance percentage for CIA preparation.</p>
+                                </div>
+                                <span class="material-symbols-rounded text-emerald-400 bg-emerald-500/10 p-3 rounded-xl text-2xl flex-shrink-0">analytics</span>
+                            </div>
+                            <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/attendance-consolidated" target="_blank" class="w-full text-center px-4 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-sm no-underline block">
+                                Open Consolidated Report
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- ========================================================================= -->
@@ -1684,7 +1716,7 @@
         }
 
         function switchTheorySubtab(tab) {
-            ['overview', 'planner', 'sl', 'series', 'ese', 'surveys'].forEach(t => {
+            ['overview', 'planner', 'sl', 'series', 'ese', 'surveys', 'attendance'].forEach(t => {
                 document.getElementById('theory-subcontent-' + t)?.classList.add('hidden');
                 document.getElementById('theory-tab-' + t)?.classList.remove('active', 'text-white');
             });
