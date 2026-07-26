@@ -821,12 +821,12 @@
         badge.className = "flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 transition-premium cursor-pointer shadow-sm hover:bg-emerald-500/20 group";
         icon.innerText = "auto_awesome";
         icon.className = "material-symbols-rounded text-sm text-emerald-400";
-        text.innerText = "AI System Active";
+        text.innerText = "AI Support: Active";
       } else {
         badge.className = "flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30 transition-premium cursor-pointer shadow-sm hover:bg-amber-500/20 group";
-        icon.innerText = "do_not_disturb_on";
+        icon.innerText = "cloud_off";
         icon.className = "material-symbols-rounded text-sm text-amber-400";
-        text.innerText = "AI Deactivated (Offline)";
+        text.innerText = "AI Support: Off";
       }
     }
 
