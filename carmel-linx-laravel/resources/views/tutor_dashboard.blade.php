@@ -1765,7 +1765,10 @@
               <td class="p-3 font-bold text-slate-300">
                 ${s.diary_count || 0} entries
               </td>
-              <td class="p-3 text-right">
+              <td class="p-3 text-right whitespace-nowrap">
+                <a href="sms:${s.guardian_mobile || s.phone || ''}?body=${encodeURIComponent('Carmel Poly: View your ward (' + s.name + ') live attendance & status portal: ' + window.location.origin + '/parent/dashboard/' + s.reg_no)}" class="inline-block px-2.5 py-1 bg-cyan-700 hover:bg-cyan-600 text-white rounded text-xs font-bold transition-premium cursor-pointer shadow-md no-underline me-1" title="Send SMS Link to Parent">
+                  📱 SMS Portal
+                </a>
                 <a href="/tutor/mentoring-diary/${s.reg_no}" class="inline-block px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-premium cursor-pointer shadow-md no-underline">
                   View Diary
                 </a>
