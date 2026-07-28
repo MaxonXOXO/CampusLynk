@@ -356,7 +356,13 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r26/classroom/practicum/{subjectId}/series-qp/print-qp/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSeriesQpPdf']);
     Route::get('/r26/classroom/practicum/{subjectId}/series-qp/print-scheme/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSeriesSchemePdf']);
     Route::get('/r26/classroom/practicum/{subjectId}/series-qp/print-key/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSeriesAnswerKeyPdf']);
-
+    // Revision 2026 Virtual Drawing Hall (Lab Model)
+    Route::get('/r26/classroom/drawing/{subjectId}', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'show']);
+    Route::post('/api/r26/classroom/drawing/{subjectId}/syllabus', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'uploadSyllabus']);
+    Route::post('/api/r26/classroom/drawing/{subjectId}/evaluate/slot', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'saveSlotMarks']);
+    Route::post('/api/r26/classroom/drawing/{subjectId}/evaluate/practical-test', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'savePracticalTestMarks']);
+    Route::post('/api/r26/classroom/drawing/{subjectId}/evaluate/oee', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'saveOeeMarks']);
+    Route::post('/api/r26/classroom/drawing/{subjectId}/evaluate/ese', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'saveEseMarks']);
 
 
     // HOD Subject Allocation
