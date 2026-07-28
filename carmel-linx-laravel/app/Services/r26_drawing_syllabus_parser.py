@@ -1,4 +1,19 @@
 import sys
+import os
+
+# Ensure user site-packages are accessible when invoked under www-data web server environment
+extra_paths = [
+    '/home/carmel/.local/lib/python3.14/site-packages',
+    '/home/carmel/.local/lib/python3.12/site-packages',
+    '/home/carmel/.local/lib/python3.11/site-packages',
+    '/home/carmel/.local/lib/python3.10/site-packages',
+    '/usr/local/lib/python3.14/site-packages',
+    '/usr/local/lib/python3.12/site-packages'
+]
+for p in extra_paths:
+    if os.path.exists(p) and p not in sys.path:
+        sys.path.insert(0, p)
+
 import json
 import re
 import io
