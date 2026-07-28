@@ -14,87 +14,167 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #030712;
-            color: #f3f4f6;
-            background-image: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #374151;
+            --border-color: #374151;
+            --border-color-glow: rgba(6, 182, 212, 0.35);
+            --accent-cyan: #06b6d4;
+            --accent-blue: #3b82f6;
+            --accent-indigo: #6366f1;
+            --accent-purple: #8b5cf6;
+            --accent-emerald: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
         }
-        h1, h2, h3, h4, h5, h6, .font-heading, span, p, label, button, a, th, td {
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            background-image: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 60%);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6, .font-heading, .brand-font {
             font-family: 'Outfit', sans-serif;
+            letter-spacing: -0.01em;
             text-shadow: none !important;
             filter: none !important;
         }
+
         .glass-panel {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
         }
+
         .glass-card {
-            background: rgba(17, 24, 39, 0.55);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(31, 41, 55, 0.65);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .glass-card:hover {
-            border-color: rgba(99, 102, 241, 0.2);
-            box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.08);
+            border-color: var(--border-color-glow);
+            box-shadow: 0 10px 36px rgba(6, 182, 212, 0.08);
         }
+
         .mode-btn {
-            background: rgba(31, 41, 55, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            color: #9ca3af;
+            background: rgba(31, 41, 55, 0.5);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            border-radius: 10px;
             transition: all 0.25s ease;
         }
+
         .mode-btn:hover {
             color: #ffffff;
-            background: rgba(31, 41, 55, 0.6);
-            border-color: rgba(255, 255, 255, 0.1);
+            background: rgba(55, 65, 81, 0.6);
+            border-color: rgba(6, 182, 212, 0.3);
         }
+
         .mode-btn.active {
-            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-            color: #ffffff !important;
-            border-color: #3b82f6;
-            box-shadow: none;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.55) 0%, rgba(15, 23, 42, 0.85) 100%);
+            color: #93c5fd !important;
+            border: 1px solid rgba(59, 130, 246, 0.45);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.5);
         }
+
         .subtab-btn {
             background: transparent;
-            color: #9ca3af;
+            color: var(--text-muted);
             border-bottom: 2px solid transparent;
             transition: all 0.25s ease;
             font-size: 13.5px !important;
+            padding: 0.5rem 0.85rem;
+            border-radius: 6px 6px 0 0;
         }
+
         .subtab-btn:hover {
             color: #ffffff;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(55, 65, 81, 0.3);
         }
+
         .subtab-btn.active {
-            color: #818cf8 !important;
-            border-bottom-color: #6366f1;
+            color: #60a5fa !important;
+            border-bottom-color: #3b82f6;
+            background: rgba(30, 58, 138, 0.25);
             font-weight: 700;
         }
+
+        /* Form Inputs & Select Controls */
+        input[type="text"], input[type="date"], input[type="number"], select, textarea {
+            background-color: #111827 !important;
+            border: 1px solid var(--border-color) !important;
+            color: #f9fafb !important;
+            border-radius: 8px !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input[type="text"]:focus, input[type="date"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+            border-color: var(--accent-cyan) !important;
+            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2) !important;
+            outline: none !important;
+        }
+
+        /* Strict Table Styling & High Contrast Grid Lines */
+        table {
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+            width: 100%;
+        }
+
+        table th {
+            background-color: #111827 !important;
+            color: var(--text-muted) !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.04em !important;
+            border-bottom: 1px solid var(--border-color) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+        }
+
+        table td {
+            border-bottom: 1px solid var(--border-color) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.03) !important;
+        }
+
+        table tr:hover td {
+            background-color: rgba(55, 65, 81, 0.35) !important;
+        }
+
         /* Strict Minimum Font Size Policy Compliance */
         input, select, textarea, button, table, td, th, label, p, span, div {
             font-size: 0.9375rem !important; /* 15px minimum for high readability */
         }
+
         /* Compact Font Size Specifically for 90-Hour Dense Lesson Planner */
         .lp-table input, .lp-table select, .lp-table td, .lp-table th, .lp-table span, .lp-table button {
             font-size: 0.8125rem !important; /* 13px compact font for high density */
             padding-top: 0.25rem !important;
             padding-bottom: 0.25rem !important;
         }
+
         /* Specific header elements requested by user to be compact */
         .header-subtitle, .header-subtitle span {
             font-size: 0.8125rem !important; /* 13px compact font */
         }
+
         .table-compact-header th, .table-compact-header tr th {
             font-size: 0.75rem !important; /* 12px font size for compact table headers */
             padding-top: 0.35rem !important;
             padding-bottom: 0.35rem !important;
         }
+
         .header-badge, .header-badge span, .header-badge div {
             font-size: 0.8125rem !important; /* 13px compact font */
             padding-top: 0.25rem !important;
@@ -102,6 +182,7 @@
             padding-left: 0.5rem !important;
             padding-right: 0.5rem !important;
         }
+
         .header-btn {
             font-size: 0.8125rem !important; /* 13px compact font */
             padding-top: 0.35rem !important;
@@ -109,10 +190,17 @@
             padding-left: 0.65rem !important;
             padding-right: 0.65rem !important;
             border-radius: 8px !important;
+            transition: all 0.2s ease !important;
         }
+
+        .header-btn:hover {
+            transform: translateY(-1px);
+        }
+
         .header-btn span, .header-btn svg {
             font-size: 0.8125rem !important; /* 13px compact font */
         }
+
         /* Custom Scrollbars */
         ::-webkit-scrollbar {
             width: 8px;
@@ -162,8 +250,8 @@
             
             <!-- Left: Noticeable Back Button & Subject Details -->
             <div class="flex items-center space-x-3.5 w-full xl:w-auto">
-                <a href="javascript:void(0)" onclick="window.close(); setTimeout(function() { let ref = document.referrer; if (ref && (ref.includes('/dashboard/') || ref.includes('/classroom/'))) { window.location.href = ref; } else { window.location.href = '{{ $dashboardUrl }}'; } }, 150);" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-pink-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-semibold shadow-md transition-all flex items-center space-x-2 border border-rose-400/40 flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                <a href="javascript:void(0)" onclick="window.close(); setTimeout(function() { let ref = document.referrer; if (ref && (ref.includes('/dashboard/') || ref.includes('/classroom/'))) { window.location.href = ref; } else { window.location.href = '{{ $dashboardUrl }}'; } }, 150);" class="px-4 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white font-semibold shadow-md transition-all flex items-center space-x-2 border border-slate-700 hover:border-cyan-500/50 flex-shrink-0">
+                    <svg class="w-4 h-4 text-slate-400 group-hover:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                     <span>Back</span>
                 </a>
                 
@@ -208,7 +296,7 @@
                     Faculty: <span class="text-purple-300 font-bold">
                         {{ Session::get('userName') ?? 'Faculty In-Charge' }}
                         @if(isset($assignedStaff) && count($assignedStaff) > 0)
-                            @foreach($assignedStaff as $stf)
+                            @foreach(($assignedStaff ?? []) as $stf)
                                 @if($stf->name !== Session::get('userName'))
                                     , {{ $stf->name }}
                                 @endif
@@ -300,7 +388,7 @@
             <div id="theory-subcontent-overview" class="space-y-5">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                     <div class="lg:col-span-2 space-y-4">
-                        @foreach($practicumCourseFile->parsed_modules as $mod)
+                        @foreach(($practicumCourseFile->parsed_modules ?? []) as $mod)
                         <div class="glass-card p-4 rounded-xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5">
                                 <h3 class="font-bold text-blue-400">Module {{ $mod['module_id'] }}: {{ $mod['title'] }}</h3>
@@ -313,12 +401,12 @@
 
                     <div class="space-y-4">
                         <div class="glass-card p-4 rounded-xl border border-slate-800 space-y-3">
-                            <div class="flex items-center justify-between">
-                                <h3 class="font-bold text-emerald-400 text-base">🔬 Practical Lab Experiments Summary</h3>
-                                <span class="text-xs px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 font-semibold border border-emerald-500/20">45 P Hours</span>
+                            <div class="flex items-center justify-between gap-2 whitespace-nowrap">
+                                <h3 class="font-bold text-emerald-400 text-base whitespace-nowrap">🔬 Practical Lab Experiments Summary</h3>
+                                <span class="text-xs px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 font-semibold border border-emerald-500/20 whitespace-nowrap flex-shrink-0">45 P Hours</span>
                             </div>
                             <div class="space-y-2 max-h-[520px] overflow-y-auto pr-1">
-                                @foreach($practicumCourseFile->parsed_experiments as $exp)
+                                @foreach(($practicumCourseFile->parsed_experiments ?? []) as $exp)
                                 <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800/80">
                                     <div class="flex items-center justify-between mb-1">
                                         <span class="font-bold text-emerald-400 text-xs">{{ $exp['experiment_no'] }}</span>
@@ -359,7 +447,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-800">
-                                @foreach($practicumCourseFile->parsed_cos as $co)
+                                @foreach(($practicumCourseFile->parsed_cos ?? []) as $co)
                                 <tr class="hover:bg-slate-800/30">
                                     <td class="p-3 text-left font-bold text-amber-400">{{ $co['id'] }}</td>
                                     <td class="p-3 text-left text-slate-300 text-sm">{{ $co['description'] }}</td>
@@ -388,13 +476,13 @@
                         <p class="text-slate-400 text-xs mt-0.5">Includes 45 Theory Lecture Hours (L) and 4 Theory Series Exams (ST).</p>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <button onclick="saveAllLessonPlans()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg flex items-center space-x-2 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        <button onclick="saveAllLessonPlans()" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/40 rounded-lg text-xs font-semibold shadow transition-all flex items-center space-x-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             <span>Save All Changes</span>
                         </button>
  
-                        <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/print-lesson-plan" target="_blank" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg flex items-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/print-lesson-plan" target="_blank" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 rounded-lg text-xs font-semibold shadow transition-all flex items-center space-x-1.5 no-underline">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                             <span>Print Lesson Plan</span>
                         </a>
                     </div>
@@ -860,21 +948,21 @@
             <div id="theory-subcontent-surveys" class="space-y-5 hidden">
                 
                 <!-- Top Header Card -->
-                <div class="glass-card p-5 rounded-xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="glass-card p-4 rounded-xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
                     <div>
-                        <h3 class="text-lg font-bold text-white flex items-center space-x-2">
-                            <span class="material-symbols-rounded text-indigo-400">forum</span>
-                            <span>Online Feedback Surveys & Indirect CO-PO Attainment</span>
+                        <h3 class="text-base font-bold text-white tracking-tight">
+                            Online Feedback Surveys & Indirect CO-PO Attainment
                         </h3>
-                        <p class="text-slate-400 text-xs mt-1">
-                            Manage Mid-Semester Online Surveys (SAR Criterion 2) & End-Semester Course Exit Surveys for Indirect CO Attainment (20% Weightage).
+                        <p class="text-slate-400 text-[11px] leading-snug mt-1">
+                            Manage Mid-Semester Online Surveys (SAR Criterion 2)<br>
+                            End-Semester Course Exit Surveys for Indirect CO Attainment (20% Weightage).
                         </p>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <a href="/classroom/{{ $batchSubject->id }}/course-exit/report" target="_blank" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs shadow-sm transition-all flex items-center space-x-1.5 no-print">
+                    <div class="flex items-center space-x-2 whitespace-nowrap flex-shrink-0">
+                        <a href="/classroom/{{ $batchSubject->id }}/course-exit/report" target="_blank" class="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/35 text-indigo-300 border border-indigo-500/40 font-semibold text-xs transition-all flex items-center space-x-1.5 no-print whitespace-nowrap">
                             <span>🖨️ Course Exit Report</span>
                         </a>
-                        <a href="/classroom/{{ $batchSubject->id }}/survey/report" target="_blank" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all flex items-center space-x-1.5 no-print">
+                        <a href="/classroom/{{ $batchSubject->id }}/survey/report" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all flex items-center space-x-1.5 no-print whitespace-nowrap">
                             <span>🖨️ MidSem Report</span>
                         </a>
                     </div>
@@ -904,14 +992,14 @@
                             Captures early student feedback on syllabus delivery pace, concept clarity, ICT tools, classroom interaction, and evaluation fairness. Sends active task notification to student portal.
                         </p>
 
-                        <div class="flex items-center space-x-2 pt-2 border-t border-slate-800/60">
-                            <button id="btn-open-midsem-practicum" onclick="openMidsemInitModal()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all shadow-sm flex items-center space-x-1.5">
+                        <div class="flex items-center space-x-2 pt-2 border-t border-slate-800/60 whitespace-nowrap">
+                            <button id="btn-open-midsem-practicum" onclick="openMidsemInitModal()" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/40 font-semibold text-xs transition-all shadow-sm flex items-center space-x-1.5 whitespace-nowrap">
                                 <span>Initiate / Open Survey</span>
                             </button>
-                            <button id="btn-close-midsem-practicum" onclick="controlPracticumSurvey('midsem', 'close')" class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition-all shadow-sm hidden">
+                            <button id="btn-close-midsem-practicum" onclick="controlPracticumSurvey('midsem', 'close')" class="px-3 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/35 text-rose-300 border border-rose-500/40 font-semibold text-xs transition-all shadow-sm hidden whitespace-nowrap">
                                 <span>Close & Lock Survey</span>
                             </button>
-                            <a href="/classroom/{{ $batchSubject->id }}/survey/report" target="_blank" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all flex items-center space-x-1">
+                            <a href="/classroom/{{ $batchSubject->id }}/survey/report" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all flex items-center space-x-1 whitespace-nowrap">
                                 <span>Print Report</span>
                             </a>
                         </div>
@@ -938,14 +1026,14 @@
                             Evaluates student perception of Course Outcomes (CO1–CO4) at semester completion. Results automatically feed into Indirect CO Attainment (20% weightage).
                         </p>
 
-                        <div class="flex items-center space-x-2 pt-2 border-t border-slate-800/60">
-                            <button id="btn-open-exit-practicum" onclick="openExitInitModal()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all shadow-sm flex items-center space-x-1.5">
+                        <div class="flex items-center space-x-2 pt-2 border-t border-slate-800/60 whitespace-nowrap">
+                            <button id="btn-open-exit-practicum" onclick="openExitInitModal()" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/40 font-semibold text-xs transition-all shadow-sm flex items-center space-x-1.5 whitespace-nowrap">
                                 <span>Initiate / Open Survey</span>
                             </button>
-                            <button id="btn-close-exit-practicum" onclick="controlPracticumSurvey('exit', 'close')" class="px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition-all shadow-sm hidden">
+                            <button id="btn-close-exit-practicum" onclick="controlPracticumSurvey('exit', 'close')" class="px-3 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/35 text-rose-300 border border-rose-500/40 font-semibold text-xs transition-all shadow-sm hidden whitespace-nowrap">
                                 <span>Close & Lock Survey</span>
                             </button>
-                            <a href="/classroom/{{ $batchSubject->id }}/course-exit/report" target="_blank" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all flex items-center space-x-1">
+                            <a href="/classroom/{{ $batchSubject->id }}/course-exit/report" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all flex items-center space-x-1 whitespace-nowrap">
                                 <span>Print Report</span>
                             </a>
                         </div>
@@ -1028,21 +1116,21 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Card 1: Detailed Register -->
-                        <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-900/90 to-blue-950/20 border border-blue-500/15 hover:border-blue-500/40 shadow-lg transition-all duration-300 group flex flex-col justify-between space-y-4">
+                        <div class="p-5 rounded-2xl bg-slate-900/80 border border-cyan-500/20 hover:border-cyan-500/50 shadow-lg transition-all duration-300 group flex flex-col justify-between space-y-4">
                             <div class="flex justify-between items-start">
                                 <div class="space-y-1">
-                                    <h4 class="text-base font-bold text-slate-100 group-hover:text-blue-400 transition-all">Detailed Attendance Register</h4>
+                                    <h4 class="text-base font-bold text-slate-100 group-hover:text-cyan-400 transition-all">Detailed Attendance Register</h4>
                                     <p class="text-slate-400 text-xs leading-relaxed">View and print the complete, session-by-session student attendance grid with specific dates, hourly remarks, percentage logs, and marks calculation.</p>
                                 </div>
-                                <span class="material-symbols-rounded text-blue-400 bg-blue-500/10 p-3 rounded-xl text-2xl flex-shrink-0">view_list</span>
+                                <span class="material-symbols-rounded text-cyan-400 bg-cyan-500/10 p-3 rounded-xl text-2xl flex-shrink-0">view_list</span>
                             </div>
-                            <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/attendance-report" target="_blank" class="w-full text-center px-4 py-2.5 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-sm no-underline block">
+                            <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/attendance-report" target="_blank" class="w-full text-center px-4 py-2.5 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-white border border-cyan-500/40 hover:border-cyan-400 transition-all shadow-md no-underline block">
                                 Open Detailed Register
                             </a>
                         </div>
 
                         <!-- Card 2: Consolidated Report -->
-                        <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-900/90 to-emerald-950/20 border border-emerald-500/15 hover:border-emerald-500/40 shadow-lg transition-all duration-300 group flex flex-col justify-between space-y-4">
+                        <div class="p-5 rounded-2xl bg-slate-900/80 border border-emerald-500/20 hover:border-emerald-500/50 shadow-lg transition-all duration-300 group flex flex-col justify-between space-y-4">
                             <div class="flex justify-between items-start">
                                 <div class="space-y-1">
                                     <h4 class="text-base font-bold text-slate-100 group-hover:text-emerald-400 transition-all">Consolidated Attendance Report</h4>
@@ -1050,7 +1138,7 @@
                                 </div>
                                 <span class="material-symbols-rounded text-emerald-400 bg-emerald-500/10 p-3 rounded-xl text-2xl flex-shrink-0">analytics</span>
                             </div>
-                            <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/attendance-consolidated" target="_blank" class="w-full text-center px-4 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-sm no-underline block">
+                            <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/attendance-consolidated" target="_blank" class="w-full text-center px-4 py-2.5 rounded-xl font-bold text-xs bg-slate-800 hover:bg-slate-700 text-emerald-300 hover:text-white border border-emerald-500/40 hover:border-emerald-400 transition-all shadow-md no-underline block">
                                 Open Consolidated Report
                             </a>
                         </div>
@@ -1097,7 +1185,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-800/60">
-                            @foreach($practicumCourseFile->parsed_experiments as $exp)
+                            @foreach(($practicumCourseFile->parsed_experiments ?? []) as $exp)
                             <tr class="hover:bg-slate-800/30 transition-all">
                                 <td class="p-3 font-bold text-emerald-400">{{ $exp['experiment_no'] }}</td>
                                 <td class="p-3 text-slate-200 font-medium">{{ $exp['title'] }}</td>
@@ -1118,13 +1206,13 @@
                         <p class="text-slate-400 text-xs mt-0.5">Interactive lab session planner. Evaluates topics/experiments, proposed/actual dates, sub-batches, and remarks.</p>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <button onclick="saveAllLessonPlans()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg flex items-center space-x-2 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        <button onclick="saveAllLessonPlans()" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/40 rounded-lg text-xs font-semibold shadow transition-all flex items-center space-x-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                             <span>Save All Changes</span>
                         </button>
  
-                        <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/print-lesson-plan" target="_blank" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg flex items-center space-x-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        <a href="/r26/classroom/practicum/{{ $batchSubject->id }}/print-lesson-plan" target="_blank" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 rounded-lg text-xs font-semibold shadow transition-all flex items-center space-x-1.5 no-underline">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                             <span>Print Lesson Plan</span>
                         </a>
                     </div>
@@ -1214,8 +1302,8 @@
                         <p class="text-slate-400 text-xs mt-0.5 font-normal">Table 2.2 Rubrics (Criteria 1 to 6 out of 50 Marks) converted to 10 CIA marks</p>
                     </div>
                         <div class="flex items-center space-x-2">
-                            <button onclick="printSubtabReport('Continuous Lab Evaluation (CE - 10M) Report', 'lab-subcontent-eval')" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all no-print">🖨️ Print Report</button>
-                            <button onclick="openExperimentEvalModal()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-normal text-xs shadow-md">Evaluate Experiment</button>
+                            <button onclick="printSubtabReport('Continuous Lab Evaluation (CE - 10M) Report', 'lab-subcontent-eval')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all no-print">🖨️ Print Report</button>
+                            <button onclick="openExperimentEvalModal()" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/40 font-semibold text-xs shadow-sm transition-all">Evaluate Experiment</button>
                         </div>
                 </div>
 
@@ -1275,8 +1363,8 @@
                         <h3 class="text-base font-semibold text-slate-200">Practical Series Examinations</h3>
                     </div>
                         <div class="flex items-center space-x-2">
-                            <button onclick="printSubtabReport('Practical Series Examinations Report', 'lab-subcontent-series')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all no-print">🖨️ Print Report</button>
-                            <button onclick="openSeriesPracticalModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold transition-all">Enter Lab Series Test Marks</button>
+                            <button onclick="printSubtabReport('Practical Series Examinations Report', 'lab-subcontent-series')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all no-print">🖨️ Print Report</button>
+                            <button onclick="openSeriesPracticalModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all">Enter Lab Series Test Marks</button>
                         </div>
                 </div>
  
@@ -1413,9 +1501,9 @@
                         </p>
                     </div>
                     <div class="flex items-center space-x-2">
-                        <button onclick="printSubtabReport('Practical End Semester Exam (ESE) Report', 'lab-subcontent-ese')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all no-print">🖨️ Print Report</button>
-                        <button onclick="openEsePracticalModal()" class="px-4 py-2 rounded-lg bg-blue-700 hover:bg-blue-600 text-white font-semibold shadow-md transition-all flex items-center space-x-2 border border-blue-500/40">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        <button onclick="printSubtabReport('Practical End Semester Exam (ESE) Report', 'lab-subcontent-ese')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition-all no-print">🖨️ Print Report</button>
+                        <button onclick="openEsePracticalModal()" class="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/35 text-indigo-300 border border-indigo-500/40 font-semibold text-xs shadow-sm transition-all flex items-center space-x-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             <span>Enter Practical ESE Marks</span>
                         </button>
                     </div>
@@ -2990,7 +3078,7 @@
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
                     <label class="text-slate-300 text-xs font-semibold whitespace-nowrap">Select Experiment:</label>
                     <select id="eval-exp-select" onchange="onEvalExpChange(this.value)" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 font-normal text-xs text-emerald-400 outline-none w-full sm:max-w-xs focus:border-emerald-500">
-                        @foreach($practicumCourseFile->parsed_experiments as $exp)
+                        @foreach(($practicumCourseFile->parsed_experiments ?? []) as $exp)
                         <option value="{{ $exp['experiment_no'] }}">{{ $exp['experiment_no'] }} - {{ $exp['title'] }}</option>
                         @endforeach
                     </select>

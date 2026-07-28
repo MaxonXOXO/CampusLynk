@@ -17,6 +17,7 @@ class LessonPlan extends Model
         'allocated_hours',
         'pedagogy',
         'sub_batch',
+        'mode',
         'proposed_date',
         'actual_date',
         'actual_hours',
