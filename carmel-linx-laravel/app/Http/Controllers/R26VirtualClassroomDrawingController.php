@@ -328,11 +328,13 @@ class R26VirtualClassroomDrawingController extends Controller
                 $indirectPct = ($indirectAvg / 3.0) * 100;
                 $indirectLevel = ($indirectPct >= 70) ? 3.0 : (($indirectPct >= 60) ? 2.0 : (($indirectPct >= 50) ? 1.0 : 0.0));
             }
+            $indirectRating = ($indirectPct >= 70) ? 'High (L3)' : (($indirectPct >= 60) ? 'Medium (L2)' : (($indirectPct >= 50) ? 'Low (L1)' : 'Nil (L0)'));
 
             $indirectStats[$coTag] = [
                 'avg_score' => round($indirectAvg, 2),
                 'percentage' => round($indirectPct, 1),
-                'level' => $indirectLevel
+                'level' => $indirectLevel,
+                'rating' => $indirectRating
             ];
 
             $combinedLevel = round((0.80 * $directLevel) + (0.20 * $indirectLevel), 2);

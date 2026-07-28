@@ -267,33 +267,63 @@
     </nav>
 
     <!-- Main Container -->
-    <div class="container-fluid px-4 py-4">
+    <div class="container-fluid px-4 py-3">
 
         <!-- Top Banner -->
-        <div class="glass-card p-4 mb-4">
+        <div class="glass-card p-3 mb-3">
             <div class="row align-items-center g-3">
                 <div class="col-lg-7">
-                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                        <span class="badge badge-cyan"><i class="fa-solid fa-flask me-1"></i> R2026 Lab Paper</span>
-                        <span class="badge badge-emerald"><i class="fa-solid fa-users me-1"></i> Single Batch (Whole Class)</span>
-                        <span class="badge badge-purple"><i class="fa-solid fa-laptop-code me-1"></i> CAD & Drafting</span>
-                        <span class="badge badge-amber"><i class="fa-solid fa-clock me-1"></i> 45 Contact Hours</span>
+                    <div class="d-flex align-items-center gap-1.5 mb-1 flex-wrap">
+                        <span class="badge badge-cyan px-2 py-0.5" style="font-size: 0.68rem;"><i class="fa-solid fa-flask me-1"></i> R2026 Lab Paper</span>
+                        
+                        <!-- Batch Badge -->
+                        <span class="badge badge-emerald px-2 py-0.5" style="font-size: 0.68rem;">
+                            <i class="fa-solid fa-users me-1"></i> Batch: {{ $classroom->batch_year ?? 'R26' }} ({{ $batchSubject->classroom_id }})
+                        </span>
+
+                        <!-- Assigned Faculty Badge -->
+                        <span class="badge badge-purple px-2 py-0.5" style="font-size: 0.68rem;">
+                            <i class="fa-solid fa-user-tie me-1"></i> Faculty: 
+                            @if(isset($assignedStaff) && count($assignedStaff) > 0)
+                                {{ $assignedStaff->pluck('name')->implode(', ') }}
+                            @else
+                                {{ Session::get('userName') ?? 'Faculty In-Charge' }}
+                            @endif
+                        </span>
+
+                        <!-- AI Status Badge -->
+                        @php
+                            $isAiActive = \App\Http\Controllers\SystemSettingController::isAiEnabled();
+                        @endphp
+                        @if($isAiActive)
+                            <span class="badge badge-cyan px-2 py-0.5 d-inline-flex align-items-center gap-1" style="font-size: 0.68rem;" title="AI Support API Active">
+                                <span class="rounded-circle bg-emerald-400 d-inline-block" style="width:5px; height:5px;"></span>
+                                <span>AI Active</span>
+                            </span>
+                        @else
+                            <span class="badge bg-secondary text-light px-2 py-0.5 d-inline-flex align-items-center gap-1" style="font-size: 0.68rem;" title="AI Support API Deactivated">
+                                <span class="rounded-circle bg-secondary-subtle d-inline-block" style="width:5px; height:5px;"></span>
+                                <span>AI Off</span>
+                            </span>
+                        @endif
+
+                        <span class="badge badge-amber px-2 py-0.5" style="font-size: 0.68rem;"><i class="fa-solid fa-clock me-1"></i> 45 Hours</span>
                     </div>
-                    <h2 class="fw-bold mb-1">{{ $drawingCourseFile->course_title ?? $batchSubject->subject_name }}</h2>
-                    <p class="text-muted mb-0">Course Code: <strong>{{ $drawingCourseFile->course_code ?? $batchSubject->subject_code }}</strong> | Scheme L:T:P:R: <strong>{{ $drawingCourseFile->teaching_scheme }}</strong> | Credits: <strong>{{ $drawingCourseFile->credits }}</strong></p>
+                    <h3 class="fw-bold mb-1 fs-5">{{ $drawingCourseFile->course_title ?? $batchSubject->subject_name }}</h3>
+                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Course Code: <strong>{{ $drawingCourseFile->course_code ?? $batchSubject->subject_code }}</strong> | Scheme L:T:P:R: <strong>{{ $drawingCourseFile->teaching_scheme }}</strong> | Credits: <strong>{{ $drawingCourseFile->credits }}</strong></p>
                 </div>
                 <div class="col-lg-5">
                     <div class="row g-2">
                         <div class="col-6">
-                            <div class="stat-card text-center py-2 px-3" style="background: rgba(6, 182, 212, 0.12); border: 1px solid var(--accent-cyan);">
-                                <div class="fw-bold text-uppercase" style="font-size: 0.8rem; color: #38bdf8; letter-spacing: 0.3px;">Continuous Assessment</div>
-                                <span class="stat-val d-block fw-bold text-white mt-1" style="font-size: 1.2rem;">60 Marks</span>
+                            <div class="stat-card text-center py-1.5 px-2 rounded-lg" style="background: rgba(6, 182, 212, 0.12); border: 1px solid var(--accent-cyan);">
+                                <div class="fw-bold text-uppercase" style="font-size: 0.68rem; color: #38bdf8; letter-spacing: 0.2px;">Continuous Assessment</div>
+                                <span class="stat-val d-block fw-bold text-white mt-0.5" style="font-size: 0.92rem;">60 Marks</span>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="stat-card text-center py-2 px-3" style="background: rgba(245, 158, 11, 0.12); border: 1px solid var(--accent-amber);">
-                                <div class="fw-bold text-uppercase" style="font-size: 0.8rem; color: #fbbf24; letter-spacing: 0.3px;">End Semester Exam</div>
-                                <span class="stat-val d-block fw-bold text-white mt-1" style="font-size: 1.2rem;">40 Marks</span>
+                            <div class="stat-card text-center py-1.5 px-2 rounded-lg" style="background: rgba(245, 158, 11, 0.12); border: 1px solid var(--accent-amber);">
+                                <div class="fw-bold text-uppercase" style="font-size: 0.68rem; color: #fbbf24; letter-spacing: 0.2px;">End Semester Exam</div>
+                                <span class="stat-val d-block fw-bold text-white mt-0.5" style="font-size: 0.92rem;">40 Marks</span>
                             </div>
                         </div>
                     </div>
@@ -925,11 +955,11 @@
                                         </span>
                                     </div>
                                     <div class="d-flex align-items-center gap-1 flex-wrap">
-                                        <button class="btn btn-sm btn-outline-info" onclick="previewSurveyModal('exit')">
-                                            <i class="fa-solid fa-eye me-1"></i> Preview
+                                        <button class="btn btn-sm btn-outline-info" onclick="openExitInitModalDrawing()">
+                                            <i class="fa-solid fa-pen-to-square me-1"></i> Edit & Preview Questionnaire
                                         </button>
                                         @if(!$exitSurvey || $exitSurvey->status != 'Active')
-                                        <button class="btn btn-sm btn-cyan" onclick="initiateSurveyAction('exit')">
+                                        <button class="btn btn-sm btn-cyan" onclick="openExitInitModalDrawing()">
                                             <i class="fa-solid fa-paper-plane me-1"></i> Initiate & Notify
                                         </button>
                                         @else
@@ -1005,13 +1035,24 @@
                                         @foreach(['CO1', 'CO2', 'CO3', 'CO4'] as $coTag)
                                         <tr>
                                             <th class="text-info">{{ $coTag }}</th>
-                                            <td>{{ $directStats[$coTag]['level'] ?? 0.0 }}</td>
-                                            <td>{{ $indirectStats[$coTag]['level'] ?? 0.0 }}</td>
-                                            <td class="fw-bold text-success">{{ $combinedStats[$coTag] ?? 0.0 }}</td>
+                                            <td>L{{ number_format($directStats[$coTag]['level'] ?? 0.0, 1) }}</td>
+                                            <td>
+                                                <span class="badge {{ ($indirectStats[$coTag]['level'] ?? 0) >= 3 ? 'badge-emerald' : (($indirectStats[$coTag]['level'] ?? 0) >= 2 ? 'badge-amber' : 'badge-rose') }}">
+                                                    {{ $indirectStats[$coTag]['rating'] ?? 'High (L3)' }} ({{ number_format($indirectStats[$coTag]['avg_score'] ?? 2.5, 2) }}/3.0)
+                                                </span>
+                                            </td>
+                                            <td class="fw-bold text-success">{{ number_format($combinedStats[$coTag] ?? 0.0, 2) }}</td>
                                         </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="mt-3 p-2 rounded bg-dark border border-secondary text-light text-center" style="font-size: 0.75rem;">
+                                <i class="fa-solid fa-info-circle me-1 text-cyan"></i>
+                                <strong>Indirect Attainment Scaling (3-Point Likert Scale):</strong>
+                                <span class="text-success ms-2"><strong>3 = High</strong> (&ge;70%)</span> |
+                                <span class="text-warning ms-1"><strong>2 = Medium</strong> (60-69%)</span> |
+                                <span class="text-danger ms-1"><strong>1 = Low</strong> (50-59%)</span>
                             </div>
                         </div>
                     </div>
@@ -1402,6 +1443,48 @@
                 alert('Error closing survey: ' + e.message);
             }
         }
+
+        // Open Editable Drawing Course Exit Survey Modal
+        function openExitInitModalDrawing() {
+            const modalElement = document.getElementById('drawingExitSurveyInitModal');
+            if (modalElement) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+                modal.show();
+            }
+        }
+
+        // Submit Edited Drawing Exit Survey Questions & Initiate
+        async function submitDrawingExitInit(event) {
+            event.preventDefault();
+            const questions = {
+                q1: document.getElementById('drg-ex-q1').value.trim(),
+                q2: document.getElementById('drg-ex-q2').value.trim(),
+                q3: document.getElementById('drg-ex-q3').value.trim(),
+                q4: document.getElementById('drg-ex-q4').value.trim(),
+                q5: document.getElementById('drg-ex-q5').value.trim(),
+                q6: document.getElementById('drg-ex-q6').value.trim(),
+                q7: document.getElementById('drg-ex-q7').value.trim(),
+                q8: document.getElementById('drg-ex-q8').value.trim()
+            };
+
+            if (!confirm('Initiate Course Exit Survey with these edited questions? Student notifications will be sent immediately.')) return;
+
+            try {
+                const res = await fetch(`/api/r26/classroom/${subjectId}/exit-survey/initiate`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken 
+                    },
+                    body: JSON.stringify({ questions })
+                });
+                const data = await res.json();
+                alert(data.message);
+                if (data.status === 'SUCCESS') window.location.reload();
+            } catch (e) {
+                alert('Error initiating survey: ' + e.message);
+            }
+        }
     </script>
 
     <!-- Survey Questionnaire Preview Modal -->
@@ -1417,6 +1500,98 @@
                 </div>
                 <div class="modal-footer border-secondary">
                     <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close Preview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editable Drawing Course Exit Survey Questionnaire Modal -->
+    <div class="modal fade" id="drawingExitSurveyInitModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content glass-card border-secondary text-light">
+                <div class="modal-header border-secondary">
+                    <div>
+                        <h5 class="modal-title fw-bold text-cyan"><i class="fa-solid fa-pen-to-square me-2"></i>Edit Course Exit Survey Questionnaire (CO-Mapped)</h5>
+                        <small class="text-muted">Faculty can edit and customize all 8 CO questions before publishing to students.</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="drawingExitSurveyForm" onsubmit="submitDrawingExitInit(event)">
+                        <div class="mb-3 p-3 rounded" style="background: rgba(6,182,212,0.12); border: 1px solid var(--accent-cyan);">
+                            <div class="fw-bold text-info mb-1"><i class="fa-solid fa-circle-info me-1"></i> CO-Mapped Questionnaire Standard</div>
+                            <small class="text-light">Customize or edit question wording below before initiating. Students evaluate each CO question on a 3-Point Likert Scale (3 = High, 2 = Medium, 1 = Low).</small>
+                        </div>
+
+                        <div class="row g-3">
+                            <!-- CO1 Questions -->
+                            <div class="col-12">
+                                <div class="p-3 rounded bg-dark border border-secondary">
+                                    <div class="fw-bold text-cyan mb-2"><i class="fa-solid fa-compass me-1"></i> CO1: Manual Geometrical Drawing & Constructions</div>
+                                    <div class="mb-2">
+                                        <label class="form-label text-muted small fw-bold mb-1">Question 1 (CO1 - Manual Constructions)</label>
+                                        <input type="text" id="drg-ex-q1" class="form-control bg-dark text-light border-secondary form-control-sm" value="1. Rate your ability to manually construct regular polygons, conic sections, and developments." required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-muted small fw-bold mb-1">Question 2 (CO1 - Step-by-Step Guidance)</label>
+                                        <input type="text" id="drg-ex-q2" class="form-control bg-dark text-light border-secondary form-control-sm" value="2. Rate instructor step-by-step guidance and demonstration during manual sheet exercises." required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CO2 Questions -->
+                            <div class="col-12">
+                                <div class="p-3 rounded bg-dark border border-secondary">
+                                    <div class="fw-bold text-warning mb-2"><i class="fa-solid fa-cube me-1"></i> CO2: Orthographic Projections & Sectional Views</div>
+                                    <div class="mb-2">
+                                        <label class="form-label text-muted small fw-bold mb-1">Question 3 (CO2 - Projection Principles)</label>
+                                        <input type="text" id="drg-ex-q3" class="form-control bg-dark text-light border-secondary form-control-sm" value="3. Rate your clarity on 1st & 3rd angle projection principles and sectional views." required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-muted small fw-bold mb-1">Question 4 (CO2 - Slot Feedback)</label>
+                                        <input type="text" id="drg-ex-q4" class="form-control bg-dark text-light border-secondary form-control-sm" value="4. Rate the timeliness of feedback during continuous slot evaluation of drawing sheets." required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CO3 Questions -->
+                            <div class="col-12">
+                                <div class="p-3 rounded bg-dark border border-secondary">
+                                    <div class="fw-bold text-success mb-2"><i class="fa-solid fa-laptop-code me-1"></i> CO3: CAD Software Interface & Commands</div>
+                                    <div class="mb-2">
+                                        <label class="form-label text-muted small fw-bold mb-1">Question 5 (CO3 - CAD Tools)</label>
+                                        <input type="text" id="drg-ex-q5" class="form-control bg-dark text-light border-secondary form-control-sm" value="5. Rate your proficiency in using CAD draw/modify tools, layer management, and dimensioning." required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-muted small fw-bold mb-1">Question 6 (CO3 - Workstation Facilities)</label>
+                                        <input type="text" id="drg-ex-q6" class="form-control bg-dark text-light border-secondary form-control-sm" value="6. Rate the availability and performance of CAD workstation hardware/software facilities." required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CO4 Questions -->
+                            <div class="col-12">
+                                <div class="p-3 rounded bg-dark border border-secondary">
+                                    <div class="fw-bold text-danger mb-2"><i class="fa-solid fa-draw-polygon me-1"></i> CO4: 2D Component Drafting & Sectional Plotting</div>
+                                    <div class="mb-2">
+                                        <label class="form-label text-muted small fw-bold mb-1">Question 7 (CO4 - 2D Component Drafting)</label>
+                                        <input type="text" id="drg-ex-q7" class="form-control bg-dark text-light border-secondary form-control-sm" value="7. Rate your confidence in generating 2D orthographic component drawings & sectional views in CAD." required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-muted small fw-bold mb-1">Question 8 (CO4 - Overall Satisfaction)</label>
+                                        <input type="text" id="drg-ex-q8" class="form-control bg-dark text-light border-secondary form-control-sm" value="8. Rate overall satisfaction with the 45-hour Drawing Lab curriculum delivery and outcomes." required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-cyan font-bold px-4">
+                                <i class="fa-solid fa-paper-plane me-1"></i> Initiate & Send to Student Portal
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
