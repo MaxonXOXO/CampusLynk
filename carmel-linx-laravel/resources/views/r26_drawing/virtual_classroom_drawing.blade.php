@@ -214,15 +214,15 @@
                 <div class="col-lg-5">
                     <div class="row g-2">
                         <div class="col-6">
-                            <div class="stat-card text-center">
-                                <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.7rem;">CIE</small>
-                                <span class="stat-val text-info d-block fw-bold">60 Marks</span>
+                            <div class="stat-card text-center py-2">
+                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.68rem;">Continuous Assessment</small>
+                                <span class="stat-val text-info d-block fw-bold mt-1">CIA: 60 Marks</span>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="stat-card text-center">
-                                <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.7rem;">ESE</small>
-                                <span class="stat-val text-warning d-block fw-bold">40 Marks</span>
+                            <div class="stat-card text-center py-2">
+                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.68rem;">End Semester Exam</small>
+                                <span class="stat-val text-warning d-block fw-bold mt-1">ESE: 40 Marks</span>
                             </div>
                         </div>
                     </div>
