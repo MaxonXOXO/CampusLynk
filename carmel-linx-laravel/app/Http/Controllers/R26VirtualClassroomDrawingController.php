@@ -638,13 +638,75 @@ class R26VirtualClassroomDrawingController extends Controller
     }
 
     /**
+     * API Endpoint to Generate/Regenerate 45-Hour Drawing Lab Lesson Plan
+     */
+    public function generateLessonPlanApi(Request $request, $subjectId)
+    {
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $drawingFile = R26DrawingCourseFile::where('batch_subject_id', $subjectId)->first();
+        $mode = $request->input('mode', 'single');
+
+        $this->generate45HourLabLessonPlan($batchSubject, $drawingFile, $mode);
+
+        $totalRows = LessonPlan::where('batch_subject_id', $subjectId)->count();
+        return response()->json(['status' => 'SUCCESS', 'message' => "Drawing Lab Lesson Plan generated! {$totalRows} entries created (mode: {$mode})."]);
+    }
+
+    /**
+     * API Endpoint to Bulk Update Drawing Lab Lesson Plan Entries
+     */
+    public function bulkUpdateLessonPlans(Request $request, $subjectId)
+    {
+        $plans = $request->input('plans', []);
+        foreach ($plans as $id => $data) {
+            $actualDate = $data['actual_date'] ?? null;
+            $status = $data['status'] ?? 'Pending';
+            if ($actualDate && $status === 'Pending') {
+                $status = 'Completed';
+            }
+
+            LessonPlan::where('id', $id)->where('batch_subject_id', $subjectId)->update([
+                'topic_content' => $data['topic_content'] ?? '',
+                'co_tag' => $data['co_tag'] ?? ($data['co_id'] ?? 'CO1'),
+                'co_id' => $data['co_tag'] ?? ($data['co_id'] ?? 'CO1'),
+                'allocated_hours' => intval($data['allocated_hours'] ?? 1),
+                'pedagogy' => $data['pedagogy'] ?? 'Drawing Lab Practical (P)',
+                'proposed_date' => $data['proposed_date'] ?? null,
+                'planned_date' => $data['proposed_date'] ?? null,
+                'actual_date' => $actualDate,
+                'status' => $status,
+            ]);
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Drawing Lab Lesson Plan updated successfully!']);
+    }
+
+    /**
+     * Print View for Drawing Lab Lesson Plan
+     */
+    public function printLessonPlan($subjectId)
+    {
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $classroom = ClassManagement::find($batchSubject->classroom_id);
+        $drawingCourseFile = R26DrawingCourseFile::where('batch_subject_id', $subjectId)->first();
+        $lessonPlans = LessonPlan::where('batch_subject_id', $subjectId)->orderBy('day_no', 'asc')->get();
+
+        $staff = StaffProfile::where('user_id', Session::get('userId'))->first();
+        if (!$staff) {
+            $staff = StaffProfile::where('mobile_no', Session::get('mobileNo'))->first();
+        }
+
+        return view('r26_drawing.lesson_plan_print', compact('batchSubject', 'classroom', 'drawingCourseFile', 'lessonPlans', 'staff'));
+    }
+
+    /**
      * Auto Generate 45-Hour Drawing Lab Lesson Plan (including 2 Practical Series Tests & OEE)
      */
-    private function generate45HourLabLessonPlan($batchSubject, $drawingFile)
+    private function generate45HourLabLessonPlan($batchSubject, $drawingFile, $mode = 'single')
     {
         LessonPlan::where('batch_subject_id', $batchSubject->id)->delete();
 
-        $parsedExercises = $drawingFile->parsed_exercises ?: [];
+        $parsedExercises = $drawingFile->parsed_exercises ?? [];
         
         if (empty($parsedExercises)) {
             $parsedExercises = [
@@ -661,6 +723,7 @@ class R26VirtualClassroomDrawingController extends Controller
         }
 
         $currentHour = 1;
+        $batchesToCreate = ($mode === 'split') ? ['Batch A', 'Batch B'] : ['Whole'];
 
         foreach ($parsedExercises as $ex) {
             $title = $ex['title'] ?? 'Practical Drawing Session';
@@ -671,18 +734,24 @@ class R26VirtualClassroomDrawingController extends Controller
                 // Insert Practical Series Test 1 (CA1) at Hour 19-21 (Week 7)
                 if ($currentHour == 19) {
                     for ($ca1H = 1; $ca1H <= 3; $ca1H++) {
-                        LessonPlan::create([
-                            'batch_subject_id' => $batchSubject->id,
-                            'day_no' => $currentHour,
-                            'planned_date' => now()->addDays($currentHour)->toDateString(),
-                            'topic_content' => "PRACTICAL SERIES TEST 1 (CA1): Manual Descriptive Drawing Exam (Modules I & II - 40 Marks) [Hour {$ca1H}/3]",
-                            'slo' => 'Execute manual orthographic and sectional drawing under examination conditions',
-                            'co_tag' => 'CO2',
-                            'taxonomy' => 'Apply',
-                            'mode' => 'P',
-                            'pedagogy' => 'Series Test Examination (CA1)',
-                            'status' => 'Pending'
-                        ]);
+                        foreach ($batchesToCreate as $bName) {
+                            LessonPlan::create([
+                                'batch_subject_id' => $batchSubject->id,
+                                'day_no' => $currentHour,
+                                'planned_date' => now()->addDays($currentHour)->toDateString(),
+                                'proposed_date' => now()->addDays($currentHour)->toDateString(),
+                                'topic_content' => "PRACTICAL SERIES TEST 1 (CA1): Manual Descriptive Drawing Exam (Modules I & II - 40 Marks) [Hour {$ca1H}/3]",
+                                'slo' => 'Execute manual orthographic and sectional drawing under examination conditions',
+                                'co_tag' => 'CO2',
+                                'co_id' => 'CO2',
+                                'allocated_hours' => 1,
+                                'taxonomy' => 'Apply',
+                                'mode' => 'P',
+                                'pedagogy' => 'Series Test Examination (CA1)',
+                                'sub_batch' => $bName,
+                                'status' => 'Pending'
+                            ]);
+                        }
                         $currentHour++;
                     }
                 }
@@ -690,18 +759,24 @@ class R26VirtualClassroomDrawingController extends Controller
                 // Insert Open-Ended Experiment (OEE) at Hour 40-42 (Week 14)
                 if ($currentHour == 40) {
                     for ($oeeH = 1; $oeeH <= 3; $oeeH++) {
-                        LessonPlan::create([
-                            'batch_subject_id' => $batchSubject->id,
-                            'day_no' => $currentHour,
-                            'planned_date' => now()->addDays($currentHour)->toDateString(),
-                            'topic_content' => "OPEN-ENDED EXPERIMENT (OEE): CAD Mini-Project Design & Evaluation [Hour {$oeeH}/3]",
-                            'slo' => 'Design and evaluate independent engineering drawing component using CAD software',
-                            'co_tag' => 'CO3',
-                            'taxonomy' => 'Create',
-                            'mode' => 'P',
-                            'pedagogy' => 'Open-Ended Project (OEE)',
-                            'status' => 'Pending'
-                        ]);
+                        foreach ($batchesToCreate as $bName) {
+                            LessonPlan::create([
+                                'batch_subject_id' => $batchSubject->id,
+                                'day_no' => $currentHour,
+                                'planned_date' => now()->addDays($currentHour)->toDateString(),
+                                'proposed_date' => now()->addDays($currentHour)->toDateString(),
+                                'topic_content' => "OPEN-ENDED EXPERIMENT (OEE): CAD Mini-Project Design & Evaluation [Hour {$oeeH}/3]",
+                                'slo' => 'Design and evaluate independent engineering drawing component using CAD software',
+                                'co_tag' => 'CO3',
+                                'co_id' => 'CO3',
+                                'allocated_hours' => 1,
+                                'taxonomy' => 'Create',
+                                'mode' => 'P',
+                                'pedagogy' => 'Open-Ended Project (OEE)',
+                                'sub_batch' => $bName,
+                                'status' => 'Pending'
+                            ]);
+                        }
                         $currentHour++;
                     }
                 }
@@ -709,36 +784,48 @@ class R26VirtualClassroomDrawingController extends Controller
                 // Insert Practical Series Test 2 (CA2) at Hour 43-45 (Week 15)
                 if ($currentHour == 43) {
                     for ($ca2H = 1; $ca2H <= 3; $ca2H++) {
-                        LessonPlan::create([
-                            'batch_subject_id' => $batchSubject->id,
-                            'day_no' => $currentHour,
-                            'planned_date' => now()->addDays($currentHour)->toDateString(),
-                            'topic_content' => "PRACTICAL SERIES TEST 2 (CA2): End-Sem CAD Practical Exam (Modules III & IV - 40 Marks) [Hour {$ca2H}/3]",
-                            'slo' => 'Execute 2D CAD drafting and sectional views under timed examination conditions',
-                            'co_tag' => 'CO4',
-                            'taxonomy' => 'Apply',
-                            'mode' => 'P',
-                            'pedagogy' => 'Series Test Examination (CA2)',
-                            'status' => 'Pending'
-                        ]);
+                        foreach ($batchesToCreate as $bName) {
+                            LessonPlan::create([
+                                'batch_subject_id' => $batchSubject->id,
+                                'day_no' => $currentHour,
+                                'planned_date' => now()->addDays($currentHour)->toDateString(),
+                                'proposed_date' => now()->addDays($currentHour)->toDateString(),
+                                'topic_content' => "PRACTICAL SERIES TEST 2 (CA2): End-Sem CAD Practical Exam (Modules III & IV - 40 Marks) [Hour {$ca2H}/3]",
+                                'slo' => 'Execute 2D CAD drafting and sectional views under timed examination conditions',
+                                'co_tag' => 'CO4',
+                                'co_id' => 'CO4',
+                                'allocated_hours' => 1,
+                                'taxonomy' => 'Apply',
+                                'mode' => 'P',
+                                'pedagogy' => 'Series Test Examination (CA2)',
+                                'sub_batch' => $bName,
+                                'status' => 'Pending'
+                            ]);
+                        }
                         $currentHour++;
                     }
                 }
 
                 if ($currentHour > 45) break 2;
 
-                LessonPlan::create([
-                    'batch_subject_id' => $batchSubject->id,
-                    'day_no' => $currentHour,
-                    'planned_date' => now()->addDays($currentHour)->toDateString(),
-                    'topic_content' => $title . " (Hour {$h}/{$hrs})",
-                    'slo' => "Demonstrate drafting accuracy for " . $title,
-                    'co_tag' => $coTag,
-                    'taxonomy' => (str_contains(strtolower($title), 'cad') ? 'Apply' : 'Understand'),
-                    'mode' => 'P',
-                    'pedagogy' => 'Drawing Lab Practical (P)',
-                    'status' => 'Pending'
-                ]);
+                foreach ($batchesToCreate as $bName) {
+                    LessonPlan::create([
+                        'batch_subject_id' => $batchSubject->id,
+                        'day_no' => $currentHour,
+                        'planned_date' => now()->addDays($currentHour)->toDateString(),
+                        'proposed_date' => now()->addDays($currentHour)->toDateString(),
+                        'topic_content' => $title . " (Hour {$h}/{$hrs})",
+                        'slo' => "Demonstrate drafting accuracy for " . $title,
+                        'co_tag' => $coTag,
+                        'co_id' => $coTag,
+                        'allocated_hours' => 1,
+                        'taxonomy' => (str_contains(strtolower($title), 'cad') ? 'Apply' : 'Understand'),
+                        'mode' => 'P',
+                        'pedagogy' => 'Drawing Lab Practical (P)',
+                        'sub_batch' => $bName,
+                        'status' => 'Pending'
+                    ]);
+                }
 
                 $currentHour++;
             }
@@ -767,18 +854,24 @@ class R26VirtualClassroomDrawingController extends Controller
                 $pedagogy = 'Drawing Lab Revision (P)';
             }
 
-            LessonPlan::create([
-                'batch_subject_id' => $batchSubject->id,
-                'day_no' => $currentHour,
-                'planned_date' => now()->addDays($currentHour)->toDateString(),
-                'topic_content' => $topic,
-                'slo' => 'Drafting precision and review',
-                'co_tag' => $coTag,
-                'taxonomy' => 'Apply',
-                'mode' => 'P',
-                'pedagogy' => $pedagogy,
-                'status' => 'Pending'
-            ]);
+            foreach ($batchesToCreate as $bName) {
+                LessonPlan::create([
+                    'batch_subject_id' => $batchSubject->id,
+                    'day_no' => $currentHour,
+                    'planned_date' => now()->addDays($currentHour)->toDateString(),
+                    'proposed_date' => now()->addDays($currentHour)->toDateString(),
+                    'topic_content' => $topic,
+                    'slo' => 'Drafting precision and review',
+                    'co_tag' => $coTag,
+                    'co_id' => $coTag,
+                    'allocated_hours' => 1,
+                    'taxonomy' => 'Apply',
+                    'mode' => 'P',
+                    'pedagogy' => $pedagogy,
+                    'sub_batch' => $bName,
+                    'status' => 'Pending'
+                ]);
+            }
 
             $currentHour++;
         }

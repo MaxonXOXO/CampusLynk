@@ -359,10 +359,14 @@ Route::middleware(['web'])->group(function () {
     // Revision 2026 Virtual Drawing Hall (Lab Model)
     Route::get('/r26/classroom/drawing/{subjectId}', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'show']);
     Route::post('/api/r26/classroom/drawing/{subjectId}/syllabus', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'uploadSyllabus']);
+    Route::post('/api/r26/classroom/drawing/{subjectId}/lesson-plan/generate', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'generateLessonPlanApi']);
+    Route::post('/api/r26/classroom/drawing/{subjectId}/lesson-plan/save', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'bulkUpdateLessonPlans']);
+    Route::get('/r26/classroom/drawing/lesson-plan/print/{subjectId}', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'printLessonPlan']);
     Route::post('/api/r26/classroom/drawing/{subjectId}/evaluate/slot', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'saveSlotMarks']);
     Route::post('/api/r26/classroom/drawing/{subjectId}/evaluate/practical-test', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'savePracticalTestMarks']);
     Route::post('/api/r26/classroom/drawing/{subjectId}/evaluate/oee', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'saveOeeMarks']);
     Route::post('/api/r26/classroom/drawing/{subjectId}/evaluate/ese', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'saveEseMarks']);
+
 
 
     // HOD Subject Allocation

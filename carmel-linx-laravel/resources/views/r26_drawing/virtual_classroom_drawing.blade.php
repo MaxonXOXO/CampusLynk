@@ -327,41 +327,95 @@
             </div>
 
             <!-- TAB 2: LESSON PLAN -->
+            <!-- TAB 2: 45-HOUR DRAWING LAB LESSON PLANNER -->
             <div class="tab-pane fade" id="tab-lessonplan" role="tabpanel">
                 <div class="glass-card p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-3 border-bottom border-secondary">
                         <div>
-                            <h5 class="fw-bold mb-1"><i class="fa-solid fa-list-check me-2 text-warning"></i>45-Hour Drawing Lab Lesson Plan</h5>
-                            <small class="text-muted">Sequenced practical sessions covering Manual Drawing & CAD Drafting</small>
+                            <h5 class="fw-bold mb-1 text-warning"><i class="fa-solid fa-list-check me-2"></i>45-Hour Drawing Lab Lesson Plan</h5>
+                            <small class="text-muted">Sequenced practical sessions covering Manual Drawing & CAD Drafting, Series Exams & OEE Project</small>
+                        </div>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <select id="lesson_planner_mode" class="form-select form-control-custom form-select-sm" style="width: auto; font-weight: 700;">
+                                <option value="single">Single/Whole Class Batch</option>
+                                <option value="split">Split Batch (Batch A/B)</option>
+                            </select>
+                            <button onclick="generateLessonTimeline()" class="btn btn-sm btn-primary fw-bold">
+                                <i class="fa-solid fa-arrows-rotate me-1"></i> Generate Planner
+                            </button>
+                            <a href="/r26/classroom/drawing/lesson-plan/print/{{ $batchSubject->id }}" target="_blank" class="btn btn-sm btn-outline-light fw-bold">
+                                <i class="fa-solid fa-print me-1"></i> Print
+                            </a>
+                            <button onclick="saveLessonPlannerBulk()" class="btn btn-sm btn-success fw-bold">
+                                <i class="fa-solid fa-floppy-disk me-1"></i> Save Planner
+                            </button>
                         </div>
                     </div>
+
                     <div class="table-responsive">
-                        <table class="table table-custom table-hover align-middle mb-0">
+                        <table class="table table-custom table-hover align-middle mb-0" id="lesson-plan-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 80px;">Hour</th>
+                                    <th style="width: 70px;">Hour</th>
+                                    <th style="width: 100px;">Sub-Batch</th>
+                                    <th style="width: 140px;">Proposed Date</th>
+                                    <th style="width: 140px;">Actual Date</th>
                                     <th>Topic & Exercise Content</th>
-                                    <th>Mapped CO</th>
-                                    <th>Taxonomy</th>
-                                    <th>Pedagogy</th>
-                                    <th>Status</th>
+                                    <th style="width: 90px;">Mapped CO</th>
+                                    <th style="width: 70px;">Hrs</th>
+                                    <th style="width: 160px;">Pedagogy / Activity</th>
+                                    <th style="width: 120px;">Status</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach($lessonPlans as $lp)
-                                <tr>
+                            <tbody id="lesson-plan-rows-container">
+                                @forelse($lessonPlans as $lp)
+                                <tr class="lesson-plan-row" data-id="{{ $lp->id }}">
                                     <td class="fw-bold text-center text-info">#{{ $lp->day_no }}</td>
-                                    <td>{{ $lp->topic_content }}</td>
-                                    <td><span class="badge badge-cyan">{{ $lp->co_tag }}</span></td>
-                                    <td><span class="badge badge-purple">{{ $lp->taxonomy }}</span></td>
-                                    <td><small class="text-muted">{{ $lp->pedagogy }}</small></td>
                                     <td>
-                                        <span class="badge {{ $lp->status === 'Completed' ? 'badge-emerald' : 'badge-amber' }}">
-                                            {{ $lp->status }}
+                                        <span class="badge {{ $lp->sub_batch == 'Batch A' ? 'badge-indigo' : ($lp->sub_batch == 'Batch B' ? 'badge-cyan' : 'badge-dark') }}">
+                                            {{ $lp->sub_batch ?? 'Whole' }}
                                         </span>
                                     </td>
+                                    <td>
+                                        <input type="date" value="{{ $lp->proposed_date ?: $lp->planned_date }}" class="form-control form-control-custom form-control-sm lp-proposed">
+                                    </td>
+                                    <td>
+                                        <input type="date" value="{{ $lp->actual_date }}" class="form-control form-control-custom form-control-sm lp-actual">
+                                    </td>
+                                    <td>
+                                        <input type="text" value="{{ $lp->topic_content }}" class="form-control form-control-custom form-control-sm lp-topic">
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-control-custom form-select-sm lp-co">
+                                            @foreach(['CO1', 'CO2', 'CO3', 'CO4'] as $coId)
+                                            <option value="{{ $coId }}" {{ ($lp->co_tag ?: $lp->co_id) == $coId ? 'selected' : '' }}>{{ $coId }}</option>
+                                            @endforeach
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" value="{{ $lp->allocated_hours ?: 1 }}" class="form-control form-control-custom form-control-sm text-center lp-hours" min="1" max="6">
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-control-custom form-select-sm lp-pedagogy">
+                                            <option value="Drawing Lab Practical (P)" {{ $lp->pedagogy == 'Drawing Lab Practical (P)' ? 'selected' : '' }}>Drawing Lab Practical (P)</option>
+                                            <option value="Series Test Examination (CA1)" {{ $lp->pedagogy == 'Series Test Examination (CA1)' ? 'selected' : '' }}>Series Test Examination (CA1)</option>
+                                            <option value="Series Test Examination (CA2)" {{ $lp->pedagogy == 'Series Test Examination (CA2)' ? 'selected' : '' }}>Series Test Examination (CA2)</option>
+                                            <option value="Open-Ended Project (OEE)" {{ $lp->pedagogy == 'Open-Ended Project (OEE)' ? 'selected' : '' }}>Open-Ended Project (OEE)</option>
+                                            <option value="Drawing Lab Revision (P)" {{ $lp->pedagogy == 'Drawing Lab Revision (P)' ? 'selected' : '' }}>Drawing Lab Revision (P)</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="form-select form-control-custom form-select-sm fw-bold lp-status">
+                                            <option value="Pending" {{ $lp->status == 'Pending' ? 'selected' : '' }} class="text-warning">Pending</option>
+                                            <option value="Completed" {{ $lp->status == 'Completed' ? 'selected' : '' }} class="text-success">Completed</option>
+                                        </select>
+                                    </td>
                                 </tr>
-                                @endforeach
+                                @empty
+                                <tr>
+                                    <td colspan="9" class="text-center text-muted py-4 italic">No planner generated yet. Select batch option and click Generate.</td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -819,6 +873,56 @@
             const data = await res.json();
             alert(data.message);
         });
+
+        // Generate Lesson Plan Timeline (Single vs Split Batch)
+        async function generateLessonTimeline() {
+            const mode = document.getElementById('lesson_planner_mode').value;
+            if (!confirm(`Regenerate full 45-hour Drawing Lab lesson plan using mode '${mode}'? Existing customized dates will be reset.`)) return;
+
+            try {
+                const res = await fetch(`/api/r26/classroom/drawing/${subjectId}/lesson-plan/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ mode: mode })
+                });
+                const data = await res.json();
+                alert(data.message);
+                if (data.status === 'SUCCESS') {
+                    window.location.reload();
+                }
+            } catch (e) {
+                alert('Generation error: ' + e.message);
+            }
+        }
+
+        // Save Bulk Lesson Planner Entries
+        async function saveLessonPlannerBulk() {
+            const plans = {};
+            document.querySelectorAll('.lesson-plan-row').forEach(row => {
+                const id = row.dataset.id;
+                plans[id] = {
+                    proposed_date: row.querySelector('.lp-proposed').value,
+                    actual_date: row.querySelector('.lp-actual').value,
+                    topic_content: row.querySelector('.lp-topic').value,
+                    co_tag: row.querySelector('.lp-co').value,
+                    allocated_hours: row.querySelector('.lp-hours').value,
+                    pedagogy: row.querySelector('.lp-pedagogy').value,
+                    status: row.querySelector('.lp-status').value
+                };
+            });
+
+            try {
+                const res = await fetch(`/api/r26/classroom/drawing/${subjectId}/lesson-plan/save`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ plans: plans })
+                });
+                const data = await res.json();
+                alert(data.message);
+            } catch (e) {
+                alert('Save error: ' + e.message);
+            }
+        }
     </script>
 </body>
 </html>
