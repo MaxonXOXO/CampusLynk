@@ -1579,3 +1579,8 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/student/change-password', [App\Http\Controllers\AuthController::class, 'changeStudentPassword']);
 });
 
+// Parent Dashboard Add-On Routes
+Route::get('/parent', [App\Http\Controllers\ParentDashboardController::class, 'showLoginPage'])->name('parent.login');
+Route::post('/parent/login', [App\Http\Controllers\ParentDashboardController::class, 'verifyLogin']);
+Route::get('/parent/dashboard/{regNo}', [App\Http\Controllers\ParentDashboardController::class, 'showDashboard'])->name('parent.dashboard');
+
