@@ -273,4 +273,152 @@ class ParentDashboardController extends Controller
             'smsShareUrl'
         ));
     }
+
+    /**
+     * Render Parent Dashboard with Rich Mock Demo Data for instant testing.
+     */
+    public function showDemoDashboard()
+    {
+        $student = (object)[
+            'name' => 'Rahul K. Nair',
+            'reg_no' => '24ME1045',
+            'branch' => 'ME',
+            'semester' => '4',
+            'classroom_id' => 'ME_2024_2027',
+            'photo_url' => null,
+            'guardian_name' => 'K. Ramanathan Nair',
+            'guardian_mobile' => '9876543210',
+            'phone' => '9876543210'
+        ];
+
+        $classroom = (object)[
+            'classroom_id' => 'ME_2024_2027',
+            'branch' => 'ME',
+            'semester' => '4'
+        ];
+
+        $tutor = (object)[
+            'name' => 'Prof. Rajesh V.',
+            'mobile_no' => '9447123456'
+        ];
+
+        $hourlyStatus = [
+            1 => [
+                'period' => 1,
+                'status' => 'Present',
+                'subject_name' => 'Machine Drawing',
+                'subject_code' => 'ME204',
+                'topic' => 'Orthographic Projections of Cylindrical Solids',
+                'badge_class' => 'bg-success text-white'
+            ],
+            2 => [
+                'period' => 2,
+                'status' => 'Present',
+                'subject_name' => 'Machine Drawing',
+                'subject_code' => 'ME204',
+                'topic' => 'Sectional Views & Standard Hatching Rules',
+                'badge_class' => 'bg-success text-white'
+            ],
+            3 => [
+                'period' => 3,
+                'status' => 'Absent',
+                'subject_name' => 'Thermal Engineering',
+                'subject_code' => 'ME206',
+                'topic' => 'Rankine Cycle Efficiency & Steam Tables',
+                'badge_class' => 'bg-danger text-white'
+            ],
+            4 => [
+                'period' => 4,
+                'status' => 'Present',
+                'subject_name' => 'Fluid Mechanics',
+                'subject_code' => 'ME208',
+                'topic' => 'Bernoulli Equation & Venturimeter Applications',
+                'badge_class' => 'bg-success text-white'
+            ],
+            5 => [
+                'period' => 5,
+                'status' => 'Present',
+                'subject_name' => 'Manufacturing Tech',
+                'subject_code' => 'ME210',
+                'topic' => 'CNC Lathe G-Code & M-Code Programming',
+                'badge_class' => 'bg-success text-white'
+            ],
+            6 => [
+                'period' => 6,
+                'status' => 'Present',
+                'subject_name' => 'General Engg Lab',
+                'subject_code' => 'ME212',
+                'topic' => 'Rockwell Hardness Testing Experiment',
+                'badge_class' => 'bg-success text-white'
+            ],
+            7 => [
+                'period' => 7,
+                'status' => 'Present',
+                'subject_name' => 'General Engg Lab',
+                'subject_code' => 'ME212',
+                'topic' => 'UTM Tensile Stress-Strain Plotting',
+                'badge_class' => 'bg-success text-white'
+            ],
+        ];
+
+        $totalConductedClasses = 120;
+        $totalAttendedClasses = 101;
+        $overallAttendancePct = 84.2;
+
+        $assignments = collect([
+            (object)[
+                'subject_code' => 'ME204',
+                'title' => 'Machine Drawing Sheet #4: Assembly of Flanged Coupling',
+                'due_date' => '2026-07-31'
+            ],
+            (object)[
+                'subject_code' => 'ME206',
+                'title' => 'Thermal Engg Assignment 2: Steam Boiler Calculations',
+                'due_date' => '2026-08-02'
+            ]
+        ]);
+
+        $practicalTests = collect([
+            (object)[
+                'test_name' => 'CAD Lab Series Test 1',
+                'test_date' => '2026-08-01',
+                'max_marks' => 40
+            ],
+            (object)[
+                'test_name' => 'Machine Shop Slot Evaluation 2',
+                'test_date' => '2026-08-05',
+                'max_marks' => 40
+            ]
+        ]);
+
+        $mentoringNotes = collect([
+            (object)[
+                'faculty_name' => 'Prof. Rajesh V. (Class Advisor)',
+                'created_at' => '2026-07-28 10:30:00',
+                'comments' => 'Contacted guardian regarding Period 3 absence today. Student submitted medical slip for morning appointment.'
+            ],
+            (object)[
+                'faculty_name' => 'Prof. Rajesh V. (Class Advisor)',
+                'created_at' => '2026-07-20 14:15:00',
+                'comments' => 'Mid-semester performance review: Good progress in CAD drawing practicals and workshops.'
+            ]
+        ]);
+
+        $smsShareUrl = url('/parent/demo');
+
+        return view('parent_dashboard', compact(
+            'student',
+            'classroom',
+            'tutor',
+            'hourlyStatus',
+            'totalConductedClasses',
+            'totalAttendedClasses',
+            'overallAttendancePct',
+            'assignments',
+            'practicalTests',
+            'mentoringNotes',
+            'smsShareUrl'
+        ));
+    }
 }
+

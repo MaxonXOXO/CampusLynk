@@ -1582,5 +1582,6 @@ Route::middleware(['web'])->group(function () {
 // Parent Dashboard Add-On Routes
 Route::get('/parent', [App\Http\Controllers\ParentDashboardController::class, 'showLoginPage'])->name('parent.login');
 Route::post('/parent/login', [App\Http\Controllers\ParentDashboardController::class, 'verifyLogin']);
+Route::get('/parent/demo', [App\Http\Controllers\ParentDashboardController::class, 'showDemoDashboard'])->name('parent.demo');
 Route::get('/parent/dashboard/{regNo}', [App\Http\Controllers\ParentDashboardController::class, 'showDashboard'])->name('parent.dashboard');
 
