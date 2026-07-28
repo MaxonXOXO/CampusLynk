@@ -420,7 +420,7 @@ class R26VirtualClassroomDrawingController extends Controller
 
             $data = $parsedResult['data'];
 
-            R26DrawingCourseFile::updateOrCreate(
+            $drawingCourseFile = R26DrawingCourseFile::updateOrCreate(
                 ['batch_subject_id' => $subjectId],
                 [
                     'syllabus_pdf_path' => $path,
