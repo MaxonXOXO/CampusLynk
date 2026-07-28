@@ -451,6 +451,9 @@ class R26VirtualClassroomDrawingController extends Controller
                 ]
             );
 
+            // Automatically regenerate Lesson Plan based on parsed syllabus exercises
+            $this->generate45HourLabLessonPlan($batchSubject, $drawingCourseFile);
+
             return response()->json([
                 'status' => 'SUCCESS',
                 'message' => 'Drawing syllabus uploaded and parsed successfully!',
