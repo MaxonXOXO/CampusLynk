@@ -2,315 +2,357 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parent Portal — {{ $student->name }} ({{ $student->reg_no }})</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Parent Portal — {{ $student->name }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Google Fonts & FontAwesome -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
         :root {
-            --bg-dark: #0b0f19;
-            --card-bg: rgba(15, 23, 42, 0.88);
-            --border-color: rgba(255, 255, 255, 0.1);
+            --app-bg: #090d16;
+            --card-bg: rgba(17, 24, 39, 0.95);
+            --card-border: rgba(255, 255, 255, 0.08);
             --accent-cyan: #06b6d4;
             --accent-emerald: #10b981;
             --accent-amber: #f59e0b;
             --accent-rose: #f43f5e;
+            --accent-purple: #8b5cf6;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: #f1f5f9;
-            font-family: 'Inter', sans-serif;
+            background-color: var(--app-bg);
+            color: #f3f4f6;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 0.88rem;
             min-height: 100vh;
+            padding-bottom: 75px; /* Space for bottom nav */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .glass-card {
+        .mobile-container {
+            max-width: 480px;
+            margin: 0 auto;
+            min-height: 100vh;
+            background-color: var(--app-bg);
+            position: relative;
+        }
+
+        /* Mobile Header */
+        .mobile-header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 16px;
+        }
+
+        /* App Cards */
+        .app-card {
             background: var(--card-bg);
-            backdrop-filter: blur(14px);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
-            margin-bottom: 20px;
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.5);
         }
 
-        .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #38bdf8; border: 1px solid rgba(6, 182, 212, 0.3); }
-        .badge-emerald { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-rose { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
-
-        .table-custom {
-            color: #e2e8f0;
-            margin-bottom: 0;
-        }
-        .table-custom th {
-            background-color: rgba(30, 41, 59, 0.8);
-            color: #94a3b8;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .table-custom td {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 10px 12px;
-            font-size: 0.85rem;
-        }
-
-        .period-card {
-            background: rgba(30, 41, 59, 0.5);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 10px 14px;
-            transition: all 0.2s ease;
-        }
-        .period-card:hover {
-            border-color: var(--accent-cyan);
-        }
-
-        .avatar-circle {
-            width: 54px;
-            height: 54px;
+        /* Hero Attendance Circle */
+        .attendance-dial {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--accent-cyan);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid var(--accent-emerald);
+            background: rgba(16, 185, 129, 0.08);
+            margin: 0 auto;
+        }
+        .attendance-dial.warning {
+            border-color: var(--accent-amber);
+            background: rgba(245, 158, 11, 0.08);
+        }
+        .attendance-dial.danger {
+            border-color: var(--accent-rose);
+            background: rgba(244, 63, 94, 0.08);
         }
 
-        .btn-compact {
-            padding: 4px 10px;
-            font-size: 0.75rem;
-            border-radius: 6px;
+        /* Hour Timeline Card */
+        .timeline-item {
+            background: rgba(30, 41, 59, 0.6);
+            border-left: 4px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+        }
+        .timeline-item.present { border-left-color: var(--accent-emerald); }
+        .timeline-item.absent { border-left-color: var(--accent-rose); }
+        .timeline-item.not-marked { border-left-color: #64748b; }
+
+        /* Bottom Mobile Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(16px);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+        .nav-link-mobile {
+            color: #94a3b8;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.68rem;
             font-weight: 600;
+            gap: 3px;
+        }
+        .nav-link-mobile.active {
+            color: var(--accent-cyan);
+        }
+        .nav-link-mobile i {
+            font-size: 1.2rem;
+        }
+
+        .badge-app {
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .avatar-mobile {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-cyan);
+            object-fit: cover;
         }
     </style>
 </head>
 <body>
 
-    <!-- Header Navbar -->
-    <nav class="navbar navbar-dark bg-slate-900 border-bottom border-secondary border-opacity-25 py-2">
-        <div class="container-fluid px-3 px-md-4">
-            <a class="navbar-brand d-flex align-items-center gap-2 font-bold text-white fs-6" href="#">
-                <i class="fa-solid fa-graduation-cap text-cyan fs-5"></i>
-                <span>Carmel Polytechnic College — Parent Portal</span>
-            </a>
+    <div class="mobile-container">
+
+        <!-- Top App Bar -->
+        <div class="mobile-header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2">
-                <a href="sms:{{ $student->guardian_mobile ?: $student->phone }}?body={{ urlencode('Carmel Poly: Access ward portal link: ' . $smsShareUrl) }}" class="btn btn-sm btn-outline-info btn-compact">
-                    <i class="fa-solid fa-comment-sms me-1"></i> Send SMS Link
-                </a>
-                <a href="/parent" class="btn btn-sm btn-outline-danger btn-compact">
-                    <i class="fa-solid fa-right-from-bracket me-1"></i> Exit
-                </a>
+                <i class="fa-solid fa-graduation-cap text-cyan fs-4"></i>
+                <div>
+                    <h6 class="fw-bold mb-0 text-white" style="font-size: 0.95rem;">Carmel Parent App</h6>
+                    <small class="text-secondary" style="font-size: 0.72rem;">Academic Monitoring Portal</small>
+                </div>
             </div>
+            <a href="/parent" class="btn btn-sm btn-outline-danger px-2 py-1 rounded-pill" style="font-size: 0.72rem;">
+                <i class="fa-solid fa-power-off"></i>
+            </a>
         </div>
-    </nav>
 
-    <!-- Main Container -->
-    <div class="container-fluid px-3 px-md-4 py-3">
+        <!-- Scrollable Content View -->
+        <div class="p-3">
 
-        <!-- Top Profile Banner -->
-        <div class="glass-card p-3">
-            <div class="row align-items-center g-3">
-                <div class="col-md-8">
-                    <div class="d-flex align-items-center gap-3">
-                        @if($student->photo_url)
-                            <img src="{{ $student->photo_url }}" alt="{{ $student->name }}" class="avatar-circle">
-                        @else
-                            <div class="avatar-circle bg-dark text-cyan d-flex align-items-center justify-content-center fs-4 font-bold">
-                                {{ strtoupper(substr($student->name, 0, 1)) }}
-                            </div>
-                        @endif
-                        <div>
-                            <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                                <h4 class="fw-bold mb-0 text-white">{{ $student->name }}</h4>
-                                <span class="badge badge-cyan px-2 py-0.5">Reg No: {{ $student->reg_no }}</span>
-                                <span class="badge badge-purple px-2 py-0.5">Sem {{ $student->semester }} ({{ $student->branch }})</span>
-                            </div>
-                            <p class="text-secondary small mb-0">
-                                Classroom: <strong>{{ $student->classroom_id }}</strong> | 
-                                Guardian: <strong>{{ $student->guardian_name ?: 'Guardian' }}</strong> ({{ $student->guardian_mobile ?: $student->phone }}) |
-                                Class Advisor: <strong>{{ $tutor->name ?? 'Faculty Advisor' }}</strong>
-                            </p>
+            <!-- Student Profile Header Card -->
+            <div class="app-card">
+                <div class="d-flex align-items-center gap-3">
+                    @if($student->photo_url)
+                        <img src="{{ $student->photo_url }}" alt="{{ $student->name }}" class="avatar-mobile">
+                    @else
+                        <div class="avatar-mobile bg-dark text-cyan d-flex align-items-center justify-content-center fw-bold fs-5">
+                            {{ strtoupper(substr($student->name, 0, 1)) }}
+                        </div>
+                    @endif
+                    <div class="flex-grow-1">
+                        <h6 class="fw-extrabold text-white mb-0" style="font-size: 1rem;">{{ $student->name }}</h6>
+                        <div class="d-flex align-items-center gap-1 mt-1 flex-wrap">
+                            <span class="badge bg-cyan bg-opacity-20 text-cyan badge-app">Reg: {{ $student->reg_no }}</span>
+                            <span class="badge bg-purple bg-opacity-20 text-purple badge-app">Sem {{ $student->semester }} ({{ $student->branch }})</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Overall Attendance Stat Badge -->
-                <div class="col-md-4">
-                    <div class="p-3 rounded-3 text-center" style="background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-color);">
-                        <span class="text-secondary uppercase text-[11px] fw-bold d-block">Overall Semester Attendance</span>
-                        <div class="d-flex align-items-center justify-content-center gap-2 mt-1">
-                            <span class="fs-2 fw-extrabold {{ $overallAttendancePct >= 75 ? 'text-success' : ($overallAttendancePct >= 65 ? 'text-warning' : 'text-danger') }}">
-                                {{ number_format($overallAttendancePct, 1) }}%
-                            </span>
-                            <span class="badge {{ $overallAttendancePct >= 75 ? 'badge-emerald' : ($overallAttendancePct >= 65 ? 'badge-amber' : 'badge-rose') }}">
-                                {{ $overallAttendancePct >= 75 ? 'Good Standing' : ($overallAttendancePct >= 65 ? 'Condonation Warning' : 'Low Attendance Alert') }}
-                            </span>
-                        </div>
-                        <small class="text-muted d-block mt-1">Total Classes Attended: {{ $totalAttendedClasses }} / {{ $totalConductedClasses }} Conducted</small>
-                    </div>
+                @if($tutor && $tutor->mobile_no)
+                <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
+                    <span class="text-secondary small" style="font-size: 0.78rem;">Advisor: <strong>{{ $tutor->name }}</strong></span>
+                    <a href="tel:{{ $tutor->mobile_no }}" class="btn btn-sm btn-success px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                        <i class="fa-solid fa-phone me-1"></i> Call Advisor
+                    </a>
                 </div>
+                @endif
             </div>
-        </div>
 
-        <div class="row g-3">
-            
-            <!-- Left Column: Daily Hour-Wise Attendance Grid -->
-            <div class="col-lg-7">
-                <div class="glass-card p-3">
-                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary border-opacity-25 pb-2">
-                        <h6 class="fw-bold mb-0 text-cyan">
-                            <i class="fa-solid fa-clock me-2"></i>Today's Hour-Wise Attendance Status ({{ \Carbon\Carbon::now()->format('D, d M Y') }})
+            <!-- Tab Content 1: Today's Attendance & Hero Gauge -->
+            <div id="tab-attendance" class="tab-pane active">
+                
+                <!-- Hero Attendance Gauge -->
+                <div class="app-card text-center">
+                    <span class="text-secondary uppercase text-[11px] fw-bold d-block mb-2">Overall Attendance Percentage</span>
+                    <div class="attendance-dial {{ $overallAttendancePct >= 75 ? '' : ($overallAttendancePct >= 65 ? 'warning' : 'danger') }}">
+                        <span class="fw-extrabold fs-4 {{ $overallAttendancePct >= 75 ? 'text-emerald-400' : ($overallAttendancePct >= 65 ? 'text-amber-400' : 'text-rose-400') }}">
+                            {{ number_format($overallAttendancePct, 1) }}%
+                        </span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="badge {{ $overallAttendancePct >= 75 ? 'bg-success' : ($overallAttendancePct >= 65 ? 'bg-warning text-dark' : 'bg-danger') }} badge-app">
+                            {{ $overallAttendancePct >= 75 ? 'Good Standing (Eligible)' : ($overallAttendancePct >= 65 ? 'Warning: Low Attendance' : 'Critical: Condonation Alert') }}
+                        </span>
+                    </div>
+                    <small class="text-secondary d-block mt-2" style="font-size: 0.75rem;">
+                        Attended: <strong>{{ $totalAttendedClasses }}</strong> / Total Conducted: <strong>{{ $totalConductedClasses }}</strong> Hours
+                    </small>
+                </div>
+
+                <!-- Today's Hour-Wise Attendance Grid -->
+                <div class="app-card">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">
+                            <i class="fa-solid fa-calendar-day me-1 text-cyan"></i> Today's Schedule (Periods 1–7)
                         </h6>
-                        <span class="badge bg-dark border border-secondary text-light">Periods 1 – 7</span>
+                        <small class="text-secondary" style="font-size: 0.72rem;">{{ \Carbon\Carbon::now()->format('d M Y') }}</small>
                     </div>
 
-                    <div class="row g-2">
-                        @foreach($hourlyStatus as $pNum => $pData)
-                        <div class="col-md-6 col-12">
-                            <div class="period-card d-flex align-items-center justify-content-between">
-                                <div>
-                                    <span class="badge bg-secondary me-1">P{{ $pNum }}</span>
-                                    <strong class="text-white">{{ $pData['subject_name'] }}</strong>
-                                    <small class="text-secondary d-block mt-0.5" style="font-size: 0.75rem;">
-                                        <i class="fa-solid fa-book-open me-1"></i>{{ $pData['topic'] }}
-                                    </small>
-                                </div>
-                                <span class="badge {{ $pData['badge_class'] }} px-2.5 py-1">
-                                    {{ $pData['status'] }}
-                                </span>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                <!-- Today's Assignments & Pending Tasks -->
-                <div class="glass-card p-3">
-                    <h6 class="fw-bold mb-3 text-warning border-bottom border-secondary border-opacity-25 pb-2">
-                        <i class="fa-solid fa-list-check me-2"></i>Assignments & Scheduled Submissions
-                    </h6>
-                    <div class="table-responsive">
-                        <table class="table table-custom text-start align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Subject / Task</th>
-                                    <th>Submission Title</th>
-                                    <th>Due Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($assignments as $asgn)
-                                <tr>
-                                    <td class="fw-semibold text-info">{{ $asgn->subject_code ?? 'Subject' }}</td>
-                                    <td class="text-white">{{ $asgn->title }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($asgn->due_date)->format('d M Y') }}</td>
-                                    <td><span class="badge badge-amber">Pending Submission</span></td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted py-3">No pending assignments due today.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column: Tests & Staff/Tutor Remarks Feed -->
-            <div class="col-lg-5">
-
-                <!-- Scheduled Tests & Exam Dates -->
-                <div class="glass-card p-3">
-                    <h6 class="fw-bold mb-3 text-emerald border-bottom border-secondary border-opacity-25 pb-2">
-                        <i class="fa-solid fa-file-pen me-2"></i>Scheduled Lab & Practical Tests
-                    </h6>
-                    <div class="table-responsive">
-                        <table class="table table-custom align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Test Identifier</th>
-                                    <th>Date</th>
-                                    <th>Max Marks</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($practicalTests as $test)
-                                <tr>
-                                    <td class="fw-semibold text-white">{{ $test->test_name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($test->test_date)->format('d M Y') }}</td>
-                                    <td class="fw-bold text-cyan">{{ $test->max_marks }}M</td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="3" class="text-center text-muted py-3">No practical series tests scheduled today.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Tutor Remarks & Staff Comments Feed -->
-                <div class="glass-card p-3">
-                    <h6 class="fw-bold mb-3 text-purple border-bottom border-secondary border-opacity-25 pb-2">
-                        <i class="fa-solid fa-comments me-2"></i>Tutor Remarks & Mentoring Comments
-                    </h6>
-
-                    <div class="space-y-3">
-                        @forelse($mentoringNotes as $note)
-                        <div class="p-2.5 rounded bg-dark border border-secondary border-opacity-25 mb-2">
-                            <div class="d-flex align-items-center justify-content-between mb-1">
-                                <strong class="text-info" style="font-size: 0.8rem;">
-                                    <i class="fa-solid fa-user-tie me-1"></i>{{ $note->faculty_name ?? 'Class Advisor' }}
-                                </strong>
-                                <small class="text-muted" style="font-size: 0.72rem;">
-                                    {{ \Carbon\Carbon::parse($note->created_at)->format('d M Y, h:i A') }}
+                    @foreach($hourlyStatus as $pNum => $pData)
+                    <div class="timeline-item {{ strtolower(str_replace(' ', '-', $pData['status'])) }}">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <span class="badge bg-secondary me-1" style="font-size: 0.68rem;">P{{ $pNum }}</span>
+                                <strong class="text-white" style="font-size: 0.85rem;">{{ $pData['subject_name'] }}</strong>
+                                <small class="text-secondary d-block mt-0.5" style="font-size: 0.72rem;">
+                                    {{ $pData['topic'] }}
                                 </small>
                             </div>
-                            <p class="text-slate-300 mb-0 small" style="font-size: 0.82rem;">
-                                {{ $note->comments ?? 'Regular academic counseling and attendance review conducted.' }}
-                            </p>
+                            <span class="badge {{ $pData['badge_class'] }} badge-app">
+                                {{ $pData['status'] }}
+                            </span>
                         </div>
-                        @empty
-                        <div class="p-3 text-center text-muted bg-dark rounded border border-secondary border-opacity-25">
-                            <i class="fa-solid fa-check-circle me-1 text-success"></i> No critical remarks posted. Student is performing satisfactorily.
-                        </div>
-                        @endforelse
                     </div>
-                </div>
-
-                <!-- Quick Share Link Box -->
-                <div class="glass-card p-3 text-center">
-                    <span class="text-secondary small fw-semibold d-block mb-2"><i class="fa-solid fa-share-nodes me-1"></i> Share Access Link via SMS / Copy</span>
-                    <div class="input-group input-group-sm">
-                        <input type="text" id="shareUrlInput" class="form-control bg-dark text-light border-secondary" value="{{ $smsShareUrl }}" readonly>
-                        <button class="btn btn-outline-info" type="button" onclick="copyShareUrl()">
-                            <i class="fa-solid fa-copy me-1"></i> Copy
-                        </button>
-                    </div>
+                    @endforeach
                 </div>
 
             </div>
 
+            <!-- Tab Content 2: Assignments & Tests -->
+            <div id="tab-tasks" class="tab-pane d-none">
+                <!-- Assignments Card -->
+                <div class="app-card">
+                    <h6 class="fw-bold text-warning mb-3" style="font-size: 0.9rem;">
+                        <i class="fa-solid fa-list-check me-1"></i> Assignments & Submissions
+                    </h6>
+                    @forelse($assignments as $asgn)
+                    <div class="p-2.5 rounded bg-dark border border-secondary border-opacity-25 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong class="text-info" style="font-size: 0.82rem;">{{ $asgn->subject_code ?? 'Subject' }}</strong>
+                            <span class="badge bg-warning text-dark badge-app">Pending</span>
+                        </div>
+                        <p class="text-white mb-1 fw-semibold" style="font-size: 0.85rem;">{{ $asgn->title }}</p>
+                        <small class="text-secondary" style="font-size: 0.72rem;">
+                            Due: {{ \Carbon\Carbon::parse($asgn->due_date)->format('d M Y') }}
+                        </small>
+                    </div>
+                    @empty
+                    <p class="text-secondary text-center my-3 small">No pending assignments listed for today.</p>
+                    @endforelse
+                </div>
+
+                <!-- Practical Series Tests -->
+                <div class="app-card">
+                    <h6 class="fw-bold text-emerald mb-3" style="font-size: 0.9rem;">
+                        <i class="fa-solid fa-file-pen me-1"></i> Scheduled Practical Tests
+                    </h6>
+                    @forelse($practicalTests as $test)
+                    <div class="p-2.5 rounded bg-dark border border-secondary border-opacity-25 mb-2 d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong class="text-white d-block" style="font-size: 0.85rem;">{{ $test->test_name }}</strong>
+                            <small class="text-secondary" style="font-size: 0.72rem;">Date: {{ $test->test_date }}</small>
+                        </div>
+                        <span class="badge bg-cyan text-dark badge-app">{{ $test->max_marks }} Marks</span>
+                    </div>
+                    @empty
+                    <p class="text-secondary text-center my-3 small">No test evaluations scheduled today.</p>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Tab Content 3: Remarks & Comments -->
+            <div id="tab-remarks" class="tab-pane d-none">
+                <div class="app-card">
+                    <h6 class="fw-bold text-purple mb-3" style="font-size: 0.9rem;">
+                        <i class="fa-solid fa-comments me-1"></i> Tutor & Faculty Remarks
+                    </h6>
+                    @forelse($mentoringNotes as $note)
+                    <div class="p-3 rounded bg-dark border border-secondary border-opacity-25 mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <strong class="text-cyan" style="font-size: 0.8rem;">{{ $note->faculty_name ?? 'Faculty Advisor' }}</strong>
+                            <small class="text-secondary" style="font-size: 0.7rem;">{{ \Carbon\Carbon::parse($note->created_at)->format('d M Y') }}</small>
+                        </div>
+                        <p class="text-slate-200 mb-0" style="font-size: 0.82rem;">
+                            {{ $note->comments ?? 'Academic guidance session conducted.' }}
+                        </p>
+                    </div>
+                    @empty
+                    <div class="p-3 text-center text-secondary bg-dark rounded border border-secondary border-opacity-25 small">
+                        <i class="fa-solid fa-circle-check text-success me-1"></i> No critical remarks. Student academic progress is satisfactory.
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Share SMS Link Box -->
+            <div class="app-card text-center">
+                <small class="text-secondary fw-semibold d-block mb-2" style="font-size: 0.75rem;">
+                    <i class="fa-solid fa-share-nodes me-1"></i> Share Access Link via SMS
+                </small>
+                <div class="input-group input-group-sm">
+                    <input type="text" id="smsLinkInput" class="form-control bg-dark text-light border-secondary" value="{{ $smsShareUrl }}" readonly style="font-size: 0.75rem;">
+                    <a href="sms:{{ $student->guardian_mobile ?: $student->phone }}?body={{ urlencode('Carmel Poly: View ward status: ' . $smsShareUrl) }}" class="btn btn-cyan text-dark font-bold">
+                        <i class="fa-solid fa-paper-plane me-1"></i> SMS
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Bottom Mobile Navigation Bar -->
+        <div class="bottom-nav">
+            <a href="#" class="nav-link-mobile active" onclick="switchTab(event, 'tab-attendance')">
+                <i class="fa-solid fa-clock"></i>
+                <span>Attendance</span>
+            </a>
+            <a href="#" class="nav-link-mobile" onclick="switchTab(event, 'tab-tasks')">
+                <i class="fa-solid fa-list-check"></i>
+                <span>Tasks & Tests</span>
+            </a>
+            <a href="#" class="nav-link-mobile" onclick="switchTab(event, 'tab-remarks')">
+                <i class="fa-solid fa-comments"></i>
+                <span>Remarks</span>
+            </a>
         </div>
 
     </div>
 
-    <!-- Bootstrap Bundle JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Script for Tab Switching -->
     <script>
-        function copyShareUrl() {
-            const input = document.getElementById('shareUrlInput');
-            input.select();
-            document.execCommand('copy');
-            alert('Parent Access Link copied to clipboard!');
+        function switchTab(e, tabId) {
+            e.preventDefault();
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('d-none'));
+            document.querySelectorAll('.nav-link-mobile').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(tabId).classList.remove('d-none');
+            e.currentTarget.classList.add('active');
         }
     </script>
 </body>
