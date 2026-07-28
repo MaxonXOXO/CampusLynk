@@ -215,16 +215,14 @@
                     <div class="row g-2">
                         <div class="col-6">
                             <div class="stat-card text-center">
-                                <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.7rem;">Continuous Internal Evaluation</small>
-                                <span class="stat-val text-info d-block my-1">60 Marks</span>
-                                <small class="d-block text-muted" style="font-size: 0.72rem;">Att (5) + CE (30) + CA (15) + OEE (10)</small>
+                                <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.7rem;">CIE</small>
+                                <span class="stat-val text-info d-block fw-bold">60 Marks</span>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="stat-card text-center">
-                                <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.68rem;">End Semester Exam</small>
-                                <span class="stat-val text-warning d-block my-1">40 Marks</span>
-                                <small class="d-block text-muted" style="font-size: 0.75rem;">3-Hour Board CAD Practical</small>
+                                <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.7rem;">ESE</small>
+                                <span class="stat-val text-warning d-block fw-bold">40 Marks</span>
                             </div>
                         </div>
                     </div>
