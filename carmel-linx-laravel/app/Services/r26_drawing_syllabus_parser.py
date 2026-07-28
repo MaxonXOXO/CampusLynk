@@ -1,7 +1,13 @@
 import sys
 import json
 import re
+import io
 from pypdf import PdfReader
+
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+else:
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def parse_drawing_syllabus(pdf_path):
     reader = PdfReader(pdf_path)

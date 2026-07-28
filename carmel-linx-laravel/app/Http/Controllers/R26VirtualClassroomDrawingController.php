@@ -408,12 +408,14 @@ class R26VirtualClassroomDrawingController extends Controller
 
             // Execute Python parser
             $pyPath = base_path('app/Services/r26_drawing_syllabus_parser.py');
-            $command = "python3 " . escapeshellarg($pyPath) . " " . escapeshellarg(storage_path('app/public/' . $path));
+            $fullPdfPath = storage_path('app/public/' . $path);
+            $command = "PYTHONIOENCODING=utf-8 /usr/bin/python3 " . escapeshellarg($pyPath) . " " . escapeshellarg($fullPdfPath) . " 2>&1";
             $jsonOutput = shell_exec($command);
 
             $parsedResult = json_decode($jsonOutput, true);
-            if (!$parsedResult || $parsedResult['status'] === 'ERROR') {
-                throw new \Exception($parsedResult['message'] ?? 'Failed to parse Drawing syllabus PDF.');
+            if (!$parsedResult || ($parsedResult['status'] ?? '') === 'ERROR') {
+                $errDetail = $parsedResult['message'] ?? trim($jsonOutput ?: 'No output returned from Python parser.');
+                throw new \Exception('Failed to parse Drawing syllabus PDF: ' . $errDetail);
             }
 
             $data = $parsedResult['data'];
