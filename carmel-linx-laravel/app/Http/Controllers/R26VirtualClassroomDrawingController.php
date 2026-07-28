@@ -638,32 +638,149 @@ class R26VirtualClassroomDrawingController extends Controller
     }
 
     /**
-     * Auto Generate 45-Hour Drawing Lab Lesson Plan
+     * Auto Generate 45-Hour Drawing Lab Lesson Plan (including 2 Practical Series Tests & OEE)
      */
     private function generate45HourLabLessonPlan($batchSubject, $drawingFile)
     {
         LessonPlan::where('batch_subject_id', $batchSubject->id)->delete();
 
-        $exercises = $drawingFile->parsed_exercises ?: [];
-        $dayNo = 1;
+        $parsedExercises = $drawingFile->parsed_exercises ?: [];
+        
+        if (empty($parsedExercises)) {
+            $parsedExercises = [
+                ['title' => 'Drawing Regular Polygons (Pentagon & Hexagon)', 'co_id' => 'CO1', 'hours' => 3],
+                ['title' => 'Drawing Conic Sections (Ellipse & Parabola)', 'co_id' => 'CO1', 'hours' => 3],
+                ['title' => 'Development of Surfaces (Prism & Cylinder)', 'co_id' => 'CO1', 'hours' => 3],
+                ['title' => 'Projections of Points & Lines in Quadrants', 'co_id' => 'CO2', 'hours' => 4],
+                ['title' => 'Orthographic Projections & Sectional Views of Objects', 'co_id' => 'CO2', 'hours' => 5],
+                ['title' => 'CAD Software Interface & Draw/Modify Commands', 'co_id' => 'CO3', 'hours' => 6],
+                ['title' => 'CAD Line Properties, Layers, Text, and Dimensioning', 'co_id' => 'CO3', 'hours' => 6],
+                ['title' => 'Developing 2D Orthographic Components in CAD', 'co_id' => 'CO4', 'hours' => 5],
+                ['title' => 'Developing Sectional Views & CAD Plotting', 'co_id' => 'CO4', 'hours' => 4],
+            ];
+        }
 
-        foreach ($exercises as $ex) {
+        $currentHour = 1;
+
+        foreach ($parsedExercises as $ex) {
+            $title = $ex['title'] ?? 'Practical Drawing Session';
+            $coTag = $ex['co_id'] ?? 'CO1';
             $hrs = intval($ex['hours'] ?? 3);
+
             for ($h = 1; $h <= $hrs; $h++) {
+                // Insert Practical Series Test 1 (CA1) at Hour 19-21 (Week 7)
+                if ($currentHour == 19) {
+                    for ($ca1H = 1; $ca1H <= 3; $ca1H++) {
+                        LessonPlan::create([
+                            'batch_subject_id' => $batchSubject->id,
+                            'day_no' => $currentHour,
+                            'planned_date' => now()->addDays($currentHour)->toDateString(),
+                            'topic_content' => "PRACTICAL SERIES TEST 1 (CA1): Manual Descriptive Drawing Exam (Modules I & II - 40 Marks) [Hour {$ca1H}/3]",
+                            'slo' => 'Execute manual orthographic and sectional drawing under examination conditions',
+                            'co_tag' => 'CO2',
+                            'taxonomy' => 'Apply',
+                            'mode' => 'P',
+                            'pedagogy' => 'Series Test Examination (CA1)',
+                            'status' => 'Pending'
+                        ]);
+                        $currentHour++;
+                    }
+                }
+
+                // Insert Open-Ended Experiment (OEE) at Hour 40-42 (Week 14)
+                if ($currentHour == 40) {
+                    for ($oeeH = 1; $oeeH <= 3; $oeeH++) {
+                        LessonPlan::create([
+                            'batch_subject_id' => $batchSubject->id,
+                            'day_no' => $currentHour,
+                            'planned_date' => now()->addDays($currentHour)->toDateString(),
+                            'topic_content' => "OPEN-ENDED EXPERIMENT (OEE): CAD Mini-Project Design & Evaluation [Hour {$oeeH}/3]",
+                            'slo' => 'Design and evaluate independent engineering drawing component using CAD software',
+                            'co_tag' => 'CO3',
+                            'taxonomy' => 'Create',
+                            'mode' => 'P',
+                            'pedagogy' => 'Open-Ended Project (OEE)',
+                            'status' => 'Pending'
+                        ]);
+                        $currentHour++;
+                    }
+                }
+
+                // Insert Practical Series Test 2 (CA2) at Hour 43-45 (Week 15)
+                if ($currentHour == 43) {
+                    for ($ca2H = 1; $ca2H <= 3; $ca2H++) {
+                        LessonPlan::create([
+                            'batch_subject_id' => $batchSubject->id,
+                            'day_no' => $currentHour,
+                            'planned_date' => now()->addDays($currentHour)->toDateString(),
+                            'topic_content' => "PRACTICAL SERIES TEST 2 (CA2): End-Sem CAD Practical Exam (Modules III & IV - 40 Marks) [Hour {$ca2H}/3]",
+                            'slo' => 'Execute 2D CAD drafting and sectional views under timed examination conditions',
+                            'co_tag' => 'CO4',
+                            'taxonomy' => 'Apply',
+                            'mode' => 'P',
+                            'pedagogy' => 'Series Test Examination (CA2)',
+                            'status' => 'Pending'
+                        ]);
+                        $currentHour++;
+                    }
+                }
+
+                if ($currentHour > 45) break 2;
+
                 LessonPlan::create([
                     'batch_subject_id' => $batchSubject->id,
-                    'day_no' => $dayNo,
-                    'planned_date' => now()->addDays($dayNo)->toDateString(),
-                    'topic_content' => $ex['title'] . " (Hour {$h}/{$hrs})",
-                    'slo' => "Demonstrate drafting accuracy for " . $ex['title'],
-                    'co_tag' => $ex['co_id'] ?? 'CO1',
-                    'taxonomy' => 'Apply',
+                    'day_no' => $currentHour,
+                    'planned_date' => now()->addDays($currentHour)->toDateString(),
+                    'topic_content' => $title . " (Hour {$h}/{$hrs})",
+                    'slo' => "Demonstrate drafting accuracy for " . $title,
+                    'co_tag' => $coTag,
+                    'taxonomy' => (str_contains(strtolower($title), 'cad') ? 'Apply' : 'Understand'),
                     'mode' => 'P',
-                    'pedagogy' => 'Drawing Lab Slot (P)',
+                    'pedagogy' => 'Drawing Lab Practical (P)',
                     'status' => 'Pending'
                 ]);
-                $dayNo++;
+
+                $currentHour++;
             }
+        }
+
+        // Fill any remaining hours up to exactly 45 hours
+        while ($currentHour <= 45) {
+            if ($currentHour == 19 || $currentHour == 20 || $currentHour == 21) {
+                $ca1H = $currentHour - 18;
+                $topic = "PRACTICAL SERIES TEST 1 (CA1): Manual Descriptive Drawing Exam (Modules I & II - 40 Marks) [Hour {$ca1H}/3]";
+                $coTag = 'CO2';
+                $pedagogy = 'Series Test Examination (CA1)';
+            } elseif ($currentHour == 40 || $currentHour == 41 || $currentHour == 42) {
+                $oeeH = $currentHour - 39;
+                $topic = "OPEN-ENDED EXPERIMENT (OEE): CAD Mini-Project Design & Evaluation [Hour {$oeeH}/3]";
+                $coTag = 'CO3';
+                $pedagogy = 'Open-Ended Project (OEE)';
+            } elseif ($currentHour == 43 || $currentHour == 44 || $currentHour == 45) {
+                $ca2H = $currentHour - 42;
+                $topic = "PRACTICAL SERIES TEST 2 (CA2): End-Sem CAD Practical Exam (Modules III & IV - 40 Marks) [Hour {$ca2H}/3]";
+                $coTag = 'CO4';
+                $pedagogy = 'Series Test Examination (CA2)';
+            } else {
+                $topic = "CAD Drawing Revision & Portfolio Finalization (Hour " . ($currentHour) . ")";
+                $coTag = 'CO4';
+                $pedagogy = 'Drawing Lab Revision (P)';
+            }
+
+            LessonPlan::create([
+                'batch_subject_id' => $batchSubject->id,
+                'day_no' => $currentHour,
+                'planned_date' => now()->addDays($currentHour)->toDateString(),
+                'topic_content' => $topic,
+                'slo' => 'Drafting precision and review',
+                'co_tag' => $coTag,
+                'taxonomy' => 'Apply',
+                'mode' => 'P',
+                'pedagogy' => $pedagogy,
+                'status' => 'Pending'
+            ]);
+
+            $currentHour++;
         }
     }
 }
