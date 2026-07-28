@@ -568,7 +568,10 @@
               <span class="material-symbols-rounded text-indigo-400 text-base">school</span>
               <h3 class="text-sm font-black text-slate-200">Mentoring Caseload (Data View)</h3>
             </div>
-            <p class="text-sm text-slate-400">Tutors see the full class; Mentors see only their batch.</p>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="bg-cyan-500/10 text-cyan-400 text-xs px-2.5 py-1 rounded-full font-bold border border-cyan-500/20">📱 Mobile Parent Portal SMS Enabled</span>
+              <p class="text-xs text-slate-400">Tutors see the full class; Mentors see only their batch.</p>
+            </div>
           </div>
           <div class="overflow-x-auto scrollbar-hidden">
             <table class="w-full text-left text-sm border-collapse">
