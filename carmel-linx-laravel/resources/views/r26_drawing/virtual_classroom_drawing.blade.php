@@ -31,6 +31,7 @@
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
+            font-size: 0.85rem;
         }
 
         h1, h2, h3, h4, h5, h6, .brand-font {
@@ -47,7 +48,7 @@
             background: rgba(31, 41, 55, 0.6);
             backdrop-filter: blur(16px);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 10px;
             transition: all 0.3s ease;
         }
 
@@ -56,24 +57,38 @@
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
 
+        .glass-card h2 {
+            font-size: 1.15rem !important;
+        }
+
+        .glass-card h5 {
+            font-size: 0.92rem !important;
+        }
+
         .stat-card {
-            padding: 1.25rem;
-            border-radius: 12px;
+            padding: 0.6rem 0.85rem;
+            border-radius: 10px;
             background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%);
             border: 1px solid var(--border-color);
         }
 
+        .stat-card .stat-val {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
         .nav-tabs-custom {
             border-bottom: 1px solid var(--border-color);
-            gap: 0.5rem;
+            gap: 0.35rem;
         }
 
         .nav-tabs-custom .nav-link {
             color: var(--text-muted);
             border: 1px solid transparent;
-            border-radius: 8px 8px 0 0;
-            padding: 0.75rem 1.25rem;
-            font-weight: 500;
+            border-radius: 6px 6px 0 0;
+            padding: 0.45rem 0.85rem;
+            font-size: 0.8rem;
+            font-weight: 600;
             transition: all 0.2s ease;
         }
 
@@ -86,12 +101,13 @@
             color: #fff;
             background: var(--bg-card);
             border-color: var(--border-color) var(--border-color) transparent;
-            border-top: 3px solid var(--accent-cyan);
+            border-top: 2.5px solid var(--accent-cyan);
         }
 
         .table-custom {
             color: var(--text-main);
             border-color: var(--border-color);
+            font-size: 0.82rem;
         }
 
         .table-custom th {
@@ -99,15 +115,18 @@
             color: var(--text-muted);
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
+            font-size: 0.7rem;
+            letter-spacing: 0.04em;
+            padding: 0.45rem 0.5rem;
             border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
         }
 
         .table-custom td {
             background-color: var(--bg-card);
             border-color: var(--border-color);
             vertical-align: middle;
+            padding: 0.35rem 0.5rem;
         }
 
         .form-control-custom {
@@ -115,25 +134,30 @@
             border: 1px solid var(--border-color);
             color: #fff;
             border-radius: 6px;
+            font-size: 0.82rem;
         }
 
         .form-control-custom:focus {
             background-color: #1f2937;
             border-color: var(--accent-cyan);
             color: #fff;
-            box-shadow: 0 0 0 0.25rem rgba(6, 182, 212, 0.25);
+            box-shadow: 0 0 0 0.2rem rgba(6, 182, 212, 0.25);
         }
 
-        .badge-cyan { background-color: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
-        .badge-emerald { background-color: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); }
-        .badge-amber { background-color: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
-        .badge-rose { background-color: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border: 1px solid var(--accent-rose); }
-        .badge-purple { background-color: rgba(139, 92, 246, 0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+        .badge-cyan { background-color: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); font-size: 0.72rem; padding: 0.25em 0.55em; }
+        .badge-emerald { background-color: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); font-size: 0.72rem; padding: 0.25em 0.55em; }
+        .badge-amber { background-color: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); font-size: 0.72rem; padding: 0.25em 0.55em; }
+        .badge-rose { background-color: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border: 1px solid var(--accent-rose); font-size: 0.72rem; padding: 0.25em 0.55em; }
+        .badge-purple { background-color: rgba(139, 92, 246, 0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); font-size: 0.72rem; padding: 0.25em 0.55em; }
 
         .rubric-input {
-            width: 70px;
+            width: 54px;
             text-align: center;
             font-weight: 600;
+            font-size: 0.8rem;
+            padding: 0.2rem 0.25rem;
+            height: 30px;
+            border-radius: 5px;
         }
 
         .btn-cyan {
@@ -141,6 +165,8 @@
             color: #000;
             font-weight: 600;
             border: none;
+            font-size: 0.82rem;
+            padding: 0.35rem 0.75rem;
         }
         .btn-cyan:hover {
             background-color: #22d3ee;
@@ -190,14 +216,14 @@
                         <div class="col-6">
                             <div class="stat-card text-center">
                                 <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.7rem;">Continuous Internal Evaluation</small>
-                                <span class="fs-3 fw-bold text-info">60 Marks</span>
-                                <small class="d-block text-muted" style="font-size: 0.75rem;">Att (5) + CE (30) + CA (15) + OEE (10)</small>
+                                <span class="stat-val text-info d-block my-1">60 Marks</span>
+                                <small class="d-block text-muted" style="font-size: 0.72rem;">Att (5) + CE (30) + CA (15) + OEE (10)</small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="stat-card text-center">
-                                <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.7rem;">End Semester Exam</small>
-                                <span class="fs-3 fw-bold text-warning">40 Marks</span>
+                                <small class="text-muted d-block text-uppercase fw-semibold" style="font-size: 0.68rem;">End Semester Exam</small>
+                                <span class="stat-val text-warning d-block my-1">40 Marks</span>
                                 <small class="d-block text-muted" style="font-size: 0.75rem;">3-Hour Board CAD Practical</small>
                             </div>
                         </div>
