@@ -3,115 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>45-Hour Drawing Lab Lesson Plan - {{ $batchSubject->subject_code }}</title>
+    <title>Lesson Plan - {{ $batchSubject->subject_code }} ({{ $batchSubject->subject_name }})</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-            color: #333;
+        @page {
+            size: A4 landscape;
+            margin: 8mm 10mm;
         }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 8px;
+            color: #000;
+            background: #fff;
+            font-size: 10px;
+            line-height: 1.25;
+        }
+
         .header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
         }
+
         .header h1 {
             margin: 0;
-            font-size: 22px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 800;
+        }
+
+        .header h2 {
+            margin: 3px 0 0 0;
+            font-size: 12px;
+            color: #111;
+            font-weight: 700;
             text-transform: uppercase;
         }
-        .header h2 {
-            margin: 5px 0 0 0;
-            font-size: 16px;
-            color: #555;
+
+        .header h3 {
+            margin: 3px 0 0 0;
+            font-size: 11px;
+            color: #222;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
-        .meta-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            font-size: 13px;
-        }
-        table {
+
+        .meta-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
-            margin-top: 10px;
+            margin-bottom: 10px;
+            font-size: 10px;
         }
-        th, td {
-            border: 1px solid #000;
-            padding: 8px 6px;
+
+        .meta-table td {
+            border: 1px solid #000 !important;
+            padding: 5px 8px;
+            background-color: #fcfcfc;
+            vertical-align: middle;
+        }
+
+        table.plan-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9.5px;
+            margin-top: 4px;
+        }
+
+        table.plan-table, table.plan-table th, table.plan-table td {
+            border: 1px solid #000 !important;
+        }
+
+        table.plan-table th, table.plan-table td {
+            padding: 4px 6px;
+            vertical-align: middle;
+        }
+
+        table.plan-table th {
+            background-color: #e5e7eb;
+            font-weight: 700;
             text-align: center;
+            text-transform: uppercase;
+            font-size: 9px;
+            letter-spacing: 0.3px;
         }
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
+
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .bold { font-weight: 700; }
+
+        .topic-cell {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-weight: normal;
+            font-size: 9.5px;
+            line-height: 1.3;
         }
-        .text-left {
-            text-align: left;
-        }
-        .bold {
-            font-weight: bold;
-        }
+
         .footer {
-            margin-top: 50px;
+            margin-top: 30px;
             display: flex;
             justify-content: space-between;
-            font-size: 13px;
+            font-size: 11px;
+            page-break-inside: avoid;
         }
+
         .signature-line {
-            border-top: 1px solid #000;
-            width: 200px;
+            border-top: 1.5px solid #000;
+            width: 210px;
             text-align: center;
-            padding-top: 5px;
-            margin-top: 50px;
+            padding-top: 4px;
+            margin-top: 35px;
+            font-weight: 600;
+        }
+
+        @media print {
+            body { padding: 0; }
+            .no-print { display: none !important; }
+            table.plan-table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            thead { display: table-header-group; }
         }
     </style>
 </head>
 <body>
 
+    <div class="no-print" style="margin-bottom: 10px; text-align: right;">
+        <button onclick="window.print()" style="padding: 6px 16px; background: #0284c7; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px;">
+            🖨️ Print Lesson Plan (A4 Landscape)
+        </button>
+    </div>
+
+    <!-- Header Title Section -->
     <div class="header">
         <h1>Carmel Polytechnic College, Alappuzha</h1>
-        <h2>45-Hour Engineering Drawing Lab Lesson Plan - Revision 2026</h2>
+        <h2>Department of {{ strtoupper($classroom->branch ?? 'Mechanical') }} Engineering</h2>
+        <h3>LESSON PLAN - {{ $batchSubject->syllabus_revision_code ?? 'REVISION 2026' }} (45 CONTACT HOURS)</h3>
     </div>
 
-    <div class="meta-info">
-        <div>
-            <strong>Course:</strong> {{ $batchSubject->subject_name }} ({{ $batchSubject->subject_code }})<br>
-            <strong>Class/Sem:</strong> Sem I - Diploma in Engineering
-        </div>
-        <div style="text-align: right;">
-            <strong>Academic Year:</strong> 2026-2027<br>
-            <strong>Faculty:</strong> {{ $staff->name ?? 'Lecturer In Charge' }}
-        </div>
-    </div>
+    <!-- Metadata Grid Table -->
+    <table class="meta-table">
+        <tr>
+            <td style="width: 38%;"><strong>College Name:</strong> Carmel Polytechnic College, Alappuzha</td>
+            <td style="width: 32%;"><strong>Department:</strong> {{ $classroom->branch ?? 'Mechanical' }} Engineering</td>
+            <td style="width: 30%;"><strong>Assessment Year:</strong> 2026 - 2027</td>
+        </tr>
+        <tr>
+            <td><strong>Subject Code & Name:</strong> {{ $batchSubject->subject_code }} - {{ $batchSubject->subject_name }}</td>
+            <td><strong>Batch:</strong> {{ $classroom->batch_year ? $classroom->batch_year.'-'.($classroom->batch_year+3) : ($classroom->classroom_id ?? '2026-2029') }}</td>
+            <td><strong>Semester:</strong> Semester {{ $classroom->current_semester ?? 'I' }}</td>
+        </tr>
+        <tr>
+            <td colspan="2"><strong>Faculty In Charge:</strong> {{ $staff->name ?? 'Lecturer In Charge' }}</td>
+            <td><strong>Total Duration:</strong> 45 Hours</td>
+        </tr>
+    </table>
 
-    <table>
+    <!-- Main Lesson Plan Grid Table -->
+    <table class="plan-table">
         <thead>
             <tr>
-                <th style="width: 50px;">Hour</th>
-                <th style="width: 80px;">Sub-Batch</th>
-                <th style="width: 90px;">Proposed Date</th>
-                <th style="width: 90px;">Actual Date</th>
-                <th class="text-left">Topic & Exercise Content</th>
-                <th style="width: 60px;">CO</th>
-                <th style="width: 110px;">Pedagogy / Exam</th>
-                <th style="width: 80px;">Status</th>
+                <th style="width: 40px;">Hr #</th>
+                <th style="width: 80px;">Proposed Date</th>
+                <th style="width: 80px;">Actual Date</th>
+                <th class="text-left">Topic & Practical Exercise Content</th>
+                <th style="width: 40px;">CO</th>
+                <th style="width: 45px;">Hrs</th>
+                <th style="width: 150px;">Pedagogy / Assessment</th>
+                <th style="width: 70px;">Status</th>
             </tr>
         </thead>
         <tbody>
             @forelse($lessonPlans as $lp)
             <tr>
-                <td>#{{ $lp->day_no }}</td>
-                <td><strong style="color: #444;">{{ $lp->sub_batch ?? 'Whole Class' }}</strong></td>
-                <td>{{ $lp->proposed_date ?: ($lp->planned_date ?: '-') }}</td>
-                <td>{{ $lp->actual_date ?: '-' }}</td>
-                <td class="text-left bold">{{ $lp->topic_content }}</td>
-                <td>{{ $lp->co_tag ?: ($lp->co_id ?: 'CO1') }}</td>
+                <td class="text-center bold">#{{ $lp->day_no }}</td>
+                <td class="text-center">{{ $lp->proposed_date ?: ($lp->planned_date ?: '-') }}</td>
+                <td class="text-center">{{ $lp->actual_date ?: '-' }}</td>
+                <td class="text-left topic-cell">{{ $lp->topic_content }}</td>
+                <td class="text-center bold">{{ $lp->co_tag ?: ($lp->co_id ?: 'CO1') }}</td>
+                <td class="text-center">{{ $lp->allocated_hours ?: 1 }}</td>
                 <td>{{ $lp->pedagogy }}</td>
-                <td style="font-weight: bold; color: {{ $lp->status == 'Completed' ? 'green' : 'orange' }};">{{ $lp->status }}</td>
+                <td class="text-center" style="font-weight: bold; color: {{ $lp->status == 'Completed' ? '#16a34a' : '#d97706' }};">
+                    {{ $lp->status }}
+                </td>
             </tr>
             @empty
             <tr>
-                <td colspan="8" style="padding: 20px; text-align: center; color: #777;">No planner generated yet.</td>
+                <td colspan="8" style="padding: 15px; text-align: center; color: #777;">No planner generated yet.</td>
             </tr>
             @endforelse
         </tbody>
@@ -127,7 +207,11 @@
     </div>
 
     <script>
-        window.print();
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 300);
+        };
     </script>
 </body>
 </html>

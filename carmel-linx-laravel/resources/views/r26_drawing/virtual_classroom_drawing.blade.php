@@ -126,7 +126,7 @@
             background-color: var(--bg-card);
             border-color: var(--border-color);
             vertical-align: middle;
-            padding: 0.35rem 0.5rem;
+            padding: 0.4rem 0.5rem;
         }
 
         .form-control-custom {
@@ -144,20 +144,73 @@
             box-shadow: 0 0 0 0.2rem rgba(6, 182, 212, 0.25);
         }
 
+        .growable-textarea {
+            resize: none;
+            overflow-y: hidden;
+            min-height: 38px;
+            line-height: 1.4;
+            font-size: 0.82rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border-radius: 6px;
+            background-color: #111827;
+            color: #fff;
+            border: 1px solid var(--border-color);
+            width: 100%;
+        }
+
+        .growable-textarea:focus {
+            background-color: #1f2937;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 0.2rem rgba(6, 182, 212, 0.25);
+            color: #fff;
+            outline: none;
+        }
+
         .badge-cyan { background-color: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); font-size: 0.72rem; padding: 0.25em 0.55em; }
         .badge-emerald { background-color: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); font-size: 0.72rem; padding: 0.25em 0.55em; }
         .badge-amber { background-color: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); font-size: 0.72rem; padding: 0.25em 0.55em; }
         .badge-rose { background-color: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border: 1px solid var(--accent-rose); font-size: 0.72rem; padding: 0.25em 0.55em; }
         .badge-purple { background-color: rgba(139, 92, 246, 0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); font-size: 0.72rem; padding: 0.25em 0.55em; }
 
+        .mark-cell {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            min-width: 90px;
+        }
+
         .rubric-input {
-            width: 54px;
+            width: 52px;
             text-align: center;
-            font-weight: 600;
-            font-size: 0.8rem;
-            padding: 0.2rem 0.25rem;
-            height: 30px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            padding: 0.15rem 0.25rem;
+            height: 28px;
             border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: #111827;
+            color: #fff;
+        }
+
+        .mark-slider {
+            width: 100%;
+            accent-color: var(--accent-cyan);
+            height: 5px;
+            background: #374151;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 2px 0 0 0;
+        }
+
+        .mark-slider::-webkit-slider-thumb {
+            width: 14px;
+            height: 14px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(6, 182, 212, 0.8);
+            cursor: pointer;
         }
 
         .btn-cyan {
@@ -171,6 +224,23 @@
         .btn-cyan:hover {
             background-color: #22d3ee;
             color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .nav-tabs-custom {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 5px;
+            }
+            .nav-tabs-custom .nav-link {
+                white-space: nowrap;
+            }
+            .mark-cell {
+                min-width: 110px;
+            }
+            .mark-slider {
+                height: 8px; /* Thicker touch target on mobile */
+            }
         }
     </style>
 </head>
@@ -203,10 +273,11 @@
         <div class="glass-card p-4 mb-4">
             <div class="row align-items-center g-3">
                 <div class="col-lg-7">
-                    <div class="d-flex align-items-center gap-2 mb-2">
+                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
                         <span class="badge badge-cyan"><i class="fa-solid fa-flask me-1"></i> R2026 Lab Paper</span>
+                        <span class="badge badge-emerald"><i class="fa-solid fa-users me-1"></i> Single Batch (Whole Class)</span>
                         <span class="badge badge-purple"><i class="fa-solid fa-laptop-code me-1"></i> CAD & Drafting</span>
-                        <span class="badge badge-emerald"><i class="fa-solid fa-clock me-1"></i> 45 Contact Hours</span>
+                        <span class="badge badge-amber"><i class="fa-solid fa-clock me-1"></i> 45 Contact Hours</span>
                     </div>
                     <h2 class="fw-bold mb-1">{{ $drawingCourseFile->course_title ?? $batchSubject->subject_name }}</h2>
                     <p class="text-muted mb-0">Course Code: <strong>{{ $drawingCourseFile->course_code ?? $batchSubject->subject_code }}</strong> | Scheme L:T:P:R: <strong>{{ $drawingCourseFile->teaching_scheme }}</strong> | Credits: <strong>{{ $drawingCourseFile->credits }}</strong></p>
@@ -214,15 +285,15 @@
                 <div class="col-lg-5">
                     <div class="row g-2">
                         <div class="col-6">
-                            <div class="stat-card text-center py-2">
-                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.68rem;">Continuous Assessment</small>
-                                <span class="stat-val text-info d-block fw-bold mt-1">CIA: 60 Marks</span>
+                            <div class="stat-card text-center py-2 px-3" style="background: rgba(6, 182, 212, 0.12); border: 1px solid var(--accent-cyan);">
+                                <div class="fw-bold text-uppercase" style="font-size: 0.8rem; color: #38bdf8; letter-spacing: 0.3px;">Continuous Assessment</div>
+                                <span class="stat-val d-block fw-bold text-white mt-1" style="font-size: 1.2rem;">60 Marks</span>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="stat-card text-center py-2">
-                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.68rem;">End Semester Exam</small>
-                                <span class="stat-val text-warning d-block fw-bold mt-1">ESE: 40 Marks</span>
+                            <div class="stat-card text-center py-2 px-3" style="background: rgba(245, 158, 11, 0.12); border: 1px solid var(--accent-amber);">
+                                <div class="fw-bold text-uppercase" style="font-size: 0.8rem; color: #fbbf24; letter-spacing: 0.3px;">End Semester Exam</div>
+                                <span class="stat-val d-block fw-bold text-white mt-1" style="font-size: 1.2rem;">40 Marks</span>
                             </div>
                         </div>
                     </div>
@@ -326,25 +397,30 @@
                 </div>
             </div>
 
-            <!-- TAB 2: LESSON PLAN -->
             <!-- TAB 2: 45-HOUR DRAWING LAB LESSON PLANNER -->
             <div class="tab-pane fade" id="tab-lessonplan" role="tabpanel">
                 <div class="glass-card p-4">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-3 border-bottom border-secondary">
                         <div>
                             <h5 class="fw-bold mb-1 text-warning"><i class="fa-solid fa-list-check me-2"></i>45-Hour Drawing Lab Lesson Plan</h5>
-                            <small class="text-muted">Sequenced practical sessions covering Manual Drawing & CAD Drafting, Series Exams & OEE Project</small>
+                            <small class="text-muted">Single Batch (Whole Class) practical sessions covering Manual Drawing & CAD Drafting, Series Exams & OEE Project</small>
                         </div>
                         <div class="d-flex flex-wrap align-items-center gap-2">
-                            <select id="lesson_planner_mode" class="form-select form-control-custom form-select-sm" style="width: auto; font-weight: 700;">
-                                <option value="single">Single/Whole Class Batch</option>
-                                <option value="split">Split Batch (Batch A/B)</option>
-                            </select>
+                            <input type="hidden" id="lesson_planner_mode" value="single">
+                            <span class="badge badge-cyan px-3 py-2 fw-semibold fs-6">
+                                <i class="fa-solid fa-users me-1"></i> Single Batch Lab
+                            </span>
                             <button onclick="generateLessonTimeline()" class="btn btn-sm btn-primary fw-bold">
                                 <i class="fa-solid fa-arrows-rotate me-1"></i> Generate Planner
                             </button>
                             <a href="/r26/classroom/drawing/lesson-plan/print/{{ $batchSubject->id }}" target="_blank" class="btn btn-sm btn-outline-light fw-bold">
-                                <i class="fa-solid fa-print me-1"></i> Print
+                                <i class="fa-solid fa-print me-1"></i> Print Plan
+                            </a>
+                            <a href="/r26/classroom/drawing/{{ $batchSubject->id }}/attendance-report" target="_blank" class="btn btn-sm btn-outline-info fw-bold">
+                                <i class="fa-solid fa-clipboard-user me-1"></i> Register Matrix
+                            </a>
+                            <a href="/r26/classroom/drawing/{{ $batchSubject->id }}/attendance-consolidated" target="_blank" class="btn btn-sm btn-info fw-bold text-dark">
+                                <i class="fa-solid fa-file-contract me-1"></i> Consolidated A4 Sheet
                             </a>
                             <button onclick="saveLessonPlannerBulk()" class="btn btn-sm btn-success fw-bold">
                                 <i class="fa-solid fa-floppy-disk me-1"></i> Save Planner
@@ -356,15 +432,14 @@
                         <table class="table table-custom table-hover align-middle mb-0" id="lesson-plan-table">
                             <thead>
                                 <tr>
-                                    <th style="width: 70px;">Hour</th>
-                                    <th style="width: 100px;">Sub-Batch</th>
-                                    <th style="width: 140px;">Proposed Date</th>
-                                    <th style="width: 140px;">Actual Date</th>
-                                    <th>Topic & Exercise Content</th>
+                                    <th style="width: 65px;">Hour</th>
+                                    <th style="width: 130px;">Proposed Date</th>
+                                    <th style="width: 130px;">Actual Date</th>
+                                    <th>Topic & Exercise Content (Growable Field)</th>
                                     <th style="width: 90px;">Mapped CO</th>
-                                    <th style="width: 70px;">Hrs</th>
+                                    <th style="width: 65px;">Hrs</th>
                                     <th style="width: 160px;">Pedagogy / Activity</th>
-                                    <th style="width: 120px;">Status</th>
+                                    <th style="width: 110px;">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="lesson-plan-rows-container">
@@ -372,18 +447,13 @@
                                 <tr class="lesson-plan-row" data-id="{{ $lp->id }}">
                                     <td class="fw-bold text-center text-info">#{{ $lp->day_no }}</td>
                                     <td>
-                                        <span class="badge {{ $lp->sub_batch == 'Batch A' ? 'badge-indigo' : ($lp->sub_batch == 'Batch B' ? 'badge-cyan' : 'badge-dark') }}">
-                                            {{ $lp->sub_batch ?? 'Whole' }}
-                                        </span>
-                                    </td>
-                                    <td>
                                         <input type="date" value="{{ $lp->proposed_date ?: $lp->planned_date }}" class="form-control form-control-custom form-control-sm lp-proposed">
                                     </td>
                                     <td>
                                         <input type="date" value="{{ $lp->actual_date }}" class="form-control form-control-custom form-control-sm lp-actual">
                                     </td>
                                     <td>
-                                        <input type="text" value="{{ $lp->topic_content }}" class="form-control form-control-custom form-control-sm lp-topic">
+                                        <textarea class="growable-textarea lp-topic" rows="1" oninput="autoGrow(this)">{{ $lp->topic_content }}</textarea>
                                     </td>
                                     <td>
                                         <select class="form-select form-control-custom form-select-sm lp-co">
@@ -413,7 +483,7 @@
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="9" class="text-center text-muted py-4 italic">No planner generated yet. Select batch option and click Generate.</td>
+                                    <td colspan="8" class="text-center text-muted py-4 italic">No planner generated yet. Click "Generate Planner" to populate 45-hour single batch schedule.</td>
                                 </tr>
                                 @endforelse
                             </tbody>
@@ -422,15 +492,15 @@
                 </div>
             </div>
 
-            <!-- TAB 3: CONTINUOUS EVALUATION (CE - 30 MARKS) -->
+            <!-- TAB 3: CONTINUOUS EVALUATION (CE - 30 MARKS) WITH SLIDER INPUTS -->
             <div class="tab-pane fade" id="tab-ce" role="tabpanel">
                 <div class="glass-card p-4">
                     <div class="row align-items-center g-3 mb-4">
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <h5 class="fw-bold mb-1"><i class="fa-solid fa-pen-ruler me-2 text-success"></i>Continuous Practical Evaluation (CE)</h5>
-                            <small class="text-muted">Rubric scoring out of 50 per slot -> Converted to 30 CIE Marks</small>
+                            <small class="text-muted">Split rubric scoring via slider controls (Max 50 -> Converted to 30 CIE Marks)</small>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-5">
                             <select class="form-select form-control-custom" id="ceExerciseSelect">
                                 @foreach($drawingCourseFile->parsed_exercises ?? [] as $ex)
                                 <option value="{{ $ex['exercise_no'] }}">{{ $ex['exercise_no'] }}: {{ $ex['title'] }}</option>
@@ -446,8 +516,8 @@
                         <table class="table table-custom table-hover align-middle mb-0" id="ceTable">
                             <thead>
                                 <tr>
-                                    <th>Roll</th>
-                                    <th>Reg No</th>
+                                    <th style="width: 50px;">Roll</th>
+                                    <th style="width: 90px;">Reg No</th>
                                     <th>Student Name</th>
                                     <th title="Attendance & Pre-lab (10)">Prep (10)</th>
                                     <th title="Setup & Procedure (10)">Setup (10)</th>
@@ -455,25 +525,61 @@
                                     <th title="Analysis & Dimensioning (10)">Anal (10)</th>
                                     <th title="Viva Voce (10)">Viva (10)</th>
                                     <th title="Workmanship & Line Quality (5)">Work (5)</th>
-                                    <th>Total (50)</th>
+                                    <th style="width: 80px;">Total (50)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($students as $st)
                                 @php
                                     $stEval = isset($slotEvals[$st->reg_no]) ? $slotEvals[$st->reg_no]->first() : null;
+                                    $v1 = $stEval->prep_punctuality ?? 0;
+                                    $v2 = $stEval->setup_procedure ?? 0;
+                                    $v3 = $stEval->observation_recording ?? 0;
+                                    $v4 = $stEval->analysis_interpretation ?? 0;
+                                    $v5 = $stEval->viva_voce ?? 0;
+                                    $v6 = $stEval->workmanship_discipline ?? 0;
                                 @endphp
                                 <tr data-reg-no="{{ $st->reg_no }}">
                                     <td class="fw-bold text-center">{{ $st->roll_no }}</td>
                                     <td><small class="text-muted">{{ $st->reg_no }}</small></td>
                                     <td class="fw-semibold">{{ $st->name }}</td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input p1" value="{{ $stEval->prep_punctuality ?? 0 }}" max="10" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input p2" value="{{ $stEval->setup_procedure ?? 0 }}" max="10" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input p3" value="{{ $stEval->observation_recording ?? 0 }}" max="5" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input p4" value="{{ $stEval->analysis_interpretation ?? 0 }}" max="10" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input p5" value="{{ $stEval->viva_voce ?? 0 }}" max="10" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input p6" value="{{ $stEval->workmanship_discipline ?? 0 }}" max="5" min="0" step="0.5"></td>
-                                    <td class="fw-bold text-info total-50">{{ $stEval->total_score_50 ?? '0.00' }}</td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input p1" value="{{ $v1 }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $v1 }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input p2" value="{{ $v2 }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $v2 }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input p3" value="{{ $v3 }}" max="5" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $v3 }}" max="5" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input p4" value="{{ $v4 }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $v4 }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input p5" value="{{ $v5 }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $v5 }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input p6" value="{{ $v6 }}" max="5" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $v6 }}" max="5" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-info total-50 fs-6 text-center">{{ number_format($v1+$v2+$v3+$v4+$v5+$v6, 2) }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -482,22 +588,43 @@
                 </div>
             </div>
 
-            <!-- TAB 4: PRACTICAL TESTS (CA1 & CA2 - 15 MARKS) -->
+            <!-- TAB 4: PRACTICAL SERIES TESTS (CA1 & CA2 - 15 MARKS) WITH SLIDER INPUTS -->
             <div class="tab-pane fade" id="tab-ca" role="tabpanel">
                 <div class="glass-card p-4">
                     <div class="row align-items-center g-3 mb-4">
-                        <div class="col-md-6">
-                            <h5 class="fw-bold mb-1"><i class="fa-solid fa-pen-to-square me-2 text-primary"></i>Practical Series Tests (CA1 & CA2)</h5>
-                            <small class="text-muted">CA1 (Descriptive - Wk 7) & CA2 (CAD Practical - Wk 14) out of 40 each -> Converted to 15 CIE Marks</small>
-                        </div>
                         <div class="col-md-4">
-                            <select class="form-select form-control-custom" id="caTestSelect">
-                                <option value="CA1">CA1: Descriptive Drawing Test (Module I & II - Max 40)</option>
-                                <option value="CA2">CA2: CAD Practical Test (Module III & IV - Max 40)</option>
+                            <h5 class="fw-bold mb-1"><i class="fa-solid fa-pen-to-square me-2 text-primary"></i>Practical Series Tests (CA1 & CA2)</h5>
+                            <small class="text-muted">Interactive sliders & automated QP, Scheme & Answer Key generation</small>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select form-control-custom" id="caTestSelect" onchange="loadCaTestData()">
+                                <option value="CA1">CA1: Manual Drawing (Modules I & II - Max 40)</option>
+                                <option value="CA2">CA2: CAD Exam (Modules III & IV - Max 40)</option>
                             </select>
                         </div>
-                        <div class="col-md-2 text-end">
-                            <button class="btn btn-cyan w-100" id="saveCaBtn"><i class="fa-solid fa-floppy-disk me-1"></i> Save Test</button>
+                        <div class="col-md-5 text-end d-flex align-items-center justify-content-end gap-1 flex-wrap">
+                            <button class="btn btn-outline-warning btn-sm" onclick="openQuestionBankModal()">
+                                <i class="fa-solid fa-edit me-1"></i> Question Bank & Edit QP
+                            </button>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    <i class="fa-solid fa-print me-1"></i> Print Papers
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow">
+                                    <li><h6 class="dropdown-header">Series Test 1 (Modules I & II)</h6></li>
+                                    <li><a class="dropdown-item" href="/r26/classroom/drawing/series-test/print/{{ $batchSubject->id }}/1?doc_type=qp" target="_blank">📄 QP Only (Strict 1 A4 Page)</a></li>
+                                    <li><a class="dropdown-item" href="/r26/classroom/drawing/series-test/print/{{ $batchSubject->id }}/1?doc_type=scheme" target="_blank">📊 Valuation Scheme</a></li>
+                                    <li><a class="dropdown-item" href="/r26/classroom/drawing/series-test/print/{{ $batchSubject->id }}/1?doc_type=key" target="_blank">🔑 Model Answer Key</a></li>
+                                    <li><a class="dropdown-item" href="/r26/classroom/drawing/series-test/print/{{ $batchSubject->id }}/1?doc_type=all" target="_blank">📚 Complete Package</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><h6 class="dropdown-header">Series Test 2 (Modules III & IV)</h6></li>
+                                    <li><a class="dropdown-item" href="/r26/classroom/drawing/series-test/print/{{ $batchSubject->id }}/2?doc_type=qp" target="_blank">📄 QP Only (Strict 1 A4 Page)</a></li>
+                                    <li><a class="dropdown-item" href="/r26/classroom/drawing/series-test/print/{{ $batchSubject->id }}/2?doc_type=scheme" target="_blank">📊 Valuation Scheme</a></li>
+                                    <li><a class="dropdown-item" href="/r26/classroom/drawing/series-test/print/{{ $batchSubject->id }}/2?doc_type=key" target="_blank">🔑 Model Answer Key</a></li>
+                                    <li><a class="dropdown-item" href="/r26/classroom/drawing/series-test/print/{{ $batchSubject->id }}/2?doc_type=all" target="_blank">📚 Complete Package</a></li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-cyan btn-sm" id="saveCaBtn"><i class="fa-solid fa-floppy-disk me-1"></i> Save Marks</button>
                         </div>
                     </div>
 
@@ -505,31 +632,66 @@
                         <table class="table table-custom table-hover align-middle mb-0" id="caTable">
                             <thead>
                                 <tr>
-                                    <th>Roll</th>
-                                    <th>Reg No</th>
+                                    <th style="width: 50px;">Roll</th>
+                                    <th style="width: 90px;">Reg No</th>
                                     <th>Student Name</th>
-                                    <th>Procedure (10)</th>
-                                    <th>Execution (10)</th>
-                                    <th>Output (8)</th>
-                                    <th>Viva (8)</th>
-                                    <th>Record (4)</th>
-                                    <th>Total (40)</th>
-                                    <th>Absent</th>
+                                    <th>Procedure / Writeup (10)</th>
+                                    <th>Execution / Setup (10)</th>
+                                    <th>Output / Drawing (8)</th>
+                                    <th>Viva Voce (8)</th>
+                                    <th>Record Completion (4)</th>
+                                    <th style="width: 80px;">Total (40)</th>
+                                    <th style="width: 60px;">Absent</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($students as $st)
+                                @php
+                                    $stTests = isset($practicalTests[$st->reg_no]) ? $practicalTests[$st->reg_no] : collect();
+                                    $ca1 = $stTests->where('test_no', 'CA1')->first();
+                                    $cw = $ca1->writeup_procedure ?? 0;
+                                    $cs = $ca1->setup_execution ?? 0;
+                                    $co = $ca1->observation_result ?? 0;
+                                    $cv = $ca1->viva_voce ?? 0;
+                                    $cr = $ca1->record_completion ?? 0;
+                                    $isAbs = $ca1->is_absent ?? 0;
+                                @endphp
                                 <tr data-reg-no="{{ $st->reg_no }}">
                                     <td class="fw-bold text-center">{{ $st->roll_no }}</td>
                                     <td><small class="text-muted">{{ $st->reg_no }}</small></td>
                                     <td class="fw-semibold">{{ $st->name }}</td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input ca-w" value="0" max="10" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input ca-s" value="0" max="10" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input ca-o" value="0" max="8" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input ca-v" value="0" max="8" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input ca-r" value="0" max="4" min="0" step="0.5"></td>
-                                    <td class="fw-bold text-warning ca-total-40">0.00</td>
-                                    <td><input type="checkbox" class="form-check-input ca-absent"></td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input ca-w" value="{{ $cw }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $cw }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input ca-s" value="{{ $cs }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $cs }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input ca-o" value="{{ $co }}" max="8" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $co }}" max="8" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input ca-v" value="{{ $cv }}" max="8" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $cv }}" max="8" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input ca-r" value="{{ $cr }}" max="4" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $cr }}" max="4" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-warning ca-total-40 fs-6 text-center">{{ number_format($cw+$cs+$co+$cv+$cr, 2) }}</td>
+                                    <td class="text-center"><input type="checkbox" class="form-check-input ca-absent" {{ $isAbs ? 'checked' : '' }}></td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -538,45 +700,77 @@
                 </div>
             </div>
 
-            <!-- TAB 5: OPEN-ENDED EXPERIMENT (OEE - 10 MARKS) -->
+            <!-- TAB 5: OPEN-ENDED EXPERIMENT (OEE - 10 MARKS) WITH SLIDER INPUTS -->
             <div class="tab-pane fade" id="tab-oee" role="tabpanel">
                 <div class="glass-card p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                         <div>
                             <h5 class="fw-bold mb-1"><i class="fa-solid fa-lightbulb me-2 text-amber"></i>Open-Ended Experiment (OEE)</h5>
-                            <small class="text-muted">Drawing sheets from Modules I & II evaluated as Open-Ended Project (Max 50 -> 10 CIE Marks)</small>
+                            <small class="text-muted">Slider entry for CAD mini-project criteria (Max 50 -> Converted to 10 CIE Marks)</small>
                         </div>
-                        <button class="btn btn-cyan" id="saveOeeBtn"><i class="fa-solid fa-floppy-disk me-1"></i> Save OEE</button>
+                        <button class="btn btn-cyan" id="saveOeeBtn"><i class="fa-solid fa-floppy-disk me-1"></i> Save OEE Marks</button>
                     </div>
 
                     <div class="table-responsive">
                         <table class="table table-custom table-hover align-middle mb-0" id="oeeTable">
                             <thead>
                                 <tr>
-                                    <th>Roll</th>
-                                    <th>Reg No</th>
+                                    <th style="width: 50px;">Roll</th>
+                                    <th style="width: 90px;">Reg No</th>
                                     <th>Student Name</th>
-                                    <th>Originality (10)</th>
-                                    <th>Objectives (10)</th>
-                                    <th>Execution (10)</th>
-                                    <th>Analysis (10)</th>
-                                    <th>Teamwork (10)</th>
-                                    <th>Total (50)</th>
+                                    <th>Originality & Innovation (10)</th>
+                                    <th>Objectives & Planning (10)</th>
+                                    <th>Execution & CAD Drafting (10)</th>
+                                    <th>Analysis & Dimensioning (10)</th>
+                                    <th>Teamwork & Viva (10)</th>
+                                    <th style="width: 80px;">Total (50)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($students as $st)
-                                @php $stOee = $oeeEvals[$st->reg_no] ?? null; @endphp
+                                @php
+                                    $stOee = $oeeEvals[$st->reg_no] ?? null;
+                                    $m1 = $stOee->originality_relevance ?? 0;
+                                    $m2 = $stOee->objectives_plan ?? 0;
+                                    $m3 = $stOee->execution_recording ?? 0;
+                                    $m4 = $stOee->analysis_presentation ?? 0;
+                                    $m5 = $stOee->teamwork_innovation ?? 0;
+                                @endphp
                                 <tr data-reg-no="{{ $st->reg_no }}">
                                     <td class="fw-bold text-center">{{ $st->roll_no }}</td>
                                     <td><small class="text-muted">{{ $st->reg_no }}</small></td>
                                     <td class="fw-semibold">{{ $st->name }}</td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input oee-m1" value="{{ $stOee->originality_relevance ?? 0 }}" max="10" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input oee-m2" value="{{ $stOee->objectives_plan ?? 0 }}" max="10" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input oee-m3" value="{{ $stOee->execution_recording ?? 0 }}" max="10" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input oee-m4" value="{{ $stOee->analysis_presentation ?? 0 }}" max="10" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input oee-m5" value="{{ $stOee->teamwork_innovation ?? 0 }}" max="10" min="0" step="0.5"></td>
-                                    <td class="fw-bold text-amber oee-total-50">{{ $stOee->total_score_50 ?? '0.00' }}</td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input oee-m1" value="{{ $m1 }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $m1 }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input oee-m2" value="{{ $m2 }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $m2 }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input oee-m3" value="{{ $m3 }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $m3 }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input oee-m4" value="{{ $m4 }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $m4 }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input oee-m5" value="{{ $m5 }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $m5 }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-amber oee-total-50 fs-6 text-center">{{ number_format($m1+$m2+$m3+$m4+$m5, 2) }}</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -585,13 +779,13 @@
                 </div>
             </div>
 
-            <!-- TAB 6: END SEMESTER EXAM (ESE - 40 MARKS) -->
+            <!-- TAB 6: END SEMESTER EXAM (ESE - 40 MARKS) WITH SLIDER INPUTS -->
             <div class="tab-pane fade" id="tab-ese" role="tabpanel">
                 <div class="glass-card p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                         <div>
                             <h5 class="fw-bold mb-1"><i class="fa-solid fa-desktop me-2 text-danger"></i>End Semester CAD Practical Exam (ESE)</h5>
-                            <small class="text-muted">Board Examination in CAD: Part A MCQ (10) + Part B CAD (18) + Part C Viva (8) + Part D Record (4) = 40 Marks</small>
+                            <small class="text-muted">Board CAD Practical Exam split marks via sliders: Part A MCQ (10) + Part B CAD (18) + Part C Viva (8) + Part D Record (4) = 40 Marks</small>
                         </div>
                         <button class="btn btn-cyan" id="saveEseBtn"><i class="fa-solid fa-floppy-disk me-1"></i> Save ESE Marks</button>
                     </div>
@@ -600,30 +794,57 @@
                         <table class="table table-custom table-hover align-middle mb-0" id="eseTable">
                             <thead>
                                 <tr>
-                                    <th>Roll</th>
-                                    <th>Reg No</th>
+                                    <th style="width: 50px;">Roll</th>
+                                    <th style="width: 90px;">Reg No</th>
                                     <th>Student Name</th>
                                     <th>Part A: MCQ (10)</th>
-                                    <th>Part B: CAD (18)</th>
-                                    <th>Part C: Viva (8)</th>
+                                    <th>Part B: CAD Drafting (18)</th>
+                                    <th>Part C: Viva Voce (8)</th>
                                     <th>Part D: Record (4)</th>
-                                    <th>Total ESE (40)</th>
-                                    <th>Absent</th>
+                                    <th style="width: 80px;">Total ESE (40)</th>
+                                    <th style="width: 60px;">Absent</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($students as $st)
-                                @php $stEse = $eseMarks[$st->reg_no] ?? null; @endphp
+                                @php
+                                    $stEse = $eseMarks[$st->reg_no] ?? null;
+                                    $pa = $stEse->part_a_mcq ?? 0;
+                                    $pb = $stEse->part_b_cad ?? 0;
+                                    $pc = $stEse->part_c_viva ?? 0;
+                                    $pd = $stEse->part_d_record ?? 0;
+                                    $isAbsEse = $stEse->is_absent ?? 0;
+                                @endphp
                                 <tr data-reg-no="{{ $st->reg_no }}">
                                     <td class="fw-bold text-center">{{ $st->roll_no }}</td>
                                     <td><small class="text-muted">{{ $st->reg_no }}</small></td>
                                     <td class="fw-semibold">{{ $st->name }}</td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input ese-pa" value="{{ $stEse->part_a_mcq ?? 0 }}" max="10" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input ese-pb" value="{{ $stEse->part_b_cad ?? 0 }}" max="18" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input ese-pc" value="{{ $stEse->part_c_viva ?? 0 }}" max="8" min="0" step="0.5"></td>
-                                    <td><input type="number" class="form-control form-control-custom rubric-input ese-pd" value="{{ $stEse->part_d_record ?? 0 }}" max="4" min="0" step="0.5"></td>
-                                    <td class="fw-bold text-danger ese-total-40">{{ $stEse->total_ese_40 ?? '0.00' }}</td>
-                                    <td><input type="checkbox" class="form-check-input ese-absent" {{ ($stEse && $stEse->is_absent) ? 'checked' : '' }}></td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input ese-pa" value="{{ $pa }}" max="10" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $pa }}" max="10" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input ese-pb" value="{{ $pb }}" max="18" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $pb }}" max="18" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input ese-pc" value="{{ $pc }}" max="8" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $pc }}" max="8" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="mark-cell">
+                                            <input type="number" class="rubric-input ese-pd" value="{{ $pd }}" max="4" min="0" step="0.5">
+                                            <input type="range" class="mark-slider" value="{{ $pd }}" max="4" min="0" step="0.5">
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-danger ese-total-40 fs-6 text-center">{{ number_format($pa+$pb+$pc+$pd, 2) }}</td>
+                                    <td class="text-center"><input type="checkbox" class="form-check-input ese-absent" {{ $isAbsEse ? 'checked' : '' }}></td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -635,7 +856,17 @@
             <!-- TAB 7: CONSOLIDATED CIE, SURVEYS & REPORTS -->
             <div class="tab-pane fade" id="tab-cie" role="tabpanel">
                 <div class="glass-card p-4 mb-4">
-                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie me-2 text-purple"></i>Consolidated Course Score Sheet</h5>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <h5 class="fw-bold mb-0"><i class="fa-solid fa-chart-pie me-2 text-purple"></i>Consolidated Course Score Sheet</h5>
+                        <div class="btn-group">
+                            <a href="/r26/classroom/drawing/{{ $batchSubject->id }}/attendance-report" target="_blank" class="btn btn-outline-info btn-sm fw-bold">
+                                <i class="fa-solid fa-clipboard-user me-1"></i> Register Matrix
+                            </a>
+                            <a href="/r26/classroom/drawing/{{ $batchSubject->id }}/attendance-consolidated" target="_blank" class="btn btn-info btn-sm fw-bold text-dark">
+                                <i class="fa-solid fa-file-contract me-1"></i> Consolidated A4 Sheet
+                            </a>
+                        </div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-custom table-hover align-middle mb-0">
                             <thead>
@@ -682,20 +913,78 @@
                 <div class="row g-4">
                     <div class="col-lg-6">
                         <div class="glass-card p-4">
-                            <h5 class="fw-bold mb-3"><i class="fa-solid fa-poll me-2 text-info"></i>Indirect Attainment via Surveys</h5>
+                            <h5 class="fw-bold mb-3 text-info"><i class="fa-solid fa-poll me-2"></i>Indirect Attainment via Surveys</h5>
+                            
+                            <!-- Course Exit Survey Box -->
                             <div class="p-3 rounded mb-3" style="background: #111827; border: 1px solid var(--border-color);">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span>Course Exit Survey</span>
-                                    <span class="badge {{ $exitSurvey ? 'badge-emerald' : 'badge-amber' }}">{{ $exitSurvey ? 'Active / Conducted' : 'Not Initiated' }}</span>
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-2">
+                                    <div>
+                                        <span class="fw-bold text-white fs-6">Course Exit Survey</span>
+                                        <span class="badge {{ $exitSurvey ? ($exitSurvey->status == 'Active' ? 'badge-cyan' : 'badge-emerald') : 'badge-amber' }} ms-2">
+                                            {{ $exitSurvey ? ($exitSurvey->status == 'Active' ? 'Active / Open' : 'Completed') : 'Not Initiated' }}
+                                        </span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                                        <button class="btn btn-sm btn-outline-info" onclick="previewSurveyModal('exit')">
+                                            <i class="fa-solid fa-eye me-1"></i> Preview
+                                        </button>
+                                        @if(!$exitSurvey || $exitSurvey->status != 'Active')
+                                        <button class="btn btn-sm btn-cyan" onclick="initiateSurveyAction('exit')">
+                                            <i class="fa-solid fa-paper-plane me-1"></i> Initiate & Notify
+                                        </button>
+                                        @else
+                                        <button class="btn btn-sm btn-outline-danger" onclick="closeSurveyAction('exit')">
+                                            <i class="fa-solid fa-lock me-1"></i> Close
+                                        </button>
+                                        @endif
+                                        <a href="/classroom/{{ $batchSubject->id }}/course-exit/report" target="_blank" class="btn btn-sm btn-outline-light">
+                                            <i class="fa-solid fa-file-pdf me-1"></i> Report
+                                        </a>
+                                    </div>
                                 </div>
-                                <small class="text-muted d-block mt-1">Responses Collected: {{ $exitSurveyResponses->count() }}</small>
+                                <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top border-secondary">
+                                    <span class="fw-bold text-info" style="font-size: 0.88rem;">
+                                        <i class="fa-solid fa-users me-1 text-cyan"></i> Responses Collected: 
+                                        <span class="badge badge-cyan px-2 py-1 fs-6 ms-1">{{ $exitSurveyResponses->count() }}</span> / {{ $students->count() }} Enrolled
+                                    </span>
+                                    <small class="text-light" style="font-size: 0.75rem;"><i class="fa-solid fa-bell me-1 text-warning"></i> Auto-notifies student panel</small>
+                                </div>
                             </div>
+
+                            <!-- Mid-Semester Survey Box -->
                             <div class="p-3 rounded" style="background: #111827; border: 1px solid var(--border-color);">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span>Mid-Semester Survey</span>
-                                    <span class="badge {{ $midSemSurvey ? 'badge-emerald' : 'badge-amber' }}">{{ $midSemSurvey ? 'Active / Conducted' : 'Not Initiated' }}</span>
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-2">
+                                    <div>
+                                        <span class="fw-bold text-white fs-6">Mid-Semester Survey</span>
+                                        <span class="badge {{ $midSemSurvey ? ($midSemSurvey->status == 'Active' ? 'badge-cyan' : 'badge-emerald') : 'badge-amber' }} ms-2">
+                                            {{ $midSemSurvey ? ($midSemSurvey->status == 'Active' ? 'Active / Open' : 'Completed') : 'Not Initiated' }}
+                                        </span>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-1 flex-wrap">
+                                        <button class="btn btn-sm btn-outline-info" onclick="previewSurveyModal('midsem')">
+                                            <i class="fa-solid fa-eye me-1"></i> Preview
+                                        </button>
+                                        @if(!$midSemSurvey || $midSemSurvey->status != 'Active')
+                                        <button class="btn btn-sm btn-cyan" onclick="initiateSurveyAction('midsem')">
+                                            <i class="fa-solid fa-paper-plane me-1"></i> Initiate & Notify
+                                        </button>
+                                        @else
+                                        <button class="btn btn-sm btn-outline-danger" onclick="closeSurveyAction('midsem')">
+                                            <i class="fa-solid fa-lock me-1"></i> Close
+                                        </button>
+                                        @endif
+                                        <a href="/classroom/{{ $batchSubject->id }}/survey/report" target="_blank" class="btn btn-sm btn-outline-light">
+                                            <i class="fa-solid fa-file-pdf me-1"></i> Report
+                                        </a>
+                                    </div>
                                 </div>
-                                <small class="text-muted d-block mt-1">Responses Collected: {{ $midSemResponses->count() }}</small>
+                                <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top border-secondary">
+                                    <span class="fw-bold text-info" style="font-size: 0.88rem;">
+                                        <i class="fa-solid fa-users me-1 text-cyan"></i> Responses Collected: 
+                                        <span class="badge badge-cyan px-2 py-1 fs-6 ms-1">{{ $midSemResponses->count() }}</span> / {{ $students->count() }} Enrolled
+                                    </span>
+                                    <small class="text-light" style="font-size: 0.75rem;"><i class="fa-solid fa-bell me-1 text-warning"></i> Auto-notifies student panel</small>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -737,6 +1026,115 @@
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const subjectId = {{ $batchSubject->id }};
+        const practicalTestsAll = @json($practicalTests);
+
+        // Auto Grow Textarea Helper
+        function autoGrow(element) {
+            if (!element) return;
+            element.style.height = 'auto';
+            element.style.height = (element.scrollHeight) + 'px';
+        }
+
+        // Initialize Slider & Number Input Bidirectional Sync
+        function initSliderSync() {
+            document.querySelectorAll('.mark-cell').forEach(cell => {
+                const numInput = cell.querySelector('input[type="number"]');
+                const sliderInput = cell.querySelector('input[type="range"]');
+                if (!numInput || !sliderInput) return;
+
+                sliderInput.addEventListener('input', () => {
+                    numInput.value = sliderInput.value;
+                    numInput.dispatchEvent(new Event('input', { bubbles: true }));
+                });
+
+                numInput.addEventListener('input', () => {
+                    sliderInput.value = numInput.value;
+                });
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Auto grow all growable textareas
+            document.querySelectorAll('.growable-textarea').forEach(el => autoGrow(el));
+
+            // Initialize slider sync
+            initSliderSync();
+
+            // Auto sum listeners for CE Table
+            document.querySelectorAll('#ceTable tbody tr').forEach(tr => {
+                tr.querySelectorAll('.rubric-input').forEach(input => {
+                    input.addEventListener('input', () => {
+                        let sum = 0;
+                        tr.querySelectorAll('.rubric-input').forEach(inp => sum += parseFloat(inp.value || 0));
+                        tr.querySelector('.total-50').textContent = sum.toFixed(2);
+                    });
+                });
+            });
+
+            // Auto sum listeners for CA Table
+            document.querySelectorAll('#caTable tbody tr').forEach(tr => {
+                tr.querySelectorAll('.rubric-input').forEach(input => {
+                    input.addEventListener('input', () => {
+                        let sum = 0;
+                        tr.querySelectorAll('.rubric-input').forEach(inp => sum += parseFloat(inp.value || 0));
+                        tr.querySelector('.ca-total-40').textContent = sum.toFixed(2);
+                    });
+                });
+            });
+
+            // Auto sum listeners for OEE Table
+            document.querySelectorAll('#oeeTable tbody tr').forEach(tr => {
+                tr.querySelectorAll('.rubric-input').forEach(input => {
+                    input.addEventListener('input', () => {
+                        let sum = 0;
+                        tr.querySelectorAll('.rubric-input').forEach(inp => sum += parseFloat(inp.value || 0));
+                        tr.querySelector('.oee-total-50').textContent = sum.toFixed(2);
+                    });
+                });
+            });
+
+            // Auto sum listeners for ESE Table
+            document.querySelectorAll('#eseTable tbody tr').forEach(tr => {
+                tr.querySelectorAll('.rubric-input').forEach(input => {
+                    input.addEventListener('input', () => {
+                        let sum = 0;
+                        tr.querySelectorAll('.rubric-input').forEach(inp => sum += parseFloat(inp.value || 0));
+                        tr.querySelector('.ese-total-40').textContent = sum.toFixed(2);
+                    });
+                });
+            });
+        });
+
+        // Dynamic Loading for CA1 & CA2 Series Tests
+        function loadCaTestData() {
+            const selectedTest = document.getElementById('caTestSelect').value;
+            document.querySelectorAll('#caTable tbody tr').forEach(tr => {
+                const regNo = tr.dataset.regNo;
+                const studentTests = practicalTestsAll[regNo] || [];
+                const testObj = studentTests.find(t => t.test_no === selectedTest) || {};
+
+                const w = testObj.writeup_procedure || 0;
+                const s = testObj.setup_execution || 0;
+                const o = testObj.observation_result || 0;
+                const v = testObj.viva_voce || 0;
+                const r = testObj.record_completion || 0;
+                const abs = testObj.is_absent ? true : false;
+
+                const inputW = tr.querySelector('.ca-w');
+                const inputS = tr.querySelector('.ca-s');
+                const inputO = tr.querySelector('.ca-o');
+                const inputV = tr.querySelector('.ca-v');
+                const inputR = tr.querySelector('.ca-r');
+                const chkAbs = tr.querySelector('.ca-absent');
+
+                if (inputW) { inputW.value = w; inputW.dispatchEvent(new Event('input')); }
+                if (inputS) { inputS.value = s; inputS.dispatchEvent(new Event('input')); }
+                if (inputO) { inputO.value = o; inputO.dispatchEvent(new Event('input')); }
+                if (inputV) { inputV.value = v; inputV.dispatchEvent(new Event('input')); }
+                if (inputR) { inputR.value = r; inputR.dispatchEvent(new Event('input')); }
+                if (chkAbs) { chkAbs.checked = abs; }
+            });
+        }
 
         // Upload Syllabus PDF
         document.getElementById('uploadSyllabusForm').addEventListener('submit', async function(e) {
@@ -765,17 +1163,6 @@
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-gears me-1"></i> Parse & Extract Syllabus';
             }
-        });
-
-        // Auto sum for CE
-        document.querySelectorAll('#ceTable tbody tr').forEach(tr => {
-            tr.querySelectorAll('.rubric-input').forEach(input => {
-                input.addEventListener('input', () => {
-                    let sum = 0;
-                    tr.querySelectorAll('.rubric-input').forEach(inp => sum += parseFloat(inp.value || 0));
-                    tr.querySelector('.total-50').textContent = sum.toFixed(2);
-                });
-            });
         });
 
         // Save CE
@@ -874,16 +1261,15 @@
             alert(data.message);
         });
 
-        // Generate Lesson Plan Timeline (Single vs Split Batch)
+        // Generate Lesson Plan Timeline (Single Batch)
         async function generateLessonTimeline() {
-            const mode = document.getElementById('lesson_planner_mode').value;
-            if (!confirm(`Regenerate full 45-hour Drawing Lab lesson plan using mode '${mode}'? Existing customized dates will be reset.`)) return;
+            if (!confirm(`Regenerate full 45-hour Drawing Lab lesson plan for single batch? Existing customized dates will be reset.`)) return;
 
             try {
                 const res = await fetch(`/api/r26/classroom/drawing/${subjectId}/lesson-plan/generate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-                    body: JSON.stringify({ mode: mode })
+                    body: JSON.stringify({ mode: 'single' })
                 });
                 const data = await res.json();
                 alert(data.message);
@@ -921,6 +1307,328 @@
                 alert(data.message);
             } catch (e) {
                 alert('Save error: ' + e.message);
+            }
+        }
+
+        // Preview Survey Questionnaire Modal Handler
+        function previewSurveyModal(type) {
+            const title = type === 'exit' ? 'Course Exit Survey Questionnaire (CO Mapped - R26 Drawing Lab)' : 'Mid-Semester Feedback Questionnaire (R26 Drawing Lab)';
+            document.getElementById('surveyPreviewTitle').innerHTML = `<i class="fa-solid fa-clipboard-question me-2"></i>${title}`;
+            
+            let html = `
+                <div class="mb-3 p-3 rounded" style="background: rgba(6,182,212,0.12); border: 1px solid var(--accent-cyan);">
+                    <div class="fw-bold text-info mb-1"><i class="fa-solid fa-circle-info me-1"></i> CO-Mapped Questionnaire Standard</div>
+                    <small class="text-light">Students score each outcome on a 3-Point Likert Scale: <strong>3 = High / Excellent</strong>, <strong>2 = Moderate / Good</strong>, <strong>1 = Low / Basic</strong>.</small>
+                </div>
+                <div class="list-group">
+                    <div class="list-group-item bg-dark text-light border-secondary mb-2 rounded">
+                        <div class="fw-bold text-cyan mb-1"><i class="fa-solid fa-compass me-1"></i> CO1: Manual Geometrical Drawing & Constructions</div>
+                        <div class="ps-3 border-start border-cyan small">
+                            <div class="mb-1">1. Rate your ability to manually construct regular polygons, conic sections, and developments.</div>
+                            <div>2. Rate instructor step-by-step guidance and demonstration during manual sheet exercises.</div>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-dark text-light border-secondary mb-2 rounded">
+                        <div class="fw-bold text-warning mb-1"><i class="fa-solid fa-cube me-1"></i> CO2: Orthographic Projections & Sectional Views</div>
+                        <div class="ps-3 border-start border-warning small">
+                            <div class="mb-1">3. Rate your clarity on 1st & 3rd angle projection principles and sectional views.</div>
+                            <div>4. Rate the timeliness of feedback during continuous slot evaluation of drawing sheets.</div>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-dark text-light border-secondary mb-2 rounded">
+                        <div class="fw-bold text-success mb-1"><i class="fa-solid fa-laptop-code me-1"></i> CO3: CAD Software Interface & Commands</div>
+                        <div class="ps-3 border-start border-success small">
+                            <div class="mb-1">5. Rate your proficiency in using CAD draw/modify tools, layer management, and dimensioning.</div>
+                            <div>6. Rate the availability and performance of CAD workstation hardware/software facilities.</div>
+                        </div>
+                    </div>
+                    <div class="list-group-item bg-dark text-light border-secondary rounded">
+                        <div class="fw-bold text-danger mb-1"><i class="fa-solid fa-draw-polygon me-1"></i> CO4: 2D Component Drafting & Sectional Plotting</div>
+                        <div class="ps-3 border-start border-danger small">
+                            <div class="mb-1">7. Rate your confidence in generating 2D orthographic component drawings & sectional views in CAD.</div>
+                            <div>8. Rate overall satisfaction with the 45-hour Drawing Lab curriculum delivery and outcomes.</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('surveyPreviewBody').innerHTML = html;
+            const modal = new bootstrap.Modal(document.getElementById('surveyPreviewModal'));
+            modal.show();
+        }
+
+        // Initiate Survey Action & Send Notification to Student Panel
+        async function initiateSurveyAction(type) {
+            const url = type === 'exit' ? `/api/r26/classroom/${subjectId}/exit-survey/initiate` : `/api/r26/classroom/${subjectId}/midsem-survey/initiate`;
+            const label = type === 'exit' ? 'Course Exit Survey' : 'Mid-Semester Survey';
+            
+            if (!confirm(`Initiate ${label}? The survey notification will immediately appear on all student dashboard panels.`)) return;
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken 
+                    }
+                });
+                const data = await res.json();
+                alert(data.message);
+                if (data.status === 'SUCCESS') window.location.reload();
+            } catch (e) {
+                alert('Error initiating survey: ' + e.message);
+            }
+        }
+
+        // Close Active Survey Action
+        async function closeSurveyAction(type) {
+            const url = type === 'exit' ? `/api/r26/classroom/${subjectId}/exit-survey/close` : `/api/r26/classroom/${subjectId}/midsem-survey/close`;
+            const label = type === 'exit' ? 'Course Exit Survey' : 'Mid-Semester Survey';
+            
+            if (!confirm(`Close ${label}? Student panel notifications will be closed and response collection finalized.`)) return;
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken 
+                    }
+                });
+                const data = await res.json();
+                alert(data.message);
+                if (data.status === 'SUCCESS') window.location.reload();
+            } catch (e) {
+                alert('Error closing survey: ' + e.message);
+            }
+        }
+    </script>
+
+    <!-- Survey Questionnaire Preview Modal -->
+    <div class="modal fade" id="surveyPreviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content glass-card border-secondary text-light">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold text-info" id="surveyPreviewTitle"><i class="fa-solid fa-clipboard-question me-2"></i>Survey Questionnaire Preview</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" id="surveyPreviewBody">
+                    <!-- Dynamic Preview Content -->
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close Preview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Bank & Question Paper Editor Modal -->
+    <div class="modal fade" id="questionBankModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content glass-card border-secondary text-light">
+                <div class="modal-header border-secondary">
+                    <div>
+                        <h5 class="modal-title fw-bold text-warning"><i class="fa-solid fa-pen-to-square me-2"></i>Question Bank & Series Test Paper Manager</h5>
+                        <small class="text-muted">Edit questions, choices, valuation rubrics, and answer keys. Saved changes persist in Question Bank database.</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-3 align-items-center">
+                        <div class="col-md-4">
+                            <label class="form-label text-muted small fw-bold">Select Series Test Exam</label>
+                            <select class="form-select bg-dark text-light border-secondary" id="qbModalTestNoSelect" onchange="loadQuestionBankData(this.value)">
+                                <option value="1">Series Test 1 (Manual Drawing - Modules I & II)</option>
+                                <option value="2">Series Test 2 (CAD Exam - Modules III & IV)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label text-muted small fw-bold">Paper Title</label>
+                            <input type="text" class="form-control bg-dark text-light border-secondary" id="qbTestTitleInput">
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label text-muted small fw-bold">Instructions to Candidates</label>
+                            <input type="text" class="form-control bg-dark text-light border-secondary" id="qbInstructionsInput">
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary my-3">
+
+                    <div id="qbQuestionsEditorContainer">
+                        <!-- Dynamic Question Cards -->
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-cyan btn-sm" onclick="saveQuestionBankData()">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Save to Question Bank & Update QP
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQpData = null;
+        let currentTestNo = 1;
+
+        async function openQuestionBankModal() {
+            const testNo = document.getElementById('caTestSelect').value === 'CA2' ? 2 : 1;
+            currentTestNo = testNo;
+            document.getElementById('qbModalTestNoSelect').value = testNo;
+            await loadQuestionBankData(testNo);
+            const modal = new bootstrap.Modal(document.getElementById('questionBankModal'));
+            modal.show();
+        }
+
+        async function loadQuestionBankData(testNo) {
+            currentTestNo = testNo;
+            try {
+                const res = await fetch(`/api/r26/classroom/drawing/${subjectId}/series-qp/${testNo}`);
+                const data = await res.json();
+                if (data.status === 'SUCCESS') {
+                    currentQpData = data.data;
+                    renderQuestionBankEditor();
+                }
+            } catch (e) {
+                alert('Failed to load Question Bank data: ' + e.message);
+            }
+        }
+
+        function renderQuestionBankEditor() {
+            if (!currentQpData) return;
+            document.getElementById('qbTestTitleInput').value = currentQpData.test_title || '';
+            document.getElementById('qbInstructionsInput').value = currentQpData.instructions || '';
+            
+            let html = '';
+            currentQpData.questions.forEach((q, qIndex) => {
+                html += `
+                    <div class="card bg-dark border-secondary mb-4 p-3 shadow">
+                        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom border-secondary pb-2">
+                            <h6 class="fw-bold text-info mb-0"><i class="fa-solid fa-list-check me-2"></i>${q.q_no} [${q.module} — ${q.co}] (Max ${q.total_marks} Marks)</h6>
+                        </div>
+                        
+                        <!-- Option A -->
+                        <div class="border border-info rounded p-3 mb-3" style="background-color: rgba(14, 165, 233, 0.05);">
+                            <div class="fw-bold text-info mb-2"><i class="fa-solid fa-code-branch me-1"></i> Option A (Choice Title)</div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Option A Title / Heading</label>
+                                <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" 
+                                    value="${escapeHtml(q.option_a.title)}" onchange="updateQpData(${qIndex}, 'option_a', 'title', null, this.value)">
+                            </div>
+                            ${q.option_a.sub_questions.map((sub, sIndex) => `
+                                <div class="p-3 mb-2 bg-dark rounded border border-secondary">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="badge bg-primary fs-6">${sub.sub_no}</span>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <span class="text-muted small">Marks:</span>
+                                            <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary text-end" style="width: 70px;"
+                                                value="${sub.marks}" onchange="updateSubQpData(${qIndex}, 'option_a', ${sIndex}, 'marks', this.value)">
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label text-muted small">Question Description</label>
+                                        <textarea class="form-control form-control-sm bg-dark text-light border-secondary" rows="2"
+                                            onchange="updateSubQpData(${qIndex}, 'option_a', ${sIndex}, 'text', this.value)">${escapeHtml(sub.text)}</textarea>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label text-muted small">Valuation Scheme / Rubric Breakdown</label>
+                                        <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary"
+                                            value="${escapeHtml(sub.scheme)}" onchange="updateSubQpData(${qIndex}, 'option_a', ${sIndex}, 'scheme', this.value)">
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-muted small">Model Answer Key / Solution Steps</label>
+                                        <textarea class="form-control form-control-sm bg-dark text-light border-secondary" rows="2"
+                                            onchange="updateSubQpData(${qIndex}, 'option_a', ${sIndex}, 'answer_key', this.value)">${escapeHtml(sub.answer_key)}</textarea>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <!-- Choice Divider -->
+                        <div class="text-center font-monospace text-danger fw-bold my-2 fs-6">--- EITHER OPTION A OR OPTION B ---</div>
+
+                        <!-- Option B -->
+                        <div class="border border-warning rounded p-3 mb-2" style="background-color: rgba(245, 158, 11, 0.05);">
+                            <div class="fw-bold text-warning mb-2"><i class="fa-solid fa-code-branch me-1"></i> Option B (Choice Title)</div>
+                            <div class="mb-3">
+                                <label class="form-label text-muted small">Option B Title / Heading</label>
+                                <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" 
+                                    value="${escapeHtml(q.option_b.title)}" onchange="updateQpData(${qIndex}, 'option_b', 'title', null, this.value)">
+                            </div>
+                            ${q.option_b.sub_questions.map((sub, sIndex) => `
+                                <div class="p-3 mb-2 bg-dark rounded border border-secondary">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="badge bg-warning text-dark fs-6">${sub.sub_no}</span>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <span class="text-muted small">Marks:</span>
+                                            <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary text-end" style="width: 70px;"
+                                                value="${sub.marks}" onchange="updateSubQpData(${qIndex}, 'option_b', ${sIndex}, 'marks', this.value)">
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label text-muted small">Question Description</label>
+                                        <textarea class="form-control form-control-sm bg-dark text-light border-secondary" rows="2"
+                                            onchange="updateSubQpData(${qIndex}, 'option_b', ${sIndex}, 'text', this.value)">${escapeHtml(sub.text)}</textarea>
+                                    </div>
+                                    <div class="mb-2">
+                                        <label class="form-label text-muted small">Valuation Scheme / Rubric Breakdown</label>
+                                        <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary"
+                                            value="${escapeHtml(sub.scheme)}" onchange="updateSubQpData(${qIndex}, 'option_b', ${sIndex}, 'scheme', this.value)">
+                                    </div>
+                                    <div>
+                                        <label class="form-label text-muted small">Model Answer Key / Solution Steps</label>
+                                        <textarea class="form-control form-control-sm bg-dark text-light border-secondary" rows="2"
+                                            onchange="updateSubQpData(${qIndex}, 'option_b', ${sIndex}, 'answer_key', this.value)">${escapeHtml(sub.answer_key)}</textarea>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('qbQuestionsEditorContainer').innerHTML = html;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        function updateQpData(qIndex, optKey, field, subIndex, val) {
+            if (currentQpData && currentQpData.questions[qIndex]) {
+                currentQpData.questions[qIndex][optKey][field] = val;
+            }
+        }
+
+        function updateSubQpData(qIndex, optKey, subIndex, field, val) {
+            if (currentQpData && currentQpData.questions[qIndex]) {
+                if (field === 'marks') val = parseFloat(val) || 0;
+                currentQpData.questions[qIndex][optKey].sub_questions[subIndex][field] = val;
+            }
+        }
+
+        async function saveQuestionBankData() {
+            if (!currentQpData) return;
+            currentQpData.test_title = document.getElementById('qbTestTitleInput').value;
+            currentQpData.instructions = document.getElementById('qbInstructionsInput').value;
+
+            try {
+                const res = await fetch(`/api/r26/classroom/drawing/${subjectId}/series-qp/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        test_no: currentTestNo,
+                        payload: currentQpData
+                    })
+                });
+                const data = await res.json();
+                alert(data.message);
+            } catch (e) {
+                alert('Error saving Question Bank: ' + e.message);
             }
         }
     </script>

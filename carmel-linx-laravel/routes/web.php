@@ -366,6 +366,11 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/r26/classroom/drawing/{subjectId}/evaluate/practical-test', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'savePracticalTestMarks']);
     Route::post('/api/r26/classroom/drawing/{subjectId}/evaluate/oee', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'saveOeeMarks']);
     Route::post('/api/r26/classroom/drawing/{subjectId}/evaluate/ese', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'saveEseMarks']);
+    Route::get('/r26/classroom/drawing/series-test/print/{subjectId}/{testNo}', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'printSeriesTestQP']);
+    Route::get('/api/r26/classroom/drawing/{subjectId}/series-qp/{testNo}', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'getSeriesQpApi']);
+    Route::post('/api/r26/classroom/drawing/{subjectId}/series-qp/save', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'saveSeriesQpApi']);
+    Route::get('/r26/classroom/drawing/{subjectId}/attendance-report', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'printAttendanceReport']);
+    Route::get('/r26/classroom/drawing/{subjectId}/attendance-consolidated', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'printConsolidatedAttendanceReport']);
 
 
 

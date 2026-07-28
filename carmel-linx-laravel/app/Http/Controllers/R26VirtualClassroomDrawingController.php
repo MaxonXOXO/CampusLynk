@@ -15,6 +15,7 @@ use App\Models\R26DrawingSlotEvaluation;
 use App\Models\R26DrawingPracticalTest;
 use App\Models\R26DrawingOeeEvaluation;
 use App\Models\R26DrawingEseMark;
+use App\Models\StaffProfile;
 
 class R26VirtualClassroomDrawingController extends Controller
 {
@@ -691,10 +692,8 @@ class R26VirtualClassroomDrawingController extends Controller
         $drawingCourseFile = R26DrawingCourseFile::where('batch_subject_id', $subjectId)->first();
         $lessonPlans = LessonPlan::where('batch_subject_id', $subjectId)->orderBy('day_no', 'asc')->get();
 
-        $staff = StaffProfile::where('user_id', Session::get('userId'))->first();
-        if (!$staff) {
-            $staff = StaffProfile::where('mobile_no', Session::get('mobileNo'))->first();
-        }
+        $staffMobile = Session::get('mobileNo') ?: Session::get('userId');
+        $staff = StaffProfile::where('mobile_no', $staffMobile)->first();
 
         return view('r26_drawing.lesson_plan_print', compact('batchSubject', 'classroom', 'drawingCourseFile', 'lessonPlans', 'staff'));
     }
@@ -723,7 +722,8 @@ class R26VirtualClassroomDrawingController extends Controller
         }
 
         $currentHour = 1;
-        $batchesToCreate = ($mode === 'split') ? ['Batch A', 'Batch B'] : ['Whole'];
+        // Drawing lab is conducted as a single batch (whole class)
+        $batchesToCreate = ['Whole'];
 
         foreach ($parsedExercises as $ex) {
             $title = $ex['title'] ?? 'Practical Drawing Session';
@@ -875,5 +875,514 @@ class R26VirtualClassroomDrawingController extends Controller
 
             $currentHour++;
         }
+    }
+
+    /**
+     * Default Model Questions with Choice Options (Modules I & II for Series 1, Modules III & IV for Series 2)
+     */
+    public function getDefaultSeriesQuestions($testNo = 1)
+    {
+        if ($testNo == 1) {
+            return [
+                'test_title' => 'SERIES EXAMINATION 1 (MANUAL DRAWING)',
+                'modules_covered' => 'Module I (Geometrical Constructions & Conics) & Module II (Orthographic Projections)',
+                'duration' => '1.5 Hours / 2 Hours',
+                'max_marks' => 40,
+                'co_tags' => 'CO1 & CO2',
+                'instructions' => 'Answer Question 1 (Module I) AND Question 2 (Module II). Choose EITHER Option A OR Option B in each question. Show all construction lines clearly.',
+                'questions' => [
+                    [
+                        'q_no' => 'Q1',
+                        'module' => 'Module I',
+                        'co' => 'CO1',
+                        'total_marks' => 20,
+                        'option_a' => [
+                            'title' => 'Option A (Universal Circle Method & Concentric Ellipse)',
+                            'sub_questions' => [
+                                [
+                                    'sub_no' => '(i)',
+                                    'text' => 'Construct a regular Hexagon of side 40 mm using the universal circle method. Show all construction lines clearly.',
+                                    'marks' => 10,
+                                    'scheme' => 'Universal circle construction: 4 Marks | Hexagon geometry: 4 Marks | Dimensioning & neatness: 2 Marks',
+                                    'answer_key' => '1. Draw AB = 40 mm. 2. Erect perpendicular bisector. 3. Arc radius AB to locate 6-point. 4. Draw circle of radius 6-point to A, step off 40 mm sides.'
+                                ],
+                                [
+                                    'sub_no' => '(ii)',
+                                    'text' => 'Draw an Ellipse having major axis = 100 mm and minor axis = 60 mm using the Concentric Circles Method.',
+                                    'marks' => 10,
+                                    'scheme' => 'Concentric circles: 3 Marks | 12-sector division: 4 Marks | Ellipse plot: 2 Marks | Dimensioning: 1 Mark',
+                                    'answer_key' => '1. Draw major circle Dia 100 mm & minor circle Dia 60 mm. 2. Divide into 12 equal 30° sectors. 3. Project vertical from major & horizontal from minor circle.'
+                                ]
+                            ]
+                        ],
+                        'option_b' => [
+                            'title' => 'Option B (Parabola & Surface Development)',
+                            'sub_questions' => [
+                                [
+                                    'sub_no' => '(i)',
+                                    'text' => 'Draw a Parabola with focus 50 mm away from directrix using eccentricity method (e = 1).',
+                                    'marks' => 10,
+                                    'scheme' => 'Directrix & Axis setup: 3 Marks | Vertex & Focus points: 3 Marks | Parabolic curve plot: 4 Marks',
+                                    'answer_key' => '1. Draw directrix and axis. Mark Focus F at 50 mm. 2. Mark Vertex V at mid-point 25 mm. 3. Plot points where VF = VF’ to get parabola.'
+                                ],
+                                [
+                                    'sub_no' => '(ii)',
+                                    'text' => 'Draw the stretch-out development of a truncated square prism of base 30 mm and height 60 mm cut at 45° to base.',
+                                    'marks' => 10,
+                                    'scheme' => 'Prism elevation & cutting plane: 4 Marks | Development stretch-out: 4 Marks | True lengths & neatness: 2 Marks',
+                                    'answer_key' => '1. Draw Front View showing 45° cutting plane. 2. Project horizontal lines onto 4×30 = 120 mm stretch-out boundary.'
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'q_no' => 'Q2',
+                        'module' => 'Module II',
+                        'co' => 'CO2',
+                        'total_marks' => 20,
+                        'option_a' => [
+                            'title' => 'Option A (Line Inclination & Step Block Orthographic)',
+                            'sub_questions' => [
+                                [
+                                    'sub_no' => '(i)',
+                                    'text' => 'A line AB 70 mm long has end A 15 mm above HP and 20 mm in front of VP. Line is parallel to VP and inclined at 30° to HP. Draw Front View & Top View.',
+                                    'marks' => 10,
+                                    'scheme' => 'XY line & Point A setup: 2 Marks | Front View a’b’ at 30°: 4 Marks | Top View ab horizontal: 3 Marks | Dimensions: 1 Mark',
+                                    'answer_key' => '1. XY line: a’ 15 mm above, a 20 mm below. 2. a’b’ = 70 mm at 30° to XY. 3. Project b’ down to get Top View ab (length = 70 cos 30° = 60.6 mm).'
+                                ],
+                                [
+                                    'sub_no' => '(ii)',
+                                    'text' => 'Draw 1st Angle Orthographic Projections (Front View & Top View) of a rectangular step block (Base 60x40 mm, Height 30 mm, step 20x15 mm).',
+                                    'marks' => 10,
+                                    'scheme' => 'Front View step profile: 4 Marks | Top View alignment: 4 Marks | 1st Angle Symbol & dimensions: 2 Marks',
+                                    'answer_key' => '1. Draw Front View (60x30 mm with step cutout). 2. Project Top View (60x40 mm). 3. Add 1st Angle Projection symbol.'
+                                ]
+                            ]
+                        ],
+                        'option_b' => [
+                            'title' => 'Option B (Line Projections & L-Bracket Orthographic)',
+                            'sub_questions' => [
+                                [
+                                    'sub_no' => '(i)',
+                                    'text' => 'A line CD 80 mm long has end C 20 mm above HP and 25 mm in front of VP. Line is inclined at 45° to VP and parallel to HP. Draw its projections.',
+                                    'marks' => 10,
+                                    'scheme' => 'XY line & Point C setup: 2 Marks | Top View cd at 45°: 4 Marks | Front View c’d’ horizontal: 3 Marks | Dimensions: 1 Mark',
+                                    'answer_key' => '1. Mark c’ 20 mm above XY, c 25 mm below XY. 2. Top View cd = 80 mm at 45° to XY. 3. Project d up to meet horizontal line from c’.'
+                                ],
+                                [
+                                    'sub_no' => '(ii)',
+                                    'text' => 'Draw 1st Angle Orthographic Projections (Front View, Top View, and Right Side View) of an L-bracket component (60x60x15 mm thick).',
+                                    'marks' => 10,
+                                    'scheme' => 'Front View: 3 Marks | Top View: 3 Marks | Side View: 3 Marks | Symbol & Neatness: 1 Mark',
+                                    'answer_key' => '1. Draw Front View L-shape (60x60x15 mm). 2. Project Top View rectangle. 3. Project Side View on left of Front View.'
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+        } else {
+            return [
+                'test_title' => 'SERIES EXAMINATION 2 (CAD 2D DRAFTING & PLOTTING)',
+                'modules_covered' => 'Module III (CAD Commands & Layering) & Module IV (CAD 2D Component Drafting & Sectional Plotting)',
+                'duration' => '1.5 Hours / 2 Hours',
+                'max_marks' => 40,
+                'co_tags' => 'CO3 & CO4',
+                'instructions' => 'Answer Question 1 (Module III) AND Question 2 (Module IV). Choose EITHER Option A OR Option B in each question.',
+                'questions' => [
+                    [
+                        'q_no' => 'Q1',
+                        'module' => 'Module III',
+                        'co' => 'CO3',
+                        'total_marks' => 20,
+                        'option_a' => [
+                            'title' => 'Option A (CAD Environment & A4 Title Block)',
+                            'sub_questions' => [
+                                [
+                                    'sub_no' => '(i)',
+                                    'text' => 'Set up CAD environment: Units: Decimal (mm), Limits: (0,0) to (297,210). Create layers: OUTLINE (White, 0.4mm), CENTER (Red, 0.18mm), HIDDEN (Yellow, 0.25mm), DIM (Cyan, 0.18mm).',
+                                    'marks' => 10,
+                                    'scheme' => 'Units & Limits commands: 3 Marks | Layer setup & colors: 4 Marks | Linetypes & line weights: 3 Marks',
+                                    'answer_key' => 'UNITS -> Decimal 0.00 | LIMITS -> 0,0 to 297,210 -> ZOOM -> ALL | LAYER -> Create OUTLINE, CENTER, HIDDEN, DIM.'
+                                ],
+                                [
+                                    'sub_no' => '(ii)',
+                                    'text' => 'Create a standard A4 Title Block at bottom right containing College Name, Student Name, Reg No, Date, and Scale (1:1) using RECTANG, OFFSET, and MTEXT.',
+                                    'marks' => 10,
+                                    'scheme' => 'Title block border geometry: 4 Marks | Text formatting & alignment: 4 Marks | Scale & Reg No entries: 2 Marks',
+                                    'answer_key' => 'RECTANG -> @185,65 | EXPLODE | OFFSET -> 10, 20 | MTEXT -> Height 3.5mm for fields, 5mm for College Name.'
+                                ]
+                            ]
+                        ],
+                        'option_b' => [
+                            'title' => 'Option B (Coordinate Systems & Dimension Style)',
+                            'sub_questions' => [
+                                [
+                                    'sub_no' => '(i)',
+                                    'text' => 'Explain CAD coordinate entry systems (Absolute, Relative Rectangular, Relative Polar) with command syntax examples for a 50x30 mm rectangle.',
+                                    'marks' => 10,
+                                    'scheme' => 'Absolute coordinates explanation: 3 Marks | Relative rectangular syntax: 3 Marks | Relative polar syntax: 4 Marks',
+                                    'answer_key' => '1. Absolute: 0,0 to 50,0 to 50,30 to 0,30. 2. Relative Rectangular: @50,0 to @0,30 to @-50,0. 3. Relative Polar: @50<0 to @30<90.'
+                                ],
+                                [
+                                    'sub_no' => '(ii)',
+                                    'text' => 'Configure a custom dimension style ISO-25 in CAD setting Text Height 3.5mm, Arrowhead 2.5mm, and Extension Line Offset 1.5mm.',
+                                    'marks' => 10,
+                                    'scheme' => 'DIMSTYLE manager setup: 3 Marks | Text & Arrow parameters: 4 Marks | Extension line offset & Save: 3 Marks',
+                                    'answer_key' => 'DIMSTYLE -> Modify -> Lines (Offset 1.5mm) -> Symbols & Arrows (Size 2.5mm) -> Text (Height 3.5mm).'
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'q_no' => 'Q2',
+                        'module' => 'Module IV',
+                        'co' => 'CO4',
+                        'total_marks' => 20,
+                        'option_a' => [
+                            'title' => 'Option A (Sectional Shaft Drafting & PDF Plotting)',
+                            'sub_questions' => [
+                                [
+                                    'sub_no' => '(i)',
+                                    'text' => 'Draft the 2D Sectional Front View and Top View of a Flanged Shaft Component in CAD. Apply HATCH (ANSI31, Scale 1.0), complete dimensioning, and Plot to PDF (RegNo_CA2.pdf).',
+                                    'marks' => 20,
+                                    'scheme' => '2D Geometry & Alignment: 8 Marks | Sectional Hatching: 4 Marks | Dimensioning style: 4 Marks | PDF Plot layout: 4 Marks',
+                                    'answer_key' => '1. Centerline on CENTER layer. 2. Draw upper profile on OUTLINE layer. 3. MIRROR. 4. HATCH (ANSI31). 5. Add dimensions on DIM. 6. PLOT -> DWG to PDF.pc3 A4.'
+                                ]
+                            ]
+                        ],
+                        'option_b' => [
+                            'title' => 'Option B (Stepped Pulley & Keyway Drafting)',
+                            'sub_questions' => [
+                                [
+                                    'sub_no' => '(i)',
+                                    'text' => 'Draft the 2D Front View and Top View of a Stepped Pulley with Keyway in CAD. Draw hidden lines on HIDDEN layer, add complete dimensions, and plot to A4 PDF.',
+                                    'marks' => 20,
+                                    'scheme' => 'Pulley & Keyway Geometry: 8 Marks | Hidden Layer Detail: 4 Marks | Complete Dimensions: 4 Marks | PDF Plotting: 4 Marks',
+                                    'answer_key' => '1. Draw concentric circles for pulley steps and keyway slot. 2. Project Front View with hidden keyway lines on HIDDEN layer. 3. Plot to A4 PDF.'
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+        }
+    }
+
+    /**
+     * API: Get Question Bank JSON for Series Test 1 or 2
+     */
+    public function getSeriesQpApi($subjectId, $testNo = 1)
+    {
+        $cf = R26DrawingCourseFile::where('batch_subject_id', $subjectId)->first();
+        $stored = $cf ? ($cf->series_test_qps ?? []) : [];
+        $key = 'test_' . $testNo;
+
+        if (isset($stored[$key]) && !empty($stored[$key])) {
+            return response()->json([
+                'status' => 'SUCCESS',
+                'data' => $stored[$key]
+            ]);
+        }
+
+        $default = $this->getDefaultSeriesQuestions($testNo);
+        return response()->json([
+            'status' => 'SUCCESS',
+            'data' => $default
+        ]);
+    }
+
+    /**
+     * API: Save Customized Question Bank & QP into Database
+     */
+    public function saveSeriesQpApi(Request $request, $subjectId)
+    {
+        $testNo = $request->input('test_no', 1);
+        $payload = $request->input('payload');
+
+        $cf = R26DrawingCourseFile::firstOrCreate(
+            ['batch_subject_id' => $subjectId],
+            [
+                'course_title' => 'Engineering Drawing with CAD',
+                'course_code' => '1004',
+                'cie_marks' => 60,
+                'ese_marks' => 40
+            ]
+        );
+
+        $stored = $cf->series_test_qps ?: [];
+        $key = 'test_' . $testNo;
+        $stored[$key] = $payload;
+
+        $cf->series_test_qps = $stored;
+        $cf->save();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => "Series Test {$testNo} Question Bank & QP successfully saved!"
+        ]);
+    }
+
+    /**
+     * Print View for Drawing Lab Series Examination (QP, Valuation Scheme, or Answer Key)
+     */
+    public function printSeriesTestQP(Request $request, $subjectId, $testNo = 1)
+    {
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $classroom = ClassManagement::find($batchSubject->classroom_id);
+        $drawingCourseFile = R26DrawingCourseFile::where('batch_subject_id', $subjectId)->first();
+
+        $staffMobile = Session::get('mobileNo') ?: Session::get('userId');
+        $staff = StaffProfile::where('mobile_no', $staffMobile)->first();
+
+        $docType = strtolower($request->query('doc_type', 'qp'));
+
+        $stored = $drawingCourseFile ? ($drawingCourseFile->series_test_qps ?? []) : [];
+        $key = 'test_' . $testNo;
+
+        if (isset($stored[$key]) && !empty($stored[$key])) {
+            $qpData = $stored[$key];
+        } else {
+            $qpData = $this->getDefaultSeriesQuestions($testNo);
+        }
+
+        return view('r26_drawing.series_test_qp_print', compact(
+            'batchSubject', 'classroom', 'drawingCourseFile', 'staff', 'testNo', 'docType', 'qpData'
+        ));
+    }
+
+    /**
+     * Print Subject-Wise Attendance Log & CIA Attendance Report for R26 Drawing Lab
+     */
+    public function printAttendanceReport($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        if (!$classroom) {
+            $classroom = \App\Models\R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        }
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $drawingCourseFile = R26DrawingCourseFile::where('batch_subject_id', $subjectId)->first();
+
+        // Fetch 15-Slot Drawing Lab Lesson Plans
+        $lessonPlans = LessonPlan::where('batch_subject_id', $subjectId)
+            ->orderBy('day_no', 'asc')
+            ->get(['id', 'day_no', 'proposed_date', 'actual_date', 'topic_content', 'co_id', 'pedagogy', 'status']);
+
+        // Fetch Attendance Records
+        $allAttendance = DB::table('student_attendance')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->get();
+
+        $attByPlan = $allAttendance->groupBy('lesson_plan_id');
+
+        // Build Attendance Matrix & Totals per Student
+        $attendanceMatrix = [];
+        $attendanceTotals = [];
+
+        foreach ($students as $st) {
+            $attendanceMatrix[$st->reg_no] = [];
+            $attendanceTotals[$st->reg_no] = [
+                'present' => 0,
+                'total' => 0,
+                'percentage' => 100.0,
+                'cia_marks' => 5
+            ];
+        }
+
+        foreach ($lessonPlans as $plan) {
+            $planAtt = $attByPlan->get($plan->id, collect());
+            $planAttByReg = $planAtt->keyBy('reg_no');
+
+            foreach ($students as $st) {
+                $rec = $planAttByReg->get($st->reg_no);
+                $status = $rec ? $rec->status : null;
+                $attendanceMatrix[$st->reg_no][$plan->id] = $status;
+
+                if ($status !== null) {
+                    $attendanceTotals[$st->reg_no]['total']++;
+                    if (in_array($status, ['Present', 'Late'])) {
+                        $attendanceTotals[$st->reg_no]['present']++;
+                    }
+                }
+            }
+        }
+
+        // Compute Percentages & CIA Attendance Marks
+        foreach ($students as $st) {
+            $rNo = $st->reg_no;
+            $tot = $attendanceTotals[$rNo]['total'];
+            $pres = $attendanceTotals[$rNo]['present'];
+
+            if ($tot > 0) {
+                $pct = round(($pres / $tot) * 100, 1);
+                $attendanceTotals[$rNo]['percentage'] = $pct;
+
+                if ($pct >= 90) { $am = 5; }
+                elseif ($pct >= 80) { $am = 4; }
+                elseif ($pct >= 75) { $am = 3; }
+                elseif ($pct >= 70) { $am = 2; }
+                elseif ($pct >= 65) { $am = 1; }
+                else { $am = 0; }
+
+                $attendanceTotals[$rNo]['cia_marks'] = $am;
+            } else {
+                $attendanceTotals[$rNo]['percentage'] = null;
+                $attendanceTotals[$rNo]['cia_marks'] = 0;
+            }
+        }
+
+        // Assigned Staff & HOD
+        $assignedStaff = DB::table('subject_staff_assignments')
+            ->join('staff_profiles', 'subject_staff_assignments.staff_mobile_no', '=', 'staff_profiles.mobile_no')
+            ->where('subject_staff_assignments.batch_subject_id', $subjectId)
+            ->select('staff_profiles.name', 'staff_profiles.designation')
+            ->get();
+
+        $deptCode = $classroom->department ?? $classroom->branch ?? '';
+        $hod = DB::table('staff_profiles')
+            ->where(function($q) use ($deptCode) {
+                if ($deptCode) {
+                    $q->where('branch', $deptCode);
+                }
+            })
+            ->where('designation', 'HOD')
+            ->select('name', 'designation')
+            ->first();
+
+        return view('r26_drawing.attendance_report_print', compact(
+            'batchSubject',
+            'classroom',
+            'students',
+            'drawingCourseFile',
+            'lessonPlans',
+            'attendanceMatrix',
+            'attendanceTotals',
+            'assignedStaff',
+            'hod'
+        ));
+    }
+
+    /**
+     * Print Consolidated Single-Page A4 Sheet Attendance Report for R26 Drawing Lab
+     */
+    public function printConsolidatedAttendanceReport($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        if (!$classroom) {
+            $classroom = \App\Models\R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        }
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $drawingCourseFile = R26DrawingCourseFile::where('batch_subject_id', $subjectId)->first();
+
+        // Fetch Lesson Plans & Attendance Records
+        $lessonPlans = LessonPlan::where('batch_subject_id', $subjectId)
+            ->orderBy('day_no', 'asc')
+            ->get(['id', 'day_no', 'proposed_date', 'actual_date']);
+
+        $allAttendance = DB::table('student_attendance')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->get();
+
+        $attByPlan = $allAttendance->groupBy('lesson_plan_id');
+
+        $attendanceTotals = [];
+        foreach ($students as $st) {
+            $attendanceTotals[$st->reg_no] = [
+                'present' => 0,
+                'total' => 0,
+                'percentage' => 100.0,
+                'cia_marks' => 5
+            ];
+        }
+
+        foreach ($lessonPlans as $plan) {
+            $planAtt = $attByPlan->get($plan->id, collect());
+            $planAttByReg = $planAtt->keyBy('reg_no');
+
+            foreach ($students as $st) {
+                $rec = $planAttByReg->get($st->reg_no);
+                $status = $rec ? $rec->status : null;
+
+                if ($status !== null) {
+                    $attendanceTotals[$st->reg_no]['total']++;
+                    if (in_array($status, ['Present', 'Late'])) {
+                        $attendanceTotals[$st->reg_no]['present']++;
+                    }
+                }
+            }
+        }
+
+        foreach ($students as $st) {
+            $rNo = $st->reg_no;
+            $tot = $attendanceTotals[$rNo]['total'];
+            $pres = $attendanceTotals[$rNo]['present'];
+
+            if ($tot > 0) {
+                $pct = round(($pres / $tot) * 100, 1);
+                $attendanceTotals[$rNo]['percentage'] = $pct;
+
+                if ($pct >= 90) { $am = 5; }
+                elseif ($pct >= 80) { $am = 4; }
+                elseif ($pct >= 75) { $am = 3; }
+                elseif ($pct >= 70) { $am = 2; }
+                elseif ($pct >= 65) { $am = 1; }
+                else { $am = 0; }
+
+                $attendanceTotals[$rNo]['cia_marks'] = $am;
+            } else {
+                $attendanceTotals[$rNo]['percentage'] = null;
+                $attendanceTotals[$rNo]['cia_marks'] = 0;
+            }
+        }
+
+        $assignedStaff = DB::table('subject_staff_assignments')
+            ->join('staff_profiles', 'subject_staff_assignments.staff_mobile_no', '=', 'staff_profiles.mobile_no')
+            ->where('subject_staff_assignments.batch_subject_id', $subjectId)
+            ->select('staff_profiles.name', 'staff_profiles.designation')
+            ->get();
+
+        $deptCode = $classroom->department ?? $classroom->branch ?? '';
+        $hod = DB::table('staff_profiles')
+            ->where(function($q) use ($deptCode) {
+                if ($deptCode) {
+                    $q->where('branch', $deptCode);
+                }
+            })
+            ->where('designation', 'HOD')
+            ->select('name', 'designation')
+            ->first();
+
+        return view('r26_drawing.attendance_consolidated_print', compact(
+            'batchSubject',
+            'classroom',
+            'students',
+            'drawingCourseFile',
+            'lessonPlans',
+            'attendanceTotals',
+            'assignedStaff',
+            'hod'
+        ));
     }
 }
