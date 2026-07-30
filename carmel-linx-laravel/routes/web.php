@@ -149,6 +149,8 @@ Route::middleware(['web'])->group(function () {
         return view('student_dashboard');
     });
 
+    Route::get('/student/attendance', [\App\Http\Controllers\StudentAttendanceController::class, 'showStudentAttendance']);
+
     Route::get('/student/mentoring-diary', function () {
         if (Session::get('userRole') !== 'Student') return redirect('/');
         return view('student_mentoring_diary_full');

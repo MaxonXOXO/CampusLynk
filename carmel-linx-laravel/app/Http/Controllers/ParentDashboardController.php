@@ -140,10 +140,21 @@ class ParentDashboardController extends Controller
             ->orderBy('period', 'asc')
             ->get();
 
+        $periodTimings = [
+            1 => '9:00 AM – 10:00 AM',
+            2 => '10:00 AM – 11:00 AM',
+            3 => '11:10 AM – 12:10 PM',
+            4 => '1:00 PM – 2:00 PM',
+            5 => '2:00 PM – 3:00 PM',
+            6 => '3:00 PM – 4:00 PM',
+            7 => 'Special / Extra Class'
+        ];
+
         $hourlyStatus = [];
         for ($p = 1; $p <= 6; $p++) {
             $hourlyStatus[$p] = [
                 'period' => $p,
+                'time_slot' => $periodTimings[$p],
                 'status' => 'Not Marked',
                 'subject_name' => 'Free Period',
                 'subject_code' => '',
@@ -155,6 +166,7 @@ class ParentDashboardController extends Controller
         // Period 7 is reserved as a Special / Remedial / Extra Class Hour
         $hourlyStatus[7] = [
             'period' => 7,
+            'time_slot' => $periodTimings[7],
             'status' => 'Not Scheduled',
             'subject_name' => 'Special Hour (Remedial / Extra Class)',
             'subject_code' => 'P7',
@@ -182,6 +194,7 @@ class ParentDashboardController extends Controller
 
                 $hourlyStatus[$period] = [
                     'period' => $period,
+                    'time_slot' => $periodTimings[$period],
                     'status' => $statusText,
                     'subject_name' => ($period === 7 ? '[Special 7th Hour] ' : '') . ($subj->subject_name ?? 'Class Session'),
                     'subject_code' => $subj->subject_code ?? '',

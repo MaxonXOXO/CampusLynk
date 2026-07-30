@@ -226,10 +226,17 @@
                     </div>
 
                     @foreach($hourlyStatus as $pNum => $pData)
-                    <div class="timeline-item {{ strtolower(str_replace(' ', '-', $pData['status'])) }}">
+                    <div class="timeline-item {{ $pNum === 7 ? 'special-hour border-start border-4 border-purple' : strtolower(str_replace(' ', '-', $pData['status'])) }}">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
-                                <span class="badge bg-secondary me-1" style="font-size: 0.68rem;">P{{ $pNum }}</span>
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <span class="badge {{ $pNum === 7 ? 'bg-dark text-cyan border border-cyan' : 'bg-secondary' }}" style="font-size: 0.68rem;">P{{ $pNum }}</span>
+                                    @if(isset($pData['time_slot']))
+                                    <span class="text-secondary font-monospace" style="font-size: 0.72rem;">
+                                        <i class="fa-regular fa-clock me-1 text-cyan"></i>{{ $pData['time_slot'] }}
+                                    </span>
+                                    @endif
+                                </div>
                                 <strong class="text-white" style="font-size: 0.85rem;">{{ $pData['subject_name'] }}</strong>
                                 <small class="text-secondary d-block mt-0.5" style="font-size: 0.72rem;">
                                     {{ $pData['topic'] }}

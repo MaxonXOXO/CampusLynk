@@ -129,6 +129,9 @@
       <button id="navSeminar" onclick="switchPanel('seminar')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
         <span class="material-symbols-rounded text-lg">co_present</span> My Seminar
       </button>
+      <a id="navAttendance" href="/student/attendance" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-emerald-300 hover:bg-emerald-950/20 cursor-pointer text-sm no-underline">
+        <span class="material-symbols-rounded text-lg text-emerald-400">how_to_reg</span> Attendance Review
+      </a>
       <a id="navMockTest" href="/student/mock-test" target="_blank" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-teal-300 hover:bg-blue-950/20 cursor-pointer text-sm no-underline">
         <span class="material-symbols-rounded text-lg text-teal-400 animate-pulse">rocket_launch</span> Mock Practice Test
       </a>
