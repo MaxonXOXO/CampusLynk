@@ -206,11 +206,8 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <a href="/dashboard/student?mode=desktop" class="btn btn-sm btn-outline-secondary px-2 py-1 rounded-pill" style="font-size: 0.7rem;" title="Switch to Desktop View">
-                    <i class="fa-solid fa-desktop me-1"></i> Desktop
-                </a>
                 <a href="{{ url('/logout') }}" class="btn btn-sm btn-outline-danger px-2 py-1 rounded-pill" style="font-size: 0.7rem;" title="Sign Out">
-                    <i class="fa-solid fa-power-off"></i>
+                    <i class="fa-solid fa-power-off"></i> Sign Out
                 </a>
             </div>
         </div>

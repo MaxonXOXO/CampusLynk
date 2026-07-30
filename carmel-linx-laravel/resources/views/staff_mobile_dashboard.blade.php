@@ -171,24 +171,8 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2">
-                @php
-                    $userRole = session('userRole');
-                    $desktopUrl = '/dashboard/tutor?mode=desktop';
-                    if (in_array($userRole, ['Lecturer', 'HOD'])) {
-                        $desktopUrl = '/dashboard/lecturer?mode=desktop';
-                    } elseif ($userRole === 'Demonstrator') {
-                        $desktopUrl = '/dashboard/demonstrator?mode=desktop';
-                    } elseif ($userRole === 'Trade_Instructor') {
-                        $desktopUrl = '/dashboard/tradeinstructor?mode=desktop';
-                    } elseif ($userRole === 'Workshop_Superintendent') {
-                        $desktopUrl = '/dashboard/workshop?mode=desktop';
-                    }
-                @endphp
-                <a href="{{ $desktopUrl }}" class="btn btn-sm btn-outline-secondary px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;" title="Switch to Desktop View">
-                    <i class="fa-solid fa-desktop me-1"></i> Desktop
-                </a>
                 <a href="{{ url('/logout') }}" class="btn btn-sm btn-outline-danger px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;" title="Sign Out">
-                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
                 </a>
             </div>
         </header>

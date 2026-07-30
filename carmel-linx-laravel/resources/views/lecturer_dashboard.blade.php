@@ -872,9 +872,12 @@
       </button>
     </nav>
 
-    <!-- Logout -->
-    <div class="p-4 border-t border-slate-800/80">
-      <a href="{{ url('/logout') }}" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium">
+    <!-- Logout & Mobile View -->
+    <div class="p-4 border-t border-slate-800/80 space-y-2">
+      <a href="/staff/mobile" class="w-full py-2 bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-500/30 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center transition-premium text-xs">
+        <span class="material-symbols-rounded text-base">smartphone</span> Switch to Mobile View
+      </a>
+      <a href="{{ url('/logout') }}" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium">
         <span class="material-symbols-rounded text-sm">logout</span> Sign Out
       </a>
     </div>
