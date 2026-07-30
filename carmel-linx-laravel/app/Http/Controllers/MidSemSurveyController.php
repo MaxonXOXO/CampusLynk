@@ -239,14 +239,15 @@ class MidSemSurveyController extends Controller
         $survey = DB::table('mid_semester_surveys')
             ->join('batch_subjects', 'mid_semester_surveys.batch_subject_id', '=', 'batch_subjects.id')
             ->leftJoin('class_management', 'batch_subjects.classroom_id', '=', 'class_management.classroom_id')
+            ->leftJoin('r26_class_management', 'batch_subjects.classroom_id', '=', 'r26_class_management.classroom_id')
             ->where('mid_semester_surveys.id', $surveyId)
             ->select(
                 'mid_semester_surveys.*', 
                 'batch_subjects.subject_name', 
                 'batch_subjects.subject_code',
                 'batch_subjects.semester',
-                'class_management.batch_year',
-                'class_management.branch'
+                DB::raw("COALESCE(class_management.batch_year, r26_class_management.batch_year) as batch_year"),
+                DB::raw("COALESCE(class_management.branch, r26_class_management.branch) as branch")
             )
             ->first();
 

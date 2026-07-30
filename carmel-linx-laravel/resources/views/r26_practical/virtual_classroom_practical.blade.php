@@ -436,53 +436,53 @@
                     <i class="fa-solid fa-cubes"></i> Workspace Modules
                 </div>
 
-                <button onclick="switchTab('outline')" id="btn-outline" class="tab-btn">
+                <button type="button" onclick="switchTab('outline')" id="btn-outline" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-file-pdf tab-icon"></i> Course Outline / Syllabus
                     </span>
                 </button>
-                <button onclick="switchTab('experiments')" id="btn-experiments" class="tab-btn">
+                <button type="button" onclick="switchTab('experiments')" id="btn-experiments" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-vials tab-icon"></i> List of Experiments
                     </span>
                 </button>
-                <button onclick="switchTab('lesson_plan')" id="btn-lesson_plan" class="tab-btn">
+                <button type="button" onclick="switchTab('lesson_plan')" id="btn-lesson_plan" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-calendar-day tab-icon"></i> Lesson Planner
                     </span>
                 </button>
-                <button onclick="switchTab('table22')" id="btn-table22" class="tab-btn">
+                <button type="button" onclick="switchTab('table22')" id="btn-table22" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-flask tab-icon"></i> Daywork Log
                     </span>
                 </button>
-                <button onclick="switchTab('table23')" id="btn-table23" class="tab-btn">
+                <button type="button" onclick="switchTab('table23')" id="btn-table23" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-lightbulb tab-icon"></i> Open-Ended (OEE)
                     </span>
                 </button>
-                <button onclick="switchTab('series_qp')" id="btn-series_qp" class="tab-btn">
+                <button type="button" onclick="switchTab('series_qp')" id="btn-series_qp" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-clipboard-question tab-icon"></i> Series QP &amp; Scheme
                     </span>
                 </button>
-                <button onclick="switchTab('table31')" id="btn-table31" class="tab-btn">
+                <button type="button" onclick="switchTab('table31')" id="btn-table31" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-signature tab-icon"></i> Series Marks (CA)
                     </span>
                 </button>
-                <button onclick="switchTab('surveys')" id="btn-surveys" class="tab-btn">
+                <button type="button" onclick="switchTab('surveys')" id="btn-surveys" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-comment-medical tab-icon"></i> Surveys &amp; Feedback
                     </span>
                 </button>
-                <button onclick="switchTab('ese')" id="btn-ese" class="tab-btn">
+                <button type="button" onclick="switchTab('ese')" id="btn-ese" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-clipboard-check tab-icon"></i> ESE Mark Entry
                     </span>
                     <span class="tab-badge">40M</span>
                 </button>
-                <button onclick="switchTab('summary')" id="btn-summary" class="tab-btn">
+                <button type="button" onclick="switchTab('summary')" id="btn-summary" class="tab-btn">
                     <span style="display:flex;align-items:center;gap:9px;">
                         <i class="fa-solid fa-award tab-icon"></i> CIA Consolidated
                     </span>

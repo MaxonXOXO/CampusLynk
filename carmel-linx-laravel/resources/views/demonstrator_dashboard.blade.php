@@ -311,10 +311,31 @@
               <!-- Card Body (Subjects List) -->
               <div class="p-4 space-y-3 flex-grow">
                 @foreach($subjects as $s)
-                  <a href="/dashboard/lecturer?subject_id={{ $s->subject_id }}&subject_name={{ urlencode($s->subject_name) }}&classroom_id={{ urlencode($s->classroom_id) }}" class="w-full text-left px-3.5 py-2.5 bg-slate-900/60 hover:bg-slate-800 border border-slate-800/60 hover:border-blue-500/50 rounded-xl transition-premium cursor-pointer group flex justify-between items-center no-underline">
+                  @php
+                    $isR26 = ($s->syllabus_revision_code ?? 'REV2021') === 'REV2026';
+                    $sNameLower = strtolower($s->subject_name ?? '');
+                    $sTypeLower = strtolower($s->subject_type ?? '');
+                    
+                    if ($isR26) {
+                      if (str_contains($sNameLower, 'health') || str_contains($sNameLower, 'physical') || str_contains($sTypeLower, 'health') || str_contains($sTypeLower, 'physical')) {
+                        $targetUrl = "/r26/classroom/health-physical/{$s->subject_id}";
+                      } elseif (str_contains($sTypeLower, 'drawing') || str_contains($sNameLower, 'drawing') || str_contains($sNameLower, 'graphics') || str_contains($sNameLower, 'cad')) {
+                        $targetUrl = "/r26/classroom/drawing/{$s->subject_id}";
+                      } elseif (str_contains($sTypeLower, 'practicum')) {
+                        $targetUrl = "/r26/classroom/practicum/{$s->subject_id}";
+                      } elseif (str_contains($sTypeLower, 'theory')) {
+                        $targetUrl = "/r26/classroom/theory/{$s->subject_id}";
+                      } else {
+                        $targetUrl = "/r26/classroom/practical/{$s->subject_id}";
+                      }
+                    } else {
+                      $targetUrl = "/dashboard/lecturer?subject_id={$s->subject_id}&subject_name=" . urlencode($s->subject_name) . "&classroom_id=" . urlencode($s->classroom_id);
+                    }
+                  @endphp
+                  <a href="{{ $targetUrl }}" class="w-full text-left px-3.5 py-2.5 bg-slate-900/60 hover:bg-slate-800 border border-slate-800/60 hover:border-blue-500/50 rounded-xl transition-premium cursor-pointer group flex justify-between items-center no-underline">
                     <div>
                       <div class="text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-premium">{{ $s->subject_name }}</div>
-                      <div class="text-sm text-slate-350 font-mono mt-0.5">Sem {{ $s->semester }} • {{ $s->subject_type }} • {{ $s->subject_code }}</div>
+                      <div class="text-sm text-slate-350 font-mono mt-0.5">Sem {{ $s->semester }} • {{ $s->subject_type }} • {{ $s->subject_code }} @if($isR26)<span class="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-indigo-500/20 text-indigo-300 rounded border border-indigo-500/30">R2026</span>@endif</div>
                     </div>
                     <span class="material-symbols-rounded text-slate-500 group-hover:text-blue-500 text-sm transition-premium">open_in_new</span>
                   </a>

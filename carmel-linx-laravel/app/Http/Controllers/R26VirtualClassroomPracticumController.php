@@ -578,9 +578,13 @@ class R26VirtualClassroomPracticumController extends Controller
             $file = $request->file('syllabus_file');
             $path = $file->store('r26_practicum_syllabi', 'public');
 
-            // Execute Python parser service
             $pyPath = base_path('app/Services/r26_syllabus_parser.py');
-            $command = "py " . escapeshellarg($pyPath) . " " . escapeshellarg(storage_path('app/public/' . $path));
+            $fullPdfPath = storage_path('app/public/' . $path);
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $command = "python " . escapeshellarg($pyPath) . " " . escapeshellarg($fullPdfPath) . " 2>&1";
+            } else {
+                $command = "PYTHONIOENCODING=utf-8 PYTHONPATH=/home/carmel/.local/lib/python3.14/site-packages:\$PYTHONPATH /usr/bin/python3 " . escapeshellarg($pyPath) . " " . escapeshellarg($fullPdfPath) . " 2>&1";
+            }
             $jsonOutput = shell_exec($command);
 
             $parsedResult = json_decode($jsonOutput, true);

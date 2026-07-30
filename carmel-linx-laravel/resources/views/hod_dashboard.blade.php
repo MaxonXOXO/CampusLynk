@@ -327,6 +327,7 @@
               <option value="student">Students Only</option>
               <option value="Lecturer">Lecturers Only</option>
               <option value="Demonstrator">Demonstrators Only</option>
+              <option value="Physical_Instructor">Physical Instructors Only</option>
               <option value="Trade_Instructor">Trade Instructors Only</option>
               <option value="Tradesman">Tradesman Only</option>
               <option value="Laboratory_Assistant">Laboratory Assistants Only</option>
@@ -1029,6 +1030,7 @@
               <select id="directRegStaffDesig" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
                 <option value="Lecturer" selected>Lecturer</option>
                 <option value="Demonstrator">Demonstrator</option>
+                <option value="Physical_Instructor">Physical Instructor</option>
                 <option value="Trade_Instructor">Trade Instructor</option>
                 <option value="Tradesman">Tradesman</option>
                 <option value="Laboratory_Assistant">Laboratory Assistant</option>

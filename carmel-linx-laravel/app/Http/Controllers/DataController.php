@@ -345,7 +345,7 @@ class DataController extends Controller
 
                 // HOD can manage Faculty, Lecturer, Demonstrator, and Trade Instructor in their branch
                 return strtoupper($staff->branch) === strtoupper($currentBranch) &&
-                       in_array($staff->designation, ['Faculty', 'Lecturer', 'Demonstrator', 'Trade_Instructor']);
+                       in_array($staff->designation, ['Faculty', 'Lecturer', 'Demonstrator', 'Trade_Instructor', 'Physical_Instructor', 'Physical Instructor']);
             }
         }
 
@@ -474,7 +474,7 @@ class DataController extends Controller
                     $staffQuery->where(function($q) use ($currentBranch, $currentUserId) {
                         $q->where(function($sub) use ($currentBranch) {
                             $sub->where('branch', strtoupper($currentBranch))
-                                ->whereIn('designation', ['Lecturer', 'Demonstrator', 'Trade_Instructor', 'Tradesman', 'Laboratory_Assistant', 'Workshop_Instructor']);
+                                ->whereIn('designation', ['Lecturer', 'Demonstrator', 'Trade_Instructor', 'Tradesman', 'Laboratory_Assistant', 'Workshop_Instructor', 'Physical_Instructor', 'Physical Instructor']);
                         })->orWhere('mobile_no', $currentUserId);
                     });
                 } elseif ($staffScopeFilter === 'self') {

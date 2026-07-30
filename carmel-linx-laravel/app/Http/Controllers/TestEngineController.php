@@ -279,9 +279,10 @@ class TestEngineController extends Controller
 
         // Get additional subject/classroom info if possible
         $subjectInfo = DB::table('batch_subjects')
-            ->join('class_management', 'batch_subjects.classroom_id', '=', 'class_management.classroom_id')
+            ->leftJoin('class_management', 'batch_subjects.classroom_id', '=', 'class_management.classroom_id')
+            ->leftJoin('r26_class_management', 'batch_subjects.classroom_id', '=', 'r26_class_management.classroom_id')
             ->where('batch_subjects.subject_code', $test->subject_code)
-            ->select('batch_subjects.semester', 'class_management.branch')
+            ->select('batch_subjects.semester', DB::raw("COALESCE(class_management.branch, r26_class_management.branch) as branch"))
             ->first();
 
         return response()->json([

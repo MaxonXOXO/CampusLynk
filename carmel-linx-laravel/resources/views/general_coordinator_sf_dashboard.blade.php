@@ -293,6 +293,7 @@
               <option value="">All Roles</option>
               <option value="Lecturer">Lecturer</option>
               <option value="Demonstrator">Demonstrator</option>
+              <option value="Physical_Instructor">Physical Instructor</option>
               <option value="Trade_Instructor">Trade Instructor</option>
             </select>
           </div>

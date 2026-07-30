@@ -15,6 +15,7 @@ use App\Models\R26HealthPhysicalEvaluation;
 use App\Models\R26HealthPhysicalFitnessTest;
 use App\Models\R26HealthPhysicalEseMark;
 use App\Models\StaffProfile;
+use App\Models\StudentProfile;
 
 class R26VirtualClassroomHealthPhysicalController extends Controller
 {
@@ -236,14 +237,113 @@ class R26VirtualClassroomHealthPhysicalController extends Controller
             ->select('staff_profiles.name', 'staff_profiles.designation', 'staff_profiles.mobile_no')
             ->get();
 
-        // CO-PO Matrix & Attainment
+        // Surveys for Indirect Attainment
+        $exitSurvey = DB::table('course_exit_surveys')
+            ->where('batch_subject_id', $subjectId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $exitSurveyResponses = collect();
+        if ($exitSurvey) {
+            $exitSurveyResponses = DB::table('student_course_exit_responses')
+                ->where('exit_survey_id', $exitSurvey->id)
+                ->get();
+        }
+
+        $midSemSurvey = DB::table('mid_semester_surveys')
+            ->where('batch_subject_id', $subjectId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $midSemResponses = collect();
+        if ($midSemSurvey) {
+            $midSemResponses = DB::table('student_survey_responses')
+                ->where('survey_id', $midSemSurvey->id)
+                ->get();
+        }
+
+        // CO-PO Matrix & Attainment Calculation
         $copoPayload = $hpCourseFile->parsed_copo ?: [];
-        $mappings = $copoPayload['mappings'] ?? [
-            'CO1' => ['PO1'=>'2', 'PO2'=>'-', 'PO3'=>'-', 'PO4'=>'-', 'PO5'=>'3', 'PO6'=>'3', 'PO7'=>'2', 'PO8'=>'3', 'PO9'=>'3', 'PO10'=>'2', 'PO11'=>'2'],
-            'CO2' => ['PO1'=>'2', 'PO2'=>'-', 'PO3'=>'-', 'PO4'=>'-', 'PO5'=>'3', 'PO6'=>'3', 'PO7'=>'2', 'PO8'=>'3', 'PO9'=>'3', 'PO10'=>'2', 'PO11'=>'2'],
-            'CO3' => ['PO1'=>'2', 'PO2'=>'-', 'PO3'=>'-', 'PO4'=>'-', 'PO5'=>'3', 'PO6'=>'3', 'PO7'=>'2', 'PO8'=>'3', 'PO9'=>'3', 'PO10'=>'2', 'PO11'=>'2'],
-            'CO4' => ['PO1'=>'2', 'PO2'=>'-', 'PO3'=>'-', 'PO4'=>'-', 'PO5'=>'3', 'PO6'=>'3', 'PO7'=>'2', 'PO8'=>'3', 'PO9'=>'3', 'PO10'=>'2', 'PO11'=>'2']
-        ];
+        $mappings = $copoPayload['mappings'] ?? [];
+
+        if (empty($mappings)) {
+            $mappings = [
+                'CO1' => ['PO1'=>'2', 'PO2'=>'-', 'PO3'=>'-', 'PO4'=>'-', 'PO5'=>'3', 'PO6'=>'3', 'PO7'=>'2', 'PO8'=>'3', 'PO9'=>'3', 'PO10'=>'2', 'PO11'=>'2'],
+                'CO2' => ['PO1'=>'2', 'PO2'=>'-', 'PO3'=>'-', 'PO4'=>'-', 'PO5'=>'3', 'PO6'=>'3', 'PO7'=>'2', 'PO8'=>'3', 'PO9'=>'3', 'PO10'=>'2', 'PO11'=>'2'],
+                'CO3' => ['PO1'=>'2', 'PO2'=>'-', 'PO3'=>'-', 'PO4'=>'-', 'PO5'=>'3', 'PO6'=>'3', 'PO7'=>'2', 'PO8'=>'3', 'PO9'=>'3', 'PO10'=>'2', 'PO11'=>'2'],
+                'CO4' => ['PO1'=>'2', 'PO2'=>'-', 'PO3'=>'-', 'PO4'=>'-', 'PO5'=>'3', 'PO6'=>'3', 'PO7'=>'2', 'PO8'=>'3', 'PO9'=>'3', 'PO10'=>'2', 'PO11'=>'2']
+            ];
+        }
+
+        $totalStudents = max(1, $studentResults->count());
+        $directStats = [];
+        $indirectStats = [];
+        $combinedStats = [];
+
+        foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+            $attainedCount = $studentResults->filter(function($s) {
+                return $s['total_course_marks'] >= 50.0;
+            })->count();
+
+            $percentage = ($attainedCount / $totalStudents) * 100;
+            $directLevel = ($percentage >= 70) ? 3.0 : (($percentage >= 60) ? 2.0 : (($percentage >= 50) ? 1.0 : 0.0));
+            
+            $directStats[$coTag] = [
+                'count' => $attainedCount,
+                'percentage' => round($percentage, 1),
+                'level' => $directLevel
+            ];
+
+            // Indirect attainment from surveys
+            $indirectLevel = 2.5;
+            $indirectAvg = 2.50;
+            $indirectPct = 83.3;
+
+            if ($exitSurveyResponses->count() > 0) {
+                if ($coTag === 'CO1') {
+                    $indirectAvg = ($exitSurveyResponses->avg('co1_q1') + $exitSurveyResponses->avg('co1_q2')) / 2;
+                } elseif ($coTag === 'CO2') {
+                    $indirectAvg = ($exitSurveyResponses->avg('co2_q3') + $exitSurveyResponses->avg('co2_q4')) / 2;
+                } elseif ($coTag === 'CO3') {
+                    $indirectAvg = ($exitSurveyResponses->avg('co3_q5') + $exitSurveyResponses->avg('co3_q6')) / 2;
+                } else {
+                    $indirectAvg = ($exitSurveyResponses->avg('co4_q7') + $exitSurveyResponses->avg('co4_q8') + $exitSurveyResponses->avg('co4_q9')) / 3;
+                }
+                $indirectPct = ($indirectAvg / 3.0) * 100;
+                $indirectLevel = ($indirectPct >= 70) ? 3.0 : (($indirectPct >= 60) ? 2.0 : (($indirectPct >= 50) ? 1.0 : 0.0));
+            }
+            $indirectRating = ($indirectPct >= 70) ? 'High (L3)' : (($indirectPct >= 60) ? 'Medium (L2)' : (($indirectPct >= 50) ? 'Low (L1)' : 'Nil (L0)'));
+
+            $indirectStats[$coTag] = [
+                'avg_score' => round($indirectAvg, 2),
+                'percentage' => round($indirectPct, 1),
+                'level' => $indirectLevel,
+                'rating' => $indirectRating
+            ];
+
+            $combinedLevel = round((0.80 * $directLevel) + (0.20 * $indirectLevel), 2);
+            $combinedStats[$coTag] = $combinedLevel;
+        }
+
+        $poAttainments = [];
+        for ($p = 1; $p <= 11; $p++) {
+            $poName = "PO" . $p;
+            $sumWeight = 0;
+            $sumAttainment = 0;
+
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+                $correlation = isset($mappings[$coTag][$poName]) && is_numeric($mappings[$coTag][$poName]) ? (int)$mappings[$coTag][$poName] : 0;
+                if ($correlation > 0) {
+                    $sumWeight += $correlation;
+                    $sumAttainment += $combinedStats[$coTag] * $correlation;
+                }
+            }
+
+            $poAttainments[$poName] = [
+                'value' => $sumWeight > 0 ? round($sumAttainment / $sumWeight, 2) : 0.0,
+                'weight' => $sumWeight
+            ];
+        }
 
         return view('r26_health_physical.virtual_classroom_health_physical', compact(
             'batchSubject',
@@ -257,7 +357,112 @@ class R26VirtualClassroomHealthPhysicalController extends Controller
             'fitnessTests',
             'eseMarks',
             'assignedStaff',
-            'mappings'
+            'mappings',
+            'directStats',
+            'indirectStats',
+            'combinedStats',
+            'poAttainments',
+            'midSemSurvey',
+            'exitSurvey',
+            'midSemResponses',
+            'exitSurveyResponses'
+        ));
+    }
+
+    /**
+     * Printable Reports for Health & Physical Education
+     */
+    public function printReport($subjectId, $type)
+    {
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $classroom = R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->orderBy('name', 'asc')
+            ->get();
+        if ($students->isEmpty()) {
+            $students = StudentProfile::where('branch', $batchSubject->branch)
+                ->where('batch_year', $batchSubject->batch_year)
+                ->orderBy('reg_no')
+                ->get();
+        }
+        $hpCourseFile = R26HealthPhysicalCourseFile::where('batch_subject_id', $subjectId)->first();
+        $lessonPlans = LessonPlan::where('batch_subject_id', $subjectId)->orderBy('day_no')->get();
+        $activityEvals = R26HealthPhysicalEvaluation::where('batch_subject_id', $subjectId)->get()->groupBy('reg_no');
+        $fitnessTests = R26HealthPhysicalFitnessTest::where('batch_subject_id', $subjectId)->get()->groupBy('reg_no');
+        $eseMarks = R26HealthPhysicalEseMark::where('batch_subject_id', $subjectId)->get()->keyBy('reg_no');
+
+        // Also compute student results for consolidated reports
+        $evalScheme = $hpCourseFile->parsed_eval_scheme ?: [
+            'day_work' => [
+                ['key' => 'c1', 'title' => 'Physical Fitness & Warm-Up', 'max_marks' => 10],
+                ['key' => 'c2', 'title' => 'Skill Execution & Technique', 'max_marks' => 15],
+                ['key' => 'c3', 'title' => 'Activity Logbook / Record', 'max_marks' => 10],
+                ['key' => 'c4', 'title' => 'Viva-Voce & Game Rules', 'max_marks' => 10],
+                ['key' => 'c5', 'title' => 'Sportsmanship & Attendance', 'max_marks' => 5]
+            ]
+        ];
+
+        $studentResults = $students->map(function ($student) use ($activityEvals, $fitnessTests, $eseMarks) {
+            $stEval = $activityEvals->get($student->reg_no, collect())->first();
+            $stTests = $fitnessTests->get($student->reg_no, collect());
+            $stEse = $eseMarks->get($student->reg_no);
+
+            $attMarks = 5.0;
+            $activityMarks = $stEval ? floatval($stEval->total_score_50) * 0.6 : 0.0;
+            $ca1 = $stTests->where('test_no', 'CA1')->first();
+            $ca2 = $stTests->where('test_no', 'CA2')->first();
+            $ca1Score = $ca1 ? floatval($ca1->total_score_40) : 0.0;
+            $ca2Score = $ca2 ? floatval($ca2->total_score_40) : 0.0;
+            $testMarks = (($ca1Score + $ca2Score) / 80.0) * 15.0;
+
+            $totalCieMarks = round($attMarks + $activityMarks + $testMarks, 2);
+            $totalEse = $stEse ? floatval($stEse->total_ese_40) : 0.0;
+            $totalCourseMarks = round($totalCieMarks + $totalEse, 2);
+
+            return [
+                'reg_no' => $student->reg_no,
+                'name' => $student->name,
+                'roll_no' => $student->roll_no,
+                'att_marks' => $attMarks,
+                'activity_marks' => round($activityMarks, 2),
+                'test_marks' => round($testMarks, 2),
+                'total_cie_marks' => $totalCieMarks,
+                'total_ese' => $totalEse,
+                'total_course_marks' => $totalCourseMarks,
+                'is_passed' => ($totalCourseMarks >= 40.0 && $totalCieMarks >= 24.0)
+            ];
+        });
+
+        // Surveys for Indirect Attainment Report
+        $exitSurvey = DB::table('course_exit_surveys')
+            ->where('batch_subject_id', $subjectId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $exitSurveyResponses = collect();
+        if ($exitSurvey) {
+            $exitSurveyResponses = DB::table('student_course_exit_responses')
+                ->where('exit_survey_id', $exitSurvey->id)
+                ->get();
+        }
+
+        $midSemSurvey = DB::table('mid_semester_surveys')
+            ->where('batch_subject_id', $subjectId)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $midSemResponses = collect();
+        if ($midSemSurvey) {
+            $midSemResponses = DB::table('student_survey_responses')
+                ->where('survey_id', $midSemSurvey->id)
+                ->get();
+        }
+
+        return view('r26_health_physical.reports_print', compact(
+            'batchSubject', 'classroom', 'students', 'hpCourseFile', 'lessonPlans',
+            'activityEvals', 'fitnessTests', 'eseMarks', 'studentResults', 'evalScheme', 'type',
+            'exitSurvey', 'exitSurveyResponses', 'midSemSurvey', 'midSemResponses'
         ));
     }
 
@@ -286,7 +491,11 @@ class R26VirtualClassroomHealthPhysicalController extends Controller
 
             $pyPath = base_path('app/Services/r26_health_physical_syllabus_parser.py');
             $fullPdfPath = storage_path('app/public/' . $path);
-            $command = "PYTHONIOENCODING=utf-8 PYTHONPATH=/home/carmel/.local/lib/python3.14/site-packages:\$PYTHONPATH /usr/bin/python3 " . escapeshellarg($pyPath) . " " . escapeshellarg($fullPdfPath) . " 2>&1";
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $command = "python " . escapeshellarg($pyPath) . " " . escapeshellarg($fullPdfPath) . " 2>&1";
+            } else {
+                $command = "PYTHONIOENCODING=utf-8 PYTHONPATH=/home/carmel/.local/lib/python3.14/site-packages:\$PYTHONPATH /usr/bin/python3 " . escapeshellarg($pyPath) . " " . escapeshellarg($fullPdfPath) . " 2>&1";
+            }
             $jsonOutput = shell_exec($command);
 
             $parsedResult = json_decode($jsonOutput, true);
@@ -465,40 +674,51 @@ class R26VirtualClassroomHealthPhysicalController extends Controller
     {
         LessonPlan::where('batch_subject_id', $batchSubject->id)->delete();
 
-        $activities = $hpFile->parsed_activities ?? [];
-        if (empty($activities)) {
-            $activities = [
-                ['title' => 'Orientation, BMI & Posture Assessment', 'co_id' => 'CO1', 'hours' => 3],
-                ['title' => 'Warming-Up Protocols & Fitness Drills', 'co_id' => 'CO2', 'hours' => 3],
-                ['title' => 'Calisthenics & Aerobics', 'co_id' => 'CO2', 'hours' => 3],
-                ['title' => 'Athletics & Track Events Technique', 'co_id' => 'CO3', 'hours' => 3],
-                ['title' => 'Major Games Skill Practice (Volleyball/Football/Basketball)', 'co_id' => 'CO3', 'hours' => 6],
-                ['title' => 'Yogic Asanas & Relaxation Techniques', 'co_id' => 'CO4', 'hours' => 4],
-                ['title' => 'First Aid & CPR Fundamentals', 'co_id' => 'CO4', 'hours' => 4],
-                ['title' => 'Fitness Test Evaluation & Logbook Submission', 'co_id' => 'CO4', 'hours' => 4],
-            ];
-        }
+        // 30-Hour Schedule structured with all syllabus topics + 2 Series Tests
+        $schedule = [
+            // CO1 & CO2 (Hours 1 - 14)
+            ['title' => 'Orientation, Body Mass Index (BMI) & Posture Assessment', 'co_id' => 'CO1', 'hours' => 3],
+            ['title' => 'Warming-Up Protocols & General Physical Fitness Drills', 'co_id' => 'CO2', 'hours' => 3],
+            ['title' => 'Calisthenics, Aerobics & Cardiovascular Endurance Activities', 'co_id' => 'CO2', 'hours' => 4],
+            ['title' => 'Athletic Events: Sprint, Distance Running & Relay Technique', 'co_id' => 'CO2', 'hours' => 4],
+            // Series Test I (Hour 15)
+            ['title' => 'Series Test I (Continuous Fitness & Theory Evaluation)', 'co_id' => 'CO2', 'hours' => 1, 'is_test' => true],
+            // CO3 & CO4 (Hours 16 - 29)
+            ['title' => 'Major Games Skill Practice (Volleyball / Football / Basketball / Badminton)', 'co_id' => 'CO3', 'hours' => 6],
+            ['title' => 'Yogic Asanas, Pranayama & Relaxation Techniques for Stress Relief', 'co_id' => 'CO4', 'hours' => 3],
+            ['title' => 'First Aid, CPR Fundamentals & Sports Injury Management', 'co_id' => 'CO4', 'hours' => 3],
+            ['title' => 'Fitness Test Evaluation & Logbook Submission', 'co_id' => 'CO4', 'hours' => 2],
+            // Series Test II (Hour 30)
+            ['title' => 'Series Test II (Practical & Comprehensive Skill Evaluation)', 'co_id' => 'CO4', 'hours' => 1, 'is_test' => true],
+        ];
 
         $currentHour = 1;
-        foreach ($activities as $act) {
-            $title = $act['title'] ?? 'Physical Education Activity';
-            $coTag = $act['co_id'] ?? 'CO1';
-            $hrs = intval($act['hours'] ?? 2);
+        $startDate = now();
+
+        foreach ($schedule as $act) {
+            $title = $act['title'];
+            $coTag = $act['co_id'];
+            $hrs = $act['hours'];
+            $isTest = !empty($act['is_test']);
 
             for ($h = 1; $h <= $hrs; $h++) {
+                $topicStr = $isTest ? $title : "{$title} (Session {$h}/{$hrs})";
+                $proposedDate = $startDate->copy()->addDays($currentHour)->toDateString();
+
                 LessonPlan::create([
                     'batch_subject_id' => $batchSubject->id,
                     'day_no' => $currentHour,
-                    'planned_date' => now()->addDays($currentHour)->toDateString(),
-                    'proposed_date' => now()->addDays($currentHour)->toDateString(),
-                    'topic_content' => "{$title} (Session {$h}/{$hrs})",
-                    'slo' => 'Execute practical physical fitness drills and posture techniques',
+                    'planned_date' => $proposedDate,
+                    'proposed_date' => $proposedDate,
+                    'actual_date' => null,
+                    'topic_content' => $topicStr,
+                    'slo' => $isTest ? 'Evaluate physical fitness and practical sports skills' : 'Execute practical physical fitness drills and posture techniques',
                     'co_tag' => $coTag,
                     'co_id' => $coTag,
                     'allocated_hours' => 1,
                     'taxonomy' => 'Apply',
                     'mode' => 'P',
-                    'pedagogy' => 'Physical Practical Session',
+                    'pedagogy' => $isTest ? 'Series Evaluation Test' : 'Physical Practical Session',
                     'sub_batch' => 'Whole',
                     'status' => 'Pending'
                 ]);

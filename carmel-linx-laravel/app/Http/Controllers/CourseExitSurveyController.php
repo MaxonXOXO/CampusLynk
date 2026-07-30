@@ -186,13 +186,14 @@ class CourseExitSurveyController extends Controller
         $survey = DB::table('course_exit_surveys')
             ->join('batch_subjects', 'course_exit_surveys.batch_subject_id', '=', 'batch_subjects.id')
             ->leftJoin('class_management', 'batch_subjects.classroom_id', '=', 'class_management.classroom_id')
+            ->leftJoin('r26_class_management', 'batch_subjects.classroom_id', '=', 'r26_class_management.classroom_id')
             ->where('course_exit_surveys.id', $surveyId)
             ->select(
                 'course_exit_surveys.*', 
                 'batch_subjects.subject_name', 
                 'batch_subjects.subject_code',
                 'batch_subjects.semester',
-                'class_management.batch_year'
+                DB::raw("COALESCE(class_management.batch_year, r26_class_management.batch_year) as batch_year")
             )
             ->first();
 

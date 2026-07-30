@@ -275,6 +275,7 @@
                   <option value="Gen_Dept_Coordinator_Self_Finance">Gen Dept Coordinator Self Finance</option>
                   <option value="Lecturer">Lecturer</option>
                   <option value="Demonstrator">Demonstrator</option>
+                  <option value="Physical_Instructor">Physical Instructor</option>
                   <option value="Trade_Instructor">Trade Instructor</option>
                   <option value="Tradesman">Tradesman</option>
                   <option value="Laboratory_Assistant">Laboratory Assistant</option>

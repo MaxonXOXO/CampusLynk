@@ -412,7 +412,11 @@ class R26VirtualClassroomDrawingController extends Controller
             // Execute Python parser
             $pyPath = base_path('app/Services/r26_drawing_syllabus_parser.py');
             $fullPdfPath = storage_path('app/public/' . $path);
-            $command = "PYTHONIOENCODING=utf-8 PYTHONPATH=/home/carmel/.local/lib/python3.14/site-packages:\$PYTHONPATH /usr/bin/python3 " . escapeshellarg($pyPath) . " " . escapeshellarg($fullPdfPath) . " 2>&1";
+            if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+                $command = "python " . escapeshellarg($pyPath) . " " . escapeshellarg($fullPdfPath) . " 2>&1";
+            } else {
+                $command = "PYTHONIOENCODING=utf-8 PYTHONPATH=/home/carmel/.local/lib/python3.14/site-packages:\$PYTHONPATH /usr/bin/python3 " . escapeshellarg($pyPath) . " " . escapeshellarg($fullPdfPath) . " 2>&1";
+            }
             $jsonOutput = shell_exec($command);
 
             $parsedResult = json_decode($jsonOutput, true);

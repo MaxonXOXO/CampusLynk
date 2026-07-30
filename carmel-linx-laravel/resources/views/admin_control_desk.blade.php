@@ -333,6 +333,7 @@
               <option value="Gen_Dept_Coordinator_Self_Finance">Gen Dept Coordinator Self Finance</option>
               <option value="Lecturer">Lecturers</option>
               <option value="Demonstrator">Demonstrators</option>
+              <option value="Physical_Instructor">Physical Instructors</option>
               <option value="Trade_Instructor">Trade Instructors</option>
               <option value="Tradesman">Tradesmen</option>
               <option value="Laboratory_Assistant">Laboratory Assistants</option>
@@ -521,6 +522,7 @@
             <option value="Gen_Dept_Coordinator_Self_Finance">Gen Dept Coordinator Self Finance</option>
             <option value="Lecturer">Lecturer</option>
             <option value="Demonstrator">Demonstrator</option>
+            <option value="Physical_Instructor">Physical Instructor</option>
             <option value="Trade_Instructor">Trade Instructor</option>
             <option value="Tradesman">Tradesman</option>
             <option value="Laboratory_Assistant">Laboratory Assistant</option>
@@ -701,6 +703,7 @@
                 <option value="Gen_Dept_Coordinator_Self_Finance">Gen Dept Coordinator Self Finance</option>
                 <option value="Lecturer" selected>Lecturer</option>
                 <option value="Demonstrator">Demonstrator</option>
+                <option value="Physical_Instructor">Physical Instructor</option>
                 <option value="Trade_Instructor">Trade Instructor</option>
                 <option value="Tradesman">Tradesman</option>
                 <option value="Laboratory_Assistant">Laboratory Assistant</option>
@@ -1008,6 +1011,7 @@
               <option value="Tutor" ${user.role === 'Tutor' ? 'selected' : ''}>Tutor</option>
               <option value="Lecturer" ${user.role === 'Lecturer' ? 'selected' : ''}>Lecturer</option>
               <option value="Demonstrator" ${user.role === 'Demonstrator' ? 'selected' : ''}>Demonstrator</option>
+              <option value="Physical_Instructor" ${user.role === 'Physical_Instructor' || user.role === 'Physical Instructor' ? 'selected' : ''}>Physical Instructor</option>
               <option value="Trade_Instructor" ${user.role === 'Trade_Instructor' ? 'selected' : ''}>Trade Instructor</option>
               <option value="Tradesman" ${user.role === 'Tradesman' ? 'selected' : ''}>Tradesman</option>
               <option value="Laboratory_Assistant" ${user.role === 'Laboratory_Assistant' ? 'selected' : ''}>Laboratory Assistant</option>

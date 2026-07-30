@@ -231,6 +231,19 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        // GEN_AIDED Physical Instructor
+        StaffProfile::firstOrCreate(
+            ['mobile_no' => '9000000105'],
+            [
+                'name' => 'Physical Instructor Aided',
+                'email' => 'physical.aided@carmelpoly.in',
+                'branch' => 'GEN_AIDED',
+                'designation' => 'Physical_Instructor',
+                'password' => 'staff123',
+                'account_status' => 'Approved',
+            ]
+        );
+
         // GEN_SF: 4 lecturers total, with 1 being Coordinator
         StaffProfile::create([
             'mobile_no' => '9000000201',
@@ -252,6 +265,18 @@ class DatabaseSeeder extends Seeder
                 'account_status' => 'Approved',
             ]);
         }
+        // GEN_SF Physical Instructor
+        StaffProfile::firstOrCreate(
+            ['mobile_no' => '9000000205'],
+            [
+                'name' => 'Physical Instructor SF',
+                'email' => 'physical.sf@carmelpoly.in',
+                'branch' => 'GEN_SF',
+                'designation' => 'Physical_Instructor',
+                'password' => 'staff123',
+                'account_status' => 'Approved',
+            ]
+        );
 
         // Seed specific mechanical workshop staff:
         // 1 workshop superintendent

@@ -47,7 +47,7 @@ Route::get('/', function () {
         if ($role === 'HOD') return redirect('/dashboard/hod');
         if ($role === 'Gen_Dept_Coordinator_Aided') return redirect('/dashboard/general-coordinator-aided');
         if ($role === 'Gen_Dept_Coordinator_Self_Finance') return redirect('/dashboard/general-coordinator-sf');
-        if ($role === 'Lecturer') return redirect('/dashboard/lecturer');
+        if (in_array($role, ['Lecturer', 'Physical_Instructor', 'Physical Instructor'])) return redirect('/dashboard/lecturer');
         if ($role === 'Demonstrator') return redirect('/dashboard/demonstrator');
         if ($role === 'Trade_Instructor') return redirect('/dashboard/tradeinstructor');
         if ($role === 'Workshop_Superintendent') return redirect('/dashboard/workshop');
@@ -201,7 +201,7 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/dashboard/lecturer', function () {
         $role = Session::get('userRole');
-        if (!in_array($role, ['HOD', 'Lecturer', 'Demonstrator'])) return redirect('/');
+        if (!in_array($role, ['HOD', 'Lecturer', 'Demonstrator', 'Physical_Instructor', 'Physical Instructor'])) return redirect('/');
         return view('lecturer_dashboard');
     });
 
@@ -211,7 +211,8 @@ Route::middleware(['web'])->group(function () {
         $userId = Session::get('userId');
         $assignments = DB::table('subject_staff_assignments')
             ->join('batch_subjects', 'subject_staff_assignments.batch_subject_id', '=', 'batch_subjects.id')
-            ->join('class_management', 'batch_subjects.classroom_id', '=', 'class_management.classroom_id')
+            ->leftJoin('class_management', 'batch_subjects.classroom_id', '=', 'class_management.classroom_id')
+            ->leftJoin('r26_class_management', 'batch_subjects.classroom_id', '=', 'r26_class_management.classroom_id')
             ->where('subject_staff_assignments.staff_mobile_no', $userId)
             ->select(
                 'batch_subjects.id as subject_id',
@@ -219,9 +220,10 @@ Route::middleware(['web'])->group(function () {
                 'batch_subjects.subject_name',
                 'batch_subjects.subject_type',
                 'batch_subjects.semester',
-                'class_management.classroom_id',
-                'class_management.branch',
-                'class_management.batch_year'
+                'batch_subjects.classroom_id',
+                'batch_subjects.syllabus_revision_code',
+                DB::raw("COALESCE(class_management.branch, r26_class_management.branch) as branch"),
+                DB::raw("COALESCE(class_management.batch_year, r26_class_management.batch_year) as batch_year")
             )
             ->get();
 
@@ -379,6 +381,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/r26/classroom/health-physical/{subjectId}/evaluate/activity', [App\Http\Controllers\R26VirtualClassroomHealthPhysicalController::class, 'saveActivityMarks']);
     Route::post('/api/r26/classroom/health-physical/{subjectId}/evaluate/fitness-test', [App\Http\Controllers\R26VirtualClassroomHealthPhysicalController::class, 'saveFitnessTestMarks']);
     Route::post('/api/r26/classroom/health-physical/{subjectId}/evaluate/ese', [App\Http\Controllers\R26VirtualClassroomHealthPhysicalController::class, 'saveEseMarks']);
+    Route::get('/r26/classroom/health-physical/{subjectId}/print/{type}', [App\Http\Controllers\R26VirtualClassroomHealthPhysicalController::class, 'printReport']);
 
     // HOD Subject Allocation
     Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);
@@ -554,7 +557,7 @@ Route::middleware(['web'])->group(function () {
     // Remedial Sessions
     Route::get('/remedial-sessions', function () {
         $role = Session::get('userRole');
-        if (!$role || !in_array($role, ['Lecturer', 'Tutor', 'HOD', 'Demonstrator'])) return redirect('/');
+        if (!$role || !in_array($role, ['Lecturer', 'Tutor', 'HOD', 'Demonstrator', 'Physical_Instructor', 'Physical Instructor'])) return redirect('/');
         return view('remedial_dashboard');
     });
 
@@ -951,10 +954,10 @@ Route::middleware(['web'])->group(function () {
         $branchCode = Session::get('userBranch');
         $dept = getFullBranchName($branchCode);
         
-        // 1. Get only lecturers, demonstrators, and HOD in the department
+        // 1. Get lecturers, demonstrators, physical instructors, and HOD in the department
         $staffList = DB::table('staff_profiles')
             ->where('branch', $branchCode)
-            ->whereIn('designation', ['Lecturer', 'Demonstrator', 'HOD'])
+            ->whereIn('designation', ['Lecturer', 'Demonstrator', 'Physical_Instructor', 'Physical Instructor', 'HOD'])
             ->get();
             
         $workload = [];
