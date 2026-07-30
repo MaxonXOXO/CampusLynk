@@ -1891,7 +1891,10 @@
       if (revision === 'REV2026') {
         const sNameLower = (subjectName || '').toLowerCase();
         const sTypeLower = (type || '').toLowerCase();
-        if (sTypeLower.includes('drawing') || sNameLower.includes('drawing') || sNameLower.includes('graphics') || sNameLower.includes('cad')) {
+        if (sNameLower.includes('health') || sNameLower.includes('physical') || sTypeLower.includes('health') || sTypeLower.includes('physical')) {
+          window.open(`/r26/classroom/health-physical/${subjectId}`, '_blank');
+          return;
+        } else if (sTypeLower.includes('drawing') || sNameLower.includes('drawing') || sNameLower.includes('graphics') || sNameLower.includes('cad')) {
           window.open(`/r26/classroom/drawing/${subjectId}`, '_blank');
           return;
         } else if (type.includes('Practicum')) {

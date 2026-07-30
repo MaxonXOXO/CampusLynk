@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Carmel Linx User Manual</title>
+<style>
+    @page {
+        size: A4;
+        margin: 15mm;
+    }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: #1e293b;
+        line-height: 1.5;
+        font-size: 12px;
+        padding: 0;
+        margin: 0;
+    }
+    h1 {
+        color: #0f172a;
+        font-size: 20px;
+        border-bottom: 2px solid #2563eb;
+        padding-bottom: 4px;
+        margin-top: 15px;
+    }
+    h2 {
+        color: #1e3a8a;
+        font-size: 16px;
+        border-bottom: 1px solid #cbd5e1;
+        padding-bottom: 3px;
+        margin-top: 18px;
+        page-break-after: avoid;
+    }
+    h3 {
+        color: #0369a1;
+        font-size: 14px;
+        margin-top: 14px;
+        page-break-after: avoid;
+    }
+    h4 {
+        color: #334155;
+        font-size: 12px;
+        margin-top: 10px;
+        page-break-after: avoid;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        font-size: 11px;
+        page-break-inside: avoid;
+    }
+    th, td {
+        border: 1px solid #cbd5e1;
+        padding: 6px 10px;
+        text-align: left;
+    }
+    th {
+        background-color: #f1f5f9;
+        color: #0f172a;
+        font-weight: bold;
+    }
+    tr:nth-child(even) {
+        background-color: #f8fafc;
+    }
+    code {
+        background-color: #f1f5f9;
+        color: #0284c7;
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-family: monospace;
+        font-size: 11px;
+    }
+    pre {
+        background-color: #0f172a;
+        color: #f8fafc;
+        padding: 10px;
+        border-radius: 6px;
+        overflow-x: auto;
+        font-size: 10px;
+        page-break-inside: avoid;
+    }
+    ul {
+        padding-left: 18px;
+        margin: 4px 0;
+    }
+    li {
+        margin-bottom: 2px;
+    }
+    p {
+        margin: 4px 0;
+    }
+    .header-banner {
+        text-align: center;
+        background: linear-gradient(135deg, #1e3a8a 0%, #0284c7 100%);
+        color: white;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 15px;
+    }
+    .header-banner h1 {
+        color: white;
+        border-bottom: none;
+        margin: 0;
+        font-size: 22px;
+    }
+    .header-banner p {
+        margin: 4px 0 0 0;
+        opacity: 0.9;
+        font-size: 13px;
+    }
+</style>
+</head>
+<body>
+<div class="header-banner">
+    <h1>Carmel Linx (clinx)</h1>
+    <p>Role-Based Operational User Manual & Reference Guide</p>
+</div>
+<h1>Carmel Linx (clinx) — Role-Based Operational User Manual</h1>
+<h2>System Architecture & Interlinked Operational Flow</h2>
+<pre>
+flowchart TD
+    HOD[HOD Console] --&gt;|1. Setup Batches & Allocate Subjects| StaffAssign[Staff Subject Assignments]
+    StaffAssign --&gt; Lecturers[Lecturer Console]
+    StaffAssign --&gt; Demos[Demonstrator Console]
+    StaffAssign --&gt; Trade[Trade Instructor Console]
+    StaffAssign --&gt; Shop[Workshop Superintendent Console]
+    
+    Lecturers --&gt;|2. Upload Syllabus PDF & Auto-Parse| R26Classrooms[R26 Virtual Classrooms]
+    Demos --&gt;|Shared Access| R26Classrooms
+    Trade --&gt;|Shared Access| R26Classrooms
+    Shop --&gt;|Shared Access| R26Classrooms
+    
+    R26Classrooms --&gt;|3. Mark Entry & Attendance| Database[(Carmel Linx Core DB)]
+    Database --&gt;|4. Real-time Progress & Marks| StudentPortal[Student Portal]
+    Database --&gt;|5. Attendance & Performance| TutorConsole[Tutor & Mentor Console]
+    TutorConsole --&gt;|6. Onboarding SMS & Direct Web Access| ParentDashboard[Parent Dashboard]
+    Database --&gt;|7. Audit, NBA/SBTE Reports| HODReports[HOD Report Centre & Audits]
+</pre>
+<hr>
+<h2>1. Head of Department (HOD) Manual</h2>
+<h3>Overview & Operational Entry Point</h3>
+<p>The HOD Console is the administrative command post for department setup, batch creation, subject allocation, timetable generation, and quality audit verification.</p>
+<h3>Start Point</h3>
+<p>Navigate to <code>/dashboard/hod</code> via sidebar or top navigation.</p>
+<h3>Menu List & Operations</h3>
+<h4>A. Batch Management</h4>
+<ul><li><strong>Create Admission Batch</strong>: Select admission year (e.g. 2026), select Tutor & Mentor from department staff dropdown, and initialize class.</li></ul>
+<ul><li><strong>Roll Over Batch</strong>: Move batch to the next semester (S1 → S2 → ... → S6) when term completes. Auto-promotes active students.</li></ul>
+<ul><li><strong>Graduate Batch</strong>: Archive S6 batches upon graduation. Marks students as *Graduated*.</li></ul>
+<h4>B. Subject & Staff Allocation</h4>
+<ul><li><strong>Add Subject</strong>: Enter subject code, subject title, semester, syllabus revision (<code>REV2021</code> or <code>REV2026</code>), and subject type (<code>Theory</code>, <code>Practical/Lab</code>, <code>Practicum</code>, <code>Drawing</code>, <code>Health & Physical</code>).</li></ul>
+<ul><li><strong>Assign Staff</strong>: Map primary lecturer(s), demonstrators, or trade instructors to each subject. Supports inter-department staff allocation.</li></ul>
+<h4>C. Academic Calendar & Timetable</h4>
+<ul><li><strong>Timetable Generator</strong>: Define daily period schedules, master timetable grid, and assign hall locations.</li></ul>
+<ul><li><strong>Academic Calendar</strong>: Upload term start/end dates, series exam schedules, and institutional holidays.</li></ul>
+<h4>D. Compliance & Audits</h4>
+<ul><li><strong>SBTE & NBA Audit Desks</strong>: View real-time CO-PO attainment levels, syllabus completion metrics, and missing course file logs.</li></ul>
+<ul><li><strong>Remedial & Attendance Summaries</strong>: Review condonation eligibility (< 75% attendance) and department remedial intervention performance.</li></ul>
+<hr>
+<h2>2. Lecturer / Academic Staff Manual</h2>
+<h3>Overview & Operational Entry Point</h3>
+<p>The Lecturer Console manages teaching delivery, virtual classroom sessions, syllabus parsing, assignments, continuous evaluation, series examinations, and CO-PO attainment.</p>
+<h3>Start Point</h3>
+<p>Navigate to <code>/dashboard/lecturer</code> via sidebar or main menu.</p>
+<h3>Menu List & Operations</h3>
+<h4>A. My Batches & Virtual Classrooms</h4>
+<p>Select an assigned subject card. The system automatically launches the appropriate virtual classroom based on curriculum revision (<code>REV2026</code> vs <code>REV2021</code>) and subject type:</p>
+<p>1. <strong>Theory Virtual Classroom (<code>/r26/classroom/theory/{id}</code>)</strong>:</p>
+<p>   - <strong>Syllabus PDF Upload</strong>: Upload official SBTE syllabus PDF for auto-extraction of COs, Module topics, and proposed hours.</p>
+<p>   - <strong>Course Planner</strong>: Edit 45/60-hour topic schedule, track actual execution dates, and log teaching modes.</p>
+<p>   - <strong>Formative Assignments</strong>: Generate AI-assisted question papers per CO, record 10-mark assignment evaluations.</p>
+<p>   - <strong>Series Exams (Internal 1 & 2)</strong>: Create question paper schemes, enter student marks, generate marksheets.</p>
+<p>   - <strong>Surveys</strong>: Initiate and close Mid-Sem Survey & Course Exit Survey.</p>
+<p>2. <strong>Practical / Lab Virtual Classroom (<code>/r26/classroom/practical/{id}</code>)</strong>:</p>
+<p>   - <strong>Experiments List</strong>: Upload/Define practical experiments list with CO mapping.</p>
+<p>   - <strong>Batch Division</strong>: Assign Lab Batches (Batch A, Batch B).</p>
+<p>   - <strong>Daily Rubric Evaluation</strong>: Record experiment performance marks using dynamic rubric criteria (Preparation, Execution, Viva, Record).</p>
+<p>   - <strong>Open-Ended Experiments (OEE)</strong> & <strong>Series Practical Exam</strong>: Record internal practical marks.</p>
+<p>3. <strong>Practicum Virtual Classroom (<code>/r26/classroom/practicum/{id}</code>)</strong> *(Joint Theory + Lab)*:</p>
+<p>   - Unified management for courses having combined theory and practical components.</p>
+<p>   - Dual series exam evaluation (Series Theory + Series Practical).</p>
+<p>   - Self-Learning module split-ups and summary generation.</p>
+<p>4. <strong>Virtual Drawing Hall (<code>/r26/classroom/drawing/{id}</code>)</strong>:</p>
+<p>   - <strong>Slot Evaluations</strong>: Dynamic rubric mark entry for drawing sheet slots.</p>
+<p>   - <strong>Practical Test & ESE Marks</strong>: Evaluate drawing speed, precision, and final end-semester drawing exam scores.</p>
+<p>5. <strong>Health & Physical Education Virtual Classroom (<code>/r26/classroom/health-physical/{id}</code>)</strong>:</p>
+<p>   - <strong>PDF Rubric Extraction</strong>: Auto-extracts customized dynamic physical assessment headers from uploaded syllabus PDF.</p>
+<p>   - <strong>Continuous Activity Log</strong>: Record physical fitness, posture, warm-up, calisthenics, yogic asana, and sports performance scores.</p>
+<p>   - <strong>Fitness Tests (CA1 & CA2)</strong>: Record standardized 40-mark physical fitness assessments (scaled to 7.5 CIE each).</p>
+<p>   - <strong>ESE Evaluation</strong>: Enter End-Semester Examination split-up (Fitness Test: 10, Skill Demo: 15, Viva: 10, Logbook: 5).</p>
+<h4>B. Course Files (`/course-files`)</h4>
+<ul><li>Auto-compiles all syllabus documents, lesson plans, attendance records, question papers, marksheets, and CO-PO attainment matrices into standardized SBTE/NBA course file formats.</li></ul>
+<h4>C. Remedial Sessions (`/remedial-sessions`)</h4>
+<ul><li>Schedule remedial classes for slow learners, record remedial attendance, and track re-evaluation mark improvements.</li></ul>
+<h4>D. Attendance Log (`/staff/attendance-log`)</h4>
+<ul><li>Mark hour-by-hour student attendance for assigned lecture and lab slots.</li></ul>
+<hr>
+<h2>3. Demonstrator Manual</h2>
+<h3>Overview & Operational Entry Point</h3>
+<p>Demonstrators assist primary lecturers in managing laboratory workspaces, conducting practical experiment sessions, monitoring student attendance, and recording continuous lab rubric marks.</p>
+<h3>Start Point</h3>
+<p>Navigate to <code>/dashboard/demonstrator</code>.</p>
+<h3>Menu List & Operations</h3>
+<h4>A. Lab Workspaces</h4>
+<ul><li>View assigned laboratory batches and subjects.</li></ul>
+<ul><li>Click any lab subject to enter the shared Practical Virtual Classroom (<code>/r26/classroom/practical/{id}</code> or <code>/r26/classroom/health-physical/{id}</code>).</li></ul>
+<h4>B. Practical Session Execution</h4>
+<ul><li><strong>Daily Experiment Mark Entry</strong>: Enter continuous evaluation marks for student experiment sheets and practical performance.</li></ul>
+<ul><li><strong>Logbook Verification</strong>: Verify student practical record submissions and assign logbook completion signatures.</li></ul>
+<h4>C. Log & Attendance</h4>
+<ul><li>Access <code>/staff/attendance-log</code> to mark student attendance for assigned practical lab sessions.</li></ul>
+<hr>
+<h2>4. Trade Instructor Manual</h2>
+<h3>Overview & Operational Entry Point</h3>
+<p>Trade Instructors manage trade-specific practical workshops (Fitting, Wiring, Welding, Carpentry, Foundry, Machining) and track trade skill progression.</p>
+<h3>Start Point</h3>
+<p>Navigate to <code>/dashboard/tradeinstructor</code>.</p>
+<h3>Menu List & Operations</h3>
+<h4>A. Trade Workshop Workspaces</h4>
+<ul><li>View assigned trade workshop sections and student batches.</li></ul>
+<ul><li>Access trade practical assessment rubrics.</li></ul>
+<h4>B. Job Sheet & Workpiece Evaluation</h4>
+<ul><li><strong>Workpiece Dimensions & Accuracy</strong>: Grade student job pieces based on tolerance, finish, and safety adherence.</li></ul>
+<ul><li><strong>Raw Material & Tool Handling</strong>: Record tool safety and workshop discipline marks.</li></ul>
+<h4>C. Attendance & Practical Records</h4>
+<ul><li>Log daily workshop session attendance and verify trade workshop logbooks.</li></ul>
+<hr>
+<h2>5. Workshop Superintendent Manual</h2>
+<h3>Overview & Operational Entry Point</h3>
+<p>The Workshop Superintendent oversees all engineering workshops, equipment availability, safety standards, trade instructor allocations, and central workshop course files.</p>
+<h3>Start Point</h3>
+<p>Navigate to <code>/dashboard/workshop</code>.</p>
+<h3>Menu List & Operations</h3>
+<h4>A. Central Workshop Overview</h4>
+<ul><li>Monitor real-time status across all trade workshops (Fitting, Machine Shop, Smithy, Electrical Wiring, Carpentry).</li></ul>
+<ul><li>View student turnout, safety compliance, and trade completion rates.</li></ul>
+<h4>B. Trade Instructor Management</h4>
+<ul><li>Review work allocations and session logs submitted by Trade Instructors.</li></ul>
+<h4>C. Workshop Consumables & Audits</h4>
+<ul><li>Audit workshop practical records and verify workshop course file submissions for SBTE compliance.</li></ul>
+<hr>
+<h2>6. Tutor & Mentor Manual</h2>
+<h3>Overview & Operational Entry Point</h3>
+<p>Tutors manage overall student batch discipline, attendance condonation, academic progress tracking, and parent communication. Mentors conduct personalized 1-on-1 mentoring sessions and maintain mentoring records.</p>
+<h3>Start Point</h3>
+<p>Navigate to <code>/dashboard/tutor</code>.</p>
+<h3>Menu List & Operations</h3>
+<h4>A. Batch Master Management</h4>
+<ul><li>View complete student list for assigned batch with live attendance percentages, CIE totals, and backlogs.</li></ul>
+<ul><li><strong>Condonation Management</strong>: Generate condonation eligibility lists for students with 65%–74% attendance needing medical approval.</li></ul>
+<h4>B. Parent Onboarding & Communication</h4>
+<ul><li><strong>SMS Onboarding Trigger</strong>: Send passwordless parent portal access link via SMS to parent mobile numbers.</li></ul>
+<ul><li>View parent access logs to verify parent engagement.</li></ul>
+<h4>C. Mentoring Console (`My Mentoring`)</h4>
+<ul><li><strong>Mentoring Sessions</strong>: Conduct scheduled mentoring discussions (Academic, Personal, Career, Discipline).</li></ul>
+<ul><li><strong>Mentoring Diary</strong>: Fill electronic mentoring entries (Family background, SGPA/CGPA history, SWOT analysis, advisor remarks).</li></ul>
+<ul><li><strong>Print Mentoring Report</strong>: Export full PDF Mentoring Records for SBTE/NBA inspection.</li></ul>
+<hr>
+<h2>7. Student Portal Manual</h2>
+<h3>Overview & Operational Entry Point</h3>
+<p>Students access real-time academic standing, attendance logs, assignment submissions, series exam marks, timetable, and course exit surveys.</p>
+<h3>Start Point</h3>
+<p>Navigate to <code>/dashboard/student</code> or log in at main page.</p>
+<h3>Menu List & Operations</h3>
+<h4>A. Academic Overview</h4>
+<ul><li>Live overall & subject-wise attendance percentages with low-attendance warnings.</li></ul>
+<ul><li>Continuous Internal Evaluation (CIE) score summaries.</li></ul>
+<h4>B. Assignments & MCQ Tests</h4>
+<ul><li>View published assignment tasks, upload completed digital assignments, or submit AI quiz responses.</li></ul>
+<ul><li>Take online MCQ practice & assessment tests (<code>/student/mock-test</code>).</li></ul>
+<h4>C. Surveys</h4>
+<ul><li>Complete mandatory Mid-Semester Surveys and End-Semester Course Exit Surveys (<code>/student/course-exit-survey</code>).</li></ul>
+<h4>D. Student Mentoring Profile</h4>
+<ul><li>View personal mentoring records, advisor recommendations, and remedial support schedules.</li></ul>
+<hr>
+<h2>8. Parent Dashboard Manual</h2>
+<h3>Overview & Operational Entry Point</h3>
+<p>Provides parents with transparent, passwordless, 24/7 mobile-optimized access to their ward's academic status.</p>
+<h3>Start Point</h3>
+<p>Access via SMS link or <code>/parent/login</code> using registered parent mobile number.</p>
+<h3>Features & Capabilities</h3>
+<ul><li><strong>Live Attendance Meter</strong>: View real-time daily session presence, present/absent breakdown per subject.</li></ul>
+<ul><li><strong>Internal Assessment Scores</strong>: View assignment marks, series exam results, and overall CIE progression.</li></ul>
+<ul><li><strong>Tutor Remarks & Notifications</strong>: Read direct remarks posted by the Class Tutor or Mentor.</li></ul>
+<hr>
+<h2>Quick Reference: Operational Workflow Matrix</h2>
+<table><tr><th>Role</th><th>Primary Starting Point</th><th>Key Initial Action</th><th>Output Generated</th></tr><tr><td><strong>HOD</strong></td><td><code>/dashboard/hod</code></td><td>Create Batch & Allocate Staff</td><td>Batch Structure & Staff Schedules</td></tr><tr><td><strong>Lecturer</strong></td><td><code>/dashboard/lecturer</code></td><td>Upload Syllabus PDF</td><td>Parsed Rubrics & Lesson Plans</td></tr><tr><td><strong>Demonstrator</strong></td><td><code>/dashboard/demonstrator</code></td><td>Select Lab Workspace</td><td>Lab Rubric Scores & Verification</td></tr><tr><td><strong>Trade Instructor</strong></td><td><code>/dashboard/tradeinstructor</code></td><td>Select Workshop Section</td><td>Job Sheet Marks & Tool Safety Logs</td></tr><tr><td><strong>Workshop Superintendent</strong></td><td><code>/dashboard/workshop</code></td><td>Central Workshop Audit</td><td>Workshop Compliance Reports</td></tr><tr><td><strong>Tutor / Mentor</strong></td><td><code>/dashboard/tutor</code></td><td>Send Parent SMS & Conduct Sessions</td><td>Mentoring Diaries & Condonation Reports</td></tr><tr><td><strong>Student</strong></td><td><code>/dashboard/student</code></td><td>View Attendance & Complete Quizzes</td><td>Survey Submissions & Quiz Results</td></tr><tr><td><strong>Parent</strong></td><td>SMS Portal Link</td><td>Enter Mobile Number</td><td>Real-Time Attendance & Performance View</td></tr></table>
+</body>
+</html>

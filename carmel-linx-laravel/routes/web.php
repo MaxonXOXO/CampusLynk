@@ -372,7 +372,13 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r26/classroom/drawing/{subjectId}/attendance-report', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'printAttendanceReport']);
     Route::get('/r26/classroom/drawing/{subjectId}/attendance-consolidated', [App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'printConsolidatedAttendanceReport']);
 
-
+    // Revision 2026 Virtual Health & Physical Education Classroom (S1 Unique Paper)
+    Route::get('/r26/classroom/health-physical/{subjectId}', [App\Http\Controllers\R26VirtualClassroomHealthPhysicalController::class, 'show']);
+    Route::post('/api/r26/classroom/health-physical/{subjectId}/syllabus', [App\Http\Controllers\R26VirtualClassroomHealthPhysicalController::class, 'uploadSyllabus']);
+    Route::post('/api/r26/classroom/health-physical/{subjectId}/lesson-plan/save', [App\Http\Controllers\R26VirtualClassroomHealthPhysicalController::class, 'bulkUpdateLessonPlans']);
+    Route::post('/api/r26/classroom/health-physical/{subjectId}/evaluate/activity', [App\Http\Controllers\R26VirtualClassroomHealthPhysicalController::class, 'saveActivityMarks']);
+    Route::post('/api/r26/classroom/health-physical/{subjectId}/evaluate/fitness-test', [App\Http\Controllers\R26VirtualClassroomHealthPhysicalController::class, 'saveFitnessTestMarks']);
+    Route::post('/api/r26/classroom/health-physical/{subjectId}/evaluate/ese', [App\Http\Controllers\R26VirtualClassroomHealthPhysicalController::class, 'saveEseMarks']);
 
     // HOD Subject Allocation
     Route::get('/api/hod/batches/{classroomId}/subjects', [DataController::class, 'getBatchSubjects']);
