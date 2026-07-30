@@ -158,6 +158,19 @@
     </style>
 </head>
 <body>
+@php
+    $userRole = session('userRole');
+    $desktopUrl = '/dashboard/tutor?mode=desktop';
+    if (in_array($userRole, ['Lecturer', 'HOD'])) {
+        $desktopUrl = '/dashboard/lecturer?mode=desktop';
+    } elseif ($userRole === 'Demonstrator') {
+        $desktopUrl = '/dashboard/demonstrator?mode=desktop';
+    } elseif ($userRole === 'Trade_Instructor') {
+        $desktopUrl = '/dashboard/tradeinstructor?mode=desktop';
+    } elseif ($userRole === 'Workshop_Superintendent') {
+        $desktopUrl = '/dashboard/workshop?mode=desktop';
+    }
+@endphp
 
     <div class="mobile-container">
 
