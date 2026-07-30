@@ -226,6 +226,89 @@
                 @endforeach
             </div>
 
+            <!-- Leave Request Provision (Addon Feature) -->
+            <div class="app-card">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="fw-bold text-warning mb-0" style="font-size: 0.9rem;">
+                        <i class="fa-solid fa-file-signature me-1"></i> Leave Request & History
+                    </h6>
+                    <button type="button" onclick="toggleLeaveForm()" class="btn btn-sm btn-outline-warning px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                        <i class="fa-solid fa-plus me-1"></i> Apply Leave
+                    </button>
+                </div>
+
+                <!-- Collapsible Leave Application Form -->
+                <div id="leaveFormCard" class="d-none bg-dark bg-opacity-60 p-3 rounded-3 border border-secondary border-opacity-25 mb-3">
+                    <h6 class="fw-bold text-white mb-2" style="font-size: 0.82rem;">New Leave Application</h6>
+                    <form id="mobileLeaveForm" onsubmit="submitStudentLeave(event)">
+                        <input type="hidden" name="semester" value="{{ $student->semester }}">
+                        <div class="mb-2">
+                            <label class="form-label text-secondary mb-1" style="font-size: 0.72rem;">Leave Date</label>
+                            <input type="date" name="leave_date" required class="form-control form-control-sm bg-slate-900 text-white border-secondary border-opacity-25" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label text-secondary mb-1" style="font-size: 0.72rem;">Number of Days</label>
+                            <select name="no_of_days" required class="form-select form-select-sm bg-slate-900 text-white border-secondary border-opacity-25">
+                                <option value="1">1 Day (Full Day)</option>
+                                <option value="0.5">0.5 Day (Half Day)</option>
+                                <option value="2">2 Days</option>
+                                <option value="3">3 Days</option>
+                                <option value="4">4 Days</option>
+                                <option value="5">5 Days</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label text-secondary mb-1" style="font-size: 0.72rem;">Reason for Absence</label>
+                            <textarea name="reason" required rows="2" placeholder="State valid reason (e.g. Medical, Family Emergency)..." class="form-control form-control-sm bg-slate-900 text-white border-secondary border-opacity-25" style="font-size: 0.78rem;"></textarea>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" name="parent_informed" id="chkParentInformed" value="1">
+                            <label class="form-check-label text-secondary" for="chkParentInformed" style="font-size: 0.75rem;">
+                                Parent / Guardian informed tutor
+                            </label>
+                        </div>
+                        <div id="leaveFormStatus" class="d-none small mb-2 font-bold"></div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" onclick="toggleLeaveForm()" class="btn btn-sm btn-secondary px-3" style="font-size: 0.75rem;">Cancel</button>
+                            <button type="submit" id="btnSubmitLeave" class="btn btn-sm btn-warning px-3 fw-bold" style="font-size: 0.75rem;">Submit to Tutor</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Recent Leave Applications List -->
+                <div class="space-y-2">
+                    @forelse($leaveRecords as $record)
+                    <div class="p-2.5 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-25 d-flex align-items-center justify-content-between mb-2">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="fw-bold text-white" style="font-size: 0.82rem;">
+                                    <i class="fa-regular fa-calendar-minus me-1 text-warning"></i>{{ \Carbon\Carbon::parse($record->leave_date)->format('d M Y') }}
+                                </span>
+                                <span class="badge bg-secondary" style="font-size: 0.65rem;">{{ $record->no_of_days }} {{ $record->no_of_days == 1 ? 'Day' : 'Days' }}</span>
+                            </div>
+                            <small class="text-secondary d-block" style="font-size: 0.72rem;">Reason: {{ $record->reason }}</small>
+                            <small class="text-slate-400 d-block mt-0.5" style="font-size: 0.68rem;">
+                                {{ $record->parent_informed ? '✓ Parent Informed' : 'Parent Not Informed' }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            @if(strtolower($record->status) === 'approved')
+                                <span class="badge bg-success text-white badge-app">Approved</span>
+                            @elseif(strtolower($record->status) === 'rejected')
+                                <span class="badge bg-danger text-white badge-app">Rejected</span>
+                            @else
+                                <span class="badge bg-warning text-dark badge-app">Pending Review</span>
+                            @endif
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center text-secondary py-3" style="font-size: 0.78rem;">
+                        No leave applications submitted yet.
+                    </div>
+                    @endforelse
+                </div>
+            </div>
+
             <!-- Subject-Wise Attendance Breakdown Table -->
             <div class="app-card">
                 <h6 class="fw-bold text-info mb-3" style="font-size: 0.9rem;">
@@ -269,6 +352,68 @@
         </div>
 
     </div>
+
+    <script>
+        function toggleLeaveForm() {
+            const card = document.getElementById('leaveFormCard');
+            card.classList.toggle('d-none');
+        }
+
+        function submitStudentLeave(event) {
+            event.preventDefault();
+            const form = event.target;
+            const btn = document.getElementById('btnSubmitLeave');
+            const statusDiv = document.getElementById('leaveFormStatus');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Submitting...';
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            const payload = {
+                semester: form.semester.value,
+                leave_date: form.leave_date.value,
+                no_of_days: form.no_of_days.value,
+                reason: form.reason.value,
+                parent_informed: form.parent_informed.checked ? 1 : 0,
+                status: 'Pending'
+            };
+
+            fetch('/api/mentoring/leave/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = 'Submit to Tutor';
+
+                if (data.status === 'SUCCESS') {
+                    statusDiv.className = 'small mb-2 font-bold text-success';
+                    statusDiv.innerText = 'Leave application submitted successfully! Refreshing...';
+                    statusDiv.classList.remove('d-none');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1200);
+                } else {
+                    statusDiv.className = 'small mb-2 font-bold text-danger';
+                    statusDiv.innerText = data.message || 'Failed to submit leave application.';
+                    statusDiv.classList.remove('d-none');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = 'Submit to Tutor';
+                statusDiv.className = 'small mb-2 font-bold text-danger';
+                statusDiv.innerText = 'Network error. Please try again.';
+                statusDiv.classList.remove('d-none');
+            });
+        }
+    </script>
 
 </body>
 </html>

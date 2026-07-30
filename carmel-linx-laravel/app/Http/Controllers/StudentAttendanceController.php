@@ -154,6 +154,11 @@ class StudentAttendanceController extends Controller
             ? round(($totalAttendedClasses / $totalConductedClasses) * 100, 1) 
             : 100.0;
 
+        // Fetch Student Leave Request Records
+        $leaveRecords = \App\Models\LeaveRecord::where('reg_no', $student->reg_no)
+            ->orderBy('leave_date', 'desc')
+            ->get();
+
         return view('student_attendance', compact(
             'student',
             'classroom',
@@ -163,7 +168,8 @@ class StudentAttendanceController extends Controller
             'totalAttendedClasses',
             'overallAttendancePct',
             'subjectStats',
-            'periodTimings'
+            'periodTimings',
+            'leaveRecords'
         ));
     }
 }
