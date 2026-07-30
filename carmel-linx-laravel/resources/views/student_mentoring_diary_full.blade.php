@@ -11,7 +11,7 @@
   <style>
     @media (max-width: 1440px) {
       html, body {
-        font-size: 13px !important;
+        font-size: 15px !important;
       }
       .p-6 {
         padding: 1rem !important;
@@ -151,6 +151,10 @@
     <!-- Top Header -->
     <header class="bg-slate-950/40 border-b border-slate-800/80 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 z-10 shadow-lg">
         <div class="flex items-center gap-3">
+          <a href="/dashboard/student" class="p-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-500/30 flex items-center gap-1.5 font-bold text-xs no-underline transition-premium" title="Return to Student Dashboard">
+            <span class="material-symbols-rounded text-base">arrow_back</span>
+            <span>Dashboard</span>
+          </a>
           <button onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors focus:outline-none flex items-center justify-center">
             <span class="material-symbols-rounded">menu</span>
           </button>

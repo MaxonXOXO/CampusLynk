@@ -144,10 +144,17 @@ Route::post('/api/auth/recover-account', function (Illuminate\Http\Request $requ
 // Protected Dashboard Renders
 Route::middleware(['web'])->group(function () {
     
-    Route::get('/dashboard/student', function () {
+    Route::get('/dashboard/student', function (\Illuminate\Http\Request $request) {
         if (Session::get('userRole') !== 'Student') return redirect('/');
+        $userAgent = strtolower($request->header('User-Agent', ''));
+        $isMobileDevice = (bool)preg_match('/(android|bb\d+|meego).+mobile|avail|blackberry|iphone|ipad|ipod|palm|phone|opera mini|iemobile/i', $userAgent);
+        if ($request->has('mobile') || ($isMobileDevice && $request->input('mode') !== 'desktop')) {
+            return app(\App\Http\Controllers\StudentAttendanceController::class)->showStudentMobileDashboard($request);
+        }
         return view('student_dashboard');
     });
+
+    Route::get('/student/mobile', [\App\Http\Controllers\StudentAttendanceController::class, 'showStudentMobileDashboard'])->name('student.mobile');
 
     Route::get('/student/attendance', [\App\Http\Controllers\StudentAttendanceController::class, 'showStudentAttendance']);
 
@@ -197,22 +204,38 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/dashboard/general-coordinator-aided', function () {
         if (Session::get('userRole') !== 'Gen_Dept_Coordinator_Aided') return redirect('/');
+        $ua = strtolower(request()->header('User-Agent', ''));
+        if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
+            return redirect('/staff/mobile');
+        }
         return view('general_coordinator_aided_dashboard');
     });
 
     Route::get('/dashboard/general-coordinator-sf', function () {
         if (Session::get('userRole') !== 'Gen_Dept_Coordinator_Self_Finance') return redirect('/');
+        $ua = strtolower(request()->header('User-Agent', ''));
+        if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
+            return redirect('/staff/mobile');
+        }
         return view('general_coordinator_sf_dashboard');
     });
 
     Route::get('/dashboard/lecturer', function () {
         $role = Session::get('userRole');
         if (!in_array($role, ['HOD', 'Lecturer', 'Demonstrator', 'Physical_Instructor', 'Physical Instructor'])) return redirect('/');
+        $ua = strtolower(request()->header('User-Agent', ''));
+        if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
+            return redirect('/staff/mobile');
+        }
         return view('lecturer_dashboard');
     });
 
     Route::get('/dashboard/demonstrator', function () {
         if (Session::get('userRole') !== 'Demonstrator') return redirect('/');
+        $ua = strtolower(request()->header('User-Agent', ''));
+        if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
+            return redirect('/staff/mobile');
+        }
         
         $userId = Session::get('userId');
         $assignments = DB::table('subject_staff_assignments')
@@ -238,17 +261,33 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/dashboard/tradeinstructor', function () {
         if (Session::get('userRole') !== 'Trade_Instructor') return redirect('/');
+        $ua = strtolower(request()->header('User-Agent', ''));
+        if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
+            return redirect('/staff/mobile');
+        }
         return view('trade_instructor_dashboard');
     });
+
+    Route::get('/staff/mobile', [MentoringController::class, 'showStaffMobileDashboard']);
 
     Route::get('/dashboard/tutor', function () {
         $role = Session::get('userRole');
         if (!$role || $role === 'Student') return redirect('/');
+
+        $ua = strtolower(request()->header('User-Agent', ''));
+        if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
+            return redirect('/staff/mobile');
+        }
+
         return view('tutor_dashboard');
     });
 
     Route::get('/dashboard/workshop', function () {
         if (Session::get('userRole') !== 'Workshop_Superintendent') return redirect('/');
+        $ua = strtolower(request()->header('User-Agent', ''));
+        if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
+            return redirect('/staff/mobile');
+        }
         return view('workshop_superintendent_dashboard');
     });
 
@@ -259,6 +298,44 @@ Route::middleware(['web'])->group(function () {
     Route::delete('/api/student/delete/{regNo}', [DataController::class, 'deleteStudentProfile']);
     Route::get('/api/tutor/classroom/{tutorMobile}', [DataController::class, 'getTutorClassroomRoster']);
     Route::post('/api/system/backup', [BackupController::class, 'backupDatabaseToDrive']);
+
+    // Universal Day Order Management
+    Route::post('/api/system/set-day-order', function (Illuminate\Http\Request $request) {
+        $dayOrder = $request->input('day_order');
+        $validDays = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
+        if (!in_array($dayOrder, $validDays)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Invalid Day Order']);
+        }
+        $todayStr = date('Y-m-d');
+        $payload = [
+            'date' => $todayStr,
+            'day_order' => $dayOrder,
+            'updated_at' => now()->toDateTimeString(),
+            'updated_by' => session('userId')
+        ];
+        file_put_contents(storage_path('app/active_day_order.json'), json_encode($payload, JSON_PRETTY_PRINT));
+        return response()->json(['status' => 'SUCCESS', 'day_order' => $dayOrder, 'date' => $todayStr]);
+    });
+
+    Route::get('/api/system/get-day-order', function () {
+        $path = storage_path('app/active_day_order.json');
+        $todayStr = date('Y-m-d');
+        if (file_exists($path)) {
+            $data = json_decode(file_get_contents($path), true);
+            if ($data && ($data['date'] ?? '') === $todayStr) {
+                return response()->json(['status' => 'SUCCESS', 'day_order' => $data['day_order'], 'date' => $todayStr]);
+            }
+        }
+        $dayMap = [
+            'Monday' => 'Day 1',
+            'Tuesday' => 'Day 2',
+            'Wednesday' => 'Day 3',
+            'Thursday' => 'Day 4',
+            'Friday' => 'Day 5',
+        ];
+        $default = $dayMap[date('l')] ?? 'Day 1';
+        return response()->json(['status' => 'SUCCESS', 'day_order' => $default, 'date' => $todayStr]);
+    });
 
     // Admin/Super Admin Endpoints
     Route::get('/api/admin/stats', [DataController::class, 'getAdminStats']);

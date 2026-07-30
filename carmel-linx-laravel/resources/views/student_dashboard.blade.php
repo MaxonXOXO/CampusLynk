@@ -11,7 +11,7 @@
   <style>
     @media (max-width: 1440px) {
       html, body {
-        font-size: 13px !important;
+        font-size: 15px !important;
       }
       .p-6 {
         padding: 1rem !important;
@@ -169,6 +169,9 @@
             </span>
             <span id="headerSemesterText">Sem: <strong class="text-teal-400" id="headerSemValue">...</strong></span>
           </div>
+          <a href="/student/mobile" class="px-3 py-2 bg-slate-800 hover:bg-cyan-950/40 text-cyan-400 hover:text-cyan-300 border border-slate-700 hover:border-cyan-500/40 rounded-xl font-bold text-xs flex items-center gap-1.5 no-underline transition-premium" title="Switch to Student Mobile Web App">
+            <span class="material-symbols-rounded text-sm">smartphone</span> Mobile View
+          </a>
         </div>
       </header>
 

@@ -1779,4 +1779,179 @@ class MentoringController extends Controller
         if (!$userId || $role === 'Student') return redirect('/');
         return view('tutor_student_diary_full', ['studentRegNo' => $regNo]);
     }
+
+    public function showStaffMobileDashboard()
+    {
+        $userId = Session::get('userId');
+        $role   = Session::get('userRole');
+
+        if (!$userId || $role === 'Student') {
+            return redirect('/');
+        }
+
+        $staff = StaffProfile::where('mobile_no', $userId)->first();
+        if (!$staff) {
+            $staff = (object) [
+                'name' => Session::get('userName', 'Staff Member'),
+                'mobile_no' => $userId,
+                'designation' => $role,
+                'department' => Session::get('userBranch', 'Academic'),
+                'photo_url' => Session::get('userPhoto'),
+            ];
+        }
+
+        // 1. Staff Assigned Subjects & Classrooms
+        $assignments = DB::table('subject_staff_assignments')
+            ->join('batch_subjects', 'subject_staff_assignments.batch_subject_id', '=', 'batch_subjects.id')
+            ->where('subject_staff_assignments.staff_mobile_no', $userId)
+            ->select('batch_subjects.*', 'subject_staff_assignments.batch_subject_id')
+            ->get();
+
+        // 2. Classrooms where staff is Tutor (Mentor-1) or Mentor-2
+        $classrooms = ClassManagement::where('tutor_mobile_no', $userId)
+            ->orWhere('mentor_mobile_no', $userId)
+            ->get();
+
+        // 3. Pending Leaves for Staff's Classrooms
+        $classroomIds = $classrooms->pluck('classroom_id')->toArray();
+        $studentRegNos = Student::whereIn('classroom_id', $classroomIds)->pluck('reg_no');
+        $pendingLeaves = LeaveRecord::whereIn('reg_no', $studentRegNos)
+            ->where('status', 'Pending')
+            ->orderByDesc('leave_date')
+            ->get()
+            ->map(function ($l) {
+                $l->student_name = Student::where('reg_no', $l->reg_no)->value('name') ?? $l->reg_no;
+                return $l;
+            });
+
+        // 4. Active Test Configs
+        $activeTests = [];
+        if (\Illuminate\Support\Facades\Schema::hasTable('test_configs')) {
+            $activeTests = DB::table('test_configs')
+                ->where('is_active', 1)
+                ->orderByDesc('test_id')
+                ->get();
+        }
+
+        // 5. Timetable Schedule by Day Order (Day 1 to Day 5)
+        $dayMap = [
+            'Monday' => 'Day 1',
+            'Tuesday' => 'Day 2',
+            'Wednesday' => 'Day 3',
+            'Thursday' => 'Day 4',
+            'Friday' => 'Day 5',
+        ];
+        $currentDayName = date('l');
+        $defaultDayOrder = $dayMap[$currentDayName] ?? 'Day 1';
+
+        $fullTimetablesByDay = [
+            'Day 1' => [],
+            'Day 2' => [],
+            'Day 3' => [],
+            'Day 4' => [],
+            'Day 5' => [],
+        ];
+
+        $dir = storage_path("app/timetables");
+        if (is_dir($dir)) {
+            $files = glob($dir . "/*.json");
+            foreach ($files as $file) {
+                $cId = str_replace(['.json', $dir . '/'], '', $file);
+                $ttData = json_decode(file_get_contents($file), true);
+                if ($ttData) {
+                    foreach (['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'] as $dayKey) {
+                        $dayAlt = array_search($dayKey, $dayMap);
+                        $dayData = $ttData[$dayKey] ?? ($dayAlt ? ($ttData[$dayAlt] ?? null) : null);
+                        if ($dayData && is_array($dayData)) {
+                            foreach ($dayData as $period => $details) {
+                                if (!empty($details)) {
+                                    $subCode = is_array($details) ? ($details['subject'] ?? ($details['subject_code'] ?? '')) : $details;
+                                    $staffName = is_array($details) ? ($details['staff'] ?? '') : '';
+                                    
+                                    $matchesSub = $assignments->firstWhere('subject_code', $subCode);
+                                    if ($matchesSub || (isset($staff->name) && str_contains($staffName, $staff->name)) || count($assignments) > 0) {
+                                        $fullTimetablesByDay[$dayKey][] = (object) [
+                                            'period' => $period,
+                                            'classroom_id' => $cId,
+                                            'subject_code' => $subCode,
+                                            'subject_name' => $matchesSub->subject_name ?? $subCode,
+                                            'staff_name' => $staffName
+                                        ];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $todaySchedule = $fullTimetablesByDay[$defaultDayOrder] ?? [];
+
+        // 6. Remedial Rooms Assigned to Staff
+        $remedialRooms = [];
+        if (\Illuminate\Support\Facades\Schema::hasTable('remedial_rooms')) {
+            $remedialRooms = DB::table('remedial_rooms')
+                ->where('created_by_mobile', $userId)
+                ->get();
+        }
+
+        // 7. Staff To-Do Items
+        $todos = [];
+        if (count($pendingLeaves) > 0) {
+            $todos[] = (object) [
+                'type' => 'leave',
+                'title' => count($pendingLeaves) . ' Student Leave Applications Pending',
+                'subtitle' => 'Action required for tutorship batch',
+                'badge' => 'Leave Request',
+                'badge_class' => 'bg-warning text-dark',
+                'icon' => 'fa-solid fa-clock-rotate-left text-warning'
+            ];
+        }
+
+        if (count($assignments) > 0) {
+            $todos[] = (object) [
+                'type' => 'attendance',
+                'title' => 'Mark Attendance for Today\'s Classes (' . date('d M Y') . ')',
+                'subtitle' => count($assignments) . ' active subject assignments',
+                'badge' => 'Daily Task',
+                'badge_class' => 'bg-info text-dark',
+                'icon' => 'fa-solid fa-clipboard-user text-info'
+            ];
+        }
+
+        if (count($remedialRooms) > 0) {
+            $todos[] = (object) [
+                'type' => 'remedial',
+                'title' => count($remedialRooms) . ' Remedial Classes Scheduled',
+                'subtitle' => 'Log student attendance & session topics',
+                'badge' => 'Remedial',
+                'badge_class' => 'bg-danger text-white',
+                'icon' => 'fa-solid fa-kit-medical text-danger'
+            ];
+        }
+
+        if (count($activeTests) > 0) {
+            $todos[] = (object) [
+                'type' => 'test',
+                'title' => count($activeTests) . ' Online MCQ Test Configurations Published',
+                'subtitle' => 'Monitor student submission results',
+                'badge' => 'Online Test',
+                'badge_class' => 'bg-purple text-white',
+                'icon' => 'fa-solid fa-laptop-code text-purple'
+            ];
+        }
+
+        return view('staff_mobile_dashboard', compact(
+            'staff',
+            'assignments',
+            'classrooms',
+            'pendingLeaves',
+            'activeTests',
+            'todaySchedule',
+            'remedialRooms',
+            'todos',
+            'fullTimetablesByDay',
+            'defaultDayOrder'
+        ));
+    }
 }
