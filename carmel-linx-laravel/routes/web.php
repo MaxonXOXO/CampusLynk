@@ -56,6 +56,10 @@ Route::get('/', function () {
     return view('login');
 })->name('login');
 
+Route::get('/login', function () {
+    return redirect('/');
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register/student', [AuthController::class, 'registerStudent']);
 Route::post('/register/staff', [AuthController::class, 'registerStaff']);
