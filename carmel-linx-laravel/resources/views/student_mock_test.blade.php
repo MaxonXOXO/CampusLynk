@@ -48,7 +48,7 @@
                     <span class="material-symbols-rounded text-white text-xl">architecture</span>
                 </div>
                 <div>
-                    <h1 class="text-base font-extrabold text-slate-100 tracking-tight">Carmel Linx</h1>
+                    <h1 class="text-lg font-black text-white tracking-tight" style="font-weight: 900 !important; letter-spacing: -0.3px; background: linear-gradient(to right, #ffffff, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Carmel Linx</h1>
                     <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Mock Practice Engine</p>
                 </div>
             </div>
