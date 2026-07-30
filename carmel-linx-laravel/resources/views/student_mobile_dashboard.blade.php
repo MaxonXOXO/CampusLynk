@@ -201,7 +201,7 @@
             <div class="d-flex align-items-center gap-2">
                 <img src="{{ asset('logo.jpg') }}" alt="Carmel" class="rounded-circle" style="width: 28px; height: 28px; object-fit: cover;">
                 <div>
-                    <h6 class="fw-extrabold mb-0 text-white" style="font-size: 0.95rem; background: linear-gradient(to right, #60a5fa, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Carmel Linx</h6>
+                    <h5 class="fw-black mb-0 text-white" style="font-size: 1.15rem; font-weight: 900; letter-spacing: -0.3px; background: linear-gradient(to right, #ffffff, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Carmel Linx</h5>
                     <small class="text-secondary" style="font-size: 0.7rem;">Student Mobile App</small>
                 </div>
             </div>
