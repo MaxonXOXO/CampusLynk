@@ -220,7 +220,7 @@
                 <div class="app-card">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">
-                            <i class="fa-solid fa-calendar-day me-1 text-cyan"></i> Today's Schedule (Periods 1–7)
+                            <i class="fa-solid fa-calendar-day me-1 text-cyan"></i> Today's Schedule (Periods 1–6 + Special 7th Hour)
                         </h6>
                         <small class="text-secondary" style="font-size: 0.72rem;">{{ \Carbon\Carbon::now()->format('d M Y') }}</small>
                     </div>

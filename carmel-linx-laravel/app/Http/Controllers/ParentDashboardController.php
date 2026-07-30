@@ -141,7 +141,7 @@ class ParentDashboardController extends Controller
             ->get();
 
         $hourlyStatus = [];
-        for ($p = 1; $p <= 7; $p++) {
+        for ($p = 1; $p <= 6; $p++) {
             $hourlyStatus[$p] = [
                 'period' => $p,
                 'status' => 'Not Marked',
@@ -151,6 +151,16 @@ class ParentDashboardController extends Controller
                 'badge_class' => 'bg-secondary text-light'
             ];
         }
+
+        // Period 7 is reserved as a Special / Remedial / Extra Class Hour
+        $hourlyStatus[7] = [
+            'period' => 7,
+            'status' => 'Not Scheduled',
+            'subject_name' => 'Special Hour (Remedial / Extra Class)',
+            'subject_code' => 'P7',
+            'topic' => 'Special / Remedial Session',
+            'badge_class' => 'bg-dark text-secondary border border-secondary'
+        ];
 
         foreach ($todayLogs as $log) {
             $period = (int)$log->period;
@@ -173,21 +183,23 @@ class ParentDashboardController extends Controller
                 $hourlyStatus[$period] = [
                     'period' => $period,
                     'status' => $statusText,
-                    'subject_name' => $subj->subject_name ?? 'Class Session',
+                    'subject_name' => ($period === 7 ? '[Special 7th Hour] ' : '') . ($subj->subject_name ?? 'Class Session'),
                     'subject_code' => $subj->subject_code ?? '',
-                    'topic' => $log->topics_covered ?? 'Regular Session',
+                    'topic' => $log->topics_covered ?? ($period === 7 ? 'Remedial / Extra Class' : 'Regular Session'),
                     'badge_class' => $badgeClass
                 ];
             }
         }
 
-        // 4. Calculate Overall Attendance Percentage across all subjects
+        // 4. Calculate Overall Attendance Percentage (Standard 6-Hour Academic Schedule)
+        // Period 7 (Special/Remedial) is evaluated for that class session only and excluded from standard daily totals
         $totalConductedClasses = 0;
         $totalAttendedClasses = 0;
 
         foreach ($subjectIds as $sId) {
             $logs = DB::table('class_logs_attendance')
                 ->where('batch_subject_id', $sId)
+                ->where('period', '<=', 6) // Standard 6-Hour Academic Day
                 ->get(['present_students', 'absent_students']);
 
             foreach ($logs as $l) {
@@ -348,16 +360,16 @@ class ParentDashboardController extends Controller
                 'status' => 'Present',
                 'subject_name' => 'General Engg Lab',
                 'subject_code' => 'ME212',
-                'topic' => 'Rockwell Hardness Testing Experiment',
+                'topic' => 'UTM Tensile Stress-Strain Plotting',
                 'badge_class' => 'bg-success text-white'
             ],
             7 => [
                 'period' => 7,
                 'status' => 'Present',
-                'subject_name' => 'General Engg Lab',
-                'subject_code' => 'ME212',
-                'topic' => 'UTM Tensile Stress-Strain Plotting',
-                'badge_class' => 'bg-success text-white'
+                'subject_name' => '[Special 7th Hour] Remedial Class',
+                'subject_code' => 'P7',
+                'topic' => 'Remedial Problem Solving: Rankine Cycle',
+                'badge_class' => 'bg-info text-dark'
             ],
         ];
 
