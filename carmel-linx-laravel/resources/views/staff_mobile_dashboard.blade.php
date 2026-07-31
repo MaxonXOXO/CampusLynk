@@ -930,7 +930,7 @@
                             </div>
                             <small class="text-secondary d-block mb-1" style="font-size:0.72rem;">
                                 ${item.from_date} to ${item.to_date} (${item.session_type}) &bull; ${item.total_days} Day(s)${cclText}
-                            </small>`
+                            </small>
                             <div class="text-slate-300 small italic mb-2" style="font-size:0.75rem;">"${item.reason}"</div>
                             <div class="d-flex gap-2">
                                 <button onclick="actionLeaveApproval(${item.id}, '${stage}', 'Approved')" class="btn btn-sm btn-success py-0.5 px-3 flex-grow-1" style="font-size:0.72rem;">
