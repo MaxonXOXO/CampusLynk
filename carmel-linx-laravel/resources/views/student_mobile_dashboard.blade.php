@@ -258,9 +258,9 @@
 
         <!-- Top App Bar -->
         <div class="mobile-header d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-2">
-                <img src="{{ asset('logo.jpg') }}" alt="Carmel" class="rounded-circle" style="width: 28px; height: 28px; object-fit: cover;">
-                <div>
+            <div class="d-flex align-items-center gap-3">
+                <img src="{{ asset('logo.jpg') }}" alt="Carmel" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover; border: 1.5px solid #06b6d4;">
+                <div class="ms-1">
                     <h5 class="fw-black mb-0 brand-title" style="font-size: 1.15rem;">Carmel Linx</h5>
                     <small class="text-secondary" style="font-size: 0.7rem;">Student Mobile App</small>
                 </div>
