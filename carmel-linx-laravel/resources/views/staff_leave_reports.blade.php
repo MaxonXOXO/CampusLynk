@@ -161,6 +161,8 @@
                                         <span class="badge bg-success">Approved</span>
                                     @elseif($leave->coordinator_status === 'Rejected')
                                         <span class="badge bg-danger">Rejected</span>
+                                    @elseif($leave->coordinator_status === 'N/A')
+                                        <span class="badge bg-secondary" title="Aided Stream - Not Applicable">N/A (Aided)</span>
                                     @else
                                         <span class="badge bg-warning text-dark">Pending</span>
                                     @endif

@@ -288,6 +288,8 @@
                             <span class="badge-status badge-approved">APPROVED</span>
                         @elseif($leave->coordinator_status === 'Rejected')
                             <span class="badge-status badge-rejected">REJECTED</span>
+                        @elseif($leave->coordinator_status === 'N/A')
+                            <span class="badge-status" style="background:#e2e8f0; color:#475569;">N/A (AIDED)</span>
                         @else
                             <span class="badge-status badge-pending">PENDING</span>
                         @endif

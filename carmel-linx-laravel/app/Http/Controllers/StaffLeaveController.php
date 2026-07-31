@@ -145,6 +145,23 @@ class StaffLeaveController extends Controller
     }
 
     /**
+     * Helper to determine if department follows Self-Financing (SF) 3-tier hierarchy or Aided 2-tier hierarchy.
+     * SF (EL, CT, AU, General SF): HOD -> Academic Coordinator -> Principal
+     * Aided (EEE, ME, CE, GEN AIDED): HOD -> Principal (Skips Academic Coordinator)
+     */
+    private function isSelfFinancingDepartment($dept)
+    {
+        $d = strtoupper(trim($dept));
+        if (in_array($d, ['EL', 'CT', 'AU', 'SF', 'GEN SF', 'GENERAL SF', 'ELECTRONICS', 'COMPUTER', 'AUTOMOBILE', 'COMPUTER TECH'])) {
+            return true;
+        }
+        if (str_contains($d, 'SF') || str_contains($d, 'SELF')) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Process multi-stage leave approval (HOD -> Coordinator -> Principal).
      */
     public function processApproval(Request $request)
@@ -166,6 +183,7 @@ class StaffLeaveController extends Controller
 
         try {
             $leave = StaffLeaveRequest::findOrFail($request->leave_id);
+            $isSF = $this->isSelfFinancingDepartment($leave->department);
 
             if ($request->action === 'Rejected') {
                 if ($request->stage === 'HOD') {
@@ -200,7 +218,17 @@ class StaffLeaveController extends Controller
                 $leave->hod_name = $actorName;
                 $leave->hod_remarks = $request->remarks;
                 $leave->hod_action_at = now();
-                $leave->overall_status = 'Pending_Coordinator';
+
+                if ($isSF) {
+                    // Self-Financing Stream: Moves to Academic Coordinator
+                    $leave->overall_status = 'Pending_Coordinator';
+                    $leave->coordinator_status = 'Pending';
+                } else {
+                    // Aided Stream (EEE, ME, CE, GEN AIDED): Skips Academic Coordinator -> Moves straight to Principal
+                    $leave->overall_status = 'Pending_Principal';
+                    $leave->coordinator_status = 'N/A';
+                    $leave->coordinator_name = 'N/A (Aided Stream)';
+                }
             } elseif ($request->stage === 'Coordinator') {
                 $leave->coordinator_status = 'Approved';
                 $leave->coordinator_mobile = $mobileNo;
