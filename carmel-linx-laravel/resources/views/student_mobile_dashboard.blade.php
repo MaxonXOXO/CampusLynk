@@ -212,13 +212,7 @@
             border: 1px solid rgba(6, 182, 212, 0.35) !important;
             border-radius: 6px !important;
         }
-        [data-theme="light"] .badge-student-app {
-            background-color: rgba(2, 132, 199, 0.12) !important;
-            color: #0369a1 !important;
-            border: 1px solid rgba(2, 132, 199, 0.35) !important;
-        }
 
-        /* Profile & Status Badges with Border Block */
         .badge-reg {
             background-color: rgba(6, 182, 212, 0.15) !important;
             color: #38bdf8 !important;
@@ -239,6 +233,68 @@
             background-color: rgba(126, 34, 206, 0.1) !important;
             color: #7e22ce !important;
             border: 1px solid rgba(126, 34, 206, 0.35) !important;
+        }
+
+        /* Dark/Light Mode Theme Variations */
+        [data-theme="light"] {
+            --app-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: rgba(0, 0, 0, 0.08);
+        }
+        [data-theme="light"] body,
+        [data-theme="light"] .mobile-container {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+        [data-theme="light"] .mobile-header {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        [data-theme="light"] .app-card {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+        }
+        [data-theme="light"] .text-white {
+            color: #0f172a !important;
+        }
+        [data-theme="light"] .text-secondary {
+            color: #64748b !important;
+        }
+        [data-theme="light"] .text-cyan {
+            color: #0284c7 !important;
+        }
+        [data-theme="light"] .brand-title {
+            background: linear-gradient(135deg, #0284c7 0%, #4f46e5 50%, #7e22ce 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        [data-theme="light"] .badge-student-app {
+            background-color: rgba(2, 132, 199, 0.12) !important;
+            color: #0369a1 !important;
+            border: 1px solid rgba(2, 132, 199, 0.35) !important;
+        }
+        [data-theme="light"] .bg-dark {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        [data-theme="light"] .bottom-nav {
+            background: rgba(255, 255, 255, 0.96) !important;
+            border-top-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        [data-theme="light"] .timeline-item {
+            background: #f1f5f9 !important;
+        }
+        [data-theme="light"] .table-dark {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+        }
+        [data-theme="light"] .stat-card {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03) !important;
         }
         .theme-toggle-btn {
             border: 1px solid var(--card-border);
