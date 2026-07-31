@@ -151,6 +151,40 @@
             border: 1px solid rgba(6, 182, 212, 0.3);
         }
 
+        /* Profile & Status Badges with Border Block */
+        .badge-reg {
+            background-color: rgba(6, 182, 212, 0.15) !important;
+            color: #38bdf8 !important;
+            border: 1px solid rgba(6, 182, 212, 0.35) !important;
+        }
+        [data-theme="light"] .badge-reg {
+            background-color: rgba(2, 132, 199, 0.1) !important;
+            color: #0284c7 !important;
+            border: 1px solid rgba(2, 132, 199, 0.35) !important;
+        }
+
+        .badge-sem {
+            background-color: rgba(139, 92, 246, 0.15) !important;
+            color: #c084fc !important;
+            border: 1px solid rgba(139, 92, 246, 0.35) !important;
+        }
+        [data-theme="light"] .badge-sem {
+            background-color: rgba(126, 34, 206, 0.1) !important;
+            color: #7e22ce !important;
+            border: 1px solid rgba(126, 34, 206, 0.35) !important;
+        }
+
+        .badge-status {
+            background-color: rgba(16, 185, 129, 0.15) !important;
+            color: #34d399 !important;
+            border: 1px solid rgba(16, 185, 129, 0.35) !important;
+        }
+        [data-theme="light"] .badge-status {
+            background-color: rgba(5, 150, 105, 0.1) !important;
+            color: #059669 !important;
+            border: 1px solid rgba(5, 150, 105, 0.35) !important;
+        }
+
         /* Dark/Light Mode Theme Variations */
         [data-theme="light"] {
             --app-bg: #f8fafc;
@@ -258,9 +292,9 @@
                     <div class="flex-grow-1">
                         <h6 class="fw-extrabold text-white mb-0" style="font-size: 1rem;">{{ $student->name }}</h6>
                         <div class="d-flex align-items-center gap-1 mt-1 flex-wrap">
-                            <span class="badge bg-cyan bg-opacity-20 text-cyan badge-app">Reg: {{ $student->reg_no }}</span>
-                            <span class="badge bg-purple bg-opacity-20 text-purple badge-app">Sem {{ $student->semester }} ({{ $student->branch }})</span>
-                            <span class="badge bg-success bg-opacity-20 text-success badge-app">
+                            <span class="badge badge-reg badge-app">Reg: {{ $student->reg_no }}</span>
+                            <span class="badge badge-sem badge-app">Sem {{ $student->semester }} ({{ $student->branch }})</span>
+                            <span class="badge badge-status badge-app">
                                 <i class="fa-solid fa-graduation-cap me-1"></i>{{ !empty($academicStatus) ? $academicStatus : 'Regular (Active)' }}
                             </span>
                         </div>

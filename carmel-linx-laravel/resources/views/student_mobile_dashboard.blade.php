@@ -250,6 +250,29 @@
             color: #4338ca !important;
             border: 1px solid rgba(79, 70, 229, 0.3) !important;
         }
+
+        /* Profile & Status Badges with Border Block */
+        .badge-reg {
+            background-color: rgba(6, 182, 212, 0.15) !important;
+            color: #38bdf8 !important;
+            border: 1px solid rgba(6, 182, 212, 0.35) !important;
+        }
+        [data-theme="light"] .badge-reg {
+            background-color: rgba(2, 132, 199, 0.1) !important;
+            color: #0284c7 !important;
+            border: 1px solid rgba(2, 132, 199, 0.35) !important;
+        }
+
+        .badge-sem {
+            background-color: rgba(139, 92, 246, 0.15) !important;
+            color: #c084fc !important;
+            border: 1px solid rgba(139, 92, 246, 0.35) !important;
+        }
+        [data-theme="light"] .badge-sem {
+            background-color: rgba(126, 34, 206, 0.1) !important;
+            color: #7e22ce !important;
+            border: 1px solid rgba(126, 34, 206, 0.35) !important;
+        }
         .theme-toggle-btn {
             border: 1px solid var(--card-border);
             background: rgba(255, 255, 255, 0.05);
@@ -305,8 +328,8 @@
                     <div class="flex-grow-1 overflow-hidden">
                         <h6 class="fw-extrabold text-white mb-0 text-truncate" style="font-size: 1rem;">{{ $student->name }}</h6>
                         <div class="d-flex align-items-center gap-1.5 mt-1 flex-wrap">
-                            <span class="badge bg-cyan bg-opacity-20 text-cyan badge-app">Reg: {{ $student->reg_no }}</span>
-                            <span class="badge bg-purple bg-opacity-20 text-purple badge-app">Sem {{ $student->semester }} ({{ $student->branch }})</span>
+                            <span class="badge badge-reg badge-app">Reg: {{ $student->reg_no }}</span>
+                            <span class="badge badge-sem badge-app">Sem {{ $student->semester }} ({{ $student->branch }})</span>
                             <span class="badge text-dark fw-black badge-app px-2.5 py-1" style="background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); font-size: 0.85rem; font-weight: 900; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);">
                                 <i class="fa-solid fa-calendar-day me-1"></i> Today: {{ $activeDayOrder ?? 'Day 1' }}
                             </span>
