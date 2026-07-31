@@ -334,15 +334,15 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="stat-card border-start border-3 border-purple">
+                        <div class="stat-card border-start border-3 border-emerald-500">
                             <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="text-secondary uppercase" style="font-size: 0.68rem; font-weight: 700;">MCQ Tests</span>
-                                <i class="fa-solid fa-laptop-code text-purple"></i>
+                                <span class="text-secondary uppercase" style="font-size: 0.68rem; font-weight: 700;">Attended Hours</span>
+                                <i class="fa-solid fa-user-check text-emerald-400"></i>
                             </div>
                             <h5 class="fw-extrabold text-white mb-0" style="font-size: 1.2rem;">
-                                {{ count($activeTests) }}
+                                {{ $totalAttendedClasses }} <span class="text-secondary fs-6 fw-normal">/ {{ $totalConductedClasses }}</span>
                             </h5>
-                            <small class="text-secondary" style="font-size: 0.68rem;">Active Online Tests</small>
+                            <small class="text-secondary" style="font-size: 0.68rem;">Total Conducted Hours</small>
                         </div>
                     </div>
                 </div>
@@ -398,13 +398,13 @@
                             </a>
                         </div>
                         <div class="col-6">
-                            <a href="/student/mock-test" target="_blank" class="btn btn-dark border border-secondary border-opacity-25 w-full text-start p-2.5 rounded-3 d-flex align-items-center gap-2 text-decoration-none">
-                                <i class="fa-solid fa-rocket text-cyan fs-5"></i>
+                            <button type="button" onclick="openLeaveModal()" class="btn btn-dark border border-secondary border-opacity-25 w-full text-start p-2.5 rounded-3 d-flex align-items-center gap-2 text-decoration-none">
+                                <i class="fa-solid fa-calendar-minus text-info fs-5"></i>
                                 <div>
-                                    <strong class="text-white d-block" style="font-size: 0.8rem;">Mock Test</strong>
-                                    <small class="text-secondary" style="font-size: 0.68rem;">Practice Engine</small>
+                                    <strong class="text-white d-block" style="font-size: 0.8rem;">Apply Leave</strong>
+                                    <small class="text-secondary" style="font-size: 0.68rem;">Submit Application</small>
                                 </div>
-                            </a>
+                            </button>
                         </div>
                     </div>
                 </div>
