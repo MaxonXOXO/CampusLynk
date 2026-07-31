@@ -171,7 +171,9 @@
 @php
     $userRole = session('userRole');
     $desktopUrl = '/dashboard/tutor?mode=desktop';
-    if (in_array($userRole, ['Lecturer', 'HOD'])) {
+    if (in_array($userRole, ['Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF', 'Gen_Dept_Coordinator_Self_Finance'])) {
+        $desktopUrl = '/dashboard/academic-coordinator?mode=desktop';
+    } elseif (in_array($userRole, ['Lecturer', 'HOD'])) {
         $desktopUrl = '/dashboard/lecturer?mode=desktop';
     } elseif ($userRole === 'Demonstrator') {
         $desktopUrl = '/dashboard/demonstrator?mode=desktop';
@@ -508,7 +510,7 @@
                 </div>
 
                 <!-- PENDING APPROVALS BOX (FOR HOD / COORDINATOR / PRINCIPAL) -->
-                @if(in_array(session('userRole'), ['HOD', 'Academic_Coordinator', 'Principal', 'Super_Admin', 'Admin']))
+                @if(in_array(session('userRole'), ['HOD', 'Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF', 'Gen_Dept_Coordinator_Self_Finance', 'Principal', 'Super_Admin', 'Admin']))
                 <div class="app-card border-start border-2 border-warning mb-3">
                     <h6 class="fw-bold text-warning mb-2" style="font-size: 0.88rem;">
                         <i class="fa-solid fa-clock-rotate-left me-1"></i> Pending Staff Leave Approvals
@@ -516,7 +518,7 @@
                     <div id="pendingApprovalsContainer" class="space-y-2">
                         <small class="text-secondary d-block">Loading pending approval queue...</small>
                     </div>
-                    @if(in_array(session('userRole'), ['HOD', 'Academic_Coordinator', 'Principal']))
+                    @if(in_array(session('userRole'), ['HOD', 'Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF', 'Gen_Dept_Coordinator_Self_Finance', 'Principal']))
                     <div class="mt-2 text-end">
                         <a href="/staff/leave/reports" class="btn btn-sm btn-outline-warning py-0.5 px-2" style="font-size: 0.72rem;">
                             <i class="fa-solid fa-table-list me-1"></i> View Master Leave Ledger
