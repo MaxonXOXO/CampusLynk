@@ -40,11 +40,11 @@
 
     /* MOBILE-SPECIFIC SIDEBAR & CARD FIXES */
     @media (max-width: 767px) {
-      html, body { font-size: 15px !important; }
-      p, span, a, button, input, select, textarea, td, th { font-size: 14px !important; }
-      h1, .text-2xl { font-size: 20px !important; }
-      h2, .text-xl { font-size: 18px !important; }
-      h3, .text-lg { font-size: 16px !important; }
+      html, body { font-size: 14px !important; }
+      p, span, a, button, input, select, textarea, td, th { font-size: 13px !important; }
+      h1, .text-2xl { font-size: 18px !important; }
+      h2, .text-xl { font-size: 16px !important; }
+      h3, .text-lg { font-size: 15px !important; }
 
       aside {
         width: 100% !important;
@@ -53,8 +53,8 @@
         border-bottom: 1px solid #1e293b !important;
         flex-direction: column !important;
         align-items: stretch !important;
-        padding: 0.75rem 1rem 0.5rem !important;
-        gap: 0.75rem !important;
+        padding: 0.75rem 1rem !important;
+        gap: 0.5rem !important;
       }
       
       aside > div.border-b {
@@ -63,64 +63,36 @@
         padding: 0 !important;
         margin: 0 !important;
         align-items: center !important;
-        gap: 0.5rem !important;
+        justify-content: space-between !important;
       }
-      aside > div.border-b img { width: 2.25rem !important; height: 2.25rem !important; }
-      aside > div.border-b h2 { font-size: 18px !important; font-weight: 900 !important; }
-      aside > div.border-b span { display: none !important; }
-      
-      aside > div.border-t {
-        border-top: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        display: block !important;
-        width: auto !important;
-        position: absolute !important;
-        right: 1rem !important;
-        top: 0.85rem !important;
-      }
-      
-      aside > div.border-t a {
-        padding: 0.4rem 0.65rem !important;
-        border-radius: 0.5rem !important;
-        font-size: 13px !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.25rem !important;
-        white-space: nowrap !important;
-        background-color: rgba(239, 68, 68, 0.18) !important;
-        color: #f87171 !important;
-        border: 1px solid rgba(239, 68, 68, 0.4) !important;
-      }
+      aside > div.border-b img { width: 2rem !important; height: 2rem !important; }
+      aside > div.border-b h2 { font-size: 16px !important; font-weight: 900 !important; }
 
       aside nav {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 0.4rem !important;
         width: 100% !important;
-        padding: 0.4rem 0.5rem !important;
+        padding: 0.25rem 0 !important;
         margin: 0 !important;
-        justify-content: space-between !important;
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
-        border: 1px solid rgba(51, 65, 85, 0.4) !important;
-        border-radius: 0.75rem !important;
+        background: transparent !important;
+        border: none !important;
       }
       
       aside nav a, aside nav button {
-        padding: 0.4rem 0.65rem !important;
+        padding: 0.5rem 0.5rem !important;
         margin: 0 !important;
         border-radius: 0.5rem !important;
-        font-size: 13px !important;
+        font-size: 12px !important;
         display: flex !important;
         align-items: center !important;
+        justify-content: center !important;
         gap: 0.25rem !important;
         white-space: nowrap !important;
-        width: auto !important;
+        width: 100% !important;
         border-left: none !important;
       }
       
-      aside nav > :not(.mobile-link) { display: none !important; }
       #sidebarAvatarContainer { display: none !important; }
     }
   </style>
@@ -131,11 +103,19 @@
 
   <!-- Sidebar Navigation -->
   <aside class="w-full md:w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl">
-    <div class="p-5 border-b border-slate-800/60 flex items-center gap-3">
-      <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-slate-800/60">
-      <div>
-        <h2 class="font-black tracking-tight leading-tight" style="font-size:1.1rem;background:linear-gradient(to right,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Carmel Linx</h2>
-        <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest">Academic Coordinator</span>
+    <div class="p-5 border-b border-slate-800/60 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-slate-800/60">
+        <div>
+          <h2 class="font-black tracking-tight leading-tight" style="font-size:1.1rem;background:linear-gradient(to right,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Carmel Linx</h2>
+          <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest">Academic Coordinator</span>
+        </div>
+      </div>
+      <!-- Sign Out for Mobile -->
+      <div class="md:hidden">
+        <a href="{{ url('/logout') }}" class="px-2.5 py-1 bg-red-950/60 hover:bg-red-900 border border-red-800/60 text-red-300 rounded-lg text-xs font-bold flex items-center gap-1 no-underline">
+          <span class="material-symbols-rounded text-sm">logout</span> Exit
+        </a>
       </div>
     </div>
 
@@ -150,49 +130,25 @@
 
     <!-- Navigation Menus -->
     <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-xs mobile-link">
+      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-xs">
         <span class="material-symbols-rounded text-lg">dashboard</span> Overview & Approvals
       </button>
       
-      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mobile-link">
+      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
         <span class="material-symbols-rounded text-lg">group</span> SF Staff Directory
       </button>
 
-      @php
-        $mobileNo = session('userId');
-        $isTutor = \App\Models\ClassManagement::where('tutor_mobile_no', $mobileNo)->exists();
-        $isMentor = \App\Models\ClassManagement::where('mentor_mobile_no', $mobileNo)->exists();
-      @endphp
-
-      @if($isTutor)
-      <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block text-xs">
-        <span class="material-symbols-rounded text-lg">admin_panel_settings</span> Tutor Console
-      </a>
-      @endif
-
-      @if($isTutor || $isMentor)
-      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block text-xs">
-        <span class="material-symbols-rounded text-lg">diversity_3</span> My Mentoring
-      </a>
-      @endif
-
-      <a href="/staff/leave/reports" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block text-xs mobile-link">
+      <a href="/staff/leave/reports" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block text-xs">
         <span class="material-symbols-rounded text-lg">event_note</span> Staff Leave Reports & Ledger
       </a>
-      
-      <a href="/staff/mobile" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 cursor-pointer no-underline block text-xs mobile-link">
-        <span class="material-symbols-rounded text-lg">smartphone</span> Staff Mobile & Leave Portal
-      </a>
 
-
-
-      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4">
+      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer md:mt-4">
         <span class="material-symbols-rounded text-lg">security</span> Security Log
       </button>
     </nav>
 
-    <!-- Logout -->
-    <div class="p-4 border-t border-slate-800/80">
+    <!-- Logout for Desktop -->
+    <div class="p-4 border-t border-slate-800/80 hidden md:block">
       <a href="{{ url('/logout') }}" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-xs">
         <span class="material-symbols-rounded text-base">logout</span> Sign Out
       </a>
