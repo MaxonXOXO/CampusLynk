@@ -1897,6 +1897,8 @@ class MentoringController extends Controller
 
         // 7. Staff To-Do Items
         $todos = [];
+        
+        // 7.1 Student Leave Applications
         if (count($pendingLeaves) > 0) {
             $todos[] = (object) [
                 'type' => 'leave',
@@ -1904,10 +1906,116 @@ class MentoringController extends Controller
                 'subtitle' => 'Action required for tutorship batch',
                 'badge' => 'Leave Request',
                 'badge_class' => 'bg-warning text-dark',
-                'icon' => 'fa-solid fa-clock-rotate-left text-warning'
+                'icon' => 'fa-solid fa-clock-rotate-left text-warning',
+                'link' => '#'
             ];
         }
 
+        // 7.2 Student Assignment Submissions Received
+        $assignmentSubmissionsCount = 0;
+        if (count($assignments) > 0 && \Illuminate\Support\Facades\Schema::hasTable('test_attempts')) {
+            $assignmentSubmissionsCount = DB::table('test_attempts')
+                ->join('test_configs', 'test_attempts.test_id', '=', 'test_configs.test_id')
+                ->whereIn('test_configs.subject_code', $assignments->pluck('subject_code')->toArray())
+                ->where('test_configs.test_name', 'like', '%Assignment%')
+                ->where('test_attempts.status', 'completed')
+                ->count();
+        }
+        if ($assignmentSubmissionsCount > 0) {
+            $todos[] = (object) [
+                'type' => 'assignment_submission',
+                'title' => $assignmentSubmissionsCount . ' Student Assignment Submissions Received',
+                'subtitle' => 'Assignments submitted for your subjects',
+                'badge' => 'Assignment',
+                'badge_class' => 'bg-emerald text-white',
+                'icon' => 'fa-solid fa-file-circle-check text-emerald-400',
+                'link' => '/dashboard/lecturer?mode=desktop'
+            ];
+        }
+
+        // 7.3 Series / Written Exams Declared
+        $declaredSeriesCount = 0;
+        if (count($assignments) > 0 && \Illuminate\Support\Facades\Schema::hasTable('series_exams')) {
+            $declaredSeriesCount = DB::table('series_exams')
+                ->whereIn('batch_subject_id', $assignments->pluck('batch_subject_id')->toArray())
+                ->count();
+        }
+        if ($declaredSeriesCount > 0) {
+            $todos[] = (object) [
+                'type' => 'series_exam',
+                'title' => $declaredSeriesCount . ' Series / Written Exams Scheduled',
+                'subtitle' => 'Internal test dates & question paper configurations declared',
+                'badge' => 'Series Exam',
+                'badge_class' => 'bg-rose text-white',
+                'icon' => 'fa-solid fa-pen-nib text-rose-400',
+                'link' => '/dashboard/lecturer?mode=desktop'
+            ];
+        }
+
+        // 7.4 Pre-Declared Academic Calendar & Events
+        $hasCalendarEvents = false;
+        if (\Illuminate\Support\Facades\Schema::hasTable('academic_calendars')) {
+            $hasCalendarEvents = DB::table('academic_calendars')->exists();
+        }
+        if ($hasCalendarEvents) {
+            $todos[] = (object) [
+                'type' => 'calendar_event',
+                'title' => 'Pre-Declared Academic Calendar & Events Active',
+                'subtitle' => 'Institutional schedule, series exam windows & holidays set',
+                'badge' => 'Calendar Event',
+                'badge_class' => 'bg-cyan text-dark',
+                'icon' => 'fa-solid fa-calendar-check text-cyan',
+                'link' => '/hod/academic-calendar'
+            ];
+        }
+
+        // 7.5 Activity Point Claims Pending
+        $pendingActivityClaimsCount = 0;
+        if (!empty($studentRegNos) && count($studentRegNos) > 0) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('activity_point_claims')) {
+                $pendingActivityClaimsCount = DB::table('activity_point_claims')
+                    ->whereIn('reg_no', $studentRegNos)
+                    ->where('status', 'Pending')
+                    ->count();
+            }
+        }
+        if ($pendingActivityClaimsCount > 0) {
+            $todos[] = (object) [
+                'type' => 'activity_points',
+                'title' => $pendingActivityClaimsCount . ' Activity Point Claims Pending Verification',
+                'subtitle' => 'Extra-curricular claims submitted by tutorship students',
+                'badge' => 'Activity Claim',
+                'badge_class' => 'bg-success text-white',
+                'icon' => 'fa-solid fa-trophy text-success',
+                'link' => count($classroomIds) > 0 ? '/tutor/mentoring-diary/' . $classroomIds[0] : '#'
+            ];
+        }
+
+        // 7.6 Student Seminar Notifications Initialized
+        $pendingSeminarsCount = 0;
+        if (\Illuminate\Support\Facades\Schema::hasTable('student_seminar_registrations')) {
+            $pendingSeminarsCount = DB::table('student_seminar_registrations')
+                ->where(function($q) use ($userId, $studentRegNos) {
+                    $q->where('guide_mobile_no', $userId);
+                    if (!empty($studentRegNos) && count($studentRegNos) > 0) {
+                        $q->orWhereIn('reg_no', $studentRegNos);
+                    }
+                })
+                ->count();
+        }
+        if ($pendingSeminarsCount > 0) {
+            $todos[] = (object) [
+                'type' => 'seminar',
+                'title' => $pendingSeminarsCount . ' Student Seminar Topic Registrations',
+                'subtitle' => 'Seminar topics & presentation dates initialized by students',
+                'badge' => 'Seminar',
+                'badge_class' => 'bg-primary text-white',
+                'icon' => 'fa-solid fa-chalkboard-user text-primary',
+                'link' => count($classroomIds) > 0 ? '/tutor/mentoring-diary/' . $classroomIds[0] : '#'
+            ];
+        }
+
+        // 7.7 Daily Attendance Task
         if (count($assignments) > 0) {
             $todos[] = (object) [
                 'type' => 'attendance',
@@ -1915,10 +2023,12 @@ class MentoringController extends Controller
                 'subtitle' => count($assignments) . ' active subject assignments',
                 'badge' => 'Daily Task',
                 'badge_class' => 'bg-info text-dark',
-                'icon' => 'fa-solid fa-clipboard-user text-info'
+                'icon' => 'fa-solid fa-clipboard-user text-info',
+                'link' => '/dashboard/lecturer?mode=desktop'
             ];
         }
 
+        // 7.8 Remedial Classes
         if (count($remedialRooms) > 0) {
             $todos[] = (object) [
                 'type' => 'remedial',
@@ -1926,10 +2036,12 @@ class MentoringController extends Controller
                 'subtitle' => 'Log student attendance & session topics',
                 'badge' => 'Remedial',
                 'badge_class' => 'bg-danger text-white',
-                'icon' => 'fa-solid fa-kit-medical text-danger'
+                'icon' => 'fa-solid fa-kit-medical text-danger',
+                'link' => '/remedial-sessions'
             ];
         }
 
+        // 7.9 Active Online Tests
         if (count($activeTests) > 0) {
             $todos[] = (object) [
                 'type' => 'test',
@@ -1937,7 +2049,8 @@ class MentoringController extends Controller
                 'subtitle' => 'Monitor student submission results',
                 'badge' => 'Online Test',
                 'badge_class' => 'bg-purple text-white',
-                'icon' => 'fa-solid fa-laptop-code text-purple'
+                'icon' => 'fa-solid fa-laptop-code text-purple',
+                'link' => '/dashboard/lecturer?mode=desktop'
             ];
         }
 

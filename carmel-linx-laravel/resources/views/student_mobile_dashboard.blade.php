@@ -227,9 +227,12 @@
                     @endif
                     <div class="flex-grow-1 overflow-hidden">
                         <h6 class="fw-extrabold text-white mb-0 text-truncate" style="font-size: 1rem;">{{ $student->name }}</h6>
-                        <div class="d-flex align-items-center gap-1 mt-1 flex-wrap">
+                        <div class="d-flex align-items-center gap-1.5 mt-1 flex-wrap">
                             <span class="badge bg-cyan bg-opacity-20 text-cyan badge-app">Reg: {{ $student->reg_no }}</span>
                             <span class="badge bg-purple bg-opacity-20 text-purple badge-app">Sem {{ $student->semester }} ({{ $student->branch }})</span>
+                            <span class="badge text-dark fw-black badge-app px-2.5 py-1" style="background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); font-size: 0.85rem; font-weight: 900; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);">
+                                <i class="fa-solid fa-calendar-day me-1"></i> Today: {{ $activeDayOrder ?? 'Day 1' }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -278,16 +281,16 @@
                 </div>
 
                 <!-- Today's Timetable Preview -->
-                <div class="app-card">
-                    <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">
+                <div class="app-card" style="border: 1px solid rgba(56, 189, 248, 0.3);">
+                    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                        <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">
                             <i class="fa-solid fa-clock me-1 text-cyan"></i> Today's Schedule & Attendance
                         </h6>
-                        <div class="d-flex align-items-center gap-1.5">
-                            <span class="badge bg-cyan bg-opacity-20 text-cyan badge-app" style="font-size: 0.7rem;">
-                                <i class="fa-solid fa-calendar-day me-1"></i> {{ $activeDayOrder ?? 'Day 1' }}
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge text-dark fw-black px-3 py-1.5 shadow-sm d-inline-flex align-items-center gap-1.5" style="background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); font-size: 1.1rem; font-weight: 900; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);">
+                                <i class="fa-solid fa-calendar-day fs-6"></i> {{ $activeDayOrder ?? 'Day 1' }}
                             </span>
-                            <small class="text-secondary" style="font-size: 0.72rem;">{{ \Carbon\Carbon::now()->format('d M Y') }}</small>
+                            <small class="text-secondary fw-semibold" style="font-size: 0.75rem;">{{ \Carbon\Carbon::now()->format('d M Y') }}</small>
                         </div>
                     </div>
 

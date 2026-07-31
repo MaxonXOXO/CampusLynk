@@ -160,12 +160,17 @@
           <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Student Mentoring Diary</h1>
           <p class="font-bold text-slate-400 mt-0.5" id="panelSubtitle">Viewing full mentoring record for <span id="headerStudentName" class="text-indigo-300">{{ $studentRegNo }}</span></p>
         </div>
-        <div class="flex items-center gap-4">
-          <div class="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 font-black uppercase tracking-wider text-slate-400 flex gap-4">
+        <div class="flex items-center gap-3 flex-wrap w-full sm:w-auto justify-between sm:justify-end">
+          <div class="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 font-black uppercase tracking-wider text-slate-400 flex gap-4 text-xs">
             <span>Branch: <strong class="text-slate-200" id="topHeaderBranch">{{ session('userBranch', '-') }}</strong></span>
             <span>Batch: <strong class="text-slate-200" id="topHeaderBatch">{{ session('classroomId', '-') }}</strong></span>
             <span id="headerSemesterText" class="hidden">Sem: <strong class="text-slate-200" id="headerSemValue">-</strong></span>
           </div>
+          <!-- Mobile Only Save Button near Branch & Batch title -->
+          <button onclick="saveStudentMentoringData()" class="md:hidden px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg text-xs flex-shrink-0">
+            <span class="material-symbols-rounded text-base">save</span>
+            <span>Save</span>
+          </button>
         </div>
       </header>
 
@@ -218,6 +223,12 @@
         <span class="hidden sm:inline text-slate-600">&bull;</span>
         <span class="flex items-center gap-1.5"><span class="material-symbols-rounded text-base text-indigo-400">meeting_room</span> Batch: <strong class="text-slate-200" id="diaryHeaderStudentBatch">-</strong></span>
       </div>
+    </div>
+    <!-- Mobile Save Button placed on Quick Info Card near Branch & Batch -->
+    <div class="md:hidden w-full flex justify-center pt-2">
+      <button onclick="saveStudentMentoringData()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center justify-center gap-2 shadow-lg text-sm">
+        <span class="material-symbols-rounded text-base">save</span> Save Changes
+      </button>
     </div>
   </div>
 

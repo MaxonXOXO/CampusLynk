@@ -206,7 +206,12 @@
                     <div class="overflow-hidden">
                         <h6 class="fw-bold text-white mb-0 text-truncate" style="font-size: 1.05rem;">{{ $staff->name ?? session('userName') }}</h6>
                         <small class="text-info font-mono font-bold d-block" style="font-size: 0.78rem;">{{ $staff->mobile_no ?? session('userId') }}</small>
-                        <span class="badge bg-cyan bg-opacity-20 text-cyan badge-app mt-1">{{ $staff->designation ?? session('userRole') }}</span>
+                        <div class="d-flex align-items-center gap-1.5 mt-1 flex-wrap">
+                            <span class="badge bg-cyan bg-opacity-20 text-cyan badge-app">{{ $staff->designation ?? session('userRole') }}</span>
+                            <span class="badge text-dark fw-black badge-app px-2.5 py-1" style="background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); font-size: 0.85rem; font-weight: 900; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);">
+                                <i class="fa-solid fa-calendar-day me-1"></i> Today: {{ $defaultDayOrder }}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
@@ -269,12 +274,14 @@
             <div id="tab-classes" class="tab-pane fade-in">
 
                 <!-- Timetable Day Order Selection Card -->
-                <div class="app-card border-start border-4 border-cyan">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <h6 class="fw-bold text-cyan mb-0" style="font-size: 0.95rem;">
-                            <i class="fa-solid fa-calendar-day me-1"></i> Timetable & Day Selection
+                <div class="app-card border-start border-4 border-cyan" style="border: 1px solid rgba(56, 189, 248, 0.3);">
+                    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                        <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">
+                            <i class="fa-solid fa-calendar-day me-1 text-cyan"></i> Timetable & Day Selection
                         </h6>
-                        <span id="selectedDayBadge" class="badge bg-cyan bg-opacity-20 text-cyan badge-app">{{ $defaultDayOrder }}</span>
+                        <span id="selectedDayBadge" class="badge text-dark fw-black px-3 py-1.5 shadow-sm d-inline-flex align-items-center gap-1.5" style="background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); font-size: 1.1rem; font-weight: 900; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);">
+                            <i class="fa-solid fa-calendar-day fs-6"></i> {{ $defaultDayOrder }}
+                        </span>
                     </div>
 
                     <!-- Day Selection Pills (Day 1 to Day 5) -->
@@ -282,7 +289,7 @@
                         @foreach(['Day 1' => 'Mon', 'Day 2' => 'Tue', 'Day 3' => 'Wed', 'Day 4' => 'Thu', 'Day 5' => 'Fri'] as $dKey => $dShort)
                         <button onclick="selectDayOrder('{{ $dKey }}')" 
                                 data-day="{{ $dKey }}" 
-                                class="btn btn-sm {{ $dKey === $defaultDayOrder ? 'btn-cyan fw-bold text-dark' : 'btn-outline-secondary' }} px-2.5 py-1 rounded-pill day-order-btn flex-fill" style="font-size: 0.72rem; whitespace: nowrap;">
+                                class="btn btn-sm {{ $dKey === $defaultDayOrder ? 'btn-cyan fw-bold text-dark' : 'btn-outline-secondary' }} px-2.5 py-1.5 rounded-pill day-order-btn flex-fill" style="font-size: 0.8rem; font-weight: 700; whitespace: nowrap;">
                             {{ $dKey }} <small class="opacity-75">({{ $dShort }})</small>
                         </button>
                         @endforeach
@@ -336,15 +343,30 @@
 
                     <div class="space-y-2">
                         @forelse($todos as $item)
-                        <div class="p-3 rounded-3 bg-dark border border-secondary border-opacity-25 mb-2 d-flex align-items-start gap-3">
-                            <i class="{{ $item->icon }} mt-1" style="font-size: 1.2rem;"></i>
-                            <div class="flex-fill">
-                                <div class="d-flex align-items-center justify-content-between mb-1">
-                                    <strong class="text-white" style="font-size: 0.88rem;">{{ $item->title }}</strong>
-                                    <span class="badge {{ $item->badge_class }} badge-app">{{ $item->badge }}</span>
+                        <div class="p-3 rounded-3 bg-dark border border-secondary border-opacity-25 mb-2">
+                            <div class="d-flex align-items-start gap-3">
+                                <i class="{{ $item->icon }} mt-1" style="font-size: 1.25rem;"></i>
+                                <div class="flex-fill">
+                                    <div class="d-flex align-items-center justify-content-between mb-1 gap-2 flex-wrap">
+                                        <strong class="text-white" style="font-size: 0.88rem;">{{ $item->title }}</strong>
+                                        <span class="badge {{ $item->badge_class }} badge-app">{{ $item->badge }}</span>
+                                    </div>
+                                    <small class="text-secondary d-block" style="font-size: 0.76rem;">{{ $item->subtitle }}</small>
                                 </div>
-                                <small class="text-secondary d-block" style="font-size: 0.76rem;">{{ $item->subtitle }}</small>
                             </div>
+                            @if(!empty($item->link) && $item->link !== '#')
+                            <div class="mt-2 pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-end">
+                                <a href="{{ $item->link }}" class="btn btn-sm btn-outline-info px-3 py-1 rounded-pill fw-bold" style="font-size: 0.72rem;">
+                                    <i class="fa-solid fa-arrow-right-long me-1"></i> Open Task / Portal
+                                </a>
+                            </div>
+                            @elseif($item->type === 'leave')
+                            <div class="mt-2 pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-end">
+                                <a href="#" onclick="switchStaffTab(event, 'tab-mentoring')" class="btn btn-sm btn-outline-warning px-3 py-1 rounded-pill fw-bold" style="font-size: 0.72rem;">
+                                    <i class="fa-solid fa-clock-rotate-left me-1"></i> Review Leaves
+                                </a>
+                            </div>
+                            @endif
                         </div>
                         @empty
                         <div class="text-center text-secondary py-3" style="font-size: 0.8rem;">
@@ -559,16 +581,18 @@
 
             document.querySelectorAll('.day-order-btn').forEach(btn => {
                 if (btn.dataset.day === dayKey) {
-                    btn.className = 'btn btn-sm btn-cyan px-2.5 py-1 rounded-pill fw-bold text-dark day-order-btn flex-fill';
+                    btn.className = 'btn btn-sm btn-cyan px-2.5 py-1.5 rounded-pill fw-black text-dark day-order-btn flex-fill shadow-sm';
+                    btn.style.fontSize = '0.8rem';
                 } else {
                     btn.className = 'btn btn-sm btn-outline-secondary px-2.5 py-1 rounded-pill day-order-btn flex-fill';
+                    btn.style.fontSize = '0.75rem';
                 }
             });
 
             const slots = allTimetablesByDay[dayKey] || [];
             const container = document.getElementById('timetableScheduleContainer');
             const badgeLabel = document.getElementById('selectedDayBadge');
-            if (badgeLabel) badgeLabel.innerText = dayKey;
+            if (badgeLabel) badgeLabel.innerHTML = `<i class="fa-solid fa-calendar-day fs-6 me-1"></i> ${dayKey}`;
 
             if (!container) return;
             if (slots.length === 0) {
