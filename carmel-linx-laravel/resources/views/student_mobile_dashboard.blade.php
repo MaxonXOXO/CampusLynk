@@ -188,7 +188,7 @@
         }
         @keyframes fadeIn {
         .brand-title {
-            font-weight: 900;
+            font-weight: 900 !important;
             letter-spacing: -0.3px;
             background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
             -webkit-background-clip: text;
@@ -202,53 +202,16 @@
             background-clip: text;
         }
 
-        /* Dark/Light Mode Theme Variations */
-        [data-theme="light"] {
-            --app-bg: #f8fafc;
-            --card-bg: #ffffff;
-            --card-border: rgba(0, 0, 0, 0.08);
-        }
-        [data-theme="light"] body,
-        [data-theme="light"] .mobile-container {
-            background-color: #f8fafc !important;
-            color: #0f172a !important;
-        }
-        [data-theme="light"] .mobile-header {
-            background: rgba(255, 255, 255, 0.94) !important;
-            border-bottom-color: rgba(0, 0, 0, 0.08) !important;
-        }
-        [data-theme="light"] .app-card {
-            background: #ffffff !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
-        }
-        [data-theme="light"] .text-white {
-            color: #0f172a !important;
-        }
-        [data-theme="light"] .text-secondary {
-            color: #64748b !important;
-        }
-        [data-theme="light"] .bg-dark {
-            background-color: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
-        }
-        [data-theme="light"] .bottom-nav {
-            background: rgba(255, 255, 255, 0.96) !important;
-            border-top-color: rgba(0, 0, 0, 0.08) !important;
-        }
-        [data-theme="light"] .timeline-item {
-            background: #f1f5f9 !important;
-        }
         .badge-student-app {
-            background-color: rgba(99, 102, 241, 0.18);
-            color: #818cf8;
-            border: 1px solid rgba(99, 102, 241, 0.3);
+            background-color: rgba(6, 182, 212, 0.18) !important;
+            color: #38bdf8 !important;
+            border: 1px solid rgba(6, 182, 212, 0.35) !important;
+            border-radius: 6px !important;
         }
         [data-theme="light"] .badge-student-app {
-            background-color: rgba(79, 70, 229, 0.12) !important;
-            color: #4338ca !important;
-            border: 1px solid rgba(79, 70, 229, 0.3) !important;
+            background-color: rgba(2, 132, 199, 0.12) !important;
+            color: #0369a1 !important;
+            border: 1px solid rgba(2, 132, 199, 0.35) !important;
         }
 
         /* Profile & Status Badges with Border Block */

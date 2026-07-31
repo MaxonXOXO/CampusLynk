@@ -138,7 +138,7 @@
 
         .text-cyan { color: #38bdf8 !important; }
         .brand-title {
-            font-weight: 900;
+            font-weight: 900 !important;
             letter-spacing: -0.3px;
             background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
             -webkit-background-clip: text;
