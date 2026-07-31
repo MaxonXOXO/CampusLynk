@@ -510,7 +510,7 @@
 
                 <!-- Password Reset -->
                 <div class="app-card">
-                    <h6 class="fw-bold text-warning mb-3" style="font-size: 0.95rem;">
+                    <h6 class="fw-bold mb-3" style="color: #fbbf24; font-size: 0.95rem;">
                         <i class="fa-solid fa-key me-1"></i> Change Account Password
                     </h6>
                     <div id="staffPwdAlert" class="small mb-2 d-none font-bold"></div>
@@ -522,7 +522,7 @@
                         <label class="form-label">New Password</label>
                         <input type="password" id="sNewPwd" class="form-control" placeholder="Enter new password (min 6 chars)">
                     </div>
-                    <button onclick="updateStaffPassword()" class="btn btn-warning w-100 fw-bold text-dark" style="font-size: 0.82rem;">
+                    <button onclick="updateStaffPassword()" class="btn w-100 fw-bold" style="font-size: 0.84rem; background: linear-gradient(135deg, #fde047 0%, #fbbf24 100%); color: #0f172a; font-weight: 800; border: none; box-shadow: 0 4px 14px rgba(251, 191, 36, 0.35);">
                         <i class="fa-solid fa-shield-halved me-1"></i> Update Password
                     </button>
                 </div>
