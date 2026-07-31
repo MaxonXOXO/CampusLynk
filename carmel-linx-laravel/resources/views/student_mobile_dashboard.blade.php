@@ -353,9 +353,6 @@
                         <div class="d-flex align-items-center gap-1.5 mt-1 flex-wrap">
                             <span class="badge badge-reg badge-app">Reg: {{ $student->reg_no }}</span>
                             <span class="badge badge-sem badge-app">Sem {{ $student->semester }} ({{ $student->branch }})</span>
-                            <span class="badge text-dark fw-black badge-app px-2.5 py-1" style="background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); font-size: 0.85rem; font-weight: 900; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);">
-                                <i class="fa-solid fa-calendar-day me-1"></i> Today: {{ $activeDayOrder ?? 'Day 1' }}
-                            </span>
                         </div>
                     </div>
                 </div>
