@@ -183,10 +183,20 @@ Route::middleware(['web'])->group(function () {
         return view('admin_control_desk');
     });
 
-    Route::get('/dashboard/hod', function () {
+    Route::get('/dashboard/hod', function (\Illuminate\Http\Request $request) {
         if (Session::get('userRole') !== 'HOD') return redirect('/');
+        $ua = strtolower($request->header('User-Agent', ''));
+        $isMobileDevice = (bool)preg_match('/(android|bb\d+|meego).+mobile|avail|blackberry|iphone|ipad|ipod|palm|phone|opera mini|iemobile/i', $ua);
+        if ($request->has('mobile') || ($isMobileDevice && $request->input('mode') !== 'desktop')) {
+            return app(\App\Http\Controllers\HodMobileController::class)->index($request);
+        }
         return view('hod_dashboard');
     });
+
+    Route::get('/hod/mobile', [\App\Http\Controllers\HodMobileController::class, 'index']);
+    Route::post('/api/hod/notice/create', [\App\Http\Controllers\HodMobileController::class, 'createNotice']);
+    Route::post('/api/hod/notice/delete', [\App\Http\Controllers\HodMobileController::class, 'deleteNotice']);
+
 
     // Academic Calendar
     Route::get('/hod/academic-calendar', [App\Http\Controllers\AcademicCalendarController::class, 'index']);
