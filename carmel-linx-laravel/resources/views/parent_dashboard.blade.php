@@ -225,9 +225,9 @@
                 <img src="{{ asset('logo.jpg') }}" alt="Carmel Linx" class="rounded-circle" style="width: 38px; height: 38px; object-fit: cover; border: 1.5px solid #06b6d4; box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);">
                 <div class="ms-1">
                     <h5 class="fw-black mb-0 brand-title" style="font-size: 1.25rem;">Carmel Linx</h5>
-                    <div class="d-flex align-items-center gap-1 mt-0.5">
-                        <span class="badge badge-parent-app fw-extrabold px-2.5 py-1" style="font-size: 0.82rem; letter-spacing: 0.2px;">
-                            <i class="fa-solid fa-users me-1"></i> Carmel Parent App
+                    <div class="d-flex align-items-center mt-0.5">
+                        <span class="badge badge-parent-app fw-extrabold px-2 py-0.5" style="font-size: 0.78rem; letter-spacing: 0.2px;">
+                            <i class="fa-solid fa-users me-1"></i> Parent App
                         </span>
                     </div>
                 </div>
