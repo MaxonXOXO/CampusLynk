@@ -148,6 +148,16 @@
             color: #cbd5e1;
         }
 
+        .brand-title {
+            font-weight: 900 !important;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #38bdf8 0%, #a855f7 50%, #f43f5e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 8px rgba(56, 189, 248, 0.4));
+        }
+
         .fade-in {
             animation: fadeIn 0.3s ease-in-out;
         }
@@ -179,8 +189,8 @@
             <div class="d-flex align-items-center gap-2">
                 <img src="{{ asset('logo.jpg') }}" alt="Logo" style="width: 32px; height: 32px; border-radius: 10px;" class="shadow-sm">
                 <div>
-                    <h5 class="fw-black mb-0 text-white" style="font-size: 1.15rem; font-weight: 900; letter-spacing: -0.3px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Carmel Linx</h5>
-                    <small class="text-secondary" style="font-size: 0.7rem;">Staff Mobile Portal</small>
+                    <h5 class="brand-title mb-0" style="font-size: 1.18rem; font-weight: 900 !important;">Carmel Linx</h5>
+                    <span class="badge badge-app px-2 py-0.5" style="background-color: rgba(168, 85, 247, 0.2); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.45); font-size: 0.68rem; font-weight: 800; border-radius: 6px;">Staff Mobile Portal</span>
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2">
