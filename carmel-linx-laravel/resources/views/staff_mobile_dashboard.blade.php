@@ -14,10 +14,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        html.font-scale-md { font-size: 100% !important; }
-        html.font-scale-lg { font-size: 112% !important; }
-        html.font-scale-xl { font-size: 124% !important; }
-
         :root {
             --app-bg: #090d16;
             --card-bg: rgba(15, 23, 42, 0.92);
@@ -200,9 +196,6 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <button onclick="cycleFontScale()" class="btn btn-sm btn-outline-info px-2 py-1 rounded-pill" style="font-size: 0.72rem;" title="Adjust Font Size (Normal -> Large -> XL)">
-                    <i class="fa-solid fa-font"></i>
-                </button>
                 <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to logout?')" class="btn btn-sm btn-outline-danger px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;" title="Sign Out">
                     <i class="fa-solid fa-right-from-bracket"></i> Sign Out
                 </a>
@@ -1096,23 +1089,6 @@
                 }
             });
         }
-
-        // Universal Mobile Font Size Scaler
-        function cycleFontScale() {
-            const scales = ['md', 'lg', 'xl'];
-            let current = localStorage.getItem('carmel_font_scale') || 'md';
-            let nextIndex = (scales.indexOf(current) + 1) % scales.length;
-            let nextScale = scales[nextIndex];
-            
-            document.documentElement.classList.remove('font-scale-md', 'font-scale-lg', 'font-scale-xl');
-            document.documentElement.classList.add('font-scale-' + nextScale);
-            localStorage.setItem('carmel_font_scale', nextScale);
-        }
-
-        (function initFontScale() {
-            const saved = localStorage.getItem('carmel_font_scale') || 'md';
-            document.documentElement.classList.add('font-scale-' + saved);
-        })();
 
         // Prevent back-button viewing after logout
         window.addEventListener('pageshow', function (event) {
