@@ -115,48 +115,42 @@ class AttendanceController extends Controller
 
         $subBatch = $request->input('sub_batch', 'Whole');
 
-        // Check if an entry already exists for any of the selected periods
-        $existingLogs = DB::table('class_logs_attendance')
-            ->where('batch_subject_id', $request->batch_subject_id)
-            ->where('date', $request->date)
-            ->whereIn('period', $request->periods)
-            ->get(['period', 'sub_batch']);
-
-        $conflictingPeriods = [];
-        foreach ($existingLogs as $log) {
-            // Conflict if:
-            // 1. Existing log is 'Whole' class
-            // 2. New log is 'Whole' class
-            // 3. Existing log is for the SAME sub_batch
-            if ($log->sub_batch === 'Whole' || $subBatch === 'Whole' || $log->sub_batch === $subBatch) {
-                $conflictingPeriods[] = $log->period;
-            }
-        }
-
-        if (!empty($conflictingPeriods)) {
-            $periodsStr = implode(', ', array_unique($conflictingPeriods));
-            return response()->json([
-                'status' => 'ERROR',
-                'message' => "An attendance/log entry already exists for this subject/batch on the selected date for Period(s): {$periodsStr}."
-            ], 422);
-        }
-
         DB::transaction(function () use ($request, $recordedBy, $subBatch) {
             foreach ($request->periods as $period) {
-                // Save class log and attendance
-                DB::table('class_logs_attendance')->insert([
-                    'batch_subject_id' => $request->batch_subject_id,
-                    'date' => $request->date,
-                    'period' => $period,
-                    'lesson_plan_id' => $request->lesson_plan_id,
-                    'topics_covered' => $request->topics_covered,
-                    'present_students' => json_encode($request->present_students ?? []),
-                    'absent_students' => json_encode($request->absent_students ?? []),
-                    'sub_batch' => $subBatch,
-                    'recorded_by' => $recordedBy,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                // Pre-schedule or update existing class log & attendance
+                $exists = DB::table('class_logs_attendance')
+                    ->where('batch_subject_id', $request->batch_subject_id)
+                    ->where('date', $request->date)
+                    ->where('period', $period)
+                    ->where('sub_batch', $subBatch)
+                    ->first();
+
+                if ($exists) {
+                    DB::table('class_logs_attendance')
+                        ->where('id', $exists->id)
+                        ->update([
+                            'lesson_plan_id' => $request->lesson_plan_id,
+                            'topics_covered' => $request->topics_covered,
+                            'present_students' => json_encode($request->present_students ?? []),
+                            'absent_students' => json_encode($request->absent_students ?? []),
+                            'recorded_by' => $recordedBy,
+                            'updated_at' => now(),
+                        ]);
+                } else {
+                    DB::table('class_logs_attendance')->insert([
+                        'batch_subject_id' => $request->batch_subject_id,
+                        'date' => $request->date,
+                        'period' => $period,
+                        'lesson_plan_id' => $request->lesson_plan_id,
+                        'topics_covered' => $request->topics_covered,
+                        'present_students' => json_encode($request->present_students ?? []),
+                        'absent_students' => json_encode($request->absent_students ?? []),
+                        'sub_batch' => $subBatch,
+                        'recorded_by' => $recordedBy,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
         });
 

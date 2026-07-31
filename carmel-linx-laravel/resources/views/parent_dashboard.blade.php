@@ -151,15 +151,19 @@
 
         <!-- Top App Bar -->
         <div class="mobile-header d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-2">
-                <i class="fa-solid fa-graduation-cap text-cyan fs-4"></i>
+            <div class="d-flex align-items-center gap-2.5">
+                <img src="{{ asset('logo.jpg') }}" alt="Carmel Linx" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover; border: 1.5px solid #06b6d4; box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);">
                 <div>
-                    <h6 class="fw-bold mb-0 text-white" style="font-size: 0.95rem;">Carmel Parent App</h6>
-                    <small class="text-secondary" style="font-size: 0.72rem;">Academic Monitoring Portal</small>
+                    <h5 class="fw-black mb-0 text-white" style="font-size: 1.25rem; font-weight: 900; letter-spacing: -0.3px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Carmel Linx</h5>
+                    <div class="d-flex align-items-center gap-1 mt-0.5">
+                        <span class="badge bg-cyan bg-opacity-20 text-cyan fw-extrabold px-2 py-0.5" style="font-size: 0.82rem; letter-spacing: 0.2px; border: 1px solid rgba(6, 182, 212, 0.3);">
+                            <i class="fa-solid fa-users me-1"></i> Carmel Parent App
+                        </span>
+                    </div>
                 </div>
             </div>
-            <a href="/parent" class="btn btn-sm btn-outline-danger px-2 py-1 rounded-pill" style="font-size: 0.72rem;">
-                <i class="fa-solid fa-power-off"></i>
+            <a href="/parent" class="btn btn-sm btn-outline-danger px-2.5 py-1.5 rounded-pill fw-bold" style="font-size: 0.72rem;">
+                <i class="fa-solid fa-power-off me-1"></i> Sign Out
             </a>
         </div>
 
@@ -181,6 +185,9 @@
                         <div class="d-flex align-items-center gap-1 mt-1 flex-wrap">
                             <span class="badge bg-cyan bg-opacity-20 text-cyan badge-app">Reg: {{ $student->reg_no }}</span>
                             <span class="badge bg-purple bg-opacity-20 text-purple badge-app">Sem {{ $student->semester }} ({{ $student->branch }})</span>
+                            <span class="badge bg-success bg-opacity-20 text-success badge-app">
+                                <i class="fa-solid fa-graduation-cap me-1"></i>{{ !empty($academicStatus) ? $academicStatus : 'Regular (Active)' }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -250,9 +257,159 @@
                     @endforeach
                 </div>
 
+                <!-- Leave Applications & History Report -->
+                <div class="app-card">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">
+                            <i class="fa-solid fa-file-signature me-1 text-warning"></i> Ward Leave History & Applications
+                        </h6>
+                        <span class="badge bg-warning text-dark badge-app">
+                            {{ count($leaveRecords ?? []) }} {{ count($leaveRecords ?? []) == 1 ? 'Record' : 'Records' }}
+                        </span>
+                    </div>
+
+                    @forelse($leaveRecords as $leave)
+                    <div class="p-2.5 rounded bg-dark border border-secondary border-opacity-25 mb-2 d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="fw-bold text-white" style="font-size: 0.82rem;">
+                                    <i class="fa-regular fa-calendar-minus me-1 text-warning"></i>{{ \Carbon\Carbon::parse($leave->leave_date)->format('d M Y') }}
+                                </span>
+                                <span class="badge bg-secondary" style="font-size: 0.65rem;">{{ $leave->no_of_days }} {{ $leave->no_of_days == 1 ? 'Day' : 'Days' }}</span>
+                            </div>
+                            <small class="text-secondary d-block" style="font-size: 0.72rem;">Reason: {{ $leave->reason }}</small>
+                            <small class="text-slate-400 d-block mt-0.5" style="font-size: 0.68rem;">
+                                {{ !empty($leave->parent_informed) ? '✓ Parent Informed Tutor' : 'Parent Not Informed' }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            @if(strtolower($leave->status) === 'approved')
+                                <span class="badge bg-success text-white badge-app">Approved</span>
+                            @elseif(strtolower($leave->status) === 'rejected')
+                                <span class="badge bg-danger text-white badge-app">Rejected</span>
+                            @else
+                                <span class="badge bg-warning text-dark badge-app">Pending</span>
+                            @endif
+                        </div>
+                    </div>
+                    @empty
+                    <div class="p-3 text-center text-secondary bg-dark rounded border border-secondary border-opacity-25 small">
+                        <i class="fa-solid fa-circle-check text-success me-1"></i> No leave applications submitted for this student.
+                    </div>
+                    @endforelse
+                </div>
+
             </div>
 
-            <!-- Tab Content 2: Assignments & Tests -->
+            <!-- Tab Content 2: Ward Academic Status & Performance -->
+            <div id="tab-academic" class="tab-pane d-none">
+                <!-- Academic Overview Card -->
+                <div class="app-card">
+                    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom border-secondary border-opacity-25 pb-2">
+                        <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">
+                            <i class="fa-solid fa-award me-1 text-warning"></i> Ward Academic Status
+                        </h6>
+                        <span class="badge bg-success badge-app">
+                            <i class="fa-solid fa-circle-check me-1"></i>{{ !empty($academicStatus) ? $academicStatus : 'Regular (Active)' }}
+                        </span>
+                    </div>
+
+                    <div class="row g-2 text-center mb-3">
+                        <div class="col-4">
+                            <div class="p-2 rounded bg-dark border border-secondary border-opacity-25">
+                                <small class="text-secondary d-block" style="font-size: 0.68rem;">CGPA Score</small>
+                                <strong class="text-warning fs-5 fw-extrabold">{{ number_format($cgpa ?? 0.00, 2) }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 rounded bg-dark border border-secondary border-opacity-25">
+                                <small class="text-secondary d-block" style="font-size: 0.68rem;">Current SGPA</small>
+                                <strong class="text-cyan fs-5 fw-extrabold">{{ number_format($sgpa ?? 0.00, 2) }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 rounded bg-dark border border-secondary border-opacity-25">
+                                <small class="text-secondary d-block" style="font-size: 0.68rem;">Activity Points</small>
+                                <strong class="text-emerald-400 fs-5 fw-extrabold" style="color: #10b981;">{{ $activityPoints ?? 0 }} <span style="font-size: 0.7rem;">/ 100</span></strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if(!empty($statusNotes))
+                    <div class="p-2.5 rounded bg-dark border border-cyan border-opacity-25 mb-2">
+                        <small class="text-cyan fw-bold d-block mb-1" style="font-size: 0.72rem;">
+                            <i class="fa-solid fa-info-circle me-1"></i> Academic Progress Note:
+                        </small>
+                        <p class="text-slate-200 mb-0" style="font-size: 0.8rem;">
+                            {{ $statusNotes }}
+                        </p>
+                    </div>
+                    @endif
+
+                    <div class="p-2 rounded bg-success bg-opacity-10 border border-success border-opacity-25 d-flex align-items-center justify-content-between">
+                        <span class="text-white small" style="font-size: 0.78rem;">
+                            <i class="fa-solid fa-shield-check text-success me-1"></i> SBTE Examination Status
+                        </span>
+                        <span class="badge bg-success text-white badge-app">Eligible</span>
+                    </div>
+                </div>
+
+                <!-- Subject-wise Internal Scores & CIE Evaluation -->
+                <div class="app-card">
+                    <h6 class="fw-bold text-cyan mb-3" style="font-size: 0.9rem;">
+                        <i class="fa-solid fa-book-open me-1"></i> Subject Internal & CIE Marks (Sem {{ $student->semester }})
+                    </h6>
+
+                    @forelse($subjectAcademicPerformance as $subj)
+                    <div class="p-3 rounded bg-dark border border-secondary border-opacity-25 mb-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                <strong class="text-white d-block" style="font-size: 0.88rem;">{{ $subj->subject_name }}</strong>
+                                <span class="badge bg-secondary badge-app font-monospace me-1">{{ $subj->subject_code }}</span>
+                                <span class="badge bg-cyan bg-opacity-20 text-cyan badge-app">{{ $subj->subject_type }} ({{ $subj->credits }} Credits)</span>
+                            </div>
+                            @if($subj->board_grade)
+                            <span class="badge bg-warning text-dark fw-bold badge-app fs-6">Grade: {{ $subj->board_grade }}</span>
+                            @elseif($subj->total_internal)
+                            <span class="badge bg-emerald text-white fw-bold badge-app" style="background-color: #10b981;">CIE: {{ $subj->total_internal }} Marks</span>
+                            @endif
+                        </div>
+
+                        <!-- Series & Internal Marks Row -->
+                        <div class="row g-2 mt-1 text-center">
+                            <div class="col-3">
+                                <div class="p-1.5 rounded bg-slate-900 border border-secondary border-opacity-25">
+                                    <small class="text-secondary d-block" style="font-size: 0.65rem;">Series 1</small>
+                                    <strong class="text-cyan" style="font-size: 0.78rem;">{{ $subj->series1 !== null ? $subj->series1 . ' / 20' : 'N/A' }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-1.5 rounded bg-slate-900 border border-secondary border-opacity-25">
+                                    <small class="text-secondary d-block" style="font-size: 0.65rem;">Series 2</small>
+                                    <strong class="text-cyan" style="font-size: 0.78rem;">{{ $subj->series2 !== null ? $subj->series2 . ' / 20' : 'N/A' }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-1.5 rounded bg-slate-900 border border-secondary border-opacity-25">
+                                    <small class="text-secondary d-block" style="font-size: 0.65rem;">Assg 1</small>
+                                    <strong class="text-warning" style="font-size: 0.78rem;">{{ $subj->assignment1 !== null ? $subj->assignment1 . ' / 10' : 'N/A' }}</strong>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="p-1.5 rounded bg-slate-900 border border-secondary border-opacity-25">
+                                    <small class="text-secondary d-block" style="font-size: 0.65rem;">Assg 2</small>
+                                    <strong class="text-warning" style="font-size: 0.78rem;">{{ $subj->assignment2 !== null ? $subj->assignment2 . ' / 10' : 'N/A' }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                    <p class="text-secondary text-center my-3 small">No subject performance records uploaded yet for this semester.</p>
+                    @endforelse
+                </div>
+            </div>
+
+            <!-- Tab Content 3: Assignments & Tests -->
             <div id="tab-tasks" class="tab-pane d-none">
                 <!-- Assignments Card -->
                 <div class="app-card">
@@ -294,7 +451,7 @@
                 </div>
             </div>
 
-            <!-- Tab Content 3: Remarks & Comments -->
+            <!-- Tab Content 4: Remarks & Comments -->
             <div id="tab-remarks" class="tab-pane d-none">
                 <div class="app-card">
                     <h6 class="fw-bold text-purple mb-3" style="font-size: 0.9rem;">
@@ -338,6 +495,10 @@
             <a href="#" class="nav-link-mobile active" onclick="switchTab(event, 'tab-attendance')">
                 <i class="fa-solid fa-clock"></i>
                 <span>Attendance</span>
+            </a>
+            <a href="#" class="nav-link-mobile" onclick="switchTab(event, 'tab-academic')">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>Academic</span>
             </a>
             <a href="#" class="nav-link-mobile" onclick="switchTab(event, 'tab-tasks')">
                 <i class="fa-solid fa-list-check"></i>

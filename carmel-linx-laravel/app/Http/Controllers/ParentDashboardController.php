@@ -295,7 +295,95 @@ class ParentDashboardController extends Controller
                 ->get();
         }
 
-        // 8. Generate shareable SMS Link Token for parent
+        // 8. Ward Academic Status & Performance
+        $academicStatus = !empty($student->academic_status) ? $student->academic_status : (!empty($student->status) ? $student->status : 'Regular (Active)');
+        $statusNotes = !empty($student->status_notes) ? $student->status_notes : 'Student status is active and in good academic standing.';
+
+        // Semester summaries & CGPA / SGPA
+        $semesterSummaries = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('student_semester_summary')) {
+            $semesterSummaries = DB::table('student_semester_summary')
+                ->where('reg_no', $student->reg_no)
+                ->orderBy('semester', 'desc')
+                ->get();
+        }
+
+        $latestSummary = $semesterSummaries->first();
+        $cgpa = $latestSummary->cgpa ?? null;
+        $sgpa = $latestSummary->sgpa ?? null;
+
+        // Activity Points
+        $activityPoints = 0;
+        if (\Illuminate\Support\Facades\Schema::hasTable('activity_point_claims')) {
+            $activityPoints = DB::table('activity_point_claims')
+                ->where('reg_no', $student->reg_no)
+                ->where('status', 'Verified')
+                ->sum('points_awarded');
+        }
+        if ($activityPoints == 0 && $latestSummary) {
+            $activityPoints = $latestSummary->activity_points ?? 0;
+        }
+
+        // Academic Marks & Board Grades
+        $academicMarks = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('academic_marks')) {
+            $academicMarks = DB::table('academic_marks')
+                ->where('reg_no', $student->reg_no)
+                ->get()
+                ->groupBy('subject_code');
+        }
+
+        $boardGrades = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('student_board_grades')) {
+            $boardGrades = DB::table('student_board_grades')
+                ->where('reg_no', $student->reg_no)
+                ->get()
+                ->keyBy('subject_code');
+        }
+
+        $subjectAcademicPerformance = $batchSubjects->map(function($subj) use ($academicMarks, $boardGrades) {
+            $marks = $academicMarks->get($subj->subject_code, collect());
+            
+            $series1 = $marks->where('category', 'Written Test')->where('co_tag', 'CO1')->first()->marks_obtained ?? null;
+            $series2 = $marks->where('category', 'Written Test')->where('co_tag', 'CO2')->first()->marks_obtained ?? null;
+            $assignment1 = $marks->where('category', 'Assignment')->where('co_tag', 'CO1')->first()->marks_obtained ?? null;
+            $assignment2 = $marks->where('category', 'Assignment')->where('co_tag', 'CO2')->first()->marks_obtained ?? null;
+            
+            $totalMarks = $marks->sum('marks_obtained');
+            $bGrade = $boardGrades->get($subj->subject_code);
+            
+            return (object)[
+                'subject_code' => $subj->subject_code,
+                'subject_name' => $subj->subject_name,
+                'subject_type' => $subj->subject_type ?? 'Theory',
+                'credits' => $subj->credits ?? 3,
+                'series1' => $series1,
+                'series2' => $series2,
+                'assignment1' => $assignment1,
+                'assignment2' => $assignment2,
+                'total_internal' => $totalMarks > 0 ? $totalMarks : null,
+                'board_grade' => $bGrade ? $bGrade->grade : null
+            ];
+        });
+
+        // 10. Student Leave Records / History
+        $leaveRecords = collect();
+        if (\Illuminate\Support\Facades\Schema::hasTable('student_leave_records')) {
+            $leaveRecords = DB::table('student_leave_records')
+                ->where('reg_no', $student->reg_no)
+                ->orderBy('leave_date', 'desc')
+                ->get();
+        } elseif (class_exists('\App\Models\LeaveRecord')) {
+            try {
+                $leaveRecords = \App\Models\LeaveRecord::where('reg_no', $student->reg_no)
+                    ->orderBy('leave_date', 'desc')
+                    ->get();
+            } catch (\Exception $e) {
+                $leaveRecords = collect();
+            }
+        }
+
+        // 11. Generate shareable SMS Link Token for parent
         $shareableToken = $expectedToken;
         $smsShareUrl = url('/parent/dashboard/' . $student->reg_no . '?token=' . $shareableToken);
 
@@ -310,7 +398,14 @@ class ParentDashboardController extends Controller
             'assignments',
             'practicalTests',
             'mentoringNotes',
-            'smsShareUrl'
+            'smsShareUrl',
+            'academicStatus',
+            'statusNotes',
+            'cgpa',
+            'sgpa',
+            'activityPoints',
+            'subjectAcademicPerformance',
+            'leaveRecords'
         ));
     }
 
@@ -446,6 +541,92 @@ class ParentDashboardController extends Controller
 
         $smsShareUrl = url('/parent/demo');
 
+        $academicStatus = 'Regular (Active)';
+        $statusNotes = 'Good academic standing. Recommended for SBTE diploma honors.';
+        $cgpa = 8.42;
+        $sgpa = 8.65;
+        $activityPoints = 45;
+
+        $subjectAcademicPerformance = collect([
+            (object)[
+                'subject_code' => 'ME204',
+                'subject_name' => 'Machine Drawing',
+                'subject_type' => 'Drawing',
+                'credits' => 4,
+                'series1' => 18,
+                'series2' => 17,
+                'assignment1' => 9,
+                'assignment2' => 10,
+                'total_internal' => 54,
+                'board_grade' => 'A+'
+            ],
+            (object)[
+                'subject_code' => 'ME206',
+                'subject_name' => 'Thermal Engineering',
+                'subject_type' => 'Theory',
+                'credits' => 4,
+                'series1' => 15,
+                'series2' => 16,
+                'assignment1' => 8,
+                'assignment2' => 9,
+                'total_internal' => 48,
+                'board_grade' => 'A'
+            ],
+            (object)[
+                'subject_code' => 'ME208',
+                'subject_name' => 'Fluid Mechanics',
+                'subject_type' => 'Theory',
+                'credits' => 3,
+                'series1' => 16,
+                'series2' => 18,
+                'assignment1' => 10,
+                'assignment2' => 9,
+                'total_internal' => 53,
+                'board_grade' => 'S'
+            ],
+            (object)[
+                'subject_code' => 'ME210',
+                'subject_name' => 'Manufacturing Tech',
+                'subject_type' => 'Theory',
+                'credits' => 3,
+                'series1' => 14,
+                'series2' => 15,
+                'assignment1' => 8,
+                'assignment2' => 8,
+                'total_internal' => 45,
+                'board_grade' => 'B+'
+            ],
+            (object)[
+                'subject_code' => 'ME212',
+                'subject_name' => 'General Engg Lab',
+                'subject_type' => 'Practical',
+                'credits' => 2,
+                'series1' => 19,
+                'series2' => 20,
+                'assignment1' => 10,
+                'assignment2' => 10,
+                'total_internal' => 59,
+                'board_grade' => 'S'
+            ]
+        ]);
+
+        $leaveRecords = collect([
+            (object)[
+                'leave_date' => '2026-07-28',
+                'no_of_days' => 1,
+                'reason' => 'Medical appointment for dental treatment',
+                'parent_informed' => 1,
+                'status' => 'Approved'
+            ],
+            (object)[
+                'leave_date' => '2026-07-14',
+                'no_of_days' => 0.5,
+                'reason' => 'Family emergency during afternoon hours',
+                'parent_informed' => 1,
+                'status' => 'Approved'
+            ]
+        ]);
+
         return view('parent_dashboard', compact(
             'student',
             'classroom',
@@ -457,7 +638,14 @@ class ParentDashboardController extends Controller
             'assignments',
             'practicalTests',
             'mentoringNotes',
-            'smsShareUrl'
+            'smsShareUrl',
+            'academicStatus',
+            'statusNotes',
+            'cgpa',
+            'sgpa',
+            'activityPoints',
+            'subjectAcademicPerformance',
+            'leaveRecords'
         ));
     }
 }
