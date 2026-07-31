@@ -140,6 +140,11 @@
             <button id="themeToggleBtn" onclick="toggleTheme()" class="w-8 h-8 rounded-xl flex items-center justify-center border transition-all shadow-sm" style="background: var(--bg-card); border-color: var(--bg-card-border);" title="Toggle Theme">
                 <i id="themeIcon" class="fa-solid fa-moon text-amber-400 text-xs"></i>
             </button>
+
+            <!-- Logout Button -->
+            <a href="/logout" onclick="return confirm('Are you sure you want to logout?')" class="w-8 h-8 rounded-xl flex items-center justify-center border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition-all shadow-sm" title="Logout Session">
+                <i class="fa-solid fa-right-from-bracket text-xs"></i>
+            </a>
         </div>
     </header>
 
@@ -1122,6 +1127,13 @@
                 alert('Error connecting to server: ' + err.message);
             }
         }
+
+        // Prevent back-button viewing after logout (force re-validation with server)
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
+                window.location.reload(true);
+            }
+        });
 
         // Initialize Theme on load
         initTheme();

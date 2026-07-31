@@ -401,6 +401,13 @@ class AuthController extends Controller
     public function logout()
     {
         Session::flush();
-        return redirect()->route('login');
+        Session::invalidate();
+        Session::regenerateToken();
+
+        return redirect('/')->withHeaders([
+            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
+        ]);
     }
 }

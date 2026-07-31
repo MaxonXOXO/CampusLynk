@@ -211,7 +211,7 @@ class HodMobileController extends Controller
             ];
         }
 
-        return view('hod_mobile_dashboard', compact(
+        return response(view('hod_mobile_dashboard', compact(
             'staff',
             'dept',
             'mySubjects',
@@ -223,7 +223,11 @@ class HodMobileController extends Controller
             'upcomingSeminars',
             'defaultDayOrder',
             'semesterSchedules'
-        ));
+        )))->withHeaders([
+            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
+        ]);
     }
 
     /**
