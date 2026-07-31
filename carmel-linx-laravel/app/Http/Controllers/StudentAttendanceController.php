@@ -372,7 +372,7 @@ class StudentAttendanceController extends Controller
                 ->get();
         }
 
-        return view('student_mobile_dashboard', compact(
+        return response(view('student_mobile_dashboard', compact(
             'student',
             'classroom',
             'tutor',
@@ -385,6 +385,10 @@ class StudentAttendanceController extends Controller
             'leaveRecords',
             'activeTests',
             'activeDayOrder'
-        ));
+        )))->withHeaders([
+            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
+        ]);
     }
 }

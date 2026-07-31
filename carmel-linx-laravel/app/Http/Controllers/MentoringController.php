@@ -2054,7 +2054,7 @@ class MentoringController extends Controller
             ];
         }
 
-        return view('staff_mobile_dashboard', compact(
+        return response(view('staff_mobile_dashboard', compact(
             'staff',
             'assignments',
             'classrooms',
@@ -2065,6 +2065,10 @@ class MentoringController extends Controller
             'todos',
             'fullTimetablesByDay',
             'defaultDayOrder'
-        ));
+        )))->withHeaders([
+            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
+        ]);
     }
 }

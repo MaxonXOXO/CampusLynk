@@ -142,7 +142,7 @@
       <a href="/student/mobile" class="w-full py-2 bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-500/30 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center transition-premium text-xs">
         <span class="material-symbols-rounded text-base">smartphone</span> Switch to Mobile View
       </a>
-      <a href="{{ url('/logout') }}" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-xs">
+      <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to logout?')" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-xs">
         <span class="material-symbols-rounded text-base">logout</span> Sign Out
       </a>
     </div>

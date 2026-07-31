@@ -196,7 +196,7 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <a href="{{ url('/logout') }}" class="btn btn-sm btn-outline-danger px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;" title="Sign Out">
+                <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to logout?')" class="btn btn-sm btn-outline-danger px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;" title="Sign Out">
                     <i class="fa-solid fa-right-from-bracket"></i> Sign Out
                 </a>
             </div>
@@ -1089,6 +1089,13 @@
                 }
             });
         }
+
+        // Prevent back-button viewing after logout
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
+                window.location.reload(true);
+            }
+        });
     </script>
 </body>
 </html>
