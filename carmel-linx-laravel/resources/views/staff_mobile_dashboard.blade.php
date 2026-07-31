@@ -887,19 +887,20 @@
                         else if (item.overall_status === 'Pending_Coordinator') statusBadge = '<span class="badge bg-warning text-dark">Pending Coordinator</span>';
                         else if (item.overall_status === 'Pending_Principal') statusBadge = '<span class="badge bg-primary">Pending Principal</span>';
 
+                        const dateStr = (item.from_date === item.to_date) ? item.from_date : `${item.from_date} to ${item.to_date}`;
                         const cclText = item.ccl_date ? ` &bull; <span class="text-info font-mono">CCL Date: ${item.ccl_date}</span>` : '';
+
                         html += `<div class="p-2.5 rounded-3 border border-secondary border-opacity-25 bg-dark mb-2">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="font-mono text-cyan fw-bold small">${item.leave_code}</span>
-                                ${statusBadge}
+                            <div class="fw-bold text-white mb-0.5" style="font-size: 0.88rem;">
+                                ${item.leave_type} (${item.session_type})
                             </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <strong class="text-white small d-block">${item.leave_type} (${item.session_type})</strong>
-                                    <small class="text-secondary" style="font-size:0.7rem;">${item.from_date} to ${item.to_date} &bull; ${item.total_days} Day(s)${cclText}</small>
-                                </div>
-                                <a href="/staff/leave/${item.id}/pdf" target="_blank" class="btn btn-sm btn-outline-info py-0.5 px-2" style="font-size:0.7rem;">
-                                    <i class="fa-solid fa-file-pdf"></i> PDF
+                            <div class="text-secondary small mb-2" style="font-size: 0.75rem;">
+                                <i class="fa-regular fa-calendar me-1"></i> ${dateStr} &bull; ${item.total_days} Day(s)${cclText}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center pt-1 border-top border-secondary border-opacity-25">
+                                ${statusBadge}
+                                <a href="/staff/leave/${item.id}/pdf" target="_blank" class="btn btn-sm btn-outline-info py-0.5 px-2.5 rounded-pill" style="font-size: 0.72rem;">
+                                    <i class="fa-solid fa-file-pdf me-1"></i> PDF
                                 </a>
                             </div>
                         </div>`;

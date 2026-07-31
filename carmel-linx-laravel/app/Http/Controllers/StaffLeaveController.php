@@ -246,12 +246,16 @@ class StaffLeaveController extends Controller
      */
     public function getLeaveReports(Request $request)
     {
-        $department = $request->query('department');
-        $leaveType = $request->query('leave_type');
-        $status = $request->query('status');
+        $department   = $request->query('department');
+        $leaveType    = $request->query('leave_type');
+        $status       = $request->query('status');
+        $academicYear = $request->query('academic_year', date('Y'));
 
         $query = StaffLeaveRequest::query();
 
+        if (!empty($academicYear)) {
+            $query->whereYear('from_date', $academicYear);
+        }
         if (!empty($department)) {
             $query->where('department', $department);
         }
@@ -264,10 +268,48 @@ class StaffLeaveController extends Controller
 
         $leaves = $query->orderByDesc('id')->get();
 
-        if ($request->wantsJson()) {
-            return response()->json(['status' => 'SUCCESS', 'leaves' => $leaves]);
+        // Calculate Category-wise Totals for Academic Year Summary
+        $summary = [
+            'CL'     => 0.0, // Casual Leave
+            'CCL'    => 0.0, // Compensatory Casual Leave
+            'DL'     => 0.0, // Duty Leave
+            'ML'     => 0.0, // Medical Leave
+            'LOP'    => 0.0, // Loss of Pay
+            'SL'     => 0.0, // Special Leave
+            'OTHERS' => 0.0,
+            'TOTAL_DAYS' => 0.0,
+        ];
+
+        foreach ($leaves as $l) {
+            $type = strtolower($l->leave_type);
+            $days = (float)$l->total_days;
+            $summary['TOTAL_DAYS'] += $days;
+
+            if (str_contains($type, 'compensatory') || str_contains($type, 'ccl')) {
+                $summary['CCL'] += $days;
+            } elseif (str_contains($type, 'casual') || str_contains($type, 'cl')) {
+                $summary['CL'] += $days;
+            } elseif (str_contains($type, 'duty') || str_contains($type, 'dl')) {
+                $summary['DL'] += $days;
+            } elseif (str_contains($type, 'medical') || str_contains($type, 'ml')) {
+                $summary['ML'] += $days;
+            } elseif (str_contains($type, 'loss') || str_contains($type, 'lop')) {
+                $summary['LOP'] += $days;
+            } elseif (str_contains($type, 'special') || str_contains($type, 'sl')) {
+                $summary['SL'] += $days;
+            } else {
+                $summary['OTHERS'] += $days;
+            }
         }
 
-        return view('staff_leave_reports', compact('leaves'));
+        if ($request->wantsJson()) {
+            return response()->json([
+                'status'  => 'SUCCESS',
+                'summary' => $summary,
+                'leaves'  => $leaves
+            ]);
+        }
+
+        return view('staff_leave_reports', compact('leaves', 'summary', 'academicYear'));
     }
 }

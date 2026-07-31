@@ -54,6 +54,14 @@
         <!-- Filter Bar -->
         <div class="card-custom p-3 mb-4">
             <form method="GET" action="/staff/leave/reports" class="row g-3">
+                <div class="col-md-2">
+                    <label class="form-label text-secondary small fw-bold mb-1">Academic Year</label>
+                    <select name="academic_year" class="form-select bg-dark text-white border-secondary">
+                        @foreach([date('Y'), date('Y')-1, date('Y')-2] as $yr)
+                            <option value="{{ $yr }}" {{ ($academicYear ?? date('Y')) == $yr ? 'selected' : '' }}>{{ $yr }} - {{ $yr+1 }}</option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="col-md-3">
                     <label class="form-label text-secondary small fw-bold mb-1">Department</label>
                     <select name="department" class="form-select bg-dark text-white border-secondary">
@@ -65,7 +73,7 @@
                         <option value="Automobile" {{ request('department') == 'Automobile' ? 'selected' : '' }}>Automobile Engineering</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label text-secondary small fw-bold mb-1">Leave Type</label>
                     <select name="leave_type" class="form-select bg-dark text-white border-secondary">
                         <option value="">All Leave Types</option>
@@ -74,6 +82,7 @@
                         <option value="Duty Leave" {{ request('leave_type') == 'Duty Leave' ? 'selected' : '' }}>Duty Leave (DL)</option>
                         <option value="Medical Leave" {{ request('leave_type') == 'Medical Leave' ? 'selected' : '' }}>Medical Leave (ML)</option>
                         <option value="Loss of Pay" {{ request('leave_type') == 'Loss of Pay' ? 'selected' : '' }}>Loss of Pay (LOP)</option>
+                        <option value="Special Leave" {{ request('leave_type') == 'Special Leave' ? 'selected' : '' }}>Special Leave (SL)</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -87,9 +96,9 @@
                         <option value="Rejected" {{ request('status') == 'Rejected' ? 'selected' : '' }}>Rejected</option>
                     </select>
                 </div>
-                <div class="col-md-3 d-flex align-items-end gap-2">
+                <div class="col-md-2 d-flex align-items-end gap-2">
                     <button type="submit" class="btn btn-info text-dark font-bold w-100">
-                        <i class="fa-solid fa-filter me-1"></i> Apply Filters
+                        <i class="fa-solid fa-filter me-1"></i> Filter
                     </button>
                     <a href="/staff/leave/reports" class="btn btn-outline-secondary">Reset</a>
                 </div>
@@ -97,7 +106,7 @@
         </div>
 
         <!-- Ledger Table -->
-        <div class="card-custom p-3">
+        <div class="card-custom p-3 mb-4">
             <div class="table-responsive">
                 <table class="table table-dark-custom align-middle mb-0">
                     <thead>
@@ -105,7 +114,7 @@
                             <th>Code</th>
                             <th>Staff Member</th>
                             <th>Dept & Role</th>
-                            <th>Type</th>
+                            <th>Type (Category)</th>
                             <th>Duration / Session</th>
                             <th>Days</th>
                             <th>HOD</th>
@@ -188,9 +197,71 @@
                             </tr>
                         @endforelse
                     </tbody>
+                    @if(isset($summary))
+                    <tfoot class="border-top border-secondary">
+                        <tr class="fw-bold text-white bg-slate-900">
+                            <td colspan="5" class="text-end">TOTAL DAYS IN SELECTION:</td>
+                            <td class="text-info font-mono" style="font-size: 1.05rem;">{{ number_format($summary['TOTAL_DAYS'], 1) }}</td>
+                            <td colspan="5"></td>
+                        </tr>
+                    </tfoot>
+                    @endif
                 </table>
             </div>
         </div>
+
+        <!-- Academic Year Category Summary Cards -->
+        @if(isset($summary))
+        <div class="card-custom p-3">
+            <h6 class="fw-bold text-white mb-3">
+                <i class="fa-solid fa-chart-pie text-info me-2"></i> Academic Year {{ $academicYear ?? date('Y') }} Leave Category Summary Totals
+            </h6>
+            <div class="row g-3 text-center">
+                <div class="col-6 col-sm-4 col-md-2">
+                    <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
+                        <small class="text-secondary fw-bold d-block mb-1">CL (Casual)</small>
+                        <span class="fs-5 font-mono fw-bold text-info">{{ number_format($summary['CL'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-md-2">
+                    <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
+                        <small class="text-secondary fw-bold d-block mb-1">CCL (Compensatory)</small>
+                        <span class="fs-5 font-mono fw-bold text-teal-400">{{ number_format($summary['CCL'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-md-2">
+                    <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
+                        <small class="text-secondary fw-bold d-block mb-1">DL (Duty Leave)</small>
+                        <span class="fs-5 font-mono fw-bold text-warning">{{ number_format($summary['DL'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-md-2">
+                    <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
+                        <small class="text-secondary fw-bold d-block mb-1">ML (Medical)</small>
+                        <span class="fs-5 font-mono fw-bold text-primary">{{ number_format($summary['ML'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-md-2">
+                    <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
+                        <small class="text-secondary fw-bold d-block mb-1">LOP (Loss of Pay)</small>
+                        <span class="fs-5 font-mono fw-bold text-danger">{{ number_format($summary['LOP'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-4 col-md-2">
+                    <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
+                        <small class="text-secondary fw-bold d-block mb-1">SL / Others</small>
+                        <span class="fs-5 font-mono fw-bold text-purple-400">{{ number_format($summary['SL'] + $summary['OTHERS'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
     </div>
 </body>
 </html>
