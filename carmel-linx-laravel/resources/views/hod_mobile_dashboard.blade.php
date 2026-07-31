@@ -34,7 +34,10 @@
       }
     </script>
     
-    <style>
+        html.font-scale-md { font-size: 100% !important; }
+        html.font-scale-lg { font-size: 112% !important; }
+        html.font-scale-xl { font-size: 124% !important; }
+
         :root {
             --bg-primary: #0b0f19;
             --bg-card: rgba(17, 24, 39, 0.85);
@@ -136,6 +139,11 @@
         </div>
 
         <div class="flex items-center gap-2">
+            <!-- Dynamic Font Scale Switch -->
+            <button onclick="cycleFontScale()" class="w-8 h-8 rounded-xl flex items-center justify-center border transition-all shadow-sm border-cyan-500/30 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500 hover:text-white" style="background: var(--bg-card); border-color: var(--bg-card-border);" title="Adjust Font Size (Normal -> Large -> XL)">
+                <i class="fa-solid fa-font text-xs"></i>
+            </button>
+
             <!-- Light / Dark Theme Switch -->
             <button id="themeToggleBtn" onclick="toggleTheme()" class="w-8 h-8 rounded-xl flex items-center justify-center border transition-all shadow-sm" style="background: var(--bg-card); border-color: var(--bg-card-border);" title="Toggle Theme">
                 <i id="themeIcon" class="fa-solid fa-moon text-amber-400 text-xs"></i>
@@ -1127,6 +1135,23 @@
                 alert('Error connecting to server: ' + err.message);
             }
         }
+
+        // Universal Mobile Font Size Scaler
+        function cycleFontScale() {
+            const scales = ['md', 'lg', 'xl'];
+            let current = localStorage.getItem('carmel_font_scale') || 'md';
+            let nextIndex = (scales.indexOf(current) + 1) % scales.length;
+            let nextScale = scales[nextIndex];
+            
+            document.documentElement.classList.remove('font-scale-md', 'font-scale-lg', 'font-scale-xl');
+            document.documentElement.classList.add('font-scale-' + nextScale);
+            localStorage.setItem('carmel_font_scale', nextScale);
+        }
+
+        (function initFontScale() {
+            const saved = localStorage.getItem('carmel_font_scale') || 'md';
+            document.documentElement.classList.add('font-scale-' + saved);
+        })();
 
         // Prevent back-button viewing after logout (force re-validation with server)
         window.addEventListener('pageshow', function (event) {

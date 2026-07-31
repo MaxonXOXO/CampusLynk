@@ -13,6 +13,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        html.font-scale-md { font-size: 100% !important; }
+        html.font-scale-lg { font-size: 112% !important; }
+        html.font-scale-xl { font-size: 124% !important; }
+
         :root {
             --app-bg: #090d16;
             --card-bg: rgba(15, 23, 42, 0.92);
@@ -328,6 +332,9 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-1.5">
+                <button onclick="cycleFontScale()" class="btn btn-sm px-2 py-1 rounded-pill fw-bold theme-toggle-btn" style="font-size: 0.7rem;" title="Adjust Font Size (Normal -> Large -> XL)">
+                    <i class="fa-solid fa-font text-info"></i>
+                </button>
                 <button onclick="toggleTheme()" class="btn btn-sm px-2 py-1 rounded-pill fw-bold theme-toggle-btn" style="font-size: 0.7rem;" title="Toggle Light / Dark Mode">
                     <i id="themeIcon" class="fa-solid fa-sun text-warning"></i>
                 </button>
@@ -1329,6 +1336,23 @@
                 alertBox.classList.remove('d-none');
             });
         }
+
+        // Universal Mobile Font Size Scaler
+        function cycleFontScale() {
+            const scales = ['md', 'lg', 'xl'];
+            let current = localStorage.getItem('carmel_font_scale') || 'md';
+            let nextIndex = (scales.indexOf(current) + 1) % scales.length;
+            let nextScale = scales[nextIndex];
+            
+            document.documentElement.classList.remove('font-scale-md', 'font-scale-lg', 'font-scale-xl');
+            document.documentElement.classList.add('font-scale-' + nextScale);
+            localStorage.setItem('carmel_font_scale', nextScale);
+        }
+
+        (function initFontScale() {
+            const saved = localStorage.getItem('carmel_font_scale') || 'md';
+            document.documentElement.classList.add('font-scale-' + saved);
+        })();
 
         document.addEventListener('DOMContentLoaded', initTheme);
 
