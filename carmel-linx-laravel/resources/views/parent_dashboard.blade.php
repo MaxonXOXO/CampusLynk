@@ -137,11 +137,60 @@
         }
 
         .avatar-mobile {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             border: 2px solid var(--accent-cyan);
             object-fit: cover;
+        }
+
+        /* Dark/Light Mode Theme Variations */
+        [data-theme="light"] {
+            --app-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: rgba(0, 0, 0, 0.08);
+        }
+        [data-theme="light"] body,
+        [data-theme="light"] .mobile-container {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+        [data-theme="light"] .mobile-header {
+            background: rgba(255, 255, 255, 0.94) !important;
+            border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        [data-theme="light"] .app-card {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+        }
+        [data-theme="light"] .text-white {
+            color: #0f172a !important;
+        }
+        [data-theme="light"] .text-secondary {
+            color: #64748b !important;
+        }
+        [data-theme="light"] .bg-dark {
+            background-color: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        [data-theme="light"] .bottom-nav {
+            background: rgba(255, 255, 255, 0.96) !important;
+            border-top-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        [data-theme="light"] .timeline-item {
+            background: #f1f5f9 !important;
+        }
+        .theme-toggle-btn {
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+        }
+        [data-theme="light"] .theme-toggle-btn {
+            background: #e2e8f0;
+            color: #0f172a;
+            border-color: #cbd5e1;
         }
     </style>
 </head>
@@ -162,9 +211,14 @@
                     </div>
                 </div>
             </div>
-            <a href="/parent" class="btn btn-sm btn-outline-danger px-2.5 py-1.5 rounded-pill fw-bold" style="font-size: 0.72rem;">
-                <i class="fa-solid fa-power-off me-1"></i> Sign Out
-            </a>
+            <div class="d-flex align-items-center gap-1.5">
+                <button onclick="toggleTheme()" class="btn btn-sm px-2.5 py-1.5 rounded-pill fw-bold theme-toggle-btn" style="font-size: 0.72rem;" title="Toggle Light / Dark Mode">
+                    <i id="themeIcon" class="fa-solid fa-sun text-warning"></i>
+                </button>
+                <a href="/parent" class="btn btn-sm btn-outline-danger px-2.5 py-1.5 rounded-pill fw-bold" style="font-size: 0.72rem;">
+                    <i class="fa-solid fa-power-off me-1"></i> Sign Out
+                </a>
+            </div>
         </div>
 
         <!-- Scrollable Content View -->
@@ -512,7 +566,7 @@
 
     </div>
 
-    <!-- Script for Tab Switching -->
+    <!-- Script for Tab Switching & Theme Toggle -->
     <script>
         function switchTab(e, tabId) {
             e.preventDefault();
@@ -522,6 +576,32 @@
             document.getElementById(tabId).classList.remove('d-none');
             e.currentTarget.classList.add('active');
         }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('carmel_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('carmel_theme', currentTheme);
+            updateThemeIcon(currentTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('themeIcon');
+            if (icon) {
+                if (theme === 'light') {
+                    icon.className = 'fa-solid fa-moon text-primary';
+                } else {
+                    icon.className = 'fa-solid fa-sun text-warning';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initTheme);
     </script>
 </body>
 </html>
