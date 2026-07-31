@@ -632,8 +632,9 @@
                         <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <label class="form-label text-secondary small fw-bold mb-1">Leave Type</label>
-                                <select id="slvType" class="form-select bg-slate-900 border-secondary border-opacity-50 text-white" style="font-size: 0.85rem;" required>
+                                <select id="slvType" onchange="toggleCclDateField()" class="form-select bg-slate-900 border-secondary border-opacity-50 text-white" style="font-size: 0.85rem;" required>
                                     <option value="Casual Leave">Casual Leave (CL)</option>
+                                    <option value="Compensatory Casual Leave">Compensatory Casual Leave (CCL)</option>
                                     <option value="Duty Leave">Duty Leave (DL)</option>
                                     <option value="Medical Leave">Medical Leave (ML)</option>
                                     <option value="Loss of Pay">Loss of Pay (LOP)</option>
@@ -648,6 +649,15 @@
                                     <option value="AN">AN (Afternoon)</option>
                                 </select>
                             </div>
+                        </div>
+
+                        <!-- CCL Date Picker (Visible when CCL is selected) -->
+                        <div id="cclDateBox" class="mb-3 d-none">
+                            <label class="form-label text-info small fw-bold mb-1">
+                                <i class="fa-solid fa-calendar-check me-1"></i> CCL Date (Date Duty Worked)
+                            </label>
+                            <input type="date" id="slvCclDate" class="form-control bg-slate-900 border-info border-opacity-50 text-white" style="font-size: 0.85rem;">
+                            <small class="text-secondary" style="font-size: 0.7rem;">Specify the date on which compensatory duty was performed.</small>
                         </div>
 
                         <div class="row g-2 mb-3">
@@ -725,13 +735,25 @@
             }
         }
 
+        function toggleCclDateField() {
+            const type = document.getElementById('slvType').value;
+            const cclBox = document.getElementById('cclDateBox');
+            if (type === 'Compensatory Casual Leave' || type === 'CCL') {
+                cclBox.classList.remove('d-none');
+            } else {
+                cclBox.classList.add('d-none');
+            }
+        }
+
         function openStaffLeaveModal() {
             const modal = document.getElementById('staffLeaveModal');
             if (modal) {
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('slvFromDate').value = today;
                 document.getElementById('slvToDate').value = today;
+                document.getElementById('slvCclDate').value = today;
                 document.getElementById('staffLeaveAlert').classList.add('d-none');
+                toggleCclDateField();
                 workArrangementsArray = [];
                 renderWorkArrangements();
                 modal.style.display = 'block';
@@ -780,6 +802,7 @@
             const sessionType = document.getElementById('slvSession').value;
             const fromDate = document.getElementById('slvFromDate').value;
             const toDate = document.getElementById('slvToDate').value;
+            const cclDate = document.getElementById('slvCclDate').value;
             const totalDays = parseFloat(document.getElementById('slvTotalDays').value);
             const reason = document.getElementById('slvReason').value.trim();
             const alertBox = document.getElementById('staffLeaveAlert');
@@ -788,6 +811,13 @@
             if (!fromDate || !toDate || !reason || isNaN(totalDays)) {
                 alertBox.className = 'alert alert-danger py-2 px-3 small font-bold mb-3';
                 alertBox.innerText = 'Please complete all required fields.';
+                alertBox.classList.remove('d-none');
+                return;
+            }
+
+            if ((leaveType === 'Compensatory Casual Leave' || leaveType === 'CCL') && !cclDate) {
+                alertBox.className = 'alert alert-danger py-2 px-3 small font-bold mb-3';
+                alertBox.innerText = 'Please specify the CCL Date (Date duty was performed).';
                 alertBox.classList.remove('d-none');
                 return;
             }
@@ -806,6 +836,7 @@
                     session_type: sessionType,
                     from_date: fromDate,
                     to_date: toDate,
+                    ccl_date: (leaveType === 'Compensatory Casual Leave' || leaveType === 'CCL') ? cclDate : null,
                     total_days: totalDays,
                     reason: reason,
                     work_arrangement: workArrangementsArray
@@ -856,6 +887,7 @@
                         else if (item.overall_status === 'Pending_Coordinator') statusBadge = '<span class="badge bg-warning text-dark">Pending Coordinator</span>';
                         else if (item.overall_status === 'Pending_Principal') statusBadge = '<span class="badge bg-primary">Pending Principal</span>';
 
+                        const cclText = item.ccl_date ? ` &bull; <span class="text-info font-mono">CCL Date: ${item.ccl_date}</span>` : '';
                         html += `<div class="p-2.5 rounded-3 border border-secondary border-opacity-25 bg-dark mb-2">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="font-mono text-cyan fw-bold small">${item.leave_code}</span>
@@ -864,7 +896,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <strong class="text-white small d-block">${item.leave_type} (${item.session_type})</strong>
-                                    <small class="text-secondary" style="font-size:0.7rem;">${item.from_date} to ${item.to_date} &bull; ${item.total_days} Day(s)</small>
+                                    <small class="text-secondary" style="font-size:0.7rem;">${item.from_date} to ${item.to_date} &bull; ${item.total_days} Day(s)${cclText}</small>
                                 </div>
                                 <a href="/staff/leave/${item.id}/pdf" target="_blank" class="btn btn-sm btn-outline-info py-0.5 px-2" style="font-size:0.7rem;">
                                     <i class="fa-solid fa-file-pdf"></i> PDF
@@ -890,14 +922,15 @@
                     let html = '';
                     const stage = data.role === 'HOD' ? 'HOD' : (data.role === 'Principal' ? 'Principal' : 'Coordinator');
                     data.approvals.forEach(item => {
+                        const cclText = item.ccl_date ? ` &bull; <span class="text-info font-mono">CCL Date: ${item.ccl_date}</span>` : '';
                         html += `<div class="p-2.5 rounded-3 border border-warning border-opacity-30 bg-slate-900 mb-2">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <strong class="text-white small">${item.staff_name} (${item.department})</strong>
                                 <span class="badge bg-warning text-dark small">${item.leave_type}</span>
                             </div>
                             <small class="text-secondary d-block mb-1" style="font-size:0.72rem;">
-                                ${item.from_date} to ${item.to_date} (${item.session_type}) &bull; ${item.total_days} Day(s)
-                            </small>
+                                ${item.from_date} to ${item.to_date} (${item.session_type}) &bull; ${item.total_days} Day(s)${cclText}
+                            </small>`
                             <div class="text-slate-300 small italic mb-2" style="font-size:0.75rem;">"${item.reason}"</div>
                             <div class="d-flex gap-2">
                                 <button onclick="actionLeaveApproval(${item.id}, '${stage}', 'Approved')" class="btn btn-sm btn-success py-0.5 px-3 flex-grow-1" style="font-size:0.72rem;">

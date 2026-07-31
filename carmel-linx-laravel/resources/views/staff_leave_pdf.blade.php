@@ -189,6 +189,12 @@
             <td class="label">To Date:</td>
             <td>{{ \Carbon\Carbon::parse($leave->to_date)->format('d-M-Y (l)') }}</td>
         </tr>
+        @if($leave->ccl_date || str_contains($leave->leave_type, 'Compensatory') || str_contains($leave->leave_type, 'CCL'))
+        <tr>
+            <td class="label">CCL Date (Duty Worked):</td>
+            <td colspan="3"><strong style="color: #0d9488;">{{ $leave->ccl_date ? \Carbon\Carbon::parse($leave->ccl_date)->format('d-M-Y (l)') : 'N/A' }}</strong></td>
+        </tr>
+        @endif
         <tr>
             <td class="label">Total Working Days:</td>
             <td colspan="3"><strong style="font-size: 14px;">{{ number_format($leave->total_days, 1) }} Day(s)</strong></td>

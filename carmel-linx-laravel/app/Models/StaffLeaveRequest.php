@@ -21,6 +21,7 @@ class StaffLeaveRequest extends Model
         'from_date',
         'to_date',
         'session_type',
+        'ccl_date',
         'total_days',
         'reason',
         'work_arrangement',
@@ -47,6 +48,7 @@ class StaffLeaveRequest extends Model
     protected $casts = [
         'from_date'              => 'date',
         'to_date'                => 'date',
+        'ccl_date'               => 'date',
         'total_days'             => 'float',
         'work_arrangement'       => 'array',
         'submitted_at'           => 'datetime',

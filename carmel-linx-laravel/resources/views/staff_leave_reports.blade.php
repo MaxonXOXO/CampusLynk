@@ -70,6 +70,7 @@
                     <select name="leave_type" class="form-select bg-dark text-white border-secondary">
                         <option value="">All Leave Types</option>
                         <option value="Casual Leave" {{ request('leave_type') == 'Casual Leave' ? 'selected' : '' }}>Casual Leave (CL)</option>
+                        <option value="Compensatory Casual Leave" {{ request('leave_type') == 'Compensatory Casual Leave' ? 'selected' : '' }}>Compensatory Casual Leave (CCL)</option>
                         <option value="Duty Leave" {{ request('leave_type') == 'Duty Leave' ? 'selected' : '' }}>Duty Leave (DL)</option>
                         <option value="Medical Leave" {{ request('leave_type') == 'Medical Leave' ? 'selected' : '' }}>Medical Leave (ML)</option>
                         <option value="Loss of Pay" {{ request('leave_type') == 'Loss of Pay' ? 'selected' : '' }}>Loss of Pay (LOP)</option>
@@ -126,7 +127,12 @@
                                     <span class="badge bg-secondary">{{ $leave->department }}</span>
                                     <small class="text-slate-400 d-block">{{ $leave->designation }}</small>
                                 </td>
-                                <td class="fw-bold text-info">{{ $leave->leave_type }}</td>
+                                <td>
+                                    <strong class="text-info d-block">{{ $leave->leave_type }}</strong>
+                                    @if($leave->ccl_date)
+                                        <small class="text-teal-400 font-mono d-block" style="font-size: 0.72rem;">CCL Worked: {{ \Carbon\Carbon::parse($leave->ccl_date)->format('d M Y') }}</small>
+                                    @endif
+                                </td>
                                 <td>
                                     <small class="d-block">{{ \Carbon\Carbon::parse($leave->from_date)->format('d M Y') }} to {{ \Carbon\Carbon::parse($leave->to_date)->format('d M Y') }}</small>
                                     <span class="badge bg-opacity-20 bg-warning text-warning">{{ $leave->session_type }}</span>
