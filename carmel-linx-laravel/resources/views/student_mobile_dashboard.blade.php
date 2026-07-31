@@ -240,6 +240,16 @@
         [data-theme="light"] .timeline-item {
             background: #f1f5f9 !important;
         }
+        .badge-student-app {
+            background-color: rgba(99, 102, 241, 0.18);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        [data-theme="light"] .badge-student-app {
+            background-color: rgba(79, 70, 229, 0.12) !important;
+            color: #4338ca !important;
+            border: 1px solid rgba(79, 70, 229, 0.3) !important;
+        }
         .theme-toggle-btn {
             border: 1px solid var(--card-border);
             background: rgba(255, 255, 255, 0.05);
@@ -259,10 +269,14 @@
         <!-- Top App Bar -->
         <div class="mobile-header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                <img src="{{ asset('logo.jpg') }}" alt="Carmel" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover; border: 1.5px solid #06b6d4;">
+                <img src="{{ asset('logo.jpg') }}" alt="Carmel Linx" class="rounded-circle" style="width: 38px; height: 38px; object-fit: cover; border: 1.5px solid #06b6d4; box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);">
                 <div class="ms-1">
-                    <h5 class="fw-black mb-0 brand-title" style="font-size: 1.15rem;">Carmel Linx</h5>
-                    <small class="text-secondary" style="font-size: 0.7rem;">Student Mobile App</small>
+                    <h5 class="fw-black mb-0 brand-title" style="font-size: 1.25rem;">Carmel Linx</h5>
+                    <div class="d-flex align-items-center mt-0.5">
+                        <span class="badge badge-student-app fw-extrabold px-2 py-0.5" style="font-size: 0.78rem; letter-spacing: 0.2px;">
+                            <i class="fa-solid fa-user-graduate me-1"></i> Student App
+                        </span>
+                    </div>
                 </div>
             </div>
             <div class="d-flex align-items-center gap-1.5">
