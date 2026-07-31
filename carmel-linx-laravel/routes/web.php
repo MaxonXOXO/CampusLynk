@@ -226,10 +226,6 @@ Route::middleware(['web'])->group(function () {
         if (!in_array($role, ['Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF', 'Gen_Dept_Coordinator_Self_Finance', 'Super_Admin', 'Admin'])) {
             return redirect('/');
         }
-        $ua = strtolower(request()->header('User-Agent', ''));
-        if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
-            return redirect('/staff/mobile');
-        }
         return view('academic_coordinator_dashboard');
     });
 

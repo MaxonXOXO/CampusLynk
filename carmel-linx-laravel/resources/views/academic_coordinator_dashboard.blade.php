@@ -125,7 +125,7 @@
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col md:flex-row overflow-hidden">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col md:flex-row md:overflow-hidden overflow-y-auto">
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
