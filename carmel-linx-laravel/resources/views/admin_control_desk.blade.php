@@ -329,6 +329,7 @@
               <option value="Admin">Admin</option>
               <option value="Principal">Principal</option>
               <option value="HOD">Head of Department (HOD)</option>
+              <option value="Academic_Coordinator">Academic Coordinator (Self-Financing)</option>
               <option value="Gen_Dept_Coordinator_Aided">Gen Dept Coordinator Aided</option>
               <option value="Gen_Dept_Coordinator_Self_Finance">Gen Dept Coordinator Self Finance</option>
               <option value="Lecturer">Lecturers</option>
@@ -518,6 +519,7 @@
           <select id="editStaffDesig" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white outline-none focus:border-blue-500 text-sm">
             <option value="Principal">Principal</option>
             <option value="HOD">Head of Department (HOD)</option>
+            <option value="Academic_Coordinator">Academic Coordinator (Self-Financing)</option>
             <option value="Gen_Dept_Coordinator_Aided">Gen Dept Coordinator Aided</option>
             <option value="Gen_Dept_Coordinator_Self_Finance">Gen Dept Coordinator Self Finance</option>
             <option value="Lecturer">Lecturer</option>
