@@ -103,7 +103,7 @@
         </div>
 
         <div class="info-pill mb-4 text-center">
-            <i class="fa-solid fa-key me-1"></i> <strong>Zero Password Access:</strong> Verify using your ward's Register Number and your Registered Mobile Number.
+            <i class="fa-solid fa-key me-1"></i> <strong>Zero Password Access:</strong> Enter your ward's Register/Admission No and your 10-digit Mobile Number to access the portal.
         </div>
 
         <form id="parentLoginForm">
@@ -111,14 +111,17 @@
                 <label class="form-label text-slate-300 small fw-semibold">
                     <i class="fa-solid fa-id-card me-1 text-cyan"></i> Student Register Number / Admission No
                 </label>
-                <input type="text" id="regNo" class="form-control form-control-custom" placeholder="e.g. 24010152" required uppercase>
+                <input type="text" id="regNo" class="form-control form-control-custom" placeholder="e.g. 24010152 or 24ME1045" required uppercase>
             </div>
 
             <div class="mb-4">
                 <label class="form-label text-slate-300 small fw-semibold">
-                    <i class="fa-solid fa-mobile-screen-button me-1 text-cyan"></i> Guardian Registered Mobile Number
+                    <i class="fa-solid fa-mobile-screen-button me-1 text-cyan"></i> Parent / Guardian Mobile Number
                 </label>
-                <input type="tel" id="guardianMobile" class="form-control form-control-custom" placeholder="e.g. 9876543210" required>
+                <input type="tel" id="guardianMobile" class="form-control form-control-custom" placeholder="Enter 10-digit mobile number" required>
+                <div class="form-text text-secondary" style="font-size: 0.75rem;">
+                    <i class="fa-solid fa-circle-info text-cyan me-1"></i> First time logging in? Enter your mobile number to automatically link & register your parent access. You can also log in using your ward's registered mobile number.
+                </div>
             </div>
 
             <div id="loginError" class="alert alert-danger py-2 px-3 small d-none mb-3" role="alert"></div>

@@ -48,18 +48,33 @@ class ParentDashboardController extends Controller
         $registeredGuardianMobile = preg_replace('/[^0-9]/', '', $student->guardian_mobile ?? '');
         $registeredStudentMobile = preg_replace('/[^0-9]/', '', $student->phone ?? '');
 
-        // If no mobile is registered in DB yet, allow access for initial parent onboarding
-        $hasRegisteredMobile = (!empty($registeredGuardianMobile) || !empty($registeredStudentMobile));
+        $hasGuardianMobile = !empty($registeredGuardianMobile);
+        $hasStudentMobile = !empty($registeredStudentMobile);
 
-        $isMobileMatched = !$hasRegisteredMobile || 
-                           ($cleanMobile === $registeredGuardianMobile) || 
-                           ($cleanMobile === $registeredStudentMobile) ||
-                           (strlen($cleanMobile) >= 10 && (($registeredGuardianMobile !== '' && str_contains($registeredGuardianMobile, $cleanMobile)) || ($registeredStudentMobile !== '' && str_contains($registeredStudentMobile, $cleanMobile))));
+        $isMobileMatched = false;
+
+        if ($hasGuardianMobile) {
+            // Guardian mobile is set - match guardian mobile or student mobile
+            $isMobileMatched = ($cleanMobile === $registeredGuardianMobile) || 
+                               ($cleanMobile === $registeredStudentMobile) ||
+                               (strlen($cleanMobile) >= 10 && (str_contains($registeredGuardianMobile, $cleanMobile) || str_contains($registeredStudentMobile, $cleanMobile)));
+        } else {
+            // Guardian mobile is NOT yet registered in database!
+            // Allow login with ANY valid 10-digit mobile number AND auto-register it for future logins
+            if (strlen($cleanMobile) >= 10) {
+                $student->update(['guardian_mobile' => $cleanMobile]);
+                $isMobileMatched = true;
+            } elseif ($hasStudentMobile) {
+                $isMobileMatched = ($cleanMobile === $registeredStudentMobile);
+            } else {
+                $isMobileMatched = true; // No mobile records exist at all, allow onboarding
+            }
+        }
 
         if (!$isMobileMatched) {
             return response()->json([
                 'status' => 'ERROR',
-                'message' => 'The mobile number provided does not match college guardian records for this student. Please contact Class Tutor.'
+                'message' => 'The mobile number provided does not match college records for this student. You can log in using your ward\'s mobile number, or contact the Class Tutor.'
             ], 401);
         }
 
