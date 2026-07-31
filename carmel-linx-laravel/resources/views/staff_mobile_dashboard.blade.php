@@ -194,7 +194,7 @@
         <div class="p-3">
 
             <!-- Staff Identity Banner -->
-            <div class="app-card border-start border-4 border-info">
+            <div class="app-card border-start border-2 border-info">
                 <div class="d-flex align-items-center gap-3 mb-3">
                     @if(!empty($staff->photo_url))
                         <img src="{{ $staff->photo_url }}" alt="{{ $staff->name }}" class="avatar-mobile">
@@ -274,7 +274,7 @@
             <div id="tab-classes" class="tab-pane fade-in">
 
                 <!-- Timetable Day Order Selection Card -->
-                <div class="app-card border-start border-4 border-cyan" style="border: 1px solid rgba(56, 189, 248, 0.3);">
+                <div class="app-card border-start border-2 border-cyan" style="border: 1px solid rgba(56, 189, 248, 0.3);">
                     <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                         <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">
                             <i class="fa-solid fa-calendar-day me-1 text-cyan"></i> Timetable & Day Selection
@@ -380,7 +380,7 @@
 
             <!-- TAB 3: REMEDIAL CLASSES -->
             <div id="tab-remedial" class="tab-pane d-none fade-in">
-                <div class="app-card border-start border-4 border-danger">
+                <div class="app-card border-start border-2 border-danger">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h6 class="fw-bold text-danger mb-0" style="font-size: 0.95rem;">
                             <i class="fa-solid fa-kit-medical me-1"></i> Remedial Classes & Support
