@@ -187,6 +187,10 @@
             animation: fadeIn 0.3s ease-in-out;
         }
         @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .brand-title {
             font-weight: 900 !important;
             letter-spacing: -0.3px;
@@ -259,7 +263,7 @@
                 <div class="ms-1">
                     <h5 class="fw-black mb-0 brand-title" style="font-size: 1.25rem;">Carmel Linx</h5>
                     <div class="d-flex align-items-center mt-0.5">
-                        <span class="badge badge-student-app fw-extrabold px-2 py-0.5" style="font-size: 0.78rem; letter-spacing: 0.2px;">
+                        <span class="badge badge-student-app fw-extrabold px-2.5 py-1" style="font-size: 0.82rem; letter-spacing: 0.2px;">
                             <i class="fa-solid fa-user-graduate me-1"></i> Student App
                         </span>
                     </div>
