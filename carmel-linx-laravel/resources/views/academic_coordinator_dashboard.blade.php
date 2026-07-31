@@ -219,7 +219,7 @@
               </div>
             </div>
             <div class="col-4">
-              <a href="/staff/leave/reports" target="_blank" class="stat-card d-block text-decoration-none">
+              <a href="#" onclick="switchMobileTab('reports'); return false;" class="stat-card d-block text-decoration-none">
                 <span class="text-secondary uppercase d-block" style="font-size: 0.62rem; font-weight: 700;">Ledger</span>
                 <strong class="text-emerald" style="font-size: 0.78rem;"><i class="fa-solid fa-file-invoice me-1"></i>Reports</strong>
               </a>
@@ -285,7 +285,63 @@
           </div>
         </div>
 
-        <!-- TAB 3: SECURITY LOG -->
+        <!-- TAB 3: STAFF LEAVE MASTER LEDGER & REPORTS -->
+        <div id="mobileTabReports" class="mobile-tab-content d-none">
+          <div class="app-card border-start border-2 border-success mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="fw-bold text-success mb-0" style="font-size: 0.88rem;">
+                <i class="fa-solid fa-file-invoice me-1"></i> Staff Leave Master Ledger & Report
+              </h6>
+              <a href="/staff/leave/reports" target="_blank" class="btn btn-sm btn-outline-success py-0.5 px-2" style="font-size: 0.7rem;">
+                <i class="fa-solid fa-print me-1"></i> PDF Ledger
+              </a>
+            </div>
+            <small class="text-secondary d-block mb-3" style="font-size: 0.74rem;">
+              Comprehensive audit trail & leave balances across Self-Financing departments.
+            </small>
+
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <select id="mobileReportBranch" onchange="loadLeaveReports()" class="form-select">
+                  <option value="">All SF Depts</option>
+                  <option value="EL">EL (Electronics)</option>
+                  <option value="AU">AU (Automobile)</option>
+                  <option value="CT">CT (Computer)</option>
+                  <option value="GEN_SF">GEN SF</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <select id="mobileReportCategory" onchange="loadLeaveReports()" class="form-select">
+                  <option value="">All Categories</option>
+                  <option value="Casual Leave">Casual Leave (CL)</option>
+                  <option value="Compensatory Casual Leave">Compensatory (CCL)</option>
+                  <option value="Duty Leave">Duty Leave (DL)</option>
+                  <option value="Medical Leave">Medical Leave (ML)</option>
+                  <option value="Loss of Pay">Loss of Pay (LOP)</option>
+                  <option value="Special Leave">Special Leave (SL)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Summary Totals Pill Card -->
+            <div class="p-2.5 rounded-3 bg-slate-900 border border-secondary border-opacity-20 mb-3">
+              <span class="text-secondary d-block uppercase fw-bold mb-1" style="font-size:0.65rem;">Academic Year Totals Summary</span>
+              <div class="d-flex flex-wrap gap-1 text-center" id="mobileReportSummary">
+                <span class="badge bg-primary bg-opacity-20 text-primary">CL: 0d</span>
+                <span class="badge bg-warning bg-opacity-20 text-warning">CCL: 0d</span>
+                <span class="badge bg-info bg-opacity-20 text-info">DL: 0d</span>
+                <span class="badge bg-danger bg-opacity-20 text-danger">LOP: 0d</span>
+                <span class="badge bg-success bg-opacity-20 text-success">Total: 0d</span>
+              </div>
+            </div>
+
+            <div id="mobileReportsContainer">
+              <small class="text-secondary d-block">Loading ledger records...</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: SECURITY LOG -->
         <div id="mobileTabSecurity" class="mobile-tab-content d-none">
           <div class="app-card mb-3">
             <h6 class="fw-bold text-white mb-3" style="font-size: 0.88rem;">
@@ -309,7 +365,7 @@
           <i class="fa-solid fa-users"></i>
           <span>SF Directory</span>
         </a>
-        <a href="/staff/leave/reports" target="_blank" class="nav-link-mobile">
+        <a href="#" onclick="switchMobileTab('reports'); return false;" id="mobileNavReports" class="nav-link-mobile">
           <i class="fa-solid fa-file-invoice"></i>
           <span>Ledger</span>
         </a>
@@ -357,9 +413,9 @@
           <span class="material-symbols-rounded text-lg">group</span> SF Staff Directory
         </button>
 
-        <a href="/staff/leave/reports" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block text-xs">
+        <button id="navReports" onclick="switchPanel('reports')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
           <span class="material-symbols-rounded text-lg">event_note</span> Staff Leave Reports & Ledger
-        </a>
+        </button>
 
         <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4">
           <span class="material-symbols-rounded text-lg">security</span> Security Log
@@ -420,9 +476,9 @@
               <div class="bg-emerald-500/10 text-emerald-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">event_note</span></div>
               <div>
                 <span class="text-xs text-slate-400 uppercase font-bold tracking-wider block">Master Ledger</span>
-                <a href="/staff/leave/reports" target="_blank" class="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1 mt-0.5">
-                  View & Print <span class="material-symbols-rounded text-xs">open_in_new</span>
-                </a>
+                <button onclick="switchPanel('reports')" class="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1 mt-0.5 bg-transparent border-0 p-0 cursor-pointer">
+                  View Ledger & Reports <span class="material-symbols-rounded text-xs">arrow_forward</span>
+                </button>
               </div>
             </div>
 
@@ -548,7 +604,116 @@
           </div>
         </div>
 
-        <!-- PANEL 3: SECURITY LOG -->
+        <!-- PANEL 3: STAFF LEAVE MASTER LEDGER & REPORTS -->
+        <div id="panelReports" class="hidden space-y-6">
+          <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800/60 pb-3">
+              <div>
+                <h3 class="font-black text-slate-100 text-base flex items-center gap-2">
+                  <span class="material-symbols-rounded text-emerald-400 text-lg">event_note</span>
+                  Staff Leave Master Ledger & Report Center
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">Filter leave applications, audit approvals, and generate printable reports.</p>
+              </div>
+              <a href="/staff/leave/reports" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-premium no-underline flex items-center gap-1.5 shadow-sm">
+                <span class="material-symbols-rounded text-sm">print</span> Print Official Ledger PDF
+              </a>
+            </div>
+
+            <!-- Filters -->
+            <div class="grid grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Department Filter</label>
+                <select id="desktopReportBranch" onchange="loadLeaveReports()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 outline-none text-xs">
+                  <option value="">All SF Departments (EL, AU, CT, GEN SF)</option>
+                  <option value="EL">Electronics (EL)</option>
+                  <option value="AU">Automobile (AU)</option>
+                  <option value="CT">Computer Engineering (CT)</option>
+                  <option value="GEN_SF">General SF (GEN_SF)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Leave Category</label>
+                <select id="desktopReportCategory" onchange="loadLeaveReports()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 outline-none text-xs">
+                  <option value="">All Leave Categories</option>
+                  <option value="Casual Leave">Casual Leave (CL)</option>
+                  <option value="Compensatory Casual Leave">Compensatory (CCL)</option>
+                  <option value="Duty Leave">Duty Leave (DL)</option>
+                  <option value="Medical Leave">Medical Leave (ML)</option>
+                  <option value="Loss of Pay">Loss of Pay (LOP)</option>
+                  <option value="Special Leave">Special Leave (SL)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Academic Year</label>
+                <select id="desktopReportYear" onchange="loadLeaveReports()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 outline-none text-xs">
+                  <option value="2026">Academic Year 2026</option>
+                  <option value="2025">Academic Year 2025</option>
+                  <option value="2024">Academic Year 2024</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Category Summary Cards -->
+            <div class="grid grid-cols-7 gap-3 pt-2">
+              <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
+                <span class="text-[10px] text-slate-400 font-bold block uppercase">CL</span>
+                <span id="summaryCL" class="text-base font-black text-blue-400">0d</span>
+              </div>
+              <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
+                <span class="text-[10px] text-slate-400 font-bold block uppercase">CCL</span>
+                <span id="summaryCCL" class="text-base font-black text-amber-400">0d</span>
+              </div>
+              <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
+                <span class="text-[10px] text-slate-400 font-bold block uppercase">DL</span>
+                <span id="summaryDL" class="text-base font-black text-sky-400">0d</span>
+              </div>
+              <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
+                <span class="text-[10px] text-slate-400 font-bold block uppercase">ML</span>
+                <span id="summaryML" class="text-base font-black text-purple-400">0d</span>
+              </div>
+              <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
+                <span class="text-[10px] text-slate-400 font-bold block uppercase">LOP</span>
+                <span id="summaryLOP" class="text-base font-black text-rose-400">0d</span>
+              </div>
+              <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
+                <span class="text-[10px] text-slate-400 font-bold block uppercase">SL</span>
+                <span id="summarySL" class="text-base font-black text-teal-400">0d</span>
+              </div>
+              <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center">
+                <span class="text-[10px] text-slate-400 font-bold block uppercase">Total</span>
+                <span id="summaryTOTAL" class="text-base font-black text-emerald-400">0d</span>
+              </div>
+            </div>
+
+            <!-- Ledger Table -->
+            <div class="overflow-x-auto scrollbar-hidden border border-slate-800 rounded-xl">
+              <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+                <thead>
+                  <tr class="bg-slate-900/60 border-b border-slate-800 text-slate-400 font-bold uppercase tracking-wider text-[11px]">
+                    <th class="p-3">Staff Name</th>
+                    <th class="p-3">Dept</th>
+                    <th class="p-3">Category</th>
+                    <th class="p-3">Dates</th>
+                    <th class="p-3">Days</th>
+                    <th class="p-3">HOD Stage</th>
+                    <th class="p-3">Coordinator Stage</th>
+                    <th class="p-3">Principal Stage</th>
+                    <th class="p-3 text-right">Status & PDF</th>
+                  </tr>
+                </thead>
+                <tbody id="reportsTableBody" class="divide-y divide-slate-800/40 text-slate-300">
+                  <tr><td colspan="9" class="p-6 text-center text-slate-500 font-bold">Loading leave ledger records...</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- PANEL 4: SECURITY LOG -->
         <div id="panelSecurity" class="hidden space-y-6">
           <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl">
             <h3 class="font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-sm">
@@ -631,7 +796,7 @@
     }
 
     function switchMobileTab(tabId) {
-      const tabs = ['approvals', 'directory', 'security'];
+      const tabs = ['approvals', 'directory', 'reports', 'security'];
       tabs.forEach(t => {
         const el = document.getElementById('mobileTab' + t.charAt(0).toUpperCase() + t.slice(1));
         const nav = document.getElementById('mobileNav' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -646,12 +811,13 @@
 
       if (tabId === 'approvals') loadPendingApprovals();
       if (tabId === 'directory') loadUsers();
+      if (tabId === 'reports') loadLeaveReports();
       if (tabId === 'security') loadSelfSecurityLogs();
     }
 
     function switchPanel(panelId) {
       activePanel = panelId;
-      const panels = ['dashboard', 'directory', 'security'];
+      const panels = ['dashboard', 'directory', 'reports', 'security'];
       panels.forEach(id => {
         const el = document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1));
         const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
@@ -668,12 +834,14 @@
       const titles = {
         'dashboard': 'Academic Coordinator Overview',
         'directory': 'Self-Financing Staff Directory',
+        'reports': 'Staff Leave Master Ledger & Reports',
         'security': 'My Profile Security Log'
       };
       if (document.getElementById('panelTitle')) document.getElementById('panelTitle').innerText = titles[panelId];
 
       if (panelId === 'dashboard') loadPendingApprovals();
       if (panelId === 'directory') loadUsers();
+      if (panelId === 'reports') loadLeaveReports();
       if (panelId === 'security') loadSelfSecurityLogs();
     }
 
@@ -869,6 +1037,135 @@
         if (indicator) indicator.classList.add('hidden');
         showGlobalMessage('Network error processing rejection.', true);
       });
+    }
+
+    function loadLeaveReports() {
+      const indicator = document.getElementById('loadingIndicator');
+      if (indicator) indicator.classList.remove('hidden');
+
+      const branch = document.getElementById('desktopReportBranch')?.value || document.getElementById('mobileReportBranch')?.value || '';
+      const category = document.getElementById('desktopReportCategory')?.value || document.getElementById('mobileReportCategory')?.value || '';
+      const year = document.getElementById('desktopReportYear')?.value || '2026';
+
+      let url = `/staff/leave/reports?academic_year=${year}`;
+      if (branch) url += `&department=${encodeURIComponent(branch)}`;
+      if (category) url += `&leave_type=${encodeURIComponent(category)}`;
+
+      fetch(url, {
+        headers: { 'Accept': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (indicator) indicator.classList.add('hidden');
+        if (data.status === 'SUCCESS') {
+          renderLeaveReports(data.leaves, data.summary);
+        }
+      })
+      .catch(() => { if (indicator) indicator.classList.add('hidden'); });
+    }
+
+    function renderLeaveReports(leaves, summary) {
+      // Render summary counts
+      if (summary) {
+        if (document.getElementById('summaryCL')) document.getElementById('summaryCL').innerText = (summary.CL || 0) + 'd';
+        if (document.getElementById('summaryCCL')) document.getElementById('summaryCCL').innerText = (summary.CCL || 0) + 'd';
+        if (document.getElementById('summaryDL')) document.getElementById('summaryDL').innerText = (summary.DL || 0) + 'd';
+        if (document.getElementById('summaryML')) document.getElementById('summaryML').innerText = (summary.ML || 0) + 'd';
+        if (document.getElementById('summaryLOP')) document.getElementById('summaryLOP').innerText = (summary.LOP || 0) + 'd';
+        if (document.getElementById('summarySL')) document.getElementById('summarySL').innerText = (summary.SL || 0) + 'd';
+        if (document.getElementById('summaryTOTAL')) document.getElementById('summaryTOTAL').innerText = (summary.TOTAL_DAYS || 0) + 'd';
+
+        const mobileSummary = document.getElementById('mobileReportSummary');
+        if (mobileSummary) {
+          mobileSummary.innerHTML = `
+            <span class="badge bg-primary bg-opacity-20 text-primary">CL: ${summary.CL || 0}d</span>
+            <span class="badge bg-warning bg-opacity-20 text-warning">CCL: ${summary.CCL || 0}d</span>
+            <span class="badge bg-info bg-opacity-20 text-info">DL: ${summary.DL || 0}d</span>
+            <span class="badge bg-danger bg-opacity-20 text-danger">LOP: ${summary.LOP || 0}d</span>
+            <span class="badge bg-success bg-opacity-20 text-success">Total: ${summary.TOTAL_DAYS || 0}d</span>
+          `;
+        }
+      }
+
+      // Filter SF departments if no department filter selected
+      const sfDepts = ['EL', 'AU', 'CT', 'GEN_SF', 'SF'];
+      const filteredLeaves = leaves.filter(l => sfDepts.includes(l.department?.toUpperCase()));
+
+      // Render Desktop Table
+      const tbody = document.getElementById('reportsTableBody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        if (filteredLeaves.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-slate-500 font-bold">No leave report records found for the selected filter.</td></tr>';
+        } else {
+          filteredLeaves.forEach(l => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-slate-800/40 hover:bg-slate-900/30';
+            
+            let dates = l.from_date;
+            if (l.to_date && l.to_date !== l.from_date) dates += ` to ${l.to_date}`;
+
+            let statusBadge = l.overall_status === 'Approved' ? 
+              '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Approved</span>' :
+              (l.overall_status === 'Rejected' ? 
+                '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">Rejected</span>' :
+                '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>');
+
+            tr.innerHTML = `
+              <td class="p-3 font-bold text-slate-100">${l.staff_name || 'Staff'}</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">${l.department}</span></td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded font-bold text-[10px] bg-purple-500/10 text-purple-300 border border-purple-500/20">${l.leave_type}</span></td>
+              <td class="p-3 font-mono text-slate-300 text-xs">${dates}</td>
+              <td class="p-3 font-bold text-slate-200">${l.total_days}d</td>
+              <td class="p-3"><span class="text-[10px] font-bold ${l.hod_approval === 'Approved' ? 'text-emerald-400' : 'text-amber-400'}">${l.hod_approval || 'Pending'}</span></td>
+              <td class="p-3"><span class="text-[10px] font-bold ${l.coordinator_approval === 'Approved' ? 'text-emerald-400' : 'text-amber-400'}">${l.coordinator_approval || 'Pending'}</span></td>
+              <td class="p-3"><span class="text-[10px] font-bold ${l.principal_approval === 'Approved' ? 'text-emerald-400' : 'text-amber-400'}">${l.principal_approval || 'Pending'}</span></td>
+              <td class="p-3 text-right space-x-1">
+                ${statusBadge}
+                <a href="/staff/leave/${l.id}/pdf" target="_blank" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded font-bold text-[10px] no-underline inline-flex items-center gap-1">
+                  <span class="material-symbols-rounded text-xs">picture_as_pdf</span> PDF
+                </a>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+      }
+
+      // Render Mobile Cards
+      const mobileContainer = document.getElementById('mobileReportsContainer');
+      if (mobileContainer) {
+        mobileContainer.innerHTML = '';
+        if (filteredLeaves.length === 0) {
+          mobileContainer.innerHTML = '<small class="text-secondary d-block py-2">No leave report records found.</small>';
+        } else {
+          let html = '';
+          filteredLeaves.forEach(l => {
+            let dates = l.from_date;
+            if (l.to_date && l.to_date !== l.from_date) dates += ` to ${l.to_date}`;
+            const badgeClass = l.overall_status === 'Approved' ? 'bg-success' : (l.overall_status === 'Rejected' ? 'bg-danger' : 'bg-warning text-dark');
+            
+            html += `
+              <div class="p-2.5 rounded-3 border border-secondary border-opacity-20 bg-slate-900 mb-2">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <strong class="text-white small">${l.staff_name || 'Staff'} (${l.department})</strong>
+                  <span class="badge ${badgeClass} small">${l.overall_status}</span>
+                </div>
+                <small class="text-secondary d-block mb-1" style="font-size:0.72rem;">
+                  <span class="badge bg-purple bg-opacity-20 text-purple">${l.leave_type}</span> &bull; ${dates} (${l.total_days}d)
+                </small>
+                <div class="d-flex justify-content-between align-items-center pt-1 border-top border-secondary border-opacity-10">
+                  <small class="text-secondary" style="font-size:0.68rem;">HOD: ${l.hod_approval || 'P'} | Coord: ${l.coordinator_approval || 'P'} | Prin: ${l.principal_approval || 'P'}</small>
+                  <a href="/staff/leave/${l.id}/pdf" target="_blank" class="btn btn-sm btn-outline-light py-0.2 px-2" style="font-size:0.68rem;">
+                    <i class="fa-solid fa-file-pdf me-1"></i> PDF
+                  </a>
+                </div>
+              </div>
+            `;
+          });
+          mobileContainer.innerHTML = html;
+        }
+      }
     }
 
     function loadUsers() {
