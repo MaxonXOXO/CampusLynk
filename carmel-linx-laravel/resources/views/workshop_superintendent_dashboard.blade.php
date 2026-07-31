@@ -245,6 +245,13 @@
       </a>
       @endif
 
+      <a href="/staff/leave/reports" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 hover:text-emerald-300 cursor-pointer no-underline block text-xs mobile-link">
+         <span class="material-symbols-rounded text-lg">event_note</span> Staff Leave Reports
+      </a>
+      <a href="/staff/mobile" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 hover:text-purple-300 cursor-pointer no-underline block text-xs mobile-link">
+         <span class="material-symbols-rounded text-lg">smartphone</span> Staff Mobile Portal
+      </a>
+
       <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline block text-[10px] text-xs mobile-link">
          <span class="material-symbols-rounded text-lg">co_present</span> Log & Attendance
       </a>

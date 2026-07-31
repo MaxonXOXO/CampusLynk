@@ -307,6 +307,29 @@
         </div>
       </div>
 
+      <!-- Card 11: Staff Leave Master Ledger & Audit Reports -->
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-emerald-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="material-symbols-rounded text-emerald-400 text-xl">event_note</span>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Active</span>
+              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-black text-sm">11</span>
+            </div>
+          </div>
+          <h3 class="text-white text-sm font-black">Staff Leave Master Ledger & Audit Reports</h3>
+          <p class="text-slate-400 text-sm leading-relaxed">
+            Consolidated staff leave applications, multi-stage approval logs, formal leave PDFs, and academic year CL/CCL/DL/ML summary reports.
+          </p>
+        </div>
+        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
+          <span class="text-xs text-slate-500">Printable Leave Ledger</span>
+          <a href="/staff/leave/reports" target="_blank" class="px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-400 rounded-xl font-bold transition-premium cursor-pointer text-sm no-underline inline-flex items-center gap-1">
+            <span class="material-symbols-rounded text-sm">print</span> Open Ledger
+          </a>
+        </div>
+      </div>
+
     </div>
 
   </main>
