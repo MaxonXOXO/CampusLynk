@@ -375,7 +375,7 @@
                 <!-- Quick Overview Cards -->
                 <div class="row g-2 mb-3">
                     <div class="col-6">
-                        <div class="stat-card border-start border-3 border-info">
+                        <div class="stat-card border-start border-2 border-info">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-secondary uppercase" style="font-size: 0.68rem; font-weight: 700;">Attendance</span>
                                 <i class="fa-solid fa-chart-pie text-cyan"></i>
@@ -387,7 +387,7 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="stat-card border-start border-3 border-emerald-500">
+                        <div class="stat-card border-start border-2 border-emerald-500">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-secondary uppercase" style="font-size: 0.68rem; font-weight: 700;">Attended Hours</span>
                                 <i class="fa-solid fa-user-check text-emerald-400"></i>
@@ -401,7 +401,7 @@
                 </div>
 
                 <!-- Today's Timetable Preview -->
-                <div class="app-card" style="border: 1px solid rgba(56, 189, 248, 0.3);">
+                <div class="app-card">
                     <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
                         <h6 class="fw-bold text-white mb-0" style="font-size: 0.95rem;">
                             <i class="fa-solid fa-clock me-1 text-cyan"></i> Today's Schedule & Attendance
@@ -533,7 +533,7 @@
                 <!-- Quick Tasks Summary Badges -->
                 <div class="row g-2 mb-3">
                     <div class="col-6">
-                        <div class="stat-card border-start border-3 border-info">
+                        <div class="stat-card border-start border-2 border-info">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-secondary uppercase" style="font-size: 0.68rem; font-weight: 700;">Assignments</span>
                                 <i class="fa-solid fa-file-pen text-cyan"></i>
@@ -545,7 +545,7 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="stat-card border-start border-3 border-warning">
+                        <div class="stat-card border-start border-2 border-warning">
                             <div class="d-flex justify-content-between align-items-center mb-1">
                                 <span class="text-secondary uppercase" style="font-size: 0.68rem; font-weight: 700;">Written Tests</span>
                                 <i class="fa-solid fa-pen-to-square text-warning"></i>
