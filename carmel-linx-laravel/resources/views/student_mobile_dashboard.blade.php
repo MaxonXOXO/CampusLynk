@@ -187,6 +187,21 @@
             animation: fadeIn 0.3s ease-in-out;
         }
         @keyframes fadeIn {
+        .brand-title {
+            font-weight: 900;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        [data-theme="light"] .brand-title {
+            background: linear-gradient(135deg, #0284c7 0%, #4f46e5 50%, #7e22ce 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
         /* Dark/Light Mode Theme Variations */
         [data-theme="light"] {
             --app-bg: #f8fafc;
@@ -246,7 +261,7 @@
             <div class="d-flex align-items-center gap-2">
                 <img src="{{ asset('logo.jpg') }}" alt="Carmel" class="rounded-circle" style="width: 28px; height: 28px; object-fit: cover;">
                 <div>
-                    <h5 class="fw-black mb-0 text-white" style="font-size: 1.15rem; font-weight: 900; letter-spacing: -0.3px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Carmel Linx</h5>
+                    <h5 class="fw-black mb-0 brand-title" style="font-size: 1.15rem;">Carmel Linx</h5>
                     <small class="text-secondary" style="font-size: 0.7rem;">Student Mobile App</small>
                 </div>
             </div>
