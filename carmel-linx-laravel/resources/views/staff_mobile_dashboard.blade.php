@@ -218,9 +218,6 @@
                         <small class="text-info font-mono font-bold d-block" style="font-size: 0.78rem;">{{ $staff->mobile_no ?? session('userId') }}</small>
                         <div class="d-flex align-items-center gap-1.5 mt-1 flex-wrap">
                             <span class="badge bg-cyan bg-opacity-20 text-cyan badge-app">{{ $staff->designation ?? session('userRole') }}</span>
-                            <span class="badge text-dark fw-black badge-app px-2.5 py-1" style="background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); font-size: 0.85rem; font-weight: 900; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);">
-                                <i class="fa-solid fa-calendar-day me-1"></i> Today: {{ $defaultDayOrder }}
-                            </span>
                         </div>
                     </div>
                 </div>
