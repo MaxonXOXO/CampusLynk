@@ -47,6 +47,7 @@ Route::get('/', function () {
         if ($role === 'HOD') return redirect('/dashboard/hod');
         if ($role === 'Gen_Dept_Coordinator_Aided') return redirect('/dashboard/general-coordinator-aided');
         if ($role === 'Gen_Dept_Coordinator_Self_Finance') return redirect('/dashboard/general-coordinator-sf');
+        if (in_array($role, ['Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF'])) return redirect('/dashboard/academic-coordinator');
         if (in_array($role, ['Lecturer', 'Physical_Instructor', 'Physical Instructor'])) return redirect('/dashboard/lecturer');
         if ($role === 'Demonstrator') return redirect('/dashboard/demonstrator');
         if ($role === 'Trade_Instructor') return redirect('/dashboard/tradeinstructor');
@@ -218,6 +219,18 @@ Route::middleware(['web'])->group(function () {
             return redirect('/staff/mobile');
         }
         return view('general_coordinator_sf_dashboard');
+    });
+
+    Route::get('/dashboard/academic-coordinator', function () {
+        $role = Session::get('userRole');
+        if (!in_array($role, ['Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF', 'Gen_Dept_Coordinator_Self_Finance', 'Super_Admin', 'Admin'])) {
+            return redirect('/');
+        }
+        $ua = strtolower(request()->header('User-Agent', ''));
+        if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
+            return redirect('/staff/mobile');
+        }
+        return view('academic_coordinator_dashboard');
     });
 
     Route::get('/dashboard/lecturer', function () {

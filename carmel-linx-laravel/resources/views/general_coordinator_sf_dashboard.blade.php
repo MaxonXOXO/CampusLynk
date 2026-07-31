@@ -241,6 +241,9 @@
       <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block mt-4 text-[10px] text-xs">
         <span class="material-symbols-rounded text-lg">diversity_3</span> My Mentoring
       </a>
+      <a href="/dashboard/academic-coordinator" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 cursor-pointer no-underline block text-xs mobile-link">
+        <span class="material-symbols-rounded text-lg">verified_user</span> Academic Coordinator Desk
+      </a>
       <a href="/staff/leave/reports" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block text-xs mobile-link">
         <span class="material-symbols-rounded text-lg">event_note</span> Staff Leave Reports
       </a>

@@ -104,8 +104,8 @@ class AuthController extends Controller
                     $route = '/dashboard/tutor';
                 } elseif ($staff->designation === 'Gen_Dept_Coordinator_Aided') {
                     $route = '/dashboard/general-coordinator-aided';
-                } elseif ($staff->designation === 'Gen_Dept_Coordinator_Self_Finance') {
-                    $route = '/dashboard/general-coordinator-sf';
+                } elseif (in_array($staff->designation, ['Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF', 'Gen_Dept_Coordinator_Self_Finance'])) {
+                    $route = '/dashboard/academic-coordinator';
                 } elseif ($staff->designation === 'Lecturer') {
                     $route = '/dashboard/lecturer';
                 } elseif ($staff->designation === 'Demonstrator') {
