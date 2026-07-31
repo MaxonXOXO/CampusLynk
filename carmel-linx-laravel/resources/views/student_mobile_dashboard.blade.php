@@ -53,6 +53,7 @@
             top: 0;
             z-index: 100;
             padding: 14px 16px;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5), 0 2px 6px -1px rgba(6, 182, 212, 0.15);
         }
 
         /* App Cards */
@@ -249,6 +250,7 @@
         [data-theme="light"] .mobile-header {
             background: rgba(255, 255, 255, 0.95) !important;
             border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(2, 132, 199, 0.1) !important;
         }
         [data-theme="light"] .app-card {
             background: #ffffff !important;
