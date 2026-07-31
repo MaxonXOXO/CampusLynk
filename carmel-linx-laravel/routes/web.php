@@ -1669,6 +1669,14 @@ Route::middleware(['web'])->group(function () {
     });
 
     Route::post('/api/student/change-password', [App\Http\Controllers\AuthController::class, 'changeStudentPassword']);
+
+    // Staff Leave Application System Routes (New Module)
+    Route::post('/api/staff/leave/apply', [App\Http\Controllers\StaffLeaveController::class, 'applyLeave']);
+    Route::get('/api/staff/leave/my-history', [App\Http\Controllers\StaffLeaveController::class, 'getMyLeaveHistory']);
+    Route::get('/api/staff/leave/pending-approvals', [App\Http\Controllers\StaffLeaveController::class, 'getPendingApprovals']);
+    Route::post('/api/staff/leave/process-approval', [App\Http\Controllers\StaffLeaveController::class, 'processApproval']);
+    Route::get('/staff/leave/{id}/pdf', [App\Http\Controllers\StaffLeaveController::class, 'generateLeavePDF']);
+    Route::get('/staff/leave/reports', [App\Http\Controllers\StaffLeaveController::class, 'getLeaveReports']);
 });
 
 // Parent Dashboard Add-On Routes

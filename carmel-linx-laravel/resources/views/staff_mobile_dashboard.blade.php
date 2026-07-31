@@ -492,6 +492,52 @@
             </div>
             @endif
 
+            <!-- TAB 6: STAFF LEAVE GOVERNANCE PORTAL -->
+            <div id="tab-leave" class="tab-pane d-none fade-in">
+                
+                <div class="app-card border-start border-2 border-info mb-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <h6 class="fw-bold text-white mb-0">Staff Leave Portal</h6>
+                            <small class="text-secondary" style="font-size: 0.72rem;">3-Stage Hierarchical Approval Workflow</small>
+                        </div>
+                        <button type="button" onclick="openStaffLeaveModal()" class="btn btn-sm btn-info fw-bold text-dark rounded-pill px-3" style="background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); border: none;">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Apply Leave
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PENDING APPROVALS BOX (FOR HOD / COORDINATOR / PRINCIPAL) -->
+                @if(in_array(session('userRole'), ['HOD', 'Academic_Coordinator', 'Principal', 'Super_Admin', 'Admin']))
+                <div class="app-card border-start border-2 border-warning mb-3">
+                    <h6 class="fw-bold text-warning mb-2" style="font-size: 0.88rem;">
+                        <i class="fa-solid fa-clock-rotate-left me-1"></i> Pending Staff Leave Approvals
+                    </h6>
+                    <div id="pendingApprovalsContainer" class="space-y-2">
+                        <small class="text-secondary d-block">Loading pending approval queue...</small>
+                    </div>
+                    @if(in_array(session('userRole'), ['HOD', 'Academic_Coordinator', 'Principal']))
+                    <div class="mt-2 text-end">
+                        <a href="/staff/leave/reports" class="btn btn-sm btn-outline-warning py-0.5 px-2" style="font-size: 0.72rem;">
+                            <i class="fa-solid fa-table-list me-1"></i> View Master Leave Ledger
+                        </a>
+                    </div>
+                    @endif
+                </div>
+                @endif
+
+                <!-- MY LEAVE APPLICATION HISTORY -->
+                <div class="app-card">
+                    <h6 class="fw-bold text-white mb-3" style="font-size: 0.88rem;">
+                        <i class="fa-solid fa-list-check me-1 text-info"></i> My Leave Applications
+                    </h6>
+                    <div id="myLeaveHistoryContainer" class="space-y-2">
+                        <small class="text-secondary d-block">Loading your leave records...</small>
+                    </div>
+                </div>
+
+            </div>
+
             <!-- TAB 5: PROFILE & SECURITY -->
             <div id="tab-profile" class="tab-pane d-none fade-in">
                 
@@ -552,6 +598,10 @@
                 <i class="fa-solid fa-kit-medical"></i>
                 <span>Remedial</span>
             </a>
+            <a href="#" class="nav-link-mobile" onclick="switchStaffTab(event, 'tab-leave')">
+                <i class="fa-solid fa-file-signature"></i>
+                <span>Leave</span>
+            </a>
             @if($isMentor)
             <a href="#" class="nav-link-mobile" onclick="switchStaffTab(event, 'tab-mentoring')">
                 <i class="fa-solid fa-user-graduate"></i>
@@ -566,6 +616,89 @@
 
     </div>
 
+    <!-- STAFF LEAVE APPLICATION MODAL -->
+    <div id="staffLeaveModal" class="modal fade" tabindex="-1" aria-hidden="true" style="background: rgba(0,0,0,0.75); backdrop-filter: blur(4px);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border border-secondary border-opacity-25 text-white shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header border-bottom border-secondary border-opacity-25 py-3">
+                    <h6 class="modal-title fw-bold text-info" id="staffLeaveModalLabel">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Apply Staff Leave
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeStaffLeaveModal()"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <div id="staffLeaveAlert" class="alert d-none py-2 px-3 small font-bold mb-3"></div>
+                    <form id="staffLeaveForm">
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label text-secondary small fw-bold mb-1">Leave Type</label>
+                                <select id="slvType" class="form-select bg-slate-900 border-secondary border-opacity-50 text-white" style="font-size: 0.85rem;" required>
+                                    <option value="Casual Leave">Casual Leave (CL)</option>
+                                    <option value="Duty Leave">Duty Leave (DL)</option>
+                                    <option value="Medical Leave">Medical Leave (ML)</option>
+                                    <option value="Loss of Pay">Loss of Pay (LOP)</option>
+                                    <option value="Special Leave">Special Leave</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small fw-bold mb-1">Session Type</label>
+                                <select id="slvSession" class="form-select bg-slate-900 border-secondary border-opacity-50 text-white" style="font-size: 0.85rem;" required>
+                                    <option value="Full Day">Full Day</option>
+                                    <option value="FN">FN (Forenoon)</option>
+                                    <option value="AN">AN (Afternoon)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-5">
+                                <label class="form-label text-secondary small fw-bold mb-1">From Date</label>
+                                <input type="date" id="slvFromDate" class="form-control bg-slate-900 border-secondary border-opacity-50 text-white" style="font-size: 0.85rem;" required>
+                            </div>
+                            <div class="col-5">
+                                <label class="form-label text-secondary small fw-bold mb-1">To Date</label>
+                                <input type="date" id="slvToDate" class="form-control bg-slate-900 border-secondary border-opacity-50 text-white" style="font-size: 0.85rem;" required>
+                            </div>
+                            <div class="col-2">
+                                <label class="form-label text-secondary small fw-bold mb-1">Days</label>
+                                <input type="number" step="0.5" min="0.5" id="slvTotalDays" class="form-control bg-slate-900 border-secondary border-opacity-50 text-white" value="1" style="font-size: 0.85rem;" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-bold mb-1">Reason for Leave</label>
+                            <textarea id="slvReason" rows="2" class="form-control bg-slate-900 border-secondary border-opacity-50 text-white" placeholder="Provide reason for absence..." style="font-size: 0.85rem;" required></textarea>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label text-secondary small fw-bold mb-1">Work Arrangement / Substitutes</label>
+                            <div class="p-2 border border-secondary border-opacity-25 rounded-3 bg-slate-950">
+                                <div class="row g-1 mb-2">
+                                    <div class="col-5">
+                                        <input type="text" id="arrClassroom" class="form-control form-control-sm bg-dark text-white" placeholder="Period / Class">
+                                    </div>
+                                    <div class="col-5">
+                                        <input type="text" id="arrSubstitute" class="form-control form-control-sm bg-dark text-white" placeholder="Substitute Staff">
+                                    </div>
+                                    <div class="col-2">
+                                        <button type="button" onclick="addWorkArrangementRow()" class="btn btn-sm btn-info w-100">+</button>
+                                    </div>
+                                </div>
+                                <ul id="arrList" class="list-group list-group-flush small" style="max-height: 100px; overflow-y: auto;"></ul>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25 py-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary px-3 rounded-pill" onclick="closeStaffLeaveModal()">Cancel</button>
+                    <button type="button" id="btnSubmitStaffLeave" onclick="submitStaffLeaveRequest()" class="btn btn-sm btn-info px-4 rounded-pill fw-bold text-dark" style="background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); border: none;">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Submit to HOD
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/bootstrap.bundle.min.js"></script>
 
@@ -573,6 +706,236 @@
         const allTimetablesByDay = @json($fullTimetablesByDay);
         const currentDefaultDayOrder = @json($defaultDayOrder);
         const desktopAttendanceUrl = @json($desktopUrl);
+        let workArrangementsArray = [];
+
+        function switchStaffTab(e, tabId) {
+            e.preventDefault();
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('d-none'));
+            document.querySelectorAll('.nav-link-mobile').forEach(el => el.classList.remove('active'));
+
+            const targetPane = document.getElementById(tabId);
+            if (targetPane) {
+                targetPane.classList.remove('d-none');
+            }
+            e.currentTarget.classList.add('active');
+
+            if (tabId === 'tab-leave') {
+                loadMyLeaveHistory();
+                loadPendingApprovals();
+            }
+        }
+
+        function openStaffLeaveModal() {
+            const modal = document.getElementById('staffLeaveModal');
+            if (modal) {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('slvFromDate').value = today;
+                document.getElementById('slvToDate').value = today;
+                document.getElementById('staffLeaveAlert').classList.add('d-none');
+                workArrangementsArray = [];
+                renderWorkArrangements();
+                modal.style.display = 'block';
+                modal.classList.add('show');
+            }
+        }
+
+        function closeStaffLeaveModal() {
+            const modal = document.getElementById('staffLeaveModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+            }
+        }
+
+        function addWorkArrangementRow() {
+            const cls = document.getElementById('arrClassroom').value.trim();
+            const sub = document.getElementById('arrSubstitute').value.trim();
+            if (cls && sub) {
+                workArrangementsArray.push({ classroom: cls, substitute_name: sub, date: document.getElementById('slvFromDate').value });
+                document.getElementById('arrClassroom').value = '';
+                document.getElementById('arrSubstitute').value = '';
+                renderWorkArrangements();
+            }
+        }
+
+        function renderWorkArrangements() {
+            const list = document.getElementById('arrList');
+            if (!list) return;
+            list.innerHTML = '';
+            workArrangementsArray.forEach((item, idx) => {
+                list.innerHTML += `<li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center py-1 px-0 border-secondary border-opacity-25" style="font-size: 0.75rem;">
+                    <span><strong>${item.classroom}</strong> &rarr; ${item.substitute_name}</span>
+                    <button type="button" onclick="removeWorkArrangementRow(${idx})" class="btn btn-sm btn-link text-danger p-0 ms-2">&times;</button>
+                </li>`;
+            });
+        }
+
+        function removeWorkArrangementRow(idx) {
+            workArrangementsArray.splice(idx, 1);
+            renderWorkArrangements();
+        }
+
+        function submitStaffLeaveRequest() {
+            const leaveType = document.getElementById('slvType').value;
+            const sessionType = document.getElementById('slvSession').value;
+            const fromDate = document.getElementById('slvFromDate').value;
+            const toDate = document.getElementById('slvToDate').value;
+            const totalDays = parseFloat(document.getElementById('slvTotalDays').value);
+            const reason = document.getElementById('slvReason').value.trim();
+            const alertBox = document.getElementById('staffLeaveAlert');
+            const btn = document.getElementById('btnSubmitStaffLeave');
+
+            if (!fromDate || !toDate || !reason || isNaN(totalDays)) {
+                alertBox.className = 'alert alert-danger py-2 px-3 small font-bold mb-3';
+                alertBox.innerText = 'Please complete all required fields.';
+                alertBox.classList.remove('d-none');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Submitting...';
+
+            fetch('/api/staff/leave/apply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    leave_type: leaveType,
+                    session_type: sessionType,
+                    from_date: fromDate,
+                    to_date: toDate,
+                    total_days: totalDays,
+                    reason: reason,
+                    work_arrangement: workArrangementsArray
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit to HOD';
+
+                if (data.status === 'SUCCESS') {
+                    alertBox.className = 'alert alert-success py-2 px-3 small font-bold mb-3';
+                    alertBox.innerText = data.message;
+                    alertBox.classList.remove('d-none');
+                    document.getElementById('staffLeaveForm').reset();
+                    setTimeout(() => {
+                        closeStaffLeaveModal();
+                        loadMyLeaveHistory();
+                    }, 1200);
+                } else {
+                    alertBox.className = 'alert alert-danger py-2 px-3 small font-bold mb-3';
+                    alertBox.innerText = data.message || 'Failed to submit leave.';
+                    alertBox.classList.remove('d-none');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit to HOD';
+                alertBox.className = 'alert alert-danger py-2 px-3 small font-bold mb-3';
+                alertBox.innerText = 'Network error during leave submission.';
+                alertBox.classList.remove('d-none');
+            });
+        }
+
+        function loadMyLeaveHistory() {
+            const container = document.getElementById('myLeaveHistoryContainer');
+            if (!container) return;
+
+            fetch('/api/staff/leave/my-history')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'SUCCESS' && data.leaves.length > 0) {
+                    let html = '';
+                    data.leaves.forEach(item => {
+                        let statusBadge = '<span class="badge bg-info text-dark">Pending HOD</span>';
+                        if (item.overall_status === 'Approved') statusBadge = '<span class="badge bg-success">Final Approved</span>';
+                        else if (item.overall_status === 'Rejected') statusBadge = '<span class="badge bg-danger">Rejected</span>';
+                        else if (item.overall_status === 'Pending_Coordinator') statusBadge = '<span class="badge bg-warning text-dark">Pending Coordinator</span>';
+                        else if (item.overall_status === 'Pending_Principal') statusBadge = '<span class="badge bg-primary">Pending Principal</span>';
+
+                        html += `<div class="p-2.5 rounded-3 border border-secondary border-opacity-25 bg-dark mb-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="font-mono text-cyan fw-bold small">${item.leave_code}</span>
+                                ${statusBadge}
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong class="text-white small d-block">${item.leave_type} (${item.session_type})</strong>
+                                    <small class="text-secondary" style="font-size:0.7rem;">${item.from_date} to ${item.to_date} &bull; ${item.total_days} Day(s)</small>
+                                </div>
+                                <a href="/staff/leave/${item.id}/pdf" target="_blank" class="btn btn-sm btn-outline-info py-0.5 px-2" style="font-size:0.7rem;">
+                                    <i class="fa-solid fa-file-pdf"></i> PDF
+                                </a>
+                            </div>
+                        </div>`;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<small class="text-secondary d-block py-2">No leave applications submitted yet.</small>';
+                }
+            });
+        }
+
+        function loadPendingApprovals() {
+            const container = document.getElementById('pendingApprovalsContainer');
+            if (!container) return;
+
+            fetch('/api/staff/leave/pending-approvals')
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'SUCCESS' && data.approvals.length > 0) {
+                    let html = '';
+                    const stage = data.role === 'HOD' ? 'HOD' : (data.role === 'Principal' ? 'Principal' : 'Coordinator');
+                    data.approvals.forEach(item => {
+                        html += `<div class="p-2.5 rounded-3 border border-warning border-opacity-30 bg-slate-900 mb-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-white small">${item.staff_name} (${item.department})</strong>
+                                <span class="badge bg-warning text-dark small">${item.leave_type}</span>
+                            </div>
+                            <small class="text-secondary d-block mb-1" style="font-size:0.72rem;">
+                                ${item.from_date} to ${item.to_date} (${item.session_type}) &bull; ${item.total_days} Day(s)
+                            </small>
+                            <div class="text-slate-300 small italic mb-2" style="font-size:0.75rem;">"${item.reason}"</div>
+                            <div class="d-flex gap-2">
+                                <button onclick="actionLeaveApproval(${item.id}, '${stage}', 'Approved')" class="btn btn-sm btn-success py-0.5 px-3 flex-grow-1" style="font-size:0.72rem;">
+                                    <i class="fa-solid fa-check me-1"></i> Approve
+                                </button>
+                                <button onclick="actionLeaveApproval(${item.id}, '${stage}', 'Rejected')" class="btn btn-sm btn-outline-danger py-0.5 px-2" style="font-size:0.72rem;">
+                                    <i class="fa-solid fa-xmark me-1"></i> Reject
+                                </button>
+                            </div>
+                        </div>`;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<small class="text-secondary d-block py-1">No pending leave requests in your approval queue.</small>';
+                }
+            });
+        }
+
+        function actionLeaveApproval(leaveId, stage, action) {
+            const remarks = prompt(`Enter optional remarks for ${action}:`) || '';
+            fetch('/api/staff/leave/process-approval', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ leave_id: leaveId, stage: stage, action: action, remarks: remarks })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'SUCCESS') {
+                    loadPendingApprovals();
+                } else {
+                    alert(data.message || 'Error processing approval.');
+                }
+            });
+        }
+
 
         function selectDayOrder(dayKey) {
             // Save universal day order setting for today across all dashboards
