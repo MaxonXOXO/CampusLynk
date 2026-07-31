@@ -1028,17 +1028,9 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             selectDayOrder(currentDefaultDayOrder);
+            loadMyLeaveHistory();
+            loadPendingApprovals();
         });
-
-        function switchStaffTab(e, tabId) {
-            e.preventDefault();
-            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('d-none'));
-            document.querySelectorAll('.nav-link-mobile').forEach(el => el.classList.remove('active'));
-
-            const target = document.getElementById(tabId);
-            if (target) target.classList.remove('d-none');
-            e.currentTarget.classList.add('active');
-        }
 
         function processMobileLeave(leaveId, decision) {
             if (!confirm(`Are you sure you want to set this leave status to ${decision}?`)) return;

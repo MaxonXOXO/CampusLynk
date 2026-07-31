@@ -128,7 +128,10 @@
 <body>
 
     <!-- Printable Header / Actions -->
-    <div class="no-print" style="margin-bottom: 20px; text-align: right;">
+    <div class="no-print" style="margin-bottom: 20px; text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+        <button onclick="window.close(); if(!window.closed){ window.history.back(); }" style="background: #475569; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer;">
+            ✖ Close Window
+        </button>
         <button onclick="window.print()" style="background: #2563eb; color: white; border: none; padding: 10px 20px; font-weight: bold; border-radius: 6px; cursor: pointer;">
             🖨️ Print / Download PDF
         </button>
