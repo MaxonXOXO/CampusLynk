@@ -1246,7 +1246,142 @@
             }
         }
 
+        // LEAVE APPLICATION MODAL HANDLERS
+        function openLeaveModal() {
+            const modal = document.getElementById('leaveModal');
+            if (modal) {
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('leaveDate').value = today;
+                document.getElementById('leaveAlert').classList.add('d-none');
+                modal.style.display = 'block';
+                modal.classList.add('show');
+            }
+        }
+
+        function closeLeaveModal() {
+            const modal = document.getElementById('leaveModal');
+            if (modal) {
+                modal.style.display = 'none';
+                modal.classList.remove('show');
+            }
+        }
+
+        function submitLeaveRequest() {
+            const semester = document.getElementById('leaveSemester').value;
+            const leaveDate = document.getElementById('leaveDate').value;
+            const noOfDays = document.getElementById('leaveNoOfDays').value;
+            const reason = document.getElementById('leaveReason').value.trim();
+            const parentInformed = document.getElementById('leaveParentInformed').checked ? 1 : 0;
+            const alertBox = document.getElementById('leaveAlert');
+            const submitBtn = document.getElementById('btnSubmitLeave');
+
+            if (!leaveDate || !noOfDays || !reason) {
+                alertBox.className = 'alert alert-danger py-2 px-3 small font-bold mb-3';
+                alertBox.innerText = 'Please fill in all required fields.';
+                alertBox.classList.remove('d-none');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Submitting...';
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            fetch('/api/mentoring/leave/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || ''
+                },
+                body: JSON.stringify({
+                    semester: parseInt(semester),
+                    leave_date: leaveDate,
+                    no_of_days: noOfDays.toString(),
+                    reason: reason,
+                    parent_informed: parentInformed,
+                    status: 'Pending'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Leave';
+
+                if (data.status === 'SUCCESS') {
+                    alertBox.className = 'alert alert-success py-2 px-3 small font-bold mb-3';
+                    alertBox.innerText = data.message || 'Leave request submitted successfully!';
+                    alertBox.classList.remove('d-none');
+                    document.getElementById('leaveApplicationForm').reset();
+                    setTimeout(() => {
+                        closeLeaveModal();
+                    }, 1500);
+                } else {
+                    alertBox.className = 'alert alert-danger py-2 px-3 small font-bold mb-3';
+                    alertBox.innerText = data.message || 'Failed to submit leave request.';
+                    alertBox.classList.remove('d-none');
+                }
+            })
+            .catch(err => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Leave';
+                alertBox.className = 'alert alert-danger py-2 px-3 small font-bold mb-3';
+                alertBox.innerText = 'Network error occurred while submitting leave.';
+                alertBox.classList.remove('d-none');
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', initTheme);
     </script>
+
+    <!-- LEAVE APPLICATION MODAL -->
+    <div id="leaveModal" class="modal fade" tabindex="-1" aria-hidden="true" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border border-secondary border-opacity-25 text-white shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header border-bottom border-secondary border-opacity-25 py-3">
+                    <h6 class="modal-title fw-bold text-info" id="leaveModalLabel">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Apply for Leave
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeLeaveModal()"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <div id="leaveAlert" class="alert d-none py-2 px-3 small font-bold mb-3"></div>
+                    <form id="leaveApplicationForm">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-bold mb-1">Semester</label>
+                            <select id="leaveSemester" class="form-select bg-slate-900 border-secondary border-opacity-50 text-white" style="font-size: 0.85rem;" required>
+                                @for($i = 1; $i <= 6; $i++)
+                                    <option value="{{ $i }}" {{ ($student->current_semester ?? 1) == $i ? 'selected' : '' }}>Semester {{ $i }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-bold mb-1">Leave Date</label>
+                            <input type="date" id="leaveDate" class="form-control bg-slate-900 border-secondary border-opacity-50 text-white" style="font-size: 0.85rem;" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-bold mb-1">Number of Days</label>
+                            <input type="number" step="0.5" min="0.5" id="leaveNoOfDays" class="form-control bg-slate-900 border-secondary border-opacity-50 text-white" value="1" style="font-size: 0.85rem;" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-bold mb-1">Reason for Leave</label>
+                            <textarea id="leaveReason" rows="3" class="form-control bg-slate-900 border-secondary border-opacity-50 text-white" placeholder="Provide reason for absence..." style="font-size: 0.85rem;" required></textarea>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="leaveParentInformed" value="1">
+                            <label class="form-check-label text-secondary small" for="leaveParentInformed">
+                                Parent / Guardian Informed
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25 py-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary px-3 rounded-pill" onclick="closeLeaveModal()">Cancel</button>
+                    <button type="button" id="btnSubmitLeave" onclick="submitLeaveRequest()" class="btn btn-sm btn-info px-4 rounded-pill fw-bold text-dark" style="background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%); border: none;">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Submit Leave
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
