@@ -242,7 +242,7 @@
                     <div class="col-3">
                         <div class="stat-card">
                             <span class="text-secondary uppercase d-block" style="font-size: 0.65rem; font-weight: 700;">Remedial</span>
-                            <strong class="text-danger" style="font-size: 1.05rem;">{{ count($remedialRooms) }}</strong>
+                            <strong style="color: #fb923c; font-size: 1.05rem;">{{ count($remedialRooms) }}</strong>
                         </div>
                     </div>
                     @else
@@ -261,7 +261,7 @@
                     <div class="col-4">
                         <div class="stat-card">
                             <span class="text-secondary uppercase d-block" style="font-size: 0.65rem; font-weight: 700;">Remedial</span>
-                            <strong class="text-danger" style="font-size: 1.05rem;">{{ count($remedialRooms) }}</strong>
+                            <strong style="color: #fb923c; font-size: 1.05rem;">{{ count($remedialRooms) }}</strong>
                         </div>
                     </div>
                     @endif
@@ -380,12 +380,12 @@
 
             <!-- TAB 3: REMEDIAL CLASSES -->
             <div id="tab-remedial" class="tab-pane d-none fade-in">
-                <div class="app-card border-start border-2 border-danger">
+                <div class="app-card border-start border-2" style="border-left-color: #f97316 !important;">
                     <div class="d-flex align-items-center justify-content-between mb-3">
-                        <h6 class="fw-bold text-danger mb-0" style="font-size: 0.95rem;">
+                        <h6 class="fw-bold mb-0" style="color: #fb923c; font-size: 0.95rem;">
                             <i class="fa-solid fa-kit-medical me-1"></i> Remedial Classes & Support
                         </h6>
-                        <a href="/remedial-sessions" class="btn btn-sm btn-outline-danger px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                        <a href="/remedial-sessions" class="btn btn-sm px-2.5 py-1 rounded-pill fw-semibold" style="font-size: 0.72rem; color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.4); background: rgba(249, 115, 22, 0.1);">
                             <i class="fa-solid fa-arrow-right-long me-1"></i> Open Portal
                         </a>
                     </div>
@@ -398,10 +398,10 @@
                                     <strong class="text-white d-block" style="font-size: 0.88rem;">Room: {{ $room->room_code ?? $room->id }}</strong>
                                     <small class="text-secondary" style="font-size: 0.75rem;">Batch: <strong class="text-cyan">{{ $room->classroom_id ?? 'Academic' }}</strong></small>
                                 </div>
-                                <span class="badge bg-danger bg-opacity-20 text-danger badge-app">{{ $room->status ?? 'Active' }}</span>
+                                <span class="badge badge-app" style="background-color: rgba(249, 115, 22, 0.18); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.35);">{{ $room->status ?? 'Active' }}</span>
                             </div>
                             <div class="mt-2 pt-2 border-top border-secondary border-opacity-25 d-flex justify-content-end gap-2">
-                                <a href="/remedial-sessions" class="btn btn-sm btn-danger px-3 py-1 rounded-pill fw-bold text-white" style="font-size: 0.75rem;">
+                                <a href="/remedial-sessions" class="btn btn-sm px-3 py-1 rounded-pill fw-bold text-white" style="font-size: 0.75rem; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); border: none; box-shadow: 0 0 12px rgba(249, 115, 22, 0.3);">
                                     <i class="fa-solid fa-pen-to-square me-1"></i> Log Session & Attendance
                                 </a>
                             </div>
