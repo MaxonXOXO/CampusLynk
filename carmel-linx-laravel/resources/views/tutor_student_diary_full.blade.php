@@ -95,7 +95,7 @@
     <div class="p-5 border-b border-slate-800/60 flex items-center gap-3">
       <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-lg">CL</div>
       <div>
-        <h2 class="font-extrabold tracking-wide text-sm">Carmel Linx</h2>
+        <h2 class="font-black tracking-tight leading-tight text-white" style="font-size: 1.15rem; font-weight: 900; letter-spacing: -0.3px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Carmel Linx</h2>
         <span class="text-indigo-400 font-bold uppercase tracking-wider text-[10px]">Mentor Panel</span>
       </div>
     </div>
@@ -368,9 +368,9 @@
             <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Vehicle Pass ID</label>
             <input type="text" id="mdVehiclePassId" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="If yes, specify">
           </div>
-          <div class="lg:col-span-2">
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Communication Address</label>
-            <textarea id="mdCommAddress" rows="1" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 resize-none text-[11px]"></textarea>
+          <div class="col-span-1 md:col-span-2 lg:col-span-2">
+            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Communication Address</label>
+            <textarea id="mdCommAddress" rows="3" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 resize-none text-sm min-h-[80px]"></textarea>
           </div>
         </div>
       </div>

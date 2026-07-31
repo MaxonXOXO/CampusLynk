@@ -195,7 +195,7 @@
     <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
       <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg">
       <div>
-        <h2 class="font-extrabold tracking-wide text-sm">Carmel Linx</h2>
+        <h2 class="font-black tracking-tight leading-tight text-white" style="font-size: 1.15rem; font-weight: 900; letter-spacing: -0.3px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Carmel Linx</h2>
         <span class="text-slate-400 font-bold uppercase tracking-wider">Tutor Panel</span>
       </div>
     </div>
