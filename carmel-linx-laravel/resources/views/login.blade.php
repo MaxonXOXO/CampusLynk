@@ -12,9 +12,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Google Icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <!-- CSRF Token & Solution Architect Metadata -->
+  <!-- CSRF Token & System Support Metadata -->
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <meta name="author" content="Dhanush.A - Solution Architect, Department of Electronics, Carmel Polytechnic College">
+  <meta name="author" content="Dhanush.A - Technical Support & Architecture, Carmel Polytechnic College">
   
   <style>
     body {
@@ -327,11 +327,11 @@
 
     </div>
 
-    <!-- Solution Architect & Platform Metadata Footer -->
+    <!-- System Support & Platform Metadata Footer -->
     <div class="mt-5 pt-3 border-t border-slate-800/80 text-center space-y-0.5 select-none">
       <p class="text-[11px] text-slate-400 font-semibold flex items-center justify-center gap-1.5">
-        <span class="material-symbols-rounded text-xs text-blue-400">code_blocks</span>
-        <span>Solution Architect: <strong class="text-slate-200 font-extrabold">Dhanush.A</strong></span>
+        <span class="material-symbols-rounded text-xs text-blue-400">support_agent</span>
+        <span>Support: <strong class="text-slate-200 font-extrabold">Dhanush.A</strong></span>
       </p>
       <p class="text-[10px] text-slate-500 font-medium">Dept. of Electronics | Carmel Polytechnic College</p>
       <span class="text-[9px] text-slate-600 font-mono block tracking-wider">Carmel Linx AMS v2026.1 Beta</span>
