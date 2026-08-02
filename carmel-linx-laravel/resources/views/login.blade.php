@@ -330,7 +330,7 @@
     <!-- System Support & Platform Metadata Footer -->
     <div class="mt-5 pt-3 border-t border-slate-800/80 text-center space-y-0.5 select-none">
       <p class="text-[11px] text-slate-400 font-semibold flex items-center justify-center gap-1.5">
-        <span class="material-symbols-rounded text-xs text-blue-400">support_agent</span>
+        <span class="material-symbols-rounded text-xs text-blue-400">engineering</span>
         <span>Support: <strong class="text-slate-200 font-extrabold">Dhanush.A</strong></span>
       </p>
       <p class="text-[10px] text-slate-500 font-medium">Dept. of Electronics | Carmel Polytechnic College</p>

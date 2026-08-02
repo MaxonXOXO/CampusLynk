@@ -136,7 +136,7 @@
       <!-- System Support Badge -->
       <div class="p-3 bg-slate-950/60 border border-slate-800/80 rounded-xl text-center select-none">
         <div class="flex items-center justify-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-          <span class="material-symbols-rounded text-xs text-blue-400">support_agent</span> System Support
+          <span class="material-symbols-rounded text-xs text-blue-400">engineering</span> System Support
         </div>
         <div class="text-xs font-black text-slate-200 mt-0.5">Dhanush.A</div>
         <div class="text-[9px] text-slate-500 font-medium">Carmel Polytechnic College</div>
