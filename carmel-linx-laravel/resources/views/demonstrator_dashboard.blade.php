@@ -240,16 +240,16 @@
       </a>
       @endif
 
-      <a href="/course-files" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-amber-400 hover:bg-amber-950/40 cursor-pointer no-underline block">
-        <span class="material-symbols-rounded text-lg">folder_special</span> Course Files
-      </a>
-
       <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-950/40 cursor-pointer no-underline block mobile-link">
          <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
       </a>
 
       <a href="/remedial-sessions" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-950/40 cursor-pointer no-underline block mobile-link">
         <span class="material-symbols-rounded text-lg">health_and_safety</span> Remedial Sessions
+      </a>
+
+      <a href="/course-files" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-amber-400 hover:bg-amber-950/40 cursor-pointer no-underline block">
+        <span class="material-symbols-rounded text-lg">folder_special</span> Course Files
       </a>
 
       <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-950/40 cursor-pointer no-underline block mobile-link">
