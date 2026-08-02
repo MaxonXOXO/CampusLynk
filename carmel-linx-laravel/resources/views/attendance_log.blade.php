@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>Live Class Log & Attendance | Carmel Linx</title>
+  <title>Class Log & Attendance | Carmel Linx</title>
   
   <!-- Google Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,7 +53,7 @@
         <span class="material-symbols-rounded">arrow_back</span>
       </a>
       <div>
-        <h1 class="font-extrabold text-white text-base sm:text-lg tracking-tight">Live Log & Attendance</h1>
+        <h1 class="font-extrabold text-white text-base sm:text-lg tracking-tight">Class Log & Attendance</h1>
         <p class="text-sm text-slate-400 font-medium">Record today's class topics and attendance.</p>
       </div>
     </div>
