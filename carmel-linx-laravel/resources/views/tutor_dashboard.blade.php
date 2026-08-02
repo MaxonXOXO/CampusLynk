@@ -257,12 +257,13 @@
         <span class="material-symbols-rounded text-base">logout</span> Sign Out
       </a>
 
-      <!-- System Support Badge -->
-      <div class="p-2.5 bg-slate-950/60 border border-slate-800/80 rounded-xl text-center select-none">
+      <!-- Support Badge -->
+      <div class="p-2 bg-slate-950/60 border border-slate-800/80 rounded-xl text-center select-none">
         <div class="flex items-center justify-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-          <span class="material-symbols-rounded text-xs text-blue-400">engineering</span> System Support
+          <span class="material-symbols-rounded text-xs text-blue-400">engineering</span> Support
         </div>
         <div class="text-[11px] font-black text-slate-200 mt-0.5">Dhanush.A</div>
+        <div class="text-[9px] text-slate-400 font-medium">Dept. of Electronics</div>
       </div>
     </div>
   </aside>
