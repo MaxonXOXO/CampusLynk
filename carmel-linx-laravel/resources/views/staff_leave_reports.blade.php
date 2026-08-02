@@ -42,9 +42,19 @@
                 <small class="text-secondary">Multi-stage approval audit trail and department leave reports</small>
             </div>
             <div>
-                <a href="/staff/mobile" class="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
-                    <i class="fa-solid fa-mobile-screen me-1"></i> Staff Mobile
-                </a>
+                @if(Session::get('userRole') === 'HOD')
+                    <a href="/dashboard/hod" class="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Back to HOD Console
+                    </a>
+                @elseif(in_array(Session::get('userRole'), ['Principal', 'Super_Admin', 'Admin']))
+                    <a href="/dashboard/superadmin" class="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
+                        <i class="fa-solid fa-arrow-left me-1"></i> Control Desk
+                    </a>
+                @else
+                    <a href="/staff/mobile" class="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
+                        <i class="fa-solid fa-mobile-screen me-1"></i> Staff Mobile
+                    </a>
+                @endif
                 <button onclick="window.print()" class="btn btn-primary btn-sm rounded-pill px-3">
                     <i class="fa-solid fa-print me-1"></i> Print Ledger
                 </button>
@@ -64,14 +74,21 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label text-secondary small fw-bold mb-1">Department</label>
-                    <select name="department" class="form-select bg-dark text-white border-secondary">
-                        <option value="">All Departments</option>
-                        <option value="General" {{ request('department') == 'General' ? 'selected' : '' }}>General Science</option>
-                        <option value="Civil" {{ request('department') == 'Civil' ? 'selected' : '' }}>Civil Engineering</option>
-                        <option value="Mechanical" {{ request('department') == 'Mechanical' ? 'selected' : '' }}>Mechanical Engineering</option>
-                        <option value="Electrical" {{ request('department') == 'Electrical' ? 'selected' : '' }}>Electrical Engineering</option>
-                        <option value="Automobile" {{ request('department') == 'Automobile' ? 'selected' : '' }}>Automobile Engineering</option>
-                    </select>
+                    @if(Session::get('userRole') === 'HOD')
+                        <input type="text" class="form-control bg-dark text-info border-secondary fw-bold" value="{{ Session::get('userBranch') }} Department (HOD Ledger)" disabled readonly>
+                        <input type="hidden" name="department" value="{{ Session::get('userBranch') }}">
+                    @else
+                        <select name="department" class="form-select bg-dark text-white border-secondary">
+                            <option value="">All Departments</option>
+                            <option value="EL" {{ request('department') == 'EL' || request('department') == 'Electronics' ? 'selected' : '' }}>Electronics (EL)</option>
+                            <option value="ME" {{ request('department') == 'ME' || request('department') == 'Mechanical' ? 'selected' : '' }}>Mechanical (ME)</option>
+                            <option value="CE" {{ request('department') == 'CE' || request('department') == 'Civil' ? 'selected' : '' }}>Civil (CE)</option>
+                            <option value="EEE" {{ request('department') == 'EEE' || request('department') == 'Electrical' ? 'selected' : '' }}>Electrical (EEE)</option>
+                            <option value="CT" {{ request('department') == 'CT' || request('department') == 'Computer' ? 'selected' : '' }}>Computer (CT)</option>
+                            <option value="AU" {{ request('department') == 'AU' || request('department') == 'Automobile' ? 'selected' : '' }}>Automobile (AU)</option>
+                            <option value="General" {{ request('department') == 'General' ? 'selected' : '' }}>General Science</option>
+                        </select>
+                    @endif
                 </div>
                 <div class="col-md-2">
                     <label class="form-label text-secondary small fw-bold mb-1">Leave Type</label>

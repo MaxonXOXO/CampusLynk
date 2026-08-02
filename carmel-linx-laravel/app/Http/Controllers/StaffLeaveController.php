@@ -274,10 +274,27 @@ class StaffLeaveController extends Controller
      */
     public function getLeaveReports(Request $request)
     {
-        $department   = $request->query('department');
+        $userRole = Session::get('userRole');
+        $userBranch = Session::get('userBranch');
+
+        $allowedRoles = ['HOD', 'Academic_Coordinator', 'Academic_Coordinator_SF', 'Principal', 'Admin', 'Super_Admin'];
+        if (!in_array($userRole, $allowedRoles)) {
+            if ($request->wantsJson()) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access to leave ledger.'], 403);
+            }
+            return redirect('/staff/mobile')->with('error', 'Staff leave reports and ledgers are restricted to HOD and Principal access.');
+        }
+
         $leaveType    = $request->query('leave_type');
         $status       = $request->query('status');
         $academicYear = $request->query('academic_year', date('Y'));
+
+        // If user is HOD, strictly enforce filtering by their department branch only
+        if ($userRole === 'HOD') {
+            $department = $userBranch;
+        } else {
+            $department = $request->query('department');
+        }
 
         $query = StaffLeaveRequest::query();
 
@@ -285,7 +302,10 @@ class StaffLeaveController extends Controller
             $query->whereYear('from_date', $academicYear);
         }
         if (!empty($department)) {
-            $query->where('department', $department);
+            $query->where(function($q) use ($department) {
+                $q->where('department', $department)
+                  ->orWhere('department', 'like', '%' . $department . '%');
+            });
         }
         if (!empty($leaveType)) {
             $query->where('leave_type', $leaveType);

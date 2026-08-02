@@ -255,6 +255,9 @@
       <a href="/hod/report-centre" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-amber-400 hover:bg-amber-900/20 hover:text-amber-300 cursor-pointer no-underline mobile-link">
          <span class="material-symbols-rounded text-lg">analytics</span> Report Centre
       </a>
+      <a href="/staff/leave/reports" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 hover:text-emerald-300 cursor-pointer no-underline block mobile-link">
+         <span class="material-symbols-rounded text-lg">event_note</span> Staff Leave Ledger
+      </a>
       <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 cursor-pointer no-underline block">
          <span class="material-symbols-rounded text-lg">school</span> Academic Activities
       </a>

@@ -244,9 +244,6 @@
       <a href="/dashboard/academic-coordinator" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 cursor-pointer no-underline block text-xs mobile-link">
         <span class="material-symbols-rounded text-lg">verified_user</span> Academic Coordinator Desk
       </a>
-      <a href="/staff/leave/reports" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block text-xs mobile-link">
-        <span class="material-symbols-rounded text-lg">event_note</span> Staff Leave Reports
-      </a>
       <a href="/staff/mobile" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 cursor-pointer no-underline block text-xs mobile-link">
         <span class="material-symbols-rounded text-lg">smartphone</span> Staff Mobile Portal
       </a>
