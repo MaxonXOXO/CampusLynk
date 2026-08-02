@@ -8,6 +8,7 @@ use App\Http\Controllers\R26DataController;
 use App\Http\Controllers\R26ClassroomController;
 use App\Http\Controllers\MidSemSurveyController;
 use App\Http\Controllers\CourseExitSurveyController;
+use App\Http\Controllers\SupportDeskController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -384,6 +385,14 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/admin/user/change-role', [DataController::class, 'changeUserRole']);
     Route::post('/api/admin/user/delete', [DataController::class, 'deleteUser']);
     Route::get('/api/audit-logs', [DataController::class, 'getAuditLogs']);
+
+    // Live Remote Support Desk (Beta) Endpoints
+    Route::post('/api/support/request', [SupportDeskController::class, 'requestAssist']);
+    Route::get('/api/support/sessions', [SupportDeskController::class, 'getActiveSessions']);
+    Route::post('/api/support/accept', [SupportDeskController::class, 'acceptSession']);
+    Route::post('/api/support/signal', [SupportDeskController::class, 'postSignal']);
+    Route::get('/api/support/signals/{sessionId}', [SupportDeskController::class, 'getSignals']);
+    Route::post('/api/support/end', [SupportDeskController::class, 'endSession']);
 
     // HOD Batch Management
     Route::get('/api/hod/batches', [DataController::class, 'getHodBatches']);

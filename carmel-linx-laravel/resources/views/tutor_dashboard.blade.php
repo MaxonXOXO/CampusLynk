@@ -258,7 +258,7 @@
       </a>
 
       <!-- Support Badge -->
-      <div class="p-2 bg-slate-950/60 border border-slate-800/80 rounded-xl text-center select-none">
+      <div onclick="openStaffSupportModal()" class="p-2 bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 rounded-xl text-center select-none cursor-pointer transition-premium" title="Click to Request Remote Support Assist">
         <div class="flex items-center justify-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
           <span class="material-symbols-rounded text-xs text-blue-400">engineering</span> Support
         </div>
@@ -2373,5 +2373,6 @@
     }
   </script>
 
+  @include('partials.support_desk_overlay')
 </body>
 </html>
