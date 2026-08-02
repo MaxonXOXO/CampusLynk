@@ -223,7 +223,7 @@
               </div>
               <div>
                 <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Admission Year</label>
-                <input type="number" id="regStudentYear" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 focus:ring-2 focus:ring-blue-500/20 outline-none text-white font-medium transition-premium text-sm" placeholder="2024" value="2024">
+                <input type="number" id="regStudentYear" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950/80 focus:ring-2 focus:ring-blue-500/20 outline-none text-white font-medium transition-premium text-sm" placeholder="2026" value="2026">
               </div>
             </div>
 
@@ -231,9 +231,9 @@
               <div>
                 <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Current Semester</label>
                 <select id="regStudentSem" class="w-full px-4 py-3 rounded-xl border border-slate-800 bg-slate-950 text-white focus:ring-2 focus:ring-blue-500/20 outline-none font-medium transition-premium text-sm">
-                  <option value="S1">S1</option>
+                  <option value="S1" selected>S1</option>
                   <option value="S2">S2</option>
-                  <option value="S3" selected>S3</option>
+                  <option value="S3">S3</option>
                   <option value="S4">S4</option>
                   <option value="S5">S5</option>
                   <option value="S6">S6</option>
