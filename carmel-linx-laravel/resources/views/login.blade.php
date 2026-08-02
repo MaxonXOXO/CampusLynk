@@ -116,7 +116,7 @@
         <span class="bg-gradient-to-r from-white via-slate-100 to-blue-200 bg-clip-text text-transparent">Carmel Linx</span>
         <span class="text-[10px] font-extrabold text-blue-400 align-super select-none -mt-2">™</span>
       </h1>
-      <p class="text-slate-400 font-semibold text-xs mt-0.5 uppercase tracking-wider font-mono">Learn. Assess. Achieve</p>
+      <p class="text-slate-400 font-bold text-[10px] sm:text-xs mt-1 uppercase tracking-wider font-mono">Learn • Innovate • Network • eXchange</p>
     </div>
 
     <!-- Screen Toggle: Login vs Register -->
