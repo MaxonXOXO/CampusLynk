@@ -67,6 +67,56 @@ class BackupController extends Controller
     }
 
     /**
+     * Download instant local SQL backup directly to browser.
+     */
+    public function downloadLocalBackup()
+    {
+        $role = session('userRole');
+        if (!in_array($role, ['Super_Admin', 'Principal', 'Admin'])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        try {
+            $tables = DB::select('SHOW TABLES');
+            $dbNameKey = 'Tables_in_' . config('database.connections.mysql.database');
+            
+            $sqlContent = "-- Carmel Linx Database Backup\n";
+            $sqlContent .= "-- Generated: " . date('Y-m-d H:i:s') . "\n";
+            $sqlContent .= "-- Database: " . config('database.connections.mysql.database') . "\n\n";
+
+            foreach ($tables as $table) {
+                $tableName = $table->$dbNameKey;
+                
+                $createTable = DB::select("SHOW CREATE TABLE `{$tableName}`");
+                $createTableKey = 'Create Table';
+                $sqlContent .= $createTable[0]->$createTableKey . ";\n\n";
+
+                $rows = DB::table($tableName)->get();
+                foreach ($rows as $row) {
+                    $rowArray = (array)$row;
+                    $columns = array_keys($rowArray);
+                    $escapedValues = array_map(function ($value) {
+                        if (is_null($value)) return 'NULL';
+                        return "'" . addslashes($value) . "'";
+                    }, array_values($rowArray));
+
+                    $sqlContent .= "INSERT INTO `{$tableName}` (`" . implode("`, `", $columns) . "`) VALUES (" . implode(", ", $escapedValues) . ");\n";
+                }
+                $sqlContent .= "\n\n";
+            }
+
+            $fileName = 'carmel_linx_backup_' . date('Y-m-d_His') . '.sql';
+
+            return response($sqlContent, 200, [
+                'Content-Type' => 'application/x-sql',
+                'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Backup failed: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
      * Helper to authenticate and upload file to Google Drive via OAuth 2.0.
      */
     private function uploadFileToGoogleDrive($filePath, $fileName)

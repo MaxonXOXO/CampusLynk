@@ -417,10 +417,17 @@
 
           <div id="backupAlert" class="hidden p-4 rounded-xl text-[10px] font-bold transition-premium border text-[10px] text-xs"></div>
 
-          <button id="btnTriggerBackup" onclick="runBackup()" class="w-full py-3 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl font-bold text-[10px] transition-premium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/15 cursor-pointer text-[10px] text-xs">
-            <span id="btnBackupText">Initialize Google Drive Backup</span>
-            <div id="backupSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
-          </button>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <a href="/api/system/backup/download" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold transition-premium flex items-center justify-center gap-2 text-xs no-underline">
+              <span class="material-symbols-rounded text-base text-emerald-400">download</span>
+              <span>Download Instant SQL File</span>
+            </a>
+
+            <button id="btnTriggerBackup" onclick="runBackup()" class="w-full py-3 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl font-bold transition-premium flex items-center justify-center gap-2 shadow-lg shadow-blue-500/15 cursor-pointer text-xs">
+              <span id="btnBackupText">Initialize Drive Sync</span>
+              <div id="backupSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
+            </button>
+          </div>
         </div>
       </div>
 
