@@ -112,7 +112,10 @@
     <!-- Branding Header -->
     <div class="text-center mb-4">
       <img src="{{ asset('logo.jpg') }}" class="w-14 h-14 rounded-2xl mx-auto shadow-lg object-cover mb-2 select-none border border-slate-800/60">
-      <h1 class="text-2xl font-black text-white tracking-tight bg-gradient-to-r from-white via-slate-100 to-blue-200 bg-clip-text text-transparent">Carmel Linx</h1>
+      <h1 class="text-2xl font-black text-white tracking-tight inline-flex items-center justify-center gap-0.5">
+        <span class="bg-gradient-to-r from-white via-slate-100 to-blue-200 bg-clip-text text-transparent">Carmel Linx</span>
+        <span class="text-[10px] font-extrabold text-blue-400 align-super select-none -mt-2">™</span>
+      </h1>
       <p class="text-slate-400 font-semibold text-xs mt-0.5 uppercase tracking-wider font-mono">Learn. Assess. Achieve</p>
     </div>
 
@@ -334,7 +337,7 @@
         <span>Support: <strong class="text-slate-200 font-extrabold">Dhanush.A</strong></span>
       </p>
       <p class="text-[10px] text-slate-500 font-medium">Dept. of Electronics | Carmel Polytechnic College</p>
-      <span class="text-[9px] text-slate-600 font-mono block tracking-wider">Carmel Linx AMS v2026.1 Beta</span>
+      <span class="text-[9px] text-slate-600 font-mono block tracking-wider">Carmel Linx™ AMS v2026.1 Beta</span>
     </div>
 
   </div>
