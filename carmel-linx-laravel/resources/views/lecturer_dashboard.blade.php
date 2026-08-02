@@ -856,7 +856,7 @@
       </a>
 
       <a href="/remedial-sessions" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 hover:text-purple-300 cursor-pointer no-underline">
-         <span class="material-symbols-rounded text-xs">health_and_safety</span> Remedial Sessions
+         <span class="material-symbols-rounded text-lg">health_and_safety</span> Remedial Sessions
       </a>
 
       <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 hover:text-purple-300 cursor-pointer no-underline block">
