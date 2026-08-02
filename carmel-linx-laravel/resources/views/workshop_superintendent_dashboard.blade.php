@@ -214,16 +214,16 @@
 
     <!-- Navigation Menus -->
     <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navOverview" onclick="switchPanel('overview')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-[10px] text-xs mobile-link">
+      <button id="navOverview" onclick="switchPanel('overview')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-semibold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 mobile-link">
         <span class="material-symbols-rounded text-lg">dashboard</span> Workshop Overview
       </button>
-      <button id="navStaff" onclick="switchPanel('staff')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-[10px] text-xs">
+      <button id="navStaff" onclick="switchPanel('staff')" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
         <span class="material-symbols-rounded text-lg">badge</span> Workshop Staff
       </button>
-      <button id="navStudents" onclick="switchPanel('students')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-[10px] text-xs mobile-link">
+      <button id="navStudents" onclick="switchPanel('students')" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mobile-link">
         <span class="material-symbols-rounded text-lg">group</span> Student Roster
       </button>
-      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-[10px] text-xs">
+      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
         <span class="material-symbols-rounded text-lg">receipt_long</span> Audit Trail
       </button>
 
@@ -234,38 +234,38 @@
       @endphp
 
       @if($isTutor)
-      <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs">
+      <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
         <span class="material-symbols-rounded text-lg">admin_panel_settings</span> Tutor Console
       </a>
       @endif
 
       @if($isTutor || $isMentor)
-      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs">
+      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
         <span class="material-symbols-rounded text-lg">diversity_3</span> My Mentoring
       </a>
       @endif
 
-      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs mobile-link">
+      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
          <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
       </a>
 
-      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs mobile-link">
+      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
          <span class="material-symbols-rounded text-lg">event_note</span> My Leave & Attendance Log
       </a>
 
-      <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs">
+      <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
          <span class="material-symbols-rounded text-lg">school</span> Professional Activities
       </a>
 
-      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4 text-[10px] text-xs">
+      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4">
         <span class="material-symbols-rounded text-lg">security</span> My Security Log
       </button>
     </nav>
 
     <!-- Logout -->
     <div class="p-4 border-t border-slate-800/80 space-y-2.5">
-      <a href="{{ url('/logout') }}" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-[10px] flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-[10px] text-xs">
-        <span class="material-symbols-rounded text-[10px] text-base">logout</span> Sign Out
+      <a href="{{ url('/logout') }}" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium">
+        <span class="material-symbols-rounded text-sm">logout</span> Sign Out
       </a>
 
       <!-- Support Badge -->
