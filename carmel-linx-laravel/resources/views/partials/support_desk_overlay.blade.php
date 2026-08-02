@@ -32,43 +32,47 @@
   </div>
 
   <!-- Staff Side: Request Modal -->
-  <div id="staffSupportRequestModal" class="hidden fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 relative">
-      <button onclick="closeStaffSupportModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white cursor-pointer">
-        <span class="material-symbols-rounded">close</span>
+  <div id="staffSupportRequestModal" class="hidden fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 md:p-6">
+    <div class="bg-slate-900 border-2 border-slate-700/90 rounded-3xl max-w-2xl w-full p-8 shadow-[0_20px_60px_rgba(0,0,0,0.8)] space-y-6 relative">
+      <button onclick="closeStaffSupportModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 transition-premium cursor-pointer">
+        <span class="material-symbols-rounded text-xl">close</span>
       </button>
       
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
-          <span class="material-symbols-rounded text-2xl">desktop_windows</span>
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+          <span class="material-symbols-rounded text-3xl">desktop_windows</span>
         </div>
         <div>
-          <h3 class="text-lg font-bold text-white leading-tight">Live Remote Support (Beta)</h3>
-          <p class="text-xs text-slate-400">Dhanush.A • Dept. of Electronics</p>
+          <h3 class="text-2xl font-black text-white leading-tight tracking-tight">Live Remote Support (Beta)</h3>
+          <p class="text-sm font-bold text-slate-400 mt-0.5">Dhanush.A • Dept. of Electronics</p>
         </div>
       </div>
 
-      <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2 text-xs text-slate-300">
-        <div class="flex items-start gap-2">
-          <span class="material-symbols-rounded text-emerald-400 text-base">verified_user</span>
-          <span><strong>User Consent First:</strong> Your screen will only be visible after you click <em>Share Screen</em> in your browser.</span>
+      <div class="p-5 bg-slate-950/80 border border-slate-800/90 rounded-2xl space-y-3.5 text-sm text-slate-200">
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-rounded text-emerald-400 text-xl shrink-0 mt-0.5">verified_user</span>
+          <span class="leading-relaxed"><strong>Explicit User Permission:</strong> Your screen will ONLY be visible after you click <em class="text-amber-300 font-bold">Share Screen</em> in your browser prompt.</span>
         </div>
-        <div class="flex items-start gap-2">
-          <span class="material-symbols-rounded text-amber-400 text-base">lock</span>
-          <span><strong>Secure & Encrypted:</strong> Direct browser-to-browser P2P WebRTC stream. No files are downloaded or recorded.</span>
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-rounded text-blue-400 text-xl shrink-0 mt-0.5">lock</span>
+          <span class="leading-relaxed"><strong>Secure P2P Encryption:</strong> Direct browser-to-browser WebRTC encrypted connection. No video recording or files stored.</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-rounded text-rose-400 text-xl shrink-0 mt-0.5">touch_app</span>
+          <span class="leading-relaxed"><strong>Interactive Guidance:</strong> Dhanush.A can place a glowing laser pointer on your screen to show you exactly where to click.</span>
         </div>
       </div>
 
-      <div id="staffModalStatusText" class="text-xs font-semibold text-amber-400 text-center hidden">
+      <div id="staffModalStatusText" class="text-sm font-extrabold text-amber-400 text-center hidden p-3 rounded-xl bg-amber-950/30 border border-amber-500/30 animate-pulse">
         Request sent! Waiting for Support Admin to accept...
       </div>
 
-      <div class="flex items-center gap-3 pt-2">
-        <button onclick="closeStaffSupportModal()" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition-premium cursor-pointer">
+      <div class="flex items-center gap-4 pt-2">
+        <button onclick="closeStaffSupportModal()" class="w-1/2 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-2xl text-sm transition-premium cursor-pointer">
           Cancel
         </button>
-        <button id="btnStartSupportShare" onclick="initiateStaffSupportShare()" class="w-1/2 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition-premium cursor-pointer shadow-lg shadow-blue-600/30 flex items-center justify-center gap-1">
-          <span class="material-symbols-rounded text-base">screen_share</span> Request Assist
+        <button id="btnStartSupportShare" onclick="initiateStaffSupportShare()" class="w-1/2 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-2xl text-sm transition-premium cursor-pointer shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2">
+          <span class="material-symbols-rounded text-lg">screen_share</span> Request Assist
         </button>
       </div>
     </div>

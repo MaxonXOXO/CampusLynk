@@ -36,19 +36,21 @@
 </div>
 
 <!-- Admin Floating Live Video Player & Laser Control Window -->
-<div id="adminLiveVideoWindow" class="hidden fixed bottom-6 right-6 z-[99999] w-[460px] max-w-[95vw] bg-slate-900 border-2 border-blue-500/60 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-300">
+<div id="adminLiveVideoWindow" class="hidden fixed bottom-6 right-6 z-[99999] w-[850px] max-w-[95vw] bg-slate-900 border-2 border-blue-500/70 rounded-3xl shadow-[0_15px_60px_rgba(0,0,0,0.9)] overflow-hidden transition-all duration-300">
   
   <!-- Window Top Bar -->
-  <div class="bg-slate-950 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between select-none cursor-move" id="adminVideoWindowHeader">
-    <div class="flex items-center gap-2">
-      <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
-      <span class="font-bold text-xs text-white" id="adminVideoStaffTitle">Live Stream — Staff Member</span>
+  <div class="bg-slate-950 px-5 py-3 border-b border-slate-800 flex items-center justify-between select-none cursor-move" id="adminVideoWindowHeader">
+    <div class="flex items-center gap-3">
+      <span class="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
+      <span class="font-extrabold text-sm text-white tracking-wide" id="adminVideoStaffTitle">Live Stream — Staff Member</span>
+      <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-bold border border-blue-500/30">1080p WebRTC</span>
     </div>
-    <div class="flex items-center gap-2">
-      <button onclick="toggleVideoFullscreen()" class="text-slate-400 hover:text-white text-xs cursor-pointer" title="Toggle Fullscreen">
-        <span class="material-symbols-rounded text-base">fullscreen</span>
+    <div class="flex items-center gap-3">
+      <button onclick="toggleVideoFullscreen()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold rounded-xl flex items-center gap-1 transition-premium cursor-pointer" title="Toggle Fullscreen">
+        <span class="material-symbols-rounded text-base" id="fullscreenIcon">fullscreen</span>
+        <span id="fullscreenText">Full Screen</span>
       </button>
-      <button onclick="endAdminSupportSession()" class="text-rose-400 hover:text-rose-300 text-xs cursor-pointer" title="End Session">
+      <button onclick="endAdminSupportSession()" class="px-2 py-1 bg-rose-950/80 hover:bg-rose-900 text-rose-300 hover:text-rose-100 text-xs font-bold rounded-xl border border-rose-500/40 transition-premium cursor-pointer" title="End Session">
         <span class="material-symbols-rounded text-base">close</span>
       </button>
     </div>
@@ -59,23 +61,24 @@
     <video id="adminRemoteVideo" autoplay playsinline class="w-full h-full object-contain"></video>
 
     <!-- Pointer Instruction Overlay on Hover -->
-    <div class="absolute bottom-2 left-2 right-2 bg-slate-950/80 backdrop-blur-sm border border-slate-800 rounded-lg px-3 py-1.5 text-[10px] text-slate-300 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-      <span class="flex items-center gap-1">
-        <span class="material-symbols-rounded text-xs text-red-400">touch_app</span> Click anywhere to place Laser Pointer on Staff Screen
+    <div class="absolute bottom-3 left-3 right-3 bg-slate-950/90 backdrop-blur-md border border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-200 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-lg">
+      <span class="flex items-center gap-2 font-semibold">
+        <span class="material-symbols-rounded text-base text-rose-400">touch_app</span> Click anywhere on this live screen to cast a glowing laser pointer for the staff member
       </span>
-      <span class="text-blue-400 font-bold">WebRTC P2P</span>
+      <span class="text-blue-400 font-extrabold text-[11px] uppercase tracking-wider">Direct Assist</span>
     </div>
   </div>
 
   <!-- Window Bottom Toolbar -->
-  <div class="p-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs">
-    <div class="flex items-center gap-2">
-      <button onclick="sendLaserPointerCenter()" class="px-2.5 py-1 bg-red-950/80 hover:bg-red-900 border border-red-500/50 text-red-300 rounded-lg font-bold text-[11px] flex items-center gap-1 transition-premium cursor-pointer">
-        <span class="material-symbols-rounded text-xs">ads_click</span> Highlight Center
+  <div class="px-4 py-3 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs">
+    <div class="flex items-center gap-3">
+      <button onclick="sendLaserPointerCenter()" class="px-3 py-1.5 bg-red-950/80 hover:bg-red-900 border border-red-500/50 text-red-300 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-premium cursor-pointer shadow-sm">
+        <span class="material-symbols-rounded text-sm">ads_click</span> Highlight Center
       </button>
+      <span class="text-slate-400 text-[11px]">Clicking inside video sends live visual coordinates</span>
     </div>
-    <button onclick="endAdminSupportSession()" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg transition-premium cursor-pointer shadow-md flex items-center gap-1">
-      <span class="material-symbols-rounded text-xs">stop</span> Disconnect Stream
+    <button onclick="endAdminSupportSession()" class="px-4 py-1.5 bg-red-600 hover:bg-red-500 text-white font-extrabold text-xs rounded-xl transition-premium cursor-pointer shadow-lg shadow-red-600/20 flex items-center gap-1.5">
+      <span class="material-symbols-rounded text-sm">stop_circle</span> Disconnect Stream
     </button>
   </div>
 </div>
@@ -220,11 +223,21 @@ function sendLaserPointerCenter() {
 
 function toggleVideoFullscreen() {
   const win = document.getElementById('adminLiveVideoWindow');
-  win.classList.toggle('w-[460px]');
-  win.classList.toggle('w-full');
-  win.classList.toggle('h-full');
-  win.classList.toggle('bottom-0');
-  win.classList.toggle('right-0');
+  const icon = document.getElementById('fullscreenIcon');
+  const text = document.getElementById('fullscreenText');
+
+  const isFull = win.classList.contains('w-full');
+  if (isFull) {
+    win.classList.remove('w-full', 'h-full', 'inset-0', 'rounded-none');
+    win.classList.add('w-[850px]', 'bottom-6', 'right-6', 'rounded-3xl');
+    if (icon) icon.innerText = 'fullscreen';
+    if (text) text.innerText = 'Full Screen';
+  } else {
+    win.classList.remove('w-[850px]', 'bottom-6', 'right-6', 'rounded-3xl');
+    win.classList.add('w-full', 'h-full', 'inset-0', 'rounded-none');
+    if (icon) icon.innerText = 'fullscreen_exit';
+    if (text) text.innerText = 'Minimize';
+  }
 }
 
 function endAdminSupportSession() {
