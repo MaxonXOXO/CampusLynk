@@ -885,7 +885,7 @@
       <!-- Support Badge -->
       <div onclick="openStaffSupportModal()" class="p-2 bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 rounded-xl text-center select-none cursor-pointer transition-premium" title="Click to Request Remote Support Assist">
         <div class="flex items-center justify-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-          <span class="material-symbols-rounded text-xs text-blue-400">engineering</span> Support
+          <span class="material-symbols-rounded text-xs text-blue-400">headset_mic</span> Live Assist
         </div>
         <div class="text-[11px] font-black text-slate-200 mt-0.5">Dhanush.A</div>
         <div class="text-[9px] text-slate-400 font-medium">Dept. of Electronics</div>
