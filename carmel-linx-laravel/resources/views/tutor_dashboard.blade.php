@@ -233,7 +233,7 @@
       </a>
 
       <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline block text-sm mobile-link">
-         <span class="material-symbols-rounded text-lg">co_present</span> Log & Attendance
+         <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
       </a>
 
       @php

@@ -253,7 +253,7 @@
       </a>
 
       <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-950/40 cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-lg">co_present</span> Log & Attendance
+         <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
       </a>
 
       <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-950/40 cursor-pointer no-underline block">

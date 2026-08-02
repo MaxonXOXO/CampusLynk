@@ -250,7 +250,7 @@
         <span class="material-symbols-rounded text-lg">receipt_long</span> Department Audit Trail
       </button>
       <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline mobile-link">
-         <span class="material-symbols-rounded text-lg">co_present</span> Log & Attendance
+         <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
       </a>
       <a href="/hod/report-centre" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-amber-400 hover:bg-amber-900/20 hover:text-amber-300 cursor-pointer no-underline mobile-link">
          <span class="material-symbols-rounded text-lg">analytics</span> Report Centre
