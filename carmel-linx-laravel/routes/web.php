@@ -172,6 +172,24 @@ Route::middleware(['web'])->group(function () {
         return view('admin_control_desk');
     });
 
+    Route::get('/superadmin/show-users', function () {
+        if (Session::get('userRole') !== 'Super_Admin') return redirect('/');
+        
+        $staff = DB::table('staff_profiles')
+            ->select('mobile_no', 'name', 'designation', 'branch', 'email', 'password', 'account_status')
+            ->orderBy('designation')
+            ->orderBy('name')
+            ->get();
+            
+        $students = DB::table('students')
+            ->select('reg_no', 'adm_no', 'name', 'branch', 'semester', 'email', 'password', 'status')
+            ->orderBy('branch')
+            ->orderBy('reg_no')
+            ->get();
+            
+        return view('admin_show_users_table', compact('staff', 'students'));
+    });
+
     Route::get('/dashboard/admin', function () {
         if (Session::get('userRole') !== 'Admin') return redirect('/');
         return view('admin_dashboard');

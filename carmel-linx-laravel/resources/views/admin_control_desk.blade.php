@@ -116,6 +116,12 @@
         <span class="material-symbols-rounded text-lg">settings</span> System Settings
       </button>
 
+      @if(session('userRole') === 'Super_Admin')
+      <a href="/superadmin/show-users" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-950/40 hover:text-emerald-300 cursor-pointer no-underline block text-sm border border-emerald-500/20 bg-emerald-500/5">
+         <span class="material-symbols-rounded text-lg">key</span> User Credentials Table
+      </a>
+      @endif
+
       <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 cursor-pointer no-underline block text-sm">
          <span class="material-symbols-rounded text-lg">school</span> Academic Activities
       </a>
@@ -160,37 +166,37 @@
       <div id="panelDashboard" class="space-y-6">
         
         <!-- Metrics Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           <!-- Total Staff -->
-          <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl flex items-center gap-4 shadow-sm">
-            <div class="bg-blue-500/10 text-blue-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">badge</span></div>
-            <div>
-              <span class="text-sm text-slate-400 uppercase font-black tracking-wider block">Total Staff</span>
-              <span id="statTotalStaff" class="font-black text-white mt-0.5 text-2xl">0</span>
+          <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-3 shadow-sm hover:border-slate-700 transition">
+            <div class="bg-blue-500/10 text-blue-400 p-2.5 rounded-lg shrink-0"><span class="material-symbols-rounded text-xl">badge</span></div>
+            <div class="min-w-0">
+              <span class="text-xs text-slate-400 uppercase font-extrabold tracking-wider block truncate">Total Staff</span>
+              <span id="statTotalStaff" class="font-black text-white text-xl leading-tight block">0</span>
             </div>
           </div>
           <!-- Total Students -->
-          <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl flex items-center gap-4 shadow-sm">
-            <div class="bg-sky-500/10 text-sky-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">school</span></div>
-            <div>
-              <span class="text-sm text-slate-400 uppercase font-black tracking-wider block">Total Students</span>
-              <span id="statTotalStudents" class="font-black text-white mt-0.5 text-2xl">0</span>
+          <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-3 shadow-sm hover:border-slate-700 transition">
+            <div class="bg-sky-500/10 text-sky-400 p-2.5 rounded-lg shrink-0"><span class="material-symbols-rounded text-xl">school</span></div>
+            <div class="min-w-0">
+              <span class="text-xs text-slate-400 uppercase font-extrabold tracking-wider block truncate">Total Students</span>
+              <span id="statTotalStudents" class="font-black text-white text-xl leading-tight block">0</span>
             </div>
           </div>
           <!-- Pending Approvals -->
-          <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl flex items-center gap-4 shadow-sm">
-            <div class="bg-blue-500/10 text-blue-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">pending_actions</span></div>
-            <div>
-              <span class="text-sm text-slate-400 uppercase font-black tracking-wider block">Pending Approvals</span>
-              <span id="statPendingApprovals" class="font-black text-white mt-0.5 text-2xl">0</span>
+          <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-3 shadow-sm hover:border-slate-700 transition">
+            <div class="bg-blue-500/10 text-blue-400 p-2.5 rounded-lg shrink-0"><span class="material-symbols-rounded text-xl">pending_actions</span></div>
+            <div class="min-w-0">
+              <span class="text-xs text-slate-400 uppercase font-extrabold tracking-wider block truncate">Pending Approvals</span>
+              <span id="statPendingApprovals" class="font-black text-white text-xl leading-tight block">0</span>
             </div>
           </div>
           <!-- Classrooms -->
-          <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl flex items-center gap-4 shadow-sm">
-            <div class="bg-sky-500/10 text-sky-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">meeting_room</span></div>
-            <div>
-              <span class="text-sm text-slate-400 uppercase font-black tracking-wider block">Classrooms</span>
-              <span id="statTotalClassrooms" class="font-black text-white mt-0.5 text-2xl">0</span>
+          <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-3 shadow-sm hover:border-slate-700 transition">
+            <div class="bg-sky-500/10 text-sky-400 p-2.5 rounded-lg shrink-0"><span class="material-symbols-rounded text-xl">meeting_room</span></div>
+            <div class="min-w-0">
+              <span class="text-xs text-slate-400 uppercase font-extrabold tracking-wider block truncate">Classrooms</span>
+              <span id="statTotalClassrooms" class="font-black text-white text-xl leading-tight block">0</span>
             </div>
           </div>
         </div>
@@ -204,8 +210,13 @@
             <p class="text-sm text-slate-400 leading-relaxed">
               Welcome to the unified Administrator desk. As **{{ session('userName') }}**, you hold full execution overrides across the database. You can manage passwords, configure designations, review classroom profiles, and sync live table backups.
             </p>
-            <div class="mt-4 flex gap-3">
+            <div class="mt-4 flex flex-wrap gap-3">
               <button onclick="switchPanel('directory')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition-premium cursor-pointer text-sm">Manage Directory</button>
+              @if(session('userRole') === 'Super_Admin')
+              <a href="/superadmin/show-users" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-bold text-white transition-premium cursor-pointer text-sm no-underline flex items-center gap-1.5">
+                <span class="material-symbols-rounded text-base">key</span> Show Users Table View
+              </a>
+              @endif
               <button onclick="switchPanel('backups')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg font-bold text-slate-300 transition-premium cursor-pointer text-sm">Backup Database</button>
             </div>
           </div>
@@ -356,16 +367,16 @@
 
         <!-- Users Table Grid -->
         <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
-          <div class="max-h-[calc(100vh-320px)] overflow-auto custom-scrollbar">
-            <table class="min-w-[1100px] w-full text-left border-collapse text-sm">
+          <div class="max-h-[calc(100vh-320px)] overflow-y-auto overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse text-xs md:text-sm">
               <thead>
                 <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-450 font-bold">
-                  <th class="p-4">Profile</th>
-                  <th class="p-4">Mobile / Reg No</th>
-                  <th class="p-4">Branch</th>
-                  <th class="p-4">Role Designation</th>
-                  <th class="p-4">Account Status</th>
-                  <th class="p-4 text-right">Actions</th>
+                  <th class="p-2.5 md:p-3">Profile</th>
+                  <th class="p-2.5 md:p-3">Mobile / Reg No</th>
+                  <th class="p-2.5 md:p-3">Branch</th>
+                  <th class="p-2.5 md:p-3">Role Designation</th>
+                  <th class="p-2.5 md:p-3">Account Status</th>
+                  <th class="p-2.5 md:p-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody id="usersTableBody">
@@ -981,29 +992,29 @@
         let toggleButton = '';
         if (user.status === 'Pending') {
           toggleButton = `
-            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2.5 py-1.5 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-bold text-white transition-premium cursor-pointer">
+            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-green-600 hover:bg-green-700 rounded-lg text-xs font-bold text-white transition-premium cursor-pointer">
               Approve
             </button>
           `;
         } else if (user.status === 'Approved') {
           toggleButton = `
-            <button onclick="changeStatus('${user.id}', '${user.type}', 'Suspended')" class="px-2.5 py-1.5 bg-red-950 hover:bg-red-900 border border-red-800 rounded-lg text-sm font-bold text-red-300 transition-premium cursor-pointer">
+            <button onclick="changeStatus('${user.id}', '${user.type}', 'Suspended')" class="px-2 py-1 bg-red-950 hover:bg-red-900 border border-red-800 rounded-lg text-xs font-bold text-red-300 transition-premium cursor-pointer">
               Suspend
             </button>
           `;
         } else if (user.status === 'Suspended') {
           toggleButton = `
-            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-bold text-white transition-premium cursor-pointer">
+            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded-lg text-xs font-bold text-white transition-premium cursor-pointer">
               Activate
             </button>
           `;
         }
 
         // Role Designation selector (for Staff members only)
-        let roleCol = user.role;
+        let roleCol = `<span class="text-xs font-bold text-slate-300">${user.role}</span>`;
         if (user.type === 'staff') {
           roleCol = `
-            <select onchange="updateDesignation('${user.id}', this.value)" class="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-sm text-white outline-none cursor-pointer">
+            <select onchange="updateDesignation('${user.id}', this.value)" class="bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white outline-none cursor-pointer max-w-[150px] truncate">
               <option value="Super_Admin" ${user.role === 'Super_Admin' ? 'selected' : ''}>Super Admin</option>
               <option value="Admin" ${user.role === 'Admin' ? 'selected' : ''}>Admin</option>
               <option value="Principal" ${user.role === 'Principal' ? 'selected' : ''}>Principal</option>
@@ -1023,12 +1034,12 @@
           `;
         }
 
-        let idColumnHtml = `<span class="font-mono font-bold text-slate-300">${user.id}</span>`;
+        let idColumnHtml = `<span class="font-mono font-bold text-slate-300 text-xs">${user.id}</span>`;
         if (user.type === 'staff') {
           idColumnHtml = `
             <a href="javascript:void(0)" 
                onclick="openEditStaffModal('${user.id}', '${user.name.replace(/'/g, "\\'")}', '${user.email.replace(/'/g, "\\'")}', '${user.branch}', '${user.role}')" 
-               class="text-blue-400 hover:text-blue-300 underline font-mono font-bold transition-premium" 
+               class="text-blue-400 hover:text-blue-300 underline font-mono font-bold text-xs transition-premium" 
                title="Modify details for ${user.name}">
               ${user.id}
             </a>
@@ -1036,28 +1047,30 @@
         }
 
         tr.innerHTML = `
-          <td class="p-4 flex items-center gap-3 whitespace-nowrap">
-            <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-8 h-8 rounded-full object-cover border border-slate-800 shadow">
-            <div>
-              <span class="font-bold text-slate-100 block">${user.name}</span>
-              <span class="text-sm text-slate-500 block">${user.email}</span>
+          <td class="p-2.5 md:p-3 flex items-center gap-2.5">
+            <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-7 h-7 rounded-full object-cover border border-slate-800 shadow shrink-0">
+            <div class="min-w-0 overflow-hidden">
+              <span class="font-bold text-slate-100 block text-xs md:text-sm truncate max-w-[140px] lg:max-w-[180px]">${user.name}</span>
+              <span class="text-[11px] text-slate-500 block truncate max-w-[140px] lg:max-w-[180px]">${user.email}</span>
             </div>
           </td>
-          <td class="p-4 whitespace-nowrap">${idColumnHtml}</td>
-          <td class="p-4 whitespace-nowrap"><span class="font-bold font-mono text-sm bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
-          <td class="p-4 whitespace-nowrap">${roleCol}</td>
-          <td class="p-4 whitespace-nowrap">${statusBadge}</td>
-          <td class="p-4 text-right whitespace-nowrap space-x-1">
-            ${toggleButton}
-            <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-sm font-bold transition-premium cursor-pointer">
-              Reset Pwd
-            </button>
-            <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-blue-900 border border-slate-800 text-slate-300 rounded-lg text-sm font-bold transition-premium cursor-pointer" title="View Audit Trail">
-              Audit
-            </button>
-            <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2.5 py-1.5 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded-lg text-sm font-bold transition-premium cursor-pointer" title="Delete User">
-              Delete
-            </button>
+          <td class="p-2.5 md:p-3 font-mono text-xs md:text-sm shrink-0">${idColumnHtml}</td>
+          <td class="p-2.5 md:p-3"><span class="font-bold font-mono text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
+          <td class="p-2.5 md:p-3">${roleCol}</td>
+          <td class="p-2.5 md:p-3">${statusBadge}</td>
+          <td class="p-2.5 md:p-3 text-right">
+            <div class="flex items-center justify-end gap-1">
+              ${toggleButton}
+              <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-bold transition-premium cursor-pointer">
+                Reset Pwd
+              </button>
+              <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-blue-900 border border-slate-800 text-slate-300 rounded-lg text-xs font-bold transition-premium cursor-pointer" title="View Audit Trail">
+                Audit
+              </button>
+              <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded-lg text-xs font-bold transition-premium cursor-pointer" title="Delete User">
+                Delete
+              </button>
+            </div>
           </td>
         `;
         tbody.appendChild(tr);
