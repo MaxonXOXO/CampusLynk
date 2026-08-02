@@ -36,6 +36,9 @@
         <a href="/dashboard/superadmin" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-sm transition flex items-center gap-2 no-underline shadow-lg shadow-blue-600/20">
           <span class="material-symbols-rounded text-base">arrow_back</span> Back to Control Desk
         </a>
+        <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to sign out?')" class="px-4 py-2 bg-rose-950/80 hover:bg-rose-900 text-rose-300 rounded-xl font-bold text-sm transition flex items-center gap-2 no-underline border border-rose-800/60">
+          <span class="material-symbols-rounded text-base">logout</span> Sign Out
+        </a>
       </div>
     </div>
 

@@ -398,11 +398,12 @@ class AuthController extends Controller
     /**
      * Logout and destroy session.
      */
-    public function logout()
+    public function logout(Request $request)
     {
-        Session::flush();
-        Session::invalidate();
-        Session::regenerateToken();
+        $request->session()->forget(['userRole', 'userName', 'userEmail', 'mobile_no', 'reg_no', 'classroom_id', 'designation', 'user_id', 'userId']);
+        $request->session()->flush();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect('/')->withHeaders([
             'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',

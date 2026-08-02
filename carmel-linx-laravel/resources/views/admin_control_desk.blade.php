@@ -129,7 +129,7 @@
 
     <!-- Logout -->
     <div class="p-4 border-t border-slate-800/80 space-y-3">
-      <a href="/logout" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
+      <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to sign out of SuperAdmin Control Desk?')" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
         <span class="material-symbols-rounded text-base">logout</span> Sign Out
       </a>
 
