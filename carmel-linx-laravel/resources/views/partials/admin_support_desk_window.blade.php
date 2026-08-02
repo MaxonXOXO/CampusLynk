@@ -1,14 +1,5 @@
 <!-- Admin Support Desk Live Remote Window Component (Beta) -->
 
-<!-- Header Trigger Button (Pill in Top Header) -->
-<div id="adminSupportDeskBtnContainer" class="flex items-center gap-2">
-  <button onclick="toggleAdminSupportDeskDrawer()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 font-bold text-xs transition-premium cursor-pointer shadow-md">
-    <span class="material-symbols-rounded text-base text-blue-400">desktop_windows</span>
-    <span>Support Desk</span>
-    <span id="adminPendingSupportBadge" class="hidden px-1.5 py-0.2 bg-rose-600 text-white rounded-full text-[10px] font-black animate-pulse">0</span>
-  </button>
-</div>
-
 <!-- Admin Support Drawer / Request List Modal -->
 <div id="adminSupportListModal" class="hidden fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
   <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4 relative">

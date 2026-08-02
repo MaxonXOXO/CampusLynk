@@ -164,7 +164,11 @@
       </div>
 
       <div class="flex items-center gap-3">
-        @include('partials.admin_support_desk_window')
+        <button onclick="toggleAdminSupportDeskDrawer()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 font-bold text-xs transition-premium cursor-pointer shadow-md" title="Click to open Live Remote Support Desk">
+          <span class="material-symbols-rounded text-base text-blue-400">desktop_windows</span>
+          <span>Support Desk</span>
+          <span id="adminPendingSupportBadge" class="hidden px-1.5 py-0.2 bg-rose-600 text-white rounded-full text-[10px] font-black animate-pulse">0</span>
+        </button>
         <div id="loadingIndicator" class="hidden items-center gap-2 text-xs text-slate-400">
           <div class="w-4 h-4 border-2 border-slate-600 border-t-orange-500 rounded-full animate-spin"></div>
           <span>Syncing...</span>
@@ -1561,6 +1565,7 @@
       });
     }
   </script>
+  @include('partials.admin_support_desk_window')
   @include('partials.support_desk_overlay')
 </body>
 </html>
