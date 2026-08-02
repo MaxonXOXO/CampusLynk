@@ -855,16 +855,16 @@
          <span class="material-symbols-rounded text-lg">folder_open</span> Course Files (2021)
       </a>
 
+      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline">
+         <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
+      </a>
+
       <a href="/remedial-sessions" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 hover:text-purple-300 cursor-pointer no-underline">
          <span class="material-symbols-rounded text-lg">health_and_safety</span> Remedial Sessions
       </a>
 
       <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 hover:text-purple-300 cursor-pointer no-underline block">
          <span class="material-symbols-rounded text-lg">event_note</span> My Leave & Attendance Log
-      </a>
-
-      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline">
-         <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
       </a>
 
       <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 cursor-pointer no-underline block">
@@ -877,10 +877,18 @@
     </nav>
 
     <!-- Logout -->
-    <div class="p-4 border-t border-slate-800/80">
-      <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to logout?')" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium">
+    <div class="p-4 border-t border-slate-800/80 space-y-2.5">
+      <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to logout?')" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium">
         <span class="material-symbols-rounded text-sm">logout</span> Sign Out
       </a>
+
+      <!-- System Support Badge -->
+      <div class="p-2.5 bg-slate-950/60 border border-slate-800/80 rounded-xl text-center select-none">
+        <div class="flex items-center justify-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+          <span class="material-symbols-rounded text-xs text-blue-400">engineering</span> System Support
+        </div>
+        <div class="text-[11px] font-black text-slate-200 mt-0.5">Dhanush.A</div>
+      </div>
     </div>
   </aside>
   @endif

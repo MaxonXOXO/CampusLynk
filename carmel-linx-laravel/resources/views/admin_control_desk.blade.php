@@ -132,18 +132,17 @@
     </nav>
 
     <!-- Logout -->
-    <div class="p-4 border-t border-slate-800/80 space-y-3">
-      <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to sign out of SuperAdmin Control Desk?')" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
+    <div class="p-4 border-t border-slate-800/80 space-y-2.5">
+      <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to sign out of SuperAdmin Control Desk?')" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
         <span class="material-symbols-rounded text-base">logout</span> Sign Out
       </a>
 
       <!-- System Support Badge -->
-      <div class="p-3 bg-slate-950/60 border border-slate-800/80 rounded-xl text-center select-none">
-        <div class="flex items-center justify-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+      <div class="p-2.5 bg-slate-950/60 border border-slate-800/80 rounded-xl text-center select-none">
+        <div class="flex items-center justify-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
           <span class="material-symbols-rounded text-xs text-blue-400">engineering</span> System Support
         </div>
-        <div class="text-xs font-black text-slate-200 mt-0.5">Dhanush.A</div>
-        <div class="text-[9px] text-slate-500 font-medium">Carmel Polytechnic College</div>
+        <div class="text-[11px] font-black text-slate-200 mt-0.5">Dhanush.A</div>
       </div>
     </div>
   </aside>

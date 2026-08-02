@@ -249,14 +249,20 @@
       <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
         <span class="material-symbols-rounded text-lg">receipt_long</span> Department Audit Trail
       </button>
-      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline mobile-link">
-         <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
+      <a href="/dashboard/lecturer" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 hover:text-sky-300 cursor-pointer no-underline block mobile-link">
+         <span class="material-symbols-rounded text-lg">calendar_view_week</span> My Batches
       </a>
       <a href="/hod/report-centre" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-amber-400 hover:bg-amber-900/20 hover:text-amber-300 cursor-pointer no-underline mobile-link">
          <span class="material-symbols-rounded text-lg">analytics</span> Report Centre
       </a>
       <a href="/staff/leave/reports" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 hover:text-emerald-300 cursor-pointer no-underline block mobile-link">
          <span class="material-symbols-rounded text-lg">event_note</span> Staff Leave Ledger
+      </a>
+      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline mobile-link">
+         <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
+      </a>
+      <a href="/remedial-sessions" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 hover:text-purple-300 cursor-pointer no-underline block mobile-link">
+         <span class="material-symbols-rounded text-lg">health_and_safety</span> Remedial Sessions
       </a>
       <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 hover:text-purple-300 cursor-pointer no-underline block mobile-link">
          <span class="material-symbols-rounded text-lg">event_note</span> My Leave & Attendance Log
@@ -265,21 +271,24 @@
          <span class="material-symbols-rounded text-lg">school</span> Professional Activities
       </a>
 
-      <a href="/dashboard/lecturer" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 hover:text-sky-300 cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-lg">calendar_view_week</span> My Batches
-      </a>
-
-
       <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
         <span class="material-symbols-rounded text-lg">settings</span> My Profile
       </button>
     </nav>
 
     <!-- Logout -->
-    <div class="p-4 border-t border-slate-800/80">
-      <a href="{{ url('/logout') }}" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
+    <div class="p-4 border-t border-slate-800/80 space-y-2.5">
+      <a href="{{ url('/logout') }}" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
         <span class="material-symbols-rounded text-sm text-base">logout</span> Sign Out
       </a>
+
+      <!-- System Support Badge -->
+      <div class="p-2.5 bg-slate-950/60 border border-slate-800/80 rounded-xl text-center select-none">
+        <div class="flex items-center justify-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+          <span class="material-symbols-rounded text-xs text-blue-400">engineering</span> System Support
+        </div>
+        <div class="text-[11px] font-black text-slate-200 mt-0.5">Dhanush.A</div>
+      </div>
     </div>
   </aside>
 
