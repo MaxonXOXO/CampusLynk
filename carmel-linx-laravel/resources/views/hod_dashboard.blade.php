@@ -262,7 +262,7 @@
          <span class="material-symbols-rounded text-lg">event_note</span> My Leave & Attendance Log
       </a>
       <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 cursor-pointer no-underline block">
-         <span class="material-symbols-rounded text-lg">school</span> Academic Activities
+         <span class="material-symbols-rounded text-lg">school</span> Professional Activities
       </a>
 
       <a href="/dashboard/lecturer" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 hover:text-sky-300 cursor-pointer no-underline block mobile-link">

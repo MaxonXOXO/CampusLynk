@@ -257,7 +257,7 @@
       </a>
 
       <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-950/40 cursor-pointer no-underline block">
-         <span class="material-symbols-rounded text-lg">school</span> Academic Activities
+         <span class="material-symbols-rounded text-lg">school</span> Professional Activities
       </a>
 
       <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4">
