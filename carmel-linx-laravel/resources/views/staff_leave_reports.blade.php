@@ -51,8 +51,8 @@
                         <i class="fa-solid fa-arrow-left me-1"></i> Control Desk
                     </a>
                 @else
-                    <a href="/staff/mobile" class="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
-                        <i class="fa-solid fa-mobile-screen me-1"></i> Staff Mobile
+                    <a href="/staff/mobile?mode=mobile" class="btn btn-outline-light btn-sm rounded-pill px-3 me-2">
+                        <i class="fa-solid fa-calendar-check me-1"></i> My Leave Portal
                     </a>
                 @endif
                 <button onclick="window.print()" class="btn btn-primary btn-sm rounded-pill px-3">

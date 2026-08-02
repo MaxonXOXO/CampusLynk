@@ -486,8 +486,8 @@
               <div class="bg-purple-500/10 text-purple-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">smartphone</span></div>
               <div>
                 <span class="text-xs text-slate-400 uppercase font-bold tracking-wider block">Mobile Portal</span>
-                <a href="/staff/mobile" target="_blank" class="text-xs font-bold text-purple-400 hover:underline flex items-center gap-1 mt-0.5">
-                  Open Portal <span class="material-symbols-rounded text-xs">open_in_new</span>
+                <a href="/staff/mobile?mode=mobile" target="_blank" class="text-xs font-bold text-purple-400 hover:underline flex items-center gap-1 mt-0.5">
+                  My Leave Log & Portal <span class="material-symbols-rounded text-xs">open_in_new</span>
                 </a>
               </div>
             </div>

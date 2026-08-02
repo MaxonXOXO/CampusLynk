@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Carmel Linx - Staff Mobile Portal</title>
+    <title>Carmel Linx - My Leave & Staff Portal</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Google Fonts & FontAwesome -->
@@ -43,6 +43,38 @@
             background-color: var(--app-bg);
             position: relative;
             padding-bottom: 30px;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 40px;
+            }
+            .mobile-container {
+                max-width: 960px !important;
+                margin: 24px auto !important;
+                padding: 24px !important;
+                border-radius: 24px;
+                background: rgba(15, 23, 42, 0.7);
+                border: 1px solid var(--card-border);
+                box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            }
+            .bottom-nav {
+                position: static !important;
+                transform: none !important;
+                max-width: 100% !important;
+                border-radius: 16px;
+                margin-top: 24px;
+                border: 1px solid var(--card-border) !important;
+            }
+            .desktop-banner {
+                display: flex !important;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .desktop-banner {
+                display: none !important;
+            }
         }
 
         /* Mobile Header */
@@ -192,7 +224,7 @@
                 <img src="{{ asset('logo.jpg') }}" alt="Logo" style="width: 32px; height: 32px; border-radius: 10px;" class="shadow-sm">
                 <div>
                     <h5 class="brand-title mb-0" style="font-size: 1.18rem; font-weight: 900 !important;">Carmel Linx</h5>
-                    <span class="badge badge-app px-2 py-0.5" style="background-color: rgba(168, 85, 247, 0.2); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.45); font-size: 0.68rem; font-weight: 800; border-radius: 6px;">Staff Mobile Portal</span>
+                    <span class="badge badge-app px-2 py-0.5" style="background-color: rgba(168, 85, 247, 0.2); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.45); font-size: 0.68rem; font-weight: 800; border-radius: 6px;">My Leave & Staff Portal</span>
                 </div>
             </div>
             <div class="d-flex align-items-center gap-2">
@@ -204,6 +236,20 @@
 
         <!-- Main Body Content -->
         <div class="p-3">
+
+            <!-- Desktop Header Switcher Banner -->
+            <div class="desktop-banner bg-slate-900/90 border border-info/30 rounded-3 p-3 mb-3 align-items-center justify-between text-white shadow-sm" style="background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(56, 189, 248, 0.25);">
+                <div class="d-flex align-items-center gap-3">
+                    <i class="fa-solid fa-desktop text-info fs-5"></i>
+                    <div>
+                        <strong class="d-block text-sm" style="font-size: 0.92rem; font-weight: 800;">My Leave & Staff Portal (Desktop View)</strong>
+                        <small class="text-secondary text-xs" style="font-size: 0.78rem;">You can return to your role management console anytime.</small>
+                    </div>
+                </div>
+                <a href="{{ $desktopUrl }}" class="btn btn-sm btn-outline-info text-cyan font-bold rounded-pill px-3 py-1.5 flex-shrink-0" style="font-weight: 700; font-size: 0.82rem;">
+                    <i class="fa-solid fa-gauge-high me-1.5"></i> Switch to Desktop Dashboard
+                </a>
+            </div>
 
             <!-- Staff Identity Banner -->
             <div class="app-card border-start border-2 border-info">

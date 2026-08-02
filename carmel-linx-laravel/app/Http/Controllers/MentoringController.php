@@ -1780,13 +1780,48 @@ class MentoringController extends Controller
         return view('tutor_student_diary_full', ['studentRegNo' => $regNo]);
     }
 
-    public function showStaffMobileDashboard()
+    public function showStaffMobileDashboard(Request $request)
     {
         $userId = Session::get('userId');
         $role   = Session::get('userRole');
 
         if (!$userId || $role === 'Student') {
             return redirect('/');
+        }
+
+        // Auto-redirect desktop users without mode=mobile to their desktop dashboard
+        $ua = strtolower($request->header('User-Agent', ''));
+        $isMobileDevice = (bool)preg_match('/(android|bb\d+|meego).+mobile|avail|blackberry|iphone|ipad|ipod|palm|phone|opera mini|iemobile/i', $ua);
+
+        if (!$isMobileDevice && !$request->has('mobile') && $request->input('mode') !== 'mobile') {
+            switch ($role) {
+                case 'HOD':
+                    return redirect('/dashboard/hod?mode=desktop');
+                case 'Super_Admin':
+                case 'Principal':
+                    return redirect('/dashboard/principal?mode=desktop');
+                case 'Admin':
+                    return redirect('/dashboard/admin?mode=desktop');
+                case 'Gen_Dept_Coordinator_Aided':
+                    return redirect('/dashboard/general-coordinator-aided?mode=desktop');
+                case 'Gen_Dept_Coordinator_Self_Finance':
+                    return redirect('/dashboard/general-coordinator-sf?mode=desktop');
+                case 'Academic_Coordinator':
+                case 'Academic Coordinator':
+                case 'Academic_Coordinator_SF':
+                    return redirect('/dashboard/academic-coordinator?mode=desktop');
+                case 'Demonstrator':
+                    return redirect('/dashboard/demonstrator?mode=desktop');
+                case 'Trade_Instructor':
+                    return redirect('/dashboard/tradeinstructor?mode=desktop');
+                case 'Workshop_Superintendent':
+                    return redirect('/dashboard/workshop?mode=desktop');
+                case 'Lecturer':
+                case 'Physical_Instructor':
+                case 'Physical Instructor':
+                default:
+                    return redirect('/dashboard/lecturer?mode=desktop');
+            }
         }
 
         $staff = StaffProfile::where('mobile_no', $userId)->first();
