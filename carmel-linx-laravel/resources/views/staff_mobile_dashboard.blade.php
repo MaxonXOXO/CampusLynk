@@ -205,7 +205,13 @@
     $desktopUrl = '/dashboard/tutor?mode=desktop';
     if (in_array($userRole, ['Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF', 'Gen_Dept_Coordinator_Self_Finance'])) {
         $desktopUrl = '/dashboard/academic-coordinator?mode=desktop';
-    } elseif (in_array($userRole, ['Lecturer', 'HOD'])) {
+    } elseif ($userRole === 'HOD') {
+        $desktopUrl = '/dashboard/hod?mode=desktop';
+    } elseif ($userRole === 'Gen_Dept_Coordinator_Aided') {
+        $desktopUrl = '/dashboard/general-coordinator-aided?mode=desktop';
+    } elseif (in_array($userRole, ['Super_Admin', 'Principal'])) {
+        $desktopUrl = '/dashboard/principal?mode=desktop';
+    } elseif ($userRole === 'Lecturer') {
         $desktopUrl = '/dashboard/lecturer?mode=desktop';
     } elseif ($userRole === 'Demonstrator') {
         $desktopUrl = '/dashboard/demonstrator?mode=desktop';

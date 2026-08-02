@@ -248,7 +248,7 @@
         <span class="material-symbols-rounded text-lg">health_and_safety</span> Remedial Sessions
       </a>
 
-      <a href="/staff/mobile?mode=mobile" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-950/40 cursor-pointer no-underline block mobile-link">
+      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-950/40 cursor-pointer no-underline block mobile-link">
         <span class="material-symbols-rounded text-lg">event_note</span> My Leave & Attendance Log
       </a>
 
