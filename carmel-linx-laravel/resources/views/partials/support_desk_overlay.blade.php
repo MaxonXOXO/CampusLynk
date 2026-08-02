@@ -107,6 +107,9 @@ function openStaffSupportModal() {
 }
 
 function closeStaffSupportModal() {
+  if (SupportDesk.sessionId) {
+    stopStaffScreenShare();
+  }
   document.getElementById('staffSupportRequestModal').classList.add('hidden');
 }
 
@@ -266,7 +269,11 @@ function startSignalPolling(myRole) {
       const data = await res.json();
 
       if (data.session_status === 'ended') {
-        stopStaffScreenShare();
+        if (myRole === 'admin') {
+          if (typeof endAdminSupportSession === 'function') endAdminSupportSession();
+        } else {
+          stopStaffScreenShare();
+        }
         return;
       }
 
@@ -286,7 +293,7 @@ function startSignalPolling(myRole) {
 
 // Handle Incoming WebRTC & Pointer Signals
 async function handleIncomingSignal(sig, myRole) {
-  const pc = SupportDesk.peerConnection;
+  const pc = (myRole === 'admin') ? (window.AdminSupport ? window.AdminSupport.peerConnection : null) : SupportDesk.peerConnection;
 
   if (myRole === 'staff') {
     // If Admin accepted the session, prompt staff to capture screen
@@ -329,4 +336,22 @@ function showStaffLaserPointer(xPercent, yPercent) {
     pointer.classList.add('hidden');
   }, 3000);
 }
+
+// Automatically terminate support session if staff member closes browser tab or navigates away
+window.addEventListener('beforeunload', () => {
+  if (SupportDesk.sessionId) {
+    const data = JSON.stringify({ session_id: SupportDesk.sessionId });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/support/end', new Blob([data], { type: 'application/json' }));
+    }
+  }
+});
+window.addEventListener('pagehide', () => {
+  if (SupportDesk.sessionId) {
+    const data = JSON.stringify({ session_id: SupportDesk.sessionId });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon('/api/support/end', new Blob([data], { type: 'application/json' }));
+    }
+  }
+});
 </script>

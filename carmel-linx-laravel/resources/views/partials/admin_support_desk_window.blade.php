@@ -114,6 +114,14 @@ async function fetchAdminSupportQueue() {
       badge.classList.add('hidden');
     }
 
+    // Auto-disconnect Admin stream if staff member cancels session or closes tab
+    if (AdminSupport.sessionId) {
+      const activeSess = queue.find(s => s.session_id === AdminSupport.sessionId);
+      if (!activeSess || activeSess.status === 'ended') {
+        endAdminSupportSession();
+      }
+    }
+
     if (!container) return;
 
     if (queue.length === 0) {
