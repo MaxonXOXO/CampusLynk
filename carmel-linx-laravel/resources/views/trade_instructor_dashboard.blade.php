@@ -225,26 +225,26 @@
       @endphp
 
       @if($isTutor)
-      <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block text-[10px] text-xs">
+      <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs">
         <span class="material-symbols-rounded text-lg">admin_panel_settings</span> Tutor Console
       </a>
       @endif
 
       @if($isTutor || $isMentor)
-      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block text-[10px] text-xs">
+      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs">
         <span class="material-symbols-rounded text-lg">diversity_3</span> My Mentoring
       </a>
       @endif
 
-      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-rose-400 hover:bg-rose-900/30 hover:text-rose-300 cursor-pointer no-underline block text-[10px] text-xs mobile-link">
+      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs mobile-link">
          <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
       </a>
 
-      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 hover:text-purple-300 cursor-pointer no-underline block text-xs mobile-link">
+      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs mobile-link">
          <span class="material-symbols-rounded text-lg">event_note</span> My Leave & Attendance Log
       </a>
 
-      <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 cursor-pointer no-underline block text-[10px] text-xs">
+      <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs">
          <span class="material-symbols-rounded text-lg">school</span> Professional Activities
       </a>
 
