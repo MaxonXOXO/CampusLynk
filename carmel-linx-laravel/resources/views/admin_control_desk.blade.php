@@ -126,7 +126,7 @@
          <span class="material-symbols-rounded text-lg">school</span> Professional Activities
       </a>
 
-      <a href="/staff/leave/reports" target="_blank" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 hover:text-sky-300 cursor-pointer no-underline block text-sm">
+      <a href="/staff/leave/reports" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 hover:text-sky-300 cursor-pointer no-underline block text-sm">
          <span class="material-symbols-rounded text-lg">event_note</span> All-Dept Master Leave Ledger
       </a>
     </nav>
@@ -488,9 +488,14 @@
 
       <!-- PANEL 5: SYSTEM SETTINGS -->
       <div id="panelSettings" class="hidden space-y-6">
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl">
-          <h3 class="font-black text-slate-200 text-sm">System Settings &amp; API Controls</h3>
-          <p class="text-xs text-slate-400 mt-1">Configure global API integrations, AI credits saving switches, and local fallbacks.</p>
+        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h3 class="font-black text-slate-200 text-sm">System Settings &amp; API Controls</h3>
+            <p class="text-xs text-slate-400 mt-1">Configure global API integrations, AI credits saving switches, and local fallbacks.</p>
+          </div>
+          <button onclick="switchPanel('dashboard')" class="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold text-xs transition flex items-center gap-1.5 cursor-pointer border border-slate-700">
+            <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Dashboard
+          </button>
         </div>
 
         <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl p-6 space-y-6">
