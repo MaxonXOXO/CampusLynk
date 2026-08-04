@@ -170,7 +170,11 @@ Route::middleware(['web'])->group(function () {
     Route::get('/dashboard/superadmin', function () {
         $role = Session::get('userRole');
         if ($role !== 'Super_Admin' && $role !== 'Principal') return redirect('/');
-        return view('admin_control_desk');
+        return response()->view('admin_control_desk')->withHeaders([
+            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
+        ]);
     });
 
     Route::get('/superadmin/show-users', function () {
@@ -188,7 +192,11 @@ Route::middleware(['web'])->group(function () {
             ->orderBy('reg_no')
             ->get();
             
-        return view('admin_show_users_table', compact('staff', 'students'));
+        return response()->view('admin_show_users_table', compact('staff', 'students'))->withHeaders([
+            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
+        ]);
     });
 
     Route::get('/dashboard/admin', function () {

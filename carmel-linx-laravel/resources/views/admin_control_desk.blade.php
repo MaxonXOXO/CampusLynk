@@ -1569,6 +1569,13 @@
         statusEl.innerText = "Error";
       });
     }
+
+    // Prevent back-button viewing after logout (session out)
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
+        window.location.reload(true);
+      }
+    });
   </script>
   @include('partials.admin_support_desk_window')
   @include('partials.support_desk_overlay')

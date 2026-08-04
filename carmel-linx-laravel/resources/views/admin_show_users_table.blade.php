@@ -182,6 +182,13 @@
         tr.style.display = text.includes(q) ? '' : 'none';
       });
     }
+
+    // Prevent back-button viewing after logout (session out)
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
+        window.location.reload(true);
+      }
+    });
   </script>
 </body>
 </html>
