@@ -253,7 +253,7 @@
                 <i class="fa-solid fa-drafting-compass text-info fs-3"></i>
                 <div>
                     <span class="fs-5 fw-bold brand-font">Carmel Linx</span>
-                    <span class="badge badge-cyan ms-2">R2026 Drawing Hall</span>
+                    <span class="badge badge-cyan ms-2">{{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }} Drawing Hall</span>
                 </div>
             </a>
             <div class="d-flex align-items-center gap-3">
@@ -353,6 +353,9 @@
             </li>
             <li class="nav-item">
                 <button class="nav-link" id="tab-cie-link" data-bs-toggle="tab" data-bs-target="#tab-cie" type="button"><i class="fa-solid fa-chart-pie me-2 text-purple"></i>Consolidated CIE & Reports</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="tab-materials-link" data-bs-toggle="tab" data-bs-target="#tab-materials" type="button"><i class="fa-solid fa-folder-open me-2 text-warning"></i>Study Materials & Pre-Class Hub</button>
             </li>
         </ul>
 
@@ -1057,6 +1060,11 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- TAB 8: STUDY MATERIALS & PRE-CLASS HUB -->
+            <div class="tab-pane fade" id="tab-materials" role="tabpanel">
+                @include('partials.virtual_learning_hub_tab', ['roomType' => 'Drawing'])
             </div>
 
         </div>

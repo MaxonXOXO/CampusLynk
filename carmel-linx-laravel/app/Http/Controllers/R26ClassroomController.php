@@ -33,10 +33,10 @@ class R26ClassroomController extends Controller
             abort(404, 'Subject not found.');
         }
 
-        // Fetch classroom (check standard table first, then fallback to R26)
-        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        // Fetch classroom (check R26 table first, then fallback to standard)
+        $classroom = R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
         if (!$classroom) {
-            $classroom = R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+            $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
         }
 
         if (!$classroom) {
@@ -232,6 +232,7 @@ class R26ClassroomController extends Controller
                 'reg_no' => $student->reg_no,
                 'name' => $student->name,
                 'roll_no' => $student->roll_no,
+                'sbte_reg_no' => $student->sbte_reg_no,
                 'attendance_percent' => round($attPercentage, 2),
                 'attendance_marks' => $attMarks,
                 'attendance_status' => $attStatus,

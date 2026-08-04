@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>R2026 Practical Classroom - {{ $batchSubject->subject_name }}</title>
+    <title>[{{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }}] Practical Virtual Lab - {{ $batchSubject->subject_name }}</title>
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -354,7 +354,7 @@
 
 
                 <span class="vl-badge vl-badge-blue" style="font-size:11px;font-weight:700;letter-spacing:.06em;">
-                    <i class="fa-solid fa-flask-vial"></i> VIRTUAL LAB · R2026
+                    <i class="fa-solid fa-flask-vial"></i> VIRTUAL LAB · {{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }}
                 </span>
 
                 <span class="vl-badge vl-badge-slate" id="header-subject-code" style="font-family:monospace;font-weight:700;">
@@ -487,6 +487,11 @@
                         <i class="fa-solid fa-award tab-icon"></i> CIA Consolidated
                     </span>
                     <span class="tab-badge tab-badge-green">100M</span>
+                </button>
+                <button type="button" onclick="switchTab('materials')" id="btn-materials" class="tab-btn">
+                    <span style="display:flex;align-items:center;gap:9px;">
+                        <i class="fa-solid fa-folder-special tab-icon"></i> Learning Materials & Pre-Lab
+                    </span>
                 </button>
             </div>
 
@@ -1275,6 +1280,8 @@
                     </table>
                 </div>
             </div>
+
+            @include('partials.virtual_learning_hub_tab', ['roomType' => 'Practical'])
 
         </section>
 

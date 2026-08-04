@@ -9,6 +9,7 @@ use App\Http\Controllers\R26ClassroomController;
 use App\Http\Controllers\MidSemSurveyController;
 use App\Http\Controllers\CourseExitSurveyController;
 use App\Http\Controllers\SupportDeskController;
+use App\Http\Controllers\VirtualLearningMaterialController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -145,6 +146,13 @@ Route::post('/api/auth/recover-account', function (Illuminate\Http\Request $requ
 
 // Protected Dashboard Renders
 Route::middleware(['web'])->group(function () {
+    
+    // Virtual Learning Materials & Pre-Class Hub APIs
+    Route::post('/api/virtual-room/materials/upload', [VirtualLearningMaterialController::class, 'uploadMaterial']);
+    Route::get('/api/virtual-room/materials/{subjectId}', [VirtualLearningMaterialController::class, 'getSubjectMaterials']);
+    Route::get('/api/student/pre-class-alerts', [VirtualLearningMaterialController::class, 'getStudentPreClassAlerts']);
+    Route::post('/api/student/materials/mark-read', [VirtualLearningMaterialController::class, 'markAlertAsRead']);
+    Route::delete('/api/virtual-room/materials/{id}', [VirtualLearningMaterialController::class, 'deleteMaterial']);
     
     Route::get('/dashboard/student', function (\Illuminate\Http\Request $request) {
         if (Session::get('userRole') !== 'Student') return redirect('/');

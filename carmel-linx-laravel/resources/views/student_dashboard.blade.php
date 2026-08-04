@@ -181,6 +181,38 @@
     <!-- Panels -->
     <div class="flex-grow overflow-y-auto p-6 md:p-8">
 
+      <!-- PRE-CLASS ACADEMIC READINESS & LEARNING VAULT ALERT BANNER -->
+      <div id="vlmPreClassAlertBanner" class="mb-6 bg-gradient-to-r from-amber-950/70 via-slate-900 to-indigo-950/70 border-2 border-amber-500/60 rounded-2xl p-5 shadow-2xl relative overflow-hidden hidden fade-up">
+        <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+        
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+          <div class="flex items-start gap-3.5">
+            <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center flex-shrink-0 shadow-lg text-amber-400 animate-pulse">
+              <span class="material-symbols-rounded text-2xl">campaign</span>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-black uppercase tracking-wider">⚡ Pre-Class Evening Preparation Alert</span>
+                <span id="vlmAlertTargetDate" class="text-xs font-mono text-slate-300"></span>
+              </div>
+              <h3 id="vlmAlertTitle" class="font-black text-white text-base mt-1"></h3>
+              <p id="vlmAlertInstruction" class="text-xs text-amber-200/90 mt-1 max-w-2xl"></p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-shrink-0 w-full md:w-auto justify-end">
+            <button onclick="openVlmVaultModal()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs transition-all shadow-lg flex items-center gap-2 cursor-pointer">
+              <span class="material-symbols-rounded text-base">folder_special</span>
+              Open Study Materials Vault
+            </button>
+            <button onclick="acknowledgeVlmNotice()" id="btnAckVlm" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-all border border-slate-700 cursor-pointer flex items-center gap-1.5">
+              <span class="material-symbols-rounded text-sm text-emerald-400">check_circle</span>
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- PANEL: ACTIVE EXAMS -->
       <div id="panelExams" class="fade-up">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
@@ -2042,7 +2074,167 @@
     </div>
   </div>
 
-  
+  <!-- STUDY MATERIALS & PRE-CLASS VAULT MODAL -->
+  <div id="vlmVaultModal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col">
+    <!-- Modal Header -->
+    <div class="h-16 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between px-6 shrink-0">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+          <span class="material-symbols-rounded text-xl">folder_special</span>
+        </div>
+        <div>
+          <h3 class="font-black text-sm text-white leading-tight">Digital Learning Vault & Pre-Class Materials</h3>
+          <span class="text-xs text-slate-400 block">Access pre-class topic notes, lab rough record guides, tutorial clips, and references published by faculty.</span>
+        </div>
+      </div>
+      <button onclick="closeVlmVaultModal()" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer">
+        <span class="material-symbols-rounded text-lg">close</span>
+      </button>
+    </div>
+
+    <!-- Modal Content Grid -->
+    <div class="flex-grow overflow-y-auto p-6 md:p-8 space-y-4">
+      <div id="vlmVaultList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Dynamic Material Cards -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeVlmNoticeId = null;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadStudentPreClassAlerts();
+    });
+
+    function loadStudentPreClassAlerts() {
+      fetch('/api/student/materials/pre-class-notices')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.notices && data.notices.length > 0) {
+            const notice = data.notices[0];
+            activeVlmNoticeId = notice.id;
+            document.getElementById('vlmAlertTitle').innerText = (notice.subject_code ? notice.subject_code + ': ' : '') + notice.title;
+            document.getElementById('vlmAlertInstruction').innerText = notice.description || 'Pre-class material published for upcoming session.';
+            document.getElementById('vlmAlertTargetDate').innerText = 'Target: ' + (notice.target_class_date || 'Upcoming Class');
+            document.getElementById('vlmPreClassAlertBanner').classList.remove('hidden');
+          }
+        })
+        .catch(err => console.error('VLM Alert fetch error:', err));
+    }
+
+    function acknowledgeVlmNotice() {
+      if (!activeVlmNoticeId) return;
+      const btn = document.getElementById('btnAckVlm');
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
+      fetch(`/api/student/materials/${activeVlmNoticeId}/read`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          document.getElementById('vlmPreClassAlertBanner').classList.add('hidden');
+        }
+      })
+      .catch(err => console.error(err))
+      .finally(() => {
+        btn.disabled = false;
+        btn.innerText = 'Acknowledge';
+      });
+    }
+
+    function openVlmVaultModal() {
+      document.getElementById('vlmVaultModal').classList.remove('hidden');
+      fetchVlmVaultMaterials();
+    }
+
+    function closeVlmVaultModal() {
+      document.getElementById('vlmVaultModal').classList.add('hidden');
+    }
+
+    function fetchVlmVaultMaterials() {
+      const container = document.getElementById('vlmVaultList');
+      container.innerHTML = '<div class="col-span-full text-center text-slate-400 py-8"><span class="material-symbols-rounded animate-spin text-2xl">sync</span><p class="mt-2 text-xs">Loading learning materials vault...</p></div>';
+
+      fetch('/api/student/materials/pre-class-notices')
+        .then(res => res.json())
+        .then(data => {
+          if (!data.success || !data.notices || data.notices.length === 0) {
+            container.innerHTML = '<div class="col-span-full text-center text-slate-400 py-12 bg-slate-900/50 rounded-2xl border border-slate-800"><span class="material-symbols-rounded text-3xl text-slate-500 mb-2">folder_open</span><p class="text-sm font-semibold">No materials published yet.</p><p class="text-xs text-slate-500 mt-1">Study notes and pre-class guides uploaded by your teachers will appear here.</p></div>';
+            return;
+          }
+
+          let html = '';
+          data.notices.forEach(m => {
+            let icon = 'description';
+            let badgeColor = 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+            if (m.resource_type === 'video') {
+              icon = 'smart_display';
+              badgeColor = 'bg-rose-500/20 text-rose-300 border-rose-500/30';
+            } else if (m.resource_type === 'image') {
+              icon = 'image';
+              badgeColor = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
+            } else if (m.resource_type === 'link') {
+              icon = 'link';
+              badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+            }
+
+            let linkAttr = '';
+            if (m.resource_type === 'link') {
+              linkAttr = `href="${m.external_url}" target="_blank"`;
+            } else if (m.file_path) {
+              linkAttr = `href="/storage/${m.file_path}" target="_blank"`;
+            } else if (m.external_url) {
+              linkAttr = `href="${m.external_url}" target="_blank"`;
+            } else {
+              linkAttr = `href="#"`;
+            }
+
+            html += `
+              <div class="bg-slate-900 border ${m.is_urgent ? 'border-amber-500/50' : 'border-slate-800'} rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-all shadow-lg">
+                <div>
+                  <div class="flex items-center justify-between gap-2 mb-2">
+                    <span class="px-2 py-0.5 rounded-full ${badgeColor} border text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                      <span class="material-symbols-rounded text-xs">${icon}</span> ${m.resource_type}
+                    </span>
+                    ${m.is_urgent ? '<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-extrabold uppercase">Urgent Alert</span>' : ''}
+                  </div>
+                  <h4 class="font-bold text-white text-sm mb-1 line-clamp-2">${m.title}</h4>
+                  <p class="text-xs text-slate-400 line-clamp-3 mb-3">${m.description || 'No additional instructions provided.'}</p>
+                </div>
+                <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                  <span class="font-mono text-[11px]">${m.target_class_date ? 'Date: ' + m.target_class_date : 'Uploaded: ' + (m.created_at ? m.created_at.substring(0,10) : '')}</span>
+                  <a ${linkAttr} onclick="markMaterialAsRead(${m.id})" class="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 font-bold rounded-lg border border-blue-500/30 transition-all flex items-center gap-1 no-underline">
+                    <span>View File</span>
+                    <span class="material-symbols-rounded text-xs">open_in_new</span>
+                  </a>
+                </div>
+              </div>
+            `;
+          });
+          container.innerHTML = html;
+        })
+        .catch(err => {
+          container.innerHTML = '<div class="col-span-full text-center text-rose-400 py-6 text-xs font-semibold">Failed to load learning materials.</div>';
+        });
+    }
+
+    function markMaterialAsRead(id) {
+      fetch(`/api/student/materials/${id}/read`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+      }).catch(err => console.error(err));
+    }
+  </script>
 </body>
 </html>
 

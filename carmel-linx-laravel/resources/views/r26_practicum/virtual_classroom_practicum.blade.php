@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $batchSubject->subject_name }} ({{ $batchSubject->subject_code }}) - Practicum Virtual Classroom | Revision 2026</title>
+    <title>[{{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }}] Practicum Virtual Classroom - {{ $batchSubject->subject_name }} ({{ $batchSubject->subject_code }})</title>
     
     <!-- Google Fonts & Tailwind CSS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -259,7 +259,7 @@
                     <div class="flex items-center space-x-2.5 flex-wrap gap-y-1">
                         <h1 class="text-lg font-bold text-white tracking-tight">{{ $batchSubject->subject_name }}</h1>
                         <span class="px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-semibold whitespace-nowrap">
-                            Practicum Course (Rev 2026)
+                            Practicum Course ({{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }})
                         </span>
 
                         @php
@@ -382,6 +382,7 @@
                 <button onclick="switchTheorySubtab('ese')" id="theory-tab-ese" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">🏆 Theory ESE</button>
                 <button onclick="switchTheorySubtab('surveys')" id="theory-tab-surveys" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📊 Surveys</button>
                 <button onclick="switchTheorySubtab('attendance')" id="theory-tab-attendance" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📅 Attendance</button>
+                <button onclick="switchTheorySubtab('materials')" id="theory-tab-materials" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">📁 Study Materials & Pre-Class Hub</button>
             </div>
 
             <!-- Subtab 1: Theory Modules, COs & CO-PO Mapping Table -->
@@ -1162,6 +1163,10 @@
                 <button onclick="switchLabSubtab('ese')" id="lab-tab-ese" class="subtab-btn px-2.5 py-1.5 rounded-lg font-semibold text-slate-300 hover:text-white whitespace-nowrap">🏆 Lab ESE</button>
             </div>
 
+            <div id="theory-subcontent-materials" class="hidden">
+                @include('partials.virtual_learning_hub_tab', ['roomType' => 'Practicum'])
+            </div>
+
             <!-- Subtab 1: 3-Hour Session Experiments Roster -->
             <div id="lab-subcontent-roster" class="glass-card p-5 rounded-xl border border-slate-800">
                 <div class="flex flex-col md:flex-row items-center justify-between mb-4 gap-3">
@@ -1804,7 +1809,7 @@
         }
 
         function switchTheorySubtab(tab) {
-            ['overview', 'planner', 'sl', 'series', 'ese', 'surveys', 'attendance'].forEach(t => {
+            ['overview', 'planner', 'sl', 'series', 'ese', 'surveys', 'attendance', 'materials'].forEach(t => {
                 document.getElementById('theory-subcontent-' + t)?.classList.add('hidden');
                 document.getElementById('theory-tab-' + t)?.classList.remove('active', 'text-white');
             });

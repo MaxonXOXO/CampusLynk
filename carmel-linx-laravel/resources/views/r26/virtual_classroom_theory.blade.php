@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carmel Linx - Virtual Classroom (Theory) REV-2026</title>
+  <title>[{{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }}] Virtual Classroom (Theory) - {{ $batchSubject->subject_name }}</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Google Icons & Fonts -->
@@ -133,7 +133,7 @@
         <div>
           <div class="text-base font-bold tracking-tight text-title flex items-center gap-2">
             <span>Carmel Linx</span>
-            <span class="text-sm font-bold px-2 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded">REV-2026</span>
+            <span class="text-xs font-bold font-mono px-2 py-0.5 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded shadow-xs">{{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }}</span>
           </div>
           <p class="text-xs text-muted font-bold uppercase tracking-wider">Lecturer Console</p>
         </div>
@@ -254,6 +254,11 @@
           <button onclick="switchTab('attainment')" id="btn-attainment" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer">
             <span class="material-symbols-rounded text-sm">equalizer</span>
             Course Attainment & Surveys
+          </button>
+
+          <button onclick="switchTab('materials')" id="btn-materials" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer">
+            <span class="material-symbols-rounded text-sm">folder_special</span>
+            Study Materials & Pre-Class Hub
           </button>
 
           <a href="/r26/classroom/course-file/{{ $batchSubject->id }}" target="_blank" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-indigo-500/15 hover:text-indigo-400 cursor-pointer no-underline">
@@ -1472,9 +1477,11 @@
           </div>
         </div>
 
-    </div>
+        @include('partials.virtual_learning_hub_tab', ['roomType' => 'Theory'])
 
-  </div>
+      </div>
+
+    </div>
 
     </div>
 
@@ -1488,7 +1495,7 @@
       });
       document.getElementById('tab-' + tabId).classList.remove('hidden');
 
-      const tabs = ['outline', 'planner', 'cia', 'roster', 'series', 'internals', 'attainment'];
+      const tabs = ['outline', 'planner', 'cia', 'roster', 'series', 'internals', 'attainment', 'materials'];
       tabs.forEach(id => {
         const btn = document.getElementById('btn-' + id);
         if (!btn) return;

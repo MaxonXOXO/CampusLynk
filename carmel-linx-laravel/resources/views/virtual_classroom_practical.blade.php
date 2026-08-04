@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Virtual Lab Classroom - {{ $batchSubject->subject_name }}</title>
+    <title>[{{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }}] Virtual Lab - {{ $batchSubject->subject_name }}</title>
 
     <!-- Google Fonts & Tailwind CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -73,7 +73,7 @@
             <div>
                 <div class="flex items-center gap-2">
                     <span class="px-3 py-1 text-[11px] font-black tracking-wider rounded-md bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                        VIRTUAL LAB (R2026)
+                        VIRTUAL LAB ({{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }})
                     </span>
                     <span class="text-xs text-slate-500 font-mono font-bold">{{ $batchSubject->subject_code }}</span>
                 </div>
