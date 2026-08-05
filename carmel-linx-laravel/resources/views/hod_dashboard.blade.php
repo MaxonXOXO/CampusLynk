@@ -231,48 +231,48 @@
     </div>
 
     <!-- Navigation Menus -->
-    <nav class="flex-grow p-4 space-y-1.5">
+    <nav class="flex-grow p-3 space-y-1">
       @if($isPrincipalMode)
-      <a href="/dashboard/principal" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-amber-400 hover:bg-amber-950/30 hover:text-amber-300 cursor-pointer no-underline mb-2">
-         <span class="material-symbols-rounded text-lg">arrow_back</span> Return to Desk
+      <a href="/dashboard/principal" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-amber-400 hover:bg-amber-950/30 hover:text-amber-300 cursor-pointer no-underline mb-2">
+         <span class="material-symbols-rounded text-base">arrow_back</span> Return to Desk
       </a>
       @endif
-      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
-        <span class="material-symbols-rounded text-lg">group</span> User Directory
+      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+        <span class="material-symbols-rounded text-base">group</span> User Directory
       </button>
-      <button id="navBatches" onclick="switchPanel('batches')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 mobile-link">
-        <span class="material-symbols-rounded text-lg">school</span> Batch Management
+      <button id="navBatches" onclick="switchPanel('batches')" class="w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-2.5 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 mobile-link">
+        <span class="material-symbols-rounded text-base">school</span> Batch Management
       </button>
-      <button id="navSubjects" onclick="switchPanel('subjects')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
-        <span class="material-symbols-rounded text-lg">library_books</span> Subject Allocation
+      <button id="navSubjects" onclick="switchPanel('subjects')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+        <span class="material-symbols-rounded text-base">library_books</span> Subject Allocation
       </button>
-      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
-        <span class="material-symbols-rounded text-lg">receipt_long</span> Department Audit Trail
+      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+        <span class="material-symbols-rounded text-base">receipt_long</span> Department Audit Trail
       </button>
-      <a href="/dashboard/lecturer" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-lg">calendar_view_week</span> My Batches
+      <a href="/dashboard/lecturer" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
+         <span class="material-symbols-rounded text-base">calendar_view_week</span> My Batches
       </a>
-      <a href="/hod/report-centre" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-lg">analytics</span> Report Centre
+      <a href="/hod/report-centre" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
+         <span class="material-symbols-rounded text-base">analytics</span> Report Centre
       </a>
-      <a href="/staff/leave/reports" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-lg">event_note</span> Staff Leave Ledger
+      <a href="/staff/leave/reports" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
+         <span class="material-symbols-rounded text-base">event_note</span> Staff Leave Ledger
       </a>
-      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
+      <a href="/staff/attendance-log" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
+         <span class="material-symbols-rounded text-base">co_present</span> Class Attendance Log
       </a>
-      <a href="/remedial-sessions" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-lg">health_and_safety</span> Remedial Sessions
+      <a href="/remedial-sessions" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
+         <span class="material-symbols-rounded text-base">health_and_safety</span> Remedial Sessions
       </a>
-      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-lg">event_note</span> My Leave & Attendance Log
+      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
+         <span class="material-symbols-rounded text-base">event_note</span> My Leave & Attendance Log
       </a>
-      <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
-         <span class="material-symbols-rounded text-lg">school</span> Professional Activities
+      <a href="/staff/professional-activities" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
+         <span class="material-symbols-rounded text-base">school</span> Professional Activities
       </a>
 
-      <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer ">
-        <span class="material-symbols-rounded text-lg">settings</span> My Profile
+      <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+        <span class="material-symbols-rounded text-base">settings</span> My Profile
       </button>
     </nav>
 
@@ -1295,9 +1295,9 @@
         
         if (id === panelId) {
           if (el) el.classList.remove('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
+          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-2.5 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
         } else {
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
+          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
           if (el) el.classList.add('hidden');
         }
       });

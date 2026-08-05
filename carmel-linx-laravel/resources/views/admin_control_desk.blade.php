@@ -99,35 +99,35 @@
     </div>
 
     <!-- Navigation Menus -->
-    <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-sm">
-        <span class="material-symbols-rounded text-lg">dashboard</span> Dashboard Overview
+    <nav class="flex-grow p-3 space-y-1">
+      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-2.5 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-xs">
+        <span class="material-symbols-rounded text-base">dashboard</span> Dashboard Overview
       </button>
-      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
-        <span class="material-symbols-rounded text-lg">group</span> User Directory
+      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
+        <span class="material-symbols-rounded text-base">group</span> User Directory
       </button>
-      <button id="navBackups" onclick="switchPanel('backups')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
-        <span class="material-symbols-rounded text-lg">database</span> Drive Backups
+      <button id="navBackups" onclick="switchPanel('backups')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
+        <span class="material-symbols-rounded text-base">database</span> Drive Backups
       </button>
-      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
-        <span class="material-symbols-rounded text-lg">receipt_long</span> Audit Trail
+      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
+        <span class="material-symbols-rounded text-base">receipt_long</span> Audit Trail
       </button>
-      <button id="navSettings" onclick="switchPanel('settings')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
-        <span class="material-symbols-rounded text-lg">settings</span> System Settings
+      <button id="navSettings" onclick="switchPanel('settings')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
+        <span class="material-symbols-rounded text-base">settings</span> System Settings
       </button>
 
       @if(session('userRole') === 'Super_Admin')
-      <a href="/superadmin/show-users" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-950/40 hover:text-emerald-300 cursor-pointer no-underline block text-sm border border-emerald-500/20 bg-emerald-500/5">
-         <span class="material-symbols-rounded text-lg">key</span> User Credentials Table
+      <a href="/superadmin/show-users" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-emerald-400 hover:bg-emerald-950/40 hover:text-emerald-300 cursor-pointer no-underline block text-xs border border-emerald-500/20 bg-emerald-500/5">
+         <span class="material-symbols-rounded text-base">key</span> User Credentials Table
       </a>
       @endif
 
-      <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 cursor-pointer no-underline block text-sm">
-         <span class="material-symbols-rounded text-lg">school</span> Professional Activities
+      <a href="/staff/professional-activities" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-indigo-400 hover:bg-indigo-900/30 hover:text-indigo-300 cursor-pointer no-underline block text-xs">
+         <span class="material-symbols-rounded text-base">school</span> Professional Activities
       </a>
 
-      <a href="/staff/leave/reports" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 hover:text-sky-300 cursor-pointer no-underline block text-sm">
-         <span class="material-symbols-rounded text-lg">event_note</span> All-Dept Master Leave Ledger
+      <a href="/staff/leave/reports" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-sky-400 hover:bg-sky-900/30 hover:text-sky-300 cursor-pointer no-underline block text-xs">
+         <span class="material-symbols-rounded text-base">event_note</span> All-Dept Master Leave Ledger
       </a>
     </nav>
 
@@ -828,9 +828,9 @@
         
         if (id === panelId) {
           if (el) el.classList.remove('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
+          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-2.5 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
         } else {
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
+          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
           if (el) el.classList.add('hidden');
         }
       });

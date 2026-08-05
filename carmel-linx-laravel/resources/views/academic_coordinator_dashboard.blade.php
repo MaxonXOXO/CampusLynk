@@ -404,21 +404,21 @@
       </div>
 
       <!-- Navigation Menus -->
-      <nav class="flex-grow p-4 space-y-1.5">
-        <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-xs">
-          <span class="material-symbols-rounded text-lg">dashboard</span> Overview & Approvals
+      <nav class="flex-grow p-3 space-y-1">
+        <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-2.5 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-xs">
+          <span class="material-symbols-rounded text-base">dashboard</span> Overview & Approvals
         </button>
         
-        <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
-          <span class="material-symbols-rounded text-lg">group</span> SF Staff Directory
+        <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+          <span class="material-symbols-rounded text-base">group</span> SF Staff Directory
         </button>
 
-        <button id="navReports" onclick="switchPanel('reports')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
-          <span class="material-symbols-rounded text-lg">event_note</span> Staff Leave Reports & Ledger
+        <button id="navReports" onclick="switchPanel('reports')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
+          <span class="material-symbols-rounded text-base">event_note</span> Staff Leave Reports & Ledger
         </button>
 
-        <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4">
-          <span class="material-symbols-rounded text-lg">security</span> Security Log
+        <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-2">
+          <span class="material-symbols-rounded text-base">security</span> Security Log
         </button>
       </nav>
 
@@ -824,9 +824,9 @@
         
         if (id === panelId) {
           if (el) el.classList.remove('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
+          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-2.5 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
         } else {
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
+          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
           if (el) el.classList.add('hidden');
         }
       });

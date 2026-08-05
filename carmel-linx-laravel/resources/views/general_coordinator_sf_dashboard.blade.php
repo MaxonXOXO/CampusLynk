@@ -217,12 +217,12 @@
     </div>
 
     <!-- Navigation Menus -->
-    <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-[10px] text-xs mobile-link">
-        <span class="material-symbols-rounded text-lg">dashboard</span> Overview
+    <nav class="flex-grow p-3 space-y-1">
+      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-2.5 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-xs mobile-link">
+        <span class="material-symbols-rounded text-base">dashboard</span> Overview
       </button>
-      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-[10px] text-xs">
-        <span class="material-symbols-rounded text-lg">group</span> User Directory
+      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
+        <span class="material-symbols-rounded text-base">group</span> User Directory
       </button>
 
       @php
@@ -232,20 +232,21 @@
       @endphp
 
       @if($isTutor)
-      <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block text-[10px] text-xs">
-        <span class="material-symbols-rounded text-lg">admin_panel_settings</span> Tutor Console
+      <a href="/dashboard/tutor" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block text-xs">
+        <span class="material-symbols-rounded text-base">admin_panel_settings</span> Tutor Console
       </a>
       @endif
 
       @if($isTutor || $isMentor)
-      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block mt-4 text-[10px] text-xs">
-        <span class="material-symbols-rounded text-lg">diversity_3</span> My Mentoring
+      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block text-xs">
+        <span class="material-symbols-rounded text-base">diversity_3</span> My Mentoring
       </a>
-      <a href="/dashboard/academic-coordinator" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-indigo-400 hover:bg-indigo-900/30 cursor-pointer no-underline block text-xs mobile-link">
-        <span class="material-symbols-rounded text-lg">verified_user</span> Academic Coordinator Desk
+      @endif
+      <a href="/dashboard/academic-coordinator" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-indigo-400 hover:bg-indigo-900/30 cursor-pointer no-underline block text-xs mobile-link">
+        <span class="material-symbols-rounded text-base">verified_user</span> Academic Coordinator Desk
       </a>
-      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-purple-400 hover:bg-purple-900/30 cursor-pointer no-underline block text-xs mobile-link">
-        <span class="material-symbols-rounded text-lg">event_note</span> My Leave & Attendance Log
+      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-purple-400 hover:bg-purple-900/30 cursor-pointer no-underline block text-xs mobile-link">
+        <span class="material-symbols-rounded text-base">event_note</span> My Leave & Attendance Log
       </a>
     </nav>
 
@@ -341,9 +342,9 @@
         
         if (id === panelId) {
           if (el) el.classList.remove('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-[10px] flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
+          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-2.5 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
         } else {
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
+          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
           if (el) el.classList.add('hidden');
         }
       });
