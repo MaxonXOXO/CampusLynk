@@ -16,13 +16,8 @@
     .transition-premium {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    /* Enforce minimal 14px font policy across all elements */
-    body, button, select, input, textarea, table, th, td, div, p, span, a {
-      font-size: 14px !important;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      font-size: 16px !important;
-      font-weight: 800 !important;
+    .transition-premium {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .card-gradient {
       background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
@@ -35,15 +30,15 @@
   <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 shadow-2xl">
     <div class="px-6 h-12 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <a href="/dashboard/hod" class="flex items-center gap-1.5 px-3 py-1 bg-amber-500/15 hover:bg-amber-500/30 border border-amber-500/40 hover:border-amber-400 text-amber-400 hover:text-amber-300 rounded-lg font-bold transition-premium no-underline">
-          <span class="material-symbols-rounded text-sm">arrow_back</span>
-          <span class="text-sm">Back</span>
+        <a href="/dashboard/hod" class="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/15 hover:bg-amber-500/30 border border-amber-500/40 hover:border-amber-400 text-amber-400 hover:text-amber-300 rounded-lg font-bold transition-premium no-underline text-xs">
+          <span class="material-symbols-rounded text-xs">arrow_back</span>
+          <span>Back</span>
         </a>
-        <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white font-black rounded-md w-7 h-7 flex items-center justify-center text-xs shadow-lg shadow-amber-500/20">RC</div>
+        <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white font-black rounded-md w-6 h-6 flex items-center justify-center text-[10px] shadow-lg shadow-amber-500/20">RC</div>
         <div>
-          <h1 class="font-extrabold text-slate-100 tracking-wide text-sm flex items-center gap-2">
+          <h1 class="font-extrabold text-slate-100 tracking-wide text-xs flex items-center gap-2 m-0">
             Report Centre
-            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800/50 px-1.5 py-0.5 rounded border border-slate-700/50">{{ session('userBranch') }} Dept</span>
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800/50 px-1.5 py-0.5 rounded border border-slate-700/50">{{ session('userBranch') }} Dept</span>
           </h1>
         </div>
       </div>
@@ -57,275 +52,275 @@
   </header>
 
   <!-- Main Content Space -->
-  <main class="flex-grow p-4 lg:p-6 max-w-[85rem] mx-auto w-full space-y-5">
+  <main class="flex-grow p-3.5 lg:p-5 max-w-[85rem] mx-auto w-full space-y-4">
     
     <!-- Hero Banner Section -->
-    <div class="bg-gradient-to-r from-amber-500/10 via-orange-600/5 to-slate-950 border border-amber-500/20 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
-      <div class="space-y-1">
-        <h2 class="text-white text-base font-black tracking-tight">Centralized Analytical Report Engine</h2>
-        <p class="text-slate-400 max-w-2xl leading-relaxed text-sm">
+    <div class="bg-gradient-to-r from-amber-500/10 via-orange-600/5 to-slate-950 border border-amber-500/20 rounded-xl p-3.5 md:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 shadow-xl">
+      <div class="space-y-0.5">
+        <h2 class="text-white text-sm font-bold tracking-tight m-0">Centralized Analytical Report Engine</h2>
+        <p class="text-slate-400 max-w-2xl leading-relaxed text-xs m-0">
           Pull historical records, download mentoring logs, track academic performance analytics, and view audit reports. All departmental intelligence is gathered here in real-time.
         </p>
       </div>
       <div class="flex-shrink-0">
-        <div class="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-          <span class="material-symbols-rounded text-2xl">insights</span>
+        <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+          <span class="material-symbols-rounded text-lg">insights</span>
         </div>
       </div>
     </div>
 
     <!-- Reports Directory Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
       
       <!-- Card 1: Attendance & Log Analysis -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-sky-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-1.5">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-sky-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-sky-400 text-xl">co_present</span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
-              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 font-black text-sm">1</span>
+            <span class="material-symbols-rounded text-sky-400 text-lg">co_present</span>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
+              <span class="w-6 h-6 flex items-center justify-center rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 font-bold text-xs">1</span>
             </div>
           </div>
-          <h3 class="text-white text-sm font-black">Attendance, Log, Condonation</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
+          <h3 class="text-white text-xs font-bold m-0">Attendance, Log, Condonation</h3>
+          <p class="text-slate-400 text-[11px] leading-snug m-0">
             Consolidated reports of daily class logs, lesson plan coverage rates, and student attendance percentages by batch.
           </p>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">Live Coverage Logs</span>
-          <button onclick="openAttendanceModal()" class="px-3 py-1.5 bg-sky-500/15 hover:bg-sky-500/30 text-sky-400 hover:text-sky-300 border border-sky-500/30 hover:border-sky-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
+        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between mt-1">
+          <span class="text-[10px] text-slate-500">Live Coverage Logs</span>
+          <button onclick="openAttendanceModal()" class="px-2.5 py-1 bg-sky-500/15 hover:bg-sky-500/30 text-sky-400 hover:text-sky-300 border border-sky-500/30 hover:border-sky-400 rounded-lg font-bold transition-premium cursor-pointer text-xs">
             Compile Logs
           </button>
         </div>
       </div>
 
       <!-- Card 2: Remedial Session Analysis -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-purple-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-1.5">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-purple-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-purple-400 text-xl">psychology</span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
-              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-400 font-black text-sm">2</span>
+            <span class="material-symbols-rounded text-purple-400 text-lg">psychology</span>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
+              <span class="w-6 h-6 flex items-center justify-center rounded-lg bg-purple-500/15 border border-purple-500/30 text-purple-400 font-bold text-xs">2</span>
             </div>
           </div>
-          <h3 class="text-white text-sm font-black">Remedial coaching Analytics</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
+          <h3 class="text-white text-xs font-bold m-0">Remedial Coaching Analytics</h3>
+          <p class="text-slate-400 text-[11px] leading-snug m-0">
             Track diagnostics, active coaching rooms, weakness analysis, and student improvement outcomes for slower learners.
           </p>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">Diagnostic Reports</span>
-          <button onclick="openRemedialModal()" class="px-3 py-1.5 bg-purple-500/15 hover:bg-purple-500/30 text-purple-400 hover:text-purple-300 border border-purple-500/30 hover:border-purple-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
+        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between mt-1">
+          <span class="text-[10px] text-slate-500">Diagnostic Reports</span>
+          <button onclick="openRemedialModal()" class="px-2.5 py-1 bg-purple-500/15 hover:bg-purple-500/30 text-purple-400 hover:text-purple-300 border border-purple-500/30 hover:border-purple-400 rounded-lg font-bold transition-premium cursor-pointer text-xs">
             Analyze Data
           </button>
         </div>
       </div>
 
       <!-- Card 3: Faculty Workload Report -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-1.5">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-amber-500 text-xl">pending_actions</span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
-              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 font-black text-sm">3</span>
+            <span class="material-symbols-rounded text-amber-500 text-lg">pending_actions</span>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
+              <span class="w-6 h-6 flex items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 font-bold text-xs">3</span>
             </div>
           </div>
-          <h3 class="text-white text-sm font-black">Faculty Workload and Timetables</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
+          <h3 class="text-white text-xs font-bold m-0">Faculty Workload & Timetables</h3>
+          <p class="text-slate-400 text-[11px] leading-snug m-0">
             Consolidated workload hours for classroom lectures and laboratories per week across all department timetables.
           </p>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">Commencement Week Submission</span>
-          <a href="/hod/report-centre/workload-panel" class="px-3 py-1.5 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400 rounded-xl font-bold transition-premium cursor-pointer text-sm no-underline inline-block">
+        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between mt-1">
+          <span class="text-[10px] text-slate-500">Commencement Week</span>
+          <a href="/hod/report-centre/workload-panel" class="px-2.5 py-1 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400 rounded-lg font-bold transition-premium cursor-pointer text-xs no-underline inline-block">
             View Panel
           </a>
         </div>
       </div>
 
       <!-- Card 4: Extra-Curricular Claims -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-rose-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-1.5">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-rose-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-rose-400 text-xl">emoji_events</span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>
-              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 font-black text-sm">4</span>
+            <span class="material-symbols-rounded text-rose-400 text-lg">emoji_events</span>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>
+              <span class="w-6 h-6 flex items-center justify-center rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 font-bold text-xs">4</span>
             </div>
           </div>
-          <h3 class="text-white text-sm font-black">Extra-Curricular Claims</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
+          <h3 class="text-white text-xs font-bold m-0">Extra-Curricular Claims</h3>
+          <p class="text-slate-400 text-[11px] leading-snug m-0">
             Aggregate student activity point verifications, pending claims logs, and approved co-curricular achievement statuses.
           </p>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">Activity Analytics</span>
-          <button onclick="openActivityPointsModal()" class="px-3 py-1.5 bg-rose-500/15 hover:bg-rose-500/30 text-rose-400 hover:text-rose-300 border border-rose-500/30 hover:border-rose-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
+        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between mt-1">
+          <span class="text-[10px] text-slate-500">Activity Analytics</span>
+          <button onclick="openActivityPointsModal()" class="px-2.5 py-1 bg-rose-500/15 hover:bg-rose-500/30 text-rose-400 hover:text-rose-300 border border-rose-500/30 hover:border-rose-400 rounded-lg font-bold transition-premium cursor-pointer text-xs">
             View Claims
           </button>
         </div>
       </div>
 
       <!-- Card 5: Department Course Files -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-emerald-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-1.5">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-emerald-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-emerald-400 text-xl">folder_zip</span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>
-              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-450 font-black text-sm">5</span>
+            <span class="material-symbols-rounded text-emerald-400 text-lg">folder_zip</span>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>
+              <span class="w-6 h-6 flex items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-bold text-xs">5</span>
             </div>
           </div>
-          <h3 class="text-white text-sm font-black">Department Course Files</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
-            Consolidated audits of subject syllabus progress, CO-PO mappings, assignment plans, and lesson plan submission compliance.
+          <h3 class="text-white text-xs font-bold m-0">Department Course Files</h3>
+          <p class="text-slate-400 text-[11px] leading-snug m-0">
+            Consolidated audits of subject syllabus progress, CO-PO mappings, assignment plans, and lesson plan compliance.
           </p>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">Curriculum Compliance</span>
-          <button onclick="openCourseFilesModal()" class="px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
+        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between mt-1">
+          <span class="text-[10px] text-slate-500">Curriculum Compliance</span>
+          <button onclick="openCourseFilesModal()" class="px-2.5 py-1 bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-400 rounded-lg font-bold transition-premium cursor-pointer text-xs">
             Check Status
           </button>
         </div>
       </div>
 
       <!-- Card 6: Mentoring Diaries -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-1.5">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-amber-400 text-xl">book</span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
-              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 font-black text-sm">6</span>
+            <span class="material-symbols-rounded text-amber-400 text-lg">book</span>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
+              <span class="w-6 h-6 flex items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 font-bold text-xs">6</span>
             </div>
           </div>
-          <h3 class="text-white text-sm font-black">Student Mentoring Diaries</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
-            Generate and export complete cumulative mentoring diaries, counselor notes, and personal records for students in your branch.
+          <h3 class="text-white text-xs font-bold m-0">Student Mentoring Diaries</h3>
+          <p class="text-slate-400 text-[11px] leading-snug m-0">
+            Generate and export complete cumulative mentoring diaries, counselor notes, and personal records for students.
           </p>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">PDF / Print Format</span>
-          <button onclick="alert('Feature coming soon: Dynamic Mentoring Export will pull active records.')" class="px-3 py-1.5 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
+        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between mt-1">
+          <span class="text-[10px] text-slate-500">PDF / Print Format</span>
+          <button onclick="alert('Feature coming soon: Dynamic Mentoring Export will pull active records.')" class="px-2.5 py-1 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400 rounded-lg font-bold transition-premium cursor-pointer text-xs">
             Access Logs
           </button>
         </div>
       </div>
 
       <!-- Card 7: SBTE Audit Console -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-sky-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-1.5">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-sky-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-sky-400 text-xl">verified_user</span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
-              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 font-black text-sm">7</span>
+            <span class="material-symbols-rounded text-sky-400 text-lg">verified_user</span>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
+              <span class="w-6 h-6 flex items-center justify-center rounded-lg bg-sky-500/15 border border-sky-500/30 text-sky-400 font-bold text-xs">7</span>
             </div>
           </div>
-          <h3 class="text-white text-sm font-black">SBTE Annual Compliance Audit</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
+          <h3 class="text-white text-xs font-bold m-0">SBTE Annual Compliance Audit</h3>
+          <p class="text-slate-400 text-[11px] leading-snug m-0">
             Manage mandatory annual audit documentation, AICTE approval letters, affiliation orders, and board result registries.
           </p>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">SBTE Accreditation</span>
-          <a href="/hod/sbte-audit" class="px-3 py-1.5 bg-sky-500/15 hover:bg-sky-500/30 text-sky-400 hover:text-sky-300 border border-sky-500/30 hover:border-sky-400 rounded-xl font-bold transition-premium cursor-pointer text-sm no-underline inline-block">
+        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between mt-1">
+          <span class="text-[10px] text-slate-500">SBTE Accreditation</span>
+          <a href="/hod/sbte-audit" class="px-2.5 py-1 bg-sky-500/15 hover:bg-sky-500/30 text-sky-400 hover:text-sky-300 border border-sky-500/30 hover:border-sky-400 rounded-lg font-bold transition-premium cursor-pointer text-xs no-underline inline-block">
             View Console
           </a>
         </div>
       </div>
 
       <!-- Card 8: NBA Criteria Audit Console -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-rose-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-1.5">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-rose-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-rose-400 text-xl">menu_book</span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
-              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-450 font-black text-sm">8</span>
+            <span class="material-symbols-rounded text-rose-400 text-lg">menu_book</span>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
+              <span class="w-6 h-6 flex items-center justify-center rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-400 font-bold text-xs">8</span>
             </div>
           </div>
-          <h3 class="text-white text-sm font-black">NBA Criteria Accreditation Folders</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
+          <h3 class="text-white text-xs font-bold m-0">NBA Criteria Accreditation</h3>
+          <p class="text-slate-400 text-[11px] leading-snug m-0">
             Organize and review academic audit files and related documentation across NBA Criteria 1 to 10.
           </p>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">NBA Criteria Audit</span>
-          <a href="/hod/nba-audit" class="px-3 py-1.5 bg-rose-500/15 hover:bg-rose-500/30 text-rose-400 hover:text-rose-300 border border-rose-500/30 hover:border-rose-400 rounded-xl font-bold transition-premium cursor-pointer text-sm no-underline inline-block">
+        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between mt-1">
+          <span class="text-[10px] text-slate-500">NBA Criteria Audit</span>
+          <a href="/hod/nba-audit" class="px-2.5 py-1 bg-rose-500/15 hover:bg-rose-500/30 text-rose-400 hover:text-rose-300 border border-rose-500/30 hover:border-rose-400 rounded-lg font-bold transition-premium cursor-pointer text-xs no-underline inline-block">
             View Console
           </a>
         </div>
       </div>
 
       <!-- Card 9: Academic Calendar Preparation -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-1.5">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-amber-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-amber-400 text-xl">calendar_month</span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
-              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-450 font-black text-sm">9</span>
+            <span class="material-symbols-rounded text-amber-400 text-lg">calendar_month</span>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
+              <span class="w-6 h-6 flex items-center justify-center rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 font-bold text-xs">9</span>
             </div>
           </div>
-          <h3 class="text-white text-sm font-black">Academic Calendar Preparation</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
+          <h3 class="text-white text-xs font-bold m-0">Academic Calendar Prep</h3>
+          <p class="text-slate-400 text-[11px] leading-snug m-0">
             All semester department academic calendar details will be managed, scheduled, and configured here.
           </p>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">Academic Planning</span>
-          <a href="/hod/academic-calendar" class="px-3 py-1.5 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400 rounded-xl font-bold transition-premium cursor-pointer text-sm no-underline inline-block">
+        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between mt-1">
+          <span class="text-[10px] text-slate-500">Academic Planning</span>
+          <a href="/hod/academic-calendar" class="px-2.5 py-1 bg-amber-500/15 hover:bg-amber-500/30 text-amber-400 hover:text-amber-300 border border-amber-500/30 hover:border-amber-400 rounded-lg font-bold transition-premium cursor-pointer text-xs no-underline inline-block">
             Open Planner
           </a>
         </div>
       </div>
 
       <!-- Card 10: Security & Operations Audit -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-violet-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-1.5">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-violet-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-violet-400 text-xl">receipt_long</span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
-              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-violet-500/15 border border-violet-500/30 text-violet-450 font-black text-sm">10</span>
+            <span class="material-symbols-rounded text-violet-400 text-lg">receipt_long</span>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
+              <span class="w-6 h-6 flex items-center justify-center rounded-lg bg-violet-500/15 border border-violet-500/30 text-violet-400 font-bold text-xs">10</span>
             </div>
           </div>
-          <h3 class="text-white text-sm font-black">Security & Operations Audit</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
+          <h3 class="text-white text-xs font-bold m-0">Security & Operations Audit</h3>
+          <p class="text-slate-400 text-[11px] leading-snug m-0">
             Detailed department timeline of actions, password resets, registration changes, and critical security audits.
           </p>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">Historical Audit Records</span>
-          <button onclick="alert('Feature coming soon: Security Log Exports.')" class="px-3 py-1.5 bg-violet-500/15 hover:bg-violet-500/30 text-violet-400 hover:text-violet-300 border border-violet-500/30 hover:border-violet-400 rounded-xl font-bold transition-premium cursor-pointer text-sm">
+        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between mt-1">
+          <span class="text-[10px] text-slate-500">Audit History</span>
+          <button onclick="alert('Feature coming soon: Security Log Exports.')" class="px-2.5 py-1 bg-violet-500/15 hover:bg-violet-500/30 text-violet-400 hover:text-violet-300 border border-violet-500/30 hover:border-violet-400 rounded-lg font-bold transition-premium cursor-pointer text-xs">
             Extract Logs
           </button>
         </div>
       </div>
 
       <!-- Card 11: Staff Leave Master Ledger & Audit Reports -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-emerald-500/40 transition-premium shadow-md flex flex-col justify-between">
-        <div class="space-y-1.5">
+      <div class="card-gradient border border-slate-800/80 rounded-xl p-3 space-y-2 hover:border-emerald-500/40 transition-premium shadow-md flex flex-col justify-between">
+        <div class="space-y-1">
           <div class="flex items-center justify-between">
-            <span class="material-symbols-rounded text-emerald-400 text-xl">event_note</span>
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Active</span>
-              <span class="w-7 h-7 flex items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-black text-sm">11</span>
+            <span class="material-symbols-rounded text-emerald-400 text-lg">event_note</span>
+            <div class="flex items-center gap-1.5">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">Active</span>
+              <span class="w-6 h-6 flex items-center justify-center rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-bold text-xs">11</span>
             </div>
           </div>
-          <h3 class="text-white text-sm font-black">Staff Leave Master Ledger & Audit Reports</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
-            Consolidated staff leave applications, multi-stage approval logs, formal leave PDFs, and academic year CL/CCL/DL/ML summary reports.
+          <h3 class="text-white text-xs font-bold m-0">Staff Leave Master Ledger</h3>
+          <p class="text-slate-400 text-[11px] leading-snug m-0">
+            Consolidated staff leave applications, multi-stage approval logs, formal leave PDFs, and CL/CCL/DL/ML summary reports.
           </p>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">Printable Leave Ledger</span>
-          <a href="/staff/leave/reports" target="_blank" class="px-3 py-1.5 bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-400 rounded-xl font-bold transition-premium cursor-pointer text-sm no-underline inline-flex items-center gap-1">
-            <span class="material-symbols-rounded text-sm">print</span> Open Ledger
+        <div class="pt-2 border-t border-slate-800/60 flex items-center justify-between mt-1">
+          <span class="text-[10px] text-slate-500">Printable Ledger</span>
+          <a href="/staff/leave/reports" target="_blank" class="px-2.5 py-1 bg-emerald-500/15 hover:bg-emerald-500/30 text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-400 rounded-lg font-bold transition-premium cursor-pointer text-xs no-underline inline-flex items-center gap-1">
+            <span class="material-symbols-rounded text-xs">print</span> Open Ledger
           </a>
         </div>
       </div>
