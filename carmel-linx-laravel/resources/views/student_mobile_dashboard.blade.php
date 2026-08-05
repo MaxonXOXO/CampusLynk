@@ -374,6 +374,31 @@
             <!-- TAB 1: HOME / DASHBOARD OVERVIEW -->
             <div id="tab-home" class="tab-pane fade-in">
                 
+                <!-- Urgent Evening Pre-Class Alert Banner (Mobile) -->
+                <div id="mobilePreClassAlertBanner" class="app-card border border-warning border-opacity-50 bg-gradient d-none mb-3" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(15, 23, 42, 0.95) 100%);">
+                    <div class="d-flex align-items-start gap-2.5">
+                        <div class="p-2 rounded-3 bg-warning bg-opacity-20 text-warning">
+                            <i class="fa-solid fa-bolt fs-5"></i>
+                        </div>
+                        <div class="flex-grow-1 overflow-hidden">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="badge bg-warning text-dark fw-black" style="font-size: 0.68rem; letter-spacing: 0.3px;">⚡ Pre-Class Alert</span>
+                                <small id="mobileAlertTargetDate" class="text-warning font-mono" style="font-size: 0.68rem;"></small>
+                            </div>
+                            <h6 id="mobileAlertTitle" class="fw-bold text-white mb-1 text-truncate" style="font-size: 0.88rem;"></h6>
+                            <p id="mobileAlertInstruction" class="text-secondary mb-2" style="font-size: 0.75rem; line-height: 1.3;"></p>
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="button" onclick="openMobileMaterialsModal()" class="btn btn-sm btn-warning text-dark fw-bold px-3 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                    <i class="fa-solid fa-folder-open me-1"></i> Open Study Vault
+                                </button>
+                                <button type="button" onclick="acknowledgeMobileVlmNotice()" id="btnAckMobileVlm" class="btn btn-sm btn-outline-light px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
+                                    Acknowledge
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Quick Overview Cards -->
                 <div class="row g-2 mb-3">
                     <div class="col-6">
@@ -443,22 +468,25 @@
                 <div class="app-card">
                     <h6 class="fw-bold text-white mb-3" style="font-size: 0.88rem;">Quick Shortcuts</h6>
                     <div class="row g-2">
-                        <div class="col-6">
-                            <a href="/student/mentoring-diary" class="btn btn-dark border border-secondary border-opacity-25 w-full text-start p-2.5 rounded-3 d-flex align-items-center gap-2 text-decoration-none">
-                                <i class="fa-solid fa-book-open text-warning fs-5"></i>
-                                <div>
-                                    <strong class="text-white d-block" style="font-size: 0.8rem;">Mentoring Diary</strong>
-                                    <small class="text-secondary" style="font-size: 0.68rem;">View Bio & Notes</small>
-                                </div>
+                        <div class="col-4">
+                            <button type="button" onclick="openMobileMaterialsModal()" class="btn btn-dark border border-warning border-opacity-30 w-full text-start p-2 rounded-3 d-flex flex-column align-items-center text-center text-decoration-none">
+                                <i class="fa-solid fa-folder-open text-warning fs-5 mb-1"></i>
+                                <strong class="text-white d-block" style="font-size: 0.74rem;">Study Vault</strong>
+                                <small class="text-secondary" style="font-size: 0.62rem;">Pre-Class Notes</small>
+                            </button>
+                        </div>
+                        <div class="col-4">
+                            <a href="/student/mentoring-diary" class="btn btn-dark border border-secondary border-opacity-25 w-full text-start p-2 rounded-3 d-flex flex-column align-items-center text-center text-decoration-none">
+                                <i class="fa-solid fa-book-open text-cyan fs-5 mb-1"></i>
+                                <strong class="text-white d-block" style="font-size: 0.74rem;">Mentoring</strong>
+                                <small class="text-secondary" style="font-size: 0.62rem;">Bio & Notes</small>
                             </a>
                         </div>
-                        <div class="col-6">
-                            <button type="button" onclick="openLeaveModal()" class="btn btn-dark border border-secondary border-opacity-25 w-full text-start p-2.5 rounded-3 d-flex align-items-center gap-2 text-decoration-none">
-                                <i class="fa-solid fa-calendar-minus text-info fs-5"></i>
-                                <div>
-                                    <strong class="text-white d-block" style="font-size: 0.8rem;">Apply Leave</strong>
-                                    <small class="text-secondary" style="font-size: 0.68rem;">Submit Application</small>
-                                </div>
+                        <div class="col-4">
+                            <button type="button" onclick="toggleMobileLeaveForm()" class="btn btn-dark border border-secondary border-opacity-25 w-full text-start p-2 rounded-3 d-flex flex-column align-items-center text-center text-decoration-none">
+                                <i class="fa-solid fa-calendar-minus text-info fs-5 mb-1"></i>
+                                <strong class="text-white d-block" style="font-size: 0.74rem;">Apply Leave</strong>
+                                <small class="text-secondary" style="font-size: 0.62rem;">Submit Request</small>
                             </button>
                         </div>
                     </div>
@@ -1330,7 +1358,141 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', initTheme);
+        let activeMobileNoticeId = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            loadMobilePreClassAlerts();
+        });
+
+        function loadMobilePreClassAlerts() {
+            fetch('/api/student/materials/pre-class-notices')
+                .then(res => res.json())
+                .then(data => {
+                    const notices = data.notices || data.alerts || [];
+                    if (data.success && notices.length > 0) {
+                        const notice = notices[0];
+                        activeMobileNoticeId = notice.id;
+                        document.getElementById('mobileAlertTitle').innerText = (notice.subject_code ? notice.subject_code + ': ' : '') + (notice.title || 'Pre-Class Preparation');
+                        document.getElementById('mobileAlertInstruction').innerText = notice.description || notice.pre_class_instruction || 'Study material uploaded for upcoming session.';
+                        document.getElementById('mobileAlertTargetDate').innerText = 'Target: ' + (notice.target_class_date || notice.target_date || 'Next Class');
+                        document.getElementById('mobilePreClassAlertBanner').classList.remove('d-none');
+                    }
+                })
+                .catch(err => console.error('Mobile VLM alert fetch error:', err));
+        }
+
+        function acknowledgeMobileVlmNotice() {
+            if (!activeMobileNoticeId) return;
+            const btn = document.getElementById('btnAckMobileVlm');
+            btn.disabled = true;
+            btn.innerText = 'Saving...';
+
+            fetch(`/api/student/materials/${activeMobileNoticeId}/read`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success || data.status === 'SUCCESS') {
+                    document.getElementById('mobilePreClassAlertBanner').classList.add('d-none');
+                }
+            })
+            .catch(err => console.error(err))
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = 'Acknowledge';
+            });
+        }
+
+        function openMobileMaterialsModal() {
+            const modalEl = document.getElementById('mobileMaterialsModal');
+            if (window.bootstrap && window.bootstrap.Modal) {
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            } else {
+                modalEl.classList.add('show');
+                modalEl.style.display = 'block';
+            }
+            fetchMobileVaultMaterials();
+        }
+
+        function closeMobileMaterialsModal() {
+            const modalEl = document.getElementById('mobileMaterialsModal');
+            if (window.bootstrap && window.bootstrap.Modal) {
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+            }
+            modalEl.classList.remove('show');
+            modalEl.style.display = 'none';
+        }
+
+        function fetchMobileVaultMaterials() {
+            const container = document.getElementById('mobileMaterialsList');
+            container.innerHTML = '<div class="text-center text-secondary py-4" style="font-size: 0.78rem;"><i class="fa-solid fa-spinner fa-spin me-1"></i> Loading study materials...</div>';
+
+            fetch('/api/student/materials/pre-class-notices')
+                .then(res => res.json())
+                .then(data => {
+                    const notices = data.notices || data.alerts || data.materials || [];
+                    if (!data.success || notices.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center text-secondary py-4 px-2 bg-dark rounded-3 border border-secondary border-opacity-25">
+                                <i class="fa-solid fa-folder-open text-secondary fs-3 mb-2"></i>
+                                <p class="mb-1 text-white fw-bold" style="font-size: 0.82rem;">No study materials published yet</p>
+                                <small class="text-secondary" style="font-size: 0.7rem;">Study notes, lab guides, and videos uploaded by teachers will appear here.</small>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let html = '';
+                    notices.forEach(m => {
+                        let typeIcon = 'fa-file-lines text-info';
+                        if (m.resource_type === 'video' || m.material_type === 'video') typeIcon = 'fa-circle-play text-danger';
+                        else if (m.resource_type === 'image' || m.material_type === 'image') typeIcon = 'fa-file-image text-emerald-400';
+                        else if (m.resource_type === 'link' || m.material_type === 'link') typeIcon = 'fa-link text-warning';
+
+                        let fileUrl = m.external_url || m.video_url || (m.file_path ? `/storage/${m.file_path}` : '#');
+                        let roomBadge = m.room_type ? `<span class="badge bg-secondary text-uppercase ms-1" style="font-size:0.6rem;">${m.room_type}</span>` : '';
+
+                        html += `
+                            <div class="app-card border border-secondary border-opacity-25 p-3 mb-2" style="border-radius: 12px; background: rgba(15,23,42,0.6);">
+                                <div class="d-flex align-items-start gap-2.5">
+                                    <div class="p-2 rounded-3 bg-dark border border-secondary border-opacity-25">
+                                        <i class="fa-solid ${typeIcon} fs-5"></i>
+                                    </div>
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-1 mb-1">
+                                            <span class="badge bg-info text-dark font-mono" style="font-size: 0.65rem;">${m.subject_code || 'COURSE'}</span>
+                                            ${roomBadge}
+                                            <small class="text-secondary" style="font-size: 0.68rem;">Topic ${m.topic_no || m.experiment_or_topic_no || '1'}</small>
+                                        </div>
+                                        <h6 class="fw-bold text-white mb-1" style="font-size: 0.84rem;">${m.title}</h6>
+                                        <p class="text-secondary mb-2" style="font-size: 0.72rem; line-height: 1.3;">${m.description || m.pre_class_instruction || 'Pre-class guidance resource'}</p>
+                                        <div class="d-flex align-items-center justify-content-between pt-1">
+                                            <small class="text-warning font-mono" style="font-size: 0.68rem;">Target: ${m.target_class_date || m.target_date || 'Upcoming'}</small>
+                                            ${fileUrl !== '#' ? `
+                                                <a href="${fileUrl}" target="_blank" class="btn btn-sm btn-outline-info px-2.5 py-1 rounded-pill fw-bold" style="font-size: 0.7rem;">
+                                                    Open Material <i class="fa-solid fa-up-right-from-square ms-1"></i>
+                                                </a>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Fetch VLM error:', err);
+                    container.innerHTML = '<div class="alert alert-danger py-2 px-3 small font-bold">Failed to load materials.</div>';
+                });
+        }
 
         // Prevent back-button viewing after logout
         window.addEventListener('pageshow', function (event) {
@@ -1339,6 +1501,27 @@
             }
         });
     </script>
+
+    <!-- MOBILE STUDY MATERIALS VAULT MODAL -->
+    <div class="modal fade" id="mobileMaterialsModal" tabindex="-1" aria-hidden="true" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content bg-dark border border-secondary border-opacity-25 text-white shadow-lg" style="border-radius: 16px;">
+                <div class="modal-header border-bottom border-secondary border-opacity-25 py-2.5">
+                    <h6 class="modal-title fw-bold text-warning d-flex align-items-center gap-2" style="font-size: 0.9rem;">
+                        <i class="fa-solid fa-folder-special text-warning"></i> Study Materials & Pre-Class Vault
+                    </h6>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeMobileMaterialsModal()"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <div id="mobileMaterialsList">
+                        <div class="text-center text-secondary py-4" style="font-size: 0.78rem;">
+                            <i class="fa-solid fa-spinner fa-spin me-1"></i> Loading study materials...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- LEAVE APPLICATION MODAL -->
     <div id="leaveModal" class="modal fade" tabindex="-1" aria-hidden="true" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);">

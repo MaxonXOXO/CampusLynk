@@ -151,7 +151,9 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/virtual-room/materials/upload', [VirtualLearningMaterialController::class, 'uploadMaterial']);
     Route::get('/api/virtual-room/materials/{subjectId}', [VirtualLearningMaterialController::class, 'getSubjectMaterials']);
     Route::get('/api/student/pre-class-alerts', [VirtualLearningMaterialController::class, 'getStudentPreClassAlerts']);
+    Route::get('/api/student/materials/pre-class-notices', [VirtualLearningMaterialController::class, 'getStudentPreClassAlerts']);
     Route::post('/api/student/materials/mark-read', [VirtualLearningMaterialController::class, 'markAlertAsRead']);
+    Route::post('/api/student/materials/{id}/read', [VirtualLearningMaterialController::class, 'markAlertAsRead']);
     Route::delete('/api/virtual-room/materials/{id}', [VirtualLearningMaterialController::class, 'deleteMaterial']);
     
     Route::get('/dashboard/student', function (\Illuminate\Http\Request $request) {

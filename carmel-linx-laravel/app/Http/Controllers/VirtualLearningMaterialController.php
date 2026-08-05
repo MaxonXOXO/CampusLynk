@@ -109,12 +109,24 @@ class VirtualLearningMaterialController extends Controller
         $userRole = Session::get('userRole');
 
         if (!$regNo || $userRole !== 'Student') {
-            return response()->json(['status' => 'SUCCESS', 'alerts' => []]);
+            return response()->json([
+                'status' => 'SUCCESS',
+                'success' => true,
+                'alerts' => [],
+                'notices' => [],
+                'materials' => []
+            ]);
         }
 
         $student = Student::where('reg_no', $regNo)->first();
         if (!$student) {
-            return response()->json(['status' => 'SUCCESS', 'alerts' => []]);
+            return response()->json([
+                'status' => 'SUCCESS',
+                'success' => true,
+                'alerts' => [],
+                'notices' => [],
+                'materials' => []
+            ]);
         }
 
         // Fetch materials targeted for this student's classroom
@@ -123,35 +135,45 @@ class VirtualLearningMaterialController extends Controller
                 $join->on('vlm.id', '=', 'smrr.material_id')
                      ->where('smrr.reg_no', '=', $regNo);
             })
+            ->leftJoin('batch_subjects as bs', 'vlm.batch_subject_id', '=', 'bs.id')
             ->where('vlm.classroom_id', $student->classroom_id)
-            ->where('vlm.is_pre_class_notice', 1)
-            ->where(function ($q) {
-                $q->where('vlm.target_date', '>=', now()->toDateString())
-                  ->orWhere('vlm.created_at', '>=', now()->subDays(3));
-            })
             ->select(
                 'vlm.*',
-                DB::raw('IF(smrr.read_at IS NOT NULL, 1, 0) as is_read')
+                'bs.subject_name',
+                'bs.subject_code',
+                DB::raw('IF(smrr.read_at IS NOT NULL, 1, 0) as is_read'),
+                DB::raw('vlm.experiment_or_topic_no as topic_no'),
+                DB::raw('vlm.pre_class_instruction as description'),
+                DB::raw('vlm.target_date as target_class_date'),
+                DB::raw('vlm.material_type as resource_type'),
+                DB::raw('vlm.video_url as external_url')
             )
             ->orderBy('vlm.created_at', 'desc')
             ->get();
 
+        $unreadNotices = $materials->filter(function($m) {
+            return $m->is_pre_class_notice && !$m->is_read;
+        })->values();
+
         return response()->json([
             'status' => 'SUCCESS',
-            'alerts' => $materials
+            'success' => true,
+            'alerts' => $materials,
+            'notices' => $unreadNotices->count() > 0 ? $unreadNotices : $materials,
+            'materials' => $materials
         ]);
     }
 
     /**
      * Mark an alert as read by a student.
      */
-    public function markAlertAsRead(Request $request)
+    public function markAlertAsRead(Request $request, $id = null)
     {
         $regNo = Session::get('userId') ?: Session::get('reg_no');
-        $materialId = $request->input('material_id');
+        $materialId = $request->input('material_id', $id);
 
         if (!$regNo || !$materialId) {
-            return response()->json(['status' => 'ERROR', 'message' => 'Invalid payload.']);
+            return response()->json(['status' => 'ERROR', 'success' => false, 'message' => 'Invalid payload.']);
         }
 
         DB::table('student_material_read_receipts')->updateOrInsert(
@@ -159,7 +181,7 @@ class VirtualLearningMaterialController extends Controller
             ['read_at' => now()]
         );
 
-        return response()->json(['status' => 'SUCCESS']);
+        return response()->json(['status' => 'SUCCESS', 'success' => true, 'message' => 'Acknowledged successfully.']);
     }
 
     /**
