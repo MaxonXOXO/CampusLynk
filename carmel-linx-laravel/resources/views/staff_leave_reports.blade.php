@@ -11,6 +11,7 @@
             background-color: #0f172a;
             color: #f8fafc;
             font-family: system-ui, -apple-system, sans-serif;
+            font-size: 0.8rem;
         }
         .card-custom {
             background: #1e293b;
@@ -19,16 +20,69 @@
         }
         .table-dark-custom {
             color: #e2e8f0;
+            font-size: 0.75rem;
         }
         .table-dark-custom th {
             background-color: #0f172a;
             color: #38bdf8;
             font-weight: 700;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.4rem 0.55rem;
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
         .table-dark-custom td {
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             vertical-align: middle;
+            padding: 0.4rem 0.55rem;
+            font-size: 0.75rem;
+        }
+        .form-select, .form-control {
+            font-size: 0.75rem !important;
+            padding: 0.3rem 0.55rem;
+        }
+        .badge {
+            font-size: 0.65rem;
+            padding: 0.25em 0.5em;
+        }
+        .btn-sm {
+            font-size: 0.72rem;
+            padding: 0.2rem 0.55rem;
+        }
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                font-size: 9pt !important;
+            }
+            .card-custom {
+                background: #ffffff !important;
+                border: 1px solid #cbd5e1 !important;
+                color: #000000 !important;
+                box-shadow: none !important;
+            }
+            .table-dark-custom {
+                color: #000000 !important;
+                font-size: 8.5pt !important;
+            }
+            .table-dark-custom th {
+                background-color: #f1f5f9 !important;
+                color: #0f172a !important;
+                border-bottom: 2px solid #000000 !important;
+            }
+            .table-dark-custom td {
+                border-bottom: 1px solid #e2e8f0 !important;
+            }
+            .btn, form, button, .no-print {
+                display: none !important;
+            }
+            .text-white {
+                color: #000000 !important;
+            }
+            .text-secondary, .text-slate-400 {
+                color: #475569 !important;
+            }
         }
     </style>
 </head>
@@ -36,10 +90,10 @@
     <div class="container-fluid max-w-7xl">
         <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
             <div>
-                <h4 class="fw-bold text-white mb-0">
+                <h5 class="fw-bold text-white mb-0" style="font-size: 1.1rem;">
                     <i class="fa-solid fa-file-invoice-dollar text-info me-2"></i> Staff Leave Master Ledger & Report Center
-                </h4>
-                <small class="text-secondary">Multi-stage approval audit trail and department leave reports</small>
+                </h5>
+                <small class="text-secondary" style="font-size: 0.76rem;">Multi-stage approval audit trail and department leave reports</small>
             </div>
             <div>
                 @if(Session::get('userRole') === 'HOD')
@@ -232,50 +286,50 @@
         <!-- Academic Year Category Summary Cards -->
         @if(isset($summary))
         <div class="card-custom p-3">
-            <h6 class="fw-bold text-white mb-3">
+            <h6 class="fw-bold text-white mb-3" style="font-size: 0.88rem;">
                 <i class="fa-solid fa-chart-pie text-info me-2"></i> Academic Year {{ $academicYear ?? date('Y') }} Leave Category Summary Totals
             </h6>
             <div class="row g-3 text-center">
                 <div class="col-6 col-sm-4 col-md-2">
                     <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
-                        <small class="text-secondary fw-bold d-block mb-1">CL (Casual)</small>
-                        <span class="fs-5 font-mono fw-bold text-info">{{ number_format($summary['CL'], 1) }}</span>
-                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                        <small class="text-secondary fw-bold d-block mb-1" style="font-size: 0.72rem;">CL (Casual)</small>
+                        <span class="font-mono fw-bold text-info" style="font-size: 0.95rem;">{{ number_format($summary['CL'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.68rem;">Days</small>
                     </div>
                 </div>
                 <div class="col-6 col-sm-4 col-md-2">
                     <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
-                        <small class="text-secondary fw-bold d-block mb-1">CCL (Compensatory)</small>
-                        <span class="fs-5 font-mono fw-bold text-teal-400">{{ number_format($summary['CCL'], 1) }}</span>
-                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                        <small class="text-secondary fw-bold d-block mb-1" style="font-size: 0.72rem;">CCL (Compensatory)</small>
+                        <span class="font-mono fw-bold text-teal-400" style="font-size: 0.95rem;">{{ number_format($summary['CCL'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.68rem;">Days</small>
                     </div>
                 </div>
                 <div class="col-6 col-sm-4 col-md-2">
                     <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
-                        <small class="text-secondary fw-bold d-block mb-1">DL (Duty Leave)</small>
-                        <span class="fs-5 font-mono fw-bold text-warning">{{ number_format($summary['DL'], 1) }}</span>
-                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                        <small class="text-secondary fw-bold d-block mb-1" style="font-size: 0.72rem;">DL (Duty Leave)</small>
+                        <span class="font-mono fw-bold text-warning" style="font-size: 0.95rem;">{{ number_format($summary['DL'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.68rem;">Days</small>
                     </div>
                 </div>
                 <div class="col-6 col-sm-4 col-md-2">
                     <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
-                        <small class="text-secondary fw-bold d-block mb-1">ML (Medical)</small>
-                        <span class="fs-5 font-mono fw-bold text-primary">{{ number_format($summary['ML'], 1) }}</span>
-                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                        <small class="text-secondary fw-bold d-block mb-1" style="font-size: 0.72rem;">ML (Medical)</small>
+                        <span class="font-mono fw-bold text-primary" style="font-size: 0.95rem;">{{ number_format($summary['ML'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.68rem;">Days</small>
                     </div>
                 </div>
                 <div class="col-6 col-sm-4 col-md-2">
                     <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
-                        <small class="text-secondary fw-bold d-block mb-1">LOP (Loss of Pay)</small>
-                        <span class="fs-5 font-mono fw-bold text-danger">{{ number_format($summary['LOP'], 1) }}</span>
-                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                        <small class="text-secondary fw-bold d-block mb-1" style="font-size: 0.72rem;">LOP (Loss of Pay)</small>
+                        <span class="font-mono fw-bold text-danger" style="font-size: 0.95rem;">{{ number_format($summary['LOP'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.68rem;">Days</small>
                     </div>
                 </div>
                 <div class="col-6 col-sm-4 col-md-2">
                     <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
-                        <small class="text-secondary fw-bold d-block mb-1">SL / Others</small>
-                        <span class="fs-5 font-mono fw-bold text-purple-400">{{ number_format($summary['SL'] + $summary['OTHERS'], 1) }}</span>
-                        <small class="text-slate-400 d-block" style="font-size: 0.7rem;">Days</small>
+                        <small class="text-secondary fw-bold d-block mb-1" style="font-size: 0.72rem;">SL / Others</small>
+                        <span class="font-mono fw-bold text-purple-400" style="font-size: 0.95rem;">{{ number_format($summary['SL'] + $summary['OTHERS'], 1) }}</span>
+                        <small class="text-slate-400 d-block" style="font-size: 0.68rem;">Days</small>
                     </div>
                 </div>
             </div>
