@@ -215,7 +215,7 @@
                                 </td>
                                 <td>
                                     <small class="d-block">{{ \Carbon\Carbon::parse($leave->from_date)->format('d M Y') }} to {{ \Carbon\Carbon::parse($leave->to_date)->format('d M Y') }}</small>
-                                    <span class="badge bg-opacity-20 bg-warning text-warning">{{ $leave->session_type }}</span>
+                                    <span class="badge bg-warning text-dark fw-bold">{{ $leave->session_type }}</span>
                                 </td>
                                 <td class="fw-bold text-white">{{ number_format($leave->total_days, 1) }}</td>
                                 <td>
