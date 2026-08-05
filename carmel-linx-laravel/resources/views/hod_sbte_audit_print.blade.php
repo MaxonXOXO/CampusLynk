@@ -13,9 +13,9 @@
       background-color: #ffffff;
       color: #0f172a;
     }
-    /* Enforce 12px print font standard for tabular A4 data */
+    /* Enforce compact 10.5px print font standard for tabular A4 data */
     body, table, td, th {
-      font-size: 12px !important;
+      font-size: 10.5px !important;
     }
     @media print {
       body {

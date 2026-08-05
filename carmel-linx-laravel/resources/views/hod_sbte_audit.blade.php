@@ -12,6 +12,13 @@
     body {
       font-family: 'Inter', sans-serif;
       background-color: #020617;
+      font-size: 0.8rem;
+    }
+    input, select, textarea, button, td, th, label {
+      font-size: 0.76rem !important;
+    }
+    h1, h2, h3, h4 {
+      font-size: 0.85rem !important;
     }
     .custom-gradient-bg {
       background: radial-gradient(circle at top left, rgba(14, 116, 144, 0.15), transparent 40%),
@@ -23,27 +30,27 @@
 
   <!-- Header Panel -->
   <header class="border-b border-slate-900 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-12 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
         <a href="/hod/report-centre" class="text-slate-400 hover:text-white transition flex items-center">
-          <span class="material-symbols-rounded">arrow_back</span>
+          <span class="material-symbols-rounded text-sm">arrow_back</span>
         </a>
-        <h1 class="text-base font-black tracking-tight text-white uppercase flex items-center gap-2">
-          <span class="material-symbols-rounded text-cyan-400 text-lg">verified_user</span> SBTE Academic Audit (Part C)
+        <h1 class="text-xs font-black tracking-tight text-white uppercase flex items-center gap-1.5 m-0">
+          <span class="material-symbols-rounded text-cyan-400 text-base">verified_user</span> SBTE Academic Audit (Part C)
         </h1>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
         <form method="GET" action="/hod/sbte-audit" class="flex items-center gap-2">
-          <select name="academic_year" onchange="this.form.submit()" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-1.5 text-sm font-bold text-white outline-none">
+          <select name="academic_year" onchange="this.form.submit()" class="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1 text-xs font-bold text-white outline-none">
             <option value="2025-2026" {{ $academicYear === '2025-2026' ? 'selected' : '' }}>2025-2026</option>
             <option value="2026-2027" {{ $academicYear === '2026-2027' ? 'selected' : '' }}>2026-2027</option>
           </select>
         </form>
-        <button type="submit" form="auditForm" class="px-3.5 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-bold transition flex items-center gap-1.5 text-sm shadow-lg cursor-pointer">
-          <span class="material-symbols-rounded text-sm font-bold">save</span> Save Progress
+        <button type="submit" form="auditForm" class="px-3 py-1 bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg font-bold transition flex items-center gap-1 text-xs shadow-lg cursor-pointer">
+          <span class="material-symbols-rounded text-xs font-bold">save</span> Save Progress
         </button>
-        <a href="/hod/sbte-audit/print?academic_year={{ urlencode($academicYear) }}" target="_blank" class="px-3.5 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/25 text-cyan-400 border border-cyan-500/30 hover:border-cyan-400 rounded-xl font-bold transition flex items-center gap-1.5 text-sm no-underline cursor-pointer">
-          <span class="material-symbols-rounded text-sm">print</span> Print Part C
+        <a href="/hod/sbte-audit/print?academic_year={{ urlencode($academicYear) }}" target="_blank" class="px-3 py-1 bg-cyan-500/10 hover:bg-cyan-500/25 text-cyan-400 border border-cyan-500/30 hover:border-cyan-400 rounded-lg font-bold transition flex items-center gap-1 text-xs no-underline cursor-pointer">
+          <span class="material-symbols-rounded text-xs">print</span> Print Part C
         </a>
       </div>
     </div>
