@@ -993,7 +993,7 @@
         statusEl.classList.remove('hidden');
       }
 
-      fetch('/api/staff/update-photo', {
+      fetch('/api/staff/profile/upload-photo', {
         method: 'POST',
         headers: {
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content

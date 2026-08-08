@@ -684,6 +684,7 @@ Route::middleware(['web'])->group(function () {
     // Student Online Tests & Tasks
     Route::post('/api/student/profile/upload-photo', [DataController::class, 'uploadStudentPhoto']);
     Route::post('/api/staff/profile/upload-photo', [DataController::class, 'uploadStaffPhoto']);
+    Route::post('/api/staff/update-photo', [DataController::class, 'uploadStaffPhoto']);
     Route::post('/api/student/tasks/submit', [App\Http\Controllers\DataController::class, 'submitManualTask']);
     Route::get('/api/student/online-tests', [App\Http\Controllers\TestEngineController::class, 'getAvailableTests']);
     Route::post('/api/student/online-tests/{testId}/start', [App\Http\Controllers\TestEngineController::class, 'startTest']);
