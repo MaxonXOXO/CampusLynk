@@ -200,11 +200,11 @@
                             <tr>
                                 <td class="font-mono text-cyan fw-bold">{{ $leave->leave_code }}</td>
                                 <td>
-                                    <strong class="text-white d-block">{{ $leave->staff_name }}</strong>
+                                    <strong class="text-dark d-block" style="color: #0f172a !important;">{{ $leave->staff_name }}</strong>
                                     <small class="text-secondary font-mono">{{ $leave->staff_mobile }}</small>
                                 </td>
                                 <td>
-                                    <span class="badge bg-secondary">{{ $leave->department }}</span>
+                                    <span class="badge bg-primary">{{ $leave->department }}</span>
                                     <small class="text-slate-400 d-block">{{ $leave->designation }}</small>
                                 </td>
                                 <td>
@@ -292,8 +292,8 @@
             <div class="row g-3 text-center">
                 <div class="col-6 col-sm-4 col-md-2">
                     <div class="p-2.5 rounded-3 bg-dark border border-secondary border-opacity-25">
-                        <small class="text-secondary fw-bold d-block mb-1" style="font-size: 0.72rem;">CL (Casual)</small>
-                        <span class="font-mono fw-bold text-info" style="font-size: 0.95rem;">{{ number_format($summary['CL'], 1) }}</span>
+                        <small class="text-secondary fw-bold d-block mb-1" style="font-size: 0.72rem;">CL (Casual Leave)</small>
+                        <span class="font-mono fw-bold text-info" style="font-size: 0.88rem;">Total: 15 <small class="text-white">(Taken: {{ number_format($summary['CL'], 1) }})</small></span>
                         <small class="text-slate-400 d-block" style="font-size: 0.68rem;">Days</small>
                     </div>
                 </div>

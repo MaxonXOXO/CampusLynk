@@ -66,6 +66,16 @@ class DatabaseSeeder extends Seeder
         ]);
 
         StaffProfile::create([
+            'mobile_no' => '9999999999',
+            'name' => 'Chairman',
+            'email' => 'chairman@carmelpoly.in',
+            'branch' => 'Administration',
+            'designation' => 'Chairman',
+            'password' => 'chairman',
+            'account_status' => 'Approved',
+        ]);
+
+        StaffProfile::create([
             'mobile_no' => '9000000005',
             'name' => 'Faculty Member',
             'email' => 'faculty@carmelpoly.in',

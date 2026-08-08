@@ -92,9 +92,16 @@ class StaffLeaveController extends Controller
                 ->orderByDesc('id')
                 ->get();
 
+            $clTaken = StaffLeaveRequest::where('staff_mobile', $mobileNo)
+                ->where('leave_type', 'Casual Leave')
+                ->where('overall_status', '!=', 'Rejected')
+                ->sum('total_days');
+
             return response()->json([
-                'status'  => 'SUCCESS',
-                'leaves'  => $history
+                'status'   => 'SUCCESS',
+                'leaves'   => $history,
+                'cl_total' => 15,
+                'cl_taken' => (float)$clTaken
             ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()], 500);
@@ -122,7 +129,7 @@ class StaffLeaveController extends Controller
                       ->where('overall_status', 'Pending_HOD');
             } elseif ($userRole === 'Academic_Coordinator' || str_contains(strtolower($userRole), 'coordinator')) {
                 $query->where('overall_status', 'Pending_Coordinator');
-            } elseif (in_array($userRole, ['Principal', 'Super_Admin', 'Admin'])) {
+            } elseif (in_array($userRole, ['Principal', 'Super_Admin', 'Admin', 'Chairman'])) {
                 $query->where(function($q) {
                     $q->where('overall_status', 'Pending_Principal')
                       ->orWhere('overall_status', 'Pending_HOD')
@@ -277,7 +284,7 @@ class StaffLeaveController extends Controller
         $userRole = Session::get('userRole');
         $userBranch = Session::get('userBranch');
 
-        $allowedRoles = ['HOD', 'Academic_Coordinator', 'Academic_Coordinator_SF', 'Principal', 'Admin', 'Super_Admin'];
+        $allowedRoles = ['HOD', 'Academic_Coordinator', 'Academic_Coordinator_SF', 'Principal', 'Admin', 'Super_Admin', 'Chairman'];
         if (!in_array($userRole, $allowedRoles)) {
             if ($request->wantsJson()) {
                 return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access to leave ledger.'], 403);

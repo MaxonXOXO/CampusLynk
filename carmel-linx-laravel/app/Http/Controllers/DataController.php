@@ -326,8 +326,8 @@ class DataController extends Controller
 
         if (!$currentUserId) return false;
 
-        // Super Admin, Principal, Admin, and Workshop Superintendent have elevated access
-        if (in_array($currentRole, ['Super_Admin', 'Principal', 'Admin', 'Workshop_Superintendent'])) {
+        // Super Admin, Principal, Admin, Chairman, and Workshop Superintendent have elevated access
+        if (in_array($currentRole, ['Super_Admin', 'Principal', 'Admin', 'Chairman', 'Workshop_Superintendent'])) {
             return true;
         }
 
@@ -398,7 +398,7 @@ class DataController extends Controller
             $studentScopeField = null;
             $studentScopeValue = null;
 
-            if (in_array($currentRole, ['Super_Admin', 'Principal', 'Admin', 'Workshop_Superintendent'])) {
+            if (in_array($currentRole, ['Super_Admin', 'Principal', 'Admin', 'Chairman', 'Workshop_Superintendent'])) {
                 // Full visibility
             } elseif ($currentRole === 'HOD') {
                 $studentScopeField = 'branch';
@@ -459,7 +459,7 @@ class DataController extends Controller
             $canQueryStaff = true;
             $staffScopeFilter = null;
 
-            if (in_array($currentRole, ['Super_Admin', 'Principal', 'Admin', 'Workshop_Superintendent'])) {
+            if (in_array($currentRole, ['Super_Admin', 'Principal', 'Admin', 'Chairman', 'Workshop_Superintendent'])) {
                 // Full visibility
             } elseif ($currentRole === 'HOD') {
                 $staffScopeFilter = 'hod';

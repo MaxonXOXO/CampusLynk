@@ -694,6 +694,7 @@
                                     <option value="Loss of Pay">Loss of Pay (LOP)</option>
                                     <option value="Special Leave">Special Leave</option>
                                 </select>
+                                <small id="clBalanceInfo" class="text-cyan d-block mt-1 font-mono fw-bold" style="font-size: 0.72rem;">[Total: 15, Taken: 0]</small>
                             </div>
                             <div class="col-6">
                                 <label class="form-label text-secondary small fw-bold mb-1">Session Type</label>
@@ -792,10 +793,18 @@
         function toggleCclDateField() {
             const type = document.getElementById('slvType').value;
             const cclBox = document.getElementById('cclDateBox');
+            const clInfo = document.getElementById('clBalanceInfo');
+
             if (type === 'Compensatory Casual Leave' || type === 'CCL') {
                 cclBox.classList.remove('d-none');
             } else {
                 cclBox.classList.add('d-none');
+            }
+
+            if (type === 'Casual Leave' || type === 'CL') {
+                if (clInfo) clInfo.classList.remove('d-none');
+            } else {
+                if (clInfo) clInfo.classList.add('d-none');
             }
         }
 
@@ -932,7 +941,15 @@
             fetch('/api/staff/leave/my-history')
             .then(res => res.json())
             .then(data => {
-                if (data.status === 'SUCCESS' && data.leaves.length > 0) {
+                if (data.status === 'SUCCESS') {
+                    const clTotal = data.cl_total || 15;
+                    const clTaken = (data.cl_taken !== undefined) ? data.cl_taken : 0;
+                    const clInfo = document.getElementById('clBalanceInfo');
+                    if (clInfo) {
+                        clInfo.textContent = `[Total: ${clTotal}, Taken: ${clTaken}]`;
+                    }
+                }
+                if (data.status === 'SUCCESS' && data.leaves && data.leaves.length > 0) {
                     let html = '';
                     data.leaves.forEach(item => {
                         let statusBadge = '<span class="badge bg-info text-dark">Pending HOD</span>';

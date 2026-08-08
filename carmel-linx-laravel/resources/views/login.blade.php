@@ -286,6 +286,7 @@
                   <option value="Workshop_Instructor">Workshop Instructor</option>
                   <option value="Workshop_Superintendent">Workshop Superintendent</option>
                   <option value="Principal">Principal</option>
+                  <option value="Chairman">Chairman</option>
                 </select>
               </div>
             </div>

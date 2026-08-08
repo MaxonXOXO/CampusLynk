@@ -64,9 +64,16 @@ class AuthController extends Controller
                     'route' => '/dashboard/student'
                 ]);
             } else {
-                // Staff login by mobile number
+                // Staff login by mobile number or username
                 $cleanMobile = preg_replace('/[^0-9]/', '', $userId);
-                $staff = StaffProfile::where('mobile_no', $cleanMobile)->first();
+                $staff = StaffProfile::where(function($q) use ($userId, $cleanMobile) {
+                    $q->where('mobile_no', $userId)
+                      ->orWhere('email', $userId)
+                      ->orWhere('name', $userId);
+                    if (!empty($cleanMobile)) {
+                        $q->orWhere('mobile_no', $cleanMobile);
+                    }
+                })->first();
 
                 if (!$staff) {
                     return response()->json(['status' => 'ERROR', 'message' => 'Invalid Mobile Number or Password.']);
@@ -94,6 +101,8 @@ class AuthController extends Controller
                 $route = '/dashboard/lecturer';
                 if ($staff->designation === 'Super_Admin') {
                     $route = '/dashboard/superadmin';
+                } elseif ($staff->designation === 'Chairman') {
+                    $route = '/dashboard/chairman';
                 } elseif ($staff->designation === 'Admin') {
                     $route = '/dashboard/admin';
                 } elseif ($staff->designation === 'Principal') {

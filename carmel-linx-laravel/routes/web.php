@@ -44,6 +44,7 @@ Route::get('/', function () {
         $role = Session::get('userRole');
         if ($role === 'Student') return redirect('/dashboard/student');
         if ($role === 'Super_Admin') return redirect('/dashboard/superadmin');
+        if ($role === 'Chairman') return redirect('/dashboard/chairman');
         if ($role === 'Admin') return redirect('/dashboard/admin');
         if ($role === 'Principal') return redirect('/dashboard/principal');
         if ($role === 'HOD') return redirect('/dashboard/hod');
@@ -220,6 +221,16 @@ Route::middleware(['web'])->group(function () {
         return view('admin_control_desk');
     });
 
+    Route::get('/dashboard/chairman', function () {
+        $role = Session::get('userRole');
+        if (!in_array($role, ['Chairman', 'Super_Admin', 'Admin', 'Principal'])) return redirect('/');
+        return response()->view('chairman_dashboard')->withHeaders([
+            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
+        ]);
+    });
+
     Route::get('/dashboard/hod', function (\Illuminate\Http\Request $request) {
         if (Session::get('userRole') !== 'HOD') return redirect('/');
         $ua = strtolower($request->header('User-Agent', ''));
@@ -243,7 +254,7 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/dashboard/principal/department/{branch}', function ($branch) {
         $role = Session::get('userRole');
-        if ($role !== 'Principal' && $role !== 'Super_Admin') return redirect('/');
+        if (!in_array($role, ['Principal', 'Super_Admin', 'Chairman', 'Admin'])) return redirect('/');
         return view('hod_dashboard', [
             'isPrincipalView' => true,
             'branchOverride' => $branch

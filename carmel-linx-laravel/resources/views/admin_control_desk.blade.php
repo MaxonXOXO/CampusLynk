@@ -357,6 +357,7 @@
               <option value="">All Roles</option>
               <option value="student">Students Only</option>
               <option value="Super_Admin">Super Admin</option>
+              <option value="Chairman">Chairman</option>
               <option value="Admin">Admin</option>
               <option value="Principal">Principal</option>
               <option value="HOD">Head of Department (HOD)</option>
@@ -574,6 +575,7 @@
             <option value="Workshop_Instructor">Workshop Instructor</option>
             <option value="Workshop_Superintendent">Workshop Superintendent</option>
             <option value="Super_Admin">Super Admin</option>
+            <option value="Chairman">Chairman</option>
             <option value="Admin">Admin</option>
           </select>
         </div>
