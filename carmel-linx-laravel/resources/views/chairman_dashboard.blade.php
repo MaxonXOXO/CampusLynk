@@ -95,13 +95,13 @@
       <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-2.5 transition-premium bg-amber-500/10 text-amber-400 border-l-2 border-amber-500 text-xs">
         <span class="material-symbols-rounded text-base">dashboard</span> Executive Overview
       </button>
-      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
+      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-white hover:bg-slate-800 cursor-pointer text-xs">
         <span class="material-symbols-rounded text-base">group</span> Personnel Directory
       </button>
-      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
+      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-white hover:bg-slate-800 cursor-pointer text-xs">
         <span class="material-symbols-rounded text-base">receipt_long</span> Audit Trail Log
       </button>
-      <button onclick="openExecutiveProfileModal()" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-amber-400 hover:bg-amber-900/30 hover:text-amber-300 cursor-pointer text-xs">
+      <button onclick="openExecutiveProfileModal()" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-white hover:bg-slate-800 cursor-pointer text-xs">
         <span class="material-symbols-rounded text-base">manage_accounts</span> Profile Settings
       </button>
     </nav>
@@ -950,7 +950,7 @@
           if (el) el.classList.remove('hidden');
           if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-2.5 transition-premium bg-amber-500/10 text-amber-400 border-l-2 border-amber-500 text-xs";
         } else {
-          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs";
+          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-white hover:bg-slate-800 cursor-pointer text-xs";
           if (el) el.classList.add('hidden');
         }
       });
