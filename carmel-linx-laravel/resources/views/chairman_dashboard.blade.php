@@ -443,9 +443,6 @@
               </h3>
               <p class="text-[11px] text-slate-400">Department semester pass percentages (S1/S3/S5 or S2/S4/S6) uploaded by HODs.</p>
             </div>
-            <a href="/admin/executive-digest/pdf?print=true" target="_blank" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-lg text-[11px] transition border border-slate-700 no-underline flex items-center gap-1 shrink-0 shadow-sm">
-              <span class="material-symbols-rounded text-xs">print</span> Board Report A4
-            </a>
           </div>
 
           <!-- Ultra-Compact High-Density Table -->
