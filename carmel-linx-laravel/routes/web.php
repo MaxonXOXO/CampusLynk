@@ -1762,3 +1762,19 @@ Route::post('/parent/login', [App\Http\Controllers\ParentDashboardController::cl
 Route::get('/parent/demo', [App\Http\Controllers\ParentDashboardController::class, 'showDemoDashboard'])->name('parent.demo');
 Route::get('/parent/dashboard/{regNo}', [App\Http\Controllers\ParentDashboardController::class, 'showDashboard'])->name('parent.dashboard');
 
+// Executive Control Desk & Board Governance Digest Routes (Options 1, 2, 3)
+Route::middleware(['web'])->group(function () {
+    Route::get('/api/admin/executive-kpis', [App\Http\Controllers\ExecutiveControlDeskController::class, 'getInstitutionalKpis']);
+    Route::get('/api/admin/executive-compliance', [App\Http\Controllers\ExecutiveControlDeskController::class, 'getComplianceSummary']);
+    Route::get('/api/admin/executive-supervision-badges', [App\Http\Controllers\ExecutiveControlDeskController::class, 'getDepartmentSupervisionBadges']);
+    Route::post('/api/hod/department-pass-stats', [App\Http\Controllers\ExecutiveControlDeskController::class, 'saveDepartmentPassStats']);
+    Route::get('/admin/executive-digest/pdf', [App\Http\Controllers\ExecutiveControlDeskController::class, 'generateExecutiveBoardDigestPdf']);
+
+    // Institutional Flash Notice Broadcast Desk
+    Route::post('/api/admin/flash-notices/broadcast', [App\Http\Controllers\ExecutiveFlashNoticeController::class, 'broadcast']);
+    Route::get('/api/admin/flash-notices', [App\Http\Controllers\ExecutiveFlashNoticeController::class, 'getNotices']);
+    Route::post('/api/admin/flash-notices/revoke/{id}', [App\Http\Controllers\ExecutiveFlashNoticeController::class, 'revokeNotice']);
+});
+
+
+

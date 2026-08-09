@@ -185,131 +185,412 @@
       <!-- PANEL 1: DASHBOARD OVERVIEW -->
       <div id="panelDashboard" class="space-y-6">
         
-        <!-- Metrics Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <!-- Metrics Grid (Top Row - 5 KPI Cards) -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           <!-- Total Staff -->
-          <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-3 shadow-sm hover:border-slate-700 transition">
-            <div class="bg-blue-500/10 text-blue-400 p-2.5 rounded-lg shrink-0"><span class="material-symbols-rounded text-xl">badge</span></div>
+          <div class="bg-slate-950/40 border border-slate-800/60 p-3 rounded-xl flex items-center gap-2.5 shadow-sm hover:border-slate-700 transition">
+            <div class="bg-blue-500/10 text-blue-400 p-2 rounded-lg shrink-0"><span class="material-symbols-rounded text-lg">badge</span></div>
             <div class="min-w-0">
-              <span class="text-xs text-slate-400 uppercase font-extrabold tracking-wider block truncate">Total Staff</span>
-              <span id="statTotalStaff" class="font-black text-white text-xl leading-tight block">0</span>
+              <span class="text-[10px] text-slate-400 uppercase font-extrabold tracking-wider block truncate">Total Staff</span>
+              <span id="statTotalStaff" class="font-black text-white text-lg leading-tight block">0</span>
             </div>
           </div>
           <!-- Total Students -->
-          <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-3 shadow-sm hover:border-slate-700 transition">
-            <div class="bg-sky-500/10 text-sky-400 p-2.5 rounded-lg shrink-0"><span class="material-symbols-rounded text-xl">school</span></div>
+          <div class="bg-slate-950/40 border border-slate-800/60 p-3 rounded-xl flex items-center gap-2.5 shadow-sm hover:border-slate-700 transition">
+            <div class="bg-sky-500/10 text-sky-400 p-2 rounded-lg shrink-0"><span class="material-symbols-rounded text-lg">school</span></div>
             <div class="min-w-0">
-              <span class="text-xs text-slate-400 uppercase font-extrabold tracking-wider block truncate">Total Students</span>
-              <span id="statTotalStudents" class="font-black text-white text-xl leading-tight block">0</span>
+              <span class="text-[10px] text-slate-400 uppercase font-extrabold tracking-wider block truncate">Total Students</span>
+              <span id="statTotalStudents" class="font-black text-white text-lg leading-tight block">0</span>
             </div>
           </div>
           <!-- Pending Approvals -->
-          <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-3 shadow-sm hover:border-slate-700 transition">
-            <div class="bg-blue-500/10 text-blue-400 p-2.5 rounded-lg shrink-0"><span class="material-symbols-rounded text-xl">pending_actions</span></div>
+          <div class="bg-slate-950/40 border border-slate-800/60 p-3 rounded-xl flex items-center gap-2.5 shadow-sm hover:border-slate-700 transition">
+            <div class="bg-amber-500/10 text-amber-400 p-2 rounded-lg shrink-0"><span class="material-symbols-rounded text-lg">pending_actions</span></div>
             <div class="min-w-0">
-              <span class="text-xs text-slate-400 uppercase font-extrabold tracking-wider block truncate">Pending Approvals</span>
-              <span id="statPendingApprovals" class="font-black text-white text-xl leading-tight block">0</span>
+              <span class="text-[10px] text-slate-400 uppercase font-extrabold tracking-wider block truncate">Pending Approvals</span>
+              <span id="statPendingApprovals" class="font-black text-white text-lg leading-tight block">0</span>
             </div>
           </div>
           <!-- Classrooms -->
-          <div class="bg-slate-950/40 border border-slate-800/60 p-4 rounded-xl flex items-center gap-3 shadow-sm hover:border-slate-700 transition">
-            <div class="bg-sky-500/10 text-sky-400 p-2.5 rounded-lg shrink-0"><span class="material-symbols-rounded text-xl">meeting_room</span></div>
+          <div class="bg-slate-950/40 border border-slate-800/60 p-3 rounded-xl flex items-center gap-2.5 shadow-sm hover:border-slate-700 transition">
+            <div class="bg-emerald-500/10 text-emerald-400 p-2 rounded-lg shrink-0"><span class="material-symbols-rounded text-lg">meeting_room</span></div>
             <div class="min-w-0">
-              <span class="text-xs text-slate-400 uppercase font-extrabold tracking-wider block truncate">Classrooms</span>
-              <span id="statTotalClassrooms" class="font-black text-white text-xl leading-tight block">0</span>
+              <span class="text-[10px] text-slate-400 uppercase font-extrabold tracking-wider block truncate">Classrooms</span>
+              <span id="statTotalClassrooms" class="font-black text-white text-lg leading-tight block">0</span>
+            </div>
+          </div>
+          <!-- Academic Pass Rate (Moved to Top Row!) -->
+          <div class="bg-slate-950/40 border border-slate-800/60 p-3 rounded-xl flex items-center gap-2.5 shadow-sm hover:border-slate-700 transition">
+            <div class="bg-indigo-500/10 text-indigo-400 p-2 rounded-lg shrink-0"><span class="material-symbols-rounded text-lg">insights</span></div>
+            <div class="min-w-0">
+              <span class="text-[10px] text-slate-400 uppercase font-extrabold tracking-wider block truncate">Academic Pass Rate</span>
+              <span id="execAcademicPassRate" class="font-black text-indigo-300 text-lg leading-tight block">91.4% Overall</span>
             </div>
           </div>
         </div>
 
-        <!-- Quick Info Panel -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl">
-            <h3 class="font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-base">
-              <span class="material-symbols-rounded text-blue-400 text-lg">admin_panel_settings</span> Control Desk Status
-            </h3>
-            <p class="text-sm text-slate-400 leading-relaxed">
-              Welcome to the unified Administrator desk. As **{{ session('userName') }}**, you hold full execution overrides across the database. You can manage passwords, configure designations, review classroom profiles, and sync live table backups.
-            </p>
-            <div class="mt-4 flex flex-wrap gap-3">
-              <button onclick="switchPanel('directory')" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold text-white transition-premium cursor-pointer text-sm">Manage Directory</button>
-              @if(session('userRole') === 'Super_Admin')
-              <a href="/superadmin/show-users" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-bold text-white transition-premium cursor-pointer text-sm no-underline flex items-center gap-1.5">
-                <span class="material-symbols-rounded text-base">key</span> Show Users Table View
-              </a>
-              @endif
-              <button onclick="switchPanel('backups')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg font-bold text-slate-300 transition-premium cursor-pointer text-sm">Backup Database</button>
+        <!-- EXECUTIVE DAILY OPERATIONAL STATUS ROW (Compact 3 Cards) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          <!-- Daily Staff Leave Snapshot Card -->
+          <div class="bg-slate-900/50 border border-slate-800/80 p-3.5 rounded-xl flex flex-col justify-between shadow-lg shadow-slate-950/30 hover:border-slate-700/70 transition-all duration-200 relative">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2">
+              <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="p-1 bg-amber-500/10 text-amber-400 rounded-lg flex items-center justify-center shrink-0">
+                  <span class="material-symbols-rounded text-xs">event_busy</span>
+                </span> Staff On Leave Today
+              </span>
+              <span id="execStaffLeaveTotal" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500/10 text-amber-400 border border-amber-500/20 shadow-sm">0 Active</span>
+            </div>
+            
+            <!-- All Leave Types in Single Row Grid with Hover Tooltip Popups -->
+            <div class="grid grid-cols-6 gap-1 text-xs w-full">
+              <!-- CL Badge -->
+              <div class="group relative">
+                <span class="px-1 py-0.5 bg-slate-950/90 border border-slate-800/90 rounded-md text-slate-300 text-[10px] font-medium cursor-pointer hover:bg-slate-800 hover:border-amber-500/40 transition block text-center truncate shadow-inner">
+                  CL: <strong id="execLeaveCL" class="text-amber-400">0</strong>
+                </span>
+                <div class="pointer-events-none absolute bottom-full left-0 mb-1.5 hidden group-hover:block w-48 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl p-2.5 z-50 text-[11px] text-left">
+                  <div class="font-bold text-slate-200 border-b border-slate-800 pb-1 mb-1 flex items-center justify-between">
+                    <span class="text-amber-400">Casual Leave (CL)</span>
+                    <span id="popupCountCL" class="text-[9px] text-slate-400 font-mono">0 Staff</span>
+                  </div>
+                  <div id="popupListCL" class="space-y-1 max-h-36 overflow-y-auto text-slate-300">
+                    <span class="text-slate-500 italic block text-[10px]">No staff on CL today</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CCL Badge -->
+              <div class="group relative">
+                <span class="px-1 py-0.5 bg-slate-950/90 border border-slate-800/90 rounded-md text-slate-300 text-[10px] font-medium cursor-pointer hover:bg-slate-800 hover:border-amber-500/40 transition block text-center truncate shadow-inner">
+                  CCL: <strong id="execLeaveCCL" class="text-amber-400">0</strong>
+                </span>
+                <div class="pointer-events-none absolute bottom-full left-0 mb-1.5 hidden group-hover:block w-48 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl p-2.5 z-50 text-[11px] text-left">
+                  <div class="font-bold text-slate-200 border-b border-slate-800 pb-1 mb-1 flex items-center justify-between">
+                    <span class="text-amber-400">Compensatory CL (CCL)</span>
+                    <span id="popupCountCCL" class="text-[9px] text-slate-400 font-mono">0 Staff</span>
+                  </div>
+                  <div id="popupListCCL" class="space-y-1 max-h-36 overflow-y-auto text-slate-300">
+                    <span class="text-slate-500 italic block text-[10px]">No staff on CCL today</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- DL Badge -->
+              <div class="group relative">
+                <span class="px-1 py-0.5 bg-slate-950/90 border border-slate-800/90 rounded-md text-slate-300 text-[10px] font-medium cursor-pointer hover:bg-slate-800 hover:border-sky-500/40 transition block text-center truncate shadow-inner">
+                  DL: <strong id="execLeaveDL" class="text-sky-400">0</strong>
+                </span>
+                <div class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block w-48 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl p-2.5 z-50 text-[11px] text-left">
+                  <div class="font-bold text-slate-200 border-b border-slate-800 pb-1 mb-1 flex items-center justify-between">
+                    <span class="text-sky-400">Duty Leave (DL)</span>
+                    <span id="popupCountDL" class="text-[9px] text-slate-400 font-mono">0 Staff</span>
+                  </div>
+                  <div id="popupListDL" class="space-y-1 max-h-36 overflow-y-auto text-slate-300">
+                    <span class="text-slate-500 italic block text-[10px]">No staff on DL today</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ML Badge -->
+              <div class="group relative">
+                <span class="px-1 py-0.5 bg-slate-950/90 border border-slate-800/90 rounded-md text-slate-300 text-[10px] font-medium cursor-pointer hover:bg-slate-800 hover:border-rose-500/40 transition block text-center truncate shadow-inner">
+                  ML: <strong id="execLeaveML" class="text-rose-400">0</strong>
+                </span>
+                <div class="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block w-48 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl p-2.5 z-50 text-[11px] text-left">
+                  <div class="font-bold text-slate-200 border-b border-slate-800 pb-1 mb-1 flex items-center justify-between">
+                    <span class="text-rose-400">Medical Leave (ML)</span>
+                    <span id="popupCountML" class="text-[9px] text-slate-400 font-mono">0 Staff</span>
+                  </div>
+                  <div id="popupListML" class="space-y-1 max-h-36 overflow-y-auto text-slate-300">
+                    <span class="text-slate-500 italic block text-[10px]">No staff on ML today</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- LOP Badge -->
+              <div class="group relative">
+                <span class="px-1 py-0.5 bg-slate-950/90 border border-slate-800/90 rounded-md text-slate-300 text-[10px] font-medium cursor-pointer hover:bg-slate-800 hover:border-purple-500/40 transition block text-center truncate shadow-inner">
+                  LOP: <strong id="execLeaveLOP" class="text-purple-400">0</strong>
+                </span>
+                <div class="pointer-events-none absolute bottom-full right-0 mb-1.5 hidden group-hover:block w-48 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl p-2.5 z-50 text-[11px] text-left">
+                  <div class="font-bold text-slate-200 border-b border-slate-800 pb-1 mb-1 flex items-center justify-between">
+                    <span class="text-purple-400">Loss of Pay (LOP)</span>
+                    <span id="popupCountLOP" class="text-[9px] text-slate-400 font-mono">0 Staff</span>
+                  </div>
+                  <div id="popupListLOP" class="space-y-1 max-h-36 overflow-y-auto text-slate-300">
+                    <span class="text-slate-500 italic block text-[10px]">No staff on LOP today</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- OTHERS Badge -->
+              <div class="group relative">
+                <span class="px-1 py-0.5 bg-slate-950/90 border border-slate-800/90 rounded-md text-slate-300 text-[10px] font-medium cursor-pointer hover:bg-slate-800 hover:border-emerald-500/40 transition block text-center truncate shadow-inner">
+                  Oth: <strong id="execLeaveOTHERS" class="text-emerald-400">0</strong>
+                </span>
+                <div class="pointer-events-none absolute bottom-full right-0 mb-1.5 hidden group-hover:block w-48 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl p-2.5 z-50 text-[11px] text-left">
+                  <div class="font-bold text-slate-200 border-b border-slate-800 pb-1 mb-1 flex items-center justify-between">
+                    <span class="text-emerald-400">Other Leaves</span>
+                    <span id="popupCountOTHERS" class="text-[9px] text-slate-400 font-mono">0 Staff</span>
+                  </div>
+                  <div id="popupListOTHERS" class="space-y-1 max-h-36 overflow-y-auto text-slate-300">
+                    <span class="text-slate-500 italic block text-[10px]">No staff on other leaves today</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl flex flex-col justify-between">
+          <!-- Daily Student Attendance Rate Card -->
+          <div class="bg-slate-900/50 border border-slate-800/80 p-3.5 rounded-xl flex flex-col justify-between shadow-lg shadow-slate-950/30 hover:border-slate-700/70 transition-all duration-200">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2">
+              <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="p-1 bg-sky-500/10 text-sky-400 rounded-lg flex items-center justify-center shrink-0">
+                  <span class="material-symbols-rounded text-xs">how_to_reg</span>
+                </span> Student Attendance
+              </span>
+              <span id="execStudentAttPct" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-sky-500/10 text-sky-400 border border-sky-500/20 shadow-sm">94.8% Active</span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-slate-300">
+              <span class="text-slate-400 text-[11px]">Real-Time Campus Ratio</span>
+              <span class="font-bold text-slate-200 text-[11px]">Institution Average</span>
+            </div>
+          </div>
+
+          <!-- Today's Campus & Academic Events Card -->
+          <div class="bg-slate-900/50 border border-slate-800/80 p-3.5 rounded-xl flex flex-col justify-between shadow-lg shadow-slate-950/30 hover:border-slate-700/70 transition-all duration-200">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2">
+              <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="p-1 bg-sky-500/10 text-sky-400 rounded-lg flex items-center justify-center shrink-0">
+                  <span class="material-symbols-rounded text-xs">calendar_month</span>
+                </span> Today's Events
+              </span>
+              <span id="execEventsCountBadge" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-sky-500/10 text-sky-400 border border-sky-500/20 shadow-sm">Scheduled</span>
+            </div>
+            <div id="execTodayEventsList" class="space-y-1 text-xs text-slate-300 overflow-hidden">
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0"></span>
+                <span class="truncate font-medium text-[11px]">SITTTR Academic Schedule</span>
+              </div>
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+                <span class="truncate text-slate-400 text-[11px]">Department CIA Audits</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Executive Dashboard Actions & Flash Notice Broadcast Desk (Compact 2 Cards Row) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Department HOD Dashboard Overrides Card -->
+          <div class="bg-slate-900/50 border border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xl shadow-slate-950/40 hover:border-slate-700/70 transition-all duration-300">
             <div>
-              <h3 class="font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-base">
-                <span class="material-symbols-rounded text-blue-400 text-lg">info</span> Quick Guidelines
-              </h3>
-              <ul class="text-sm text-slate-400 space-y-2 list-disc pl-4 leading-relaxed">
-                <li>Designations dictate role access: Changing a Lecturer's role to **HOD** promotes them to department supervisor.</li>
-                <li>Single Active Principal policy is automatically enforced.</li>
-                <li>New staff registrations must be manually **Approved** before they can sign in.</li>
-              </ul>
+              <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2">
+                <h3 class="font-black text-slate-200 flex items-center gap-2 text-sm">
+                  <span class="p-1 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center shrink-0">
+                    <span class="material-symbols-rounded text-sm">admin_panel_settings</span>
+                  </span> HOD Dashboard Overrides
+                </h3>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-sm">Direct Supervision</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-tight mb-3">
+                Directly access and supervise any department HOD console to manage batch allocations & curriculum updates.
+              </p>
+              <!-- 8 Compact Branch Buttons Grid -->
+              <div class="grid grid-cols-4 gap-2">
+                <a href="/dashboard/principal/department/EL" class="no-underline p-2 bg-slate-950/90 border border-slate-800/90 hover:border-amber-500/60 hover:bg-slate-900 rounded-xl text-center transition-all duration-200 group flex flex-col items-center justify-center gap-1 cursor-pointer shadow-inner">
+                  <span class="material-symbols-rounded text-lg text-amber-400 group-hover:scale-110 transition-premium">settings_input_component</span>
+                  <span class="font-extrabold text-xs text-slate-200">EL</span>
+                </a>
+                <a href="/dashboard/principal/department/ME" class="no-underline p-2 bg-slate-950/90 border border-slate-800/90 hover:border-emerald-500/60 hover:bg-slate-900 rounded-xl text-center transition-all duration-200 group flex flex-col items-center justify-center gap-1 cursor-pointer shadow-inner">
+                  <span class="material-symbols-rounded text-lg text-emerald-400 group-hover:scale-110 transition-premium">precision_manufacturing</span>
+                  <span class="font-extrabold text-xs text-slate-200">ME</span>
+                </a>
+                <a href="/dashboard/principal/department/CE" class="no-underline p-2 bg-slate-950/90 border border-slate-800/90 hover:border-pink-500/60 hover:bg-slate-900 rounded-xl text-center transition-all duration-200 group flex flex-col items-center justify-center gap-1 cursor-pointer shadow-inner">
+                  <span class="material-symbols-rounded text-lg text-pink-400 group-hover:scale-110 transition-premium">domain</span>
+                  <span class="font-extrabold text-xs text-slate-200">CE</span>
+                </a>
+                <a href="/dashboard/principal/department/EEE" class="no-underline p-2 bg-slate-950/90 border border-slate-800/90 hover:border-rose-500/60 hover:bg-slate-900 rounded-xl text-center transition-all duration-200 group flex flex-col items-center justify-center gap-1 cursor-pointer shadow-inner">
+                  <span class="material-symbols-rounded text-lg text-rose-400 group-hover:scale-110 transition-premium">bolt</span>
+                  <span class="font-extrabold text-xs text-slate-200">EEE</span>
+                </a>
+                <a href="/dashboard/principal/department/CT" class="no-underline p-2 bg-slate-950/90 border border-slate-800/90 hover:border-purple-500/60 hover:bg-slate-900 rounded-xl text-center transition-all duration-200 group flex flex-col items-center justify-center gap-1 cursor-pointer shadow-inner">
+                  <span class="material-symbols-rounded text-lg text-purple-400 group-hover:scale-110 transition-premium">computer</span>
+                  <span class="font-extrabold text-xs text-slate-200">CT</span>
+                </a>
+                <a href="/dashboard/principal/department/AU" class="no-underline p-2 bg-slate-950/90 border border-slate-800/90 hover:border-indigo-500/60 hover:bg-slate-900 rounded-xl text-center transition-all duration-200 group flex flex-col items-center justify-center gap-1 cursor-pointer shadow-inner">
+                  <span class="material-symbols-rounded text-lg text-indigo-400 group-hover:scale-110 transition-premium">directions_car</span>
+                  <span class="font-extrabold text-xs text-slate-200">AU</span>
+                </a>
+                <a href="/dashboard/principal/department/GEN_AIDED" class="no-underline p-2 bg-slate-950/90 border border-slate-800/90 hover:border-teal-500/60 hover:bg-slate-900 rounded-xl text-center transition-all duration-200 group flex flex-col items-center justify-center gap-1 cursor-pointer shadow-inner">
+                  <span class="material-symbols-rounded text-lg text-teal-400 group-hover:scale-110 transition-premium">calculate</span>
+                  <span class="font-extrabold text-xs text-slate-200">Gen-A</span>
+                </a>
+                <a href="/dashboard/principal/department/GEN_SF" class="no-underline p-2 bg-slate-950/90 border border-slate-800/90 hover:border-cyan-500/60 hover:bg-slate-900 rounded-xl text-center transition-all duration-200 group flex flex-col items-center justify-center gap-1 cursor-pointer shadow-inner">
+                  <span class="material-symbols-rounded text-lg text-cyan-400 group-hover:scale-110 transition-premium">functions</span>
+                  <span class="font-extrabold text-xs text-slate-200">Gen-SF</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Institutional Flash Notice Broadcast Desk Card -->
+          <div class="bg-slate-900/50 border border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xl shadow-slate-950/40 hover:border-slate-700/70 transition-all duration-300">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2">
+                <h3 class="font-black text-slate-200 flex items-center gap-2 text-sm">
+                  <span class="p-1 bg-sky-500/10 text-sky-400 rounded-lg flex items-center justify-center shrink-0">
+                    <span class="material-symbols-rounded text-sm">campaign</span>
+                  </span> Flash Notice Broadcast Desk
+                </h3>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20 shadow-sm">Executive Broadcast</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-tight mb-3">
+                Instantly broadcast official notices or circulars with attachments to staff and students immediately or on schedule.
+              </p>
+              <div class="grid grid-cols-3 gap-2 mb-3 text-center">
+                <div class="p-1.5 bg-slate-950/90 rounded-xl border border-slate-800/90 shadow-inner">
+                  <span id="flashNoticeStatSent" class="block font-black text-slate-200 text-sm">0</span>
+                  <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Broadcasted</span>
+                </div>
+                <div class="p-1.5 bg-slate-950/90 rounded-xl border border-slate-800/90 shadow-inner">
+                  <span id="flashNoticeStatSched" class="block font-black text-amber-400 text-sm">0</span>
+                  <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Scheduled</span>
+                </div>
+                <div class="p-1.5 bg-slate-950/90 rounded-xl border border-slate-800/90 shadow-inner">
+                  <span id="flashNoticeStatUrgent" class="block font-black text-rose-400 text-sm">0</span>
+                  <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Urgent</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button onclick="openFlashNoticeModal()" class="flex-1 px-3 py-1.5 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 rounded-lg font-bold text-white transition-premium cursor-pointer text-xs flex items-center justify-center gap-1 shadow-md">
+                <span class="material-symbols-rounded text-sm">send</span> Broadcast Notice
+              </button>
+              <button onclick="openFlashNoticeHistoryModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg font-bold text-slate-300 transition-premium cursor-pointer text-xs flex items-center justify-center gap-1 border border-slate-700">
+                <span class="material-symbols-rounded text-sm">history</span> Log
+              </button>
             </div>
           </div>
         </div>
 
-
-
-        @if(session('userRole') === 'Principal' || session('userRole') === 'Super_Admin')
-        <!-- Department HOD Console Override Links -->
-        <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl">
-          <h3 class="text-sm font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2">
-            <span class="material-symbols-rounded text-blue-400 text-lg">admin_panel_settings</span> Department HOD Dashboard Overrides
-          </h3>
-          <p class="text-sm text-slate-400 mb-4 leading-relaxed">
-            Directly access and supervise the HOD Dashboard for any department. This allows you to manage batch allocations, staff mapping, and curriculum updates for that branch.
-          </p>
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <a href="/dashboard/principal/department/EL" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-amber-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
-              <span class="material-symbols-rounded text-2xl text-amber-500 group-hover:scale-110 transition-premium">settings_input_component</span>
-              <span class="font-bold text-lg text-slate-200">Electronics</span>
-              <span class="text-sm text-slate-400">EL Department</span>
-            </a>
-            <a href="/dashboard/principal/department/ME" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-emerald-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
-              <span class="material-symbols-rounded text-2xl text-emerald-500 group-hover:scale-110 transition-premium">precision_manufacturing</span>
-              <span class="font-bold text-lg text-slate-200">Mechanical</span>
-              <span class="text-sm text-slate-400">ME Department</span>
-            </a>
-            <a href="/dashboard/principal/department/CE" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-pink-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
-              <span class="material-symbols-rounded text-2xl text-pink-500 group-hover:scale-110 transition-premium">domain</span>
-              <span class="font-bold text-lg text-slate-200">Civil</span>
-              <span class="text-sm text-slate-400">CE Department</span>
-            </a>
-            <a href="/dashboard/principal/department/EEE" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-rose-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
-              <span class="material-symbols-rounded text-2xl text-rose-500 group-hover:scale-110 transition-premium">bolt</span>
-              <span class="font-bold text-lg text-slate-200">Electrical</span>
-              <span class="text-sm text-slate-400">EEE Department</span>
-            </a>
-            <a href="/dashboard/principal/department/CT" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-purple-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
-              <span class="material-symbols-rounded text-2xl text-purple-500 group-hover:scale-110 transition-premium">computer</span>
-              <span class="font-bold text-lg text-slate-200">Computer</span>
-              <span class="text-sm text-slate-400">CT Department</span>
-            </a>
-            <a href="/dashboard/principal/department/AU" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-indigo-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
-              <span class="material-symbols-rounded text-2xl text-indigo-500 group-hover:scale-110 transition-premium">directions_car</span>
-              <span class="font-bold text-lg text-slate-200">Automobile</span>
-              <span class="text-sm text-slate-400">AU Department</span>
-            </a>
-            <a href="/dashboard/principal/department/GEN_AIDED" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-teal-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
-              <span class="material-symbols-rounded text-2xl text-teal-500 group-hover:scale-110 transition-premium">calculate</span>
-              <span class="font-bold text-lg text-slate-200">General Aided</span>
-              <span class="text-sm text-slate-400">Gen (Aided)</span>
-            </a>
-            <a href="/dashboard/principal/department/GEN_SF" class="no-underline p-4 bg-slate-900/60 border border-slate-800 hover:border-cyan-500 rounded-xl text-center transition-premium group flex flex-col items-center justify-center gap-2 cursor-pointer">
-              <span class="material-symbols-rounded text-2xl text-cyan-500 group-hover:scale-110 transition-premium">functions</span>
-              <span class="font-bold text-lg text-slate-200">General SF</span>
-              <span class="text-sm text-slate-400">Gen (SF)</span>
+        <!-- EXECUTIVE OPTION 2: COMPACT 3-SEMESTER ACADEMIC PASS MATRIX -->
+        <div class="bg-slate-900/50 border border-slate-800/80 p-5 rounded-2xl space-y-3 shadow-xl shadow-slate-950/40 hover:border-slate-700/70 transition-all duration-300">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800/80 pb-2.5 gap-2">
+            <div>
+              <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
+                <span class="p-1 bg-indigo-500/10 text-indigo-400 rounded-lg flex items-center justify-center shrink-0">
+                  <span class="material-symbols-rounded text-xs">analytics</span>
+                </span> Previous Semester Branch Academic Pass Matrix (3 Semesters per Dept)
+              </h3>
+              <p class="text-[11px] text-slate-400">Department semester pass percentages (S1/S3/S5 or S2/S4/S6) uploaded by HODs.</p>
+            </div>
+            <a href="/admin/executive-digest/pdf?print=true" target="_blank" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-lg text-[11px] transition border border-slate-700 no-underline flex items-center gap-1 shrink-0 shadow-sm">
+              <span class="material-symbols-rounded text-xs">print</span> Board Report A4
             </a>
           </div>
+
+          <!-- Ultra-Compact High-Density Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-900/80 text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-800">
+                  <th class="py-2 px-3">Branch Code &amp; Name</th>
+                  <th class="py-2 px-3 text-center">Sem 1 / 2</th>
+                  <th class="py-2 px-3 text-center">Sem 3 / 4</th>
+                  <th class="py-2 px-3 text-center">Sem 5 / 6</th>
+                  <th class="py-2 px-3 text-center">Dept Avg</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60 font-medium">
+                <!-- EL -->
+                <tr class="hover:bg-slate-900/40 transition-colors">
+                  <td class="py-2 px-3 font-bold text-amber-400 flex items-center gap-2">
+                    <span class="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded text-[10px] font-mono">EL</span>
+                    <span class="text-slate-200 text-xs">Electronics Engg</span>
+                  </td>
+                  <td id="sem_EL_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">91.6%</td>
+                  <td id="sem_EL_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.5%</td>
+                  <td id="sem_EL_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">92.7%</td>
+                  <td id="sem_EL_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">91.3%</td>
+                </tr>
+
+                <!-- ME -->
+                <tr class="hover:bg-slate-900/40 transition-colors">
+                  <td class="py-2 px-3 font-bold text-emerald-400 flex items-center gap-2">
+                    <span class="px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/30 rounded text-[10px] font-mono">ME</span>
+                    <span class="text-slate-200 text-xs">Mechanical Engg</span>
+                  </td>
+                  <td id="sem_ME_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">87.1%</td>
+                  <td id="sem_ME_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">88.3%</td>
+                  <td id="sem_ME_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">87.9%</td>
+                  <td id="sem_ME_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">87.8%</td>
+                </tr>
+
+                <!-- CE -->
+                <tr class="hover:bg-slate-900/40 transition-colors">
+                  <td class="py-2 px-3 font-bold text-pink-400 flex items-center gap-2">
+                    <span class="px-1.5 py-0.5 bg-pink-500/10 border border-pink-500/30 rounded text-[10px] font-mono">CE</span>
+                    <span class="text-slate-200 text-xs">Civil Engg</span>
+                  </td>
+                  <td id="sem_CE_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.6%</td>
+                  <td id="sem_CE_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">91.0%</td>
+                  <td id="sem_CE_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.1%</td>
+                  <td id="sem_CE_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">89.9%</td>
+                </tr>
+
+                <!-- EEE -->
+                <tr class="hover:bg-slate-900/40 transition-colors">
+                  <td class="py-2 px-3 font-bold text-rose-400 flex items-center gap-2">
+                    <span class="px-1.5 py-0.5 bg-rose-500/10 border border-rose-500/30 rounded text-[10px] font-mono">EEE</span>
+                    <span class="text-slate-200 text-xs">Electrical Engg</span>
+                  </td>
+                  <td id="sem_EEE_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">90.9%</td>
+                  <td id="sem_EEE_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">90.7%</td>
+                  <td id="sem_EEE_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">92.3%</td>
+                  <td id="sem_EEE_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">91.3%</td>
+                </tr>
+
+                <!-- CT -->
+                <tr class="hover:bg-slate-900/40 transition-colors">
+                  <td class="py-2 px-3 font-bold text-purple-400 flex items-center gap-2">
+                    <span class="px-1.5 py-0.5 bg-purple-500/10 border border-purple-500/30 rounded text-[10px] font-mono">CT</span>
+                    <span class="text-slate-200 text-xs">Computer Engg</span>
+                  </td>
+                  <td id="sem_CT_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">93.7%</td>
+                  <td id="sem_CT_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">95.1%</td>
+                  <td id="sem_CT_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">95.0%</td>
+                  <td id="sem_CT_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">94.6%</td>
+                </tr>
+
+                <!-- AU -->
+                <tr class="hover:bg-slate-900/40 transition-colors">
+                  <td class="py-2 px-3 font-bold text-indigo-400 flex items-center gap-2">
+                    <span class="px-1.5 py-0.5 bg-indigo-500/10 border border-indigo-500/30 rounded text-[10px] font-mono">AU</span>
+                    <span class="text-slate-200 text-xs">Automobile Engg</span>
+                  </td>
+                  <td id="sem_AU_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">88.0%</td>
+                  <td id="sem_AU_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">87.5%</td>
+                  <td id="sem_AU_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.1%</td>
+                  <td id="sem_AU_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">88.2%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Secondary Compliance Indicators Row -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-800/60">
+            <div class="p-2.5 bg-slate-900/60 border border-slate-800/80 rounded-xl flex items-center gap-2.5">
+              <span class="material-symbols-rounded text-indigo-400 text-lg">workspace_premium</span>
+              <span class="text-xs text-slate-400">Faculty FDPs &amp; Workshops: <strong id="execFdpCount" class="text-white font-bold">12 Verified</strong></span>
+            </div>
+            <div class="p-2.5 bg-slate-900/60 border border-slate-800/80 rounded-xl flex items-center gap-2.5">
+              <span class="material-symbols-rounded text-emerald-400 text-lg">assignment_turned_in</span>
+              <span class="text-xs text-slate-400">NBA Attainment Average: <strong id="execCoPoAvg" class="text-white font-bold">88.5% CO-PO</strong></span>
+            </div>
+          </div>
         </div>
-        @endif
       </div>
 
       <!-- PANEL 2: USER DIRECTORY -->
@@ -1572,6 +1853,234 @@
       });
     }
 
+    function loadExecutiveMetrics() {
+      fetch('/api/admin/executive-kpis')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            document.getElementById('execStaffLeaveTotal').innerText = `${data.leave_breakdown.total_on_leave} Active`;
+            if (document.getElementById('execLeaveCL')) document.getElementById('execLeaveCL').innerText = data.leave_breakdown.CL || 0;
+            if (document.getElementById('execLeaveCCL')) document.getElementById('execLeaveCCL').innerText = data.leave_breakdown.CCL || 0;
+            if (document.getElementById('execLeaveDL')) document.getElementById('execLeaveDL').innerText = data.leave_breakdown.DL || 0;
+            if (document.getElementById('execLeaveML')) document.getElementById('execLeaveML').innerText = data.leave_breakdown.ML || 0;
+            if (document.getElementById('execLeaveLOP')) document.getElementById('execLeaveLOP').innerText = data.leave_breakdown.LOP || 0;
+            if (document.getElementById('execLeaveOTHERS')) document.getElementById('execLeaveOTHERS').innerText = data.leave_breakdown.OTHERS || 0;
+
+            // Populate hover popup lists with staff names & department
+            if (data.leave_breakdown.staff_by_type) {
+              ['CL', 'CCL', 'DL', 'ML', 'LOP', 'OTHERS'].forEach(t => {
+                const listEl = document.getElementById(`popupList${t}`);
+                const countEl = document.getElementById(`popupCount${t}`);
+                const staffArr = data.leave_breakdown.staff_by_type[t] || [];
+
+                if (countEl) countEl.innerText = `${staffArr.length} Staff`;
+
+                if (listEl) {
+                  if (staffArr.length > 0) {
+                    listEl.innerHTML = staffArr.map(s => `
+                      <div class="flex items-center justify-between gap-1 border-b border-slate-800/60 pb-1">
+                        <span class="font-bold text-slate-100 truncate text-[10px]">${s.name}</span>
+                        <span class="text-[9px] text-sky-400 font-mono shrink-0">${s.dept}</span>
+                      </div>
+                    `).join('');
+                  } else {
+                    listEl.innerHTML = `<span class="text-slate-500 italic block text-[10px]">No staff on ${t} today</span>`;
+                  }
+                }
+              });
+            }
+
+            if (data.today_events && data.today_events.length > 0) {
+              const badge = document.getElementById('execEventsCountBadge');
+              if (badge) badge.innerText = `${data.today_events.length} Scheduled`;
+              
+              const listContainer = document.getElementById('execTodayEventsList');
+              if (listContainer) {
+                listContainer.innerHTML = data.today_events.slice(0, 2).map(ev => `
+                  <div class="flex items-center gap-1.5 truncate">
+                    <span class="w-1.5 h-1.5 rounded-full ${ev.type === 'Holiday' ? 'bg-amber-400' : (ev.type === 'Exam' ? 'bg-rose-400' : 'bg-sky-400')} shrink-0"></span>
+                    <span class="truncate font-medium text-slate-200 text-[11px]" title="${ev.title}">${ev.title}</span>
+                  </div>
+                `).join('');
+              }
+            }
+          }
+        }).catch(() => {});
+
+      fetch('/api/admin/executive-compliance')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            document.getElementById('execFdpCount').innerText = `${data.total_fdps} Verified`;
+            if (data.three_sem_matrix) {
+              ['EL', 'ME', 'CE', 'EEE', 'CT', 'AU'].forEach(b => {
+                if (data.three_sem_matrix[b]) {
+                  const m = data.three_sem_matrix[b];
+                  if (m.semesters) {
+                    const keys = Object.keys(m.semesters);
+                    if (keys[0] && document.getElementById(`sem_${b}_S1`)) document.getElementById(`sem_${b}_S1`).innerText = `${m.semesters[keys[0]]}%`;
+                    if (keys[1] && document.getElementById(`sem_${b}_S3`)) document.getElementById(`sem_${b}_S3`).innerText = `${m.semesters[keys[1]]}%`;
+                    if (keys[2] && document.getElementById(`sem_${b}_S5`)) document.getElementById(`sem_${b}_S5`).innerText = `${m.semesters[keys[2]]}%`;
+                  }
+                  if (document.getElementById(`sem_${b}_avg`)) document.getElementById(`sem_${b}_avg`).innerText = `${m.branch_avg}%`;
+                }
+              });
+            }
+          }
+        }).catch(() => {});
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadExecutiveMetrics();
+      loadFlashNoticeStats();
+    });
+
+    // FLASH NOTICE BROADCAST DESK FUNCTIONS
+    function openFlashNoticeModal() {
+      document.getElementById('flashNoticeModal').classList.remove('hidden');
+    }
+
+    function closeFlashNoticeModal() {
+      document.getElementById('flashNoticeModal').classList.add('hidden');
+      document.getElementById('flashNoticeForm').reset();
+      toggleNoticeTargetFields();
+      toggleNoticeScheduleTime();
+    }
+
+    function toggleNoticeTargetFields() {
+      const scope = document.getElementById('fnTargetAudience').value;
+      const deptWrapper = document.getElementById('fnDeptWrapper');
+      const semWrapper = document.getElementById('fnSemWrapper');
+
+      if (scope === 'STAFF_DEPT' || scope === 'STUDENTS_DEPT_SEM') {
+        deptWrapper.style.display = 'block';
+      } else {
+        deptWrapper.style.display = 'block';
+      }
+
+      if (scope === 'STUDENTS_DEPT_SEM') {
+        semWrapper.style.display = 'block';
+      } else {
+        semWrapper.style.display = 'block';
+      }
+    }
+
+    function toggleNoticeScheduleTime() {
+      const dispatch = document.querySelector('input[name="dispatch_type"]:checked').value;
+      const timeWrapper = document.getElementById('fnScheduleTimeWrapper');
+      if (dispatch === 'scheduled') {
+        timeWrapper.classList.remove('hidden');
+      } else {
+        timeWrapper.classList.add('hidden');
+      }
+    }
+
+    function submitFlashNotice(e) {
+      e.preventDefault();
+      const btn = document.getElementById('fnSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-rounded animate-spin text-base">sync</span> Sending...';
+
+      const formData = new FormData(document.getElementById('flashNoticeForm'));
+
+      fetch('/api/admin/flash-notices/broadcast', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-rounded text-base">send</span> Broadcast Notice';
+        if (data.status === 'SUCCESS') {
+          alert(data.message);
+          closeFlashNoticeModal();
+          loadFlashNoticeStats();
+        } else {
+          alert('Error: ' + data.message);
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-rounded text-base">send</span> Broadcast Notice';
+        alert('Failed to send notice. Please try again.');
+      });
+    }
+
+    function loadFlashNoticeStats() {
+      fetch('/api/admin/flash-notices')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            if (document.getElementById('flashNoticeStatSent')) document.getElementById('flashNoticeStatSent').innerText = data.stats.total_sent;
+            if (document.getElementById('flashNoticeStatSched')) document.getElementById('flashNoticeStatSched').innerText = data.stats.scheduled_count;
+            if (document.getElementById('flashNoticeStatUrgent')) document.getElementById('flashNoticeStatUrgent').innerText = data.stats.urgent_count;
+          }
+        }).catch(() => {});
+    }
+
+    function openFlashNoticeHistoryModal() {
+      document.getElementById('flashNoticeHistoryModal').classList.remove('hidden');
+      const body = document.getElementById('flashNoticeHistoryBody');
+      body.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-500">Loading history...</td></tr>';
+
+      fetch('/api/admin/flash-notices')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS' && data.notices.length > 0) {
+            body.innerHTML = data.notices.map(n => `
+              <tr class="hover:bg-slate-900/50">
+                <td class="py-2.5 px-3 font-mono text-[11px] text-slate-400">${new Date(n.created_at).toLocaleString()}</td>
+                <td class="py-2.5 px-3">
+                  <span class="font-bold text-slate-100 block">${n.title}</span>
+                  <span class="px-1.5 py-0.2 text-[9px] rounded font-bold ${n.priority === 'Urgent' ? 'bg-rose-500/20 text-rose-300' : 'bg-slate-800 text-slate-300'}">${n.priority}</span>
+                </td>
+                <td class="py-2.5 px-3 text-[11px] text-slate-300">
+                  <span class="font-mono text-sky-400 font-bold">${n.target_audience}</span>
+                  <span class="text-slate-400 block">${n.target_department} | Sem: ${n.target_semester}</span>
+                </td>
+                <td class="py-2.5 px-3">
+                  ${n.attachment_path ? `<a href="/storage/${n.attachment_path}" target="_blank" class="text-sky-400 underline font-mono text-[11px] flex items-center gap-1"><span class="material-symbols-rounded text-xs">attach_file</span> View ${n.attachment_type.toUpperCase()}</a>` : '<span class="text-slate-500 font-mono text-[11px]">None</span>'}
+                </td>
+                <td class="py-2.5 px-3 text-right">
+                  <button onclick="revokeFlashNotice(${n.id})" class="px-2 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded font-bold text-[10px] transition">Revoke</button>
+                </td>
+              </tr>
+            `).join('');
+          } else {
+            body.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-500">No broadcast history recorded yet.</td></tr>';
+          }
+        }).catch(() => {
+          body.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-rose-400">Failed to load history.</td></tr>';
+        });
+    }
+
+    function closeFlashNoticeHistoryModal() {
+      document.getElementById('flashNoticeHistoryModal').classList.add('hidden');
+    }
+
+    function revokeFlashNotice(id) {
+      if (!confirm('Are you sure you want to revoke this notice? It will be deleted permanently.')) return;
+      fetch(`/api/admin/flash-notices/revoke/${id}`, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert(data.message);
+          openFlashNoticeHistoryModal();
+          loadFlashNoticeStats();
+        } else {
+          alert('Error: ' + data.message);
+        }
+      });
+    }
+
     // Prevent back-button viewing after logout (session out)
     window.addEventListener('pageshow', function (event) {
       if (event.persisted || (window.performance && window.performance.navigation && window.performance.navigation.type === 2)) {
@@ -1579,6 +2088,165 @@
       }
     });
   </script>
+
+  <!-- FLASH NOTICE BROADCAST MODAL -->
+  <div id="flashNoticeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-5 shadow-2xl relative text-left">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+            <span class="material-symbols-rounded text-xl">campaign</span>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-slate-100 text-base">Broadcast Executive Flash Notice</h3>
+            <p class="text-xs text-slate-400">Dispatch notice to Staff (All/Dept) &amp; Students (All/Dept/Sem)</p>
+          </div>
+        </div>
+        <button onclick="closeFlashNoticeModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <form id="flashNoticeForm" onsubmit="submitFlashNotice(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-slate-300 font-bold mb-1">Notice Title / Subject <span class="text-rose-400">*</span></label>
+            <input type="text" id="fnTitle" name="title" required placeholder="e.g., Special Working Day &amp; Exam Valuation Notice" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-sky-500 font-medium">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">Priority / Type <span class="text-rose-400">*</span></label>
+            <select id="fnPriority" name="priority" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-sky-500 font-medium">
+              <option value="Normal">Normal Announcement</option>
+              <option value="Urgent">Urgent Flash Warning</option>
+              <option value="Circular">Official Circular</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3">
+          <span class="block text-slate-200 font-bold text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+            <span class="material-symbols-rounded text-sky-400 text-sm">groups</span> Target Audience &amp; Scope
+          </span>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-slate-400 mb-1 font-semibold">Recipient Group</label>
+              <select id="fnTargetAudience" name="target_audience" onchange="toggleNoticeTargetFields()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-sky-500 font-medium">
+                <option value="ALL_CAMPUS">🌐 ALL Campus (Staff &amp; Students)</option>
+                <option value="STAFF_ALL">👨‍🏫 Staff - All Departments</option>
+                <option value="STAFF_DEPT">🏫 Staff - Specific Department</option>
+                <option value="STUDENTS_ALL">🎓 Students - All Batches</option>
+                <option value="STUDENTS_DEPT_SEM">📚 Students - Dept &amp; Semester</option>
+              </select>
+            </div>
+
+            <div id="fnDeptWrapper">
+              <label class="block text-slate-400 mb-1 font-semibold">Department Branch</label>
+              <select id="fnTargetDepartment" name="target_department" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-sky-500 font-medium">
+                <option value="ALL">All Departments</option>
+                <option value="EL">Electronics Engg (EL)</option>
+                <option value="ME">Mechanical Engg (ME)</option>
+                <option value="CE">Civil Engg (CE)</option>
+                <option value="EEE">Electrical Engg (EEE)</option>
+                <option value="CT">Computer Engg (CT)</option>
+                <option value="AU">Automobile Engg (AU)</option>
+                <option value="GEN_AIDED">General Aided</option>
+                <option value="GEN_SF">General SF</option>
+              </select>
+            </div>
+
+            <div id="fnSemWrapper">
+              <label class="block text-slate-400 mb-1 font-semibold">Semester Level</label>
+              <select id="fnTargetSemester" name="target_semester" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-sky-500 font-medium">
+                <option value="ALL">All Semesters (S1 to S6)</option>
+                <option value="1">Semester 1 (S1)</option>
+                <option value="2">Semester 2 (S2)</option>
+                <option value="3">Semester 3 (S3)</option>
+                <option value="4">Semester 4 (S4)</option>
+                <option value="5">Semester 5 (S5)</option>
+                <option value="6">Semester 6 (S6)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-bold mb-1">Notice Description / Content <span class="text-rose-400">*</span></label>
+          <textarea id="fnContent" name="content" required rows="4" placeholder="Enter detailed notice message, instructions, or official directive text..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-sky-500 font-medium leading-relaxed"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-bold mb-1 flex items-center gap-1">
+              <span class="material-symbols-rounded text-amber-400 text-sm">attach_file</span> Attach Image or PDF <span class="text-slate-500 font-normal">(Optional)</span>
+            </label>
+            <input type="file" id="fnAttachment" name="attachment" accept="image/jpeg,image/png,image/webp,application/pdf" class="w-full text-slate-300 bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-sky-500/20 file:text-sky-300 hover:file:bg-sky-500/30">
+            <p class="text-[10px] text-slate-400 mt-1">Supports JPG, PNG, WEBP images or PDF files (Max 10MB).</p>
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-bold mb-1 flex items-center gap-1">
+              <span class="material-symbols-rounded text-emerald-400 text-sm">schedule</span> Dispatch Timing
+            </label>
+            <div class="flex items-center gap-2 mb-2">
+              <label class="flex items-center gap-1.5 text-slate-200 cursor-pointer">
+                <input type="radio" name="dispatch_type" value="immediate" checked onchange="toggleNoticeScheduleTime()" class="accent-sky-500">
+                <span class="font-bold text-sky-400">⚡ Immediate Now</span>
+              </label>
+              <label class="flex items-center gap-1.5 text-slate-200 cursor-pointer ml-2">
+                <input type="radio" name="dispatch_type" value="scheduled" onchange="toggleNoticeScheduleTime()" class="accent-amber-500">
+                <span class="font-bold text-amber-400">⏰ Scheduled</span>
+              </label>
+            </div>
+            <div id="fnScheduleTimeWrapper" class="hidden">
+              <input type="datetime-local" id="fnScheduledAt" name="scheduled_at" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-amber-500 font-mono">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+          <button type="button" onclick="closeFlashNoticeModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition">Cancel</button>
+          <button type="submit" id="fnSubmitBtn" class="px-5 py-2 bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-bold rounded-xl transition flex items-center gap-1.5 shadow-lg">
+            <span class="material-symbols-rounded text-base">send</span> Broadcast Notice
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FLASH NOTICE HISTORY LOG MODAL -->
+  <div id="flashNoticeHistoryModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 shadow-2xl relative text-left">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-extrabold text-slate-100 text-base flex items-center gap-2">
+          <span class="material-symbols-rounded text-sky-400">history</span> Executive Flash Notice Broadcast History
+        </h3>
+        <button onclick="closeFlashNoticeHistoryModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-950 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
+              <th class="py-2.5 px-3">Date &amp; Time</th>
+              <th class="py-2.5 px-3">Title &amp; Type</th>
+              <th class="py-2.5 px-3">Target Scope</th>
+              <th class="py-2.5 px-3">Attachment</th>
+              <th class="py-2.5 px-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="flashNoticeHistoryBody" class="divide-y divide-slate-800/60 font-medium text-slate-300">
+            <tr>
+              <td colspan="5" class="py-6 text-center text-slate-500">Loading broadcast history...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   @include('partials.admin_support_desk_window')
   @include('partials.support_desk_overlay')
 </body>
