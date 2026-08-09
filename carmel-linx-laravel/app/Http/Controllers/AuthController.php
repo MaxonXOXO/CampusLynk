@@ -420,4 +420,128 @@ class AuthController extends Controller
             'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
         ]);
     }
+
+    /**
+     * Get Executive Profile details (Chairman, Principal, Admin, Staff).
+     */
+    public function getExecutiveProfile(Request $request)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+
+        if (!$userId && !$userRole) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized session.']);
+        }
+
+        $staff = StaffProfile::where('mobile_no', $userId)->first();
+        if (!$staff && $userRole) {
+            $staff = StaffProfile::where('designation', $userRole)->first();
+        }
+
+        if (!$staff) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Staff profile not found.']);
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'data' => [
+                'name' => $staff->name,
+                'mobile_no' => $staff->mobile_no,
+                'email' => $staff->email,
+                'designation' => $staff->designation,
+                'photo_url' => $staff->photo_url ?? '/storage/avatars/default.png',
+            ]
+        ]);
+    }
+
+    /**
+     * Update Executive Profile (Name, Mobile No/Login ID, Email, Password, Photo).
+     */
+    public function updateExecutiveProfile(Request $request)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+
+        if (!$userId && !$userRole) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized session.']);
+        }
+
+        $staff = StaffProfile::where('mobile_no', $userId)->first();
+        if (!$staff && $userRole) {
+            $staff = StaffProfile::where('designation', $userRole)->first();
+        }
+
+        if (!$staff) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Profile not found.']);
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'mobile_no' => 'required|string|max:20',
+            'email' => 'required|email|max:255',
+            'new_password' => 'nullable|string|min:4',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        $newMobile = preg_replace('/[^0-9]/', '', $request->input('mobile_no'));
+        if (empty($newMobile)) {
+            $newMobile = trim($request->input('mobile_no'));
+        }
+
+        if ($newMobile !== $staff->mobile_no) {
+            $exists = StaffProfile::where('mobile_no', $newMobile)->where('id', '!=', $staff->id)->exists();
+            if ($exists) {
+                return response()->json(['status' => 'ERROR', 'message' => 'The Login ID / Mobile Number is already in use by another account.']);
+            }
+        }
+
+        try {
+            $staff->name = trim($request->input('name'));
+            $staff->email = trim($request->input('email'));
+            $staff->mobile_no = $newMobile;
+
+            if ($request->filled('new_password')) {
+                $staff->password = trim($request->input('new_password'));
+            }
+
+            if ($request->hasFile('photo')) {
+                if ($staff->photo_url && str_contains($staff->photo_url, '/storage/')) {
+                    $oldPath = str_replace('/storage/', '', $staff->photo_url);
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+                }
+                $photoPath = '/storage/' . $request->file('photo')->store('avatars', 'public');
+                $staff->photo_url = $photoPath;
+                Session::put('userPhoto', $photoPath);
+            }
+
+            $staff->save();
+
+            Session::put('userId', $staff->mobile_no);
+            Session::put('userName', $staff->name);
+            Session::put('userRole', $staff->designation);
+
+            AuditLog::create([
+                'performed_by' => $staff->mobile_no,
+                'performed_by_name' => $staff->name,
+                'target_id' => $staff->mobile_no,
+                'target_name' => $staff->name,
+                'action' => 'Profile Updated',
+                'details' => "Updated executive profile settings (Name, Login ID, Password/Photo).",
+                'ip_address' => $request->ip(),
+            ]);
+
+            return response()->json([
+                'status' => 'SUCCESS',
+                'message' => 'Profile settings updated successfully!',
+                'data' => [
+                    'name' => $staff->name,
+                    'mobile_no' => $staff->mobile_no,
+                    'email' => $staff->email,
+                    'photo_url' => $staff->photo_url
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed to update profile: ' . $e->getMessage()]);
+        }
+    }
 }

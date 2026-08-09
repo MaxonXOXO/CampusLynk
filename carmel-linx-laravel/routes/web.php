@@ -682,6 +682,8 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/tutor/activity-points/{id}/verify', [App\Http\Controllers\ActivityPointsController::class, 'verifyClaim']);
 
     // Student Online Tests & Tasks
+    Route::get('/api/executive/profile/details', [AuthController::class, 'getExecutiveProfile']);
+    Route::post('/api/executive/profile/update', [AuthController::class, 'updateExecutiveProfile']);
     Route::post('/api/student/profile/upload-photo', [DataController::class, 'uploadStudentPhoto']);
     Route::post('/api/staff/profile/upload-photo', [DataController::class, 'uploadStaffPhoto']);
     Route::post('/api/staff/update-photo', [DataController::class, 'uploadStaffPhoto']);

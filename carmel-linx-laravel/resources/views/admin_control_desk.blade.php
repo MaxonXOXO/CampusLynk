@@ -112,6 +112,9 @@
       <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
         <span class="material-symbols-rounded text-base">receipt_long</span> Audit Trail
       </button>
+      <button onclick="openExecutiveProfileModal()" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-blue-400 hover:bg-blue-900/30 hover:text-blue-300 cursor-pointer text-xs">
+        <span class="material-symbols-rounded text-base">manage_accounts</span> Profile Settings
+      </button>
       <button id="navSettings" onclick="switchPanel('settings')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
         <span class="material-symbols-rounded text-base">settings</span> System Settings
       </button>
@@ -2246,6 +2249,179 @@
       </div>
     </div>
   </div>
+
+  <!-- EXECUTIVE PROFILE SETTINGS MODAL -->
+  <div id="executiveProfileModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden items-center justify-center p-4 transition-all duration-300">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-5 relative">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-rounded text-lg">manage_accounts</span>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-slate-100 text-base">Executive Profile Settings</h3>
+            <p class="text-xs text-slate-400">Update account credentials, login ID, and profile picture</p>
+          </div>
+        </div>
+        <button onclick="closeExecutiveProfileModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer">
+          <span class="material-symbols-rounded text-xl">close</span>
+        </button>
+      </div>
+
+      <div id="execProfileAlert" class="hidden p-3 rounded-xl text-xs font-bold border"></div>
+
+      <form id="execProfileForm" onsubmit="saveExecutiveProfile(event)" class="space-y-4">
+        <div class="flex items-center gap-4 p-3 bg-slate-950/60 border border-slate-800/80 rounded-2xl">
+          <div class="relative group shrink-0">
+            <img id="execModalAvatarPrev" src="/storage/avatars/default.png" onerror="this.src='/storage/avatars/default.png'" class="w-16 h-16 rounded-2xl object-cover border-2 border-blue-500/40 shadow-md">
+            <label for="execModalPhotoInput" class="absolute inset-0 bg-black/60 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold cursor-pointer transition">
+              <span class="material-symbols-rounded text-sm">photo_camera</span>
+            </label>
+          </div>
+          <div class="flex-grow space-y-1">
+            <span class="text-xs font-bold text-slate-200 block">Profile Picture</span>
+            <p class="text-[11px] text-slate-400">PNG, JPG or GIF (Max 2MB)</p>
+            <input type="file" id="execModalPhotoInput" accept="image/*" class="hidden" onchange="previewExecAvatar(this)">
+            <button type="button" onclick="document.getElementById('execModalPhotoInput').click()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-blue-300 rounded-lg text-[11px] font-bold border border-slate-700 transition cursor-pointer">
+              Choose New Photo
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Full Name</label>
+            <input type="text" id="execModalName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Login ID / Mobile No.</label>
+            <input type="text" id="execModalMobile" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Email Address</label>
+            <input type="email" id="execModalEmail" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">New Password (Leave blank to keep unchanged)</label>
+            <input type="password" id="execModalPassword" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" placeholder="Minimum 4 characters">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-800">
+          <button type="button" onclick="closeExecutiveProfileModal()" class="px-4 py-2 border border-slate-800 hover:bg-slate-800 text-slate-300 rounded-xl font-bold text-xs transition cursor-pointer">
+            Cancel
+          </button>
+          <button type="submit" id="execProfileSubmitBtn" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl text-xs transition shadow-lg shadow-blue-500/20 cursor-pointer flex items-center gap-1.5">
+            <span class="material-symbols-rounded text-sm">save</span> Save Profile Settings
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function openExecutiveProfileModal() {
+      const modal = document.getElementById('executiveProfileModal');
+      const alertBox = document.getElementById('execProfileAlert');
+      if (alertBox) alertBox.classList.add('hidden');
+
+      fetch('/api/executive/profile/details')
+        .then(r => r.json())
+        .then(res => {
+          if (res.status === 'SUCCESS' && res.data) {
+            document.getElementById('execModalName').value = res.data.name || '';
+            document.getElementById('execModalMobile').value = res.data.mobile_no || '';
+            document.getElementById('execModalEmail').value = res.data.email || '';
+            document.getElementById('execModalPassword').value = '';
+            if (res.data.photo_url) {
+              document.getElementById('execModalAvatarPrev').src = res.data.photo_url;
+            }
+          }
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+        })
+        .catch(err => {
+          console.error(err);
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+        });
+    }
+
+    function closeExecutiveProfileModal() {
+      const modal = document.getElementById('executiveProfileModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function previewExecAvatar(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('execModalAvatarPrev').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function saveExecutiveProfile(e) {
+      e.preventDefault();
+      const alertBox = document.getElementById('execProfileAlert');
+      const btn = document.getElementById('execProfileSubmitBtn');
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
+      const formData = new FormData();
+      formData.append('name', document.getElementById('execModalName').value.trim());
+      formData.append('mobile_no', document.getElementById('execModalMobile').value.trim());
+      formData.append('email', document.getElementById('execModalEmail').value.trim());
+      
+      const pwd = document.getElementById('execModalPassword').value.trim();
+      if (pwd) {
+        formData.append('new_password', pwd);
+      }
+
+      const fileInput = document.getElementById('execModalPhotoInput');
+      if (fileInput && fileInput.files[0]) {
+        formData.append('photo', fileInput.files[0]);
+      }
+
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+      fetch('/api/executive/profile/update', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': csrfToken || ''
+        },
+        body: formData
+      })
+      .then(r => r.json())
+      .then(res => {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-rounded text-sm">save</span> Save Profile Settings';
+        
+        alertBox.classList.remove('hidden');
+        if (res.status === 'SUCCESS') {
+          alertBox.className = 'p-3 rounded-xl text-xs font-bold border bg-emerald-500/10 text-emerald-300 border-emerald-500/30 mb-3';
+          alertBox.innerText = res.message || 'Profile settings updated successfully!';
+          setTimeout(() => {
+            location.reload();
+          }, 1200);
+        } else {
+          alertBox.className = 'p-3 rounded-xl text-xs font-bold border bg-rose-500/10 text-rose-300 border-rose-500/30 mb-3';
+          alertBox.innerText = res.message || 'Failed to update profile settings.';
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-rounded text-sm">save</span> Save Profile Settings';
+        alertBox.classList.remove('hidden');
+        alertBox.className = 'p-3 rounded-xl text-xs font-bold border bg-rose-500/10 text-rose-300 border-rose-500/30 mb-3';
+        alertBox.innerText = 'Network error: ' + err.message;
+      });
+    }
+  </script>
 
   @include('partials.admin_support_desk_window')
   @include('partials.support_desk_overlay')
