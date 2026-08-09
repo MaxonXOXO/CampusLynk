@@ -281,8 +281,8 @@
          <span class="material-symbols-rounded text-lg">school</span> Professional Activities
       </a>
 
-      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4">
-        <span class="material-symbols-rounded text-lg">security</span> My Security Log
+      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4 mobile-link">
+        <span class="material-symbols-rounded text-lg">manage_accounts</span> My Profile & Security
       </button>
     </nav>
 
@@ -368,47 +368,29 @@
                   @endphp
                   <a href="{{ $targetUrl }}" class="w-full text-left px-3.5 py-2.5 bg-slate-900/60 hover:bg-slate-800 border border-slate-800/60 hover:border-blue-500/50 rounded-xl transition-premium cursor-pointer group flex justify-between items-center no-underline">
                     <div>
-                      <div class="text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-premium">{{ $s->subject_name }}</div>
-                      <div class="text-sm text-slate-350 font-mono mt-0.5">Sem {{ $s->semester }} • {{ $s->subject_type }} • {{ $s->subject_code }} @if($isR26)<span class="ml-1 px-1.5 py-0.5 text-[10px] font-bold bg-indigo-500/20 text-indigo-300 rounded border border-indigo-500/30">R2026</span>@endif</div>
+                      <div class="font-bold text-slate-200 group-hover:text-blue-400 transition-colors text-sm">{{ $s->subject_name }}</div>
+                      <div class="text-xs text-slate-400 font-mono mt-0.5">{{ $s->subject_code }} • Sem {{ $s->semester }}</div>
                     </div>
-                    <span class="material-symbols-rounded text-slate-500 group-hover:text-blue-500 text-sm transition-premium">open_in_new</span>
+                    <span class="material-symbols-rounded text-slate-500 group-hover:text-blue-400 transition-colors text-base">arrow_forward</span>
                   </a>
                 @endforeach
               </div>
             </div>
           @empty
-            <div class="col-span-full bg-slate-950/40 border border-slate-800/60 p-8 rounded-2xl text-center shadow-sm max-w-2xl mx-auto w-full">
-              <span class="material-symbols-rounded text-5xl text-blue-500 block mb-3">science</span>
-              <h3 class="font-bold text-slate-200 text-base">No Lab Assignments</h3>
-              <p class="text-slate-400 text-sm mt-2 font-medium leading-relaxed">
-                No lab subjects have been assigned to you by the HOD for the active semester.
+            <div class="col-span-full bg-slate-950/40 border border-slate-800/60 p-8 rounded-2xl text-center">
+              <span class="material-symbols-rounded text-slate-600 text-4xl block mb-2">biotech</span>
+              <h4 class="font-bold text-slate-300 text-sm">No Lab Assignments Found</h4>
+              <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1">
+                You are currently not linked to any active lab practical subjects. Please contact your HOD to assign practical sessions.
               </p>
             </div>
           @endforelse
         </div>
       </div>
 
-      <!-- PANEL 2: SECURITY LOG -->
+      <!-- PANEL 2: SECURITY LOG / MY PROFILE -->
       <div id="panelSecurity" class="hidden space-y-6">
-        <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl">
-          <h3 class="text-sm font-bold text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2">
-            <span class="material-symbols-rounded text-blue-400 text-sm">security</span> My Profile Security Audit trail
-          </h3>
-          <div class="overflow-x-auto scrollbar-hidden border border-slate-800 rounded-xl">
-            <table class="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr class="bg-slate-900/60 border-b border-slate-800 text-slate-350 font-bold">
-                  <th class="p-4">Time</th>
-                  <th class="p-4">Action</th>
-                  <th class="p-4">Details</th>
-                </tr>
-              </thead>
-              <tbody id="securityLogsTable">
-                <!-- Loaded dynamically -->
-              </tbody>
-            </table>
-          </div>
-        </div>
+        @include('partials.staff_profile_panel')
       </div>
 
     </div>
@@ -418,7 +400,7 @@
     let activePanel = 'dashboard';
 
     document.addEventListener("DOMContentLoaded", () => {
-      if (activePanel === 'security') loadSecurityLogs();
+      if (activePanel === 'security') loadSelfSecurityLogs();
     });
 
     function switchPanel(panelId) {
@@ -439,18 +421,10 @@
 
       const titles = {
         'dashboard': 'Lab Workspaces',
-        'security': 'My Profile Security Log'
+        'security': 'My Profile & Security'
       };
       document.getElementById('panelTitle').innerText = titles[panelId];
 
-      if (panelId === 'security') loadSecurityLogs();
-    }
-
-    function loadSecurityLogs() {
-      const tbody = document.getElementById('securityLogsTable');
-      tbody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-500">Querying security logs...</td></tr>`;
-
-      fetch(`/api/audit-logs?targetId={{ session('userId') }}`)
         .then(res => res.json())
         .then(data => {
           if (data.status === 'SUCCESS') {

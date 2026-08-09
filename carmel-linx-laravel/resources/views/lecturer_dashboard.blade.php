@@ -1409,63 +1409,7 @@
 
       <!-- PANEL 2: SECURITY LOG / MY PROFILE -->
       <div id="panelSecurity" class="hidden space-y-6 animate-fade-in">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Profile Card -->
-          <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
-            <div class="flex flex-col items-center text-center space-y-3">
-              <div class="relative group">
-                <div id="staffAvatarWrapper" class="w-24 h-24 rounded-full overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center shadow-lg relative">
-                  <img id="staffProfileImg" src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100' }}" class="w-full h-full object-cover">
-                </div>
-                <label for="staffPhotoUploadInput" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer rounded-full text-white text-sm font-bold text-center gap-1 p-1">
-                  <span class="material-symbols-rounded text-base">photo_camera</span>
-                  <span>Change</span>
-                </label>
-                <input type="file" id="staffPhotoUploadInput" accept="image/*" class="hidden" onchange="handleStaffPhotoUpload(event)">
-              </div>
-              <div id="staffPhotoUploadStatus" class="text-sm font-bold mt-2 text-green-400 hidden"></div>
-              <div>
-                <h3 class="font-black text-white text-base">{{ session('userName') }}</h3>
-                <span class="font-bold text-teal-400 uppercase tracking-wider text-sm">{{ session('userBranch') }} Lecturer</span>
-              </div>
-            </div>
-            <div class="border-t border-slate-800/60 pt-4 space-y-2.5 text-xs">
-              <div class="flex justify-between">
-                <span class="text-slate-400">Mobile ID:</span>
-                <span class="font-bold text-slate-200">{{ session('userId') }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-400">Branch:</span>
-                <span class="font-bold text-slate-200">{{ session('userBranch') }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-400">Role Designation:</span>
-                <span class="font-bold text-slate-200">Lecturer / Academic Staff</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Self Security Logs -->
-          <div class="lg:col-span-2 bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl flex flex-col">
-            <h3 class="font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-sm">
-              <span class="material-symbols-rounded text-blue-400 text-lg">security</span> My Profile Security Audit Trail
-            </h3>
-            <div class="flex-grow max-h-[300px] overflow-y-auto scrollbar-hidden border border-slate-800 rounded-xl">
-              <table class="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr class="bg-slate-900/40 border-b border-slate-800 text-slate-400 font-bold">
-                    <th class="p-3">Time</th>
-                    <th class="p-3">Action</th>
-                    <th class="p-3">Details</th>
-                  </tr>
-                </thead>
-                <tbody id="securityLogsTable">
-                  <!-- Loaded dynamically -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        @include('partials.staff_profile_panel')
       </div>
 
       <!-- PANEL: MOBILE SEMINAR EVALUATION WORKSPACE -->
@@ -4504,9 +4448,11 @@
       if (!file) return;
 
       const statusEl = document.getElementById('staffPhotoUploadStatus');
-      statusEl.classList.remove('hidden');
-      statusEl.className = "text-sm font-bold mt-2 text-blue-400";
-      statusEl.innerText = "Uploading photo...";
+      if (statusEl) {
+        statusEl.classList.remove('hidden');
+        statusEl.className = "text-sm font-bold mt-2 text-blue-400";
+        statusEl.innerText = "Uploading photo...";
+      }
 
       const formData = new FormData();
       formData.append('photo', file);
@@ -4514,37 +4460,40 @@
       fetch('/api/staff/profile/upload-photo', {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
         body: formData
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          statusEl.className = "text-sm font-bold mt-2 text-green-400";
-          statusEl.innerText = "Photo updated successfully!";
-
-          // Update main profile picture
-          const imgEl = document.getElementById('staffProfileImg');
-          if (imgEl) {
-            imgEl.src = data.photo_url;
+      .then(async res => {
+        const data = await res.json().catch(() => ({ status: 'ERROR', message: 'Invalid server response.' }));
+        if (res.ok && data.status === 'SUCCESS') {
+          if (statusEl) {
+            statusEl.className = "text-sm font-bold mt-2 text-green-400";
+            statusEl.innerText = "Photo updated successfully!";
           }
 
-          // Update sidebar picture
-          const sidebarImg = document.getElementById('sidebarStaffImg');
-          if (sidebarImg) {
-            sidebarImg.src = data.photo_url;
-          }
+          const photoUrl = data.photo_url + '?t=' + new Date().getTime();
+          document.querySelectorAll('#staffProfileImg, #sidebarStaffImg, #sidebarAvatarContainer img, aside img.rounded-full').forEach(img => {
+            img.src = photoUrl;
+          });
 
-          setTimeout(() => statusEl.classList.add('hidden'), 3000);
+          if (statusEl) {
+            setTimeout(() => statusEl.classList.add('hidden'), 3000);
+          }
         } else {
-          statusEl.className = "text-sm font-bold mt-2 text-rose-400";
-          statusEl.innerText = data.message || "Upload failed.";
+          if (statusEl) {
+            statusEl.className = "text-sm font-bold mt-2 text-rose-400";
+            statusEl.innerText = data.message || "Upload failed.";
+          }
         }
       })
-      .catch(() => {
-        statusEl.className = "text-sm font-bold mt-2 text-rose-400";
-        statusEl.innerText = "Network error. Please try again.";
+      .catch(err => {
+        console.error('Upload error:', err);
+        if (statusEl) {
+          statusEl.className = "text-sm font-bold mt-2 text-rose-400";
+          statusEl.innerText = "Error uploading photo. Please check file format and size.";
+        }
       });
     }
 

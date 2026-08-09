@@ -2987,17 +2987,39 @@ class DataController extends Controller
         $userRole = Session::get('userRole');
         
         if (!$userId || $userRole === 'Student') {
-            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access.']);
         }
 
-        $request->validate([
-            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:10240'
         ]);
 
+        if ($validator->fails()) {
+            $errors = implode(' ', $validator->errors()->all());
+            return response()->json(['status' => 'ERROR', 'message' => $errors ?: 'Invalid image file provided. Maximum size is 10MB.']);
+        }
+
         try {
-            $staff = StaffProfile::where('mobile_no', $userId)->first();
+            $cleanMobile = preg_replace('/[^0-9]/', '', $userId);
+            $staff = StaffProfile::where(function($q) use ($userId, $cleanMobile) {
+                $q->where('mobile_no', $userId);
+                if (!empty($cleanMobile)) {
+                    $q->orWhere('mobile_no', $cleanMobile);
+                }
+            })->first();
+
+            if (!$staff && $userRole) {
+                $staff = StaffProfile::where('designation', $userRole)->first();
+            }
+
             if (!$staff) {
-                return response()->json(['status' => 'ERROR', 'message' => 'Staff record not found.']);
+                $staff = StaffProfile::create([
+                    'mobile_no' => $userId,
+                    'name' => Session::get('userName', 'Staff Member'),
+                    'branch' => Session::get('userBranch', 'General'),
+                    'designation' => $userRole ?: 'Lecturer',
+                    'account_status' => 'Approved'
+                ]);
             }
 
             if ($request->hasFile('photo')) {
@@ -3021,7 +3043,7 @@ class DataController extends Controller
                 ]);
             }
 
-            return response()->json(['status' => 'ERROR', 'message' => 'No file uploaded.']);
+            return response()->json(['status' => 'ERROR', 'message' => 'No image file uploaded.']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Failed to upload photo: ' . $e->getMessage()]);
         }

@@ -32,11 +32,30 @@ if (!function_exists('getFullBranchName')) {
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
+if (!function_exists('noCacheView')) {
+    function noCacheView($view, $data = [], $status = 200, $headers = []) {
+        return response()->view($view, $data, $status, $headers)->withHeaders([
+            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
+        ]);
+    }
+}
+
+Route::get('/api/system/session-check', function() {
+    if (Session::has('userId')) {
+        return response()->json(['status' => 'ACTIVE', 'userId' => Session::get('userId')])->withHeaders([
+            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
+        ]);
+    }
+    return response()->json(['status' => 'EXPIRED'])->withHeaders([
+        'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
+        'Pragma' => 'no-cache',
+        'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
+    ]);
+});
 
 // Auth Gates
 Route::get('/', function () {
@@ -164,7 +183,7 @@ Route::middleware(['web'])->group(function () {
         if ($request->has('mobile') || ($isMobileDevice && $request->input('mode') !== 'desktop')) {
             return app(\App\Http\Controllers\StudentAttendanceController::class)->showStudentMobileDashboard($request);
         }
-        return view('student_dashboard');
+        return noCacheView('student_dashboard');
     });
 
     Route::get('/student/mobile', [\App\Http\Controllers\StudentAttendanceController::class, 'showStudentMobileDashboard'])->name('student.mobile');
@@ -173,7 +192,7 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/student/mentoring-diary', function () {
         if (Session::get('userRole') !== 'Student') return redirect('/');
-        return view('student_mentoring_diary_full');
+        return noCacheView('student_mentoring_diary_full');
     });
 
     Route::get('/tutor/mentoring-diary/{regNo}', [\App\Http\Controllers\MentoringController::class, 'tutorViewFullDiary']);
@@ -181,11 +200,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/dashboard/superadmin', function () {
         $role = Session::get('userRole');
         if ($role !== 'Super_Admin' && $role !== 'Principal') return redirect('/');
-        return response()->view('admin_control_desk')->withHeaders([
-            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
-            'Pragma' => 'no-cache',
-            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
-        ]);
+        return noCacheView('admin_control_desk');
     });
 
     Route::get('/superadmin/show-users', function () {
@@ -203,32 +218,24 @@ Route::middleware(['web'])->group(function () {
             ->orderBy('reg_no')
             ->get();
             
-        return response()->view('admin_show_users_table', compact('staff', 'students'))->withHeaders([
-            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
-            'Pragma' => 'no-cache',
-            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
-        ]);
+        return noCacheView('admin_show_users_table', compact('staff', 'students'));
     });
 
     Route::get('/dashboard/admin', function () {
         if (Session::get('userRole') !== 'Admin') return redirect('/');
-        return view('admin_dashboard');
+        return noCacheView('admin_dashboard');
     });
 
     Route::get('/dashboard/principal', function () {
         $role = Session::get('userRole');
         if ($role !== 'Super_Admin' && $role !== 'Principal') return redirect('/');
-        return view('admin_control_desk');
+        return noCacheView('admin_control_desk');
     });
 
     Route::get('/dashboard/chairman', function () {
         $role = Session::get('userRole');
         if (!in_array($role, ['Chairman', 'Super_Admin', 'Admin', 'Principal'])) return redirect('/');
-        return response()->view('chairman_dashboard')->withHeaders([
-            'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
-            'Pragma' => 'no-cache',
-            'Expires' => 'Fri, 01 Jan 1990 00:00:00 GMT',
-        ]);
+        return noCacheView('chairman_dashboard');
     });
 
     Route::get('/dashboard/hod', function (\Illuminate\Http\Request $request) {
@@ -238,7 +245,7 @@ Route::middleware(['web'])->group(function () {
         if ($request->has('mobile') || ($isMobileDevice && $request->input('mode') !== 'desktop')) {
             return app(\App\Http\Controllers\HodMobileController::class)->index($request);
         }
-        return view('hod_dashboard');
+        return noCacheView('hod_dashboard');
     });
 
     Route::get('/hod/mobile', [\App\Http\Controllers\HodMobileController::class, 'index']);
@@ -255,7 +262,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/dashboard/principal/department/{branch}', function ($branch) {
         $role = Session::get('userRole');
         if (!in_array($role, ['Principal', 'Super_Admin', 'Chairman', 'Admin'])) return redirect('/');
-        return view('hod_dashboard', [
+        return noCacheView('hod_dashboard', [
             'isPrincipalView' => true,
             'branchOverride' => $branch
         ]);
@@ -267,7 +274,7 @@ Route::middleware(['web'])->group(function () {
         if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
             return redirect('/staff/mobile');
         }
-        return view('general_coordinator_aided_dashboard');
+        return noCacheView('general_coordinator_aided_dashboard');
     });
 
     Route::get('/dashboard/general-coordinator-sf', function () {
@@ -276,7 +283,7 @@ Route::middleware(['web'])->group(function () {
         if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
             return redirect('/staff/mobile');
         }
-        return view('general_coordinator_sf_dashboard');
+        return noCacheView('general_coordinator_sf_dashboard');
     });
 
     Route::get('/dashboard/academic-coordinator', function () {
@@ -284,7 +291,7 @@ Route::middleware(['web'])->group(function () {
         if (!in_array($role, ['Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF', 'Gen_Dept_Coordinator_Self_Finance', 'Super_Admin', 'Admin'])) {
             return redirect('/');
         }
-        return view('academic_coordinator_dashboard');
+        return noCacheView('academic_coordinator_dashboard');
     });
 
     Route::get('/dashboard/lecturer', function () {
@@ -294,7 +301,7 @@ Route::middleware(['web'])->group(function () {
         if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
             return redirect('/staff/mobile');
         }
-        return view('lecturer_dashboard');
+        return noCacheView('lecturer_dashboard');
     });
 
     Route::get('/dashboard/demonstrator', function () {
@@ -323,7 +330,7 @@ Route::middleware(['web'])->group(function () {
             )
             ->get();
 
-        return view('demonstrator_dashboard', compact('assignments'));
+        return noCacheView('demonstrator_dashboard', compact('assignments'));
     });
 
     Route::get('/dashboard/tradeinstructor', function () {
@@ -332,7 +339,7 @@ Route::middleware(['web'])->group(function () {
         if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
             return redirect('/staff/mobile');
         }
-        return view('trade_instructor_dashboard');
+        return noCacheView('trade_instructor_dashboard');
     });
 
     Route::get('/staff/mobile', [MentoringController::class, 'showStaffMobileDashboard']);
@@ -346,7 +353,7 @@ Route::middleware(['web'])->group(function () {
             return redirect('/staff/mobile');
         }
 
-        return view('tutor_dashboard');
+        return noCacheView('tutor_dashboard');
     });
 
     Route::get('/dashboard/workshop', function () {
@@ -355,7 +362,7 @@ Route::middleware(['web'])->group(function () {
         if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
             return redirect('/staff/mobile');
         }
-        return view('workshop_superintendent_dashboard');
+        return noCacheView('workshop_superintendent_dashboard');
     });
 
     // Core Data Actions
@@ -687,6 +694,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/student/profile/upload-photo', [DataController::class, 'uploadStudentPhoto']);
     Route::post('/api/staff/profile/upload-photo', [DataController::class, 'uploadStaffPhoto']);
     Route::post('/api/staff/update-photo', [DataController::class, 'uploadStaffPhoto']);
+    Route::post('/api/staff/change-password', [AuthController::class, 'changeStaffPassword']);
     Route::post('/api/student/tasks/submit', [App\Http\Controllers\DataController::class, 'submitManualTask']);
     Route::get('/api/student/online-tests', [App\Http\Controllers\TestEngineController::class, 'getAvailableTests']);
     Route::post('/api/student/online-tests/{testId}/start', [App\Http\Controllers\TestEngineController::class, 'startTest']);

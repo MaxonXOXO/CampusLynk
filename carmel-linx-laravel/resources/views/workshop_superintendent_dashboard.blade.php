@@ -278,8 +278,8 @@
          <span class="material-symbols-rounded text-lg">school</span> Professional Activities
       </a>
 
-      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4">
-        <span class="material-symbols-rounded text-lg">security</span> My Security Log
+      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-4 mobile-link">
+        <span class="material-symbols-rounded text-lg">manage_accounts</span> My Profile & Security
       </button>
     </nav>
 
@@ -327,21 +327,21 @@
             <div class="bg-blue-500/10 text-blue-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">handyman</span></div>
             <div>
               <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Workshop Staff</span>
-              <span id="statWorkshopStaff" class="text-base font-black text-white mt-0.5">â</span>
+              <span id="statWorkshopStaff" class="text-base font-black text-white mt-0.5">—</span>
             </div>
           </div>
           <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl flex items-center gap-4 shadow-sm">
             <div class="bg-sky-500/10 text-sky-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">group</span></div>
             <div>
               <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Total Students</span>
-              <span id="statTotalStudents" class="text-base font-black text-white mt-0.5">â</span>
+              <span id="statTotalStudents" class="text-base font-black text-white mt-0.5">—</span>
             </div>
           </div>
           <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl flex items-center gap-4 shadow-sm">
             <div class="bg-amber-500/10 text-amber-400 p-3 rounded-xl"><span class="material-symbols-rounded text-2xl">pending_actions</span></div>
             <div>
               <span class="text-[10px] text-slate-400 uppercase font-black tracking-wider block">Pending Approvals</span>
-              <span id="statPending" class="text-base font-black text-white mt-0.5">â</span>
+              <span id="statPending" class="text-base font-black text-white mt-0.5">—</span>
             </div>
           </div>
         </div>
@@ -366,9 +366,9 @@
               <span class="material-symbols-rounded text-blue-400 text-lg">info</span> Role Scope & Upcoming Features
             </h3>
             <ul class="text-[10px] text-slate-400 space-y-2 list-disc pl-4 leading-relaxed text-[10px] text-xs">
-              <li>Cross-branch authority over all <strong class="text-slate-300">Trade Instructors</strong> â approve, suspend, reset passwords, or revoke access.</li>
-              <li>Workshop Section Management â create and assign sections for each class batch (coming soon).</li>
-              <li>Staff-to-Section allocation â authorize which instructor handles which batch section (coming soon).</li>
+              <li>Cross-branch authority over all <strong class="text-slate-300">Trade Instructors</strong> — approve, suspend, reset passwords, or revoke access.</li>
+              <li>Workshop Section Management — create and assign sections for each class batch (coming soon).</li>
+              <li>Staff-to-Section allocation — authorize which instructor handles which batch section (coming soon).</li>
               <li>Evaluation & Test Reports from each batch per instructor (coming soon).</li>
               <li>View full cross-branch student roster for workshop tracking.</li>
             </ul>
@@ -381,7 +381,7 @@
         
         <div class="flex justify-between items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl">
           <div>
-            <h3 class="text-[10px] font-black text-slate-200">Workshop Staff â Trade Instructors (All Branches)</h3>
+            <h3 class="text-[10px] font-black text-slate-200">Workshop Staff — Trade Instructors (All Branches)</h3>
             <p class="text-[10px] text-slate-400 mt-0.5">Manage approval, suspension, password reset, and deletion of Trade Instructor accounts across all departments.</p>
           </div>
           <button onclick="openRegisterStaffModal()" class="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl text-[10px] font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/10 text-[10px] text-xs">
@@ -517,27 +517,9 @@
         </div>
       </div>
 
-      <!-- PANEL 5: MY SECURITY LOG -->
+      <!-- PANEL 5: MY PROFILE & SECURITY -->
       <div id="panelSecurity" class="hidden space-y-6">
-        <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl">
-          <h3 class="text-[10px] font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-sm">
-            <span class="material-symbols-rounded text-blue-400 text-lg">security</span> My Profile Security Audit Trail
-          </h3>
-          <div class="overflow-x-auto scrollbar-hidden border border-slate-800 rounded-xl">
-            <table class="w-full text-left text-[10px] border-collapse text-[10px] text-xs">
-              <thead>
-                <tr class="bg-slate-900/60 border-b border-slate-800 text-slate-400 font-bold">
-                  <th class="p-4">Time</th>
-                  <th class="p-4">Action</th>
-                  <th class="p-4">Details</th>
-                </tr>
-              </thead>
-              <tbody id="selfSecurityLogsTable">
-                <!-- Loaded dynamically -->
-              </tbody>
-            </table>
-          </div>
-        </div>
+        @include('partials.staff_profile_panel')
       </div>
 
     </div>
@@ -691,7 +673,7 @@
         'staff': 'Workshop Staff â Trade Instructors',
         'students': 'Student Workshop Roster',
         'audit': 'Cross-Branch Audit Trail',
-        'security': 'My Security Log'
+        'security': 'My Profile & Security'
       };
       document.getElementById('panelTitle').innerText = titles[panelId];
 

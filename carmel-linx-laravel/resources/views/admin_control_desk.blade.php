@@ -170,12 +170,12 @@
     </div>
 
     <!-- Active Profile Info -->
-    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3">
+    <div onclick="openExecutiveProfileModal()" class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3 cursor-pointer hover:bg-slate-800/60 transition-premium" title="Click to view My Profile & Security Settings">
       <div class="relative group shrink-0">
         <div id="staffAvatarWrapper" class="w-11 h-11 rounded-full overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center shadow-inner relative">
           <img id="sidebarStaffImg" src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-full h-full object-cover">
         </div>
-        <label for="staffPhotoUploadInput" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer rounded-full text-white text-sm font-bold text-center p-0.5">
+        <label for="staffPhotoUploadInput" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer rounded-full text-white text-sm font-bold text-center p-0.5" onclick="event.stopPropagation();">
           <span class="material-symbols-rounded text-sm">photo_camera</span>
         </label>
         <input type="file" id="staffPhotoUploadInput" accept="image/*" class="hidden" onchange="handleStaffPhotoUpload(event)">
@@ -201,8 +201,8 @@
       <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer">
         <span class="material-symbols-rounded text-lg">receipt_long</span> Audit Trail
       </button>
-      <button onclick="openExecutiveProfileModal()" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer">
-        <span class="material-symbols-rounded text-lg">manage_accounts</span> Profile Settings
+      <button id="navProfile" onclick="openExecutiveProfileModal()" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer">
+        <span class="material-symbols-rounded text-lg">manage_accounts</span> My Profile & Security
       </button>
       <button id="navSettings" onclick="switchPanel('settings')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer">
         <span class="material-symbols-rounded text-lg">settings</span> System Settings
@@ -225,7 +225,7 @@
 
     <!-- Logout -->
     <div class="p-4 border-t border-slate-800/80 space-y-2.5">
-      <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to sign out of SuperAdmin Control Desk?')" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
+      <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to sign out of Carmel Linx Control Desk?')" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
         <span class="material-symbols-rounded text-base">logout</span> Sign Out
       </a>
 
@@ -2798,5 +2798,22 @@
 
   @include('partials.admin_support_desk_window')
   @include('partials.support_desk_overlay')
+
+  <script>
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted || (window.performance && window.performance.getEntriesByType && window.performance.getEntriesByType("navigation")[0]?.type === "back_forward")) {
+        fetch('/api/system/session-check', { method: 'GET', cache: 'no-store' })
+          .then(r => r.json())
+          .then(data => {
+            if (!data || data.status !== 'ACTIVE') {
+              window.location.replace('/');
+            }
+          })
+          .catch(() => {
+            window.location.replace('/');
+          });
+      }
+    });
+  </script>
 </body>
 </html>

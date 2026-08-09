@@ -458,53 +458,7 @@
 
       <!-- PANEL 3: MY PROFILE -->
       <div id="panelProfile" class="hidden space-y-6">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Profile Card -->
-          <div class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
-            <div class="flex flex-col items-center text-center space-y-3">
-              <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100' }}" class="w-24 h-24 rounded-full border border-slate-700 object-cover shadow-lg">
-              <div>
-                <h3 class="font-black text-white text-base">{{ session('userName') }}</h3>
-                <span class="font-bold text-green-400 uppercase tracking-wider text-[10px] text-xs">{{ session('userBranch') }} Class Tutor</span>
-              </div>
-            </div>
-            <div class="border-t border-slate-800/60 pt-4 space-y-2.5 text-[10px] text-xs">
-              <div class="flex justify-between">
-                <span class="text-slate-400">Mobile ID:</span>
-                <span class="font-bold text-slate-200">{{ session('userId') }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-400">Branch:</span>
-                <span class="font-bold text-slate-200">{{ session('userBranch') }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-slate-400">Role Designation:</span>
-                <span class="font-bold text-slate-200">Class Tutor / Mentor</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Self Security Logs -->
-          <div class="lg:col-span-2 bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl flex flex-col">
-            <h3 class="font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-sm">
-              <span class="material-symbols-rounded text-blue-400 text-lg">security</span> My Security Log
-            </h3>
-            <div class="flex-grow max-h-[300px] overflow-y-auto scrollbar-hidden border border-slate-850 rounded-xl">
-              <table class="w-full text-left border-collapse text-[10px] text-xs">
-                <thead>
-                  <tr class="bg-slate-900/40 border-b border-slate-800 text-slate-400 font-bold">
-                    <th class="p-3">Time</th>
-                    <th class="p-3">Action</th>
-                    <th class="p-3">Details</th>
-                  </tr>
-                </thead>
-                <tbody id="selfSecurityLogsTable">
-                  <!-- Load logs specific to Tutor -->
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        @include('partials.staff_profile_panel')
       </div>
 
       <!-- PANEL 4: MENTORING BATCHES -->

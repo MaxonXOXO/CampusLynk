@@ -269,8 +269,8 @@
          <span class="material-symbols-rounded text-lg">school</span> Professional Activities
       </a>
 
-      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer mt-4">
-        <span class="material-symbols-rounded text-lg">security</span> My Security Log
+      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer mt-4 mobile-link">
+        <span class="material-symbols-rounded text-lg">manage_accounts</span> My Profile & Security
       </button>
     </nav>
 
@@ -313,27 +313,9 @@
         </div>
       </div>
 
-      <!-- PANEL 2: SECURITY LOG -->
+      <!-- PANEL 2: SECURITY LOG / MY PROFILE -->
       <div id="panelSecurity" class="hidden space-y-6">
-        <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl">
-          <h3 class="text-[10px] font-black text-slate-200 border-b border-slate-800/60 pb-3 mb-4 flex items-center gap-2 text-sm">
-            <span class="material-symbols-rounded text-blue-400 text-lg">security</span> My Profile Security Audit trail
-          </h3>
-          <div class="overflow-x-auto scrollbar-hidden border border-slate-800 rounded-xl">
-            <table class="w-full text-left text-[10px] border-collapse text-[10px] text-xs">
-              <thead>
-                <tr class="bg-slate-900/60 border-b border-slate-800 text-slate-400 font-bold">
-                  <th class="p-4">Time</th>
-                  <th class="p-4">Action</th>
-                  <th class="p-4">Details</th>
-                </tr>
-              </thead>
-              <tbody id="securityLogsTable">
-                <!-- Loaded dynamically -->
-              </tbody>
-            </table>
-          </div>
-        </div>
+        @include('partials.staff_profile_panel')
       </div>
 
     </div>
@@ -343,7 +325,7 @@
     let activePanel = 'dashboard';
 
     document.addEventListener("DOMContentLoaded", () => {
-      if (activePanel === 'security') loadSecurityLogs();
+      if (activePanel === 'security') loadSelfSecurityLogs();
     });
 
     function switchPanel(panelId) {
@@ -364,11 +346,11 @@
 
       const titles = {
         'dashboard': 'Trade & Workshops',
-        'security': 'My Profile Security Log'
+        'security': 'My Profile & Security'
       };
       document.getElementById('panelTitle').innerText = titles[panelId];
 
-      if (panelId === 'security') loadSecurityLogs();
+      if (panelId === 'security') loadSelfSecurityLogs();
     }
 
     function loadSecurityLogs() {

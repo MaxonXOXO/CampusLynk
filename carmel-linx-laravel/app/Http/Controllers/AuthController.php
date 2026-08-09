@@ -544,4 +544,58 @@ class AuthController extends Controller
             return response()->json(['status' => 'ERROR', 'message' => 'Failed to update profile: ' . $e->getMessage()]);
         }
     }
+
+    /**
+     * Change logged-in staff's password from My Profile.
+     */
+    public function changeStaffPassword(Request $request)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+
+        if (!$userId || $userRole === 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. Staff session required.']);
+        }
+
+        $request->validate([
+            'oldPassword' => 'required|string',
+            'newPassword' => 'required|string|min:4',
+        ]);
+
+        $oldPassword = trim($request->input('oldPassword'));
+        $newPassword = trim($request->input('newPassword'));
+
+        $staff = StaffProfile::where('mobile_no', $userId)->first();
+        if (!$staff && $userRole) {
+            $staff = StaffProfile::where('designation', $userRole)->first();
+        }
+
+        if (!$staff) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Staff profile not found.']);
+        }
+
+        $isPasswordValid = ($staff->password === $oldPassword) || Hash::check($oldPassword, $staff->password);
+        if (!$isPasswordValid) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Current password is incorrect.']);
+        }
+
+        try {
+            $staff->password = $newPassword;
+            $staff->save();
+
+            AuditLog::create([
+                'performed_by' => $staff->mobile_no,
+                'performed_by_name' => $staff->name,
+                'target_id' => $staff->mobile_no,
+                'target_name' => $staff->name,
+                'action' => 'Password Changed',
+                'details' => 'Staff updated account password from My Profile settings.',
+                'ip_address' => $request->ip(),
+            ]);
+
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Password updated successfully!']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed to update password: ' . $e->getMessage()]);
+        }
+    }
 }
