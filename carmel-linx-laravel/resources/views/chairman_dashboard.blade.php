@@ -101,10 +101,6 @@
       <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
         <span class="material-symbols-rounded text-base">receipt_long</span> Audit Trail Log
       </button>
-
-      <a href="/staff/leave/reports" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-sky-400 hover:bg-sky-900/30 hover:text-sky-300 cursor-pointer no-underline block text-xs">
-         <span class="material-symbols-rounded text-base">event_note</span> All-Dept Master Leave Ledger
-      </a>
     </nav>
 
     <!-- Logout -->
