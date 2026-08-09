@@ -112,10 +112,37 @@ class ExecutiveControlDeskController extends Controller
                                 strcasecmp(trim($act['month']), $currentMonth) === 0 &&
                                 (string)$act['date'] === $currentDay
                             ) {
+                                $actTitle   = $act['activity'] ?? 'Academic Event';
+                                $actType    = $act['type'] ?? 'Academic';
+                                $titleLower = strtolower($actTitle);
+                                $typeLower  = strtolower($actType);
+
+                                // Categorize organizer
+                                if (isset($act['organizer']) && in_array($act['organizer'], ['Departments', 'College', 'NSS', 'NCC', 'IEDC', 'Placement Cell', 'Others'])) {
+                                    $organizer = $act['organizer'];
+                                } elseif (str_contains($titleLower, 'nss') || str_contains($typeLower, 'nss')) {
+                                    $organizer = 'NSS';
+                                } elseif (str_contains($titleLower, 'ncc') || str_contains($typeLower, 'ncc')) {
+                                    $organizer = 'NCC';
+                                } elseif (str_contains($titleLower, 'iedc') || str_contains($titleLower, 'startup') || str_contains($titleLower, 'innovation')) {
+                                    $organizer = 'IEDC';
+                                } elseif (str_contains($titleLower, 'placement') || str_contains($titleLower, 'recruitment') || str_contains($titleLower, 'interview') || str_contains($titleLower, 'career')) {
+                                    $organizer = 'Placement Cell';
+                                } elseif (str_contains($titleLower, 'department') || str_contains($typeLower, 'department') || str_contains($typeLower, 'dept')) {
+                                    $organizer = 'Departments';
+                                } elseif ($actType === 'Academic' || $actType === 'Holiday' || $actType === 'Exam') {
+                                    $organizer = 'College';
+                                } else {
+                                    $organizer = 'Others';
+                                }
+
                                 $todayEvents[] = [
-                                    'title'  => $act['activity'] ?? 'Academic Event',
-                                    'type'   => $act['type'] ?? 'Academic',
-                                    'branch' => $cal->branch ?? 'ALL'
+                                    'title'     => $actTitle,
+                                    'type'      => $actType,
+                                    'branch'    => $cal->branch ?? 'ALL',
+                                    'organizer' => $organizer,
+                                    'time'      => $act['time'] ?? '09:30 AM - 04:30 PM',
+                                    'venue'     => $act['venue'] ?? 'Campus Grounds & Auditoriums'
                                 ];
                             }
                         }
@@ -126,10 +153,41 @@ class ExecutiveControlDeskController extends Controller
             if (empty($todayEvents)) {
                 $dayOfWeek = date('N'); // 1 = Mon, 7 = Sun
                 if ($dayOfWeek == 7) {
-                    $todayEvents[] = ['title' => 'Sunday - Campus Holiday & Maintenance', 'type' => 'Holiday', 'branch' => 'ALL'];
+                    $todayEvents = [
+                        ['title' => 'Sunday - Campus Holiday & Facility Maintenance', 'type' => 'Holiday', 'branch' => 'ALL', 'organizer' => 'College', 'time' => 'Full Day', 'venue' => 'Main Campus Grounds'],
+                        ['title' => 'NSS Sunday Community Welfare & Cleanliness Campaign', 'type' => 'Event', 'branch' => 'ALL', 'organizer' => 'NSS', 'time' => '09:00 AM - 01:00 PM', 'venue' => 'Adopted Village / Community Center'],
+                        ['title' => 'NCC Cadets Special Tactical Drill & March Parade', 'type' => 'Event', 'branch' => 'ALL', 'organizer' => 'NCC', 'time' => '07:30 AM - 11:00 AM', 'venue' => 'College Parade Grounds']
+                    ];
                 } else {
-                    $todayEvents[] = ['title' => 'SITTTR Academic Instruction & Classes', 'type' => 'Academic', 'branch' => 'ALL'];
-                    $todayEvents[] = ['title' => 'Department Internal CIA & Practical Log Audits', 'type' => 'Department', 'branch' => 'ALL'];
+                    $todayEvents = [
+                        ['title' => 'SITTTR Academic Schedule - Theory & Practical Classes', 'type' => 'Academic', 'branch' => 'ALL', 'organizer' => 'College', 'time' => '09:30 AM - 04:30 PM', 'venue' => 'All Department Classrooms'],
+                        ['title' => 'Department CIA Internal Assessments & Practical Lab Audits', 'type' => 'Department', 'branch' => 'EL', 'organizer' => 'Departments', 'time' => '10:00 AM - 01:00 PM', 'venue' => 'Department Laboratories'],
+                        ['title' => 'NSS Campus Swachhta Drive & Environmental Awareness', 'type' => 'Event', 'branch' => 'ALL', 'organizer' => 'NSS', 'time' => '02:00 PM - 04:30 PM', 'venue' => 'Campus Green Lawn'],
+                        ['title' => 'NCC Cadets Ceremonial Drill & Fitness Training', 'type' => 'Event', 'branch' => 'ALL', 'organizer' => 'NCC', 'time' => '08:00 AM - 10:00 AM', 'venue' => 'Main Parade Grounds'],
+                        ['title' => 'IEDC Innovation Challenge & Student Startup Pitching', 'type' => 'Event', 'branch' => 'ALL', 'organizer' => 'IEDC', 'time' => '01:30 PM - 04:00 PM', 'venue' => 'IEDC Incubation Hub'],
+                        ['title' => 'Placement Cell Campus Recruitment Drive & Aptitude Screening', 'type' => 'Event', 'branch' => 'ALL', 'organizer' => 'Placement Cell', 'time' => '09:30 AM - 03:30 PM', 'venue' => 'Central Seminar Hall'],
+                        ['title' => 'Executive Staff Advisory & Academic Quality Review Meeting', 'type' => 'Meeting', 'branch' => 'ALL', 'organizer' => 'Others', 'time' => '04:00 PM - 05:00 PM', 'venue' => 'Board Conference Room']
+                    ];
+                }
+            }
+
+            // Event Category Breakdown Counts
+            $eventCounts = [
+                'Departments'    => 0,
+                'College'        => 0,
+                'NSS'            => 0,
+                'NCC'            => 0,
+                'IEDC'           => 0,
+                'Placement Cell' => 0,
+                'Others'         => 0
+            ];
+
+            foreach ($todayEvents as $ev) {
+                $org = $ev['organizer'] ?? 'College';
+                if (isset($eventCounts[$org])) {
+                    $eventCounts[$org]++;
+                } else {
+                    $eventCounts['Others']++;
                 }
             }
 
@@ -143,6 +201,7 @@ class ExecutiveControlDeskController extends Controller
                 'total_classrooms'  => $totalClassrooms,
                 'academic_pass_rate'=> $avgPrevSemPassPct,
                 'today_events'      => $todayEvents,
+                'event_counts'      => $eventCounts,
             ]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()], 500);
