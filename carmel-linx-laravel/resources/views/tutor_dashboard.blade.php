@@ -66,6 +66,27 @@
       scrollbar-width: none;
     }
 
+    /* Compact Sidebar Navigation Sizing Standard (Enforcing Principal Desk Density) */
+    @media (min-width: 768px) {
+      aside nav {
+        padding: 0.75rem !important;
+      }
+      aside nav > :not([hidden]) ~ :not([hidden]) {
+        margin-top: 0.125rem !important;
+      }
+      aside nav a, aside nav button {
+        padding-top: 0.375rem !important;
+        padding-bottom: 0.375rem !important;
+        padding-left: 0.875rem !important;
+        padding-right: 0.875rem !important;
+        font-size: 11px !important;
+        gap: 0.625rem !important;
+      }
+      aside nav span.material-symbols-rounded {
+        font-size: 16px !important;
+      }
+    }
+
     /* MOBILE-SPECIFIC SIDEBAR & CARD FIXES (MD breakpoint is 768px) */
     @media (max-width: 767px) {
       html, body {
@@ -211,28 +232,28 @@
 
     <!-- Navigation Menus -->
     <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navRoster" onclick="switchPanel('roster')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500   text-sm mobile-link">
+      <button id="navRoster" onclick="switchPanel('roster')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-xs mobile-link">
         <span class="material-symbols-rounded text-lg">group</span> Supervised Class Roster
       </button>
-      <button id="navRollNumbers" onclick="switchPanel('rollNumbers')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+      <button id="navRollNumbers" onclick="switchPanel('rollNumbers')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
         <span class="material-symbols-rounded text-lg">format_list_numbered</span> Student Roll Numbers
       </button>
 
-      <button id="navMentoring" onclick="switchPanel('mentoring')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm mobile-link">
+      <button id="navMentoring" onclick="switchPanel('mentoring')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs mobile-link">
         <span class="material-symbols-rounded text-lg">diversity_3</span> Mentoring Batches
       </button>
-      <button id="navLeaveApproval" onclick="switchPanel('leaveApproval')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+      <button id="navLeaveApproval" onclick="switchPanel('leaveApproval')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
         <span class="material-symbols-rounded text-lg">approval</span> Leave Approval & Reports
       </button>
-      <button id="navActivity" onclick="switchPanel('activity')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
+      <button id="navActivity" onclick="switchPanel('activity')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
         <span class="material-symbols-rounded text-lg">verified</span> Activity Points
       </button>
 
-      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-sm mobile-link">
+      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs mobile-link">
          <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
       </a>
 
-      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-sm mobile-link">
+      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs mobile-link">
          <span class="material-symbols-rounded text-lg">event_note</span> My Leave & Attendance Log
       </a>
 
@@ -246,7 +267,7 @@
         if ($role === 'Gen_Dept_Coordinator_Aided') $backLink = '/dashboard/general-coordinator-aided';
         if ($role === 'Gen_Dept_Coordinator_Self_Finance') $backLink = '/dashboard/general-coordinator-sf';
       @endphp
-      <a href="{{ $backLink }}" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mt-4 border border-slate-800 text-sm mobile-link">
+      <a href="{{ $backLink }}" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mt-4 border border-slate-800 text-xs mobile-link">
         <span class="material-symbols-rounded text-lg">arrow_back</span> Back to Staff Console
       </a>
     </nav>

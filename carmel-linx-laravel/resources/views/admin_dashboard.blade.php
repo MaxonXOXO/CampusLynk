@@ -36,16 +36,111 @@
     .text-base {
       font-size: 0.875rem !important;
     }
-    nav.space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
-      margin-top: 0.125rem !important;
+    /* Compact Sidebar Navigation Sizing Standard (Enforcing Principal Desk Density) */
+    @media (min-width: 768px) {
+      aside nav {
+        padding: 0.75rem !important;
+      }
+      aside nav > :not([hidden]) ~ :not([hidden]) {
+        margin-top: 0.125rem !important;
+      }
+      aside nav a, aside nav button {
+        padding-top: 0.375rem !important;
+        padding-bottom: 0.375rem !important;
+        padding-left: 0.875rem !important;
+        padding-right: 0.875rem !important;
+        font-size: 11px !important;
+        gap: 0.625rem !important;
+      }
+      aside nav span.material-symbols-rounded {
+        font-size: 16px !important;
+      }
     }
-    nav.space-y-1\.5 a, nav.space-y-1\.5 button {
-      padding-top: 0.375rem !important;
-      padding-bottom: 0.375rem !important;
+
+    /* Light Theme Styling Overrides */
+    body.light-theme {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+    }
+    body.light-theme aside {
+      background-color: #ffffff !important;
+      border-right-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme aside div {
+      border-color: #e2e8f0 !important;
+    }
+    body.light-theme aside nav button, body.light-theme aside nav a {
+      color: #334155 !important;
+    }
+    body.light-theme aside nav button:hover, body.light-theme aside nav a:hover {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme header {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      border-bottom-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme header h1, body.light-theme header span:not(.bg-blue-500):not(.bg-rose-600):not(.bg-amber-400):not(.bg-amber-500) {
+      color: #0f172a !important;
+    }
+    body.light-theme main {
+      background-color: #f8fafc !important;
+    }
+    body.light-theme .bg-slate-950\/40, 
+    body.light-theme .bg-slate-950\/30, 
+    body.light-theme .bg-slate-950,
+    body.light-theme .bg-slate-900\/40, 
+    body.light-theme .bg-slate-900\/60, 
+    body.light-theme .bg-slate-900\/30,
+    body.light-theme .bg-slate-900 {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme .text-slate-100, 
+    body.light-theme .text-slate-200, 
+    body.light-theme .text-slate-300, 
+    body.light-theme .text-white {
+      color: #0f172a !important;
+    }
+    body.light-theme .text-slate-400, 
+    body.light-theme .text-slate-500 {
+      color: #475569 !important;
+    }
+    body.light-theme .border-slate-800, 
+    body.light-theme .border-slate-800\/80,
+    body.light-theme .border-slate-800\/60, 
+    body.light-theme .border-slate-800\/40, 
+    body.light-theme .border-slate-700 {
+      border-color: #e2e8f0 !important;
+    }
+    body.light-theme table tr {
+      border-color: #e2e8f0 !important;
+    }
+    body.light-theme table tr:hover {
+      background-color: #f1f5f9 !important;
+    }
+    body.light-theme input, body.light-theme select, body.light-theme textarea {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.light-theme .bg-slate-800 {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
     }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col md:flex-row overflow-hidden">
+  <script>
+    (function() {
+      if (localStorage.getItem('carmel_theme') === 'light') {
+        document.body.classList.add('light-theme');
+      }
+    })();
+  </script>
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -70,14 +165,14 @@
 
     <!-- Navigation Menus -->
     <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-[10px] flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-[10px] text-xs">
+      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500">
         <span class="material-symbols-rounded text-lg">shield_person</span> Admin Overview
       </button>
-      <button id="navCourseFileLibrary" onclick="switchPanel('courseFileLibrary')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-amber-400 hover:bg-amber-900/30 text-[10px] text-xs">
+      <button id="navCourseFileLibrary" onclick="switchPanel('courseFileLibrary')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer">
         <span class="material-symbols-rounded text-lg">library_books</span> Course File Library
       </button>
 
-      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-[10px] flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-[10px] text-xs">
+      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer">
         <span class="material-symbols-rounded text-lg">security</span> My Security Log
       </button>
     </nav>
@@ -96,6 +191,13 @@
     <!-- Top Header -->
     <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-10">
       <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Admin Overview</h1>
+      <div class="flex items-center gap-3">
+        <!-- Theme Toggle Button -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 font-bold text-xs transition-premium cursor-pointer shadow-sm" title="Toggle Light/Dark Mode">
+          <span id="themeToggleIcon" class="material-symbols-rounded text-base text-amber-400">light_mode</span>
+          <span id="themeToggleText" class="hidden sm:inline">Light Mode</span>
+        </button>
+      </div>
     </header>
 
     <!-- Panel Container -->
@@ -222,6 +324,45 @@
           tbody.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-red-400 font-bold">Error querying logs.</td></tr>`;
         });
     }
+
+    /* Theme Toggle Logic */
+    function initTheme() {
+      const savedTheme = localStorage.getItem('carmel_theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        updateThemeToggleUI('light');
+      } else {
+        document.body.classList.remove('light-theme');
+        updateThemeToggleUI('dark');
+      }
+    }
+
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light-theme');
+      const theme = isLight ? 'light' : 'dark';
+      localStorage.setItem('carmel_theme', theme);
+      updateThemeToggleUI(theme);
+    }
+
+    function updateThemeToggleUI(theme) {
+      const icon = document.getElementById('themeToggleIcon');
+      const text = document.getElementById('themeToggleText');
+      const btn = document.getElementById('themeToggleBtn');
+      if (!icon || !btn) return;
+      if (theme === 'light') {
+        icon.innerText = 'dark_mode';
+        icon.className = 'material-symbols-rounded text-base text-indigo-600';
+        if (text) text.innerText = 'Dark Mode';
+        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-premium cursor-pointer shadow-sm';
+      } else {
+        icon.innerText = 'light_mode';
+        icon.className = 'material-symbols-rounded text-base text-amber-400';
+        if (text) text.innerText = 'Light Mode';
+        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 font-bold text-xs transition-premium cursor-pointer shadow-sm';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initTheme);
   </script>
 </body>
 </html>

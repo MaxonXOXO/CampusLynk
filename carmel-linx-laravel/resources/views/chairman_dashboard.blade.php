@@ -49,16 +49,111 @@
     .text-base {
       font-size: 0.875rem !important;
     }
-    nav.space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
-      margin-top: 0.125rem !important;
+    /* Compact Sidebar Navigation Sizing Standard (Enforcing Principal Desk Density) */
+    @media (min-width: 768px) {
+      aside nav {
+        padding: 0.75rem !important;
+      }
+      aside nav > :not([hidden]) ~ :not([hidden]) {
+        margin-top: 0.125rem !important;
+      }
+      aside nav a, aside nav button {
+        padding-top: 0.375rem !important;
+        padding-bottom: 0.375rem !important;
+        padding-left: 0.875rem !important;
+        padding-right: 0.875rem !important;
+        font-size: 11px !important;
+        gap: 0.625rem !important;
+      }
+      aside nav span.material-symbols-rounded {
+        font-size: 16px !important;
+      }
     }
-    nav.space-y-1\.5 a, nav.space-y-1\.5 button {
-      padding-top: 0.375rem !important;
-      padding-bottom: 0.375rem !important;
+
+    /* Light Theme Styling Overrides */
+    body.light-theme {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+    }
+    body.light-theme aside {
+      background-color: #ffffff !important;
+      border-right-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme aside div {
+      border-color: #e2e8f0 !important;
+    }
+    body.light-theme aside nav button, body.light-theme aside nav a {
+      color: #334155 !important;
+    }
+    body.light-theme aside nav button:hover, body.light-theme aside nav a:hover {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme header {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      border-bottom-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme header h1, body.light-theme header span:not(.bg-blue-500):not(.bg-rose-600):not(.bg-amber-400):not(.bg-amber-500) {
+      color: #0f172a !important;
+    }
+    body.light-theme main {
+      background-color: #f8fafc !important;
+    }
+    body.light-theme .bg-slate-950\/40, 
+    body.light-theme .bg-slate-950\/30, 
+    body.light-theme .bg-slate-950,
+    body.light-theme .bg-slate-900\/40, 
+    body.light-theme .bg-slate-900\/60, 
+    body.light-theme .bg-slate-900\/30,
+    body.light-theme .bg-slate-900 {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    body.light-theme .text-slate-100, 
+    body.light-theme .text-slate-200, 
+    body.light-theme .text-slate-300, 
+    body.light-theme .text-white {
+      color: #0f172a !important;
+    }
+    body.light-theme .text-slate-400, 
+    body.light-theme .text-slate-500 {
+      color: #475569 !important;
+    }
+    body.light-theme .border-slate-800, 
+    body.light-theme .border-slate-800\/80,
+    body.light-theme .border-slate-800\/60, 
+    body.light-theme .border-slate-800\/40, 
+    body.light-theme .border-slate-700 {
+      border-color: #e2e8f0 !important;
+    }
+    body.light-theme table tr {
+      border-color: #e2e8f0 !important;
+    }
+    body.light-theme table tr:hover {
+      background-color: #f1f5f9 !important;
+    }
+    body.light-theme input, body.light-theme select, body.light-theme textarea {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+    body.light-theme .bg-slate-800 {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
     }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 h-screen flex flex-col md:flex-row overflow-hidden">
+  <script>
+    (function() {
+      if (localStorage.getItem('carmel_theme') === 'light') {
+        document.body.classList.add('light-theme');
+      }
+    })();
+  </script>
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -91,18 +186,18 @@
     </div>
 
     <!-- Navigation Menus -->
-    <nav class="flex-grow p-3 space-y-1">
-      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-2.5 transition-premium bg-amber-500/10 text-amber-400 border-l-2 border-amber-500 text-xs">
-        <span class="material-symbols-rounded text-base">dashboard</span> Executive Overview
+    <nav class="flex-grow p-4 space-y-1.5">
+      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-3 transition-premium bg-amber-500/10 text-amber-400 border-l-2 border-amber-500">
+        <span class="material-symbols-rounded text-lg">dashboard</span> Executive Overview
       </button>
-      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-white hover:bg-slate-800 cursor-pointer text-xs">
-        <span class="material-symbols-rounded text-base">group</span> Personnel Directory
+      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer">
+        <span class="material-symbols-rounded text-lg">group</span> Personnel Directory
       </button>
-      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-white hover:bg-slate-800 cursor-pointer text-xs">
-        <span class="material-symbols-rounded text-base">receipt_long</span> Audit Trail Log
+      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer">
+        <span class="material-symbols-rounded text-lg">receipt_long</span> Audit Trail Log
       </button>
-      <button onclick="openExecutiveProfileModal()" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-white hover:bg-slate-800 cursor-pointer text-xs">
-        <span class="material-symbols-rounded text-base">manage_accounts</span> Profile Settings
+      <button onclick="openExecutiveProfileModal()" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer">
+        <span class="material-symbols-rounded text-lg">manage_accounts</span> Profile Settings
       </button>
     </nav>
 
@@ -129,6 +224,12 @@
       </div>
 
       <div class="flex items-center gap-3">
+        <!-- Theme Toggle Button -->
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 font-bold text-xs transition-premium cursor-pointer shadow-sm" title="Toggle Light/Dark Mode">
+          <span id="themeToggleIcon" class="material-symbols-rounded text-base text-amber-400">light_mode</span>
+          <span id="themeToggleText" class="hidden sm:inline">Light Mode</span>
+        </button>
+
         <div id="loadingIndicator" class="hidden items-center gap-2 text-xs text-slate-400">
           <div class="w-4 h-4 border-2 border-slate-600 border-t-amber-500 rounded-full animate-spin"></div>
           <span>Syncing...</span>
@@ -436,118 +537,131 @@
         </div>
 
         <!-- EXECUTIVE OPTION 2: COMPACT 3-SEMESTER ACADEMIC PASS MATRIX -->
-        <div class="bg-slate-900/50 border border-slate-800/80 p-5 rounded-2xl space-y-3 shadow-xl shadow-slate-950/40 hover:border-slate-700/70 transition-all duration-300">
-          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-800/80 pb-2.5 gap-2">
-            <div>
-              <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-                <span class="p-1 bg-amber-500/10 text-amber-400 rounded-lg flex items-center justify-center shrink-0">
-                  <span class="material-symbols-rounded text-xs">analytics</span>
-                </span> Previous Semester Branch Academic Pass Matrix (3 Semesters per Dept)
-              </h3>
-              <p class="text-[11px] text-slate-400">Department semester pass percentages (S1/S3/S5 or S2/S4/S6) uploaded by HODs.</p>
+        <details class="group bg-slate-900/50 border border-slate-800/80 rounded-2xl shadow-xl shadow-slate-950/40 hover:border-slate-700/70 transition-all duration-300">
+          <summary class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-5 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden gap-3">
+            <div class="flex items-center gap-3">
+              <span class="p-1.5 bg-amber-500/10 text-amber-400 rounded-xl flex items-center justify-center shrink-0">
+                <span class="material-symbols-rounded text-sm">analytics</span>
+              </span>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h3 class="font-black text-slate-200 text-sm">Previous Semester Branch Academic Pass Matrix</h3>
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">3 Semesters per Dept</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-0.5">Department semester pass percentages (S1/S3/S5 or S2/S4/S6) uploaded by HODs.</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
+              <div class="flex items-center gap-1.5 px-3 py-1 bg-slate-800/80 hover:bg-slate-700/80 rounded-lg border border-slate-700/80 text-slate-300 text-xs font-bold transition">
+                <span class="group-open:hidden">Expand Matrix</span>
+                <span class="hidden group-open:inline">Fold Matrix</span>
+                <span class="material-symbols-rounded text-base transition-transform duration-200 group-open:rotate-180">expand_more</span>
+              </div>
+            </div>
+          </summary>
+
+          <div class="p-4 sm:p-5 pt-0 space-y-3 border-t border-slate-800/40">
+            <!-- Ultra-Compact High-Density Table -->
+            <div class="overflow-x-auto pt-3">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-900/80 text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-800">
+                    <th class="py-2 px-3">Branch Code &amp; Name</th>
+                    <th class="py-2 px-3 text-center">Sem 1 / 2</th>
+                    <th class="py-2 px-3 text-center">Sem 3 / 4</th>
+                    <th class="py-2 px-3 text-center">Sem 5 / 6</th>
+                    <th class="py-2 px-3 text-center">Dept Avg</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 font-medium">
+                  <!-- EL -->
+                  <tr class="hover:bg-slate-900/40 transition-colors">
+                    <td class="py-2 px-3 font-bold text-amber-400 flex items-center gap-2">
+                      <span class="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded text-[10px] font-mono">EL</span>
+                      <span class="text-slate-200 text-xs">Electronics Engg</span>
+                    </td>
+                    <td id="sem_EL_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">91.6%</td>
+                    <td id="sem_EL_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.5%</td>
+                    <td id="sem_EL_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">92.7%</td>
+                    <td id="sem_EL_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">91.3%</td>
+                  </tr>
+
+                  <!-- ME -->
+                  <tr class="hover:bg-slate-900/40 transition-colors">
+                    <td class="py-2 px-3 font-bold text-emerald-400 flex items-center gap-2">
+                      <span class="px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/30 rounded text-[10px] font-mono">ME</span>
+                      <span class="text-slate-200 text-xs">Mechanical Engg</span>
+                    </td>
+                    <td id="sem_ME_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">87.1%</td>
+                    <td id="sem_ME_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">88.3%</td>
+                    <td id="sem_ME_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">87.9%</td>
+                    <td id="sem_ME_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">87.8%</td>
+                  </tr>
+
+                  <!-- CE -->
+                  <tr class="hover:bg-slate-900/40 transition-colors">
+                    <td class="py-2 px-3 font-bold text-pink-400 flex items-center gap-2">
+                      <span class="px-1.5 py-0.5 bg-pink-500/10 border border-pink-500/30 rounded text-[10px] font-mono">CE</span>
+                      <span class="text-slate-200 text-xs">Civil Engg</span>
+                    </td>
+                    <td id="sem_CE_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.6%</td>
+                    <td id="sem_CE_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">91.0%</td>
+                    <td id="sem_CE_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.1%</td>
+                    <td id="sem_CE_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">89.9%</td>
+                  </tr>
+
+                  <!-- EEE -->
+                  <tr class="hover:bg-slate-900/40 transition-colors">
+                    <td class="py-2 px-3 font-bold text-rose-400 flex items-center gap-2">
+                      <span class="px-1.5 py-0.5 bg-rose-500/10 border border-rose-500/30 rounded text-[10px] font-mono">EEE</span>
+                      <span class="text-slate-200 text-xs">Electrical Engg</span>
+                    </td>
+                    <td id="sem_EEE_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">90.9%</td>
+                    <td id="sem_EEE_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">90.7%</td>
+                    <td id="sem_EEE_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">92.3%</td>
+                    <td id="sem_EEE_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">91.3%</td>
+                  </tr>
+
+                  <!-- CT -->
+                  <tr class="hover:bg-slate-900/40 transition-colors">
+                    <td class="py-2 px-3 font-bold text-purple-400 flex items-center gap-2">
+                      <span class="px-1.5 py-0.5 bg-purple-500/10 border border-purple-500/30 rounded text-[10px] font-mono">CT</span>
+                      <span class="text-slate-200 text-xs">Computer Engg</span>
+                    </td>
+                    <td id="sem_CT_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">93.7%</td>
+                    <td id="sem_CT_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">95.1%</td>
+                    <td id="sem_CT_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">95.0%</td>
+                    <td id="sem_CT_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">94.6%</td>
+                  </tr>
+
+                  <!-- AU -->
+                  <tr class="hover:bg-slate-900/40 transition-colors">
+                    <td class="py-2 px-3 font-bold text-indigo-400 flex items-center gap-2">
+                      <span class="px-1.5 py-0.5 bg-indigo-500/10 border border-indigo-500/30 rounded text-[10px] font-mono">AU</span>
+                      <span class="text-slate-200 text-xs">Automobile Engg</span>
+                    </td>
+                    <td id="sem_AU_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">88.0%</td>
+                    <td id="sem_AU_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">87.5%</td>
+                    <td id="sem_AU_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.1%</td>
+                    <td id="sem_AU_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">88.2%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Secondary Compliance Indicators Row -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-800/60">
+              <div class="p-2.5 bg-slate-900/60 border border-slate-800/80 rounded-xl flex items-center gap-2.5">
+                <span class="material-symbols-rounded text-indigo-400 text-lg">workspace_premium</span>
+                <span class="text-xs text-slate-400">Faculty FDPs &amp; Workshops: <strong id="execFdpCount" class="text-white font-bold">12 Verified</strong></span>
+              </div>
+              <div class="p-2.5 bg-slate-900/60 border border-slate-800/80 rounded-xl flex items-center gap-2.5">
+                <span class="material-symbols-rounded text-emerald-400 text-lg">assignment_turned_in</span>
+                <span class="text-xs text-slate-400">NBA Attainment Average: <strong id="execCoPoAvg" class="text-white font-bold">88.5% CO-PO</strong></span>
+              </div>
             </div>
           </div>
-
-          <!-- Ultra-Compact High-Density Table -->
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr class="bg-slate-900/80 text-slate-400 font-bold uppercase tracking-wider text-[10px] border-b border-slate-800">
-                  <th class="py-2 px-3">Branch Code &amp; Name</th>
-                  <th class="py-2 px-3 text-center">Sem 1 / 2</th>
-                  <th class="py-2 px-3 text-center">Sem 3 / 4</th>
-                  <th class="py-2 px-3 text-center">Sem 5 / 6</th>
-                  <th class="py-2 px-3 text-center">Dept Avg</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-800/60 font-medium">
-                <!-- EL -->
-                <tr class="hover:bg-slate-900/40 transition-colors">
-                  <td class="py-2 px-3 font-bold text-amber-400 flex items-center gap-2">
-                    <span class="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/30 rounded text-[10px] font-mono">EL</span>
-                    <span class="text-slate-200 text-xs">Electronics Engg</span>
-                  </td>
-                  <td id="sem_EL_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">91.6%</td>
-                  <td id="sem_EL_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.5%</td>
-                  <td id="sem_EL_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">92.7%</td>
-                  <td id="sem_EL_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">91.3%</td>
-                </tr>
-
-                <!-- ME -->
-                <tr class="hover:bg-slate-900/40 transition-colors">
-                  <td class="py-2 px-3 font-bold text-emerald-400 flex items-center gap-2">
-                    <span class="px-1.5 py-0.5 bg-emerald-500/10 border border-emerald-500/30 rounded text-[10px] font-mono">ME</span>
-                    <span class="text-slate-200 text-xs">Mechanical Engg</span>
-                  </td>
-                  <td id="sem_ME_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">87.1%</td>
-                  <td id="sem_ME_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">88.3%</td>
-                  <td id="sem_ME_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">87.9%</td>
-                  <td id="sem_ME_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">87.8%</td>
-                </tr>
-
-                <!-- CE -->
-                <tr class="hover:bg-slate-900/40 transition-colors">
-                  <td class="py-2 px-3 font-bold text-pink-400 flex items-center gap-2">
-                    <span class="px-1.5 py-0.5 bg-pink-500/10 border border-pink-500/30 rounded text-[10px] font-mono">CE</span>
-                    <span class="text-slate-200 text-xs">Civil Engg</span>
-                  </td>
-                  <td id="sem_CE_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.6%</td>
-                  <td id="sem_CE_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">91.0%</td>
-                  <td id="sem_CE_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.1%</td>
-                  <td id="sem_CE_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">89.9%</td>
-                </tr>
-
-                <!-- EEE -->
-                <tr class="hover:bg-slate-900/40 transition-colors">
-                  <td class="py-2 px-3 font-bold text-rose-400 flex items-center gap-2">
-                    <span class="px-1.5 py-0.5 bg-rose-500/10 border border-rose-500/30 rounded text-[10px] font-mono">EEE</span>
-                    <span class="text-slate-200 text-xs">Electrical Engg</span>
-                  </td>
-                  <td id="sem_EEE_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">90.9%</td>
-                  <td id="sem_EEE_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">90.7%</td>
-                  <td id="sem_EEE_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">92.3%</td>
-                  <td id="sem_EEE_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">91.3%</td>
-                </tr>
-
-                <!-- CT -->
-                <tr class="hover:bg-slate-900/40 transition-colors">
-                  <td class="py-2 px-3 font-bold text-purple-400 flex items-center gap-2">
-                    <span class="px-1.5 py-0.5 bg-purple-500/10 border border-purple-500/30 rounded text-[10px] font-mono">CT</span>
-                    <span class="text-slate-200 text-xs">Computer Engg</span>
-                  </td>
-                  <td id="sem_CT_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">93.7%</td>
-                  <td id="sem_CT_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">95.1%</td>
-                  <td id="sem_CT_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">95.0%</td>
-                  <td id="sem_CT_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">94.6%</td>
-                </tr>
-
-                <!-- AU -->
-                <tr class="hover:bg-slate-900/40 transition-colors">
-                  <td class="py-2 px-3 font-bold text-indigo-400 flex items-center gap-2">
-                    <span class="px-1.5 py-0.5 bg-indigo-500/10 border border-indigo-500/30 rounded text-[10px] font-mono">AU</span>
-                    <span class="text-slate-200 text-xs">Automobile Engg</span>
-                  </td>
-                  <td id="sem_AU_S1" class="py-2 px-3 text-center font-mono font-bold text-slate-300">88.0%</td>
-                  <td id="sem_AU_S3" class="py-2 px-3 text-center font-mono font-bold text-slate-300">87.5%</td>
-                  <td id="sem_AU_S5" class="py-2 px-3 text-center font-mono font-bold text-slate-300">89.1%</td>
-                  <td id="sem_AU_avg" class="py-2 px-3 text-center font-mono font-black text-emerald-400 bg-emerald-500/5">88.2%</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Secondary Compliance Indicators Row -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-800/60">
-            <div class="p-2.5 bg-slate-900/60 border border-slate-800/80 rounded-xl flex items-center gap-2.5">
-              <span class="material-symbols-rounded text-indigo-400 text-lg">workspace_premium</span>
-              <span class="text-xs text-slate-400">Faculty FDPs &amp; Workshops: <strong id="execFdpCount" class="text-white font-bold">12 Verified</strong></span>
-            </div>
-            <div class="p-2.5 bg-slate-900/60 border border-slate-800/80 rounded-xl flex items-center gap-2.5">
-              <span class="material-symbols-rounded text-emerald-400 text-lg">assignment_turned_in</span>
-              <span class="text-xs text-slate-400">NBA Attainment Average: <strong id="execCoPoAvg" class="text-white font-bold">88.5% CO-PO</strong></span>
-            </div>
-          </div>
-        </div>
+        </details>
       </div>
 
       <!-- PANEL 2: PERSONNEL DIRECTORY -->
@@ -1866,6 +1980,45 @@
         alertBox.innerText = 'Network error: ' + err.message;
       });
     }
+
+    /* Theme Toggle Logic */
+    function initTheme() {
+      const savedTheme = localStorage.getItem('carmel_theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        updateThemeToggleUI('light');
+      } else {
+        document.body.classList.remove('light-theme');
+        updateThemeToggleUI('dark');
+      }
+    }
+
+    function toggleTheme() {
+      const isLight = document.body.classList.toggle('light-theme');
+      const theme = isLight ? 'light' : 'dark';
+      localStorage.setItem('carmel_theme', theme);
+      updateThemeToggleUI(theme);
+    }
+
+    function updateThemeToggleUI(theme) {
+      const icon = document.getElementById('themeToggleIcon');
+      const text = document.getElementById('themeToggleText');
+      const btn = document.getElementById('themeToggleBtn');
+      if (!icon || !btn) return;
+      if (theme === 'light') {
+        icon.innerText = 'dark_mode';
+        icon.className = 'material-symbols-rounded text-base text-indigo-600';
+        if (text) text.innerText = 'Dark Mode';
+        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-premium cursor-pointer shadow-sm';
+      } else {
+        icon.innerText = 'light_mode';
+        icon.className = 'material-symbols-rounded text-base text-amber-400';
+        if (text) text.innerText = 'Light Mode';
+        btn.className = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 font-bold text-xs transition-premium cursor-pointer shadow-sm';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initTheme);
   </script>
 </body>
 </html>
