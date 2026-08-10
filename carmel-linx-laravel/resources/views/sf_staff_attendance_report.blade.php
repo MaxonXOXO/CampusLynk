@@ -382,15 +382,9 @@
             <h1><i class="fa-solid fa-building-user"></i> Self-Financing Staff Attendance Master Ledger</h1>
             <p>Official Shift: <strong>09:00 AM – 04:00 PM</strong> | Biometric Face & GPS Geofence Verification</p>
         </div>
-        <div class="header-actions">
-            <!-- GPS Geofence Core Setup -->
-            <button class="btn-action btn-geofence" onclick="openGeofenceModal()">
-                <i class="fa-solid fa-location-crosshairs"></i> GPS Setup
-            </button>
-
-            <!-- Campus GPS & Google Map Setup -->
-            <a href="/sf-attendance/geofence-setup" class="btn-action btn-print" style="text-decoration: none; background: rgba(37, 99, 235, 0.2); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.4);">
-                <i class="fa-solid fa-location-dot"></i> GPS Setup
+            <!-- Campus GPS & Google Map Geofence Setup -->
+            <a href="/sf-attendance/geofence-setup" class="btn-action" style="text-decoration: none; background: rgba(37, 99, 235, 0.2); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.4);">
+                <i class="fa-solid fa-location-dot"></i> Campus GPS &amp; Geofence Setup
             </a>
 
             <!-- Deregister Face Biometrics Manager -->
