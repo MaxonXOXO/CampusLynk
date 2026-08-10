@@ -1878,6 +1878,13 @@ class MentoringController extends Controller
         ];
         $currentDayName = date('l');
         $defaultDayOrder = $dayMap[$currentDayName] ?? 'Day 1';
+        $activeDayOrderPath = storage_path('app/active_day_order.json');
+        if (file_exists($activeDayOrderPath)) {
+            $activeDayData = json_decode(file_get_contents($activeDayOrderPath), true);
+            if ($activeDayData && ($activeDayData['date'] ?? '') === now()->toDateString()) {
+                $defaultDayOrder = $activeDayData['day_order'];
+            }
+        }
 
         $fullTimetablesByDay = [
             'Day 1' => [],
@@ -2089,6 +2096,17 @@ class MentoringController extends Controller
             ];
         }
 
+        // 7.10 Today's Biometric Attendance Punch Record
+        $staffId = Session::get('userStaffId') ?? Session::get('mobileNo') ?? Session::get('userId') ?? 'SF-STAFF-DEMO';
+        $todayPunch = \App\Models\SfStaffTimePunch::where(function($q) use ($staffId, $userId) {
+            $q->where('staff_id', $staffId);
+            if ($userId) {
+                $q->orWhere('staff_id', $userId);
+            }
+        })
+        ->where('punch_date', now()->format('Y-m-d'))
+        ->first();
+
         return response(view('staff_mobile_dashboard', compact(
             'staff',
             'assignments',
@@ -2099,7 +2117,8 @@ class MentoringController extends Controller
             'remedialRooms',
             'todos',
             'fullTimetablesByDay',
-            'defaultDayOrder'
+            'defaultDayOrder',
+            'todayPunch'
         )))->withHeaders([
             'Cache-Control' => 'no-cache, no-store, max-age=0, must-revalidate',
             'Pragma' => 'no-cache',

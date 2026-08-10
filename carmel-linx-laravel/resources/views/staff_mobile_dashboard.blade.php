@@ -329,6 +329,166 @@
                 </div>
             </div>
 
+            @php
+                $inTimeFormatted = (isset($todayPunch) && $todayPunch && $todayPunch->in_time) ? date('h:i A', strtotime($todayPunch->in_time)) : null;
+                $outTimeFormatted = (isset($todayPunch) && $todayPunch && $todayPunch->out_time) ? date('h:i A', strtotime($todayPunch->out_time)) : null;
+                
+                $isPunchedIn = !empty($inTimeFormatted);
+                $isPunchedOut = !empty($outTimeFormatted);
+                $isCompleted = $isPunchedIn && $isPunchedOut;
+
+                $inStatusLabel = 'PRESENT';
+                if ($isPunchedIn && isset($todayPunch->in_time)) {
+                    $inHi = date('H:i', strtotime($todayPunch->in_time));
+                    if ($inHi < '08:45') {
+                        $inStatusLabel = 'EARLY IN';
+                    } elseif ($inHi > '09:15') {
+                        $inStatusLabel = 'LATE IN';
+                    } else {
+                        $inStatusLabel = 'PRESENT';
+                    }
+                }
+
+                $outStatusLabel = 'OUT RECORDED';
+                if ($isPunchedOut && isset($todayPunch->out_time)) {
+                    $outHi = date('H:i', strtotime($todayPunch->out_time));
+                    if ($outHi < '16:00') {
+                        $outStatusLabel = 'EARLY OUT';
+                    } elseif ($outHi > '16:30') {
+                        $outStatusLabel = 'LATE OUT';
+                    } else {
+                        $outStatusLabel = 'ON TIME OUT';
+                    }
+                }
+
+                $campusHours = null;
+                if ($isCompleted) {
+                    $tIn = strtotime($todayPunch->punch_date . ' ' . $todayPunch->in_time);
+                    $tOut = strtotime($todayPunch->punch_date . ' ' . $todayPunch->out_time);
+                    $diffSec = max(0, $tOut - $tIn);
+                    $hrs = floor($diffSec / 3600);
+                    $mins = round(($diffSec % 3600) / 60);
+                    $campusHours = "{$hrs}h {$mins}m in Campus";
+                }
+            @endphp
+
+            <!-- SF Staff Mobile Face Recognition Time Punch Card -->
+            <div class="app-card mb-3 p-3 rounded-4" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(16, 185, 129, 0.12)); border: 1px solid rgba(16, 185, 129, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
+                <!-- Card Header -->
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="d-flex align-items-center gap-2.5">
+                        <div style="width: 40px; height: 40px; border-radius: 12px; background: rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; color: #34d399; font-size: 1.25rem;">
+                            <i class="fa-solid fa-face-smile"></i>
+                        </div>
+                        <div>
+                            <strong class="text-white d-block" style="font-size: 0.95rem; font-weight: 700;">SF Staff Biometric Time Punch</strong>
+                            <small class="text-secondary" style="font-size: 0.74rem;">
+                                <i class="fa-regular fa-calendar me-1"></i> {{ date('D, d M Y') }}
+                            </small>
+                        </div>
+                    </div>
+                    <div>
+                        @if($isCompleted)
+                            <span class="badge bg-success text-white px-2.5 py-1 rounded-pill" style="font-size: 0.72rem; font-weight: 700;">
+                                <i class="fa-solid fa-circle-check me-1"></i> COMPLETED
+                            </span>
+                        @elseif($isPunchedIn)
+                            <span class="badge text-white px-2.5 py-1 rounded-pill" style="font-size: 0.72rem; font-weight: 700; background: #059669;">
+                                <i class="fa-solid fa-right-to-bracket me-1"></i> CHECKED IN
+                            </span>
+                        @else
+                            <span class="badge bg-warning text-dark px-2.5 py-1 rounded-pill" style="font-size: 0.72rem; font-weight: 700;">
+                                <i class="fa-solid fa-clock me-1"></i> NOT PUNCHED
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- IN / OUT Status Grid -->
+                <div class="row g-2 mb-3">
+                    <!-- Morning IN Box -->
+                    <div class="col-6">
+                        <div class="p-2.5 rounded-3 border" style="background: rgba(15, 23, 42, 0.6); border-color: {{ $isPunchedIn ? 'rgba(52, 211, 153, 0.3)' : 'rgba(255, 255, 255, 0.08)' }} !important;">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="text-secondary uppercase fw-bold" style="font-size: 0.68rem; letter-spacing: 0.5px;">
+                                    <i class="fa-solid fa-sun text-warning me-1"></i> MORNING IN
+                                </span>
+                                @if($isPunchedIn && isset($todayPunch->punch_status))
+                                    <span class="badge bg-success-subtle text-success border border-success border-opacity-25 px-1.5 py-0.5" style="font-size: 0.62rem;">
+                                        {{ $inStatusLabel }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="d-flex align-items-baseline justify-content-between">
+                                <strong class="font-mono" style="font-size: 1.15rem; color: {{ $isPunchedIn ? '#34d399' : '#94a3b8' }};">
+                                    {{ $inTimeFormatted ?? '--:--' }}
+                                </strong>
+                                <small class="text-secondary" style="font-size: 0.68rem;">
+                                    {{ $isPunchedIn ? 'Recorded' : 'Pending' }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Evening OUT Box -->
+                    <div class="col-6">
+                        <div class="p-2.5 rounded-3 border" style="background: rgba(15, 23, 42, 0.6); border-color: {{ $isPunchedOut ? 'rgba(52, 211, 153, 0.3)' : 'rgba(255, 255, 255, 0.08)' }} !important;">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="text-secondary uppercase fw-bold" style="font-size: 0.68rem; letter-spacing: 0.5px;">
+                                    <i class="fa-solid fa-moon text-info me-1"></i> EVENING OUT
+                                </span>
+                                @if($isPunchedOut)
+                                    <span class="badge bg-success-subtle text-success border border-success border-opacity-25 px-1.5 py-0.5" style="font-size: 0.62rem;">
+                                        {{ $outStatusLabel }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="d-flex align-items-baseline justify-content-between">
+                                <strong class="font-mono" style="font-size: 1.15rem; color: {{ $isPunchedOut ? '#38bdf8' : '#94a3b8' }};">
+                                    {{ $outTimeFormatted ?? '--:--' }}
+                                </strong>
+                                <small class="text-secondary" style="font-size: 0.68rem;">
+                                    {{ $isPunchedOut ? 'Recorded' : 'Pending' }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Duration / Footer & Action Button -->
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pt-1 border-top border-secondary border-opacity-25">
+                    <div>
+                        @if($isCompleted && $campusHours)
+                            <small class="text-emerald-400 fw-bold" style="font-size: 0.76rem;">
+                                <i class="fa-solid fa-building-user me-1"></i> {{ $campusHours }}
+                            </small>
+                        @elseif($isPunchedIn)
+                            <small class="text-warning fw-semibold" style="font-size: 0.74rem;">
+                                <i class="fa-solid fa-clock-rotate-left me-1"></i> Evening OUT punch pending
+                            </small>
+                        @else
+                            <small class="text-secondary" style="font-size: 0.74rem;">
+                                <i class="fa-solid fa-location-dot me-1"></i> On-Campus Geofence Active
+                            </small>
+                        @endif
+                    </div>
+
+                    @if($isCompleted)
+                        <a href="/sf-attendance/face-punch" class="btn btn-sm btn-outline-success rounded-pill px-3 py-1 fw-bold" style="font-size: 0.78rem;">
+                            <i class="fa-solid fa-circle-check me-1"></i> Punched Today
+                        </a>
+                    @elseif($isPunchedIn)
+                        <a href="/sf-attendance/face-punch" class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold text-white shadow-sm" style="font-size: 0.8rem; background: linear-gradient(135deg, #059669 0%, #10b981 100%); border: none;">
+                            <i class="fa-solid fa-camera me-1"></i> Punch Evening OUT
+                        </a>
+                    @else
+                        <a href="/sf-attendance/face-punch" class="btn btn-sm rounded-pill px-3 py-1.5 fw-bold text-white shadow-sm" style="font-size: 0.8rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;">
+                            <i class="fa-solid fa-camera me-1"></i> Punch Attendance
+                        </a>
+                    @endif
+                </div>
+            </div>
+
             <!-- TAB PANES -->
 
             <!-- TAB 1: TODAY'S TIMETABLE & ATTENDANCE -->
@@ -1042,18 +1202,7 @@
         }
 
 
-        function selectDayOrder(dayKey) {
-            // Save universal day order setting for today across all dashboards
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-            fetch('/api/system/set-day-order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                body: JSON.stringify({ day_order: dayKey })
-            });
-
+        function renderDayOrderView(dayKey) {
             document.querySelectorAll('.day-order-btn').forEach(btn => {
                 if (btn.dataset.day === dayKey) {
                     btn.className = 'btn btn-sm btn-cyan px-2.5 py-1.5 rounded-pill fw-black text-dark day-order-btn flex-fill shadow-sm';
@@ -1098,8 +1247,35 @@
             container.innerHTML = html;
         }
 
+        async function selectDayOrder(dayKey) {
+            const confirmed = confirm(`Are you sure you want to set the institution-wide Day Order for today to "${dayKey}"?\n\nThis will update timetables for all staff and students across the institution.`);
+            if (!confirmed) return;
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            try {
+                const response = await fetch('/api/system/set-day-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ day_order: dayKey })
+                });
+                const data = await response.json();
+                if (data.status === 'SUCCESS') {
+                    renderDayOrderView(dayKey);
+                    alert(`Institution-wide Day Order updated to "${dayKey}" for today.`);
+                } else {
+                    alert('Error updating Day Order: ' + (data.message || 'Server Error'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error updating Day Order.');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            selectDayOrder(currentDefaultDayOrder);
+            renderDayOrderView(currentDefaultDayOrder);
             loadMyLeaveHistory();
             loadPendingApprovals();
         });

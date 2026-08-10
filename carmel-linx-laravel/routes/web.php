@@ -1792,5 +1792,18 @@ Route::middleware(['web'])->group(function () {
     Route::delete('/api/principal/events/{id}', [App\Http\Controllers\PrincipalScheduledEventController::class, 'destroy']);
 });
 
+// Self-Financing (SF) Staff Mobile Face Punch, GPS Setup & Attendance Report Routes
+Route::middleware(['web'])->group(function () {
+    Route::get('/sf-attendance/face-punch', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'showFacePunch']);
+    Route::post('/sf-attendance/register-face', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'saveFaceRegistration']);
+    Route::post('/sf-attendance/verify-and-punch', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'verifyAndPunch']);
+    Route::get('/sf-attendance/geofence-setup', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'showGeofenceSetup']);
+    Route::post('/sf-attendance/geofence-setup', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'saveGeofenceSetup']);
+    Route::get('/sf-attendance/attendance-report', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'showAttendanceReport']);
+    Route::match(['post', 'delete'], '/sf-attendance/delete-punch/{id}', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'deletePunch']);
+    Route::match(['post', 'delete'], '/sf-attendance/reset-face/{staffId}', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'resetFaceRegistration']);
+});
+
+
 
 

@@ -417,6 +417,10 @@
           <span class="material-symbols-rounded text-base">event_note</span> Staff Leave Reports & Ledger
         </button>
 
+        <a href="/sf-attendance/attendance-report" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-cyan-300 cursor-pointer no-underline block border border-cyan-900/40 bg-cyan-950/20">
+          <span class="material-symbols-rounded text-base text-cyan-400">how_to_reg</span> SF Face Attendance Master Log
+        </a>
+
         <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer mt-2">
           <span class="material-symbols-rounded text-base">security</span> Security Log
         </button>

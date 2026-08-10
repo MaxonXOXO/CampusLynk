@@ -1106,6 +1106,9 @@
         }
 
         async function setDayOrder(dayVal) {
+            const confirmed = confirm(`Are you sure you want to set the institution-wide Day Order for today to "${dayVal}"?\n\nThis will update class timetables, registers, and schedules across the platform.`);
+            if (!confirmed) return;
+
             try {
                 const res = await fetch('/api/system/set-day-order', {
                     method: 'POST',
@@ -1119,6 +1122,7 @@
                 if (data.status === 'SUCCESS') {
                     document.getElementById('displayDayOrder').innerText = dayVal;
                     closeDayOrderModal();
+                    alert(`Institution-wide Day Order set to "${dayVal}".`);
                     window.location.reload();
                 } else {
                     alert('Failed to update day order: ' + (data.message || 'Unknown error'));
