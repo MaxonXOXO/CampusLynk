@@ -500,8 +500,8 @@
                         <th>Morning IN</th>
                         <th>Evening OUT</th>
                         <th>Campus Duration</th>
-                        <th>Premises</th>
-                        <th>Distance</th>
+                        <th>Premises (IN/OUT)</th>
+                        <th>Actual GPS Distance (IN/OUT)</th>
                         <th>Liveness</th>
                         <th>Status</th>
                         <th class="col-actions" style="text-align: center;">Admin Actions</th>
@@ -526,6 +526,18 @@
                             $regFace = $regObj->photo_url ?? null;
                             $inSnap = $p->in_snapshot_url ?? null;
                             $outSnap = $p->out_snapshot_url ?? null;
+
+                            $inDistStr = '--';
+                            if ($p->in_gps_distance_meters !== null) {
+                                $dIn = (int) $p->in_gps_distance_meters;
+                                $inDistStr = $dIn >= 1000 ? number_format($dIn / 1000, 2) . ' km' : $dIn . 'm';
+                            }
+
+                            $outDistStr = '--';
+                            if ($p->out_gps_distance_meters !== null) {
+                                $dOut = (int) $p->out_gps_distance_meters;
+                                $outDistStr = $dOut >= 1000 ? number_format($dOut / 1000, 2) . ' km' : $dOut . 'm';
+                            }
                         @endphp
                         <tr id="row-punch-{{ $p->id }}">
                             <td><strong>{{ date('d M Y', strtotime($p->punch_date)) }}</strong></td>
@@ -574,13 +586,36 @@
                                 {{ $campusHours }}
                             </td>
                             <td>
-                                @if($p->in_premises_status === 'INSIDE_PREMISES')
-                                    <span class="badge badge-success">Inside</span>
-                                @else
-                                    <span class="badge badge-danger">Outside</span>
-                                @endif
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    @if($p->in_premises_status === 'INSIDE_PREMISES')
+                                        <span class="badge badge-success" style="font-size:0.65rem; padding: 2px 6px;">IN: Inside</span>
+                                    @elseif($p->in_premises_status === 'OUTSIDE_PREMISES')
+                                        <span class="badge badge-danger" style="font-size:0.65rem; padding: 2px 6px;">IN: Outside</span>
+                                    @else
+                                        <span style="font-size:0.65rem; color:var(--text-muted);">IN: --</span>
+                                    @endif
+
+                                    @if($p->out_time)
+                                        @if($p->out_premises_status === 'INSIDE_PREMISES')
+                                            <span class="badge badge-success" style="font-size:0.65rem; padding: 2px 6px;">OUT: Inside</span>
+                                        @else
+                                            <span class="badge badge-danger" style="font-size:0.65rem; padding: 2px 6px;">OUT: Outside</span>
+                                        @endif
+                                    @else
+                                        <span style="font-size:0.65rem; color:var(--text-muted);">OUT: Pending</span>
+                                    @endif
+                                </div>
                             </td>
-                            <td>{{ $p->in_gps_distance_meters ?? 0 }}m</td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 2px; font-size: 0.75rem;">
+                                    <span style="color:#60a5fa; font-weight:700;"><i class="fa-solid fa-arrow-right-to-bracket" style="font-size:0.65rem;"></i> IN: {{ $inDistStr }}</span>
+                                    @if($p->out_time)
+                                        <span style="color:#f87171; font-weight:700;"><i class="fa-solid fa-arrow-right-from-bracket" style="font-size:0.65rem;"></i> OUT: {{ $outDistStr }}</span>
+                                    @else
+                                        <span style="color:var(--text-muted); font-size:0.7rem;"><i class="fa-solid fa-arrow-right-from-bracket" style="font-size:0.65rem;"></i> OUT: --</span>
+                                    @endif
+                                </div>
+                            </td>
                             <td>
                                 <span class="badge badge-info">Smile</span>
                             </td>
