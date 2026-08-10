@@ -483,8 +483,8 @@
           </div>
         </div>
 
-        <!-- Executive Dashboard Actions & Flash Notice Broadcast Desk (Compact 2 Cards Row) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <!-- Executive Dashboard Actions & Broadcast Desks (3 Cards Row) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <!-- Department HOD Dashboard Overrides Card -->
           <div class="bg-slate-900/50 border border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xl shadow-slate-950/40 hover:border-slate-700/70 transition-all duration-300">
             <div>
@@ -497,7 +497,7 @@
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-sm">Direct Supervision</span>
               </div>
               <p class="text-[11px] text-slate-400 leading-tight mb-3">
-                Directly access and supervise any department HOD console to manage batch allocations & curriculum updates.
+                Directly access and supervise any department HOD console to manage batch allocations &amp; curriculum updates.
               </p>
               <!-- 8 Compact Branch Buttons Grid -->
               <div class="grid grid-cols-4 gap-2">
@@ -572,6 +572,45 @@
               </button>
               <button onclick="openFlashNoticeHistoryModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg font-bold text-slate-300 transition-premium cursor-pointer text-xs flex items-center justify-center gap-1 border border-slate-700">
                 <span class="material-symbols-rounded text-sm">history</span> Log
+              </button>
+            </div>
+          </div>
+
+          <!-- College Targeted Event Scheduler Desk Card (NEW MODULE) -->
+          <div class="bg-slate-900/50 border border-slate-800/80 p-4 rounded-2xl flex flex-col justify-between shadow-xl shadow-slate-950/40 hover:border-slate-700/70 transition-all duration-300">
+            <div>
+              <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2">
+                <h3 class="font-black text-slate-200 flex items-center gap-2 text-sm">
+                  <span class="p-1 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center shrink-0">
+                    <span class="material-symbols-rounded text-sm">event_available</span>
+                  </span> College Event Scheduler
+                </h3>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm">Targeted Dispatch</span>
+              </div>
+              <p class="text-[11px] text-slate-400 leading-tight mb-3">
+                Schedule institutional events for College, Depts, Staff, Students, or Special Groups (Placement, NSS/NCC, Sports).
+              </p>
+              <div class="grid grid-cols-3 gap-2 mb-3 text-center">
+                <div class="p-1.5 bg-slate-950/90 rounded-xl border border-slate-800/90 shadow-inner">
+                  <span id="principalEventStatCollege" class="block font-black text-emerald-400 text-sm">0</span>
+                  <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Campus Wide</span>
+                </div>
+                <div class="p-1.5 bg-slate-950/90 rounded-xl border border-slate-800/90 shadow-inner">
+                  <span id="principalEventStatDept" class="block font-black text-sky-400 text-sm">0</span>
+                  <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Dept/Staff</span>
+                </div>
+                <div class="p-1.5 bg-slate-950/90 rounded-xl border border-slate-800/90 shadow-inner">
+                  <span id="principalEventStatSpecial" class="block font-black text-purple-400 text-sm">0</span>
+                  <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">Special Groups</span>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button onclick="openPrincipalScheduleEventModal()" class="flex-1 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-lg font-bold text-white transition-premium cursor-pointer text-xs flex items-center justify-center gap-1 shadow-md">
+                <span class="material-symbols-rounded text-sm">edit_calendar</span> Schedule Event
+              </button>
+              <button onclick="openPrincipalScheduleEventHistoryModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg font-bold text-slate-300 transition-premium cursor-pointer text-xs flex items-center justify-center gap-1 border border-slate-700">
+                <span class="material-symbols-rounded text-sm">view_list</span> Event Log
               </button>
             </div>
           </div>
@@ -2064,7 +2103,146 @@
     document.addEventListener('DOMContentLoaded', function() {
       loadExecutiveMetrics();
       loadFlashNoticeStats();
+      loadPrincipalEventStats();
     });
+
+    // PRINCIPAL EVENT SCHEDULER DESK FUNCTIONS
+    function openPrincipalScheduleEventModal() {
+      document.getElementById('principalScheduleEventModal').classList.remove('hidden');
+    }
+
+    function closePrincipalScheduleEventModal() {
+      document.getElementById('principalScheduleEventModal').classList.add('hidden');
+      document.getElementById('principalScheduleEventForm').reset();
+      togglePrincipalEventTargetFields();
+    }
+
+    function togglePrincipalEventTargetFields() {
+      const scope = document.getElementById('peTargetAudience').value;
+      const deptWrapper = document.getElementById('peDeptWrapper');
+      const semWrapper = document.getElementById('peSemWrapper');
+      const roleWrapper = document.getElementById('peRoleWrapper');
+      const specialGroupWrapper = document.getElementById('peSpecialGroupWrapper');
+
+      if (deptWrapper) deptWrapper.style.display = (scope === 'DEPT_SPECIFIC' || scope === 'STUDENTS_ONLY') ? 'block' : 'none';
+      if (semWrapper) semWrapper.style.display = (scope === 'STUDENTS_ONLY') ? 'block' : 'none';
+      if (roleWrapper) roleWrapper.style.display = (scope === 'STAFF_ONLY') ? 'block' : 'none';
+      if (specialGroupWrapper) specialGroupWrapper.style.display = (scope === 'SPECIAL_GROUP') ? 'block' : 'none';
+    }
+
+    function submitPrincipalScheduleEvent(e) {
+      e.preventDefault();
+      const btn = document.getElementById('peSubmitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-rounded animate-spin text-base">sync</span> Scheduling...';
+
+      const formData = new FormData(document.getElementById('principalScheduleEventForm'));
+
+      fetch('/api/principal/events/schedule', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-rounded text-base">event_available</span> Schedule & Broadcast Event';
+        if (data.status === 'SUCCESS') {
+          alert(data.message);
+          closePrincipalScheduleEventModal();
+          loadPrincipalEventStats();
+        } else {
+          alert('Error: ' + data.message);
+        }
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-rounded text-base">event_available</span> Schedule & Broadcast Event';
+        alert('Failed to schedule event. Please try again.');
+      });
+    }
+
+    function loadPrincipalEventStats() {
+      fetch('/api/principal/events')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS' && data.stats) {
+            if (document.getElementById('principalEventStatCollege')) document.getElementById('principalEventStatCollege').innerText = data.stats.college_wide;
+            if (document.getElementById('principalEventStatDept')) document.getElementById('principalEventStatDept').innerText = (data.stats.dept_specific + data.stats.staff_only);
+            if (document.getElementById('principalEventStatSpecial')) document.getElementById('principalEventStatSpecial').innerText = data.stats.special_groups;
+          }
+        }).catch(() => {});
+    }
+
+    function openPrincipalScheduleEventHistoryModal() {
+      document.getElementById('principalScheduleEventHistoryModal').classList.remove('hidden');
+      const body = document.getElementById('principalEventHistoryBody');
+      body.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-500">Loading events...</td></tr>';
+
+      fetch('/api/principal/events')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS' && data.events.length > 0) {
+            body.innerHTML = data.events.map(ev => `
+              <tr class="hover:bg-slate-900/50">
+                <td class="py-2.5 px-3 font-mono text-[11px] text-slate-400">
+                  ${ev.event_date ? ev.event_date.split('T')[0] : ''}<br>
+                  <span class="text-[10px] text-emerald-400 font-bold">${ev.start_time || 'All Day'} ${ev.end_time ? '- ' + ev.end_time : ''}</span>
+                </td>
+                <td class="py-2.5 px-3">
+                  <span class="font-bold text-slate-100 block">${ev.title}</span>
+                  <span class="px-1.5 py-0.2 text-[9px] rounded font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">${ev.event_category}</span>
+                  ${ev.venue ? `<span class="text-[10px] text-slate-400 block mt-0.5">📍 ${ev.venue}</span>` : ''}
+                </td>
+                <td class="py-2.5 px-3 text-[11px] text-slate-300">
+                  <span class="font-mono text-emerald-400 font-bold">${ev.target_audience}</span>
+                  ${ev.target_department !== 'ALL' ? `<span class="text-slate-400 block">Dept: ${ev.target_department}</span>` : ''}
+                  ${ev.special_group_name ? `<span class="text-purple-300 block font-bold">Group: ${ev.special_group_name}</span>` : ''}
+                </td>
+                <td class="py-2.5 px-3 text-center">
+                  ${ev.requires_rsvp ? '<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">Yes</span>' : '<span class="text-slate-500 text-[10px]">No</span>'}
+                </td>
+                <td class="py-2.5 px-3">
+                  ${ev.attachment_path ? `<a href="/storage/${ev.attachment_path}" target="_blank" class="text-emerald-400 underline font-mono text-[11px] flex items-center gap-1"><span class="material-symbols-rounded text-xs">attach_file</span> ${ev.attachment_type.toUpperCase()}</a>` : '<span class="text-slate-500 font-mono text-[11px]">None</span>'}
+                </td>
+                <td class="py-2.5 px-3 text-right">
+                  <button onclick="revokePrincipalScheduledEvent(${ev.id})" class="px-2 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded font-bold text-[10px] transition cursor-pointer">Cancel</button>
+                </td>
+              </tr>
+            `).join('');
+          } else {
+            body.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-slate-500">No scheduled events found.</td></tr>';
+          }
+        }).catch(() => {
+          body.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-rose-400">Failed to load events.</td></tr>';
+        });
+    }
+
+    function closePrincipalScheduleEventHistoryModal() {
+      document.getElementById('principalScheduleEventHistoryModal').classList.add('hidden');
+    }
+
+    function revokePrincipalScheduledEvent(id) {
+      if (!confirm('Are you sure you want to cancel and delete this scheduled event?')) return;
+      fetch(`/api/principal/events/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          alert(data.message);
+          openPrincipalScheduleEventHistoryModal();
+          loadPrincipalEventStats();
+        } else {
+          alert('Error: ' + data.message);
+        }
+      });
+    }
 
     // FLASH NOTICE BROADCAST DESK FUNCTIONS
     function openFlashNoticeModal() {
@@ -2371,6 +2549,204 @@
           <tbody id="flashNoticeHistoryBody" class="divide-y divide-slate-800/60 font-medium text-slate-300">
             <tr>
               <td colspan="5" class="py-6 text-center text-slate-500">Loading broadcast history...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINCIPAL SCHEDULE EVENT MODAL -->
+  <div id="principalScheduleEventModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-5 shadow-2xl relative text-left">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <span class="material-symbols-rounded text-xl">event_available</span>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-slate-100 text-base">Schedule College Institutional Event</h3>
+            <p class="text-xs text-slate-400">Target College, Department, Staff, Students, or Special Groups</p>
+          </div>
+        </div>
+        <button onclick="closePrincipalScheduleEventModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <form id="principalScheduleEventForm" onsubmit="submitPrincipalScheduleEvent(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-slate-300 font-bold mb-1">Event Title <span class="text-rose-400">*</span></label>
+            <input type="text" id="peTitle" name="title" required placeholder="e.g., Annual Sports Meet 2026 / Placement Drive" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-emerald-500 font-medium">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">Event Category <span class="text-rose-400">*</span></label>
+            <select id="peCategory" name="event_category" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-emerald-500 font-medium">
+              <option value="Academic">Academic Schedule</option>
+              <option value="Exam">Examination &amp; Audit</option>
+              <option value="Meeting">Executive Meeting</option>
+              <option value="Cultural">Cultural Event</option>
+              <option value="Sports">Sports Meet</option>
+              <option value="Workshop">Workshop &amp; FDP</option>
+              <option value="Holiday">Official Holiday</option>
+              <option value="Other">Other Event</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">Event Date <span class="text-rose-400">*</span></label>
+            <input type="date" id="peDate" name="event_date" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-emerald-500 font-medium">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">Start Time</label>
+            <input type="time" id="peStartTime" name="start_time" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-emerald-500 font-medium">
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">End Time</label>
+            <input type="time" id="peEndTime" name="end_time" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-emerald-500 font-medium">
+          </div>
+        </div>
+
+        <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3">
+          <span class="block text-slate-200 font-bold text-[11px] uppercase tracking-wider flex items-center gap-1.5">
+            <span class="material-symbols-rounded text-emerald-400 text-sm">groups</span> Target Scope &amp; Audience
+          </span>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-400 mb-1 font-semibold">Target Audience</label>
+              <select id="peTargetAudience" name="target_audience" onchange="togglePrincipalEventTargetFields()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                <option value="ALL_CAMPUS">🌐 College Wide (All Staff &amp; Students)</option>
+                <option value="DEPT_SPECIFIC">🏫 Department Specific</option>
+                <option value="STAFF_ONLY">👨‍🏫 Staff Only</option>
+                <option value="STUDENTS_ONLY">🎓 Students Only</option>
+                <option value="SPECIAL_GROUP">⭐ Special Group</option>
+              </select>
+            </div>
+
+            <div id="peDeptWrapper" style="display:none;">
+              <label class="block text-slate-400 mb-1 font-semibold">Target Department</label>
+              <select id="peTargetDepartment" name="target_department" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                <option value="ALL">All Departments</option>
+                <option value="EL">Electronics Engg (EL)</option>
+                <option value="ME">Mechanical Engg (ME)</option>
+                <option value="CE">Civil Engg (CE)</option>
+                <option value="EEE">Electrical Engg (EEE)</option>
+                <option value="CT">Computer Engg (CT)</option>
+                <option value="AU">Automobile Engg (AU)</option>
+                <option value="GEN_AIDED">General Aided</option>
+                <option value="GEN_SF">General SF</option>
+              </select>
+            </div>
+
+            <div id="peSemWrapper" style="display:none;">
+              <label class="block text-slate-400 mb-1 font-semibold">Semester Level</label>
+              <select id="peTargetSemester" name="target_semester" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                <option value="ALL">All Semesters (S1 to S6)</option>
+                <option value="S1">Semester 1 (S1)</option>
+                <option value="S2">Semester 2 (S2)</option>
+                <option value="S3">Semester 3 (S3)</option>
+                <option value="S4">Semester 4 (S4)</option>
+                <option value="S5">Semester 5 (S5)</option>
+                <option value="S6">Semester 6 (S6)</option>
+              </select>
+            </div>
+
+            <div id="peRoleWrapper" style="display:none;">
+              <label class="block text-slate-400 mb-1 font-semibold">Staff Designation</label>
+              <select id="peTargetRole" name="target_role" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                <option value="ALL">All Staff</option>
+                <option value="HOD">HODs Only</option>
+                <option value="Lecturer">Lecturers</option>
+                <option value="Demonstrator">Demonstrators</option>
+                <option value="Trade_Instructor">Trade Instructors</option>
+              </select>
+            </div>
+
+            <div id="peSpecialGroupWrapper" style="display:none;">
+              <label class="block text-slate-400 mb-1 font-semibold">Special Group Name</label>
+              <select id="peSpecialGroupName" name="special_group_name" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+                <option value="Placement Cell">Placement &amp; Training Cell</option>
+                <option value="NSS / NCC">NSS / NCC Units</option>
+                <option value="Sports Council">Sports &amp; Athletics Council</option>
+                <option value="IQAC & Audit">IQAC &amp; Quality Audit Team</option>
+                <option value="Anti-Ragging Cell">Anti-Ragging &amp; Disciplinary Cell</option>
+                <option value="Student Council">Student Union Council</option>
+                <option value="Alumni Association">Alumni Association</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">Venue / Location</label>
+            <input type="text" id="peVenue" name="venue" placeholder="e.g., Main Auditorium / Seminar Hall" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-emerald-500 font-medium">
+          </div>
+          <div class="flex items-center gap-4 pt-4">
+            <label class="flex items-center gap-1.5 text-slate-200 cursor-pointer">
+              <input type="checkbox" id="peIsFullDay" name="is_full_day" value="1" class="accent-emerald-500 w-4 h-4 rounded">
+              <span class="font-bold text-slate-300">Full Day Event</span>
+            </label>
+            <label class="flex items-center gap-1.5 text-slate-200 cursor-pointer">
+              <input type="checkbox" id="peRequiresRsvp" name="requires_rsvp" value="1" class="accent-amber-500 w-4 h-4 rounded">
+              <span class="font-bold text-amber-400">RSVP / Attendance Required</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-bold mb-1">Event Description &amp; Details</label>
+          <textarea id="peDescription" name="description" rows="3" placeholder="Enter details about event objectives, schedule, guest speakers, instructions..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-emerald-500 font-medium leading-relaxed"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-slate-300 font-bold mb-1 flex items-center gap-1">
+            <span class="material-symbols-rounded text-emerald-400 text-sm">attach_file</span> Attach Flyer / Document <span class="text-slate-500 font-normal">(Optional PDF or Image)</span>
+          </label>
+          <input type="file" id="peAttachment" name="attachment" accept="image/jpeg,image/png,image/webp,application/pdf" class="w-full text-slate-300 bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500/20 file:text-emerald-300 hover:file:bg-emerald-500/30">
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+          <button type="button" onclick="closePrincipalScheduleEventModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition">Cancel</button>
+          <button type="submit" id="peSubmitBtn" class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl transition flex items-center gap-1.5 shadow-lg">
+            <span class="material-symbols-rounded text-base">event_available</span> Schedule &amp; Broadcast Event
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PRINCIPAL EVENT HISTORY LOG MODAL -->
+  <div id="principalScheduleEventHistoryModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 shadow-2xl relative text-left">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-extrabold text-slate-100 text-base flex items-center gap-2">
+          <span class="material-symbols-rounded text-emerald-400">event_available</span> Scheduled Events Audit Log
+        </h3>
+        <button onclick="closePrincipalScheduleEventHistoryModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
+          <span class="material-symbols-rounded text-lg">close</span>
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="bg-slate-950 text-slate-400 uppercase text-[10px] font-bold border-b border-slate-800">
+              <th class="py-2.5 px-3">Date &amp; Time</th>
+              <th class="py-2.5 px-3">Title &amp; Category</th>
+              <th class="py-2.5 px-3">Target Scope</th>
+              <th class="py-2.5 px-3 text-center">RSVP</th>
+              <th class="py-2.5 px-3">Attachment</th>
+              <th class="py-2.5 px-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="principalEventHistoryBody" class="divide-y divide-slate-800/60 font-medium text-slate-300">
+            <tr>
+              <td colspan="6" class="py-6 text-center text-slate-500">Loading events...</td>
             </tr>
           </tbody>
         </table>

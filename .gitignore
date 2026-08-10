@@ -1,9 +1,14 @@
 node_modules
-node_modules
-node_modules
 
 .env
 .env.*
 *.env
 carmel-linx-laravel/.env
 !.env.example
+carmel-linx-laravel/storage/framework/sessions/*
+!carmel-linx-laravel/storage/framework/sessions/.gitkeep
+carmel-linx-laravel/storage/framework/views/*
+!carmel-linx-laravel/storage/framework/views/.gitkeep
+carmel-linx-laravel/storage/framework/cache/*
+!carmel-linx-laravel/storage/framework/cache/.gitkeep
+
