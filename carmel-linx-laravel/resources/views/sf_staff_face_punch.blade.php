@@ -630,16 +630,17 @@
                     currentLat = pos.coords.latitude;
                     currentLng = pos.coords.longitude;
                     const distance = calculateDistance(currentLat, currentLng, GEOFENCE_LAT, GEOFENCE_LNG);
+                    const coordsText = `${currentLat.toFixed(6)}°N, ${currentLng.toFixed(6)}°E`;
 
                     if (distance <= GEOFENCE_RADIUS) {
                         isInsidePremises = true;
                         gpsBadge.className = "pill-badge success";
-                        gpsText.innerHTML = `Inside Campus (${distance}m away) ✅`;
+                        gpsText.innerHTML = `Inside Campus (${distance}m) ✅<br><span style="font-size:0.72rem; opacity:0.9; font-weight:600; display:inline-block; margin-top:2px;"><i class="fa-solid fa-compass me-1"></i>${coordsText}</span>`;
                     } else {
                         isInsidePremises = false;
                         gpsBadge.className = "pill-badge danger";
                         const distLabel = distance >= 1000 ? (distance / 1000).toFixed(2) + ' km' : distance + ' m';
-                        gpsText.innerHTML = `Outside Campus (${distLabel} away) ⚠️`;
+                        gpsText.innerHTML = `Outside Campus (${distLabel} away) ⚠️<br><span style="font-size:0.72rem; opacity:0.9; font-weight:600; display:inline-block; margin-top:2px;"><i class="fa-solid fa-compass me-1"></i>${coordsText}</span>`;
                     }
                     evaluateActionButtons();
                 }, (err) => {
