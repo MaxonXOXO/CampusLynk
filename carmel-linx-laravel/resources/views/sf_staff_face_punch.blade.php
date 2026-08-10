@@ -636,22 +636,23 @@
                         gpsBadge.className = "pill-badge success";
                         gpsText.innerHTML = `Inside Campus (${distance}m away) ✅`;
                     } else {
-                        isInsidePremises = true; // Permissive fallback for testing
-                        gpsBadge.className = "pill-badge success";
-                        gpsText.innerHTML = `Inside Campus (${distance}m) ✅`;
+                        isInsidePremises = false;
+                        gpsBadge.className = "pill-badge danger";
+                        const distLabel = distance >= 1000 ? (distance / 1000).toFixed(2) + ' km' : distance + ' m';
+                        gpsText.innerHTML = `Outside Campus (${distLabel} away) ⚠️`;
                     }
                     evaluateActionButtons();
                 }, (err) => {
                     console.warn("GPS Warning:", err);
-                    isInsidePremises = true;
-                    gpsBadge.className = "pill-badge success";
-                    gpsText.innerHTML = `Inside Campus (GPS Active) ✅`;
+                    isInsidePremises = false;
+                    gpsBadge.className = "pill-badge warning";
+                    gpsText.innerHTML = `GPS Location Permission Required ⚠️`;
                     evaluateActionButtons();
                 }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
             } else {
-                isInsidePremises = true;
-                gpsBadge.className = "pill-badge success";
-                gpsText.innerHTML = `Inside Campus ✅`;
+                isInsidePremises = false;
+                gpsBadge.className = "pill-badge warning";
+                gpsText.innerHTML = `GPS Not Supported ⚠️`;
                 evaluateActionButtons();
             }
         }
@@ -970,8 +971,8 @@
                     body: JSON.stringify({
                         staff_id: STAFF_ID,
                         punch_type: type,
-                        gps_lat: currentLat || GEOFENCE_LAT,
-                        gps_lng: currentLng || GEOFENCE_LNG,
+                        gps_lat: currentLat !== null ? currentLat : GEOFENCE_LAT,
+                        gps_lng: currentLng !== null ? currentLng : GEOFENCE_LNG,
                         liveness_score: livenessScore,
                         face_descriptor: descriptor,
                         snapshot_base64: snapshot
