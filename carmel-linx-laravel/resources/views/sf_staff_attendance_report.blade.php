@@ -388,6 +388,11 @@
                 <i class="fa-solid fa-location-crosshairs"></i> GPS Setup
             </button>
 
+            <!-- Campus GPS & Google Map Setup -->
+            <a href="/sf-attendance/geofence-setup" class="btn-action btn-print" style="text-decoration: none; background: rgba(37, 99, 235, 0.2); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.4);">
+                <i class="fa-solid fa-location-dot"></i> GPS Setup
+            </a>
+
             <!-- Deregister Face Biometrics Manager -->
             <button class="btn-action btn-dereg" onclick="openDeregModal()">
                 <i class="fa-solid fa-user-gear"></i> Deregister Biometrics
