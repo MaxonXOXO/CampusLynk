@@ -587,6 +587,16 @@
                                     
                                     // AUTOMATIC PUNCH OR REGISTRATION EXECUTION
                                     if (!isPunchAutoExecuting && !cooldownActive) {
+                                        if (IS_REGISTERED && (currentLat === null || currentLng === null)) {
+                                            guideText.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i> Waiting for GPS location lock...`;
+                                            // Reset verified flag to re-evaluate when GPS locks
+                                            isSmileVerified = false;
+                                            faceCircle.classList.remove('verified');
+                                            livenessBadge.className = "pill-badge warning";
+                                            livenessText.innerHTML = "Acquiring GPS...";
+                                            return;
+                                        }
+
                                         isPunchAutoExecuting = true;
                                         evaluateActionButtons();
                                         setTimeout(() => {
@@ -954,6 +964,13 @@
                 return;
             }
 
+            if (currentLat === null || currentLng === null) {
+                showToast("GPS Location lock required. Please enable high accuracy location.");
+                isPunchAutoExecuting = false;
+                if (guideText) guideText.innerHTML = `<i class="fa-solid fa-location-crosshairs text-warning me-1"></i> Waiting for GPS location lock...`;
+                return;
+            }
+
             const snapshot = captureFrame();
             const descriptor = extractFaceDescriptor();
 
@@ -972,8 +989,8 @@
                     body: JSON.stringify({
                         staff_id: STAFF_ID,
                         punch_type: type,
-                        gps_lat: currentLat !== null ? currentLat : GEOFENCE_LAT,
-                        gps_lng: currentLng !== null ? currentLng : GEOFENCE_LNG,
+                        gps_lat: currentLat,
+                        gps_lng: currentLng,
                         liveness_score: livenessScore,
                         face_descriptor: descriptor,
                         snapshot_base64: snapshot
