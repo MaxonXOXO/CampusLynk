@@ -370,8 +370,23 @@
                     $mins = round(($diffSec % 3600) / 60);
                     $campusHours = "{$hrs}h {$mins}m in Campus";
                 }
+
+                // Check if staff belongs to EL, CT, AU, or General SF staff categories
+                $staffBranch = strtoupper($staff->branch ?? $staff->department ?? session('userBranch') ?? '');
+                $staffRole   = strtoupper(session('userRole') ?? $staff->designation ?? '');
+
+                $sfAllowedBranches = ['EL', 'CT', 'AU', 'GEN_SF', 'SF'];
+                $sfAllowedRoles    = ['GEN_DEPT_COORDINATOR_SELF_FINANCE', 'ACADEMIC_COORDINATOR_SF'];
+
+                $isSfStaff = in_array($staffBranch, $sfAllowedBranches)
+                    || in_array($staffRole, $sfAllowedRoles)
+                    || str_contains($staffRole, 'SELF_FINANCE')
+                    || str_contains($staffRole, 'SELF FINANCE')
+                    || str_contains($staffRole, '_SF')
+                    || str_contains($staffBranch, 'SF');
             @endphp
 
+            @if($isSfStaff)
             <!-- SF Staff Mobile Face Recognition Time Punch Card -->
             <div class="app-card mb-3 p-3 rounded-4" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(16, 185, 129, 0.12)); border: 1px solid rgba(16, 185, 129, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);">
                 <!-- Card Header -->
@@ -488,6 +503,7 @@
                     @endif
                 </div>
             </div>
+            @endif
 
             <!-- TAB PANES -->
 

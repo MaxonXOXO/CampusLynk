@@ -161,16 +161,49 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
         }
 
+        /* Screen Flashlight Ring Light Box (Illuminates Face in Dim Rooms) */
+        .screen-flash-box {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 20px 12px 14px;
+            margin-bottom: 16px;
+            position: relative;
+            box-shadow: 0 0 35px rgba(255, 255, 255, 0.95), inset 0 0 15px rgba(255, 255, 255, 1);
+            border: 2px solid #ffffff;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .screen-flash-box.verified {
+            background: #ffffff;
+            box-shadow: 0 0 45px rgba(16, 185, 129, 0.95), inset 0 0 20px rgba(16, 185, 129, 0.8);
+            border: 3px solid #10b981;
+        }
+
+        .flash-indicator-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #0f172a;
+            color: #fbbf24;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-top: 4px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
         .viewfinder-wrapper {
             position: relative;
             width: 270px;
             height: 270px;
-            margin: 0 auto 16px;
+            margin: 0 auto 12px;
             border-radius: 50%;
             overflow: hidden;
             background: #000;
             box-shadow: 0 0 25px rgba(0, 0, 0, 0.6), inset 0 0 15px rgba(0,0,0,0.8);
-            border: 4px solid var(--border-color);
+            border: 5px solid #000;
         }
 
         #videoFeed {
@@ -387,9 +420,15 @@
 
         <!-- Circular Camera Viewfinder -->
         <div class="camera-card">
-            <div class="viewfinder-wrapper" id="viewfinderWrapper">
-                <video id="videoFeed" autoplay muted playsinline></video>
-                <div class="face-guide-circle" id="faceCircle"></div>
+            <!-- Screen Flashlight Ring Light Box (Pure White Outer Space Illuminates Face) -->
+            <div class="screen-flash-box" id="screenFlashBox">
+                <div class="viewfinder-wrapper" id="viewfinderWrapper">
+                    <video id="videoFeed" autoplay muted playsinline></video>
+                    <div class="face-guide-circle" id="faceCircle"></div>
+                </div>
+                <div class="flash-indicator-badge">
+                    <i class="fa-solid fa-lightbulb" style="color: #fbbf24;"></i> Screen Flashlight Active (Face Illumination)
+                </div>
             </div>
 
             <!-- Instruction Pill Bar below camera circle (Zero border clipping) -->
@@ -495,6 +534,7 @@
         // Elements
         const videoFeed = document.getElementById('videoFeed');
         const faceCircle = document.getElementById('faceCircle');
+        const screenFlashBox = document.getElementById('screenFlashBox');
         const guideText = document.getElementById('guideText');
         const gpsBadge = document.getElementById('gpsBadge');
         const gpsText = document.getElementById('gpsText');
@@ -579,6 +619,7 @@
                                     livenessScore = 0.95;
 
                                     faceCircle.classList.add('verified');
+                                    if (screenFlashBox) screenFlashBox.classList.add('verified');
                                     livenessBadge.className = "pill-badge success";
                                     livenessText.innerHTML = `Human Face Verified ✅`;
                                     guideText.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#34d399;"></i> Human Face Verified! Auto-Processing...`;
@@ -587,13 +628,20 @@
                                     
                                     // AUTOMATIC PUNCH OR REGISTRATION EXECUTION
                                     if (!isPunchAutoExecuting && !cooldownActive) {
-                                        if (IS_REGISTERED && (currentLat === null || currentLng === null)) {
-                                            guideText.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i> Waiting for GPS location lock...`;
+                                        if (IS_REGISTERED && (currentLat === null || currentLng === null || !isInsidePremises)) {
+                                            if (!isInsidePremises && currentLat !== null && currentLng !== null) {
+                                                const distance = calculateDistance(currentLat, currentLng, GEOFENCE_LAT, GEOFENCE_LNG);
+                                                const distLabel = distance >= 1000 ? (distance / 1000).toFixed(2) + ' km' : distance + ' m';
+                                                guideText.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Punch Blocked: ${distLabel} outside campus premises.`;
+                                            } else {
+                                                guideText.innerHTML = `<i class="fa-solid fa-spinner fa-spin me-1"></i> Waiting for GPS location lock...`;
+                                            }
                                             // Reset verified flag to re-evaluate when GPS locks
                                             isSmileVerified = false;
                                             faceCircle.classList.remove('verified');
-                                            livenessBadge.className = "pill-badge warning";
-                                            livenessText.innerHTML = "Acquiring GPS...";
+                                            if (screenFlashBox) screenFlashBox.classList.remove('verified');
+                                            livenessBadge.className = "pill-badge danger";
+                                            livenessText.innerHTML = "Outside Campus (Punch Blocked)";
                                             return;
                                         }
 
@@ -748,6 +796,7 @@
                 livenessScore = Math.min(0.98, 0.85 + (avgMotionDelta / 100));
 
                 faceCircle.classList.add('verified');
+                if (screenFlashBox) screenFlashBox.classList.add('verified');
                 livenessBadge.className = "pill-badge success";
                 livenessText.innerHTML = `Human Face Verified ✅ (${(livenessScore*100).toFixed(0)}%)`;
                 guideText.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#34d399;"></i> Face Scan Verified! Opening Preview...`;
@@ -968,6 +1017,15 @@
                 showToast("GPS Location lock required. Please enable high accuracy location.");
                 isPunchAutoExecuting = false;
                 if (guideText) guideText.innerHTML = `<i class="fa-solid fa-location-crosshairs text-warning me-1"></i> Waiting for GPS location lock...`;
+                return;
+            }
+
+            if (!isInsidePremises) {
+                const distance = calculateDistance(currentLat, currentLng, GEOFENCE_LAT, GEOFENCE_LNG);
+                const distLabel = distance >= 1000 ? (distance / 1000).toFixed(2) + ' km' : distance + ' m';
+                showToast(`❌ Punch Blocked: You are currently ${distLabel} outside campus premises.`);
+                isPunchAutoExecuting = false;
+                if (guideText) guideText.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Punch Blocked: ${distLabel} outside campus.`;
                 return;
             }
 

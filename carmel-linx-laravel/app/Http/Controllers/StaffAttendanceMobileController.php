@@ -42,6 +42,31 @@ class StaffAttendanceMobileController extends Controller
         $staffId = Session::get('userStaffId') ?? Session::get('mobileNo') ?? Session::get('userId') ?? 'SF-STAFF-DEMO';
         $staffName = Session::get('userName') ?? Session::get('userRole') ?? 'Self-Financing Staff';
 
+        // Authorization Guard: Restrict to EL, CT, AU, and General SF staff categories
+        $staffBranch = strtoupper(Session::get('userBranch') ?? '');
+        $staffRole   = strtoupper(Session::get('userRole') ?? '');
+
+        $staff = StaffProfile::where('mobile_no', $staffId)->first();
+        if ($staff) {
+            if ($staff->branch) $staffBranch = strtoupper($staff->branch);
+            if ($staff->designation) $staffRole = strtoupper($staff->designation);
+        }
+
+        $sfAllowedBranches = ['EL', 'CT', 'AU', 'GEN_SF', 'SF'];
+        $sfAllowedRoles    = ['GEN_DEPT_COORDINATOR_SELF_FINANCE', 'ACADEMIC_COORDINATOR_SF'];
+
+        $isSfStaff = in_array($staffBranch, $sfAllowedBranches)
+            || in_array($staffRole, $sfAllowedRoles)
+            || str_contains($staffRole, 'SELF_FINANCE')
+            || str_contains($staffRole, 'SELF FINANCE')
+            || str_contains($staffRole, '_SF')
+            || str_contains($staffBranch, 'SF')
+            || in_array($staffRole, ['SUPER_ADMIN', 'PRINCIPAL', 'ADMIN', 'CHAIRMAN']);
+
+        if (!$isSfStaff) {
+            return redirect('/dashboard/staff/mobile')->with('error', 'Biometric attendance is only applicable for EL, CT, AU, and General SF staff.');
+        }
+
         $registration = SfStaffFaceRegistration::where('staff_id', $staffId)
             ->orWhere('mobile_no', $staffId)
             ->first();
@@ -141,6 +166,34 @@ class StaffAttendanceMobileController extends Controller
             $lng = (float) $request->input('gps_lng');
             $livenessScore = (float) ($request->input('liveness_score', 0.85));
 
+            // Authorization Guard: Restrict API punching to EL, CT, AU, and General SF staff
+            $staffBranch = strtoupper(Session::get('userBranch') ?? '');
+            $staffRole   = strtoupper(Session::get('userRole') ?? '');
+
+            $staffProfile = StaffProfile::where('mobile_no', $staffId)->first();
+            if ($staffProfile) {
+                if ($staffProfile->branch) $staffBranch = strtoupper($staffProfile->branch);
+                if ($staffProfile->designation) $staffRole = strtoupper($staffProfile->designation);
+            }
+
+            $sfAllowedBranches = ['EL', 'CT', 'AU', 'GEN_SF', 'SF'];
+            $sfAllowedRoles    = ['GEN_DEPT_COORDINATOR_SELF_FINANCE', 'ACADEMIC_COORDINATOR_SF'];
+
+            $isSfStaff = in_array($staffBranch, $sfAllowedBranches)
+                || in_array($staffRole, $sfAllowedRoles)
+                || str_contains($staffRole, 'SELF_FINANCE')
+                || str_contains($staffRole, 'SELF FINANCE')
+                || str_contains($staffRole, '_SF')
+                || str_contains($staffBranch, 'SF')
+                || in_array($staffRole, ['SUPER_ADMIN', 'PRINCIPAL', 'ADMIN', 'CHAIRMAN']);
+
+            if (!$isSfStaff) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized: Biometric attendance punching is restricted to EL, CT, AU, and General SF staff.'
+                ], 403);
+            }
+
             // Verify staff biometric face registration exists
             $registration = SfStaffFaceRegistration::where('staff_id', $staffId)
                                 ->orWhere('mobile_no', $staffId)
@@ -182,6 +235,15 @@ class StaffAttendanceMobileController extends Controller
 
             $distance = $this->calculateHaversineDistance($lat, $lng, $centroidLat, $centroidLng);
             $premisesStatus = ($distance <= $allowedRadius) ? 'INSIDE_PREMISES' : 'OUTSIDE_PREMISES';
+
+            // Strict Geofence Enforcement: Reject punches outside campus premises
+            if ($distance > $allowedRadius) {
+                $distLabel = $distance >= 1000 ? number_format($distance / 1000, 2) . ' km' : $distance . ' meters';
+                return response()->json([
+                    'success' => false,
+                    'message' => "❌ Attendance Rejected: You are currently {$distLabel} outside Carmel College Campus. Biometric punch is restricted to campus premises."
+                ], 422);
+            }
 
             // Save Snapshot if provided
             $snapshotUrl = null;

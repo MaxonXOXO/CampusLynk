@@ -179,11 +179,6 @@
       <a href="/sf-attendance/attendance-report" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-cyan-300 cursor-pointer no-underline block border border-cyan-900/40 bg-cyan-950/20">
          <span class="material-symbols-rounded text-lg text-cyan-400">how_to_reg</span> SF Staff Attendance Log
       </a>
-
-      <!-- Campus GPS Location & Geofence Setup Link -->
-      <a href="/sf-attendance/geofence-setup" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-blue-300 cursor-pointer no-underline block border border-blue-900/40 bg-blue-950/20">
-         <span class="material-symbols-rounded text-lg text-blue-400">location_on</span> Campus GPS &amp; Geofence Setup
-      </a>
     </nav>
 
     <!-- Logout -->
