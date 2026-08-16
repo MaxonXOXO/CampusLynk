@@ -1,0 +1,59 @@
+{
+  "brand": {
+    "name": "CampusLynk",
+    "tagline": "Connect. Manage. Empower."
+  },
+  "primary": {
+    "50": "#EEF4FF",
+    "100": "#D0E7FF",
+    "500": "#2563EB",
+    "600": "#1D4EDB",
+    "700": "#1E40AF"
+  },
+  "neutral": {
+    "50": "#FAFAFB",
+    "100": "#F3F4F6",
+    "200": "#E5E7EB",
+    "300": "#D1D5DB",
+    "700": "#374151",
+    "900": "#111827"
+  },
+  "semantic": {
+    "success": {
+      "base": "#22C55E",
+      "surface": "#DCFCE7",
+      "text": "#166534"
+    },
+    "warning": {
+      "base": "#F59E0B",
+      "surface": "#FEF3C7",
+      "text": "#92400E"
+    },
+    "error": {
+      "base": "#EF4444",
+      "surface": "#FEE2E2",
+      "text": "#991B1B"
+    },
+    "info": {
+      "base": "#2563EB",
+      "surface": "#DBEAFE",
+      "text": "#1E40AF"
+    }
+  },
+  "badge_variants": {
+    "active": { "bg": "#DCFCE7", "text": "#166534", "dot": "#22C55E" },
+    "pending": { "bg": "#FEF3C7", "text": "#92400E", "dot": "#F59E0B" },
+    "completed": { "bg": "#DBEAFE", "text": "#1E40AF", "dot": "#2563EB" },
+    "on_hold": { "bg": "#F3F4F6", "text": "#374151", "dot": "#9CA3AF" },
+    "cancelled": { "bg": "#FEE2E2", "text": "#991B1B", "dot": "#EF4444" },
+    "draft": { "bg": "#F3F4F6", "text": "#6B7280", "dot": "#9CA3AF" }
+  },
+  "surface": {
+    "app_bg": "#FAFAFB",
+    "card_bg": "#FFFFFF",
+    "card_border": "#E5E7EB",
+    "sidebar_bg": "#0F172A",
+    "sidebar_active_bg": "#2563EB",
+    "sidebar_active_text": "#FFFFFF"
+  }
+}

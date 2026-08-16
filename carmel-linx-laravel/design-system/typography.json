@@ -1,0 +1,56 @@
+{
+  "font_family": {
+    "primary": "'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+  },
+  "scale": {
+    "h1": {
+      "font_size": "32px",
+      "line_height": "40px",
+      "font_weight": "600",
+      "letter_spacing": "-0.02em"
+    },
+    "h2": {
+      "font_size": "24px",
+      "line_height": "32px",
+      "font_weight": "600",
+      "letter_spacing": "-0.01em"
+    },
+    "h3": {
+      "font_size": "20px",
+      "line_height": "28px",
+      "font_weight": "500",
+      "letter_spacing": "-0.01em"
+    },
+    "body": {
+      "font_size": "16px",
+      "line_height": "24px",
+      "font_weight": "400",
+      "letter_spacing": "0"
+    },
+    "small": {
+      "font_size": "14px",
+      "line_height": "20px",
+      "font_weight": "400",
+      "letter_spacing": "0"
+    },
+    "caption": {
+      "font_size": "12px",
+      "line_height": "16px",
+      "font_weight": "400",
+      "letter_spacing": "0.01em"
+    }
+  },
+  "weights": {
+    "light": 300,
+    "regular": 400,
+    "medium": 500,
+    "semibold": 600,
+    "bold": 700
+  },
+  "policy": {
+    "minimum_standard_interactive": "14px (text-sm)",
+    "minimum_standard_forms": "14px (text-sm)",
+    "minimum_standard_body": "16px (text-base)",
+    "caption_usage_restriction": "Strictly limited to micro-badges, timestamps, or helper hints. Never use for readable content."
+  }
+}

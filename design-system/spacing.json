@@ -1,0 +1,32 @@
+{
+  "spacing_scale": {
+    "0": "0px",
+    "1": "4px",
+    "1.5": "6px",
+    "2": "8px",
+    "2.5": "10px",
+    "3": "12px",
+    "4": "16px",
+    "5": "20px",
+    "6": "24px",
+    "8": "32px",
+    "10": "40px",
+    "12": "48px",
+    "16": "64px",
+    "20": "80px"
+  },
+  "layout": {
+    "sidebar_width_expanded": "260px",
+    "sidebar_width_collapsed": "76px",
+    "topbar_height": "70px",
+    "container_max_width": "1600px",
+    "page_padding_desktop": "24px 32px",
+    "page_padding_mobile": "16px 16px",
+    "card_padding": "24px",
+    "modal_padding": "24px 32px"
+  },
+  "touch_targets": {
+    "minimum_clickable_height": "44px",
+    "minimum_clickable_width": "44px"
+  }
+}
