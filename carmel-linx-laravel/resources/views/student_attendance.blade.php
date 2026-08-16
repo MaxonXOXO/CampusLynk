@@ -1,419 +1,240 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-[#FAFAFB]">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Attendance Review — {{ $student->name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Review — {{ $student->name }} | CampusLynk</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Google Fonts & FontAwesome -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-    <style>
-        :root {
-            --app-bg: #090d16;
-            --card-bg: rgba(17, 24, 39, 0.95);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --accent-cyan: #06b6d4;
-            --accent-emerald: #10b981;
-            --accent-amber: #f59e0b;
-            --accent-rose: #f43f5e;
-            --accent-purple: #8b5cf6;
-        }
-
-        body {
-            background-color: var(--app-bg);
-            color: #f3f4f6;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            font-size: 0.88rem;
-            min-height: 100vh;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .mobile-container {
-            max-width: 520px;
-            margin: 0 auto;
-            min-height: 100vh;
-            background-color: var(--app-bg);
-            position: relative;
-        }
-
-        /* Header Bar */
-        .mobile-header {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--card-border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding: 12px 16px;
-        }
-
-        /* App Cards */
-        .app-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 18px;
-            padding: 16px;
-            margin-bottom: 14px;
-            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.5);
-        }
-
-        /* Hero Attendance Dial */
-        .attendance-dial {
-            width: 105px;
-            height: 105px;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 4px solid var(--accent-emerald);
-            background: rgba(16, 185, 129, 0.08);
-            margin: 0 auto;
-        }
-        .attendance-dial.warning {
-            border-color: var(--accent-amber);
-            background: rgba(245, 158, 11, 0.08);
-        }
-        .attendance-dial.danger {
-            border-color: var(--accent-rose);
-            background: rgba(244, 63, 94, 0.08);
-        }
-
-        /* Timeline Items */
-        .timeline-item {
-            background: rgba(30, 41, 59, 0.6);
-            border-left: 4px solid var(--accent-cyan);
-            border-radius: 12px;
-            padding: 12px 14px;
-            margin-bottom: 8px;
-        }
-        .timeline-item.present { border-left-color: var(--accent-emerald); }
-        .timeline-item.absent { border-left-color: var(--accent-rose); }
-        .timeline-item.not-marked { border-left-color: #64748b; }
-        .timeline-item.special-hour { border-left-color: var(--accent-purple); }
-
-        .badge-app {
-            font-size: 0.7rem;
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-weight: 700;
-        }
-
-        .avatar-mobile {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: 2px solid var(--accent-cyan);
-            object-fit: cover;
-        }
-
-        .time-pill {
-            font-size: 0.68rem;
-            color: #94a3b8;
-            font-weight: 600;
-            background: rgba(15, 23, 42, 0.6);
-            padding: 2px 6px;
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-    </style>
+    <!-- Vite Asset Pipeline -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body class="min-h-screen bg-[#FAFAFB] text-slate-800 flex flex-col antialiased font-['Poppins']">
 
-    <div class="mobile-container">
+    <div class="flex h-screen overflow-hidden bg-[#FAFAFB]">
+        
+        <!-- Master Sidebar Navigation (Student Role, active: attendance) -->
+        <x-layout.sidebar role="student" active="attendance" />
 
-        <!-- Top App Bar -->
-        <div class="mobile-header d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center gap-2">
-                <a href="/dashboard/student" class="text-secondary me-1 text-decoration-none">
-                    <i class="fa-solid fa-arrow-left fs-5 text-cyan"></i>
-                </a>
-                <div>
-                    <h6 class="fw-bold mb-0 text-white" style="font-size: 0.95rem;">Attendance Review</h6>
-                    <small class="text-secondary" style="font-size: 0.72rem;">Live Academic Daily Tracker</small>
-                </div>
-            </div>
-            <a href="/dashboard/student" class="btn btn-sm btn-outline-info px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
-                <i class="fa-solid fa-house me-1"></i> Dashboard
-            </a>
-        </div>
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#FAFAFB]">
+            
+            <!-- Master TopBar Component -->
+            <x-layout.topbar title="Attendance Review" subtitle="Real-time daily periods, subject-wise attendance trajectory, and leave records." />
 
-        <!-- Scrollable Content View -->
-        <div class="p-3">
+            <!-- Scrollable Main View Area -->
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
-            <!-- Student Profile Card -->
-            <div class="app-card">
-                <div class="d-flex align-items-center gap-3">
-                    @if($student->photo_url)
-                        <img src="{{ $student->photo_url }}" alt="{{ $student->name }}" class="avatar-mobile">
-                    @else
-                        <div class="avatar-mobile bg-dark text-cyan d-flex align-items-center justify-content-center fw-bold fs-5">
-                            {{ strtoupper(substr($student->name, 0, 1)) }}
+                <!-- Top KPI Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Cumulative Attendance Card -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between items-center text-center">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Overall Semester Attendance</span>
+                        
+                        <div class="relative w-32 h-32 flex items-center justify-center my-3">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                <circle cx="50" cy="50" r="40" stroke="#F1F5F9" stroke-width="8" fill="transparent" />
+                                <circle cx="50" cy="50" r="40" stroke="{{ $overallAttendancePct >= 75 ? '#10B981' : ($overallAttendancePct >= 65 ? '#F59E0B' : '#EF4444') }}" stroke-width="8" fill="transparent"
+                                        stroke-dasharray="251.2" stroke-dashoffset="{{ 251.2 - (($overallAttendancePct / 100) * 251.2) }}" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+                            </svg>
+                            <div class="absolute flex flex-col items-center leading-none">
+                                <span class="text-2xl font-bold text-slate-900">{{ $overallAttendancePct }}%</span>
+                                <span class="text-[10px] text-slate-400 font-medium mt-1 uppercase">Target 75%</span>
+                            </div>
                         </div>
-                    @endif
-                    <div class="flex-grow-1">
-                        <h6 class="fw-extrabold text-white mb-0" style="font-size: 1rem;">{{ $student->name }}</h6>
-                        <div class="d-flex align-items-center gap-1 mt-1 flex-wrap">
-                            <span class="badge bg-cyan bg-opacity-20 text-cyan badge-app">Reg: {{ $student->reg_no }}</span>
-                            <span class="badge bg-purple bg-opacity-20 text-purple badge-app">Sem {{ $student->semester }} ({{ $student->branch }})</span>
+
+                        <div class="text-xs text-slate-500 font-medium">
+                            Status: 
+                            <span class="font-bold {{ $overallAttendancePct >= 75 ? 'text-emerald-700' : 'text-rose-700' }}">
+                                {{ $overallAttendancePct >= 75 ? 'Satisfactory & Eligible' : 'Shortage Alert (Condonation Required)' }}
+                            </span>
                         </div>
                     </div>
-                </div>
 
-                @if($tutor && $tutor->name)
-                <div class="mt-3 pt-2 border-top border-secondary border-opacity-25 d-flex align-items-center justify-content-between">
-                    <span class="text-secondary small" style="font-size: 0.78rem;">Class Tutor: <strong>{{ $tutor->name }}</strong></span>
-                    @if($tutor->mobile_no)
-                    <a href="tel:{{ $tutor->mobile_no }}" class="btn btn-sm btn-success px-2 py-0.5 rounded-pill" style="font-size: 0.72rem;">
-                        <i class="fa-solid fa-phone me-1"></i> Call Tutor
-                    </a>
-                    @endif
-                </div>
-                @endif
-            </div>
-
-            <!-- Hero Attendance Gauge (Strictly 6 Working Hours) -->
-            <div class="app-card text-center">
-                <span class="text-secondary uppercase text-[11px] fw-bold d-block mb-2">Overall Attendance (6 Working Hours)</span>
-                <div class="attendance-dial {{ $overallAttendancePct >= 75 ? '' : ($overallAttendancePct >= 65 ? 'warning' : 'danger') }}">
-                    <span class="fw-extrabold fs-4 {{ $overallAttendancePct >= 75 ? 'text-emerald-400' : ($overallAttendancePct >= 65 ? 'text-amber-400' : 'text-rose-400') }}">
-                        {{ number_format($overallAttendancePct, 1) }}%
-                    </span>
-                </div>
-                <div class="mt-2">
-                    <span class="badge {{ $overallAttendancePct >= 75 ? 'bg-success' : ($overallAttendancePct >= 65 ? 'bg-warning text-dark' : 'bg-danger') }} badge-app">
-                        {{ $overallAttendancePct >= 75 ? 'Good Standing (Eligible for Exams)' : ($overallAttendancePct >= 65 ? 'Warning: Low Attendance' : 'Critical: Condonation Alert') }}
-                    </span>
-                </div>
-                <small class="text-secondary d-block mt-2" style="font-size: 0.75rem;">
-                    Attended: <strong>{{ $totalAttendedClasses }}</strong> / Total Conducted: <strong>{{ $totalConductedClasses }}</strong> Hours
-                </small>
-            </div>
-
-            <!-- Today's Hour-Wise Attendance Grid -->
-            <div class="app-card">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h6 class="fw-bold text-white mb-0" style="font-size: 0.9rem;">
-                        <i class="fa-solid fa-clock me-1 text-cyan"></i> Today's Timetable & Attendance
-                    </h6>
-                    <small class="text-secondary" style="font-size: 0.72rem;">{{ \Carbon\Carbon::now()->format('d M Y') }}</small>
-                </div>
-
-                @foreach($hourlyStatus as $pNum => $pData)
-                <div class="timeline-item {{ $pNum === 7 ? 'special-hour' : strtolower(str_replace(' ', '-', $pData['status'])) }}">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
-                            <div class="d-flex align-items-center gap-1.5 mb-1">
-                                <span class="badge {{ $pNum === 7 ? 'bg-purple text-white' : 'bg-secondary' }}" style="font-size: 0.68rem;">P{{ $pNum }}</span>
-                                <span class="time-pill">
-                                    <i class="fa-regular fa-clock me-1"></i>{{ $pData['time_slot'] }}
-                                </span>
+                    <!-- Hours Statistics Card -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+                        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">Academic Hours Summary</h3>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/60">
+                                <span class="text-xs text-slate-600 font-medium">Conducted Sessions</span>
+                                <span class="text-sm font-bold font-mono text-slate-900">{{ $totalConductedClasses }} Hours</span>
                             </div>
-                            <strong class="text-white d-block" style="font-size: 0.85rem;">{{ $pData['subject_name'] }}</strong>
-                            <small class="text-secondary d-block mt-0.5" style="font-size: 0.72rem;">
-                                {{ $pData['topic'] }}
-                            </small>
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/60">
+                                <span class="text-xs text-emerald-800 font-medium">Attended Sessions</span>
+                                <span class="text-sm font-bold font-mono text-emerald-950">{{ $totalAttendedClasses }} Hours</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 rounded-xl bg-rose-50/60 border border-rose-200/60">
+                                <span class="text-xs text-rose-800 font-medium">Absent Sessions</span>
+                                <span class="text-sm font-bold font-mono text-rose-950">{{ max(0, $totalConductedClasses - $totalAttendedClasses) }} Hours</span>
+                            </div>
                         </div>
-                        <span class="badge {{ $pData['badge_class'] }} badge-app">
-                            {{ $pData['status'] }}
+
+                        <div class="text-[11px] text-slate-400">Calculated across standard periods 1 to 6.</div>
+                    </div>
+
+                    <!-- Class & Faculty Tutor Card -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+                        <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">Institutional Advisor</h3>
+                        
+                        <div class="space-y-3">
+                            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60">
+                                <p class="text-xs font-medium text-slate-500">Classroom Identifier</p>
+                                <p class="text-sm font-bold text-slate-900 mt-0.5">{{ $classroom ? $classroom->classroom_id : $student->classroom_id }}</p>
+                            </div>
+                            <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60">
+                                <p class="text-xs font-medium text-slate-500">Class Tutor</p>
+                                <p class="text-sm font-bold text-slate-900 mt-0.5">{{ $tutor ? $tutor->name : 'Department Faculty Assigned' }}</p>
+                                @if($tutor && $tutor->mobile_no)
+                                    <p class="text-[11px] text-slate-500 font-mono mt-0.5">Contact: {{ $tutor->mobile_no }}</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-slate-400">Regular contact tutor for condonation and leaves.</div>
+                    </div>
+
+                </div>
+
+                <!-- Today's Hour-Wise Attendance Grid -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                                <i data-lucide="clock" class="w-4 h-4 text-blue-600"></i>
+                                <span>Today's Period Attendance Timeline</span>
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-0.5">{{ now()->format('l, d F Y') }} • Hourly live attendance logs</p>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                            Live Log Active
                         </span>
                     </div>
-                </div>
-                @endforeach
-            </div>
 
-            <!-- Leave Request Provision (Addon Feature) -->
-            <div class="app-card">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h6 class="fw-bold text-warning mb-0" style="font-size: 0.9rem;">
-                        <i class="fa-solid fa-file-signature me-1"></i> Leave Request & History
-                    </h6>
-                    <button type="button" onclick="toggleLeaveForm()" class="btn btn-sm btn-outline-warning px-2.5 py-1 rounded-pill" style="font-size: 0.72rem;">
-                        <i class="fa-solid fa-plus me-1"></i> Apply Leave
-                    </button>
-                </div>
-
-                <!-- Collapsible Leave Application Form -->
-                <div id="leaveFormCard" class="d-none bg-dark bg-opacity-60 p-3 rounded-3 border border-secondary border-opacity-25 mb-3">
-                    <h6 class="fw-bold text-white mb-2" style="font-size: 0.82rem;">New Leave Application</h6>
-                    <form id="mobileLeaveForm" onsubmit="submitStudentLeave(event)">
-                        <input type="hidden" name="semester" value="{{ $student->semester }}">
-                        <div class="mb-2">
-                            <label class="form-label text-secondary mb-1" style="font-size: 0.72rem;">Leave Date</label>
-                            <input type="date" name="leave_date" required class="form-control form-control-sm bg-slate-900 text-white border-secondary border-opacity-25" value="{{ \Carbon\Carbon::now()->format('Y-m-d') }}">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label text-secondary mb-1" style="font-size: 0.72rem;">Number of Days</label>
-                            <select name="no_of_days" required class="form-select form-select-sm bg-slate-900 text-white border-secondary border-opacity-25">
-                                <option value="1">1 Day (Full Day)</option>
-                                <option value="0.5">0.5 Day (Half Day)</option>
-                                <option value="2">2 Days</option>
-                                <option value="3">3 Days</option>
-                                <option value="4">4 Days</option>
-                                <option value="5">5 Days</option>
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label text-secondary mb-1" style="font-size: 0.72rem;">Reason for Absence</label>
-                            <textarea name="reason" required rows="2" placeholder="State valid reason (e.g. Medical, Family Emergency)..." class="form-control form-control-sm bg-slate-900 text-white border-secondary border-opacity-25" style="font-size: 0.78rem;"></textarea>
-                        </div>
-                        <div class="form-check mb-3">
-                            <input class="form-check-input" type="checkbox" name="parent_informed" id="chkParentInformed" value="1">
-                            <label class="form-check-label text-secondary" for="chkParentInformed" style="font-size: 0.75rem;">
-                                Parent / Guardian informed tutor
-                            </label>
-                        </div>
-                        <div id="leaveFormStatus" class="d-none small mb-2 font-bold"></div>
-                        <div class="d-flex justify-content-end gap-2">
-                            <button type="button" onclick="toggleLeaveForm()" class="btn btn-sm btn-secondary px-3" style="font-size: 0.75rem;">Cancel</button>
-                            <button type="submit" id="btnSubmitLeave" class="btn btn-sm btn-warning px-3 fw-bold" style="font-size: 0.75rem;">Submit to Tutor</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Recent Leave Applications List -->
-                <div class="space-y-2">
-                    @forelse($leaveRecords as $record)
-                    <div class="p-2.5 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-25 d-flex align-items-center justify-content-between mb-2">
-                        <div>
-                            <div class="d-flex align-items-center gap-2 mb-1">
-                                <span class="fw-bold text-white" style="font-size: 0.82rem;">
-                                    <i class="fa-regular fa-calendar-minus me-1 text-warning"></i>{{ \Carbon\Carbon::parse($record->leave_date)->format('d M Y') }}
-                                </span>
-                                <span class="badge bg-secondary" style="font-size: 0.65rem;">{{ $record->no_of_days }} {{ $record->no_of_days == 1 ? 'Day' : 'Days' }}</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 pt-2">
+                        @foreach($hourlyStatus as $p)
+                            <div class="p-3.5 rounded-xl border {{ $p['status'] === 'Present' ? 'bg-emerald-50/50 border-emerald-200/80' : ($p['status'] === 'Absent' ? 'bg-rose-50/50 border-rose-200/80' : 'bg-slate-50 border-slate-200/80') }} flex flex-col justify-between space-y-2">
+                                <div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                            {{ $p['period'] === 7 ? 'Hour 7' : 'Hour ' . $p['period'] }}
+                                        </span>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold {{ $p['status'] === 'Present' ? 'bg-emerald-100 text-emerald-800' : ($p['status'] === 'Absent' ? 'bg-rose-100 text-rose-800' : 'bg-slate-200 text-slate-600') }}">
+                                            {{ $p['status'] }}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs font-bold text-slate-900 mt-2 line-clamp-1" title="{{ $p['subject_name'] }}">
+                                        {{ $p['subject_name'] }}
+                                    </p>
+                                    <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-1" title="{{ $p['topic'] }}">
+                                        {{ $p['topic'] ?: 'Session' }}
+                                    </p>
+                                </div>
+                                <div class="text-[10px] font-mono text-slate-400 border-t border-slate-200/60 pt-2">
+                                    {{ $p['time_slot'] }}
+                                </div>
                             </div>
-                            <small class="text-secondary d-block" style="font-size: 0.72rem;">Reason: {{ $record->reason }}</small>
-                            <small class="text-slate-400 d-block mt-0.5" style="font-size: 0.68rem;">
-                                {{ $record->parent_informed ? '✓ Parent Informed' : 'Parent Not Informed' }}
-                            </small>
-                        </div>
-                        <div class="text-end">
-                            @if(strtolower($record->status) === 'approved')
-                                <span class="badge bg-success text-white badge-app">Approved</span>
-                            @elseif(strtolower($record->status) === 'rejected')
-                                <span class="badge bg-danger text-white badge-app">Rejected</span>
-                            @else
-                                <span class="badge bg-warning text-dark badge-app">Pending Review</span>
-                            @endif
-                        </div>
+                        @endforeach
                     </div>
-                    @empty
-                    <div class="text-center text-secondary py-3" style="font-size: 0.78rem;">
-                        No leave applications submitted yet.
-                    </div>
-                    @endforelse
                 </div>
-            </div>
 
-            <!-- Subject-Wise Attendance Breakdown Table -->
-            <div class="app-card">
-                <h6 class="fw-bold text-info mb-3" style="font-size: 0.9rem;">
-                    <i class="fa-solid fa-layer-group me-1"></i> Subject-Wise Attendance Breakdown
-                </h6>
-                <div class="table-responsive">
-                    <table class="table table-dark table-hover align-middle mb-0" style="font-size: 0.78rem;">
-                        <thead>
-                            <tr class="text-secondary border-bottom border-secondary border-opacity-25">
-                                <th>Subject</th>
-                                <th class="text-center">Attended</th>
-                                <th class="text-center">Conducted</th>
-                                <th class="text-end">%</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($subjectStats as $stat)
-                            <tr class="border-bottom border-secondary border-opacity-10">
-                                <td>
-                                    <strong class="text-white d-block">{{ $stat['subject_code'] }}</strong>
-                                    <small class="text-secondary">{{ $stat['subject_name'] }}</small>
-                                </td>
-                                <td class="text-center fw-bold text-emerald-400">{{ $stat['attended'] }} hrs</td>
-                                <td class="text-center text-slate-300">{{ $stat['conducted'] }} hrs</td>
-                                <td class="text-end">
-                                    <span class="badge {{ $stat['percentage'] >= 75 ? 'bg-success' : ($stat['percentage'] >= 65 ? 'bg-warning text-dark' : 'bg-danger') }} badge-app">
-                                        {{ number_format($stat['percentage'], 1) }}%
-                                    </span>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="text-center text-secondary py-3">No subject logs recorded yet.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <!-- Subject-Wise Attendance Breakdown Table -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div class="border-b border-slate-100 pb-3">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="book-open" class="w-4 h-4 text-blue-600"></i>
+                            <span>Subject-Wise Attendance Distribution</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Continuous attendance records and minimum 75% examination eligibility thresholds.</p>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider">
+                                    <th class="py-3 px-4">Subject Code & Name</th>
+                                    <th class="py-3 px-4 text-center">Conducted</th>
+                                    <th class="py-3 px-4 text-center">Attended</th>
+                                    <th class="py-3 px-4 text-center">Percentage</th>
+                                    <th class="py-3 px-4 text-right">Eligibility Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-800">
+                                @forelse($subjectStats as $sub)
+                                    <tr class="hover:bg-slate-50/70 transition-colors">
+                                        <td class="py-3.5 px-4">
+                                            <p class="font-semibold text-slate-900 text-xs">{{ $sub['subject_code'] }} - {{ $sub['subject_name'] }}</p>
+                                        </td>
+                                        <td class="py-3.5 px-4 text-center font-mono font-semibold text-slate-700">{{ $sub['conducted'] }}</td>
+                                        <td class="py-3.5 px-4 text-center font-mono font-bold text-blue-700">{{ $sub['attended'] }}</td>
+                                        <td class="py-3.5 px-4 text-center font-bold font-mono {{ $sub['percentage'] >= 75 ? 'text-emerald-700' : 'text-rose-600' }}">
+                                            {{ $sub['percentage'] }}%
+                                        </td>
+                                        <td class="py-3.5 px-4 text-right">
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $sub['percentage'] >= 75 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' : 'bg-rose-50 text-rose-800 border border-rose-200/60' }}">
+                                                {{ $sub['percentage'] >= 75 ? 'Eligible' : 'Shortage (<75%)' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="5" class="p-6 text-center text-slate-400">No subject attendance logs available yet.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Leave & Absence Records Table -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                    <div class="border-b border-slate-100 pb-3">
+                        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
+                            <span>Student Leave & Absence Log</span>
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Registered medical leaves, duty leaves, and tutor condonation records.</p>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider">
+                                    <th class="py-3 px-4">Leave Date</th>
+                                    <th class="py-3 px-4">Type / Reason</th>
+                                    <th class="py-3 px-4">Period Range</th>
+                                    <th class="py-3 px-4 text-right">Verification Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 text-slate-800">
+                                @forelse($leaveRecords ?? [] as $leave)
+                                    <tr class="hover:bg-slate-50/70 transition-colors">
+                                        <td class="py-3.5 px-4 font-mono font-semibold text-slate-900">{{ $leave->leave_date }}</td>
+                                        <td class="py-3.5 px-4 text-slate-700">{{ $leave->reason ?? 'Medical / Personal Leave' }}</td>
+                                        <td class="py-3.5 px-4 text-slate-600">{{ $leave->period_range ?? 'Full Day' }}</td>
+                                        <td class="py-3.5 px-4 text-right">
+                                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $leave->status === 'Approved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' : 'bg-amber-50 text-amber-800 border border-amber-200/60' }}">
+                                                {{ $leave->status ?? 'Verified by Tutor' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="4" class="p-6 text-center text-slate-400">No formal leave requests recorded for this semester.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </main>
 
         </div>
-
     </div>
-
-    <script>
-        function toggleLeaveForm() {
-            const card = document.getElementById('leaveFormCard');
-            card.classList.toggle('d-none');
-        }
-
-        function submitStudentLeave(event) {
-            event.preventDefault();
-            const form = event.target;
-            const btn = document.getElementById('btnSubmitLeave');
-            const statusDiv = document.getElementById('leaveFormStatus');
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Submitting...';
-
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            const payload = {
-                semester: form.semester.value,
-                leave_date: form.leave_date.value,
-                no_of_days: form.no_of_days.value,
-                reason: form.reason.value,
-                parent_informed: form.parent_informed.checked ? 1 : 0,
-                status: 'Pending'
-            };
-
-            fetch('/api/mentoring/leave/save', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                btn.disabled = false;
-                btn.innerHTML = 'Submit to Tutor';
-
-                if (data.status === 'SUCCESS') {
-                    statusDiv.className = 'small mb-2 font-bold text-success';
-                    statusDiv.innerText = 'Leave application submitted successfully! Refreshing...';
-                    statusDiv.classList.remove('d-none');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1200);
-                } else {
-                    statusDiv.className = 'small mb-2 font-bold text-danger';
-                    statusDiv.innerText = data.message || 'Failed to submit leave application.';
-                    statusDiv.classList.remove('d-none');
-                }
-            })
-            .catch(err => {
-                btn.disabled = false;
-                btn.innerHTML = 'Submit to Tutor';
-                statusDiv.className = 'small mb-2 font-bold text-danger';
-                statusDiv.innerText = 'Network error. Please try again.';
-                statusDiv.classList.remove('d-none');
-            });
-        }
-    </script>
 
 </body>
 </html>

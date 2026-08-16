@@ -16,7 +16,7 @@
 </head>
 <body class="min-h-screen bg-[#FAFAFB] flex flex-col justify-between font-['Poppins'] antialiased">
     <!-- Top Header Navigation (Clean Neutral Surface) -->
-    <header class="h-[70px] bg-white border-b border-slate-200 px-6 sm:px-12 flex items-center justify-between sticky top-0 z-30">
+    <header class="h-[70px] bg-white border-b border-slate-200 px-6 sm:px-12 flex items-center justify-between">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-sm">
                 C
@@ -95,7 +95,7 @@
                         <p class="text-sm text-slate-500 mt-1">Select your institutional role and enter your credentials.</p>
                     </div>
 
-                    <!-- Role Switcher Tabs (Colored Active vs Non-Colored Inactive) -->
+                    <!-- Role Switcher Tabs (Colored Active Highlight vs Non-Colored Inactive) -->
                     <div class="grid grid-cols-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/60 gap-1" id="role-selector">
                         <button 
                             type="button" 
@@ -117,22 +117,30 @@
                         </button>
                     </div>
 
-                    <!-- Dynamic Alert Message Box -->
-                    <div id="loginAlert" class="hidden p-4 rounded-xl text-sm font-medium border"></div>
+                    <!-- Session Error Alert if present -->
+                    @if(session('error'))
+                        <x-ui.alert variant="error" title="Authentication Error">
+                            {{ session('error') }}
+                        </x-ui.alert>
+                    @endif
 
-                    <!-- Sign In Form (AJAX Handled) -->
-                    <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
-                        <!-- Username / Register No Input -->
+                    <!-- Sign In Form -->
+                    <form action="/login" method="POST" class="space-y-4">
+                        @csrf
+                        <input type="hidden" name="user_type" id="user_type" value="staff">
+
+                        <!-- Username Input -->
                         <div class="space-y-1.5">
-                            <label for="usernameInput" id="usernameLabel" class="block text-sm font-medium text-slate-700">Faculty Mobile / Username</label>
+                            <label for="username" class="block text-sm font-medium text-slate-700">Username / Mobile / Register No</label>
                             <div class="relative rounded-xl">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <i data-lucide="user" class="w-4 h-4"></i>
                                 </div>
                                 <input 
                                     type="text" 
-                                    id="usernameInput" 
-                                    placeholder="Enter your registered mobile or ID..." 
+                                    name="username" 
+                                    id="username" 
+                                    placeholder="Enter your faculty mobile / username..." 
                                     required 
                                     class="w-full min-h-[44px] pl-10 pr-4 py-2.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none text-sm transition-all"
                                 />
@@ -141,14 +149,15 @@
 
                         <!-- Password Input with Reveal Toggle -->
                         <div class="space-y-1.5">
-                            <label for="passwordInput" class="block text-sm font-medium text-slate-700">Password</label>
+                            <label for="password" class="block text-sm font-medium text-slate-700">Password</label>
                             <div class="relative rounded-xl">
                                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                     <i data-lucide="lock" class="w-4 h-4"></i>
                                 </div>
                                 <input 
                                     type="password" 
-                                    id="passwordInput" 
+                                    name="password" 
+                                    id="password" 
                                     placeholder="Enter your password..." 
                                     required 
                                     class="w-full min-h-[44px] pl-10 pr-12 py-2.5 bg-white border border-slate-200 hover:border-slate-300 text-slate-900 placeholder:text-slate-400 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none text-sm transition-all"
@@ -167,7 +176,7 @@
                         <!-- Remember Me & Forgot Password -->
                         <div class="flex items-center justify-between pt-1">
                             <label class="flex items-center gap-2 cursor-pointer select-none">
-                                <input type="checkbox" id="rememberMe" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                                <input type="checkbox" name="remember" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
                                 <span class="text-xs font-medium text-slate-600">Remember Me</span>
                             </label>
                             <a href="/modern/forgot-password" class="text-xs font-medium text-slate-600 hover:text-blue-600 hover:underline">
@@ -175,16 +184,12 @@
                             </a>
                         </div>
 
-                        <!-- Primary CTA Button -->
+                        <!-- Primary CTA Button (Level 4: Strong Blue Reserved for Action) -->
                         <div class="pt-2">
-                            <button 
-                                type="submit" 
-                                id="loginSubmitBtn"
-                                class="group w-full inline-flex items-center justify-center font-medium rounded-xl text-sm bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white min-h-[44px] px-5 py-2.5 shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                            >
-                                <span id="loginBtnText">Sign In to Account</span>
+                            <x-ui.button type="submit" variant="primary" class="group w-full">
+                                <span>Sign In to Account</span>
                                 <i data-lucide="arrow-right" class="w-4 h-4 ml-2 animate-hover-arrow-right"></i>
-                            </button>
+                            </x-ui.button>
                         </div>
                     </form>
 
@@ -205,17 +210,14 @@
         <p>© 2026 CampusLynk AMS • Carmel Polytechnic College • All Rights Reserved</p>
     </footer>
 
-    <!-- Interactive Script with Real Authentication Logic -->
+    <!-- Interactive Script with Smooth Tab Switch -->
     <script>
-        let currentRole = 'staff';
-
         function switchRole(role, btn) {
             if (btn) btn.blur();
-            currentRole = role;
             const studentTab = document.getElementById('tab-student');
             const staffTab = document.getElementById('tab-staff');
-            const usernameInput = document.getElementById('usernameInput');
-            const usernameLabel = document.getElementById('usernameLabel');
+            const userTypeInput = document.getElementById('user_type');
+            const usernameInput = document.getElementById('username');
 
             const activeClasses = "py-2.5 px-3 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-500/20 transition-all focus:outline-none focus:ring-0 select-none flex items-center justify-center gap-2";
             const inactiveClasses = "py-2.5 px-3 text-xs font-medium rounded-xl text-slate-600 transition-all hover:text-slate-900 focus:outline-none focus:ring-0 select-none flex items-center justify-center gap-2";
@@ -223,12 +225,12 @@
             if (role === 'student') {
                 studentTab.className = activeClasses;
                 staffTab.className = inactiveClasses;
-                usernameLabel.innerText = "Student Register Number";
+                userTypeInput.value = 'student';
                 usernameInput.placeholder = "Enter Student Register No (e.g., 2401001)...";
             } else {
                 staffTab.className = activeClasses;
                 studentTab.className = inactiveClasses;
-                usernameLabel.innerText = "Faculty Mobile / Username";
+                userTypeInput.value = 'staff';
                 usernameInput.placeholder = "Enter Faculty Mobile / Username...";
             }
 
@@ -236,72 +238,8 @@
         }
 
         function togglePasswordVisibility() {
-            const input = document.getElementById('passwordInput');
+            const input = document.getElementById('password');
             input.type = input.type === 'password' ? 'text' : 'password';
-        }
-
-        function getCsrfToken() {
-            const tokenMeta = document.querySelector('meta[name="csrf-token"]');
-            return tokenMeta ? tokenMeta.getAttribute('content') : '';
-        }
-
-        function handleLoginSubmit(e) {
-            e.preventDefault();
-
-            const alertEl = document.getElementById('loginAlert');
-            const btnText = document.getElementById('loginBtnText');
-            const submitBtn = document.getElementById('loginSubmitBtn');
-            const username = document.getElementById('usernameInput').value.trim();
-            const password = document.getElementById('passwordInput').value.trim();
-
-            if (!username || !password) {
-                alertEl.className = "p-3.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200/60 block";
-                alertEl.innerText = "Please fill in both your registered ID and password.";
-                alertEl.classList.remove('hidden');
-                return;
-            }
-
-            alertEl.classList.add('hidden');
-            btnText.innerText = "Verifying Credentials...";
-            submitBtn.disabled = true;
-
-            fetch('/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': getCsrfToken()
-                },
-                body: JSON.stringify({
-                    userId: username,
-                    password: password,
-                    roleType: currentRole
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'SUCCESS') {
-                    alertEl.className = "p-3.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/60 block";
-                    alertEl.innerText = "Access verified! Redirecting to your dashboard...";
-                    alertEl.classList.remove('hidden');
-                    setTimeout(() => {
-                        window.location.href = data.route;
-                    }, 500);
-                } else {
-                    submitBtn.disabled = false;
-                    btnText.innerText = "Sign In to Account";
-                    alertEl.className = "p-3.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200/60 block";
-                    alertEl.innerText = data.message || "Invalid credentials. Please verify your login details.";
-                    alertEl.classList.remove('hidden');
-                }
-            })
-            .catch(err => {
-                submitBtn.disabled = false;
-                btnText.innerText = "Sign In to Account";
-                alertEl.className = "p-3.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200/60 block";
-                alertEl.innerText = "Unable to connect to institutional server. Please check network.";
-                alertEl.classList.remove('hidden');
-            });
         }
     </script>
 </body>

@@ -1,805 +1,1109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-[#FAFAFB]">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carmel Linx - Student Portal</title>
+  <title>CampusLynk - Student Portal</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Chart.js CDN for Analytics Gauges & Trends -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <style>
-    @media (max-width: 1440px) {
-      html, body {
-        font-size: 15px !important;
-      }
-      .p-6 {
-        padding: 1rem !important;
-      }
-      .p-8 {
-        padding: 1.25rem !important;
-      }
-      .gap-6 {
-        gap: 1rem !important;
-      }
-      .gap-8 {
-        gap: 1.25rem !important;
-      }
-      .table-responsive {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      .text-nowrap {
-        white-space: nowrap !important;
-      }
-    }
-    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
-    .font-extrabold, .font-black {
-      font-weight: 700 !important;
-    }
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    input, select, textarea {
-      font-size: 0.875rem !important; /* 14px (text-sm) minimum */
-    }
-    nav.space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
-      margin-top: 0.25rem !important;
-    }
-    nav.space-y-1\.5 a, nav.space-y-1\.5 button {
-      padding-top: 0.5rem !important;
-      padding-bottom: 0.5rem !important;
-    }
-    .transition-premium { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-    .scrollbar-hidden::-webkit-scrollbar { display: none; }
-    .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .fade-up { animation: fadeUp 0.4s ease both; }
-    
-    /* Premium scrollbar styles */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.3);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(147, 51, 234, 0.4);
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(147, 51, 234, 0.6);
-    }
-  </style>
+
+  <!-- Vite Asset Pipeline -->
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-900 text-slate-100 h-screen flex flex-col md:flex-row overflow-hidden">
+<body class="min-h-screen bg-[#FAFAFB] text-slate-800 flex flex-col antialiased font-['Poppins']">
 
-  <!-- Sidebar Backdrop (Mobile only) -->
-  <div id="sidebarBackdrop" class="fixed inset-0 bg-black/60 z-20 hidden transition-opacity duration-300 ease-in-out" onclick="toggleMobileSidebar()"></div>
+  <div class="flex h-screen overflow-hidden bg-[#FAFAFB]">
+    
+    <!-- Unified Standalone Sidebar Navigation (Student Role) -->
+    <x-layout.sidebar role="student" active="exams" />
 
-  <!-- Sidebar -->
-  <aside id="sidebarMenu" class="fixed inset-y-0 left-0 z-30 w-64 bg-slate-950 flex-shrink-0 flex flex-col border-r border-slate-800/80 shadow-xl transition-transform duration-300 ease-in-out transform -translate-x-full md:translate-x-0 md:sticky md:top-0 md:h-screen overflow-y-auto">
-    <!-- Branding -->
-    <div class="p-5 border-b border-slate-800/60 flex items-center gap-3">
-      <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-slate-800/60">
-      <div>
-        <h2 class="font-black tracking-tight leading-tight text-white" style="font-size: 1.15rem; font-weight: 900; letter-spacing: -0.3px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Carmel Linx</h2>
-        <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Student Portal</span>
-      </div>
-    </div>
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#FAFAFB]">
+      
+      <!-- Master TopBar Component -->
+      <x-layout.topbar />
 
-    <!-- Profile Card -->
-    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40">
-      <div class="flex items-center gap-3" id="sidebarAvatarContainer">
-        @if(session('userPhoto'))
-          <img id="sidebarStudentImg" src="{{ session('userPhoto') }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
-        @else
-          <div id="sidebarStudentPlaceholder" class="w-11 h-11 rounded-full bg-gradient-to-br from-blue-600 to-sky-700 flex items-center justify-center font-black shadow text-sm">
-            {{ strtoupper(substr(session('userName','S'), 0, 2)) }}
-          </div>
-        @endif
-        <div class="overflow-hidden">
-          <span class="font-black text-base block truncate text-white leading-tight">{{ session('userName') }}</span>
-          <span class="text-xs font-bold text-teal-400 block font-mono">{{ session('userId') }}</span>
-          <span class="text-xs text-slate-500 font-semibold">{{ session('userBranch') }} &bull; Student</span>
-        </div>
-      </div>
-    </div>
+      <!-- Scrollable Main View Container -->
+      <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
-    <!-- Nav -->
-    <nav class="flex-grow p-4 space-y-1">
-      <button id="navExams" onclick="switchPanel('exams')" class="w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500   text-sm">
-        <span class="material-symbols-rounded text-lg">checklist</span> Works To Do
-      </button>
-      <button id="navMarks" onclick="switchPanel('marks')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
-        <span class="material-symbols-rounded text-lg">bar_chart_4_bars</span> Academic Stats
-      </button>
-      <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
-        <span class="material-symbols-rounded text-lg">manage_accounts</span> My Profile
-      </button>
-      <a id="navMentoring" href="/student/mentoring-diary" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
-        <span class="material-symbols-rounded text-lg">menu_book</span> Mentoring Diary
-      </a>
-      <button id="navActivity" onclick="switchPanel('activity')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
-        <span class="material-symbols-rounded text-lg">star</span> Activity Points
-      </button>
-      <button id="navSeminar" onclick="switchPanel('seminar')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer   text-sm">
-        <span class="material-symbols-rounded text-lg">co_present</span> My Seminar
-      </button>
-      <a id="navAttendance" href="/student/attendance" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-emerald-300 hover:bg-emerald-950/20 cursor-pointer text-sm no-underline">
-        <span class="material-symbols-rounded text-lg text-emerald-400">how_to_reg</span> Attendance Review
-      </a>
-      <a id="navMockTest" href="/student/mock-test" target="_blank" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-teal-300 hover:bg-blue-950/20 cursor-pointer text-sm no-underline">
-        <span class="material-symbols-rounded text-lg text-teal-400 animate-pulse">rocket_launch</span> Mock Practice Test
-      </a>
-    </nav>
-
-    <!-- Logout & Mobile Preview -->
-    <div class="p-4 border-t border-slate-800/80 space-y-2">
-      <a href="/student/mobile" class="w-full py-2 bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-500/30 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center transition-premium text-xs">
-        <span class="material-symbols-rounded text-base">smartphone</span> Switch to Mobile View
-      </a>
-      <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to logout?')" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-xs">
-        <span class="material-symbols-rounded text-base">logout</span> Sign Out
-      </a>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="flex-grow flex flex-col overflow-hidden">
-
-    <!-- Top Header -->
-    <header class="bg-slate-950/40 border-b border-slate-800/80 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 z-10 shadow-lg">
-        <div class="flex items-center gap-3">
-          <button onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors focus:outline-none flex items-center justify-center">
-            <span class="material-symbols-rounded">menu</span>
-          </button>
-          <div>
-            <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Works To Do</h1>
-            <p class="font-bold text-slate-400 mt-0.5" id="panelSubtitle">Manage your pending assignments and active tests.</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-4">
-          <div class="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 font-black uppercase tracking-wider text-slate-400 flex flex-wrap gap-4 text-xs">
-            <span>Branch: <strong class="text-slate-200">{{ session('userBranch', '-') }}</strong></span>
-            <span>Batch: <strong class="text-slate-200">{{ session('classroomId', '-') }}</strong>
-              @if(str_contains(session('classroomId', ''), '_LET'))
-                <span class="bg-purple-900/60 border border-purple-500/50 text-purple-300 font-extrabold text-[10px] px-1.5 py-0.5 rounded ml-1 uppercase">LET</span>
-              @endif
-            </span>
-            <span id="headerSemesterText">Sem: <strong class="text-teal-400" id="headerSemValue">...</strong></span>
-          </div>
-          <a href="/student/mobile" class="px-3 py-2 bg-slate-800 hover:bg-cyan-950/40 text-cyan-400 hover:text-cyan-300 border border-slate-700 hover:border-cyan-500/40 rounded-xl font-bold text-xs flex items-center gap-1.5 no-underline transition-premium" title="Switch to Student Mobile Web App">
-            <span class="material-symbols-rounded text-sm">smartphone</span> Mobile View
-          </a>
-        </div>
-      </header>
-
-    <!-- Panels -->
-    <div class="flex-grow overflow-y-auto p-6 md:p-8">
-
-      <!-- PRE-CLASS ACADEMIC READINESS & LEARNING VAULT ALERT BANNER -->
-      <div id="vlmPreClassAlertBanner" class="mb-6 bg-gradient-to-r from-amber-950/70 via-slate-900 to-indigo-950/70 border-2 border-amber-500/60 rounded-2xl p-5 shadow-2xl relative overflow-hidden hidden fade-up">
-        <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
-        
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
-          <div class="flex items-start gap-3.5">
-            <div class="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center flex-shrink-0 shadow-lg text-amber-400 animate-pulse">
-              <span class="material-symbols-rounded text-2xl">campaign</span>
-            </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-black uppercase tracking-wider">⚡ Pre-Class Evening Preparation Alert</span>
-                <span id="vlmAlertTargetDate" class="text-xs font-mono text-slate-300"></span>
+        <!-- PRE-CLASS ACADEMIC READINESS & LEARNING VAULT ALERT BANNER -->
+        <div id="vlmPreClassAlertBanner" class="hidden bg-white border border-amber-200/80 rounded-2xl p-5 shadow-sm relative overflow-hidden transition-all">
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+            <div class="flex items-start gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">
+                <i data-lucide="bell-ring" class="w-5 h-5 animate-hover-bell"></i>
               </div>
-              <h3 id="vlmAlertTitle" class="font-black text-white text-base mt-1"></h3>
-              <p id="vlmAlertInstruction" class="text-xs text-amber-200/90 mt-1 max-w-2xl"></p>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/60 text-[10px] font-semibold uppercase tracking-wider">
+                    Pre-Class Evening Readiness
+                  </span>
+                  <span id="vlmAlertTargetDate" class="text-xs text-slate-500 font-medium"></span>
+                </div>
+                <h3 id="vlmAlertTitle" class="font-bold text-slate-900 text-sm mt-1"></h3>
+                <p id="vlmAlertInstruction" class="text-xs text-slate-600 mt-0.5 max-w-2xl"></p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2.5 shrink-0 w-full md:w-auto justify-end">
+              <button type="button" onclick="openVlmVaultModal()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl text-xs transition-all shadow-sm flex items-center gap-1.5">
+                <i data-lucide="folder" class="w-3.5 h-3.5"></i>
+                <span>Learning Vault</span>
+              </button>
+              <button type="button" onclick="acknowledgeVlmNotice()" id="btnAckVlm" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold transition-all border border-slate-200 flex items-center gap-1.5">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span>Acknowledge</span>
+              </button>
             </div>
           </div>
-
-          <div class="flex items-center gap-2 flex-shrink-0 w-full md:w-auto justify-end">
-            <button onclick="openVlmVaultModal()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs transition-all shadow-lg flex items-center gap-2 cursor-pointer">
-              <span class="material-symbols-rounded text-base">folder_special</span>
-              Open Study Materials Vault
-            </button>
-            <button onclick="acknowledgeVlmNotice()" id="btnAckVlm" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold transition-all border border-slate-700 cursor-pointer flex items-center gap-1.5">
-              <span class="material-symbols-rounded text-sm text-emerald-400">check_circle</span>
-              Acknowledge
-            </button>
-          </div>
         </div>
-      </div>
 
-      <!-- PANEL: ACTIVE EXAMS -->
-      <div id="panelExams" class="fade-up">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <!-- ========================================================================= -->
+        <!-- 1. PANEL: WORKS TO DO / ACTIVE EXAMS (Default Active) -->
+        <!-- ========================================================================= -->
+        <div id="panelExams" class="space-y-6">
+          
+          <!-- KPI Summary Cards (Neutral 70% Base, High-Contrast Metrics) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
             <!-- Assignments Card -->
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-4">
-              <div class="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 flex-shrink-0">
-                <span class="material-symbols-rounded text-blue-400 text-lg">assignment</span>
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
               </div>
-              <div class="flex-grow">
-                <p class="font-bold text-slate-200 text-sm mb-1">Assignments</p>
-                <div class="flex justify-between items-center text-sm gap-2">
-                  <span class="text-slate-400">Active: <strong class="text-white text-base" id="statActiveAssign">0</strong></span>
-                  <span class="text-slate-400">Done: <strong class="text-teal-400 text-base" id="statAssignDone">0</strong></span>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Assignments</p>
+                <div class="flex justify-between items-baseline mt-1">
+                  <span class="text-xs text-slate-500">Active: <strong class="text-slate-900 font-bold text-base" id="statActiveAssign">0</strong></span>
+                  <span class="text-xs text-slate-500">Done: <strong class="text-emerald-700 font-bold text-base" id="statAssignDone">0</strong></span>
                 </div>
               </div>
             </div>
 
             <!-- Written Tests Card -->
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-4">
-              <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center border border-amber-500/20 flex-shrink-0">
-                <span class="material-symbols-rounded text-amber-400 text-lg">edit_document</span>
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <i data-lucide="file-edit" class="w-5 h-5"></i>
               </div>
-              <div class="flex-grow">
-                <p class="font-bold text-slate-200 text-sm mb-1">Written Tests</p>
-                <div class="flex justify-between items-center text-sm gap-2">
-                  <span class="text-slate-400">Active: <strong class="text-white text-base" id="statWrittenTests">0</strong></span>
-                  <span class="text-slate-400">Done: <strong class="text-indigo-400 text-base" id="statWrittenTestsDone">0</strong></span>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Written Tests</p>
+                <div class="flex justify-between items-baseline mt-1">
+                  <span class="text-xs text-slate-500">Active: <strong class="text-slate-900 font-bold text-base" id="statWrittenTests">0</strong></span>
+                  <span class="text-xs text-slate-500">Done: <strong class="text-blue-700 font-bold text-base" id="statWrittenTestsDone">0</strong></span>
                 </div>
               </div>
             </div>
 
             <!-- MCQ Tests Card -->
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-4">
-              <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 flex-shrink-0">
-                <span class="material-symbols-rounded text-purple-400 text-lg">quiz</span>
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <i data-lucide="help-circle" class="w-5 h-5"></i>
               </div>
-              <div class="flex-grow">
-                <p class="font-bold text-slate-200 text-sm mb-1">MCQ Tests</p>
-                <div class="flex justify-between items-center text-sm gap-2">
-                  <span class="text-slate-400">Active: <strong class="text-white text-base" id="statActiveTests">0</strong></span>
-                  <span class="text-slate-400">Done: <strong class="text-emerald-400 text-base" id="statTestsDone">0</strong></span>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Online MCQ</p>
+                <div class="flex justify-between items-baseline mt-1">
+                  <span class="text-xs text-slate-500">Active: <strong class="text-slate-900 font-bold text-base" id="statActiveTests">0</strong></span>
+                  <span class="text-xs text-slate-500">Done: <strong class="text-emerald-700 font-bold text-base" id="statTestsDone">0</strong></span>
                 </div>
               </div>
             </div>
 
             <!-- Overall Tasks Card -->
-            <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-4 flex items-center gap-4">
-              <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center border border-rose-500/20 flex-shrink-0">
-                <span class="material-symbols-rounded text-rose-400 text-lg">pending_actions</span>
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center gap-4">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center shrink-0">
+                <i data-lucide="list-checks" class="w-5 h-5"></i>
               </div>
-              <div class="flex-grow">
-                <p class="font-bold text-slate-200 text-sm mb-1">Overall Tasks</p>
-                <div class="flex justify-between items-center text-sm gap-2">
-                  <span class="text-slate-400">Total Active: <strong class="text-rose-400 text-base" id="statPendingTotal">0</strong></span>
-                  <span class="text-slate-400">Total Done: <strong class="text-teal-400 text-base" id="statOverallDone">0</strong></span>
+              <div class="flex-1 min-w-0">
+                <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Overall Tasks</p>
+                <div class="flex justify-between items-baseline mt-1">
+                  <span class="text-xs text-slate-500">Pending: <strong class="text-rose-600 font-bold text-base" id="statPendingTotal">0</strong></span>
+                  <span class="text-xs text-slate-500">Total Done: <strong class="text-slate-900 font-bold text-base" id="statOverallDone">0</strong></span>
                 </div>
               </div>
             </div>
-        </div>
 
-        <div class="mb-6 bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-          <h3 class="font-black text-slate-200 uppercase tracking-widest mb-1 text-base">My Pending Work</h3>
-          <p class="text-slate-400 text-sm">View your active assignments, upcoming tests, and deadlines.</p>
-          
-          <div id="pendingGridContainer" class="grid grid-cols-1 gap-6 mt-6">
-            <!-- Surveys Container (Spans full width above columns if active) -->
-            <div id="studentSurveysContainer" class="col-span-full hidden">
-              <!-- Rendered dynamically inside -->
+          </div>
+
+          <!-- Pending Tasks Section -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <h2 class="text-base font-bold text-slate-900">Pending Academic Work</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Active continuous evaluations, assignments, and series test submissions.</p>
+              </div>
             </div>
 
-            <!-- Column 1: MCQ Tests Section -->
-            <div id="mcqTestsSection" class="hidden">
-              <h4 class="font-black text-purple-400 uppercase tracking-wider text-sm mb-3 flex items-center gap-1.5">
-                <span class="material-symbols-rounded text-lg">quiz</span> Online MCQ Tests
-              </h4>
-              <div id="studentActiveTestsList" class="flex flex-col gap-3">
-                <div class="py-12 text-center text-slate-500 font-bold animate-pulse text-sm">Loading active tests...</div>
+            <div id="pendingGridContainer" class="grid grid-cols-1 gap-6">
+              <!-- Active Surveys Container -->
+              <div id="studentSurveysContainer" class="col-span-full hidden"></div>
+
+              <!-- Column 1: Online MCQ Tests -->
+              <div id="mcqTestsSection" class="hidden space-y-3">
+                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <i data-lucide="help-circle" class="w-4 h-4 text-blue-600"></i>
+                  <span>Online MCQ Assessments</span>
+                </h3>
+                <div id="studentActiveTestsList" class="flex flex-col gap-3">
+                  <div class="py-8 text-center text-slate-400 font-medium text-xs">Loading active tests...</div>
+                </div>
               </div>
+
+              <!-- Column 2: Assignments & Written Tests -->
+              <div id="assignmentsSection" class="hidden space-y-3">
+                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
+                  <span>Assignments & Written Tasks</span>
+                </h3>
+                <div id="studentActiveTasksContainer" class="flex flex-col gap-3">
+                  <div class="py-8 text-center text-slate-400 font-medium text-xs">Loading active tasks...</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subject Syllabus Progress Cards -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <div class="border-b border-slate-100 pb-3">
+              <h2 class="text-base font-bold text-slate-900">Semester Course Progress</h2>
+              <p id="subjectProgressSubtitle" class="text-xs text-slate-500 mt-0.5">Completed class hours and syllabus coverage logged by course faculty.</p>
             </div>
             
-            <!-- Column 2: Assignments & Written Tests Section -->
-            <div id="assignmentsSection" class="hidden">
-              <h4 class="font-black text-blue-400 uppercase tracking-wider text-sm mb-3 flex items-center gap-1.5">
-                <span class="material-symbols-rounded text-lg">assignment</span> Assignments & Written Tests
-              </h4>
-              <div id="studentActiveTasksContainer" class="flex flex-col gap-3">
-                <div class="py-12 text-center text-slate-500 font-bold animate-pulse text-sm">Loading active tasks...</div>
-              </div>
+            <div id="subjectProgressGrid" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 pt-2">
+              <div class="col-span-full py-8 text-center text-slate-400 font-medium text-xs">Loading course syllabus coverage...</div>
             </div>
           </div>
+
         </div>
 
-        <!-- Subject Class Progress Cards (Two Column) -->
-        <div class="mb-6 bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-          <h3 class="font-black text-slate-200 uppercase tracking-widest mb-1 text-base">Semester Subject Progress</h3>
-          <p id="subjectProgressSubtitle" class="text-slate-400 text-sm mb-6">Track total completed sessions and syllabus coverage based on classroom logs.</p>
+        <!-- ========================================================================= -->
+        <!-- 2. PANEL: ACADEMIC STATS & CIE MARKS -->
+        <!-- ========================================================================= -->
+        <div id="panelMarks" class="hidden space-y-6">
           
-          <div id="subjectProgressGrid" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
-            <div class="col-span-full py-8 text-center text-slate-500 font-bold animate-pulse text-sm">Loading syllabus coverage and progress...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- PANEL: ACADEMIC MARKS -->
-      <div id="panelMarks" class="hidden fade-up space-y-6">
-        
-        <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 shadow-xl items-stretch">
-          <!-- Circular GPA Gauge -->
-          <div class="flex flex-col justify-between items-center text-center p-5 bg-slate-950/80 border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.15)] rounded-xl h-full">
-            <p class="font-black text-slate-300 uppercase tracking-widest text-sm mb-3">Cumulative GPA</p>
-            <div class="relative w-32 h-32 flex items-center justify-center my-auto">
-              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="rgba(15, 23, 42, 0.8)" stroke-width="8" fill="transparent" />
-                <circle id="cgpaGaugeProgress" cx="50" cy="50" r="40" stroke="url(#gpaGradient)" stroke-width="8" fill="transparent"
-                        stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
-                <defs>
-                  <linearGradient id="gpaGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#22d3ee" />
-                    <stop offset="100%" stop-color="#0284c7" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div class="absolute flex flex-col items-center leading-none">
-                <span id="overallCgpa" class="text-3xl font-black text-cyan-400">0.00</span>
-                <div class="w-10 h-[2px] bg-slate-800 my-1.5"></div>
-                <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">10.0</span>
-              </div>
-            </div>
-            <div class="mt-4 text-xs font-semibold text-slate-400">
-              Class: <span id="diplomaClassification" class="text-cyan-400 font-bold">--</span>
-            </div>
-          </div>
-
-          <!-- Circular Activity Points Gauge -->
-          <div id="activityPointsCard" class="flex flex-col justify-between items-center text-center p-5 bg-slate-950/80 border border-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.15)] rounded-xl h-full">
-            <p class="font-black text-slate-300 uppercase tracking-widest text-sm mb-3">Activity Points</p>
-            <div class="relative w-32 h-32 flex items-center justify-center my-auto">
-              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="rgba(15, 23, 42, 0.8)" stroke-width="8" fill="transparent" />
-                <circle id="activityGaugeProgress" cx="50" cy="50" r="40" stroke="url(#activityGradient)" stroke-width="8" fill="transparent"
-                        stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
-                <defs>
-                  <linearGradient id="activityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#a855f7" />
-                    <stop offset="100%" stop-color="#6366f1" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div class="absolute flex flex-col items-center leading-none">
-                <span id="overallActivityPoints" class="text-3xl font-black text-purple-400">0</span>
-                <div class="w-10 h-[2px] bg-slate-800 my-1.5"></div>
-                <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">160</span>
-              </div>
-            </div>
-            <div class="mt-4 text-xs font-semibold text-slate-400">
-              Min Required: <span class="text-emerald-400">60 Points</span>
-            </div>
-          </div>
-
-          <!-- Circular Attendance Gauge -->
-          <div class="flex flex-col justify-between items-center text-center p-5 bg-slate-950/80 border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.15)] rounded-xl h-full">
-            <p class="font-black text-slate-300 uppercase tracking-widest text-sm mb-3">Overall Attendance</p>
-            <div class="relative w-32 h-32 flex items-center justify-center my-auto">
-              <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="40" stroke="rgba(15, 23, 42, 0.8)" stroke-width="8" fill="transparent" />
-                <circle id="attendanceGaugeProgress" cx="50" cy="50" r="40" stroke="url(#attendanceGradient)" stroke-width="8" fill="transparent"
-                        stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
-                <defs>
-                  <linearGradient id="attendanceGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#10b981" />
-                    <stop offset="100%" stop-color="#059669" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div class="absolute flex flex-col items-center leading-none">
-                <span id="overallAttendancePct" class="text-3xl font-black text-emerald-400">0%</span>
-              </div>
-            </div>
-            <div class="mt-4 text-sm font-semibold text-slate-400">
-              Present Hours: <span id="attendanceHoursDetail" class="text-slate-200">0 / 0</span>
-            </div>
-          </div>
-
-          <!-- Line Chart for Trends -->
-          <div class="flex flex-col justify-between items-center text-center p-5 bg-slate-950/80 border border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.15)] rounded-xl h-full">
-            <p class="font-black text-slate-300 uppercase tracking-wider text-sm mb-2">SGPA Trend</p>
-            <div class="w-full h-32 flex items-center justify-center my-auto">
-              <canvas id="cgpaChart"></canvas>
-            </div>
-            <div class="mt-4 text-xs font-semibold text-slate-400">
-              Semester-wise SGPA
-            </div>
-          </div>
-        </div>
-
-        <!-- Semester Switcher -->
-        <div class="flex justify-between items-center bg-slate-900/50 p-2 rounded-xl border border-slate-800">
-          <div id="semesterTabsContainer" class="flex gap-1 overflow-x-auto scrollbar-hidden">
-             <!-- Rendered dynamically -->
-          </div>
-        </div>
-
-        <!-- Academic Report Content (God Table) -->
-        <div id="academicReportContent" class="space-y-4 pb-12 overflow-x-auto">
-           <div class="text-slate-500 italic text-center p-4 text-[10px] text-xs">Loading stats...</div>
-        </div>
-      </div>
-
-      <!-- PANEL: MY PROFILE -->
-      <div id="panelProfile" class="hidden fade-up">
-        <div class="max-w-2xl mx-auto space-y-6">
-
-          <!-- Profile Header Card -->
-          <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl p-6 flex flex-col sm:flex-row items-center gap-5">
-            <div class="relative group">
-              <div id="studentAvatarWrapper" class="w-20 h-20 rounded-2xl overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center shadow-lg relative">
-                @if(session('userPhoto'))
-                  <img id="studentProfileImg" src="{{ session('userPhoto') }}" class="w-full h-full object-cover">
-                @else
-                  <div id="studentProfilePlaceholder" class="w-full h-full bg-gradient-to-br from-blue-600 to-sky-700 flex items-center justify-center font-black text-2xl text-white">
-                    {{ strtoupper(substr(session('userName','S'), 0, 2)) }}
-                  </div>
-                @endif
-              </div>
-              <label for="photoUploadInput" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer rounded-2xl text-white text-sm font-bold text-center gap-1 p-1">
-                <span class="material-symbols-rounded text-base">photo_camera</span>
-                <span>Change</span>
-              </label>
-              <input type="file" id="photoUploadInput" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
-            </div>
-            <div class="text-center sm:text-left">
-              <h3 class="font-black text-white text-sm">{{ session('userName') }}</h3>
-              <p class="text-sm text-slate-400 font-semibold mt-0.5">{{ session('userId') }} &bull; {{ session('userBranch') }}</p>
-              <span class="mt-2 inline-block px-2.5 py-0.5 rounded-full font-bold bg-teal-500/10 text-teal-400 border border-teal-500/20 text-sm">Student</span>
-              <div id="photoUploadStatus" class="text-sm font-bold mt-2 hidden"></div>
-            </div>
-          </div>
-
-          <!-- Info Grid -->
-          <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl p-6">
-            <h3 class="font-black text-slate-300 uppercase tracking-wider border-b border-slate-800/60 pb-3 mb-4 text-[10px] text-xs">Academic Information</h3>
-            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="bg-slate-900/40 rounded-xl p-4">
-                <dt class="text-slate-400 font-black uppercase tracking-wider">Register Number</dt>
-                <dd class="font-mono font-bold text-white mt-1">{{ session('userId') }}</dd>
-              </div>
-              <div class="bg-slate-900/40 rounded-xl p-4">
-                <dt class="text-slate-400 font-black uppercase tracking-wider">Branch</dt>
-                <dd class="font-bold text-white mt-1">{{ session('userBranch') }}</dd>
-              </div>
-              <div class="bg-slate-900/40 rounded-xl p-4">
-                <dt class="text-slate-400 font-black uppercase tracking-wider">Classroom ID</dt>
-                <dd class="font-mono font-bold text-white mt-1">
-                  {{ session('classroomId', '-') }}
-                  @if(str_contains(session('classroomId', ''), '_LET'))
-                    <span class="bg-purple-900/60 border border-purple-500/50 text-purple-300 font-extrabold text-[10px] px-2 py-0.5 rounded ml-2 uppercase">Lateral Entry</span>
-                  @endif
-                </dd>
-              </div>
-              <div class="bg-slate-900/40 rounded-xl p-4">
-                <dt class="text-slate-400 font-black uppercase tracking-wider">Role</dt>
-                <dd class="font-bold text-teal-400 mt-1">Student</dd>
-              </div>
-            </dl>
-          </div>
-
-          <!-- SBTE Register Number Card -->
-          <div class="bg-slate-950/30 border border-amber-500/20 rounded-2xl p-6">
-            <div class="flex items-center gap-2 border-b border-slate-800/60 pb-3 mb-4">
-              <span class="material-symbols-rounded text-amber-400 text-xs">badge</span>
-              <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider">SBTE Examination Register No</h3>
-            </div>
-            <?php
-              $sbteNo = session('sbteRegNo', '');
-            ?>
-            @if($sbteNo)
-              <div class="flex items-center justify-between bg-slate-900/60 rounded-xl p-4 border border-amber-500/20">
-                <div>
-                  <p class="text-xs text-amber-400 font-bold uppercase tracking-wider mb-1">Confirmed</p>
-                  <p class="font-mono font-black text-white text-xs">{{ $sbteNo }}</p>
+          <!-- Gauges & Trend Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- Cumulative GPA Gauge -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between items-center text-center">
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Cumulative GPA</span>
+              <div class="relative w-28 h-28 flex items-center justify-center my-3">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" stroke="#F1F5F9" stroke-width="8" fill="transparent" />
+                  <circle id="cgpaGaugeProgress" cx="50" cy="50" r="40" stroke="#2563EB" stroke-width="8" fill="transparent"
+                          stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+                </svg>
+                <div class="absolute flex flex-col items-center leading-none">
+                  <span id="overallCgpa" class="text-2xl font-bold text-slate-900">0.00</span>
+                  <span class="text-[10px] text-slate-400 font-medium mt-1 uppercase">Max 10.0</span>
                 </div>
-                <span class="material-symbols-rounded text-amber-400 text-base">verified</span>
               </div>
-              <p class="text-xs text-slate-500 mt-3 font-semibold">Contact your tutor or HOD if you need to correct this number.</p>
-            @else
-              <p class="text-xs text-slate-400 mb-4 font-medium">Your SBTE Exam Register Number is assigned after commencement of class and SBTE registration. Enter it here once you receive it.</p>
-              <div class="flex gap-3">
-                <input type="text" id="sbteRegNoInput" placeholder="e.g. 25EL001" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20 outline-none">
-                <button onclick="updateSbteRegNo()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold text-xs transition-premium flex items-center gap-1.5 cursor-pointer">
-                  <span class="material-symbols-rounded text-xs">save</span> Save
+              <div class="text-xs text-slate-500 font-medium">
+                Classification: <span id="diplomaClassification" class="text-blue-700 font-semibold">--</span>
+              </div>
+            </div>
+
+            <!-- Activity Points Gauge -->
+            <div id="activityPointsCard" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between items-center text-center">
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Activity Points</span>
+              <div class="relative w-28 h-28 flex items-center justify-center my-3">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" stroke="#F1F5F9" stroke-width="8" fill="transparent" />
+                  <circle id="activityGaugeProgress" cx="50" cy="50" r="40" stroke="#10B981" stroke-width="8" fill="transparent"
+                          stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+                </svg>
+                <div class="absolute flex flex-col items-center leading-none">
+                  <span id="overallActivityPoints" class="text-2xl font-bold text-slate-900">0</span>
+                  <span class="text-[10px] text-slate-400 font-medium mt-1 uppercase">Max 160</span>
+                </div>
+              </div>
+              <div class="text-xs text-slate-500 font-medium">
+                Min Required: <span class="text-emerald-700 font-semibold">60 Points</span>
+              </div>
+            </div>
+
+            <!-- Overall Attendance Gauge -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between items-center text-center">
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Semester Attendance</span>
+              <div class="relative w-28 h-28 flex items-center justify-center my-3">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="40" stroke="#F1F5F9" stroke-width="8" fill="transparent" />
+                  <circle id="attendanceGaugeProgress" cx="50" cy="50" r="40" stroke="#10B981" stroke-width="8" fill="transparent"
+                          stroke-dasharray="251.2" stroke-dashoffset="251.2" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+                </svg>
+                <div class="absolute flex flex-col items-center leading-none">
+                  <span id="overallAttendancePct" class="text-2xl font-bold text-slate-900">0%</span>
+                  <span class="text-[10px] text-slate-400 font-medium mt-1 uppercase">Current Sem</span>
+                </div>
+              </div>
+              <div class="text-xs text-slate-500 font-medium">
+                Present Hours: <span id="attendanceHoursDetail" class="text-slate-900 font-semibold">0 / 0</span>
+              </div>
+            </div>
+
+            <!-- SGPA Trend Chart -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between items-center text-center">
+              <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">SGPA Performance</span>
+              <div class="w-full h-28 flex items-center justify-center my-2">
+                <canvas id="cgpaChart"></canvas>
+              </div>
+              <div class="text-xs text-slate-400 font-medium">Semester-wise Trend</div>
+            </div>
+
+          </div>
+
+          <!-- Semester Selection Tabs -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm flex items-center justify-between">
+            <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider px-2">Select Semester:</span>
+            <div id="semesterTabsContainer" class="flex gap-1.5 overflow-x-auto"></div>
+          </div>
+
+          <!-- Academic Marks Report (God Table) -->
+          <div id="academicReportContent" class="space-y-4">
+            <div class="text-slate-400 text-center p-8 bg-white border border-slate-200 rounded-2xl shadow-sm text-xs font-medium">Loading marksheet & evaluation records...</div>
+          </div>
+
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- 3. PANEL: MY PROFILE -->
+        <!-- ========================================================================= -->
+        <div id="panelProfile" class="hidden space-y-6">
+          <div class="max-w-3xl mx-auto space-y-6">
+            
+            <!-- Profile Card -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col sm:flex-row items-center gap-5">
+              <div class="relative group shrink-0">
+                <div id="studentAvatarWrapper" class="w-20 h-20 rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center shadow-sm relative">
+                  @if(session('userPhoto'))
+                    <img id="studentProfileImg" src="{{ session('userPhoto') }}" class="w-full h-full object-cover">
+                  @else
+                    <div id="studentProfilePlaceholder" class="w-full h-full bg-slate-900 flex items-center justify-center font-bold text-2xl text-white">
+                      {{ strtoupper(substr(session('userName','S'), 0, 2)) }}
+                    </div>
+                  @endif
+                </div>
+                <label for="photoUploadInput" class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer rounded-2xl text-white text-xs font-semibold text-center gap-1 p-1">
+                  <i data-lucide="camera" class="w-4 h-4"></i>
+                  <span>Change</span>
+                </label>
+                <input type="file" id="photoUploadInput" accept="image/*" class="hidden" onchange="handlePhotoUpload(event)">
+              </div>
+
+              <div class="text-center sm:text-left flex-1 min-w-0">
+                <h2 class="text-lg font-bold text-slate-900 truncate">{{ session('userName') }}</h2>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">{{ session('userId') }} • {{ session('userBranch') }}</p>
+                <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/60">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Active Student
+                </div>
+                <div id="photoUploadStatus" class="text-xs font-semibold mt-2 hidden"></div>
+              </div>
+            </div>
+
+            <!-- Academic Metadata Grid -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+              <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-3">Institutional Record</h3>
+              <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60">
+                  <dt class="text-xs font-medium text-slate-500">Registration Number</dt>
+                  <dd class="text-sm font-semibold font-mono text-slate-900 mt-0.5">{{ session('userId') }}</dd>
+                </div>
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60">
+                  <dt class="text-xs font-medium text-slate-500">Department / Branch</dt>
+                  <dd class="text-sm font-semibold text-slate-900 mt-0.5">{{ session('userBranch') }}</dd>
+                </div>
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60">
+                  <dt class="text-xs font-medium text-slate-500">Classroom Identifier</dt>
+                  <dd class="text-sm font-semibold text-slate-900 mt-0.5">{{ session('classroomId', '-') }}</dd>
+                </div>
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60">
+                  <dt class="text-xs font-medium text-slate-500">Curriculum Standard</dt>
+                  <dd class="text-sm font-semibold text-blue-700 mt-0.5">Revision 2026 (R2026)</dd>
+                </div>
+              </dl>
+            </div>
+
+            <!-- SBTE Register Number Section -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-3">
+              <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <i data-lucide="award" class="w-4 h-4 text-blue-600"></i>
+                <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider">SBTE Examination Register Number</h3>
+              </div>
+              @php $sbteNo = session('sbteRegNo', ''); @endphp
+              @if($sbteNo)
+                <div class="p-4 bg-emerald-50 border border-emerald-200/60 rounded-xl flex items-center justify-between">
+                  <div>
+                    <p class="text-xs text-emerald-800 font-medium">Confirmed Number</p>
+                    <p class="text-base font-bold font-mono text-emerald-950 mt-0.5">{{ $sbteNo }}</p>
+                  </div>
+                  <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600"></i>
+                </div>
+              @else
+                <p class="text-xs text-slate-500">Enter your assigned SBTE Diploma Examination Register Number:</p>
+                <div class="flex gap-2 pt-1">
+                  <input type="text" id="sbteRegNoInput" placeholder="e.g. 25EL001" class="flex-1 min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm font-mono text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none">
+                  <button type="button" onclick="updateSbteRegNo()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm">Save</button>
+                </div>
+                <div id="sbteAlert" class="hidden p-3 rounded-xl text-xs font-semibold border mt-2"></div>
+              @endif
+            </div>
+
+            <!-- Change Password Section -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+              <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-3">Security & Password</h3>
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 mb-1">Current Password</label>
+                  <input type="password" id="oldPwd" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none" placeholder="Enter current password">
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-slate-700 mb-1">New Password</label>
+                  <input type="password" id="newPwd" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none" placeholder="At least 6 characters">
+                </div>
+                <div id="pwdAlert" class="hidden p-3 rounded-xl text-xs font-semibold border"></div>
+                <button type="button" onclick="changePassword()" class="w-full min-h-[44px] bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all shadow-sm">Update Password</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- 4. PANEL: MENTORING DIARY (Clean Integrated 360° Portfolio) -->
+        <!-- ========================================================================= -->
+        <div id="panelMentoring" class="hidden space-y-6">
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+            
+            <!-- Mentoring Header Banner -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="book-open" class="w-4 h-4 text-blue-600"></i>
+                  <span>Student Mentoring Diary</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">360° student portfolio verified and monitored by faculty mentors.</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="downloadMentoringPdf()" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5">
+                  <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                  <span>Export PDF</span>
+                </button>
+                <button type="button" onclick="saveStudentMentoringData()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm flex items-center gap-1.5">
+                  <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                  <span>Save Changes</span>
                 </button>
               </div>
-              <div id="sbteAlert" class="hidden p-3 rounded-xl text-xs font-bold border mt-3"></div>
-            @endif
-          </div>
-
-          <!-- Change Password Section -->
-          <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl p-6">
-            <h3 class="text-xs font-black text-slate-300 uppercase tracking-wider border-b border-slate-800/60 pb-3 mb-4">Change Password</h3>
-            <div class="space-y-3">
-              <div>
-                <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">Current Password</label>
-                <input type="password" id="oldPwd" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none" placeholder="Enter current password">
-              </div>
-              <div>
-                <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">New Password</label>
-                <input type="password" id="newPwd" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 outline-none" placeholder="At least 6 characters">
-              </div>
-              <div id="pwdAlert" class="hidden p-3 rounded-xl text-xs font-bold border"></div>
-              <button onclick="changePassword()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition-premium cursor-pointer">Update Password</button>
             </div>
+
+            <!-- Mentoring Sub-tabs Navigation -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-1.5 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/60" id="smdSubTabs">
+              <button type="button" onclick="switchStudentMentoringTab('smdProfile')" id="tabBtn_smdProfile" class="smd-tab py-2 px-2.5 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm transition-all text-center">
+                Personal
+              </button>
+              <button type="button" onclick="switchStudentMentoringTab('smdFamily')" id="tabBtn_smdFamily" class="smd-tab py-2 px-2.5 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center">
+                Family
+              </button>
+              <button type="button" onclick="switchStudentMentoringTab('smdEducation')" id="tabBtn_smdEducation" class="smd-tab py-2 px-2.5 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center">
+                Education
+              </button>
+              <button type="button" onclick="switchStudentMentoringTab('smdAcademic')" id="tabBtn_smdAcademic" class="smd-tab py-2 px-2.5 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center">
+                Academics
+              </button>
+              <button type="button" onclick="switchStudentMentoringTab('smdBoard')" id="tabBtn_smdBoard" class="smd-tab py-2 px-2.5 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center">
+                Board Exams
+              </button>
+              <button type="button" onclick="switchStudentMentoringTab('smdExtra')" id="tabBtn_smdExtra" class="smd-tab py-2 px-2.5 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center">
+                Activities
+              </button>
+              <button type="button" onclick="switchStudentMentoringTab('smdMeetings')" id="tabBtn_smdMeetings" class="smd-tab py-2 px-2.5 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center">
+                Meetings
+              </button>
+            </div>
+
+            <!-- Mentoring Content Panes -->
+            <div class="pt-2">
+              
+              <!-- 1. Personal & Guardian Details Pane -->
+              <div id="smdProfile" class="smd-content-pane space-y-6">
+                <div>
+                  <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">Socio-Economic & Residential Profile</h3>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+                    <div>
+                      <label class="block text-xs font-semibold text-slate-700 mb-1">Annual Family Income</label>
+                      <input type="text" id="smd_annual_income" placeholder="e.g. ₹2,50,000" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-500 outline-none shadow-sm">
+                    </div>
+                    <div>
+                      <x-ui.select id="smd_residential_status" name="residential_status" label="Residential Status" :options="['Day Scholar'=>'Day Scholar', 'Hosteller'=>'Hosteller']" value="Day Scholar" />
+                    </div>
+                    <div>
+                      <label class="block text-xs font-semibold text-slate-700 mb-1">Scholarships Received</label>
+                      <input type="text" id="smd_scholarships" placeholder="e.g. E-Grantz / NSP" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-500 outline-none shadow-sm">
+                    </div>
+                    <div>
+                      <span class="block text-xs font-semibold text-slate-700 mb-1">Special Category</span>
+                      <label for="smd_fee_waiver" class="flex items-center gap-2.5 min-h-[44px] px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100/80 transition-colors select-none shadow-sm">
+                        <input type="checkbox" id="smd_fee_waiver" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                        <span class="text-xs font-medium text-slate-800">Fee Waiver Beneficiary</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-5">
+                  <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">Guardian Information</h3>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label class="block text-xs font-medium text-slate-700 mb-1">Guardian Name</label>
+                      <input type="text" id="smd_guardian_name" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-500 outline-none">
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-slate-700 mb-1">Relationship</label>
+                      <input type="text" id="smd_guardian_relationship" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-500 outline-none">
+                    </div>
+                    <div>
+                      <label class="block text-xs font-medium text-slate-700 mb-1">Contact Mobile</label>
+                      <input type="text" id="smd_guardian_mobile" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-500 outline-none">
+                    </div>
+                    <div class="sm:col-span-3">
+                      <label class="block text-xs font-medium text-slate-700 mb-1">Permanent Residential Address</label>
+                      <textarea id="smd_guardian_address" rows="2" class="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-500 outline-none resize-none"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Family Details Pane -->
+              <div id="smdFamily" class="smd-content-pane hidden space-y-4">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Family Members Roster</h3>
+                  <button type="button" onclick="addFamilyRow()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all flex items-center gap-1">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    <span>Add Member</span>
+                  </button>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider">
+                        <th class="py-3 px-4">Member Name</th>
+                        <th class="py-3 px-4">Relationship</th>
+                        <th class="py-3 px-4">Education</th>
+                        <th class="py-3 px-4">Occupation</th>
+                        <th class="py-3 px-4">Contact No</th>
+                        <th class="py-3 px-4 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="smdFamilyList" class="divide-y divide-slate-100 text-slate-800">
+                      <tr><td colspan="6" class="p-6 text-center text-slate-400">Loading family records...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- 3. Prior Education Pane -->
+              <div id="smdEducation" class="smd-content-pane hidden space-y-4">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Prior Academic Qualifications</h3>
+                  <button type="button" onclick="addEducationRow()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all flex items-center gap-1">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    <span>Add Qualification</span>
+                  </button>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider">
+                        <th class="py-3 px-4">Examination / Course</th>
+                        <th class="py-3 px-4">Institution / Board</th>
+                        <th class="py-3 px-4">Year of Passing</th>
+                        <th class="py-3 px-4">Percentage / CGPA</th>
+                        <th class="py-3 px-4 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="smdEducationList" class="divide-y divide-slate-100 text-slate-800">
+                      <tr><td colspan="5" class="p-6 text-center text-slate-400">Loading qualification records...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- 4. Academic Progress Pane -->
+              <div id="smdAcademic" class="smd-content-pane hidden space-y-4">
+                <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Internal Academic Records & Attendance</h3>
+                <div id="smdAcademicReport" class="space-y-4">
+                  <div class="p-6 text-center text-slate-400 text-xs font-medium">Loading semester academic trajectory...</div>
+                </div>
+              </div>
+
+              <!-- 5. Board Exams Pane -->
+              <div id="smdBoard" class="smd-content-pane hidden space-y-4">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider">SBTE Board Examination Results</h3>
+                  <button type="button" onclick="addBoardRow()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all flex items-center gap-1">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    <span>Add Result</span>
+                  </button>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider">
+                        <th class="py-3 px-4">Semester</th>
+                        <th class="py-3 px-4 text-center">SGPA</th>
+                        <th class="py-3 px-4 text-center">CGPA</th>
+                        <th class="py-3 px-4 text-center">Activity Points</th>
+                        <th class="py-3 px-4 text-center">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody id="smdBoardList" class="divide-y divide-slate-100 text-slate-800">
+                      <tr><td colspan="5" class="p-6 text-center text-slate-400">Loading board exam records...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- 6. Extracurricular Pane -->
+              <div id="smdExtra" class="smd-content-pane hidden space-y-4">
+                <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Extracurricular Activity Claims</h3>
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider">
+                        <th class="py-3 px-4">Event Name</th>
+                        <th class="py-3 px-4">Level</th>
+                        <th class="py-3 px-4">Prize / Participation</th>
+                        <th class="py-3 px-4 text-center">Awarded Points</th>
+                        <th class="py-3 px-4 text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="smdExtraList" class="divide-y divide-slate-100 text-slate-800">
+                      <tr><td colspan="5" class="p-6 text-center text-slate-400">Loading extracurricular records...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- 7. Mentor Meetings Pane -->
+              <div id="smdMeetings" class="smd-content-pane hidden space-y-4">
+                <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider">Mentor-Mentee Interaction Logs</h3>
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider">
+                        <th class="py-3 px-4">Meeting Date</th>
+                        <th class="py-3 px-4">Discussion Summary</th>
+                        <th class="py-3 px-4">Faculty Mentor Remarks</th>
+                        <th class="py-3 px-4">Action Taken</th>
+                      </tr>
+                    </thead>
+                    <tbody id="smdMeetingsList" class="divide-y divide-slate-100 text-slate-800">
+                      <tr><td colspan="4" class="p-6 text-center text-slate-400">Loading meeting records...</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
           </div>
-
         </div>
-      </div>
-      <!-- END PANEL: MY PROFILE -->
 
+        <!-- ========================================================================= -->
+        <!-- 5. PANEL: ACTIVITY POINTS -->
+        <!-- ========================================================================= -->
         @php
           $isLet = session('userAdmissionType') === 'LET';
           $activityGoal = $isLet ? 40 : 60;
         @endphp
-        <!-- PANEL: ACTIVITY POINTS -->
-        <div id="panelActivity" class="hidden fade-up space-y-6">
-          <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 border-b border-slate-800/60 pb-6">
+        <div id="panelActivity" class="hidden space-y-6">
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 border-b border-slate-100 pb-6">
               <div class="md:col-span-2 space-y-3">
-                <div>
-                  <h3 class="text-xs font-black text-slate-200">Activity Points Goal Tracker</h3>
-                  <p class="text-xs text-slate-400 mt-0.5">Track your progress towards the {{ $activityGoal }}-point diploma requirement.</p>
+                <h3 class="text-sm font-bold text-slate-900">Activity Points Goal Tracker</h3>
+                <p class="text-xs text-slate-500">Required graduation quota: {{ $activityGoal }} points under SBTE regulations.</p>
+                <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                  <div id="activityProgressBar" class="h-full bg-blue-600 transition-all duration-1000 ease-out" style="width: 0%"></div>
                 </div>
-                <div class="relative w-full h-3 bg-slate-900 rounded-full overflow-hidden border border-slate-800/60 shadow-inner">
-                  <div id="activityProgressBar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-red-500 to-amber-500 transition-all duration-1000 ease-out" style="width: 0%"></div>
-                </div>
-                <div class="flex justify-between text-xs font-bold text-slate-500">
+                <div class="flex justify-between text-xs font-semibold text-slate-400">
                   <span>0</span>
-                  <span>Goal: {{ $activityGoal }}</span>
+                  <span>Target: {{ $activityGoal }} Points</span>
                 </div>
               </div>
+
+              <div class="bg-slate-50 rounded-xl p-4 border border-slate-200/60 flex flex-col justify-between">
+                <div>
+                  <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Verified Total</span>
+                  <span class="text-2xl font-bold text-slate-900 block mt-1" id="verifiedActivityTotal">0</span>
+                </div>
+                <div class="mt-3 border-t border-slate-200/60 pt-2" id="activitySplitList"></div>
+              </div>
+            </div>
+
+            <!-- Submit New Claim Form -->
+            <div class="space-y-4">
+              <h3 class="text-sm font-bold text-slate-900">Submit New Extracurricular Claim</h3>
               
-              <div class="bg-slate-950/40 rounded-xl p-4 border border-slate-800/60 flex flex-col justify-between">
-                <div class="text-right">
-                  <span class="block text-xs text-slate-400 font-bold uppercase tracking-wider">Verified Total</span>
-                  <span class="text-base font-black text-amber-400" id="verifiedActivityTotal">0</span>
+              <form id="activityClaimForm" onsubmit="submitActivityClaim(event)" class="bg-slate-50 border border-slate-200/80 p-4 rounded-xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
+                <div class="lg:col-span-1">
+                  <x-ui.select name="semester" label="Semester" :options="['1'=>'Sem 1', '2'=>'Sem 2', '3'=>'Sem 3', '4'=>'Sem 4', '5'=>'Sem 5', '6'=>'Sem 6']" value="1" />
                 </div>
-                <div class="mt-3 border-t border-slate-800/40 pt-2" id="activitySplitList">
-                  <!-- Split loads here -->
+                <div class="lg:col-span-1">
+                  <x-ui.select name="activity_segment" label="Segment" placeholder="Select..." :options="['NCC'=>'NCC', 'NSS'=>'NSS', 'Sports & Games'=>'Sports & Games', 'Cultural Activities'=>'Cultural Activities', 'Professional Self Initiatives'=>'Prof. Self Initiatives', 'Entrepreneurship and Innovation'=>'Innovation', 'Leadership & Management'=>'Leadership', 'Disaster Management'=>'Disaster Mgmt']" />
                 </div>
-              </div>
+                <div class="lg:col-span-1">
+                  <label class="block text-xs font-medium text-slate-700 mb-1">Activity Name</label>
+                  <input type="text" name="activity_name" required placeholder="e.g. Arts 1st Prize" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none">
+                </div>
+                <div class="lg:col-span-1">
+                  <x-ui.select name="level" label="Level" placeholder="Level..." :options="['Level I - College'=>'Level I - College', 'Level II - Zonal'=>'Level II - Zonal', 'Level III - State/Univ'=>'Level III - State', 'Level IV - National'=>'Level IV - National', 'Level V - International'=>'Level V - International']" />
+                </div>
+                <div class="lg:col-span-1">
+                  <label class="block text-xs font-medium text-slate-700 mb-1">Points Claimed</label>
+                  <input type="number" name="points_claimed" required min="1" max="50" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 outline-none">
+                </div>
+                <div class="lg:col-span-1 flex flex-col justify-end">
+                  <button type="submit" class="w-full min-h-[44px] bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-xs transition-all shadow-sm">Submit Claim</button>
+                </div>
+                <div class="lg:col-span-6">
+                  <label class="block text-xs font-medium text-slate-700 mb-1">Document Evidence (Describe physical or digital proof submitted to tutor)</label>
+                  <input type="text" name="document_reference" placeholder="e.g. State Level Merit Certificate Hardcopy" class="w-full min-h-[40px] px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs text-slate-900 outline-none">
+                </div>
+              </form>
             </div>
 
-          <div class="mb-4">
-            <h3 class="text-xs font-bold text-slate-200">Submit New Claim</h3>
-          </div>
-          
-          <form id="activityClaimForm" onsubmit="submitActivityClaim(event)" class="bg-slate-950/40 border border-slate-800/40 p-4 rounded-xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
-            <div class="lg:col-span-1">
-              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Semester</label>
-              <select name="semester" required class="w-full bg-slate-900 border border-slate-700/60 rounded-lg px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
-                <option value="1">Sem 1</option>
-                <option value="2">Sem 2</option>
-                <option value="3">Sem 3</option>
-                <option value="4">Sem 4</option>
-                <option value="5">Sem 5</option>
-                <option value="6">Sem 6</option>
-              </select>
+            <!-- Activity Claims Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-200">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider">
+                    <th class="py-3 px-4">Submitted On</th>
+                    <th class="py-3 px-4">Segment</th>
+                    <th class="py-3 px-4">Activity</th>
+                    <th class="py-3 px-4">Level</th>
+                    <th class="py-3 px-4">Evidence</th>
+                    <th class="py-3 px-4 text-center">Claimed</th>
+                    <th class="py-3 px-4 text-center">Awarded</th>
+                    <th class="py-3 px-4 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="activityClaimsTableBody" class="divide-y divide-slate-100 text-slate-800"></tbody>
+              </table>
             </div>
-            <div class="lg:col-span-1">
-              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Segment</label>
-              <select name="activity_segment" required class="w-full bg-slate-900 border border-slate-700/60 rounded-lg px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
-                <option value="">Select...</option>
-                <option value="NCC">NCC</option>
-                <option value="NSS">NSS</option>
-                <option value="Sports & Games">Sports & Games</option>
-                <option value="Cultural Activities">Cultural Activities</option>
-                <option value="Professional Self Initiatives">Prof. Self Initiatives</option>
-                <option value="Entrepreneurship and Innovation">Entrepreneurship & Innovation</option>
-                <option value="Leadership & Management">Leadership & Management</option>
-                <option value="Disaster Management">Disaster Management</option>
-              </select>
-            </div>
-            <div class="lg:col-span-1">
-              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Activity Name</label>
-              <input type="text" name="activity_name" required placeholder="e.g. First Prize in Arts" class="w-full bg-slate-900 border border-slate-700/60 rounded-lg px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
-            </div>
-            <div class="lg:col-span-1">
-              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Level</label>
-              <select name="level" required class="w-full bg-slate-900 border border-slate-700/60 rounded-lg px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
-                <option value="">Select Level...</option>
-                <option value="Level I - College">Level I - College</option>
-                <option value="Level II - Zonal">Level II - Zonal</option>
-                <option value="Level III - State/Univ">Level III - State/Univ</option>
-                <option value="Level IV - National">Level IV - National</option>
-                <option value="Level V - International">Level V - International</option>
-              </select>
-            </div>
-            <div class="lg:col-span-1">
-              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Points Claimed</label>
-              <input type="number" name="points_claimed" required min="1" max="50" class="w-full bg-slate-900 border border-slate-700/60 rounded-lg px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
-            </div>
-            <div class="lg:col-span-1 flex flex-col justify-end">
-              <button type="submit" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-bold text-xs transition-premium shadow-lg shadow-blue-500/20">Submit Claim</button>
-            </div>
-            <div class="lg:col-span-6">
-              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Document Evidence (Describe what you are submitting to Tutor)</label>
-              <input type="text" name="document_reference" placeholder="e.g. Hardcopy of State Arts Certificate" class="w-full bg-slate-900 border border-slate-700/60 rounded-lg px-3 py-2 text-xs text-white focus:border-blue-500 outline-none">
-            </div>
-          </form>
 
-          <div class="overflow-x-auto rounded-xl border border-slate-800/40">
-            <table class="w-full text-left text-xs border-collapse whitespace-nowrap">
-              <thead>
-                <tr class="bg-slate-950/80 border-b border-slate-800/60 text-slate-400 font-bold uppercase tracking-wider text-xs">
-                  <th class="p-3">Submitted On</th>
-                  <th class="p-3">Segment</th>
-                  <th class="p-3">Activity</th>
-                  <th class="p-3">Level</th>
-                  <th class="p-3">Evidence</th>
-                  <th class="p-3 text-center">Claimed</th>
-                  <th class="p-3 text-center">Awarded</th>
-                  <th class="p-3 text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody id="activityClaimsTableBody" class="divide-y divide-slate-800/40">
-                <!-- Claims will be loaded here -->
-              </tbody>
-            </table>
           </div>
         </div>
-      </div>
-      <!-- END PANEL: ACTIVITY POINTS -->
 
-      <!-- PANEL: MY SEMINAR -->
-      <div id="panelSeminar" class="hidden space-y-5 fade-up">
-        <!-- Inline toast -->
-        <div id="seminarToast" class="hidden max-w-3xl mx-auto px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2"></div>
+        <!-- ========================================================================= -->
+        <!-- 6. PANEL: MY SEMINAR -->
+        <!-- ========================================================================= -->
+        <div id="panelSeminar" class="hidden space-y-6">
+          <div class="max-w-3xl mx-auto space-y-5">
+            
+            <div id="seminarToast" class="hidden p-3.5 rounded-xl text-xs font-semibold border"></div>
 
-        <div class="max-w-3xl mx-auto space-y-5">
-
-          <!-- Status banner (shown when registered) -->
-          <div id="seminarStatusBanner" class="hidden bg-emerald-950/60 border border-emerald-600/30 rounded-2xl p-5">
-            <div class="flex items-start justify-between gap-4">
-              <div class="flex items-start gap-3">
-                <span class="material-symbols-rounded text-emerald-400 text-2xl mt-0.5">verified</span>
-                <div>
-                  <p id="semStatusBadgeTitle" class="text-sm font-black text-emerald-300">Seminar Registered</p>
-                  <p id="semStatusTopic" class="text-white font-extrabold text-base mt-0.5">-</p>
-                  <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                    <span class="text-xs text-slate-400">Guide: <span id="semStatusGuide" class="text-slate-200 font-bold">-</span></span>
-                    <span class="text-xs text-slate-400">Date: <span id="semStatusDate" class="text-slate-200 font-bold">-</span></span>
-                    <span class="text-xs text-slate-400">Avg Score: <span id="semStatusScore" class="text-teal-400 font-black">- / 75</span></span>
-                    <span class="text-xs text-slate-400">Assessments: <span id="semStatusAssessments" class="text-slate-200 font-bold">0</span></span>
+            <!-- Status Banner when Registered -->
+            <div id="seminarStatusBanner" class="hidden bg-emerald-50 border border-emerald-200/80 rounded-2xl p-5 shadow-sm">
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex items-start gap-3">
+                  <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+                  <div>
+                    <p id="semStatusBadgeTitle" class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Seminar Registered</p>
+                    <p id="semStatusTopic" class="text-slate-900 font-bold text-sm mt-0.5">-</p>
+                    <div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-slate-600">
+                      <span>Guide: <strong id="semStatusGuide" class="text-slate-900">-</strong></span>
+                      <span>Date: <strong id="semStatusDate" class="text-slate-900">-</strong></span>
+                      <span>Avg Score: <strong id="semStatusScore" class="text-blue-700 font-bold">- / 75</strong></span>
+                    </div>
                   </div>
                 </div>
+                <button type="button" onclick="showSeminarEditForm()" class="px-3.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all">
+                  Edit Details
+                </button>
               </div>
-              <button onclick="showSeminarEditForm()" class="shrink-0 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl text-xs font-bold flex items-center gap-1 transition-premium cursor-pointer">
-                <span class="material-symbols-rounded text-sm">edit</span> Edit
-              </button>
             </div>
+
+            <!-- Seminar Form Card -->
+            <div id="seminarFormCard" class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-4">
+              <div class="border-b border-slate-100 pb-3">
+                <h3 id="semFormTitle" class="font-bold text-slate-900 text-base flex items-center gap-2">
+                  <i data-lucide="presentation" class="w-4 h-4 text-blue-600"></i>
+                  <span>Register Seminar Details</span>
+                </h3>
+                <p class="text-xs text-slate-500 mt-1">Specify your technical presentation topic, proposed date, and assign a faculty advisor.</p>
+              </div>
+
+              <form id="seminarRegistrationForm" onsubmit="submitSeminarRegistration(event)" class="space-y-4 pt-1">
+                <input type="hidden" id="semRegSubject">
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 mb-1">Seminar Topic</label>
+                  <input type="text" id="semRegTopic" required placeholder="e.g. Transformer Neural Networks in Autonomous Vehicles"
+                    class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10 outline-none">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Proposed Presentation Date</label>
+                    <input type="date" id="semRegDate" required
+                      class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-500 outline-none">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Seminar Guide / Faculty</label>
+                    <select id="semRegGuide" required
+                      class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-500 outline-none">
+                      <option value="">Loading guides...</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="pt-3 flex items-center justify-between">
+                  <button type="button" id="semCancelEditBtn" onclick="cancelSeminarEdit()" class="hidden px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all">
+                    Cancel
+                  </button>
+                  <button type="submit" id="semSubmitBtn" class="ml-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm">
+                    Save Registration
+                  </button>
+                </div>
+              </form>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- 7. PANEL: ATTENDANCE REVIEW -->
+        <!-- ========================================================================= -->
+        <div id="panelAttendance" class="hidden space-y-6">
+          
+          <!-- Attendance Loader -->
+          <div id="attendanceLoader" class="flex flex-col items-center justify-center py-12 text-center text-slate-400">
+            <div class="w-8 h-8 border-2 border-slate-200 border-t-blue-600 rounded-full animate-spin mb-3"></div>
+            <p class="text-xs font-semibold text-slate-500">Loading attendance records and real-time period logs...</p>
           </div>
 
-          <!-- Registration / Edit form -->
-          <div id="seminarFormCard" class="bg-slate-950/40 border border-slate-800/60 p-6 rounded-2xl space-y-4">
-            <h3 id="semFormTitle" class="font-black text-slate-200 text-base flex items-center gap-2">
-              <span class="material-symbols-rounded text-blue-400">co_present</span> Register Seminar Details
-            </h3>
-            <p class="text-xs text-slate-400 leading-relaxed">Fill in your seminar topic, proposed date, and assign a faculty guide from your department. You can update this later before the presentation date.</p>
+          <!-- Attendance Content Container -->
+          <div id="attendanceContent" class="hidden space-y-6">
+            
+            <!-- Top KPI Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              <!-- Cumulative Attendance Card -->
+              <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between items-center text-center">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Overall Semester Attendance</span>
+                
+                <div class="relative w-32 h-32 flex items-center justify-center my-3">
+                  <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" stroke="#F1F5F9" stroke-width="8" fill="transparent" />
+                    <circle id="attGaugeCircle" cx="50" cy="50" r="40" stroke="#10B981" stroke-width="8" fill="transparent"
+                            stroke-dasharray="251.2" stroke-dashoffset="0" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+                  </svg>
+                  <div class="absolute flex flex-col items-center leading-none">
+                    <span class="text-2xl font-bold text-slate-900" id="attOverallPctText">100%</span>
+                    <span class="text-[10px] text-slate-400 font-medium mt-1 uppercase">Target 75%</span>
+                  </div>
+                </div>
 
-            <form id="seminarRegistrationForm" onsubmit="submitSeminarRegistration(event)" class="space-y-4 pt-2">
-              <input type="hidden" id="semRegSubject">
+                <div class="text-xs text-slate-500 font-medium">
+                  Status: 
+                  <span class="font-bold text-emerald-700" id="attEligibilityBadge">
+                    Satisfactory & Eligible
+                  </span>
+                </div>
+              </div>
+
+              <!-- Hours Statistics Card -->
+              <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+                <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">Academic Hours Summary</h3>
+                
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/60">
+                    <span class="text-xs text-slate-600 font-medium">Conducted Sessions</span>
+                    <span class="text-sm font-bold font-mono text-slate-900" id="attTotalConducted">0 Hours</span>
+                  </div>
+                  <div class="flex items-center justify-between p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/60">
+                    <span class="text-xs text-emerald-800 font-medium">Attended Sessions</span>
+                    <span class="text-sm font-bold font-mono text-emerald-950" id="attTotalAttended">0 Hours</span>
+                  </div>
+                  <div class="flex items-center justify-between p-3 rounded-xl bg-rose-50/60 border border-rose-200/60">
+                    <span class="text-xs text-rose-800 font-medium">Absent Sessions</span>
+                    <span class="text-sm font-bold font-mono text-rose-950" id="attTotalAbsent">0 Hours</span>
+                  </div>
+                </div>
+
+                <div class="text-[11px] text-slate-400">Calculated across standard periods 1 to 6.</div>
+              </div>
+
+              <!-- Class & Faculty Tutor Card -->
+              <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+                <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">Institutional Advisor</h3>
+                
+                <div class="space-y-3">
+                  <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60">
+                    <p class="text-xs font-medium text-slate-500">Classroom Identifier</p>
+                    <p class="text-sm font-bold text-slate-900 mt-0.5" id="attClassroomId">-</p>
+                  </div>
+                  <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/60">
+                    <p class="text-xs font-medium text-slate-500">Class Tutor</p>
+                    <p class="text-sm font-bold text-slate-900 mt-0.5" id="attTutorName">-</p>
+                    <p class="text-[11px] text-slate-500 font-mono mt-0.5" id="attTutorContact"></p>
+                  </div>
+                </div>
+
+                <div class="text-[11px] text-slate-400">Regular contact tutor for condonation and leaves.</div>
+              </div>
+
+            </div>
+
+            <!-- Today's Hour-Wise Attendance Grid -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+                <div>
+                  <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4 text-blue-600"></i>
+                    <span>Today's Period Attendance Timeline</span>
+                  </h2>
+                  <p class="text-xs text-slate-500 mt-0.5" id="attTodayDateLabel">Today • Hourly live attendance logs</p>
+                </div>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">
+                  <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                  Live Log Active
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3 pt-2" id="attHourlyGrid"></div>
+            </div>
+
+            <!-- Subject-Wise Attendance Breakdown Table -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+              <div class="border-b border-slate-100 pb-3">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="book-open" class="w-4 h-4 text-blue-600"></i>
+                  <span>Subject-Wise Attendance Distribution</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Continuous attendance records and minimum 75% examination eligibility thresholds.</p>
+              </div>
+
+              <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider">
+                      <th class="py-3 px-4">Subject Code & Name</th>
+                      <th class="py-3 px-4 text-center">Conducted</th>
+                      <th class="py-3 px-4 text-center">Attended</th>
+                      <th class="py-3 px-4 text-center">Percentage</th>
+                      <th class="py-3 px-4 text-right">Eligibility Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attSubjectStatsList" class="divide-y divide-slate-100 text-slate-800">
+                    <tr><td colspan="5" class="p-6 text-center text-slate-400">Loading subject statistics...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Leave & Absence Records Table -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+              <div class="border-b border-slate-100 pb-3">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
+                  <span>Student Leave & Absence Log</span>
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Registered medical leaves, duty leaves, and tutor condonation records.</p>
+              </div>
+
+              <div class="overflow-x-auto rounded-xl border border-slate-200">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider">
+                      <th class="py-3 px-4">Leave Date</th>
+                      <th class="py-3 px-4">Type / Reason</th>
+                      <th class="py-3 px-4">Period Range</th>
+                      <th class="py-3 px-4 text-right">Verification Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="attLeaveRecordsList" class="divide-y divide-slate-100 text-slate-800">
+                    <tr><td colspan="4" class="p-6 text-center text-slate-400">No formal leave requests recorded.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- 8. PANEL: PRACTICE TEST & ASSESSMENT HUB -->
+        <!-- ========================================================================= -->
+        <div id="panelMock_test" class="hidden space-y-6">
+          
+          <!-- 1. Setup Section -->
+          <section id="mockSetupSection" class="space-y-6">
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+              
+              <div class="border-b border-slate-100 pb-4">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/60 text-blue-700 text-xs font-semibold uppercase tracking-wider mb-2">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                  <span>Practice Session Setup</span>
+                </div>
+                <h2 class="text-xl font-bold text-slate-900">Select Subject & Test Scope</h2>
+                <p class="text-xs text-slate-500 mt-1">Take self-assessment quizzes generated from your syllabus. Daily quota: 1 attempt per subject.</p>
+              </div>
+
+              <!-- Setup Loader -->
+              <div id="mockSetupLoader" class="flex flex-col items-center justify-center py-12 text-center text-slate-400">
+                <div class="w-8 h-8 border-2 border-slate-200 border-t-blue-600 rounded-full animate-spin mb-3"></div>
+                <p class="text-xs font-semibold text-slate-500">Loading semester subjects & syllabus modules...</p>
+              </div>
+
+              <!-- Setup Form -->
+              <form id="mockSetupForm" class="space-y-6 hidden" onsubmit="event.preventDefault(); initiateMockTest();">
+                
+                <!-- Subject Selection Cards Grid -->
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">Available Semester Subjects</label>
+                  <div id="mockSubjectGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+                  <input type="hidden" id="mockSelectedSubject" required>
+                </div>
+
+                <!-- Test Parameters Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-slate-100 pt-5">
+                  <div>
+                    <x-ui.select id="mockQuestionCount" name="mock_question_count" label="Question Count" :options="['10'=>'10 Questions (Quick Practice ~ 10 mins)', '15'=>'15 Questions (Standard Evaluation ~ 15 mins)', '20'=>'20 Questions (Full Series Prep ~ 20 mins)']" value="15" />
+                  </div>
+                  <div>
+                    <x-ui.select id="mockModuleScope" name="mock_module_scope" label="Syllabus Scope" :options="['all'=>'All Modules (Comprehensive Syllabus)', 'CO1'=>'CO1 Module Focus', 'CO2'=>'CO2 Module Focus', 'CO3'=>'CO3 Module Focus', 'CO4'=>'CO4 Module Focus']" value="all" />
+                  </div>
+                </div>
+
+                <div class="pt-3 flex justify-end">
+                  <button type="submit" id="btnStartMockTest" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all shadow-sm flex items-center gap-2">
+                    <i data-lucide="play" class="w-4 h-4"></i>
+                    <span>Launch Practice Test</span>
+                  </button>
+                </div>
+
+              </form>
+
+            </div>
+          </section>
+
+          <!-- 2. Active Test Examination Section -->
+          <section id="mockExamSection" class="hidden space-y-6">
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+              
+              <!-- Test Header with Live Timer -->
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div>
+                  <h3 id="mockActiveSubjectTitle" class="text-base font-bold text-slate-900">Subject Practice Test</h3>
+                  <p id="mockActiveQuestionCounter" class="text-xs text-slate-500 mt-0.5">Question 1 of 15</p>
+                </div>
+                <div class="flex items-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200/80 rounded-xl text-blue-700 font-mono text-sm font-bold shadow-2xs">
+                  <i data-lucide="timer" class="w-4 h-4 text-blue-600"></i>
+                  <span id="mockTestTimer">15:00</span>
+                </div>
+              </div>
+
+              <!-- Question Navigator Dots -->
+              <div class="flex flex-wrap gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200/60" id="mockQuestionNavigator"></div>
+
+              <!-- Current Question Box -->
+              <div id="mockCurrentQuestionBox" class="space-y-4 pt-2">
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80">
+                  <span class="text-xs font-semibold text-blue-700 uppercase tracking-wider" id="mockQBadge">Question 1</span>
+                  <p class="text-sm font-semibold text-slate-900 mt-1" id="mockQText">Question text loading...</p>
+                </div>
+
+                <!-- Options List -->
+                <div class="space-y-2.5" id="mockOptionsContainer"></div>
+              </div>
+
+              <!-- Navigation Controls -->
+              <div class="flex items-center justify-between border-t border-slate-100 pt-5">
+                <button type="button" onclick="navigateMockPrevQuestion()" id="btnMockPrevQ" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                  Previous
+                </button>
+                <div class="flex gap-2">
+                  <button type="button" onclick="navigateMockNextQuestion()" id="btnMockNextQ" class="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-all">
+                    Next Question
+                  </button>
+                  <button type="button" onclick="submitMockFullTest()" id="btnMockSubmitTest" class="hidden px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm">
+                    Submit Test
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- 3. Score Report Section -->
+          <section id="mockResultSection" class="hidden space-y-6">
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6 text-center">
+              
+              <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 mx-auto">
+                <i data-lucide="award" class="w-8 h-8"></i>
+              </div>
+
               <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Seminar Presentation Topic</label>
-                <input type="text" id="semRegTopic" required placeholder="e.g. Artificial Intelligence in Health Diagnostics"
-                  class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-3 text-sm text-white focus:border-blue-500 outline-none transition-colors">
+                <h2 class="text-2xl font-bold text-slate-900">Practice Session Completed!</h2>
+                <p class="text-xs text-slate-500 mt-1" id="mockResultSubjectSubtitle">Assessment results and competency breakdown</p>
               </div>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Proposed Presentation Date</label>
-                  <input type="date" id="semRegDate" required
-                    class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-3 text-sm text-white focus:border-blue-500 outline-none transition-colors">
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Seminar Guide / Faculty</label>
-                  <select id="semRegGuide" required
-                    class="w-full bg-slate-900 border border-slate-700/60 rounded-xl px-3.5 py-3 text-sm text-white focus:border-blue-500 outline-none transition-colors">
-                    <option value="">Loading guides...</option>
-                  </select>
-                </div>
-              </div>
-              <div class="pt-4 border-t border-slate-900 flex justify-between items-center gap-3">
-                <button type="button" id="semCancelEditBtn" onclick="cancelSeminarEdit()" class="hidden px-5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 rounded-xl font-bold text-sm transition-premium cursor-pointer">
-                  Cancel
-                </button>
-                <button type="submit" id="semSubmitBtn" class="ml-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-sm transition-premium shadow-lg shadow-blue-500/20 flex items-center gap-2 cursor-pointer">
-                  <span class="material-symbols-rounded text-base">save</span> Save Registration
-                </button>
-              </div>
-            </form>
-          </div>
 
-          <!-- No seminar subject alert (shown if HOD hasn't assigned one) -->
-          <div id="seminarNoSubjectAlert" class="hidden bg-amber-950/40 border border-amber-600/30 rounded-2xl p-5 flex items-start gap-3">
-            <span class="material-symbols-rounded text-amber-400 text-xl mt-0.5">warning</span>
-            <div>
-              <p class="text-sm font-bold text-amber-300">No Seminar Subject Assigned</p>
-              <p class="text-xs text-slate-400 mt-1">Your department HOD has not yet assigned a Seminar subject for your batch/semester. Please contact your HOD or tutor to have it added.</p>
+              <!-- Score Pill -->
+              <div class="max-w-xs mx-auto p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Final Test Score</span>
+                <p class="text-3xl font-bold text-blue-700" id="mockFinalScoreText">0 / 15</p>
+                <p class="text-xs font-semibold text-emerald-700" id="mockFinalPercentageText">0% Proficiency</p>
+              </div>
+
+              <!-- Detailed Answer Review List -->
+              <div class="text-left space-y-3 pt-4 border-t border-slate-100" id="mockDetailedReviewList"></div>
+
+              <div class="pt-4 flex justify-center">
+                <button type="button" onclick="resetMockPracticeTest()" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm">
+                  Back to Practice Hub
+                </button>
+              </div>
+
             </div>
-          </div>
+          </section>
 
         </div>
-      </div>
 
+      </main>
     </div>
-  </main>
+  </div>
 
+  <!-- Study Materials Vault Modal -->
+  <div id="vlmVaultModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="folder-archive" class="w-5 h-5 text-blue-600"></i>
+          <h3 class="text-base font-bold text-slate-900">Study Materials & Learning Vault</h3>
+        </div>
+        <button onclick="closeVlmVaultModal()" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="vlmVaultContent" class="space-y-3 max-h-96 overflow-y-auto">
+        <p class="text-xs text-slate-500">Access course lecture notes, question banks, and pre-class videos uploaded by your faculty.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive Dashboard Controller Scripts -->
   <script>
-    function toggleMobileSidebar() {
-      const sidebar = document.getElementById('sidebarMenu');
-      const backdrop = document.getElementById('sidebarBackdrop');
-      if (sidebar.classList.contains('-translate-x-full')) {
-        sidebar.classList.remove('-translate-x-full');
-        backdrop.classList.remove('hidden');
-      } else {
-        sidebar.classList.add('-translate-x-full');
-        backdrop.classList.add('hidden');
-      }
-    }
-
-    function switchPanel(panelId) {
-      // Close mobile sidebar if open (only on mobile)
-      const sidebar = document.getElementById('sidebarMenu');
-      const backdrop = document.getElementById('sidebarBackdrop');
-      if (sidebar && window.innerWidth < 768 && !sidebar.classList.contains('-translate-x-full')) {
-        sidebar.classList.add('-translate-x-full');
-        backdrop.classList.add('hidden');
-      }
-
-      // Sync browser history state safely
-      window.history.replaceState({}, '', '?tab=' + panelId);
-
-      const panels = ['exams', 'marks', 'profile', 'activity', 'seminar'];
-      
-      panels.forEach(id => {
-        const el = document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1));
-        const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
-        if (id === panelId) {
-          if (el) { el.classList.remove('hidden'); el.classList.add('fade-up'); }
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
-        } else {
-          if (el) el.classList.add('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
-        }
-      });
-
-      const titles = { exams: 'Works To Do', marks: 'Academic Stats', profile: 'My Profile', activity: 'Activity Points', seminar: 'My Seminar' };
-      const subtitles = { 
-        exams: 'Manage your pending assignments and active tests.', 
-        marks: 'Your semester-wise academic progress.', 
-        profile: 'Your personal and academic details.',
-        activity: 'Track and claim your extracurricular points.',
-        seminar: 'Register and view your seminar topics details.'
-      };
-      if (titles[panelId]) document.getElementById('panelTitle').innerText = titles[panelId];
-      if (subtitles[panelId]) document.getElementById('panelSubtitle').innerText = subtitles[panelId];
-
-      if (panelId === 'activity') {
-        loadActivityPoints();
-      } else if (panelId === 'seminar') {
-        loadSeminarRegistration();
-      }
-    }
-
-      document.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const tab = urlParams.get('tab');
-        if (tab && ['exams', 'marks', 'profile', 'activity', 'seminar'].includes(tab)) {
-          switchPanel(tab);
-        }
-        loadStudentTests();
-        if (!academicReportLoaded) loadAcademicReport();
-      });
-
     let academicReportLoaded = false;
     let mentoringLoaded = false;
+    let attendanceLoaded = false;
+    let mockSubjectsLoaded = false;
     let academicData = null;
     let currentActiveSem = 1;
     let cgpaChartInstance = null;
-    
+
     let currentTaskStats = {
        assignments_active: 0,
        assignments_submitted: 0,
@@ -808,6 +1112,72 @@
        online_tests_active: 0,
        online_tests_submitted: 0
     };
+
+    function switchPanel(panelId) {
+      window.history.replaceState({}, '', '?tab=' + panelId);
+
+      const panels = ['exams', 'marks', 'profile', 'mentoring', 'activity', 'seminar', 'attendance', 'mock_test'];
+      panels.forEach(id => {
+        const el = document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1));
+        if (el) {
+          if (id === panelId) {
+            el.classList.remove('hidden');
+          } else {
+            el.classList.add('hidden');
+          }
+        }
+      });
+
+      const titles = { 
+        exams: 'Works To Do', 
+        marks: 'Academic Stats & CIE Marks', 
+        profile: 'My Student Profile', 
+        mentoring: 'Mentoring Diary',
+        activity: 'Activity Points Portfolio', 
+        seminar: 'My Seminar Details',
+        attendance: 'Attendance Review',
+        mock_test: 'Practice Test Engine'
+      };
+      const subtitles = { 
+        exams: 'Manage your pending assignments, series examinations and learning schedule.', 
+        marks: 'Your semester-wise continuous internal evaluation records.', 
+        profile: 'Your verified institutional identity and account settings.',
+        mentoring: 'Comprehensive student profile and periodic mentor-mentee interaction records.',
+        activity: 'Track and claim your extracurricular points towards graduation.',
+        seminar: 'Register presentation topic and view guide evaluations.',
+        attendance: 'Real-time daily periods, subject-wise attendance trajectory, and leave records.',
+        mock_test: 'Timed syllabus practice assessments and instant competency scoring.'
+      };
+
+      if (titles[panelId]) document.getElementById('panelTitle').innerText = titles[panelId];
+      if (subtitles[panelId]) document.getElementById('panelSubtitle').innerText = subtitles[panelId];
+
+      if (panelId === 'activity') {
+        loadActivityPoints();
+      } else if (panelId === 'seminar') {
+        loadSeminarRegistration();
+      } else if (panelId === 'mentoring') {
+        if (!mentoringLoaded) loadStudentMentoringData();
+      } else if (panelId === 'attendance') {
+        if (!attendanceLoaded) loadStudentAttendanceData();
+      } else if (panelId === 'mock_test') {
+        if (!mockSubjectsLoaded) loadMockSubjects();
+      }
+
+      if (window.initLucide) window.initLucide();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab');
+      if (tab && ['exams', 'marks', 'profile', 'mentoring', 'activity', 'seminar', 'attendance', 'mock_test'].includes(tab)) {
+        switchPanel(tab);
+        if (typeof selectSidebarNav === 'function') selectSidebarNav(tab);
+      }
+      loadStudentTests();
+      if (!academicReportLoaded) loadAcademicReport();
+      loadPreClassVlmBanner();
+    });
 
     function updateStatsHeader(acStats, tStats) {
        if (acStats) {
@@ -820,14 +1190,14 @@
           currentTaskStats.online_tests_active = tStats.online_tests_active || 0;
           currentTaskStats.online_tests_submitted = tStats.online_tests_submitted || 0;
        }
-        document.getElementById('statActiveTests').innerText = currentTaskStats.online_tests_active;
-        document.getElementById('statActiveAssign').innerText = currentTaskStats.assignments_active;
-        document.getElementById('statWrittenTests').innerText = currentTaskStats.written_tests_active;
-        document.getElementById('statTestsDone').innerText = currentTaskStats.online_tests_submitted;
-        document.getElementById('statAssignDone').innerText = currentTaskStats.assignments_submitted;
-        document.getElementById('statWrittenTestsDone').innerText = currentTaskStats.written_tests_submitted;
-        document.getElementById('statPendingTotal').innerText = currentTaskStats.online_tests_active + currentTaskStats.assignments_active + currentTaskStats.written_tests_active;
-        document.getElementById('statOverallDone').innerText = currentTaskStats.online_tests_submitted + currentTaskStats.assignments_submitted + currentTaskStats.written_tests_submitted;
+       document.getElementById('statActiveTests').innerText = currentTaskStats.online_tests_active;
+       document.getElementById('statActiveAssign').innerText = currentTaskStats.assignments_active;
+       document.getElementById('statWrittenTests').innerText = currentTaskStats.written_tests_active;
+       document.getElementById('statTestsDone').innerText = currentTaskStats.online_tests_submitted;
+       document.getElementById('statAssignDone').innerText = currentTaskStats.assignments_submitted;
+       document.getElementById('statWrittenTestsDone').innerText = currentTaskStats.written_tests_submitted;
+       document.getElementById('statPendingTotal').innerText = currentTaskStats.online_tests_active + currentTaskStats.assignments_active + currentTaskStats.written_tests_active;
+       document.getElementById('statOverallDone').innerText = currentTaskStats.online_tests_submitted + currentTaskStats.assignments_submitted + currentTaskStats.written_tests_submitted;
     }
 
     function loadAcademicReport() {
@@ -844,58 +1214,23 @@
             document.getElementById('overallCgpa').innerText = cgpaVal > 0 ? cgpaVal.toFixed(2) : '0.00';
             document.getElementById('diplomaClassification').innerText = overall.classification || '--';
 
-            // Update GPA Gauge offset (radius r = 40, circumference = 251.2)
+            // CGPA gauge
             const cgpaPercent = Math.min(1.0, Math.max(0.0, cgpaVal / 10.0));
-            const cgpaOffset = 251.2 - (cgpaPercent * 251.2);
-            document.getElementById('cgpaGaugeProgress').style.strokeDashoffset = cgpaOffset;
+            document.getElementById('cgpaGaugeProgress').style.strokeDashoffset = 251.2 - (cgpaPercent * 251.2);
 
-            // Update Activity Points Gauge offset & colors dynamically (radius r = 40, circumference = 251.2)
+            // Activity Points gauge
             const activityPercent = Math.min(1.0, Math.max(0.0, activityPointsVal / 160.0));
-            const activityOffset = 251.2 - (activityPercent * 251.2);
-            const actGauge = document.getElementById('activityGaugeProgress');
-            const actText = document.getElementById('overallActivityPoints');
-            const cardEl = document.getElementById('activityPointsCard');
-            
-            actGauge.style.strokeDashoffset = activityOffset;
-            actText.innerText = activityPointsVal;
+            document.getElementById('activityGaugeProgress').style.strokeDashoffset = 251.2 - (activityPercent * 251.2);
+            document.getElementById('overallActivityPoints').innerText = activityPointsVal;
 
-            let strokeColor = '#ef4444'; // critical red
-            let textClass = 'text-3xl font-black text-rose-500';
-            
-            if (activityPointsVal >= 60) {
-              strokeColor = '#22c55e'; // green
-              textClass = 'text-3xl font-black text-emerald-400';
-              if (cardEl) {
-                cardEl.className = "flex flex-col justify-between items-center text-center p-5 bg-slate-950/80 border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.15)] rounded-xl h-full";
-              }
-            } else if (activityPointsVal >= 30) {
-              strokeColor = '#f97316'; // orange/golden
-              textClass = 'text-3xl font-black text-orange-400';
-              if (cardEl) {
-                cardEl.className = "flex flex-col justify-between items-center text-center p-5 bg-slate-950/80 border border-orange-500/30 shadow-[0_0_20px_rgba(249,115,22,0.15)] rounded-xl h-full";
-              }
-            } else {
-              strokeColor = '#ef4444'; // critical red
-              textClass = 'text-3xl font-black text-rose-500';
-              if (cardEl) {
-                cardEl.className = "flex flex-col justify-between items-center text-center p-5 bg-slate-950/80 border border-rose-500/30 shadow-[0_0_20px_rgba(244,63,94,0.15)] rounded-xl h-full";
-              }
-            }
-            actGauge.setAttribute('stroke', strokeColor);
-            actText.className = textClass;
-
-            // Update Semester Attendance Gauge offset (radius r = 40, circumference = 251.2)
+            // Attendance gauge
             const attendance = data.current_sem_attendance || { total_hours: 0, present_hours: 0, percentage: 0 };
             const attendancePct = parseFloat(attendance.percentage) || 0;
             document.getElementById('overallAttendancePct').innerText = attendancePct + '%';
             document.getElementById('attendanceHoursDetail').innerText = `${attendance.present_hours} / ${attendance.total_hours}`;
-            
-            const attendancePercent = Math.min(1.0, Math.max(0.0, attendancePct / 100.0));
-            const attendanceOffset = 251.2 - (attendancePercent * 251.2);
-            document.getElementById('attendanceGaugeProgress').style.strokeDashoffset = attendanceOffset;
+            document.getElementById('attendanceGaugeProgress').style.strokeDashoffset = 251.2 - ((attendancePct / 100.0) * 251.2);
 
-            // Always update sem in header
-            document.getElementById('headerSemValue').innerText = 'Sem ' + (overall.current_semester || '?');
+            document.getElementById('headerSemValue').innerText = 'Semester ' + (overall.current_semester || '1');
             currentActiveSem = overall.current_semester || 1;
 
             if (data.stats) updateStatsHeader(data.stats, null);
@@ -904,246 +1239,81 @@
             renderSemesterTabs(data.semesters || []);
             renderGodTable(currentActiveSem);
             renderSubjectProgress(data.subject_progress || []);
-          } else {
-            // API returned an error — show it gracefully
-            const errMsg = data.message || 'Failed to load academic data.';
-            console.error('Academic report error:', errMsg);
-            const c = document.getElementById('studentActiveTasksContainer');
-            if (c) c.innerHTML = `<div class="col-span-full py-8 text-center text-rose-400 font-bold text-sm">⚠️ ${errMsg}</div>`;
           }
         })
-        .catch(err => {
-          console.error('Network error loading academic report:', err);
-          const c = document.getElementById('studentActiveTasksContainer');
-          if (c) c.innerHTML = `<div class="col-span-full py-8 text-center text-rose-400 font-bold text-sm">⚠️ Network error — please refresh.</div>`;
-        });
-    }
-
-
-    function adjustPendingGridColumns() {
-      const mcqActive = (document.getElementById('mcqTestsSection') && !document.getElementById('mcqTestsSection').classList.contains('hidden'));
-      const assignmentsActive = (document.getElementById('assignmentsSection') && !document.getElementById('assignmentsSection').classList.contains('hidden'));
-      const pendingGrid = document.getElementById('pendingGridContainer');
-      
-      if (mcqActive && assignmentsActive) {
-        pendingGrid.classList.remove('grid-cols-1');
-        pendingGrid.classList.add('lg:grid-cols-2');
-      } else {
-        pendingGrid.classList.remove('lg:grid-cols-2');
-        pendingGrid.classList.add('grid-cols-1');
-      }
+        .catch(err => console.error('Academic report fetch error:', err));
     }
 
     function renderSubjectProgress(progressList) {
       const container = document.getElementById('subjectProgressGrid');
-      const subtitle = document.getElementById('subjectProgressSubtitle');
       if (!container) return;
 
       if (!progressList || progressList.length === 0) {
-        container.innerHTML = `
-          <div class="col-span-full py-8 text-center text-slate-500 font-bold text-sm">
-            No current semester subjects or progress logs found.
-          </div>
-        `;
+        container.innerHTML = `<div class="col-span-full py-6 text-center text-slate-400 font-medium text-xs">No active semester subject progress logs recorded yet.</div>`;
         return;
       }
 
-      // Update Card Header Subtitle with Batch, Year, Semester
-      const classroomId = "{{ session('classroomId', '-') }}";
-      const branch = "{{ session('userBranch', '-') }}";
-      const semester = currentActiveSem ? 'Semester ' + currentActiveSem : '...';
-      if (subtitle) {
-        subtitle.innerText = `${branch} • Batch: ${classroomId} • ${semester}`;
-      }
-
-      // Split into two columns: Left half (Col 1) and Right half (Col 2)
-      const mid = Math.ceil(progressList.length / 2);
-      const col1 = progressList.slice(0, mid);
-      const col2 = progressList.slice(mid);
-
-      const renderListHtml = (list) => list.map((item, index) => `
-        <div class="py-2 ${index > 0 ? 'border-t border-slate-800/40' : ''}">
-          <div class="flex justify-between items-start gap-2 flex-wrap mb-1">
-            <span class="font-extrabold text-slate-100 text-sm">${item.subject_code} - ${item.subject_name}</span>
-            <span class="text-slate-400 text-sm font-semibold flex items-center gap-1">
-              <span class="material-symbols-rounded text-sm">person</span>
-              ${item.staff_name}
-            </span>
+      container.innerHTML = progressList.map(item => `
+        <div class="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/50 space-y-2">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="font-bold text-slate-900 text-xs">${item.subject_code} - ${item.subject_name}</p>
+              <p class="text-[11px] text-slate-500">${item.staff_name || 'Faculty Assigned'}</p>
+            </div>
+            <span class="text-xs font-bold text-blue-700">${item.percentage}%</span>
           </div>
-
-          <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-            <div class="bg-gradient-to-r from-teal-500 to-emerald-500 h-full rounded-full transition-all duration-1000 ease-out" style="width: ${item.percentage}%"></div>
+          <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+            <div class="bg-blue-600 h-full rounded-full transition-all duration-500" style="width: ${item.percentage}%"></div>
           </div>
-
-          <div class="flex justify-between text-sm font-semibold text-slate-500 mt-1">
-            <span>Sessions: <strong class="text-slate-300">${item.completed_sessions}</strong> / ${item.total_sessions} taught</span>
-            <span class="text-teal-400">${item.percentage}%</span>
+          <div class="flex justify-between text-[10px] text-slate-500 font-medium">
+            <span>Sessions: ${item.completed_sessions} taught</span>
+            <span>Target: ${item.total_sessions} hrs</span>
           </div>
         </div>
       `).join('');
-
-      container.innerHTML = `
-        <div class="flex flex-col">
-          ${renderListHtml(col1)}
-        </div>
-        <div class="flex flex-col border-t md:border-t-0 md:border-l border-slate-800/60 pt-3 md:pt-0 md:pl-6">
-          ${renderListHtml(col2)}
-        </div>
-      `;
     }
 
     function renderActiveTasks(tasks, surveys) {
       const tasksContainer = document.getElementById('studentActiveTasksContainer');
-      const surveysContainer = document.getElementById('studentSurveysContainer');
       const assignmentsSection = document.getElementById('assignmentsSection');
 
-      // 1. Render Active Surveys
-      if (surveys && surveys.length > 0) {
-        let surveysHtml = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 col-span-full mb-4">`;
-        surveys.forEach((srv) => {
-          const isExit = srv.type === 'Course Exit';
-          const title = isExit ? 'Course Exit Feedback Survey Active' : 'Mid-Semester Feedback Survey Active';
-          const link = isExit ? `/student/course-exit/${srv.survey_id}` : `/student/survey/${srv.survey_id}`;
-          const themeBg = isExit ? 'bg-teal-950/20 border-teal-500/30' : 'bg-amber-950/20 border-amber-500/30';
-          const themeText = isExit ? 'text-teal-300' : 'text-amber-300';
-          const themeBtn = isExit ? 'bg-teal-500/15 hover:bg-teal-500/30 border-teal-500/40 text-teal-300' : 'bg-amber-500/15 hover:bg-amber-500/30 border-amber-500/40 text-amber-300';
-          const themeIcon = isExit ? 'text-teal-400' : 'text-amber-400';
-          
-          surveysHtml += `
-            <div class="${themeBg} border-2 rounded-xl p-3 shadow-lg relative overflow-hidden flex flex-col justify-between">
-              <div class="absolute top-0 right-0 h-12 w-12 bg-white/5 rounded-full blur-xl pointer-events-none"></div>
-              <div>
-                <div class="flex items-start gap-2.5">
-                  <span class="material-symbols-rounded ${themeIcon} text-base mt-0.5 animate-bounce">rate_review</span>
-                  <div class="flex-grow leading-tight">
-                    <h4 class="font-extrabold text-sm ${themeText} uppercase tracking-wide">${title}</h4>
-                    <p class="text-sm font-bold text-slate-300 mt-0.5">${srv.subject_code} — ${srv.subject_name}</p>
-                    <p class="text-sm text-slate-400 mt-1 leading-normal">Please complete this feedback form to help calculate Course Outcome (CO) attainment parameters.</p>
-                  </div>
-                </div>
-              </div>
-              <div class="mt-2 pt-2 border-t border-slate-800/40 flex justify-end">
-                <a href="${link}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 ${themeBtn} rounded-lg text-sm font-bold transition-premium no-underline cursor-pointer">
-                  <span class="material-symbols-rounded text-base">rate_review</span> Take Survey Feedback <span class="material-symbols-rounded text-sm">arrow_forward</span>
-                </a>
-              </div>
-            </div>
-          `;
-        });
-        surveysHtml += `</div>`;
-        surveysContainer.innerHTML = surveysHtml;
-        surveysContainer.classList.remove('hidden');
-      } else {
-        surveysContainer.innerHTML = '';
-        surveysContainer.classList.add('hidden');
-      }
-
-      // 2. Render Active Tasks (Assignments & Written Tests)
       if (tasks && tasks.length > 0) {
-        let tasksHtml = '';
-        tasks.forEach((t, index) => {
-          const isExp = t.status === 'Expired' || t.status === 'Completed';
-          const stCol = isExp ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : 'text-teal-400 bg-teal-500/10 border-teal-500/20';
-          const icon = t.type === 'Assignment' ? 'assignment' : 'edit_document';
-
-          let qHtml = '';
-          if (t.questions && t.questions.length > 0) {
-            qHtml = `<div class="mt-4 pt-4 border-t border-slate-800 hidden" id="taskQ_${index}">
-              <h4 class="text-sm uppercase font-black text-slate-400 mb-2">Assignment Questions</h4>
-              <ul class="space-y-2 text-sm text-slate-300 font-medium list-disc pl-4">
-                ${t.questions.map(q => `<li>${q}</li>`).join('')}
-              </ul>
-            </div>`;
-          }
-
-          let actionBtn = '';
-          if (t.type === 'Assignment' && !isExp) {
-            actionBtn = `<button onclick="markManualTaskSubmitted('${t.subject_code}', '${t.co_tag}', 'Assignment')" class="mt-3 w-full py-2 bg-blue-600/80 hover:bg-blue-500 text-white rounded font-bold text-sm transition-premium">Mark as Submitted</button>`;
-          }
-
-          tasksHtml += `
-            <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl overflow-hidden mb-1">
-            <!-- Collapsible Header -->
-            <div onclick="document.getElementById('co_task_${index}').classList.toggle('hidden'); this.querySelector('.arrow-icon').innerText = document.getElementById('co_task_${index}').classList.contains('hidden') ? 'expand_more' : 'expand_less';" 
-                 class="px-4 py-3.5 bg-slate-950/40 hover:bg-slate-950/70 border-b border-slate-800/60 flex justify-between items-center cursor-pointer transition-premium">
-              <div class="flex items-center gap-3">
-                <span class="material-symbols-rounded text-blue-400 text-base">${icon}</span>
-                <div>
-                  <h4 class="font-bold text-sm text-slate-200 uppercase">${t.type} - ${t.co_tag}</h4>
-                  <p class="text-sm font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject}</p>
-                </div>
-              </div>
-              <span class="material-symbols-rounded text-slate-500 text-sm arrow-icon">expand_more</span>
+        tasksContainer.innerHTML = tasks.map((t, idx) => `
+          <div class="p-4 bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200/60">${t.type} • ${t.co_tag || 'Module'}</span>
+              <span class="text-xs text-slate-500 font-medium font-mono">${t.deadline ? 'Due: ' + new Date(t.deadline).toLocaleDateString() : ''}</span>
             </div>
-            <!-- Collapsible Content -->
-            <div id="co_task_${index}" class="hidden p-4 bg-slate-950/10 border-t border-slate-800/40">
-              <div class="flex items-center gap-2 mb-3">
-                  <span class="px-2 py-0.5 rounded text-sm font-black uppercase tracking-widest ${stCol}">${t.status}</span>
-              </div>
-              <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-slate-400 font-semibold">
-                <div class="space-y-1">
-                  <div>Start: <span class="text-slate-200 font-bold">${t.start ? new Date(t.start).toLocaleDateString() : '-'}</span></div>
-                </div>
-                <div class="space-y-1">
-                  <div>Deadline: <span class="text-slate-200 font-bold font-mono">${t.deadline ? new Date(t.deadline).toLocaleDateString() : '-'}</span></div>
-                </div>
-              </div>
-              ${qHtml ? `<button onclick="document.getElementById('taskQ_${index}').classList.toggle('hidden')" class="w-full mt-2 py-2 text-sm font-bold text-blue-400 hover:text-blue-300 bg-blue-500/5 rounded-xl transition-premium flex justify-center items-center gap-1"><span class="material-symbols-rounded text-sm">visibility</span> View Questions</button>` : ''}
-              ${qHtml}
-              ${actionBtn}
-            </div>
+            <p class="font-bold text-slate-900 text-xs">${t.subject_code} - ${t.subject}</p>
+            <p class="text-xs text-slate-600">${t.title || 'Continuous Internal Evaluation Assignment'}</p>
           </div>
-          `;
-        });
-        tasksContainer.innerHTML = tasksHtml;
+        `).join('');
         assignmentsSection.classList.remove('hidden');
       } else {
-        tasksContainer.innerHTML = '';
-        assignmentsSection.classList.add('hidden');
+        tasksContainer.innerHTML = `<div class="py-6 text-center text-slate-400 text-xs font-medium">No pending written assignments.</div>`;
       }
-
-      adjustPendingGridColumns();
-    }
-
-    function markManualTaskSubmitted(subjectCode, coTag, category) {
-      if (!confirm("Are you sure you want to mark this task as submitted?")) return;
-      fetch('/api/student/tasks/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-          body: JSON.stringify({ subject_code: subjectCode, co_tag: coTag, category: category, status: 'Submitted' })
-      })
-      .then(res => res.json())
-      .then(data => {
-          if (data.status === 'SUCCESS') {
-              alert(data.message);
-              loadAcademicReport(); // reload tasks
-          } else {
-              alert(data.message || "Failed to submit.");
-          }
-      });
     }
 
     function renderCgpaChart(semesters) {
-      const ctx = document.getElementById('cgpaChart').getContext('2d');
+      const ctx = document.getElementById('cgpaChart');
+      if (!ctx) return;
       if (cgpaChartInstance) cgpaChartInstance.destroy();
 
-      const labels = semesters.map(s => `S${s.semester}`);
-      const data = semesters.map(s => s.sgpa || 0);
+      const labels = semesters.map(s => 'S' + s.sem_no);
+      const data = semesters.map(s => parseFloat(s.sgpa) || 0);
 
       cgpaChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: labels,
+          labels: labels.length ? labels : ['S1'],
           datasets: [{
-            label: 'SGPA',
-            data: data,
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            data: data.length ? data : [0],
+            borderColor: '#2563EB',
+            backgroundColor: 'rgba(37, 99, 235, 0.08)',
             borderWidth: 2,
-            pointBackgroundColor: '#fff',
-            pointRadius: 4,
+            pointBackgroundColor: '#2563EB',
             fill: true,
-            tension: 0.4
+            tension: 0.3
           }]
         },
         options: {
@@ -1151,12 +1321,8 @@
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
-            y: { 
-              grid: { color: 'rgba(30,41,59,0.5)' }, 
-              ticks: { color: '#64748b', font: { size: 10 } },
-              min: 0, max: 10
-            }
+            y: { min: 0, max: 10, ticks: { font: { family: 'Poppins', size: 10 } } },
+            x: { ticks: { font: { family: 'Poppins', size: 10 } } }
           }
         }
       });
@@ -1164,1077 +1330,757 @@
 
     function renderSemesterTabs(semesters) {
       const container = document.getElementById('semesterTabsContainer');
-      let html = '';
-      semesters.forEach(s => {
-        const isActive = s.semester == currentActiveSem;
-        const isCurrent = s.is_current === true;
-        const cls = isActive 
-          ? 'bg-blue-600/20 text-blue-400 border-blue-500/20' 
-          : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800 border-transparent';
-        const badge = isCurrent ? `<span class="ml-1 text-[8px] bg-teal-500/20 text-teal-400 px-1 py-0.5 rounded font-black">NOW</span>` : '';
-        html += `
-          <button onclick="renderGodTable(${s.semester})" id="btnSemTab_${s.semester}" class="sem-tab px-4 py-2 rounded-lg text-xs font-black transition-premium border ${cls}">
-            Semester ${s.semester}${badge}
-          </button>
-        `;
-      });
-      container.innerHTML = html;
+      if (!container) return;
+
+      container.innerHTML = (semesters || [{ sem_no: 1 }]).map(s => `
+        <button type="button" onclick="renderGodTable(${s.sem_no})" class="px-3 py-1 text-xs font-semibold rounded-lg transition-all ${s.sem_no === currentActiveSem ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+          Semester ${s.sem_no}
+        </button>
+      `).join('');
     }
 
-    function renderGodTable(semId) {
-      currentActiveSem = semId;
-      document.querySelectorAll('.sem-tab').forEach(btn => {
-        btn.className = 'sem-tab px-4 py-2 rounded-lg text-xs font-black transition-premium border bg-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800 border-transparent';
-      });
-      const actBtn = document.getElementById(`btnSemTab_${semId}`);
-      if(actBtn) actBtn.className = 'sem-tab px-4 py-2 rounded-lg text-xs font-black transition-premium border bg-blue-600/20 text-blue-400 border-blue-500/20';
-
+    function renderGodTable(semNo) {
+      currentActiveSem = semNo;
       const container = document.getElementById('academicReportContent');
-      const semData = academicData.semesters.find(s => s.semester == semId);
-      if (!semData || !semData.subjects || semData.subjects.length === 0) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-500 font-bold text-xs border border-slate-800/50 rounded-2xl bg-slate-900/30">No academic data available for Semester ${semId}.</div>`;
+      if (!container || !academicData) return;
+
+      const semData = (academicData.semesters || []).find(s => s.sem_no === semNo);
+      const subjects = semData ? semData.subjects || [] : [];
+
+      if (subjects.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 bg-white border border-slate-200 rounded-2xl text-xs font-medium">No marksheet entries registered for Semester ${semNo}.</div>`;
         return;
       }
 
-      let rows = '';
-      semData.subjects.forEach(sub => {
-        const trClass = "border-b border-slate-800/50 hover:bg-slate-900/30 transition-premium";
-        rows += `
-          <tr class="${trClass}">
-            <td class="p-4 whitespace-nowrap max-w-[170px]">
-              <div class="font-black text-slate-200 text-sm">${sub.subject_code}</div>
-              <div class="text-xs text-slate-400 font-bold truncate max-w-[160px]" title="${sub.subject_name}">${sub.subject_name}</div>
-            </td>
-            <td class="p-4 text-center text-base font-mono font-bold text-slate-300">${sub.CO1 !== null ? Math.round(sub.CO1) : '-'}</td>
-            <td class="p-4 text-center text-base font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO2 !== null ? Math.round(sub.CO2) : '-'}</td>
-            <td class="p-4 text-center text-base font-mono font-bold text-slate-300">${sub.CO3 !== null ? Math.round(sub.CO3) : '-'}</td>
-            <td class="p-4 text-center text-base font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO4 !== null ? Math.round(sub.CO4) : '-'}</td>
-            <td class="p-4 text-center text-base font-mono font-bold text-blue-400 border-l border-slate-800">
-              ${sub.Assg1 !== null ? Math.round(sub.Assg1) : (sub.Assg1_status === 'Submitted' ? '<span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 font-bold tracking-wider animate-pulse">SUBMITTED</span>' : '-')}
-            </td>
-            <td class="p-4 text-center text-base font-mono font-bold text-blue-400">
-              ${sub.Assg2 !== null ? Math.round(sub.Assg2) : (sub.Assg2_status === 'Submitted' ? '<span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 font-bold tracking-wider animate-pulse">SUBMITTED</span>' : '-')}
-            </td>
-            <td class="p-4 text-center text-base font-mono font-bold text-blue-400">
-              ${sub.Assg3 !== null ? Math.round(sub.Assg3) : (sub.Assg3_status === 'Submitted' ? '<span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 font-bold tracking-wider animate-pulse">SUBMITTED</span>' : '-')}
-            </td>
-            <td class="p-4 text-center text-base font-mono font-bold text-blue-400">
-              ${sub.Assg4 !== null ? Math.round(sub.Assg4) : (sub.Assg4_status === 'Submitted' ? '<span class="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-xs text-amber-400 font-bold tracking-wider animate-pulse">SUBMITTED</span>' : '-')}
-            </td>
-            <td class="p-4 text-center text-base font-mono font-black text-emerald-400 border-l border-slate-800">${sub.WT1 !== null ? Math.round(sub.WT1) : '-'}</td>
-            <td class="p-4 text-center text-base font-mono font-black text-emerald-400">${sub.WT2 !== null ? Math.round(sub.WT2) : '-'}</td>
-            <td class="p-4 text-center text-base font-mono font-black text-emerald-400">${sub.WT3 !== null ? Math.round(sub.WT3) : '-'}</td>
-            <td class="p-4 text-center text-base font-mono font-black text-emerald-400">${sub.WT4 !== null ? Math.round(sub.WT4) : '-'}</td>
-            <td class="p-4 text-center text-base font-mono font-black text-purple-400 border-l border-slate-800">${sub.OT1 !== null ? Math.round(sub.OT1) : '-'}</td>
-            <td class="p-4 text-center text-base font-mono font-black text-purple-400">${sub.OT2 !== null ? Math.round(sub.OT2) : '-'}</td>
-            <td class="p-4 text-center text-base font-mono font-black text-purple-400">${sub.OT3 !== null ? Math.round(sub.OT3) : '-'}</td>
-            <td class="p-4 text-center text-base font-mono font-black text-purple-400">${sub.OT4 !== null ? Math.round(sub.OT4) : '-'}</td>
-            <td class="p-4 text-center text-base font-black border-l border-slate-800 ${sub.attendance_percentage < 75 ? 'text-rose-400' : 'text-slate-300'}">
-              ${sub.attendance_percentage}%
-            </td>
-            <td class="p-4 text-center text-base font-mono font-black border-l border-slate-800 text-sky-400 uppercase">
-              ${sub.board_grade ? sub.board_grade.toUpperCase() : '-'}
-            </td>
-          </tr>
-        `;
-      });
-
       container.innerHTML = `
-        <div class="flex justify-between items-center mb-4">
-          <div class="flex gap-4">
-            <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
-              <span class="material-symbols-rounded text-slate-400 text-sm">stars</span>
-              <span class="text-sm text-slate-400 font-bold uppercase tracking-widest">SGPA:</span>
-              <span class="text-sm font-black text-white">${semData.sgpa || '-'}</span>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
-              <span class="material-symbols-rounded text-slate-400 text-sm">local_activity</span>
-              <span class="text-sm text-slate-400 font-bold uppercase tracking-widest">Points:</span>
-              <span class="text-sm font-black text-white">${semData.activity_points || '-'}</span>
-            </div>
+        <div class="w-full bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 text-xs font-semibold uppercase tracking-wider">
+                  <th class="py-3.5 px-4">Subject Code & Name</th>
+                  <th class="py-3.5 px-4 text-center">Series 1</th>
+                  <th class="py-3.5 px-4 text-center">Series 2</th>
+                  <th class="py-3.5 px-4 text-center">Assignment</th>
+                  <th class="py-3.5 px-4 text-center">CIE Total</th>
+                  <th class="py-3.5 px-4 text-center">Grade</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-sm text-slate-800">
+                ${subjects.map(sub => `
+                  <tr class="hover:bg-slate-50/70 transition-colors">
+                    <td class="py-3.5 px-4">
+                      <p class="font-semibold text-slate-900 text-xs">${sub.code} - ${sub.name}</p>
+                      <p class="text-[11px] text-slate-500 font-medium">${sub.type || 'Theory'}</p>
+                    </td>
+                    <td class="py-3.5 px-4 text-center font-mono text-xs font-semibold">${sub.series_1 ?? '-'}</td>
+                    <td class="py-3.5 px-4 text-center font-mono text-xs font-semibold">${sub.series_2 ?? '-'}</td>
+                    <td class="py-3.5 px-4 text-center font-mono text-xs font-semibold">${sub.assignment ?? '-'}</td>
+                    <td class="py-3.5 px-4 text-center font-bold text-blue-700 text-xs">${sub.cie_total ?? '-'}</td>
+                    <td class="py-3.5 px-4 text-center">
+                      <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${sub.grade === 'S' || sub.grade === 'A' ? 'bg-emerald-50 text-emerald-800' : (sub.grade === 'F' ? 'bg-rose-50 text-rose-800' : 'bg-blue-50 text-blue-800')}">${sub.grade || '--'}</span>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
           </div>
         </div>
-
-        <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl overflow-x-auto shadow-2xl">
-          <table class="w-full text-left border-collapse min-w-[1150px]">
-            <thead>
-              <tr class="bg-slate-900/80 border-b border-slate-800 text-sm uppercase tracking-wider font-black text-slate-400">
-                <th class="p-4 font-black max-w-[170px]">Subject</th>
-                <th class="p-4 text-center" colspan="4">Sum COs</th>
-                <th class="p-4 text-center border-l border-slate-800 text-blue-400" colspan="4">Assignments</th>
-                <th class="p-4 text-center border-l border-slate-800 text-emerald-400" colspan="4">Written Tests</th>
-                <th class="p-4 text-center border-l border-slate-800 text-purple-400" colspan="4">Online Tests</th>
-                <th class="p-4 text-center border-l border-slate-800">Attend.</th>
-                <th class="p-4 text-center border-l border-slate-800 text-sky-400">Board Exam</th>
-              </tr>
-              <tr class="bg-slate-900/40 border-b border-slate-800/50 text-xs uppercase font-bold text-slate-500">
-                <th class="p-2 max-w-[170px]"></th>
-                <th class="p-2 text-center w-10 border-l border-slate-800/50">C1</th><th class="p-2 text-center w-10 bg-slate-950/20">C2</th><th class="p-2 text-center w-10">C3</th><th class="p-2 text-center w-10 bg-slate-950/20">C4</th>
-                <th class="p-2 text-center w-10 border-l border-slate-800">A1</th><th class="p-2 text-center w-10">A2</th><th class="p-2 text-center w-10">A3</th><th class="p-2 text-center w-10">A4</th>
-                <th class="p-2 text-center w-10 border-l border-slate-800">W1</th><th class="p-2 text-center w-10">W2</th><th class="p-2 text-center w-10">W3</th><th class="p-2 text-center w-10">W4</th>
-                <th class="p-2 text-center w-10 border-l border-slate-800">O1</th><th class="p-2 text-center w-10">O2</th><th class="p-2 text-center w-10">O3</th><th class="p-2 text-center w-10">O4</th>
-                <th class="p-2 text-center w-16 border-l border-slate-800">%</th>
-                <th class="p-2 text-center w-24 border-l border-slate-800">Grade</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800/30">
-              ${rows}
-            </tbody>
-          </table>
-        </div>
       `;
+    }
+
+    function loadStudentTests() {
+      fetch('/student/tests/active')
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('studentActiveTestsList');
+          const section = document.getElementById('mcqTestsSection');
+          if (data && data.tests && data.tests.length > 0) {
+            list.innerHTML = data.tests.map(t => `
+              <div class="p-4 bg-white border border-slate-200 rounded-xl space-y-2 shadow-sm">
+                <div class="flex items-center justify-between">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/60">Live Assessment</span>
+                  <span class="text-xs text-slate-500 font-medium">${t.duration} mins</span>
+                </div>
+                <p class="font-bold text-slate-900 text-xs">${t.title}</p>
+                <a href="/student/test/${t.id}" class="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700">Start Practice <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></a>
+              </div>
+            `).join('');
+            section.classList.remove('hidden');
+          } else {
+            list.innerHTML = `<div class="py-6 text-center text-slate-400 text-xs font-medium">No live MCQ tests currently scheduled.</div>`;
+          }
+          if (window.initLucide) window.initLucide();
+        })
+        .catch(() => {});
+    }
+
+    function loadActivityPoints() {
+      fetch('/student/activity-points')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            document.getElementById('verifiedActivityTotal').innerText = data.total || 0;
+            const tb = document.getElementById('activityClaimsTableBody');
+            if (tb && data.claims) {
+              tb.innerHTML = data.claims.map(c => `
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                  <td class="py-3 px-4 text-xs font-medium text-slate-600">${c.date || '-'}</td>
+                  <td class="py-3 px-4 text-xs font-semibold text-slate-900">${c.segment}</td>
+                  <td class="py-3 px-4 text-xs text-slate-700">${c.name}</td>
+                  <td class="py-3 px-4 text-xs text-slate-600">${c.level}</td>
+                  <td class="py-3 px-4 text-xs text-slate-500">${c.evidence || '-'}</td>
+                  <td class="py-3 px-4 text-center text-xs font-semibold">${c.claimed}</td>
+                  <td class="py-3 px-4 text-center text-xs font-bold text-blue-700">${c.awarded || 0}</td>
+                  <td class="py-3 px-4 text-right">
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${c.status === 'Approved' ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}">${c.status}</span>
+                  </td>
+                </tr>
+              `).join('');
+            }
+          }
+        })
+        .catch(() => {});
+    }
+
+    function loadSeminarRegistration() {
+      fetch('/student/seminar/details')
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.status === 'SUCCESS' && data.registered) {
+            document.getElementById('seminarStatusBanner').classList.remove('hidden');
+            document.getElementById('semStatusTopic').innerText = data.topic || '-';
+            document.getElementById('semStatusGuide').innerText = data.guide_name || '-';
+            document.getElementById('semStatusDate').innerText = data.date || '-';
+            document.getElementById('semStatusScore').innerText = (data.score || '-') + ' / 75';
+            document.getElementById('seminarFormCard').classList.add('hidden');
+          }
+        })
+        .catch(() => {});
+    }
+
+    // ==========================================
+    // MENTORING DIARY INTERACTIVE CONTROLLER
+    // ==========================================
+    function switchStudentMentoringTab(tabId) {
+      document.querySelectorAll('.smd-content-pane').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.smd-tab').forEach(el => {
+        el.className = "smd-tab py-2 px-2.5 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center";
+      });
+
+      const targetPane = document.getElementById(tabId);
+      const targetBtn = document.getElementById('tabBtn_' + tabId);
+      if (targetPane) targetPane.classList.remove('hidden');
+      if (targetBtn) targetBtn.className = "smd-tab py-2 px-2.5 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-sm transition-all text-center";
+      if (window.initLucide) window.initLucide();
+    }
+
+    function loadStudentMentoringData() {
+      fetch('/api/student/mentoring/data')
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.status === 'SUCCESS') {
+            mentoringLoaded = true;
+            
+            // Profile & Socio-economic
+            if (data.profile) {
+              document.getElementById('smd_annual_income').value = data.profile.annual_income || '';
+              document.getElementById('smd_residential_status').value = data.profile.residential_status || 'Day Scholar';
+              document.getElementById('smd_scholarships').value = data.profile.scholarships || '';
+              document.getElementById('smd_fee_waiver').checked = data.profile.is_fee_waiver == 1;
+              document.getElementById('smd_guardian_name').value = data.profile.guardian_name || '';
+              document.getElementById('smd_guardian_relationship').value = data.profile.guardian_relationship || '';
+              document.getElementById('smd_guardian_mobile').value = data.profile.guardian_mobile || '';
+              document.getElementById('smd_guardian_address').value = data.profile.guardian_address || '';
+            }
+
+            // Family members
+            const fList = document.getElementById('smdFamilyList');
+            if (fList && data.family) {
+              if (data.family.length === 0) {
+                fList.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">No family members registered. Click "+ Add Member" to register.</td></tr>`;
+              } else {
+                fList.innerHTML = data.family.map(f => `
+                  <tr class="hover:bg-slate-50/70 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-slate-900 text-xs">${f.name}</td>
+                    <td class="py-3 px-4 text-slate-700 text-xs">${f.relationship}</td>
+                    <td class="py-3 px-4 text-slate-600 text-xs">${f.education || '-'}</td>
+                    <td class="py-3 px-4 text-slate-600 text-xs">${f.occupation || '-'}</td>
+                    <td class="py-3 px-4 font-mono text-slate-600 text-xs">${f.contact_no || '-'}</td>
+                    <td class="py-3 px-4 text-center">
+                      <button type="button" onclick="deleteFamilyRow(this, ${f.id})" class="text-rose-600 hover:text-rose-700 text-xs font-semibold">Delete</button>
+                    </td>
+                  </tr>
+                `).join('');
+              }
+            }
+
+            // Prior Qualifications
+            const eList = document.getElementById('smdEducationList');
+            if (eList && data.education) {
+              if (data.education.length === 0) {
+                eList.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">No prior education records found. Click "+ Add Qualification" to register.</td></tr>`;
+              } else {
+                eList.innerHTML = data.education.map(e => `
+                  <tr class="hover:bg-slate-50/70 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-slate-900 text-xs">${e.course}</td>
+                    <td class="py-3 px-4 text-slate-700 text-xs">${e.institution}</td>
+                    <td class="py-3 px-4 text-slate-600 text-xs">${e.year_of_completion}</td>
+                    <td class="py-3 px-4 text-slate-900 font-semibold text-xs">${e.total_percentage}%</td>
+                    <td class="py-3 px-4 text-center">
+                      <button type="button" onclick="deleteEducationRow(this, ${e.id})" class="text-rose-600 hover:text-rose-700 text-xs font-semibold">Delete</button>
+                    </td>
+                  </tr>
+                `).join('');
+              }
+            }
+
+            // Extracurricular
+            const exList = document.getElementById('smdExtraList');
+            if (exList && data.extracurricular) {
+              if (data.extracurricular.length === 0) {
+                exList.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">No extracurricular logs.</td></tr>`;
+              } else {
+                exList.innerHTML = data.extracurricular.map(ex => `
+                  <tr class="hover:bg-slate-50/70 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-slate-900 text-xs">${ex.activity_name || ex.name}</td>
+                    <td class="py-3 px-4 text-slate-600 text-xs">${ex.level}</td>
+                    <td class="py-3 px-4 text-slate-700 text-xs">${ex.prize || 'Participated'}</td>
+                    <td class="py-3 px-4 text-center text-xs font-bold text-blue-700">${ex.points_awarded || 0}</td>
+                    <td class="py-3 px-4 text-right">
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${ex.status === 'Verified' || ex.status === 'Approved' ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}">${ex.status}</span>
+                    </td>
+                  </tr>
+                `).join('');
+              }
+            }
+
+            // Mentor Meetings
+            const mList = document.getElementById('smdMeetingsList');
+            if (mList && data.meetings) {
+              if (data.meetings.length === 0) {
+                mList.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-400">No mentor meetings recorded yet.</td></tr>`;
+              } else {
+                mList.innerHTML = data.meetings.map(m => `
+                  <tr class="hover:bg-slate-50/70 transition-colors">
+                    <td class="py-3 px-4 text-xs font-semibold text-slate-900">${m.meeting_date || '-'}</td>
+                    <td class="py-3 px-4 text-xs text-slate-700">${m.discussion_points || '-'}</td>
+                    <td class="py-3 px-4 text-xs text-slate-600">${m.mentor_remarks || '-'}</td>
+                    <td class="py-3 px-4 text-xs text-blue-700 font-medium">${m.action_taken || '-'}</td>
+                  </tr>
+                `).join('');
+              }
+            }
+          }
+        })
+        .catch(err => console.error('Mentoring data fetch error:', err));
+    }
+
+    function saveStudentMentoringData() {
+      const payload = {
+        annual_income: document.getElementById('smd_annual_income').value,
+        residential_status: document.getElementById('smd_residential_status').value,
+        scholarships: document.getElementById('smd_scholarships').value,
+        is_fee_waiver: document.getElementById('smd_fee_waiver').checked ? 1 : 0,
+        guardian_name: document.getElementById('smd_guardian_name').value,
+        guardian_relationship: document.getElementById('smd_guardian_relationship').value,
+        guardian_mobile: document.getElementById('smd_guardian_mobile').value,
+        guardian_address: document.getElementById('smd_guardian_address').value
+      };
+
+      fetch('/api/student/mentoring/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(d => {
+        alert(d.message || "Mentoring profile details saved successfully.");
+      })
+      .catch(() => alert("Error saving mentoring details."));
+    }
+
+    function downloadMentoringPdf() {
+      window.open('/student/mentoring/pdf', '_blank');
+    }
+
+    function loadPreClassVlmBanner() {
+      fetch('/api/student/pre-class-prep-alert')
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.active) {
+            document.getElementById('vlmAlertTitle').innerText = data.title || 'Evening Study Materials Available';
+            document.getElementById('vlmAlertInstruction').innerText = data.instruction || 'Review lesson objectives before tomorrow morning classroom session.';
+            document.getElementById('vlmAlertTargetDate').innerText = data.target_date || '';
+            document.getElementById('vlmPreClassAlertBanner').classList.remove('hidden');
+          }
+        })
+        .catch(() => {});
+    }
+
+    function openVlmVaultModal() {
+      document.getElementById('vlmVaultModal').classList.remove('hidden');
+      if (window.initLucide) window.initLucide();
+    }
+    function closeVlmVaultModal() {
+      document.getElementById('vlmVaultModal').classList.add('hidden');
+    }
+
+    function changePassword() {
+      const oldPwd = document.getElementById('oldPwd').value;
+      const newPwd = document.getElementById('newPwd').value;
+      const alertEl = document.getElementById('pwdAlert');
+      if (!oldPwd || !newPwd) {
+        alertEl.className = "p-3 rounded-xl text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200/60 block";
+        alertEl.innerText = "Please provide both old and new password.";
+        alertEl.classList.remove('hidden');
+        return;
+      }
+      fetch('/student/update-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({ old_password: oldPwd, new_password: newPwd })
+      })
+      .then(res => res.json())
+      .then(d => {
+        alertEl.className = "p-3 rounded-xl text-xs font-semibold " + (d.status === 'SUCCESS' ? "bg-emerald-50 text-emerald-800 border border-emerald-200/60 block" : "bg-rose-50 text-rose-800 border border-rose-200/60 block");
+        alertEl.innerText = d.message || "Password updated successfully.";
+        alertEl.classList.remove('hidden');
+      });
     }
 
     function updateSbteRegNo() {
       const val = document.getElementById('sbteRegNoInput').value.trim();
       const alertEl = document.getElementById('sbteAlert');
-      if (!val) {
-        alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block';
-        alertEl.innerText = 'Please enter your SBTE Register Number.';
-        return;
-      }
-      fetch('/api/student/update-sbte-reg', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({ sbteRegNo: val })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-green-950/40 text-green-400 border border-green-900/60 block';
-          alertEl.innerText = 'SBTE Register Number saved! Reload the page to see it confirmed.';
-        } else {
-          alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block';
-          alertEl.innerText = data.message || 'Failed to save. Please try again.';
-        }
-      })
-      .catch(() => {
-        alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block';
-        alertEl.innerText = 'Network error. Please try again.';
-      });
-    }
-
-    function changePassword() {
-      const oldPwd = document.getElementById('oldPwd').value.trim();
-      const newPwd = document.getElementById('newPwd').value.trim();
-      const alert = document.getElementById('pwdAlert');
-      if (!oldPwd || !newPwd) {
-        alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
-        alert.innerText = "Please fill in both fields.";
-        return;
-      }
-      if (newPwd.length < 6) {
-        alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
-        alert.innerText = "New password must be at least 6 characters.";
-        return;
-      }
-      fetch('/api/student/change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({ oldPassword: oldPwd, newPassword: newPwd })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          alert.className = "p-3 rounded-xl text-xs font-bold bg-green-950/40 text-green-400 border border-green-900/60 block";
-          alert.innerText = "Password updated successfully.";
-          document.getElementById('oldPwd').value = '';
-          document.getElementById('newPwd').value = '';
-        } else {
-          alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
-          alert.innerText = data.message || 'Password change failed.';
-        }
-      })
-      .catch(() => {
-        alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
-        alert.innerText = 'Request failed. Please try again.';
-      });
-    }
-
-    function handlePhotoUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const statusEl = document.getElementById('photoUploadStatus');
-      statusEl.classList.remove('hidden');
-      statusEl.className = "text-sm font-bold mt-2 text-blue-450";
-      statusEl.innerText = "Uploading photo...";
-
-      const formData = new FormData();
-      formData.append('photo', file);
-
-      fetch('/api/student/profile/upload-photo', {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: formData
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          statusEl.className = "text-sm font-bold mt-2 text-green-400";
-          statusEl.innerText = "Photo updated successfully!";
-
-          // Update main profile picture
-          const imgEl = document.getElementById('studentProfileImg');
-          if (imgEl) {
-            imgEl.src = data.photo_url;
-          } else {
-            const wrapper = document.getElementById('studentAvatarWrapper');
-            wrapper.innerHTML = `<img id="studentProfileImg" src="${data.photo_url}" class="w-full h-full object-cover">`;
-          }
-
-          // Update sidebar picture
-          const sidebarImg = document.getElementById('sidebarStudentImg');
-          if (sidebarImg) {
-            sidebarImg.src = data.photo_url;
-          } else {
-            const sidebarWrapper = document.getElementById('sidebarAvatarContainer');
-            if (sidebarWrapper) {
-              sidebarWrapper.innerHTML = `<img id="sidebarStudentImg" src="${data.photo_url}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">`;
-            }
-          }
-
-          setTimeout(() => statusEl.classList.add('hidden'), 3000);
-        } else {
-          statusEl.className = "text-sm font-bold mt-2 text-rose-450";
-          statusEl.innerText = data.message || "Upload failed.";
-        }
-      })
-      .catch(() => {
-        statusEl.className = "text-sm font-bold mt-2 text-rose-450";
-        statusEl.innerText = "Network error. Please try again.";
-      });
-    }
-
-    // Init stub stats and load tests
-    document.addEventListener('DOMContentLoaded', () => {
-      loadStudentTests();
-      loadAcademicReport();
-    });
-
-    // TEST ENGINE LOGIC
-    let currentTestId = null;
-    let timerInterval = null;
-    let endTimeMs = null;
-
-    function loadStudentTests() {
-      fetch('/api/student/online-tests')
-        .then(res => res.json())
-        .then(data => {
-          let container = document.getElementById('studentActiveTestsList');
-          let mcqSection = document.getElementById('mcqTestsSection');
-
-          if (data.status === 'SUCCESS' && data.tests && data.tests.length > 0) {
-            mcqSection.classList.remove('hidden');
-
-            let html = '';
-            data.tests.forEach(t => {
-              let actionHtml = '';
-              if (t.can_take) {
-                actionHtml = `<button onclick="startOnlineTest('${t.test_id}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded font-bold text-sm transition-premium">Start Test</button>`;
-              } else if (t.status_message && t.status_message.startsWith('Starts')) {
-                actionHtml = `<button disabled class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-sm text-center border border-slate-700/50 mb-2 cursor-not-allowed flex items-center justify-center gap-2"><span class="material-symbols-rounded text-sm">lock</span> ${t.status_message}</button>`;
-              } else if (t.my_attempts > 0) {
-                actionHtml = `<div class="w-full py-2 bg-emerald-900/40 text-emerald-400 rounded font-bold text-sm text-center border border-emerald-800/50 mb-2">Best Score: ${t.best_score || 0}</div>`;
-              } else {
-                actionHtml = `<div class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-sm text-center border border-slate-700/50 mb-2">${t.status_message || 'Expired'}</div>`;
-              }
-
-              let hasEnded = false;
-              if (t.end_time) {
-                let et = new Date(t.end_time.replace(' ', 'T'));
-                hasEnded = (new Date() >= et);
-              }
-              if (hasEnded && t.my_attempts > 0) {
-                actionHtml += `<button onclick="viewAnswerKey('${t.test_id}')" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold text-sm transition-premium">View Answer Key</button>`;
-              } else if (t.my_attempts > 0 && !t.can_take) {
-                let formattedEndTime = new Date(t.end_time).toLocaleString();
-                actionHtml += `<div class="text-sm text-center text-slate-400 font-semibold mt-1 bg-slate-950/30 p-1.5 rounded border border-slate-800/50">Answer key unlocks after test ends: <br/>${formattedEndTime}</div>`;
-              }
-
-              html += `
-                <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl overflow-hidden mb-1">
-                  <!-- Collapsible Header -->
-                  <div onclick="document.getElementById('co_exam_${t.test_id}').classList.toggle('hidden'); this.querySelector('.arrow-icon').innerText = document.getElementById('co_exam_${t.test_id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';" 
-                       class="px-4 py-3.5 bg-slate-950/40 hover:bg-slate-950/70 border-b border-slate-800/60 flex justify-between items-center cursor-pointer transition-premium">
-                    <div class="flex items-center gap-3">
-                      <span class="material-symbols-rounded text-purple-400 text-sm">quiz</span>
-                      <div>
-                        <h4 class="font-bold text-sm text-slate-200">${t.test_name}</h4>
-                        <p class="text-sm font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject_name || t.subject_code}</p>
-                      </div>
-                    </div>
-                    <span class="material-symbols-rounded text-slate-500 text-sm arrow-icon">expand_more</span>
-                  </div>
-                  <!-- Collapsible Content -->
-                  <div id="co_exam_${t.test_id}" class="hidden p-4 bg-slate-950/10 border-t border-slate-800/40">
-                    <div class="grid grid-cols-2 gap-4 mb-4 text-sm text-slate-400 font-semibold">
-                      <div class="space-y-1">
-                        <div>Duration: <span class="text-slate-200 font-bold">${t.duration} Mins</span></div>
-                        <div>Total Questions: <span class="text-slate-200 font-bold">${t.mcq_count} MCQs</span></div>
-                      </div>
-                      <div class="space-y-1">
-                        <div>Attempts: <span class="text-slate-200 font-bold">${t.my_attempts}/${t.max_attempts}</span></div>
-                        <div>Deadline: <span class="text-slate-200 font-bold font-mono">${t.end_time ? new Date(t.end_time).toLocaleString() : 'No Limit'}</span></div>
-                      </div>
-                    </div>
-                    <div class="mt-3">
-                      ${actionHtml}
-                    </div>
-                  </div>
-                </div>
-              `;
-            });
-            container.innerHTML = html;
-            container.className = "flex flex-col gap-3";
-          } else {
-            mcqSection.classList.add('hidden');
-            container.innerHTML = '';
-            container.className = "";
-          }
-
-          adjustPendingGridColumns();
-          if (data.stats) updateStatsHeader(null, data.stats);
-        });
-    }
-
-    function startOnlineTest(testId) {
-      if(!confirm("Are you sure you want to start this test? The timer will begin immediately.")) return;
-      
-      fetch(`/api/student/online-tests/${testId}/start`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          currentTestId = testId;
-          renderTestEngine(data.questions, data.duration);
-        } else {
-          alert(data.message || "Could not start test.");
-        }
-      });
-    }
-
-    function renderTestEngine(questions, durationMins) {
-      document.getElementById('testEngineModal').classList.remove('hidden');
-
-      let html = '<div class="max-w-3xl mx-auto space-y-6 pb-20">';
-      questions.forEach((q, idx) => {
-        let optionsHtml = '';
-        q.options.forEach((opt, oIdx) => {
-          optionsHtml += `
-            <label class="flex items-center gap-3 p-4 rounded-lg border border-slate-700/50 bg-slate-900/50 cursor-pointer hover:border-purple-500/50 hover:bg-slate-800 transition-premium">
-              <input type="radio" name="q_${idx}" value="${opt}" class="w-5 h-5 text-purple-500 bg-slate-950 border-slate-600 focus:ring-purple-600">
-              <span class="text-sm text-slate-200 leading-snug">${opt}</span>
-            </label>
-          `;
-        });
-        html += `
-          <div class="question-container bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-lg">
-             <div class="flex items-start gap-4 mb-5">
-               <span class="flex-shrink-0 w-9 h-9 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center font-black text-sm border border-purple-500/20">${idx+1}</span>
-               <h4 class="text-base font-bold text-slate-100 mt-1 leading-relaxed">${q.q}</h4>
-             </div>
-             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-13">
-               ${optionsHtml}
-             </div>
-          </div>
-        `;
-      });
-      html += '</div>';
-      document.getElementById('testQuestionsContainer').innerHTML = html;
-
-      // Start Timer
-      endTimeMs = Date.now() + (durationMins * 60 * 1000);
-      timerInterval = setInterval(updateTimer, 1000);
-      updateTimer();
-    }
-
-    function updateTimer() {
-      let now = Date.now();
-      let diff = endTimeMs - now;
-      if (diff <= 0) {
-        clearInterval(timerInterval);
-        document.getElementById('liveTimer').innerText = "00:00:00";
-        alert("Time is up! Auto-submitting your test.");
-        submitTest();
-        return;
-      }
-      
-      let h = Math.floor(diff / (1000 * 60 * 60));
-      let m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      let s = Math.floor((diff % (1000 * 60)) / 1000);
-      
-      document.getElementById('liveTimer').innerText = 
-        (h < 10 ? '0'+h : h) + ':' + 
-        (m < 10 ? '0'+m : m) + ':' + 
-        (s < 10 ? '0'+s : s);
-    }
-
-    function cancelTest() {
-      if(!confirm("Are you sure? Your progress will be lost.")) return;
-      document.getElementById('testEngineModal').classList.add('hidden');
-    }
-
-    function submitTest() {
-      if(!currentTestId) return;
-      document.getElementById('testEngineModal').classList.add('hidden');
-      
-      const formContainers = document.getElementById('testQuestionsContainer').querySelectorAll('.question-container');
-      let answers = {};
-      formContainers.forEach((container, idx) => {
-        let checked = container.querySelector(`input[name="q_${idx}"]:checked`);
-        answers[idx] = checked ? checked.value : null;
-      });
-
-      fetch(`/api/student/online-tests/${currentTestId}/submit`, {
+      if (!val) return;
+      fetch('/student/update-sbte-reg-no', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-        body: JSON.stringify({ answers })
+        body: JSON.stringify({ sbte_reg_no: val })
       })
       .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          // Hide engine, show result modal
-          document.getElementById('testEngineModal').classList.add('hidden');
-          document.getElementById('testResultModal').classList.remove('hidden');
-          setTimeout(() => document.getElementById('resultModalBox').classList.remove('scale-95'), 50);
-
-          document.getElementById('resultScore').innerText = `${data.summary.score}/${data.summary.total}`;
-          document.getElementById('resultPercent').innerText = `${data.summary.percentage}%`;
-        } else {
-          alert(data.message || "Submission failed.");
-        }
+      .then(d => {
+        alertEl.className = "p-3 rounded-xl text-xs font-semibold " + (d.status === 'SUCCESS' ? "bg-emerald-50 text-emerald-800 border border-emerald-200/60 block" : "bg-rose-50 text-rose-800 border border-rose-200/60 block");
+        alertEl.innerText = d.message || "SBTE Register Number saved.";
+        alertEl.classList.remove('hidden');
       });
     }
 
-      function closeResultModal() {
-        document.getElementById('testResultModal').classList.add('hidden');
-        loadStudentTests(); // refresh the list
-        loadAcademicReport(); // refresh academic stats so new marks show up
-      }
+    function handlePhotoUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const statusEl = document.getElementById('photoUploadStatus');
+      statusEl.className = "text-xs font-semibold text-blue-600 block";
+      statusEl.innerText = "Uploading photo...";
+      statusEl.classList.remove('hidden');
 
-    function viewAnswerKey(testId) {
-      fetch(`/api/student/online-tests/${testId}/answer-key`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'SUCCESS') {
-            document.getElementById('answerKeyTestName').innerText = data.test_name;
-            document.getElementById('answerKeyScoreInfo').innerText = `Best Score: ${data.score}/${data.total} (${data.percentage}%)`;
-            
-            let html = '<div class="max-w-3xl mx-auto space-y-6 pb-20">';
-            data.details.forEach((q, idx) => {
-              let optionsHtml = '';
-              q.options.forEach((opt, oIdx) => {
-                let badgeHtml = '';
-                let borderClass = 'border-slate-700/50 bg-slate-900/50';
-                
-                // Color code options
-                if (opt === q.correct_ans) {
-                  borderClass = 'border-green-500/50 bg-green-950/20';
-                  badgeHtml = '<span class="text-xs bg-green-500/20 text-green-400 font-bold px-2 py-0.5 rounded ml-auto">Correct Answer</span>';
-                } else if (opt === q.student_ans) {
-                  borderClass = 'border-red-500/50 bg-red-950/20';
-                  badgeHtml = '<span class="text-xs bg-red-500/20 text-red-400 font-bold px-2 py-0.5 rounded ml-auto">Your Answer</span>';
-                }
-
-                optionsHtml += `
-                  <div class="flex items-center gap-3 p-3 rounded-lg border ${borderClass} transition-premium">
-                    <span class="text-xs text-slate-300">${opt}</span>
-                    ${badgeHtml}
-                  </div>
-                `;
-              });
-
-              let correctBadge = q.is_correct 
-                ? '<span class="bg-green-500/10 text-green-400 text-xs font-bold px-2.5 py-1 rounded-full border border-green-500/20 flex items-center gap-1"><span class="material-symbols-rounded text-xs">check_circle</span> Correct</span>'
-                : `<span class="bg-red-500/10 text-red-400 text-xs font-bold px-2.5 py-1 rounded-full border border-red-500/20 flex items-center gap-1"><span class="material-symbols-rounded text-xs">cancel</span> Incorrect</span>`;
-
-              html += `
-                <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-lg">
-                   <div class="flex items-start justify-between gap-4 mb-4">
-                     <div class="flex items-start gap-4">
-                       <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-black text-xs border border-slate-700/20">${idx+1}</span>
-                       <div>
-                         <h4 class="text-xs font-bold text-slate-100 mt-1">${q.q}</h4>
-                         <span class="text-xs text-slate-500 font-mono">CO Tag: ${q.co}</span>
-                       </div>
-                     </div>
-                     ${correctBadge}
-                   </div>
-                   <div class="grid grid-cols-1 gap-3 pl-12">
-                     ${optionsHtml}
-                   </div>
-                </div>
-              `;
-            });
-            html += '</div>';
-            
-            document.getElementById('answerKeyQuestionsContainer').innerHTML = html;
-            document.getElementById('answerKeyModal').classList.remove('hidden');
-          } else {
-            alert(data.message || "Could not retrieve answer key.");
+      const fd = new FormData();
+      fd.append('photo', file);
+      fetch('/student/upload-photo', {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: fd
+      })
+      .then(res => res.json())
+      .then(d => {
+        if (d.status === 'SUCCESS') {
+          statusEl.className = "text-xs font-semibold text-emerald-600 block";
+          statusEl.innerText = "Profile photo updated.";
+          if (d.photo_url) {
+            const img = document.getElementById('studentProfileImg');
+            if (img) img.src = d.photo_url;
           }
-        });
-    }
-
-    function closeAnswerKeyModal() {
-      document.getElementById('answerKeyModal').classList.add('hidden');
-    }
-
-    function loadActivityPoints() {
-      fetch('/api/student/activity-points')
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'SUCCESS') {
-            document.getElementById('overallActivityPoints').innerText = data.total_points || 0;
-            document.getElementById('verifiedActivityTotal').innerText = data.total_points || 0;
-            
-            // Progress Bar
-            let pts = data.total_points || 0;
-            let goal = {{ $activityGoal }};
-            let percent = Math.min(100, Math.round((pts / goal) * 100));
-            
-            const pBar = document.getElementById('activityProgressBar');
-            pBar.style.width = percent + '%';
-            
-            if (percent >= 100) {
-              pBar.className = "absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-1000 ease-out";
-            } else if (percent >= 50) {
-              pBar.className = "absolute top-0 left-0 h-full bg-gradient-to-r from-amber-500 to-orange-400 transition-all duration-1000 ease-out";
-            } else {
-              pBar.className = "absolute top-0 left-0 h-full bg-gradient-to-r from-red-500 to-rose-400 transition-all duration-1000 ease-out";
-            }
-
-            // Split
-            let splitHtml = '';
-            if (data.split && Object.keys(data.split).length > 0) {
-              for (const [segment, pts] of Object.entries(data.split)) {
-                splitHtml += `
-                  <div class="flex justify-between items-center py-1">
-                    <span class="text-xs text-slate-300">${segment}</span>
-                    <span class="text-xs font-bold text-emerald-400">${pts}</span>
-                  </div>
-                `;
-              }
-            } else {
-              splitHtml = '<div class="text-xs text-slate-500 py-1">No verified points yet.</div>';
-            }
-            document.getElementById('activitySplitList').innerHTML = splitHtml;
-
-            // Claims Table
-            const tbody = document.getElementById('activityClaimsTableBody');
-            if (data.claims && data.claims.length > 0) {
-              let html = '';
-              data.claims.forEach(c => {
-                let statusClass = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
-                if (c.status === 'Verified') statusClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
-                if (c.status === 'Rejected') statusClass = 'text-rose-400 bg-rose-500/10 border-rose-500/20';
-                
-                let dateStr = c.created_at ? new Date(c.created_at).toLocaleDateString() : 'N/A';
-                let verifiedDateStr = c.verified_at ? new Date(c.verified_at).toLocaleDateString() : '';
-                
-                let noteHtml = '';
-                if (c.status === 'Rejected' && c.rejection_note) {
-                  noteHtml = `<div class="mt-1 text-xs text-rose-400/80 leading-tight">Reason: ${c.rejection_note}</div>`;
-                }
-                if (c.status !== 'Pending' && verifiedDateStr) {
-                  noteHtml += `<div class="mt-0.5 text-xs text-slate-500">On: ${verifiedDateStr}</div>`;
-                }
-                
-                html += `
-                  <tr class="hover:bg-slate-900/50 transition-colors border-b border-slate-800/40">
-                    <td class="p-3 text-xs text-slate-400">${dateStr}</td>
-                    <td class="p-3 text-xs font-bold text-slate-300">${c.activity_segment}</td>
-                    <td class="p-3 text-xs text-slate-300">${c.activity_name}</td>
-                    <td class="p-3 text-xs text-slate-400">${c.level}</td>
-                    <td class="p-3">
-                      ${c.document_reference ? `<a href="${c.document_reference}" target="_blank" class="text-blue-400 hover:text-blue-300 text-xs underline flex items-center gap-1"><span class="material-symbols-rounded text-[12px]">link</span> View</a>` : '<span class="text-xs text-slate-600">None</span>'}
-                    </td>
-                    <td class="p-3 text-center text-xs font-bold text-slate-300">${c.points_claimed}</td>
-                    <td class="p-3 text-center text-xs font-bold ${c.status === 'Verified' ? 'text-emerald-400' : 'text-slate-500'}">${c.status === 'Verified' ? c.points_awarded : '--'}</td>
-                    <td class="p-3 text-right max-w-[120px]">
-                      <span class="px-2 py-0.5 rounded border text-xs font-bold uppercase tracking-wider ${statusClass} inline-block">${c.status}</span>
-                      ${noteHtml}
-                    </td>
-                  </tr>
-                `;
-              });
-              tbody.innerHTML = html;
-            } else {
-              tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 text-xs">No activity claims submitted yet.</td></tr>`;
-            }
-          }
-        });
+        } else {
+          statusEl.className = "text-xs font-semibold text-rose-600 block";
+          statusEl.innerText = d.message || "Failed to upload photo.";
+        }
+      });
     }
 
     function submitActivityClaim(e) {
       e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-
-      fetch('/api/student/activity-points', {
+      const form = document.getElementById('activityClaimForm');
+      const fd = new FormData(form);
+      fetch('/student/activity-points/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-        body: JSON.stringify(data)
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: fd
       })
       .then(res => res.json())
-      .then(resData => {
-        if (resData.status === 'SUCCESS') {
-          form.reset();
-          loadActivityPoints();
-        } else {
-          alert(resData.message || 'Failed to submit claim.');
-        }
+      .then(d => {
+        alert(d.message || "Activity claim submitted to faculty tutor.");
+        form.reset();
+        loadActivityPoints();
       });
-    }
-
-    let _seminarGuides = []; // cache for guide list
-
-    function loadSeminarRegistration() {
-      const guideSelect = document.getElementById('semRegGuide');
-      const subjectInput = document.getElementById('semRegSubject');
-      const statusBanner = document.getElementById('seminarStatusBanner');
-      const formCard = document.getElementById('seminarFormCard');
-      const noSubjectAlert = document.getElementById('seminarNoSubjectAlert');
-
-      // Reset UI
-      statusBanner.classList.add('hidden');
-      noSubjectAlert.classList.add('hidden');
-      subjectInput.value = '';
-
-      // 1. Fetch guides
-      guideSelect.innerHTML = '<option value="">Loading guides...</option>';
-      fetch('/api/student/seminar/guides')
-      .then(r => r.json())
-      .then(res => {
-        _seminarGuides = res.guides || [];
-        guideSelect.innerHTML = '<option value="">Select Guide...</option>';
-        _seminarGuides.forEach(g => {
-          const opt = document.createElement('option');
-          opt.value = g.mobile_no;
-          opt.innerText = g.name;
-          guideSelect.appendChild(opt);
-        });
-      });
-
-      // 2. Find seminar subject from academic report
-      // API returns: { status, overall: { current_semester }, semesters: [{semester, subjects:[...]}, ...] }
-      fetch('/api/student/academic-report')
-      .then(r => r.json())
-      .then(res => {
-        if (res.status !== 'SUCCESS') return;
-
-        // Correct keys: overall.current_semester and semesters (array)
-        const currentSem = res.overall?.current_semester;
-        const semestersArr = res.semesters || [];
-
-        // Find current semester entry first, then fall back to any semester with a Seminar subject
-        let semSubj = null;
-        const currentSemData = semestersArr.find(s => s.semester == currentSem);
-        if (currentSemData) {
-          semSubj = (currentSemData.subjects || []).find(s => s.subject_type === 'Seminar');
-        }
-        // Fallback: search all semesters
-        if (!semSubj) {
-          for (const semData of semestersArr) {
-            semSubj = (semData.subjects || []).find(s => s.subject_type === 'Seminar');
-            if (semSubj) break;
-          }
-        }
-
-        if (!semSubj) {
-          noSubjectAlert.classList.remove('hidden');
-          formCard.classList.add('hidden');
-          return;
-        }
-
-        formCard.classList.remove('hidden');
-        subjectInput.value = semSubj.batch_subject_id;
-        fetchSeminarDetails(semSubj.batch_subject_id);
-      })
-      .catch(() => {
-        showSeminarToast('Failed to load seminar data. Please refresh.', 'error');
-      });
-    }
-
-    function fetchSeminarDetails(subjectId) {
-      const regNo = "{{ session('userId') }}";
-      fetch(`/api/classroom/${subjectId}/seminar/evaluations`)
-      .then(r => r.json())
-      .then(res => {
-        if (res.status !== 'SUCCESS') return;
-        const student = res.data.find(s => s.reg_no === regNo);
-        const statusBanner = document.getElementById('seminarStatusBanner');
-        const formCard = document.getElementById('seminarFormCard');
-        const cancelBtn = document.getElementById('semCancelEditBtn');
-        const submitBtn = document.getElementById('semSubmitBtn');
-        const formTitle = document.getElementById('semFormTitle');
-
-        if (student && student.topic) {
-          // Show registered banner
-          document.getElementById('semStatusTopic').innerText = student.topic;
-          document.getElementById('semStatusGuide').innerText = student.guide_name || '-';
-          document.getElementById('semStatusDate').innerText = student.presentation_date || '-';
-          document.getElementById('semStatusScore').innerText = `${student.average_score} / 75`;
-          
-          const assessmentsCount = student.evaluators_count || 0;
-          document.getElementById('semStatusAssessments').innerText = `${assessmentsCount} assessors`;
-
-          const titleEl = document.getElementById('semStatusBadgeTitle');
-          const bannerEl = document.getElementById('seminarStatusBanner');
-          if (assessmentsCount > 0) {
-            titleEl.innerText = "Seminar Completed ✅";
-            bannerEl.className = "max-w-3xl mx-auto p-5 bg-gradient-to-r from-emerald-950/80 to-teal-950/80 border border-emerald-600/40 rounded-2xl";
-          } else {
-            titleEl.innerText = "Seminar Registered ⚠️";
-            bannerEl.className = "max-w-3xl mx-auto p-5 bg-slate-900/60 border border-slate-800/60 rounded-2xl";
-          }
-          statusBanner.classList.remove('hidden');
-
-          // Pre-fill form (hidden until Edit clicked)
-          document.getElementById('semRegTopic').value = student.topic;
-          document.getElementById('semRegDate').value = student.presentation_date
-            ? student.presentation_date.split('-').reverse().join('-')
-            : '';
-          // Set guide select after guides are loaded
-          setTimeout(() => {
-            const gs = document.getElementById('semRegGuide');
-            if (student.guide_mobile_no) gs.value = student.guide_mobile_no;
-          }, 600);
-
-          // Switch form to edit/update mode (hidden)
-          formTitle.innerHTML = '<span class="material-symbols-rounded text-blue-400">edit</span> Update Seminar Details';
-          submitBtn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Update Registration';
-          cancelBtn.classList.remove('hidden');
-          formCard.classList.add('hidden'); // hidden until Edit clicked
-        } else {
-          // Not yet registered - show form openly
-          statusBanner.classList.add('hidden');
-          formCard.classList.remove('hidden');
-          cancelBtn.classList.add('hidden');
-          formTitle.innerHTML = '<span class="material-symbols-rounded text-blue-400">co_present</span> Register Seminar Details';
-          submitBtn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Save Registration';
-        }
-      });
-    }
-
-    function showSeminarEditForm() {
-      document.getElementById('seminarFormCard').classList.remove('hidden');
-      // Scroll to form
-      document.getElementById('seminarFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function cancelSeminarEdit() {
-      document.getElementById('seminarFormCard').classList.add('hidden');
-    }
-
-    function showSeminarToast(msg, type = 'success') {
-      const toast = document.getElementById('seminarToast');
-      toast.className = `max-w-3xl mx-auto px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 mb-1 ${
-        type === 'success'
-          ? 'bg-emerald-950/80 border border-emerald-600/40 text-emerald-300'
-          : 'bg-red-950/80 border border-red-600/40 text-red-300'
-      }`;
-      toast.innerHTML = `<span class="material-symbols-rounded text-base">${type === 'success' ? 'check_circle' : 'error'}</span> ${msg}`;
-      toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 4000);
     }
 
     function submitSeminarRegistration(e) {
       e.preventDefault();
-      const subjectId = document.getElementById('semRegSubject').value;
-      const topic = document.getElementById('semRegTopic').value.trim();
+      const topic = document.getElementById('semRegTopic').value;
       const date = document.getElementById('semRegDate').value;
       const guide = document.getElementById('semRegGuide').value;
-      const btn = document.getElementById('semSubmitBtn');
 
-      if (!subjectId) {
-        showSeminarToast('No seminar subject found for your batch. Contact HOD.', 'error');
-        return;
-      }
-      if (!topic || !date || !guide) {
-        showSeminarToast('Please fill all fields before saving.', 'error');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.innerHTML = '<span class="material-symbols-rounded text-base animate-spin">sync</span> Saving...';
-
-      fetch('/api/student/seminar/register', {
+      fetch('/student/seminar/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({
-          batch_subject_id: subjectId,
-          topic,
-          presentation_date: date,
-          guide_mobile_no: guide
-        })
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({ topic, presentation_date: date, guide_id: guide })
       })
-      .then(r => r.json())
-      .then(res => {
+      .then(res => res.json())
+      .then(d => {
+        const toast = document.getElementById('seminarToast');
+        toast.className = "p-3.5 rounded-xl text-xs font-semibold " + (d.status === 'SUCCESS' ? "bg-emerald-50 text-emerald-800 border border-emerald-200/60 block" : "bg-rose-50 text-rose-800 border border-rose-200/60 block");
+        toast.innerText = d.message || "Seminar details registered.";
+        toast.classList.remove('hidden');
+        loadSeminarRegistration();
+      });
+    }
+
+    // =========================================================================
+    // ATTENDANCE REVIEW CONTROLLER
+    // =========================================================================
+    function loadStudentAttendanceData() {
+      fetch('/api/student/attendance/data')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            attendanceLoaded = true;
+            document.getElementById('attendanceLoader').classList.add('hidden');
+            document.getElementById('attendanceContent').classList.remove('hidden');
+
+            const pct = data.overall_percentage || 100;
+            document.getElementById('attOverallPctText').innerText = pct + '%';
+            
+            const circle = document.getElementById('attGaugeCircle');
+            const offset = 251.2 - ((pct / 100) * 251.2);
+            circle.style.strokeDashoffset = offset;
+            circle.setAttribute('stroke', pct >= 75 ? '#10B981' : (pct >= 65 ? '#F59E0B' : '#EF4444'));
+
+            const badge = document.getElementById('attEligibilityBadge');
+            badge.innerText = pct >= 75 ? 'Satisfactory & Eligible' : 'Shortage Alert (Condonation Required)';
+            badge.className = 'font-bold ' + (pct >= 75 ? 'text-emerald-700' : 'text-rose-700');
+
+            document.getElementById('attTotalConducted').innerText = (data.total_conducted || 0) + ' Hours';
+            document.getElementById('attTotalAttended').innerText = (data.total_attended || 0) + ' Hours';
+            document.getElementById('attTotalAbsent').innerText = Math.max(0, (data.total_conducted || 0) - (data.total_attended || 0)) + ' Hours';
+
+            if (data.classroom) document.getElementById('attClassroomId').innerText = data.classroom.classroom_id || '-';
+            if (data.tutor) {
+              document.getElementById('attTutorName').innerText = data.tutor.name || 'Department Faculty Assigned';
+              if (data.tutor.mobile_no) document.getElementById('attTutorContact').innerText = 'Contact: ' + data.tutor.mobile_no;
+            }
+
+            // Render hourly grid
+            const hourlyGrid = document.getElementById('attHourlyGrid');
+            if (data.hourly_status && data.hourly_status.length > 0) {
+              hourlyGrid.innerHTML = data.hourly_status.map(p => `
+                <div class="p-3.5 rounded-xl border ${p.status === 'Present' ? 'bg-emerald-50/50 border-emerald-200/80' : (p.status === 'Absent' ? 'bg-rose-50/50 border-rose-200/80' : 'bg-slate-50 border-slate-200/80')} flex flex-col justify-between space-y-2">
+                  <div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                        ${p.period === 7 ? 'Hour 7' : 'Hour ' + p.period}
+                      </span>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${p.status === 'Present' ? 'bg-emerald-100 text-emerald-800' : (p.status === 'Absent' ? 'bg-rose-100 text-rose-800' : 'bg-slate-200 text-slate-600')}">
+                        ${p.status}
+                      </span>
+                    </div>
+                    <p class="text-xs font-bold text-slate-900 mt-2 line-clamp-1" title="${p.subject_name}">
+                      ${p.subject_name}
+                    </p>
+                    <p class="text-[11px] text-slate-500 mt-0.5 line-clamp-1" title="${p.topic}">
+                      ${p.topic || 'Session'}
+                    </p>
+                  </div>
+                  <div class="text-[10px] font-mono text-slate-400 border-t border-slate-200/60 pt-2">
+                    ${p.time_slot}
+                  </div>
+                </div>
+              `).join('');
+            }
+
+            // Render subject stats
+            const subTbody = document.getElementById('attSubjectStatsList');
+            if (data.subject_stats && data.subject_stats.length > 0) {
+              subTbody.innerHTML = data.subject_stats.map(sub => `
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                  <td class="py-3.5 px-4">
+                    <p class="font-semibold text-slate-900 text-xs">${sub.subject_code} - ${sub.subject_name}</p>
+                  </td>
+                  <td class="py-3.5 px-4 text-center font-mono font-semibold text-slate-700">${sub.conducted}</td>
+                  <td class="py-3.5 px-4 text-center font-mono font-bold text-blue-700">${sub.attended}</td>
+                  <td class="py-3.5 px-4 text-center font-bold font-mono ${sub.percentage >= 75 ? 'text-emerald-700' : 'text-rose-600'}">
+                    ${sub.percentage}%
+                  </td>
+                  <td class="py-3.5 px-4 text-right">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${sub.percentage >= 75 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' : 'bg-rose-50 text-rose-800 border border-rose-200/60'}">
+                      ${sub.percentage >= 75 ? 'Eligible' : 'Shortage (<75%)'}
+                    </span>
+                  </td>
+                </tr>
+              `).join('');
+            } else {
+              subTbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">No subject attendance logs recorded.</td></tr>';
+            }
+
+            // Render leave records
+            const leaveTbody = document.getElementById('attLeaveRecordsList');
+            if (data.leave_records && data.leave_records.length > 0) {
+              leaveTbody.innerHTML = data.leave_records.map(leave => `
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                  <td class="py-3.5 px-4 font-mono font-semibold text-slate-900">${leave.leave_date}</td>
+                  <td class="py-3.5 px-4 text-slate-700">${leave.reason || 'Medical / Personal Leave'}</td>
+                  <td class="py-3.5 px-4 text-slate-600">${leave.period_range || 'Full Day'}</td>
+                  <td class="py-3.5 px-4 text-right">
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${leave.status === 'Approved' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' : 'bg-amber-50 text-amber-800 border border-amber-200/60'}">
+                      ${leave.status || 'Verified by Tutor'}
+                    </span>
+                  </td>
+                </tr>
+              `).join('');
+            } else {
+              leaveTbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-400">No formal leave requests recorded for this semester.</td></tr>';
+            }
+
+            if (window.initLucide) window.initLucide();
+          }
+        })
+        .catch(() => {
+          document.getElementById('attendanceLoader').innerHTML = '<p class="text-xs text-rose-600 font-semibold">Error loading attendance logs.</p>';
+        });
+    }
+
+    // =========================================================================
+    // PRACTICE TEST ENGINE CONTROLLER
+    // =========================================================================
+    let mockQuestions = [];
+    let mockStudentAnswers = {};
+    let mockCurrentIdx = 0;
+    let mockTimerInterval = null;
+    let mockRemainingSeconds = 900;
+
+    function loadMockSubjects() {
+      fetch('/api/student/mock-test/subjects')
+        .then(res => res.json())
+        .then(d => {
+          mockSubjectsLoaded = true;
+          document.getElementById('mockSetupLoader').classList.add('hidden');
+          document.getElementById('mockSetupForm').classList.remove('hidden');
+
+          const grid = document.getElementById('mockSubjectGrid');
+          const subjects = (d.data && d.data.subjects) ? d.data.subjects : [];
+          if (subjects.length > 0) {
+            grid.innerHTML = subjects.map(s => `
+              <div onclick="selectMockSubjectCard('${s.subject_code}', this)" class="mock-sub-card p-4 rounded-xl border border-slate-200 hover:border-blue-500 cursor-pointer transition-all bg-white hover:bg-blue-50/30 flex items-start justify-between">
+                <div>
+                  <p class="text-xs font-bold text-slate-900">${s.subject_code}</p>
+                  <p class="text-xs text-slate-600 mt-0.5 line-clamp-1">${s.subject_name}</p>
+                  <span class="inline-block mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold ${s.already_attempted_today ? 'bg-amber-50 text-amber-800' : 'bg-emerald-50 text-emerald-800'}">
+                    ${s.already_attempted_today ? 'Attempted Today' : 'Available'}
+                  </span>
+                </div>
+                <i data-lucide="circle" class="w-4 h-4 text-slate-300 mock-card-check"></i>
+              </div>
+            `).join('');
+            if (window.initLucide) window.initLucide();
+          } else {
+            grid.innerHTML = '<div class="col-span-full py-8 text-center text-slate-400 text-xs font-medium">No registered subjects available for practice test.</div>';
+          }
+        })
+        .catch(() => {
+          document.getElementById('mockSetupLoader').innerHTML = '<p class="text-xs text-rose-600 font-semibold">Error loading practice subjects.</p>';
+        });
+    }
+
+    function selectMockSubjectCard(code, el) {
+      document.querySelectorAll('.mock-sub-card').forEach(c => {
+        c.classList.remove('border-blue-600', 'bg-blue-50/50');
+        const ic = c.querySelector('.mock-card-check');
+        if (ic) ic.setAttribute('data-lucide', 'circle');
+      });
+      el.classList.add('border-blue-600', 'bg-blue-50/50');
+      const ic = el.querySelector('.mock-card-check');
+      if (ic) ic.setAttribute('data-lucide', 'check-circle-2');
+      document.getElementById('mockSelectedSubject').value = code;
+      if (window.initLucide) window.initLucide();
+    }
+
+    function initiateMockTest() {
+      const subject = document.getElementById('mockSelectedSubject').value;
+      const count = parseInt(document.getElementById('mockQuestionCount').value) || 15;
+      const coTag = document.getElementById('mockModuleScope').value || 'all';
+
+      if (!subject) {
+        alert('Please select a subject to start practice test.');
+        return;
+      }
+
+      const btn = document.getElementById('btnStartMockTest');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Generating test...';
+
+      fetch('/api/student/mock-test/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: JSON.stringify({ subject_code: subject, co_tag: coTag === 'all' ? 'All' : coTag, num_questions: count })
+      })
+      .then(res => res.json())
+      .then(data => {
         btn.disabled = false;
-        if (res.status === 'SUCCESS') {
-          showSeminarToast('Seminar details saved successfully! Invitations sent to all department staff.', 'success');
-          document.getElementById('seminarFormCard').classList.add('hidden');
-          loadSeminarRegistration();
+        btn.innerHTML = '<i data-lucide="play" class="w-4 h-4"></i><span>Launch Practice Test</span>';
+
+        if (data.status === 'SUCCESS' && data.data && data.data.questions && data.data.questions.length > 0) {
+          mockQuestions = data.data.questions;
+          mockStudentAnswers = {};
+          mockCurrentIdx = 0;
+          mockRemainingSeconds = count * 60;
+
+          document.getElementById('mockSetupSection').classList.add('hidden');
+          document.getElementById('mockExamSection').classList.remove('hidden');
+          document.getElementById('mockActiveSubjectTitle').innerText = subject + ' Practice Assessment';
+
+          renderMockQuestionNavigator();
+          displayMockCurrentQuestion();
+          startMockTestTimer();
+          if (window.initLucide) window.initLucide();
         } else {
-          showSeminarToast(res.message || 'Failed to save.', 'error');
-          btn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Save Registration';
+          alert(data.message || 'Unable to generate practice questions.');
         }
       })
       .catch(() => {
         btn.disabled = false;
-        showSeminarToast('Network error. Please try again.', 'error');
-        btn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Save Registration';
-      });
-    }
-  </script>
-
-  <!-- LIVE TEST ENGINE MODAL (Hidden by default) -->
-  <div id="testEngineModal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col">
-    <!-- Top Bar -->
-    <div class="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 shrink-0">
-      <div class="flex items-center gap-3">
-        <span class="material-symbols-rounded text-purple-500 text-base">devices</span>
-        <div>
-          <h3 id="liveTestName" class="font-bold text-xs text-white leading-tight">Test Name</h3>
-          <span class="text-xs text-slate-400 font-mono" id="liveTestReg">{{ session('userId') }}</span>
-        </div>
-      </div>
-      <div class="flex items-center gap-4">
-        <div class="bg-slate-950 border border-slate-800 px-4 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold shadow-inner">
-          <span class="material-symbols-rounded text-red-400 text-xs">timer</span>
-          <span id="liveTimer" class="text-red-400 font-mono tracking-widest">00:00:00</span>
-        </div>
-        <button onclick="submitTest()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-1.5 rounded-full font-bold text-xs transition-premium shadow-lg shadow-purple-600/20">Submit Final</button>
-      </div>
-    </div>
-
-    <!-- Question Area -->
-    <div class="flex-grow overflow-y-auto p-6 md:p-12" id="testQuestionsContainer">
-       <!-- Render questions here -->
-    </div>
-  </div>
-
-  <!-- TEST RESULT MODAL (Hidden by default) -->
-  <div id="testResultModal" class="hidden fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-950 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center transform scale-95 transition-premium" id="resultModalBox">
-      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/10 text-emerald-400 mb-4 border border-emerald-500/20">
-        <span class="material-symbols-rounded text-xl">verified</span>
-      </div>
-      <h2 class="text-base font-black text-white mb-1">Test Completed!</h2>
-      <p class="text-xs text-slate-400 mb-6">Your responses have been saved securely.</p>
-      
-      <div class="grid grid-cols-2 gap-4 mb-8">
-        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
-          <span class="text-xs uppercase font-black tracking-wider text-slate-500 block mb-1">Total Score</span>
-          <span class="text-base font-black text-emerald-400" id="resultScore">0/0</span>
-        </div>
-        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
-          <span class="text-xs uppercase font-black tracking-wider text-slate-500 block mb-1">Percentage</span>
-          <span class="text-base font-black text-blue-400" id="resultPercent">0%</span>
-        </div>
-      </div>
-
-      <button onclick="closeResultModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition-premium">Return to Dashboard</button>
-    </div>
-  </div>
-
-  <!-- ANSWER KEY VIEW MODAL (Hidden by default) -->
-  <div id="answerKeyModal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col">
-    <!-- Top Bar -->
-    <div class="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 shrink-0">
-      <div class="flex items-center gap-3">
-        <span class="material-symbols-rounded text-blue-400 text-base">menu_book</span>
-        <div>
-          <h3 id="answerKeyTestName" class="font-bold text-xs text-white leading-tight">Answer Key Review</h3>
-          <span class="text-xs text-slate-400 font-mono block" id="answerKeyScoreInfo">Score: â</span>
-        </div>
-      </div>
-      <button onclick="closeAnswerKeyModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-1.5 rounded-full font-bold text-xs transition-premium">Close</button>
-    </div>
-
-    <!-- Content Area -->
-    <div class="flex-grow overflow-y-auto p-6 md:p-12 animate-fade-in" id="answerKeyQuestionsContainer">
-       <!-- Render questions, student answers, and correct answers here -->
-    </div>
-  </div>
-
-  <!-- STUDY MATERIALS & PRE-CLASS VAULT MODAL -->
-  <div id="vlmVaultModal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col">
-    <!-- Modal Header -->
-    <div class="h-16 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between px-6 shrink-0">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
-          <span class="material-symbols-rounded text-xl">folder_special</span>
-        </div>
-        <div>
-          <h3 class="font-black text-sm text-white leading-tight">Digital Learning Vault & Pre-Class Materials</h3>
-          <span class="text-xs text-slate-400 block">Access pre-class topic notes, lab rough record guides, tutorial clips, and references published by faculty.</span>
-        </div>
-      </div>
-      <button onclick="closeVlmVaultModal()" class="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer">
-        <span class="material-symbols-rounded text-lg">close</span>
-      </button>
-    </div>
-
-    <!-- Modal Content Grid -->
-    <div class="flex-grow overflow-y-auto p-6 md:p-8 space-y-4">
-      <div id="vlmVaultList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <!-- Dynamic Material Cards -->
-      </div>
-    </div>
-  </div>
-
-  <script>
-    let activeVlmNoticeId = null;
-
-    document.addEventListener('DOMContentLoaded', function() {
-      loadStudentPreClassAlerts();
-    });
-
-    function loadStudentPreClassAlerts() {
-      fetch('/api/student/materials/pre-class-notices')
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.notices && data.notices.length > 0) {
-            const notice = data.notices[0];
-            activeVlmNoticeId = notice.id;
-            document.getElementById('vlmAlertTitle').innerText = (notice.subject_code ? notice.subject_code + ': ' : '') + notice.title;
-            document.getElementById('vlmAlertInstruction').innerText = notice.description || 'Pre-class material published for upcoming session.';
-            document.getElementById('vlmAlertTargetDate').innerText = 'Target: ' + (notice.target_class_date || 'Upcoming Class');
-            document.getElementById('vlmPreClassAlertBanner').classList.remove('hidden');
-          }
-        })
-        .catch(err => console.error('VLM Alert fetch error:', err));
-    }
-
-    function acknowledgeVlmNotice() {
-      if (!activeVlmNoticeId) return;
-      const btn = document.getElementById('btnAckVlm');
-      btn.disabled = true;
-      btn.innerText = 'Saving...';
-
-      fetch(`/api/student/materials/${activeVlmNoticeId}/read`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          document.getElementById('vlmPreClassAlertBanner').classList.add('hidden');
-        }
-      })
-      .catch(err => console.error(err))
-      .finally(() => {
-        btn.disabled = false;
-        btn.innerText = 'Acknowledge';
+        btn.innerHTML = '<span>Launch Practice Test</span>';
+        alert('Server error generating test.');
       });
     }
 
-    function openVlmVaultModal() {
-      document.getElementById('vlmVaultModal').classList.remove('hidden');
-      fetchVlmVaultMaterials();
+    function renderMockQuestionNavigator() {
+      const container = document.getElementById('mockQuestionNavigator');
+      container.innerHTML = mockQuestions.map((_, i) => `
+        <button type="button" onclick="jumpToMockQuestion(${i})" id="mockNavDot-${i}" class="w-8 h-8 rounded-lg text-xs font-semibold border transition-all ${i === 0 ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'}">
+          ${i + 1}
+        </button>
+      `).join('');
     }
 
-    function closeVlmVaultModal() {
-      document.getElementById('vlmVaultModal').classList.add('hidden');
-    }
+    function displayMockCurrentQuestion() {
+      const q = mockQuestions[mockCurrentIdx];
+      if (!q) return;
 
-    function fetchVlmVaultMaterials() {
-      const container = document.getElementById('vlmVaultList');
-      container.innerHTML = '<div class="col-span-full text-center text-slate-400 py-8"><span class="material-symbols-rounded animate-spin text-2xl">sync</span><p class="mt-2 text-xs">Loading learning materials vault...</p></div>';
+      document.getElementById('mockActiveQuestionCounter').innerText = `Question ${mockCurrentIdx + 1} of ${mockQuestions.length}`;
+      document.getElementById('mockQBadge').innerText = `Question ${mockCurrentIdx + 1} (${q.co_tag || 'Syllabus Topic'})`;
+      document.getElementById('mockQText').innerText = q.question_text || q.question;
 
-      fetch('/api/student/materials/pre-class-notices')
-        .then(res => res.json())
-        .then(data => {
-          if (!data.success || !data.notices || data.notices.length === 0) {
-            container.innerHTML = '<div class="col-span-full text-center text-slate-400 py-12 bg-slate-900/50 rounded-2xl border border-slate-800"><span class="material-symbols-rounded text-3xl text-slate-500 mb-2">folder_open</span><p class="text-sm font-semibold">No materials published yet.</p><p class="text-xs text-slate-500 mt-1">Study notes and pre-class guides uploaded by your teachers will appear here.</p></div>';
-            return;
-          }
+      const optsBox = document.getElementById('mockOptionsContainer');
+      const selectedOpt = mockStudentAnswers[mockCurrentIdx];
+      const options = q.options || [];
 
-          let html = '';
-          data.notices.forEach(m => {
-            let icon = 'description';
-            let badgeColor = 'bg-blue-500/20 text-blue-300 border-blue-500/30';
-            if (m.resource_type === 'video') {
-              icon = 'smart_display';
-              badgeColor = 'bg-rose-500/20 text-rose-300 border-rose-500/30';
-            } else if (m.resource_type === 'image') {
-              icon = 'image';
-              badgeColor = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
-            } else if (m.resource_type === 'link') {
-              icon = 'link';
-              badgeColor = 'bg-purple-500/20 text-purple-300 border-purple-500/30';
-            }
+      optsBox.innerHTML = options.map((opt, optIdx) => `
+        <label onclick="recordMockAnswer(${mockCurrentIdx}, '${opt}')" class="flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer transition-all ${selectedOpt === opt ? 'bg-blue-50 border-blue-600 text-blue-900 font-semibold' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}">
+          <input type="radio" name="mockOptRadio" value="${opt}" ${selectedOpt === opt ? 'checked' : ''} class="w-4 h-4 text-blue-600 border-slate-300">
+          <span class="text-xs">${opt}</span>
+        </label>
+      `).join('');
 
-            let linkAttr = '';
-            if (m.resource_type === 'link') {
-              linkAttr = `href="${m.external_url}" target="_blank"`;
-            } else if (m.file_path) {
-              linkAttr = `href="/storage/${m.file_path}" target="_blank"`;
-            } else if (m.external_url) {
-              linkAttr = `href="${m.external_url}" target="_blank"`;
-            } else {
-              linkAttr = `href="#"`;
-            }
+      document.getElementById('btnMockPrevQ').disabled = (mockCurrentIdx === 0);
+      if (mockCurrentIdx === mockQuestions.length - 1) {
+        document.getElementById('btnMockNextQ').classList.add('hidden');
+        document.getElementById('btnMockSubmitTest').classList.remove('hidden');
+      } else {
+        document.getElementById('btnMockNextQ').classList.remove('hidden');
+        document.getElementById('btnMockSubmitTest').classList.add('hidden');
+      }
 
-            html += `
-              <div class="bg-slate-900 border ${m.is_urgent ? 'border-amber-500/50' : 'border-slate-800'} rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-all shadow-lg">
-                <div>
-                  <div class="flex items-center justify-between gap-2 mb-2">
-                    <span class="px-2 py-0.5 rounded-full ${badgeColor} border text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                      <span class="material-symbols-rounded text-xs">${icon}</span> ${m.resource_type}
-                    </span>
-                    ${m.is_urgent ? '<span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-extrabold uppercase">Urgent Alert</span>' : ''}
-                  </div>
-                  <h4 class="font-bold text-white text-sm mb-1 line-clamp-2">${m.title}</h4>
-                  <p class="text-xs text-slate-400 line-clamp-3 mb-3">${m.description || 'No additional instructions provided.'}</p>
-                </div>
-                <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                  <span class="font-mono text-[11px]">${m.target_class_date ? 'Date: ' + m.target_class_date : 'Uploaded: ' + (m.created_at ? m.created_at.substring(0,10) : '')}</span>
-                  <a ${linkAttr} onclick="markMaterialAsRead(${m.id})" class="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 font-bold rounded-lg border border-blue-500/30 transition-all flex items-center gap-1 no-underline">
-                    <span>View File</span>
-                    <span class="material-symbols-rounded text-xs">open_in_new</span>
-                  </a>
-                </div>
-              </div>
-            `;
-          });
-          container.innerHTML = html;
-        })
-        .catch(err => {
-          container.innerHTML = '<div class="col-span-full text-center text-rose-400 py-6 text-xs font-semibold">Failed to load learning materials.</div>';
-        });
-    }
-
-    function markMaterialAsRead(id) {
-      fetch(`/api/student/materials/${id}/read`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      mockQuestions.forEach((_, i) => {
+        const dot = document.getElementById(`mockNavDot-${i}`);
+        if (!dot) return;
+        if (i === mockCurrentIdx) {
+          dot.className = "w-8 h-8 rounded-lg text-xs font-semibold border bg-blue-600 text-white border-blue-600 shadow-xs";
+        } else if (mockStudentAnswers[i] !== undefined) {
+          dot.className = "w-8 h-8 rounded-lg text-xs font-semibold border bg-emerald-50 text-emerald-800 border-emerald-300";
+        } else {
+          dot.className = "w-8 h-8 rounded-lg text-xs font-semibold border bg-white text-slate-700 border-slate-200 hover:bg-slate-100";
         }
-      }).catch(err => console.error(err));
+      });
+    }
+
+    function recordMockAnswer(qIdx, opt) {
+      mockStudentAnswers[qIdx] = opt;
+      displayMockCurrentQuestion();
+    }
+
+    function jumpToMockQuestion(idx) {
+      mockCurrentIdx = idx;
+      displayMockCurrentQuestion();
+    }
+
+    function navigateMockNextQuestion() {
+      if (mockCurrentIdx < mockQuestions.length - 1) {
+        mockCurrentIdx++;
+        displayMockCurrentQuestion();
+      }
+    }
+
+    function navigateMockPrevQuestion() {
+      if (mockCurrentIdx > 0) {
+        mockCurrentIdx--;
+        displayMockCurrentQuestion();
+      }
+    }
+
+    function startMockTestTimer() {
+      clearInterval(mockTimerInterval);
+      mockTimerInterval = setInterval(() => {
+        mockRemainingSeconds--;
+        const mins = Math.floor(mockRemainingSeconds / 60);
+        const secs = mockRemainingSeconds % 60;
+        document.getElementById('mockTestTimer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        if (mockRemainingSeconds <= 0) {
+          clearInterval(mockTimerInterval);
+          alert('Time up! Submitting practice test automatically.');
+          submitMockFullTest();
+        }
+      }, 1000);
+    }
+
+    function submitMockFullTest() {
+      if (!confirm('Are you sure you want to submit your practice test?')) return;
+      clearInterval(mockTimerInterval);
+
+      let correctCount = 0;
+      mockQuestions.forEach((q, idx) => {
+        if (mockStudentAnswers[idx] && mockStudentAnswers[idx].trim().toLowerCase() === (q.correct_answer || '').trim().toLowerCase()) {
+          correctCount++;
+        }
+      });
+
+      document.getElementById('mockExamSection').classList.add('hidden');
+      document.getElementById('mockResultSection').classList.remove('hidden');
+
+      const total = mockQuestions.length;
+      const pct = Math.round((correctCount / total) * 100);
+
+      document.getElementById('mockFinalScoreText').innerText = `${correctCount} / ${total}`;
+      document.getElementById('mockFinalPercentageText').innerText = `${pct}% Proficiency`;
+
+      const reviewBox = document.getElementById('mockDetailedReviewList');
+      reviewBox.innerHTML = mockQuestions.map((q, idx) => {
+        const ans = mockStudentAnswers[idx];
+        const isCorrect = ans && (ans.trim().toLowerCase() === (q.correct_answer || '').trim().toLowerCase());
+        return `
+          <div class="p-4 rounded-xl border ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/40 border-rose-200'} space-y-2">
+            <p class="text-xs font-bold text-slate-900">Q${idx + 1}: ${q.question_text || q.question}</p>
+            <p class="text-[11px] text-slate-600">Your Answer: <strong class="${isCorrect ? 'text-emerald-700' : 'text-rose-700'}">${ans || 'Not Answered'}</strong></p>
+            ${!isCorrect ? `<p class="text-[11px] text-emerald-700">Correct Answer: <strong>${q.correct_answer}</strong></p>` : ''}
+          </div>
+        `;
+      }).join('');
+      if (window.initLucide) window.initLucide();
+    }
+
+    function resetMockPracticeTest() {
+      document.getElementById('mockResultSection').classList.add('hidden');
+      document.getElementById('mockSetupSection').classList.remove('hidden');
+      loadMockSubjects();
     }
   </script>
 </body>
 </html>
-
