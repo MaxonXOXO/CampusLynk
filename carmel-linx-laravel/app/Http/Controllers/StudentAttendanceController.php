@@ -9,6 +9,155 @@ use Illuminate\Support\Facades\Session;
 class StudentAttendanceController extends Controller
 {
     /**
+     * Get JSON data for Student Attendance Review Panel.
+     */
+    public function getStudentAttendanceJson()
+    {
+        if (Session::get('userRole') !== 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized']);
+        }
+
+        $regNo = Session::get('userId');
+        $student = DB::table('students')->where('reg_no', $regNo)->orWhere('adm_no', $regNo)->first();
+        if (!$student) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Student not found']);
+        }
+
+        $classroom = DB::table('class_management')->where('classroom_id', $student->classroom_id)->first();
+        $tutor = null;
+        if ($classroom && $classroom->tutor_mobile_no) {
+            $tutor = DB::table('staff_profiles')->where('mobile_no', $classroom->tutor_mobile_no)->first();
+        }
+
+        $batchSubjects = DB::table('batch_subjects')
+            ->where('classroom_id', $student->classroom_id)
+            ->orderBy('subject_code', 'asc')
+            ->get();
+
+        $subjectIds = $batchSubjects->pluck('id')->toArray();
+
+        $periodTimings = [
+            1 => '9:00 AM – 10:00 AM',
+            2 => '10:00 AM – 11:00 AM',
+            3 => '11:10 AM – 12:10 PM',
+            4 => '1:00 PM – 2:00 PM',
+            5 => '2:00 PM – 3:00 PM',
+            6 => '3:00 PM – 4:00 PM',
+            7 => 'Special / Extra Class'
+        ];
+
+        $todayDate = now()->toDateString();
+        $todayLogs = DB::table('class_logs_attendance')
+            ->whereIn('batch_subject_id', $subjectIds)
+            ->where('date', $todayDate)
+            ->orderBy('period', 'asc')
+            ->get();
+
+        $hourlyStatus = [];
+        for ($p = 1; $p <= 6; $p++) {
+            $hourlyStatus[$p] = [
+                'period' => $p,
+                'time_slot' => $periodTimings[$p],
+                'status' => 'Not Marked',
+                'subject_name' => 'Free Period',
+                'subject_code' => '',
+                'topic' => 'Regular Session'
+            ];
+        }
+        $hourlyStatus[7] = [
+            'period' => 7,
+            'time_slot' => $periodTimings[7],
+            'status' => 'Not Scheduled',
+            'subject_name' => 'Special Hour (Remedial / Extra Class)',
+            'subject_code' => 'P7',
+            'topic' => 'Special / Remedial Session'
+        ];
+
+        foreach ($todayLogs as $log) {
+            $period = (int)$log->period;
+            if ($period >= 1 && $period <= 7) {
+                $subj = $batchSubjects->firstWhere('id', $log->batch_subject_id);
+                $pList = json_decode($log->present_students ?? '[]', true) ?: [];
+                $aList = json_decode($log->absent_students ?? '[]', true) ?: [];
+
+                $statusText = 'Absent';
+                if (in_array($student->reg_no, $pList)) {
+                    $statusText = 'Present';
+                } elseif (in_array($student->reg_no, $aList)) {
+                    $statusText = 'Absent';
+                }
+
+                $hourlyStatus[$period] = [
+                    'period' => $period,
+                    'time_slot' => $periodTimings[$period],
+                    'status' => $statusText,
+                    'subject_name' => ($period === 7 ? '[Special 7th Hour] ' : '') . ($subj->subject_name ?? 'Class Session'),
+                    'subject_code' => $subj->subject_code ?? '',
+                    'topic' => $log->topics_covered ?? ($period === 7 ? 'Remedial / Extra Class' : 'Regular Session')
+                ];
+            }
+        }
+
+        $totalConductedClasses = 0;
+        $totalAttendedClasses = 0;
+        $subjectStats = [];
+
+        foreach ($batchSubjects as $subj) {
+            $logs = DB::table('class_logs_attendance')
+                ->where('batch_subject_id', $subj->id)
+                ->where('period', '<=', 6)
+                ->get(['present_students', 'absent_students']);
+
+            $subjConducted = 0;
+            $subjAttended = 0;
+
+            foreach ($logs as $l) {
+                $pList = json_decode($l->present_students ?? '[]', true) ?: [];
+                $aList = json_decode($l->absent_students ?? '[]', true) ?: [];
+
+                if (in_array($student->reg_no, $pList) || in_array($student->reg_no, $aList)) {
+                    $subjConducted++;
+                    $totalConductedClasses++;
+                    if (in_array($student->reg_no, $pList)) {
+                        $subjAttended++;
+                        $totalAttendedClasses++;
+                    }
+                }
+            }
+
+            $subjPct = $subjConducted > 0 ? round(($subjAttended / $subjConducted) * 100, 1) : 100.0;
+            $subjectStats[] = [
+                'subject_code' => $subj->subject_code,
+                'subject_name' => $subj->subject_name,
+                'conducted' => $subjConducted,
+                'attended' => $subjAttended,
+                'percentage' => $subjPct
+            ];
+        }
+
+        $overallAttendancePct = $totalConductedClasses > 0 
+            ? round(($totalAttendedClasses / $totalConductedClasses) * 100, 1) 
+            : 100.0;
+
+        $leaveRecords = \App\Models\LeaveRecord::where('reg_no', $student->reg_no)
+            ->orderBy('leave_date', 'desc')
+            ->get();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'student' => $student,
+            'classroom' => $classroom,
+            'tutor' => $tutor,
+            'hourly_status' => array_values($hourlyStatus),
+            'total_conducted' => $totalConductedClasses,
+            'total_attended' => $totalAttendedClasses,
+            'overall_percentage' => $overallAttendancePct,
+            'subject_stats' => $subjectStats,
+            'leave_records' => $leaveRecords
+        ]);
+    }
+
+    /**
      * Show Mobile-Friendly Student Attendance Review Page.
      */
     public function showStudentAttendance()

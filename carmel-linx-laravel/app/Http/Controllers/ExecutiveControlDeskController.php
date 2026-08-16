@@ -191,11 +191,18 @@ class ExecutiveControlDeskController extends Controller
                 }
             }
 
+            $totalStaff = DB::table('staff_profiles')->count();
+            $pendingStaff = DB::table('staff_profiles')->where('account_status', 'Pending')->count();
+            $pendingStudents = DB::table('students')->where('status', 'Pending')->count();
+            $pendingApprovals = $pendingStaff + $pendingStudents;
+
             return response()->json([
                 'status'            => 'SUCCESS',
                 'date'              => $todayStr,
                 'leave_breakdown'   => $leaveBreakdown,
+                'total_staff'       => $totalStaff,
                 'total_students'    => $totalStudents,
+                'pending_approvals' => $pendingApprovals,
                 'approved_students' => $approvedStudents,
                 'branch_attendance' => $branchAttendance,
                 'total_classrooms'  => $totalClassrooms,

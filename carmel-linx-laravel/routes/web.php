@@ -188,11 +188,16 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/student/mobile', [\App\Http\Controllers\StudentAttendanceController::class, 'showStudentMobileDashboard'])->name('student.mobile');
 
-    Route::get('/student/attendance', [\App\Http\Controllers\StudentAttendanceController::class, 'showStudentAttendance']);
+    Route::get('/student/attendance', function () {
+        if (Session::get('userRole') !== 'Student') return redirect('/');
+        return redirect('/dashboard/student?tab=attendance');
+    });
+
+    Route::get('/api/student/attendance/data', [\App\Http\Controllers\StudentAttendanceController::class, 'getStudentAttendanceJson']);
 
     Route::get('/student/mentoring-diary', function () {
         if (Session::get('userRole') !== 'Student') return redirect('/');
-        return noCacheView('student_mentoring_diary_full');
+        return redirect('/dashboard/student?tab=mentoring');
     });
 
     Route::get('/tutor/mentoring-diary/{regNo}', [\App\Http\Controllers\MentoringController::class, 'tutorViewFullDiary']);
@@ -701,7 +706,10 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/student/online-tests/{testId}/submit', [App\Http\Controllers\TestEngineController::class, 'submitTest']);
 
     // Student Mock Practice Test (Practice Only)
-    Route::get('/student/mock-test', [App\Http\Controllers\StudentMockTestController::class, 'index']);
+    Route::get('/student/mock-test', function () {
+        if (Session::get('userRole') !== 'Student') return redirect('/');
+        return redirect('/dashboard/student?tab=mock_test');
+    });
     Route::get('/api/student/mock-test/subjects', [App\Http\Controllers\StudentMockTestController::class, 'getSubjects']);
     Route::post('/api/student/mock-test/start', [App\Http\Controllers\StudentMockTestController::class, 'startMockTest']);
     Route::delete('/api/classroom/online-tests/{testId}', [App\Http\Controllers\TestEngineController::class, 'deleteOnlineTest']);
@@ -1789,20 +1797,473 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/principal/events/schedule', [App\Http\Controllers\PrincipalScheduledEventController::class, 'schedule']);
     Route::get('/api/principal/events', [App\Http\Controllers\PrincipalScheduledEventController::class, 'index']);
     Route::get('/api/principal/events/feed', [App\Http\Controllers\PrincipalScheduledEventController::class, 'feed']);
-    Route::delete('/api/principal/events/{id}', [App\Http\Controllers\PrincipalScheduledEventController::class, 'destroy']);
+    // Staff Leave Ledger JSON API for Control Desk
+    Route::get('/api/staff/leave/reports-data', function(Illuminate\Http\Request $request) {
+        $department = $request->query('department');
+        $academicYear = $request->query('academic_year', date('Y'));
+        $leaveType = $request->query('leave_type');
+        $status = $request->query('status');
+
+        $query = DB::table('staff_leave_requests');
+        if (!empty($academicYear)) {
+            $query->whereYear('from_date', $academicYear);
+        }
+        if (!empty($department)) {
+            $query->where(function($q) use ($department) {
+                $q->where('department', $department)
+                  ->orWhere('department', 'like', '%' . $department . '%');
+            });
+        }
+        if (!empty($leaveType)) {
+            $query->where('leave_type', $leaveType);
+        }
+        if (!empty($status)) {
+            $query->where('overall_status', $status);
+        }
+
+        $leaves = $query->orderByDesc('id')->get();
+
+        $summary = [
+            'CL' => 0.0, 'CCL' => 0.0, 'DL' => 0.0, 'ML' => 0.0, 'LOP' => 0.0, 'OTHERS' => 0.0, 'TOTAL_DAYS' => 0.0
+        ];
+        foreach ($leaves as $l) {
+            $type = strtolower($l->leave_type ?? '');
+            $days = (float)($l->total_days ?? 1);
+            $summary['TOTAL_DAYS'] += $days;
+            if (str_contains($type, 'compensatory') || str_contains($type, 'ccl')) {
+                $summary['CCL'] += $days;
+            } elseif (str_contains($type, 'casual') || str_contains($type, 'cl')) {
+                $summary['CL'] += $days;
+            } elseif (str_contains($type, 'duty') || str_contains($type, 'dl')) {
+                $summary['DL'] += $days;
+            } elseif (str_contains($type, 'medical') || str_contains($type, 'ml')) {
+                $summary['ML'] += $days;
+            } elseif (str_contains($type, 'loss') || str_contains($type, 'lop')) {
+                $summary['LOP'] += $days;
+            } else {
+                $summary['OTHERS'] += $days;
+            }
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'leaves' => $leaves,
+            'summary' => $summary
+        ]);
+    });
+
+    // Professional Activities JSON API for Control Desk
+    Route::get('/api/staff/professional-activities/fetch', function(Illuminate\Http\Request $request) {
+        $academicYear = $request->query('academic_year', date('Y') . '-' . (date('Y') + 1));
+        $department = $request->query('department');
+        $activityType = $request->query('activity_type');
+
+        $query = DB::table('staff_professional_activities')
+            ->where('academic_year', $academicYear);
+            
+        if (!empty($activityType)) {
+            $query->where('activity_type', $activityType);
+        }
+
+        $records = $query->orderByDesc('id')->get()->map(function($row) {
+            $row->details = is_string($row->details) ? json_decode($row->details, true) : $row->details;
+            $staff = DB::table('staff_profiles')->where('mobile_no', $row->lecturer_mobile_no)->first();
+            $row->staff_name = $staff ? $staff->name : ($row->lecturer_mobile_no ?? 'Faculty');
+            $row->department = $staff ? ($staff->branch ?? $staff->department ?? 'General') : 'General';
+            $row->designation = $staff ? ($staff->designation ?? 'Lecturer') : 'Lecturer';
+            return $row;
+        });
+
+        if (!empty($department)) {
+            $records = $records->filter(function($item) use ($department) {
+                return str_contains($item->department, $department);
+            })->values();
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'academic_year' => $academicYear,
+            'records' => $records
+        ]);
+    });
+
+    // SF Staff Attendance JSON API for Control Desk
+    Route::get('/api/sf-attendance/data', function(Illuminate\Http\Request $request) {
+        $startDate = $request->input('start_date', now()->startOfMonth()->format('Y-m-d'));
+        $endDate = $request->input('end_date', now()->format('Y-m-d'));
+        $search = $request->input('search');
+        $premisesFilter = $request->input('premises_status');
+
+        $query = DB::table('sf_staff_time_punches')->whereBetween('punch_date', [$startDate, $endDate]);
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('staff_id', 'like', "%{$search}%")
+                  ->orWhere('staff_name', 'like', "%{$search}%");
+            });
+        }
+
+        if ($premisesFilter) {
+            $query->where(function($q) use ($premisesFilter) {
+                $q->where('in_premises_status', $premisesFilter)
+                  ->orWhere('out_premises_status', $premisesFilter);
+            });
+        }
+
+        $punches = $query->orderBy('punch_date', 'desc')->orderBy('created_at', 'desc')->get();
+
+        $geofence = DB::table('sf_campus_geofence_settings')->where('is_active', 1)->first();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'punches' => $punches,
+            'geofence' => $geofence,
+            'total_punches' => count($punches)
+        ]);
+    });
+
+    // Executive Profile JSON API
+    Route::get('/api/executive/profile/details', function() {
+        $userId = Session::get('userId', 'ADMIN-001');
+        $role = Session::get('userRole', 'Principal');
+        $name = Session::get('userName', 'Dr. Thomas Mathew');
+        $branch = Session::get('userBranch', 'Administration');
+
+        $profile = DB::table('staff_profiles')->where('mobile_no', $userId)->first()
+                ?? DB::table('students')->where('register_no', $userId)->first();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'user' => [
+                'user_id' => $userId,
+                'name' => $profile->name ?? $name,
+                'email' => $profile->email ?? 'principal@carmelpolytechnic.ac.in',
+                'mobile_no' => $profile->mobile_no ?? $userId,
+                'role' => $role,
+                'branch' => $profile->branch ?? $branch,
+                'designation' => $profile->designation ?? $role,
+                'status' => $profile->status ?? 'Active',
+                'photo_url' => $profile->photo_url ?? null
+            ]
+        ]);
+    });
+
+    // Admin & Executive Dashboard API Endpoints
+    Route::get('/api/admin/stats', function() {
+        $totalStaff = DB::table('staff_profiles')->count();
+        $totalStudents = DB::table('students')->count();
+        $pendingStaff = DB::table('staff_profiles')->where('account_status', 'Pending')->count();
+        $pendingStudents = DB::table('students')->where('status', 'Pending')->count();
+        $totalClassrooms = DB::table('class_management')->count() + DB::table('r26_class_management')->count();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'stats' => [
+                'totalStaff' => $totalStaff,
+                'totalStudents' => $totalStudents,
+                'pendingApprovals' => $pendingStaff + $pendingStudents,
+                'pendingStaff' => $pendingStaff,
+                'pendingStudents' => $pendingStudents,
+                'totalClassrooms' => $totalClassrooms,
+            ]
+        ]);
+    });
+
+    Route::get('/api/admin/users', function(Illuminate\Http\Request $request) {
+        $search = trim($request->query('search', ''));
+        $branch = trim($request->query('branch', ''));
+        $role = trim($request->query('role', ''));
+        $status = trim($request->query('status', ''));
+
+        $users = [];
+
+        // Query Students if role is empty or student
+        if (empty($role) || strtolower($role) === 'student') {
+            $studentQuery = DB::table('students');
+            if (!empty($search)) {
+                $studentQuery->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('reg_no', 'like', "%{$search}%")
+                      ->orWhere('adm_no', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+            if (!empty($branch)) {
+                $studentQuery->where('branch', strtoupper($branch));
+            }
+            if (!empty($status)) {
+                $studentQuery->where('status', $status);
+            }
+
+            $students = $studentQuery->get()->map(function ($s) {
+                return [
+                    'id' => $s->reg_no ?: $s->adm_no,
+                    'name' => $s->name,
+                    'email' => $s->email,
+                    'role' => 'Student',
+                    'branch' => $s->branch,
+                    'status' => $s->status,
+                    'photo_url' => $s->photo_url ?? null,
+                    'type' => 'student',
+                ];
+            })->toArray();
+
+            $users = array_merge($users, $students);
+        }
+
+        // Query Staff if role is empty or not student
+        if (empty($role) || strtolower($role) !== 'student') {
+            $staffQuery = DB::table('staff_profiles');
+            if (!empty($search)) {
+                $staffQuery->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('mobile_no', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+            if (!empty($branch)) {
+                $staffQuery->where('branch', strtoupper($branch));
+            }
+            if (!empty($role)) {
+                $staffQuery->where('designation', $role);
+            }
+            if (!empty($status)) {
+                $staffQuery->where('account_status', $status);
+            }
+
+            $staff = $staffQuery->get()->map(function ($f) {
+                return [
+                    'id' => $f->mobile_no,
+                    'name' => $f->name,
+                    'email' => $f->email,
+                    'role' => $f->designation,
+                    'branch' => $f->branch,
+                    'status' => $f->account_status,
+                    'photo_url' => $f->photo_url ?? null,
+                    'type' => 'staff',
+                ];
+            })->toArray();
+
+            $users = array_merge($users, $staff);
+        }
+
+        usort($users, function ($a, $b) {
+            return strcasecmp($a['name'], $b['name']);
+        });
+
+        return response()->json(['status' => 'SUCCESS', 'users' => $users]);
+    });
+
+    Route::post('/api/admin/users/status', function(Illuminate\Http\Request $request) {
+        $identifier = $request->input('identifier') ?? $request->input('userId');
+        $status = $request->input('status') ?? $request->input('newStatus');
+        $userType = $request->input('userType');
+
+        if (!$userType) {
+            $isStaff = DB::table('staff_profiles')->where('mobile_no', $identifier)->exists();
+            $userType = $isStaff ? 'staff' : 'student';
+        }
+
+        if ($userType === 'staff') {
+            DB::table('staff_profiles')->where('mobile_no', $identifier)->update(['account_status' => $status, 'updated_at' => now()]);
+        } else {
+            DB::table('students')->where('reg_no', $identifier)->orWhere('adm_no', $identifier)->update(['status' => $status, 'updated_at' => now()]);
+        }
+
+        DB::table('audit_logs')->insert([
+            'performed_by' => Session::get('userId', 'ADMIN-001'),
+            'performed_by_name' => Session::get('userName', 'Principal'),
+            'target_id' => $identifier,
+            'target_name' => $identifier,
+            'action' => 'Status Updated',
+            'details' => "Status changed to $status",
+            'ip_address' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Status updated successfully.']);
+    });
+
+    Route::post('/api/admin/user/toggle-status', function(Illuminate\Http\Request $request) {
+        $userId = $request->input('userId') ?? $request->input('identifier');
+        $status = $request->input('newStatus') ?? $request->input('status');
+        $userType = $request->input('userType');
+
+        if (!$userType) {
+            $isStaff = DB::table('staff_profiles')->where('mobile_no', $userId)->exists();
+            $userType = $isStaff ? 'staff' : 'student';
+        }
+
+        if ($userType === 'staff') {
+            DB::table('staff_profiles')->where('mobile_no', $userId)->update(['account_status' => $status, 'updated_at' => now()]);
+        } else {
+            DB::table('students')->where('reg_no', $userId)->orWhere('adm_no', $userId)->update(['status' => $status, 'updated_at' => now()]);
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Status updated successfully.']);
+    });
+
+    Route::post('/api/admin/users/reset-password', function(Illuminate\Http\Request $request) {
+        $identifier = $request->input('identifier') ?? $request->input('userId');
+        $newPassword = $request->input('new_password') ?? $request->input('newPassword');
+
+        DB::table('staff_profiles')->where('mobile_no', $identifier)->update(['password' => $newPassword, 'updated_at' => now()]);
+        DB::table('students')->where('reg_no', $identifier)->orWhere('adm_no', $identifier)->update(['password' => $newPassword, 'updated_at' => now()]);
+
+        DB::table('audit_logs')->insert([
+            'performed_by' => Session::get('userId', 'ADMIN-001'),
+            'performed_by_name' => Session::get('userName', 'Principal'),
+            'target_id' => $identifier,
+            'target_name' => $identifier,
+            'action' => 'Password Reset',
+            'details' => "Password reset by Administrator",
+            'ip_address' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Password reset successfully.']);
+    });
+
+    Route::post('/api/admin/user/reset-password', function(Illuminate\Http\Request $request) {
+        $identifier = $request->input('userId') ?? $request->input('identifier');
+        $newPassword = $request->input('newPassword') ?? $request->input('new_password');
+
+        DB::table('staff_profiles')->where('mobile_no', $identifier)->update(['password' => $newPassword, 'updated_at' => now()]);
+        DB::table('students')->where('reg_no', $identifier)->orWhere('adm_no', $identifier)->update(['password' => $newPassword, 'updated_at' => now()]);
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Password reset successfully.']);
+    });
+
+    Route::post('/api/admin/user/change-role', function(Illuminate\Http\Request $request) {
+        $userId = $request->input('userId') ?? $request->input('identifier');
+        $newRole = $request->input('newRole');
+        DB::table('staff_profiles')->where('mobile_no', $userId)->update(['designation' => $newRole, 'updated_at' => now()]);
+
+        DB::table('audit_logs')->insert([
+            'performed_by' => Session::get('userId', 'ADMIN-001'),
+            'performed_by_name' => Session::get('userName', 'Principal'),
+            'target_id' => $userId,
+            'target_name' => $userId,
+            'action' => 'Role Changed',
+            'details' => "Role designation changed to $newRole",
+            'ip_address' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Role changed successfully.']);
+    });
+
+    Route::delete('/api/admin/users/{userId}', function($userId) {
+        DB::table('staff_profiles')->where('mobile_no', $userId)->delete();
+        DB::table('students')->where('reg_no', $userId)->orWhere('adm_no', $userId)->delete();
+        return response()->json(['status' => 'SUCCESS', 'message' => 'User deleted successfully.']);
+    });
+
+    Route::post('/api/admin/user/delete', function(Illuminate\Http\Request $request) {
+        $userId = $request->input('userId') ?? $request->input('identifier');
+        DB::table('staff_profiles')->where('mobile_no', $userId)->delete();
+        DB::table('students')->where('reg_no', $userId)->orWhere('adm_no', $userId)->delete();
+        return response()->json(['status' => 'SUCCESS', 'message' => 'User deleted successfully.']);
+    });
+
+    Route::get('/api/admin/users/audit/{userId}', function($userId) {
+        $audit = DB::table('audit_logs')
+            ->where('target_id', $userId)
+            ->orWhere('performed_by', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        return response()->json(['status' => 'SUCCESS', 'audit' => $audit]);
+    });
+
+    Route::get('/api/audit-logs', function() {
+        $logs = DB::table('audit_logs')->orderBy('created_at', 'desc')->limit(100)->get();
+        return response()->json(['status' => 'SUCCESS', 'logs' => $logs]);
+    });
+
+    Route::get('/api/admin/settings', [\App\Http\Controllers\SystemSettingController::class, 'getSettings']);
+    Route::post('/api/admin/settings', [\App\Http\Controllers\SystemSettingController::class, 'saveSettings']);
+    Route::post('/api/admin/settings/ai-toggle', [\App\Http\Controllers\SystemSettingController::class, 'saveSettings']);
+
+    Route::get('/api/admin/executive-kpis', [\App\Http\Controllers\ExecutiveControlDeskController::class, 'getInstitutionalKpis']);
+    Route::get('/api/admin/executive-compliance', [\App\Http\Controllers\ExecutiveControlDeskController::class, 'getComplianceSummary']);
+    Route::get('/api/admin/executive-supervision-badges', [\App\Http\Controllers\ExecutiveControlDeskController::class, 'getDepartmentSupervisionBadges']);
+
+    Route::post('/api/admin/flash-notices/broadcast', [\App\Http\Controllers\ExecutiveFlashNoticeController::class, 'broadcast']);
+    Route::get('/api/admin/flash-notices', [\App\Http\Controllers\ExecutiveFlashNoticeController::class, 'getNotices']);
+    Route::post('/api/admin/flash-notices/revoke/{id}', [\App\Http\Controllers\ExecutiveFlashNoticeController::class, 'revokeNotice']);
+
+    Route::post('/api/admin/user/update-staff/{mobileNo}', function(Illuminate\Http\Request $request, $mobileNo) {
+        $name = $request->input('name');
+        $email = $request->input('email');
+        $branch = $request->input('branch');
+        $designation = $request->input('designation');
+
+        $updates = [];
+        if ($name) $updates['name'] = $name;
+        if ($email) $updates['email'] = $email;
+        if ($branch) $updates['branch'] = $branch;
+        if ($designation) $updates['designation'] = $designation;
+        $updates['updated_at'] = now();
+
+        DB::table('staff_profiles')->where('mobile_no', $mobileNo)->update($updates);
+
+        DB::table('audit_logs')->insert([
+            'performed_by' => Session::get('userId', 'ADMIN-001'),
+            'performed_by_name' => Session::get('userName', 'Principal'),
+            'target_id' => $mobileNo,
+            'target_name' => $name ?: $mobileNo,
+            'action' => 'Profile Modified',
+            'details' => "Updated staff profile details for $name",
+            'ip_address' => request()->ip(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Staff profile updated successfully!']);
+    });
+
+    Route::get('/api/principal/events', [\App\Http\Controllers\PrincipalScheduledEventController::class, 'index']);
+    Route::post('/api/principal/events/schedule', [\App\Http\Controllers\PrincipalScheduledEventController::class, 'schedule']);
+    Route::delete('/api/principal/events/{id}', [\App\Http\Controllers\PrincipalScheduledEventController::class, 'destroy']);
+
+    Route::post('/api/system/backup/google-drive', [\App\Http\Controllers\BackupController::class, 'backupDatabaseToDrive']);
+    Route::post('/api/system/backup', [\App\Http\Controllers\BackupController::class, 'backupDatabaseToDrive']);
 });
 
-// Self-Financing (SF) Staff Mobile Face Punch, GPS Setup & Attendance Report Routes
+// CampusLynk Modern V2 UI Preview Routes (Reference Implementation)
 Route::middleware(['web'])->group(function () {
-    Route::get('/sf-attendance/face-punch', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'showFacePunch']);
-    Route::post('/sf-attendance/register-face', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'saveFaceRegistration']);
-    Route::post('/sf-attendance/verify-and-punch', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'verifyAndPunch']);
-    Route::get('/sf-attendance/geofence-setup', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'showGeofenceSetup']);
-    Route::post('/sf-attendance/geofence-setup', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'saveGeofenceSetup']);
-    Route::get('/sf-attendance/attendance-report', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'showAttendanceReport']);
-    Route::match(['post', 'delete'], '/sf-attendance/delete-punch/{id}', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'deletePunch']);
-    Route::match(['post', 'delete'], '/sf-attendance/reset-face/{staffId}', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'resetFaceRegistration']);
+    Route::get('/modern/ui-playground', function () { return view('modern.ui-playground'); });
+    Route::get('/modern/splash', function () { return view('modern.auth.splash'); });
+    Route::get('/modern/login', function () { return view('modern.auth.login'); });
+    Route::get('/modern/forgot-password', function () { return view('modern.auth.forgot-password'); });
+    Route::get('/modern/reset-password', function () { return view('modern.auth.reset-password'); });
+    Route::get('/modern/access-denied', function () { return view('modern.auth.access-denied'); });
+    Route::get('/modern/session-expired', function () { return view('modern.auth.session-expired'); });
+    Route::get('/modern/loading', function () { return view('modern.auth.loading'); });
+    Route::get('/modern/auth-error', function () { return view('modern.auth.auth-error'); });
+    Route::get('/modern/student-dashboard', function () { return view('student_dashboard'); });
+    Route::get('/modern/principal-dashboard', function () {
+        session([
+            'userId' => 'ADMIN-001',
+            'userRole' => 'Principal',
+            'userName' => 'Dr. Thomas Mathew',
+            'userBranch' => 'Administration'
+        ]);
+        return view('admin_control_desk');
+    });
+    Route::get('/modern/attendance', function () {
+        session(['userId' => '2401001', 'userRole' => 'Student', 'userName' => 'Alex Johnson', 'userBranch' => 'Electronics Engineering']);
+        return app(\App\Http\Controllers\StudentAttendanceController::class)->showStudentAttendance();
+    });
+    Route::get('/modern/mock-test', function () {
+        session(['userId' => '2401001', 'userRole' => 'Student', 'userName' => 'Alex Johnson', 'userBranch' => 'Electronics Engineering']);
+        return view('student_mock_test');
+    });
 });
+
 
 
 
