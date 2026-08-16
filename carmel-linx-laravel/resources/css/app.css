@@ -1,0 +1,214 @@
+/* Google Fonts - Poppins */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap');
+
+/* Tailwind CSS v4 */
+@import "tailwindcss";
+
+/* CampusLynk Design Tokens */
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/radius.css";
+@import "./tokens/shadows.css";
+
+/* Base Layer Rules */
+@layer base {
+  html, body {
+    font-family: var(--font-family-primary);
+    background-color: var(--bg-app);
+    color: var(--color-neutral-900);
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1 {
+    font-size: var(--font-size-h1);
+    line-height: var(--line-height-h1);
+    font-weight: var(--font-weight-h1);
+  }
+
+  h2 {
+    font-size: var(--font-size-h2);
+    line-height: var(--line-height-h2);
+    font-weight: var(--font-weight-h2);
+  }
+
+  h3 {
+    font-size: var(--font-size-h3);
+    line-height: var(--line-height-h3);
+    font-weight: var(--font-weight-h3);
+  }
+
+  /* Lucide Icon Standard Stroke */
+  svg.lucide, [data-lucide] {
+    stroke-width: 2px;
+    vertical-align: middle;
+  }
+}
+
+/* ==========================================================================
+   CampusLynk Micro-Interactions & Animated Icons (itsHover Standard)
+   ========================================================================== */
+
+/* 1. Bell Ringing on Hover */
+.group:hover .animate-hover-bell,
+.animate-hover-bell:hover {
+  animation: itshover-bell 0.6s ease-in-out both;
+  transform-origin: top center;
+}
+@keyframes itshover-bell {
+  0% { transform: rotate(0); }
+  20% { transform: rotate(15deg); }
+  40% { transform: rotate(-12deg); }
+  60% { transform: rotate(8deg); }
+  80% { transform: rotate(-4deg); }
+  100% { transform: rotate(0); }
+}
+
+/* 2. Download Arrow Slide on Hover */
+.group:hover .animate-hover-download,
+.animate-hover-download:hover {
+  animation: itshover-download 0.6s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+}
+@keyframes itshover-download {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(3px); }
+}
+
+/* 3. Plug Connected / Snap on Hover */
+.group:hover .animate-hover-plug,
+.animate-hover-plug:hover {
+  animation: itshover-plug 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes itshover-plug {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.9) translateY(-1px); }
+  100% { transform: scale(1.08) translateY(0); }
+}
+
+/* 4. Settings Gear Rotate on Hover */
+.group:hover .animate-hover-spin,
+.animate-hover-spin:hover {
+  transform: rotate(90deg);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 5. Shield Security Pulse on Hover */
+.group:hover .animate-hover-shield,
+.animate-hover-shield:hover {
+  animation: itshover-shield 0.5s ease-in-out;
+}
+@keyframes itshover-shield {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* 6. Arrow Slide Forward on Hover */
+.group:hover .animate-hover-arrow-right {
+  transform: translateX(4px);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* 7. Refresh Continuous Rotate */
+.animate-hover-refresh:hover {
+  transform: rotate(180deg);
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 8. Pulse Indicator Dot */
+.pulse-indicator {
+  position: relative;
+}
+.pulse-indicator::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  background-color: #22C55E;
+  border-radius: 9999px;
+  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+@keyframes pulse-ring {
+  0% { transform: scale(0.9); opacity: 0.9; }
+  50% { transform: scale(1.5); opacity: 0; }
+  100% { transform: scale(0.9); opacity: 0; }
+}
+
+/* ==========================================================================
+   Collapsed Sidebar Master Styles
+   ========================================================================== */
+#sidebar.is-collapsed {
+  width: 76px !important;
+}
+
+#sidebar.is-collapsed .sidebar-label {
+  display: none !important;
+}
+
+#sidebar.is-collapsed #sidebar-collapse-btn {
+  display: none !important;
+}
+
+#sidebar.is-collapsed .sidebar-logout-btn {
+  display: none !important;
+}
+
+#sidebar.is-collapsed .sidebar-header {
+  justify-content: center !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+#sidebar.is-collapsed .sidebar-brand-wrapper {
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+#sidebar.is-collapsed .sidebar-footer {
+  justify-content: center !important;
+  padding: 0.5rem !important;
+}
+
+#sidebar.is-collapsed .sidebar-footer-inner {
+  justify-content: center !important;
+  padding: 0.375rem !important;
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+#sidebar.is-collapsed nav button,
+#sidebar.is-collapsed nav a {
+  justify-content: center !important;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+/* ==========================================================================
+   Universal Form Controls & Custom Select Token Styler
+   ========================================================================== */
+select:not([multiple]) {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem 1rem;
+  padding-right: 2.5rem !important;
+  cursor: pointer;
+}
+
+select:not([multiple]):hover {
+  border-color: #94a3b8;
+}
+
+select:not([multiple]):focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+

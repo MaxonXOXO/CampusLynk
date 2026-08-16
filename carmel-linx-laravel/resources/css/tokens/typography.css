@@ -1,0 +1,29 @@
+:root {
+  /* Font Family */
+  --font-family-primary: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Typography Scale */
+  --font-size-h1: 32px;
+  --line-height-h1: 40px;
+  --font-weight-h1: 600;
+
+  --font-size-h2: 24px;
+  --line-height-h2: 32px;
+  --font-weight-h2: 600;
+
+  --font-size-h3: 20px;
+  --line-height-h3: 28px;
+  --font-weight-h3: 500;
+
+  --font-size-body: 16px;
+  --line-height-body: 24px;
+  --font-weight-body: 400;
+
+  --font-size-small: 14px;
+  --line-height-small: 20px;
+  --font-weight-small: 400;
+
+  --font-size-caption: 12px;
+  --line-height-caption: 16px;
+  --font-weight-caption: 400;
+}
