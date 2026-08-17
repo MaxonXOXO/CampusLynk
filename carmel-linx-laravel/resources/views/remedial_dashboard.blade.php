@@ -44,7 +44,16 @@
     <div class="px-6 h-16 flex items-center justify-between max-w-7xl mx-auto w-full">
       <div class="flex items-center gap-4">
         @php
-          $backUrl = (session('userRole') === 'Demonstrator') ? '/dashboard/demonstrator' : '/dashboard/lecturer';
+          $role = session('userRole');
+          if (in_array($role, ['Principal', 'Executive'])) {
+              $backUrl = '/dashboard/principal';
+          } elseif (in_array($role, ['Admin', 'Super_Admin', 'SuperAdmin', 'Chairman'])) {
+              $backUrl = '/dashboard/admin';
+          } elseif ($role === 'Demonstrator') {
+              $backUrl = '/dashboard/demonstrator';
+          } else {
+              $backUrl = '/dashboard/lecturer';
+          }
         @endphp
         <a href="{{ $backUrl }}" class="flex items-center gap-2 px-3.5 py-1.5 bg-slate-800/60 hover:bg-purple-500/10 border border-slate-700/60 hover:border-purple-500/30 text-slate-300 hover:text-purple-300 rounded-lg font-semibold text-sm transition-premium no-underline">
           <span class="material-symbols-rounded text-lg">arrow_back</span>

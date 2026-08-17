@@ -301,12 +301,22 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/dashboard/lecturer', function () {
         $role = Session::get('userRole');
-        if (!in_array($role, ['HOD', 'Lecturer', 'Demonstrator', 'Physical_Instructor', 'Physical Instructor'])) return redirect('/');
+        if (!in_array($role, ['HOD', 'Lecturer', 'Demonstrator', 'Physical_Instructor', 'Physical Instructor', 'Principal', 'Super_Admin', 'Chairman', 'Admin'])) return redirect('/');
         $ua = strtolower(request()->header('User-Agent', ''));
         if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
             return redirect('/staff/mobile');
         }
         return noCacheView('lecturer_dashboard');
+    });
+
+    Route::get('/principal/my-batches', function () {
+        return redirect('/dashboard/lecturer');
+    });
+    Route::get('/admin/my-batches', function () {
+        return redirect('/dashboard/lecturer');
+    });
+    Route::get('/dashboard/principal/my-batches', function () {
+        return redirect('/dashboard/lecturer');
     });
 
     Route::get('/dashboard/demonstrator', function () {
@@ -735,7 +745,7 @@ Route::middleware(['web'])->group(function () {
     // Remedial Sessions
     Route::get('/remedial-sessions', function () {
         $role = Session::get('userRole');
-        if (!$role || !in_array($role, ['Lecturer', 'Tutor', 'HOD', 'Demonstrator', 'Physical_Instructor', 'Physical Instructor'])) return redirect('/');
+        if (!$role || !in_array($role, ['Lecturer', 'Tutor', 'HOD', 'Demonstrator', 'Physical_Instructor', 'Physical Instructor', 'Principal', 'Admin', 'Super_Admin', 'SuperAdmin', 'Executive', 'Chairman', 'Academic_Coordinator', 'Academic Coordinator'])) return redirect('/');
         return view('remedial_dashboard');
     });
 
@@ -1797,6 +1807,14 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/principal/events/schedule', [App\Http\Controllers\PrincipalScheduledEventController::class, 'schedule']);
     Route::get('/api/principal/events', [App\Http\Controllers\PrincipalScheduledEventController::class, 'index']);
     Route::get('/api/principal/events/feed', [App\Http\Controllers\PrincipalScheduledEventController::class, 'feed']);
+
+    // Principal & Executive All-Department Timetable Endpoints
+    Route::get('/api/admin/timetables/all-departments', [App\Http\Controllers\ExecutiveControlDeskController::class, 'getAllDepartmentTimetables']);
+    Route::get('/admin/timetables/all-departments', [App\Http\Controllers\ExecutiveControlDeskController::class, 'viewAllDepartmentTimetables']);
+
+    // Executive Profile Management Endpoints
+    Route::get('/api/executive/profile/details', [App\Http\Controllers\ExecutiveControlDeskController::class, 'getProfileDetails']);
+    Route::post('/api/executive/profile/update', [App\Http\Controllers\ExecutiveControlDeskController::class, 'updateProfileDetails']);
     // Staff Leave Ledger JSON API for Control Desk
     Route::get('/api/staff/leave/reports-data', function(Illuminate\Http\Request $request) {
         $department = $request->query('department');
@@ -1919,6 +1937,81 @@ Route::middleware(['web'])->group(function () {
             'punches' => $punches,
             'geofence' => $geofence,
             'total_punches' => count($punches)
+        ]);
+    });
+
+    // Campus Geofence Setup API
+    Route::get('/api/admin/geofence/settings', function() {
+        $geofence = DB::table('sf_campus_geofence_settings')->where('is_active', 1)->first();
+        if (!$geofence) {
+            $id = DB::table('sf_campus_geofence_settings')->insertGetId([
+                'campus_name' => 'Carmel polytechnic College Campus punapra',
+                'centroid_lat' => 9.43727187,
+                'centroid_lng' => 76.34358649,
+                'radius_meters' => 110,
+                'max_accuracy_meters' => 100,
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+            $geofence = DB::table('sf_campus_geofence_settings')->where('id', $id)->first();
+        }
+        return response()->json([
+            'status' => 'SUCCESS',
+            'geofence' => $geofence
+        ]);
+    });
+
+    Route::post('/sf-attendance/geofence-setup', function(Illuminate\Http\Request $request) {
+        $userRole = Session::get('userRole');
+        if (!in_array($userRole, ['Principal', 'Super_Admin', 'Chairman', 'Admin', 'Academic_Coordinator'])) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized'], 403);
+        }
+
+        $campusName = trim($request->input('campus_name', 'Carmel polytechnic College Campus punapra'));
+        $lat = (float) $request->input('centroid_lat', 9.43727187);
+        $lng = (float) $request->input('centroid_lng', 76.34358649);
+        $radius = (int) $request->input('radius_meters', 110);
+        $accuracy = (int) $request->input('max_accuracy_meters', 100);
+
+        $exists = DB::table('sf_campus_geofence_settings')->where('is_active', 1)->first();
+        if ($exists) {
+            DB::table('sf_campus_geofence_settings')->where('id', $exists->id)->update([
+                'campus_name' => $campusName,
+                'centroid_lat' => $lat,
+                'centroid_lng' => $lng,
+                'radius_meters' => $radius,
+                'max_accuracy_meters' => $accuracy,
+                'updated_at' => now()
+            ]);
+        } else {
+            DB::table('sf_campus_geofence_settings')->insert([
+                'campus_name' => $campusName,
+                'centroid_lat' => $lat,
+                'centroid_lng' => $lng,
+                'radius_meters' => $radius,
+                'max_accuracy_meters' => $accuracy,
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+
+        try {
+            \App\Models\AuditLog::create([
+                'performed_by' => Session::get('userId', 'ADMIN-001'),
+                'performed_by_name' => Session::get('userName', 'Executive Officer'),
+                'target_id' => 'GEOFENCE-001',
+                'target_name' => $campusName,
+                'action' => 'Geofence Updated',
+                'details' => "Updated centroid to ({$lat}, {$lng}) with radius {$radius}m",
+                'ip_address' => $request->ip()
+            ]);
+        } catch (\Exception $e) {}
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Campus GPS Geofence parameters updated successfully!'
         ]);
     });
 

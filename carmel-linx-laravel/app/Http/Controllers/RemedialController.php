@@ -22,6 +22,35 @@ class RemedialController extends Controller
         $userId = Session::get('userId');
         if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized']);
 
+        $userRole = Session::get('userRole');
+        $isExecutive = in_array($userRole, ['Principal', 'Executive', 'Admin', 'Super_Admin', 'SuperAdmin', 'Chairman', 'Academic_Coordinator', 'Academic Coordinator']);
+
+        if ($isExecutive) {
+            $batchSubjects = \App\Models\BatchSubject::with(['classroom'])
+                ->whereHas('classroom', function($q) {
+                    $q->where('current_semester', '<=', 6);
+                })
+                ->get();
+
+            $subjects = [];
+            foreach ($batchSubjects as $bs) {
+                if ($bs->classroom) {
+                    $subjects[] = [
+                        'classroom_id' => $bs->classroom->classroom_id,
+                        'batch_name' => $bs->classroom->batch_name ?? $bs->classroom->classroom_id,
+                        'subject_code' => $bs->subject_code,
+                        'subject_name' => $bs->subject_name,
+                        'semester' => $bs->semester,
+                    ];
+                }
+            }
+            $unique = collect($subjects)->unique(function ($item) {
+                return $item['classroom_id'] . $item['subject_code'];
+            })->values()->all();
+
+            return response()->json(['status' => 'SUCCESS', 'subjects' => $unique]);
+        }
+
         // Staff assigned to subjects (Lecturers, Demonstrators)
         $subjectAssignments = \App\Models\SubjectStaffAssignment::with(['batchSubject.classroom'])
             ->where('staff_mobile_no', $userId)
@@ -127,7 +156,14 @@ class RemedialController extends Controller
     public function getRooms(Request $request)
     {
         $userId = Session::get('userId');
-        $rooms = RemedialRoom::with(['students'])->where('created_by_mobile', $userId)->get();
+        $userRole = Session::get('userRole');
+        $isExecutive = in_array($userRole, ['Principal', 'Executive', 'Admin', 'Super_Admin', 'SuperAdmin', 'Chairman', 'Academic_Coordinator', 'Academic Coordinator']);
+
+        if ($isExecutive) {
+            $rooms = RemedialRoom::with(['students'])->orderBy('created_at', 'desc')->get();
+        } else {
+            $rooms = RemedialRoom::with(['students'])->where('created_by_mobile', $userId)->orderBy('created_at', 'desc')->get();
+        }
 
         $output = [];
         foreach ($rooms as $room) {
@@ -171,7 +207,14 @@ class RemedialController extends Controller
     public function getRoomDetails($roomId)
     {
         $userId = Session::get('userId');
-        $room = RemedialRoom::with(['students', 'logs', 'assessments'])->where('room_id', $roomId)->where('created_by_mobile', $userId)->first();
+        $userRole = Session::get('userRole');
+        $isExecutive = in_array($userRole, ['Principal', 'Executive', 'Admin', 'Super_Admin', 'SuperAdmin', 'Chairman', 'Academic_Coordinator', 'Academic Coordinator']);
+
+        if ($isExecutive) {
+            $room = RemedialRoom::with(['students', 'logs', 'assessments'])->where('room_id', $roomId)->first();
+        } else {
+            $room = RemedialRoom::with(['students', 'logs', 'assessments'])->where('room_id', $roomId)->where('created_by_mobile', $userId)->first();
+        }
         if (!$room) return response()->json(['status' => 'ERROR', 'message' => 'Room not found.']);
 
         $classroom = DB::table('class_management')->where('classroom_id', $room->classroom_id)->first();
