@@ -1,67 +1,23 @@
 @props([
     'active' => 'dashboard',
     'role' => null,
-    'customNav' => null
+    'customNav' => null,
+    'items' => null
 ])
 
 @php
-    $userRole = strtolower($role ?? session('userRole', session('role', 'staff')));
-    $isStudent = str_contains($userRole, 'student');
-    $isAdmin = str_contains($userRole, 'admin') || str_contains($userRole, 'principal');
-
-    if ($customNav) {
-        $navItems = $customNav;
-    } elseif ($isStudent) {
-        $navItems = [
-            ['id' => 'exams', 'label' => 'Works To Do', 'icon' => 'clipboard-check', 'onclick' => "handleStudentSidebarNav('exams')"],
-            ['id' => 'marks', 'label' => 'Academic Stats', 'icon' => 'bar-chart-3', 'onclick' => "handleStudentSidebarNav('marks')"],
-            ['id' => 'profile', 'label' => 'My Profile', 'icon' => 'user-round', 'onclick' => "handleStudentSidebarNav('profile')"],
-            ['id' => 'mentoring', 'label' => 'Mentoring Diary', 'icon' => 'book-open', 'onclick' => "handleStudentSidebarNav('mentoring')"],
-            ['id' => 'activity', 'label' => 'Activity Points', 'icon' => 'award', 'onclick' => "handleStudentSidebarNav('activity')"],
-            ['id' => 'seminar', 'label' => 'My Seminar', 'icon' => 'presentation', 'onclick' => "handleStudentSidebarNav('seminar')"],
-            ['id' => 'attendance', 'label' => 'Attendance Review', 'icon' => 'calendar-check-2', 'onclick' => "handleStudentSidebarNav('attendance')"],
-            ['id' => 'mock_test', 'label' => 'Practice Test', 'icon' => 'rocket', 'onclick' => "handleStudentSidebarNav('mock_test')"],
-        ];
-    } elseif ($isAdmin) {
-        $navItems = [
-            ['id' => 'dashboard', 'label' => 'Dashboard Overview', 'icon' => 'layout-dashboard', 'onclick' => "handleAdminSidebarNav('dashboard')"],
-            ['id' => 'directory', 'label' => 'User Directory', 'icon' => 'users', 'onclick' => "handleAdminSidebarNav('directory')"],
-            ['id' => 'backups', 'label' => 'Drive Backups', 'icon' => 'database', 'onclick' => "handleAdminSidebarNav('backups')"],
-            ['id' => 'audit', 'label' => 'Audit Trail', 'icon' => 'receipt', 'onclick' => "handleAdminSidebarNav('audit')"],
-            ['id' => 'settings', 'label' => 'System Settings', 'icon' => 'settings', 'onclick' => "handleAdminSidebarNav('settings')"],
-            ['id' => 'prof_activities', 'label' => 'Professional Activities', 'icon' => 'award', 'onclick' => "handleAdminSidebarNav('prof_activities')"],
-            ['id' => 'leave_ledger', 'label' => 'Master Leave Ledger', 'icon' => 'calendar-range', 'onclick' => "handleAdminSidebarNav('leave_ledger')"],
-            ['id' => 'sf_attendance', 'label' => 'SF Staff Attendance', 'icon' => 'user-check', 'onclick' => "handleAdminSidebarNav('sf_attendance')"],
-            ['id' => 'profile', 'label' => 'Executive Profile', 'icon' => 'user-cog', 'onclick' => "handleAdminSidebarNav('profile')"],
-        ];
-    } else {
-        $navItems = [
-            ['id' => 'dashboard', 'label' => 'Dashboard', 'icon' => 'layout-dashboard', 'url' => '/modern/ui-playground'],
-            ['id' => 'academics', 'label' => 'Academics', 'icon' => 'book-open', 'url' => '#'],
-            ['id' => 'students', 'label' => 'Students', 'icon' => 'users', 'url' => '#'],
-            ['id' => 'attendance', 'label' => 'Attendance', 'icon' => 'calendar-check-2', 'url' => '#'],
-            ['id' => 'examinations', 'label' => 'Examinations', 'icon' => 'graduation-cap', 'url' => '#'],
-            ['id' => 'staff', 'label' => 'Staff Directory', 'icon' => 'briefcase', 'url' => '#'],
-            ['id' => 'reports', 'label' => 'Reports & Analytics', 'icon' => 'bar-chart-3', 'url' => '#'],
-            ['id' => 'settings', 'label' => 'Settings', 'icon' => 'settings', 'url' => '#'],
-        ];
-    }
-
-    $deskSubtitle = 'Faculty Platform';
-    if ($isStudent) {
-        $deskSubtitle = 'Student Desk';
-    } elseif (str_contains($userRole, 'principal')) {
-        $deskSubtitle = 'Principal Desk';
-    } elseif ($isAdmin) {
-        $deskSubtitle = 'Control Desk';
-    }
+    $resolvedRole = $role ?? session('userRole', session('role', 'faculty'));
+    $navItems = $items ?? $customNav ?? \App\Services\NavigationService::getNavigationItems($resolvedRole, $active);
+    $deskSubtitle = \App\Services\NavigationService::getDeskSubtitle($resolvedRole);
+    $isStudent = \App\Services\NavigationService::resolveRoleKey($resolvedRole) === 'student';
+    $isAdmin = in_array(\App\Services\NavigationService::resolveRoleKey($resolvedRole), ['admin', 'super_admin', 'principal']);
 @endphp
 
 <!-- Sidebar Backdrop (Mobile Only) -->
 <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 lg:hidden hidden transition-opacity" onclick="toggleMobileSidebar()"></div>
 
 <!-- Master Sidebar Container: Deep Grayish Blue Tone (#0F172A) -->
-<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0F172A] border-r border-slate-800 flex flex-col justify-between transition-all duration-300 ease-in-out shrink-0 lg:static lg:translate-x-0 -translate-x-full shadow-xl select-none">
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0F172A] border-r border-slate-800 flex flex-col justify-between transition-all duration-300 ease-in-out shrink-0 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 -translate-x-full shadow-xl select-none">
     
     <div class="flex flex-col flex-1 min-h-0">
         <!-- Brand Header & Collapse Toggle -->
@@ -76,7 +32,7 @@
                 </div>
                 <div class="sidebar-label overflow-hidden transition-all duration-300">
                     <span class="font-bold text-base text-white tracking-tight block leading-tight truncate">CampusLynk</span>
-                    <span class="text-[11px] text-slate-400 font-medium tracking-wide block truncate">
+                    <span class="text-xs text-slate-400 font-medium tracking-wide block truncate">
                         {{ $deskSubtitle }}
                     </span>
                 </div>
@@ -146,7 +102,7 @@
 
     <!-- Bottom User Profile Card -->
     <div class="sidebar-footer p-3 border-t border-slate-800/80 shrink-0">
-        <div class="sidebar-footer-inner flex items-center gap-3 p-2 rounded-2xl bg-slate-800/70 border border-slate-700/60 transition-all hover:bg-slate-800">
+        <div class="sidebar-footer-inner flex items-center gap-3 p-2.5 rounded-2xl bg-slate-800/70 border border-slate-700/60 transition-all hover:bg-slate-800">
             
             <!-- User Avatar -->
             <button 
@@ -156,9 +112,12 @@
                 title="View My Profile"
             >
                 @if(session('userPhoto'))
-                    <img src="{{ session('userPhoto') }}" alt="Profile" class="w-10 h-10 rounded-xl object-cover border border-slate-700 shadow-sm">
+                    <img src="{{ session('userPhoto') }}" alt="Profile" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-10 h-10 rounded-xl object-cover border border-slate-700 shadow-sm">
+                    <div style="display:none;" class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                        {{ strtoupper(substr(session('userName', 'U'), 0, 2)) }}
+                    </div>
                 @else
-                    <div class="w-10 h-10 rounded-xl bg-slate-700 text-slate-200 flex items-center justify-center font-bold text-xs shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
                         {{ strtoupper(substr(session('userName', 'U'), 0, 2)) }}
                     </div>
                 @endif
@@ -170,8 +129,8 @@
                 class="sidebar-label overflow-hidden flex-1 min-w-0 cursor-pointer transition-all duration-300"
                 title="Click to view My Profile"
             >
-                <p class="text-xs font-semibold text-white truncate hover:text-blue-400 transition-colors">{{ session('userName', 'Executive User') }}</p>
-                <p class="text-[10px] text-slate-400 font-mono truncate">{{ session('userRole', 'Admin') }}</p>
+                <p class="text-sm font-semibold text-white truncate hover:text-blue-400 transition-colors">{{ session('userName', 'Executive User') }}</p>
+                <p class="text-xs text-slate-400 font-medium truncate">{{ session('userRole', 'Admin') }}</p>
             </div>
 
             <!-- Sign Out Button (Hidden in collapsed mode) -->
