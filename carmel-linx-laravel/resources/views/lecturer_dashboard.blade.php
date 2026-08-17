@@ -3,50 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carmel Linx - Lecturer Dashboard</title>
+  <title>CampusLynk - Faculty Portal</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- Google Icons -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+  <!-- Modern Typography (Poppins) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Flatpickr for premium Date/Time selection -->
+  <!-- Google Icons & Lucide Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Vite Assets -->
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+  <!-- Flatpickr for Date/Time selection -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
   <!-- SheetJS for client-side Excel parse & generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
   <style>
-    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
-    .font-extrabold, .font-black {
-      font-weight: 700 !important;
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
-    input, select, textarea {
-      font-size: 0.875rem !important; /* 14px (text-sm) minimum */
-    }
-    .text-lg {
-      font-size: 1.05rem !important;
-    }
-    .text-base {
-      font-size: 0.875rem !important;
-    }
-    nav.space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
-      margin-top: 0.125rem !important;
-    }
-    nav.space-y-1\.5 a, nav.space-y-1\.5 button {
-      padding-top: 0.375rem !important;
-      padding-bottom: 0.375rem !important;
-    }
+    .scrollbar-hidden::-webkit-scrollbar { display: none; }
+    .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     .transition-premium {
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .scrollbar-hidden::-webkit-scrollbar {
-      display: none;
-    }
-    .scrollbar-hidden {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
     }
     @media print {
       .no-print {
@@ -54,48 +44,7 @@
       }
     }
 
-    /* Screen responsiveness: scale down fonts, paddings, and gaps for monitors under 1440px (like 1366x768) */
-    @media (max-width: 1440px) {
-      html, body {
-        font-size: 13px !important;
-      }
-      #panelClassroom, 
-      #panelClassroom button,
-      #panelClassroom select,
-      #panelClassroom input,
-      #panelClassroom table,
-      #panelClassroom th,
-      #panelClassroom td,
-      #panelClassroom div,
-      #panelClassroom p,
-      #panelClassroom h3,
-      #panelClassroom h4,
-      #panelClassroom h5,
-      #panelClassroom span {
-        font-size: 12px !important;
-      }
-      .p-6 {
-        padding: 1rem !important;
-      }
-      .p-8 {
-        padding: 1.25rem !important;
-      }
-      .gap-6 {
-        gap: 1rem !important;
-      }
-      .gap-8 {
-        gap: 1.25rem !important;
-      }
-      .table-responsive {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      .text-nowrap {
-        white-space: nowrap !important;
-      }
-    }
-
+    /* Clean overrides to enlarge fonts in the virtual classroom and related containers to normal readable sizes */
     #panelClassroom {
       background-color: #060b13 !important; /* Darker slate/black background */
       border: 1px solid #111827 !important;
@@ -206,497 +155,8 @@
       fill: #38bdf8 !important;
     }
 
-    /* PREMIUM LIGHT THEME OVERRIDES (100% Layout Safe) */
-    body.light-theme {
-      background-color: #f8fafc !important; /* slate-50 */
-      color: #334155 !important; /* slate-700 */
-    }
-    body.light-theme header {
-      background-color: rgba(255, 255, 255, 0.8) !important;
-      border-color: #e2e8f0 !important;
-      color: #0f172a !important;
-    }
-    body.light-theme header h1 {
-      color: #0f172a !important;
-    }
-    body.light-theme aside {
-      background-color: #ffffff !important;
-      border-color: #e2e8f0 !important;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
-    }
-    body.light-theme aside h2,
-    body.light-theme aside span {
-      color: #1e293b !important;
-    }
-    body.light-theme aside .text-slate-400 {
-      color: #64748b !important;
-    }
-    body.light-theme aside a,
-    body.light-theme aside button {
-      color: #475569 !important;
-    }
-    body.light-theme aside a:hover,
-    body.light-theme aside button:hover {
-      background-color: #f1f5f9 !important;
-      color: #0f172a !important;
-    }
-    body.light-theme aside .bg-slate-900\/40 {
-      background-color: #f8fafc !important;
-      border-color: #e2e8f0 !important;
-    }
-    body.light-theme aside .bg-slate-800 {
-      background-color: #f1f5f9 !important;
-      color: #334155 !important;
-    }
-
-    /* Cards and panels */
-    body.light-theme .bg-slate-900,
-    body.light-theme .bg-slate-950,
-    body.light-theme .bg-slate-900\/50,
-    body.light-theme .bg-slate-950\/50,
-    body.light-theme .bg-slate-950\/40,
-    body.light-theme .bg-slate-950\/30,
-    body.light-theme .bg-slate-950\/20,
-    body.light-theme .bg-slate-950\/80,
-    body.light-theme .bg-slate-900\/80 {
-      background-color: #ffffff !important;
-      color: #334155 !important;
-    }
-    body.light-theme .bg-slate-800\/50,
-    body.light-theme .bg-slate-800 {
-      background-color: #f1f5f9 !important;
-      color: #1e293b !important;
-    }
-    body.light-theme .bg-slate-900\/40,
-    body.light-theme .bg-slate-950\/20 {
-      background-color: #f8fafc !important;
-    }
-
-    /* Borders */
-    body.light-theme .border-slate-800,
-    body.light-theme .border-slate-700,
-    body.light-theme .border-slate-800\/80,
-    body.light-theme .border-slate-800\/60,
-    body.light-theme .border-slate-800\/40,
-    body.light-theme .border-slate-700\/50,
-    body.light-theme .border-slate-700\/60 {
-      border-color: #e2e8f0 !important;
-    }
-
-    /* Texts */
-    body.light-theme .text-slate-100,
-    body.light-theme .text-slate-200,
-    body.light-theme .text-white {
-      color: #0f172a !important;
-    }
-    body.light-theme .text-slate-300,
-    body.light-theme .text-slate-400 {
-      color: #475569 !important;
-    }
-    body.light-theme .text-slate-500 {
-      color: #64748b !important;
-    }
-
-    /* Input elements */
-    body.light-theme input,
-    body.light-theme select,
-    body.light-theme textarea {
-      background-color: #ffffff !important;
-      border-color: #cbd5e1 !important;
-      color: #0f172a !important;
-    }
-    body.light-theme input::placeholder,
-    body.light-theme textarea::placeholder {
-      color: #94a3b8 !important;
-    }
-
-    /* Flatpickr light override */
-    body.light-theme .flatpickr-calendar {
-      background: #ffffff !important;
-      border: 1px solid #e2e8f0 !important;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
-      color: #0f172a !important;
-    }
-    body.light-theme .flatpickr-calendar .flatpickr-day {
-      color: #334155 !important;
-    }
-    body.light-theme .flatpickr-calendar .flatpickr-day:hover {
-      background: #f1f5f9 !important;
-    }
-    body.light-theme .flatpickr-calendar span.cur-month,
-    body.light-theme .flatpickr-calendar input.numInput {
-      color: #0f172a !important;
-    }
-    /* Compact Sidebar Navigation Sizing Standard (Enforcing Principal Desk Density) */
-    @media (min-width: 768px) {
-      aside nav {
-        padding: 0.75rem !important;
-      }
-      aside nav > :not([hidden]) ~ :not([hidden]) {
-        margin-top: 0.125rem !important;
-      }
-      aside nav a, aside nav button {
-        padding-top: 0.375rem !important;
-        padding-bottom: 0.375rem !important;
-        padding-left: 0.875rem !important;
-        padding-right: 0.875rem !important;
-        font-size: 11px !important;
-        gap: 0.625rem !important;
-      }
-      aside nav span.material-symbols-rounded {
-        font-size: 16px !important;
-      }
-    }
-
-    /* MOBILE-SPECIFIC SIDEBAR & CARD FIXES (MD breakpoint is 768px) */
+    /* Mobile styles for Virtual Classroom assessment mark entry */
     @media (max-width: 767px) {
-      /* Sidebar changes: multi-row horizontal block on mobile */
-      aside {
-        width: 100% !important;
-        position: relative !important;
-        border-r: none !important;
-        border-b: 1px solid #1e293b !important;
-        flex-direction: column !important; /* Stack rows vertically */
-        align-items: stretch !important;
-        padding: 0.75rem 1rem 0.5rem !important;
-        gap: 0.75rem !important;
-      }
-      
-      /* Make sidebar brand logo header container visible inline on Row 1 */
-      aside > div.border-b {
-        display: flex !important;
-        border-bottom: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-      }
-
-      aside > div.border-b img {
-        width: 2.25rem !important;
-        height: 2.25rem !important;
-      }
-
-      aside > div.border-b h2 {
-        font-size: 18px !important;
-        font-weight: 900 !important;
-      }
-
-      aside > div.border-b span {
-        display: none !important; /* Hide subtitle to keep Row 1 clean */
-      }
-      
-      /* Make logout block sit inline on Row 1 (far right) with extra top offset spacing */
-      aside > div.border-t {
-        border-top: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        display: block !important;
-        width: auto !important;
-        position: absolute !important;
-        right: 1rem !important;
-        top: 0.85rem !important;
-      }
-      
-      aside > div.border-t a {
-        padding: 0.4rem 0.65rem !important;
-        border-radius: 0.5rem !important;
-        font-size: 11px !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.25rem !important;
-        white-space: nowrap !important;
-        background-color: rgba(239, 68, 68, 0.18) !important;
-        color: #f87171 !important;
-        border: 1px solid rgba(239, 68, 68, 0.4) !important;
-      }
-
-      /* Convert vertical nav list to an inline horizontal row on Row 2 with a dark gradient */
-      aside nav {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-        width: 100% !important;
-        padding: 0.4rem 0.5rem !important;
-        margin: 0 !important;
-        justify-content: space-between !important;
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
-        border: 1px solid rgba(51, 65, 85, 0.4) !important;
-        border-radius: 0.75rem !important;
-      }
-      
-      /* Reset standard padding on links/buttons for inline fit */
-      aside nav a, aside nav button {
-        padding: 0.4rem 0.65rem !important;
-        margin: 0 !important;
-        border-radius: 0.5rem !important;
-        font-size: 11px !important; /* compact font to fit */
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.25rem !important;
-        white-space: nowrap !important;
-        width: auto !important;
-        border-left: none !important; /* Remove custom vertical border indicators */
-      }
-      
-      /* Hide all links except: My Batches (navDashboard), Remedial, and Log & Attendance */
-      aside nav > :not(#navDashboard):not([href="/remedial-sessions"]):not([href="/staff/attendance-log"]) {
-        display: none !important;
-      }
-      
-      /* Active profile avatar banner is too large on mobile - hide or reduce */
-      #sidebarAvatarContainer {
-        display: none !important;
-      }
-      
-      /* Grid spacing and layout tweaks to ensure batch cards are easily accessible and stand alone */
-      #lecturerBatchGrid {
-        grid-template-columns: 1fr !important;
-        gap: 1.5rem !important;
-      }
-      
-      /* Hide My Assigned Classrooms header banner on mobile */
-      #assignedClassroomHeader {
-        display: none !important;
-      }
-
-      /* Light colored border for batch cards on mobile */
-      #lecturerBatchGrid > div {
-        border-color: rgba(148, 163, 184, 0.45) !important; /* light slate-400 border */
-      }
-
-      /* ENHANCED MOBILE STYLING FOR SEMINAR ROOM & ASSESSMENT MARK ENTRY FIELDS */
-      
-      /* Make sure that inside classroom, today's seminar evaluations list table transforms to clean cards on mobile */
-      #seminarEvaluationContent table, 
-      #seminarEvaluationContent thead, 
-      #seminarEvaluationContent tbody, 
-      #seminarEvaluationContent th, 
-      #seminarEvaluationContent td, 
-      #seminarEvaluationContent tr { 
-        display: block !important; 
-      }
-      
-      #seminarEvaluationContent thead {
-        display: none !important; /* Hide header row on mobile */
-      }
-      
-      #seminarEvaluationContent tr {
-        background: rgba(15, 23, 42, 0.6) !important;
-        border: 1px solid rgba(51, 65, 85, 0.6) !important;
-        border-radius: 1rem !important;
-        padding: 1.25rem !important;
-        margin-bottom: 1.25rem !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 0.65rem !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-      }
-      
-      #seminarEvaluationContent td {
-        padding: 0.35rem 0 !important;
-        border: none !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-        width: 100% !important;
-        text-align: left !important;
-        font-size: 15px !important;
-      }
-      
-      #seminarEvaluationContent td:nth-child(1)::before { content: "Roll No: "; font-weight: bold; color: #94a3b8; }
-      #seminarEvaluationContent td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #94a3b8; }
-      #seminarEvaluationContent td:nth-child(3)::before { content: "Topic: "; font-weight: bold; color: #94a3b8; }
-      #seminarEvaluationContent td:nth-child(4)::before { content: "Guide: "; font-weight: bold; color: #94a3b8; }
-      #seminarEvaluationContent td:nth-child(5)::before { content: "Presentation Date: "; font-weight: bold; color: #94a3b8; }
-      #seminarEvaluationContent td:nth-child(6)::before { content: "Relevance (7.5): "; font-weight: bold; color: #94a3b8; }
-      #seminarEvaluationContent td:nth-child(7)::before { content: "Literature (7.5): "; font-weight: bold; color: #94a3b8; }
-      #seminarEvaluationContent td:nth-child(8)::before { content: "Presentation (37.5): "; font-weight: bold; color: #94a3b8; }
-      #seminarEvaluationContent td:nth-child(9)::before { content: "Interaction (7.5): "; font-weight: bold; color: #94a3b8; }
-      #seminarEvaluationContent td:nth-child(10)::before { content: "Report (7.5): "; font-weight: bold; color: #94a3b8; }
-      #seminarEvaluationContent td:nth-child(11)::before { content: "Attendance (7.5): "; font-weight: bold; color: #94a3b8; }
-      #seminarEvaluationContent td:nth-child(12)::before { content: "My Total (75): "; font-weight: bold; color: #38bdf8; }
-      #seminarEvaluationContent td:nth-child(13)::before { content: "Class Average (75): "; font-weight: bold; color: #2dd4bf; }
-      
-      #seminarEvaluationContent td:nth-child(14) {
-        margin-top: 0.75rem !important;
-        border-top: 1px solid rgba(51, 65, 85, 0.4) !important;
-        padding-top: 1rem !important;
-        justify-content: center !important;
-      }
-      
-      #seminarEvaluationContent td:nth-child(14) button {
-        width: 100% !important;
-        padding: 0.75rem !important;
-        font-size: 15px !important;
-        border-radius: 0.75rem !important;
-      }
-
-      /* Seminar Evaluation Modal mobile enhancements */
-      #seminarEvaluationModal .bg-slate-950 {
-        max-width: 95% !important;
-        margin: auto !important;
-        border-radius: 1.25rem !important;
-      }
-      #seminarEvaluationModal label {
-        font-size: 14px !important;
-      }
-      #seminarEvaluationModal input[type="number"] {
-        font-size: 16px !important;
-        padding: 0.6rem !important;
-        min-height: 44px !important;
-        width: 5.5rem !important;
-      }
-      #seminarEvaluationModal input[type="range"] {
-        height: 14px !important;
-      }
-
-      /* Arrange Interaction, Report, Attendance in a row to save space and show titles */
-      #seminarEvaluationModal .grid-cols-3,
-      #mobileSeminarForm .grid-cols-3 {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 0.5rem !important;
-      }
-      
-      #seminarEvaluationModal .grid-cols-3 > div,
-      #mobileSeminarForm .grid-cols-3 > div {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        padding: 0.5rem !important;
-        border-radius: 0.75rem !important;
-        text-align: center !important;
-        space-y: 0 !important;
-      }
-      
-      #seminarEvaluationModal .grid-cols-3 > div label,
-      #mobileSeminarForm .grid-cols-3 > div label,
-      #mobileSeminarForm .grid-cols-3 > div .text-xs,
-      #mobileSeminarForm .grid-cols-3 > div .text-purple-300,
-      #mobileSeminarForm .grid-cols-3 > div .text-teal-300,
-      #mobileSeminarForm .grid-cols-3 > div .text-emerald-300 {
-        font-size: 11px !important;
-        font-weight: bold !important;
-        margin: 0 0 0.25rem 0 !important;
-        text-align: center !important;
-        display: block !important;
-        white-space: nowrap !important;
-        color: #94a3b8 !important;
-      }
-
-      #seminarEvaluationModal .grid-cols-3 > div input,
-      #mobileSeminarForm .grid-cols-3 > div input {
-        width: 100% !important;
-        font-size: 15px !important;
-        min-height: 38px !important;
-        margin: 0 !important;
-        text-align: center !important;
-        padding: 0.25rem !important;
-      }
-      
-      #seminarEvaluationModal .grid-cols-3 > div .text-[9px],
-      #mobileSeminarForm .grid-cols-3 > div .text-xs:not(.font-black):not(.text-purple-300):not(.text-teal-300):not(.text-emerald-300),
-      #mobileSeminarForm .grid-cols-3 > div .text-xs:not(.font-bold) {
-        display: none !important; /* Hide subtexts/limits to keep row clean */
-      }
-
-      /* Mobile Seminar Room Panel (#panelMobileSeminar) enhancements */
-      #panelMobileSeminar {
-        padding: 0.5rem !important;
-      }
-      #panelMobileSeminar,
-      #panelMobileSeminar div,
-      #panelMobileSeminar p,
-      #panelMobileSeminar span,
-      #panelMobileSeminar button,
-      #panelMobileSeminar input,
-      #panelMobileSeminar label {
-        font-size: 14px !important;
-      }
-      #panelMobileSeminar h3,
-      #panelMobileSeminar .text-xl,
-      #mobSemStudentName {
-        font-size: 18px !important;
-      }
-      #panelMobileSeminar h4,
-      #panelMobileSeminar .text-lg {
-        font-size: 16px !important;
-      }
-      #panelMobileSeminar .text-xs,
-      #panelMobileSeminar .text-[10px],
-      #panelMobileSeminar .text-[11px] {
-        font-size: 13px !important;
-      }
-
-      /* Enforce uniform font size for total score display on mobile */
-      #mobSemTotalDisplay,
-      #mobSemTotalDisplay *,
-      #semTotalScoreLabel {
-        font-size: 1.25rem !important;
-        font-weight: 900 !important;
-      }
-      
-      /* Evaluate details slider & input adjustments in Mobile Seminar Room */
-      #mobileSeminarForm input[type="number"] {
-        font-size: 16px !important;
-        padding: 0.6rem !important;
-        min-height: 44px !important;
-      }
-
-      /* Convert sidebar logout link to an icon-only button on mobile view */
-      aside > div.border-t {
-        border-top: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        display: block !important;
-        width: auto !important;
-        position: absolute !important;
-        right: 1rem !important;
-        top: 0.85rem !important;
-      }
-      aside > div.border-t a {
-        padding: 0.5rem !important;
-        border-radius: 0.5rem !important;
-        font-size: 0 !important; /* Hide "Sign Out" text node */
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        background-color: rgba(239, 68, 68, 0.18) !important;
-        color: #f87171 !important;
-        border: 1px solid rgba(239, 68, 68, 0.4) !important;
-      }
-      aside > div.border-t a span {
-        font-size: 16px !important;
-        margin: 0 !important;
-      }
-
-      /* Reset standard padding on links/buttons for inline fit */
-      aside nav a, aside nav button {
-        padding: 0.4rem 0.65rem !important;
-        margin: 0 !important;
-        border-radius: 0.5rem !important;
-        font-size: 11px !important; /* compact font to fit */
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.25rem !important;
-        white-space: nowrap !important;
-        width: auto !important;
-        border-left: none !important; /* Remove custom vertical border indicators */
-      }
-
-      /* Clean dashboard title bar on mobile */
-      header h1#panelTitle {
-        font-size: 18px !important;
-      }
-      header button {
-        padding: 0.35rem 0.5rem !important;
-      }
-      header button span {
-        font-size: 14px !important;
-      }
 
       /* Assessment Mark Entry Fields Font Enlargement & App-like Layout */
       .co-mark, .summ-mark,
@@ -792,146 +252,27 @@
       #seminarNotificationsContainer p {
         font-size: 13px !important;
       }
-
-      /* Enlarge lecturer batch cards text sizes in mobile view */
-      #lecturerBatchGrid h4 {
-        font-size: 19px !important; /* "Admission 2026" main title */
-      }
-      #lecturerBatchGrid h5 {
-        font-size: 14px !important; /* "Assigned Subjects" title */
-      }
-      #lecturerBatchGrid .text-base,
-      #lecturerBatchGrid .text-sm {
-        font-size: 17px !important; /* Assigned subject name */
-      }
-      #lecturerBatchGrid .text-xs {
-        font-size: 13px !important; /* Semester details, student count */
-      }
-      #lecturerBatchGrid span.font-mono {
-        font-size: 14px !important; /* Batch code badge */
-      }
-      #lecturerBatchGrid span.text-[11px] {
-        font-size: 12px !important; /* Roles, engaged hours text */
-      }
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col md:flex-row">
+<body class="bg-[#FAFAFB] text-slate-900 min-h-screen font-sans antialiased overflow-hidden">
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <!-- Sidebar Navigation -->
-  @if(session('userRole') !== 'Demonstrator')
-  <aside class="w-full md:w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl">
-    <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
-      <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg">
-      <div>
-        <h2 class="font-black tracking-tight leading-tight text-white" style="font-size: 1.15rem; font-weight: 900; letter-spacing: -0.3px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Carmel Linx</h2>
-        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Lecturer Console</span>
-      </div>
-    </div>
+  <!-- Master Application Shell -->
+  <div class="flex h-screen overflow-hidden bg-[#FAFAFB]">
 
-    <!-- Active Profile Info -->
-    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3" id="sidebarAvatarContainer">
-      <img id="sidebarStaffImg" src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
-      <div class="overflow-hidden">
-        <span class="font-bold text-[10px] block truncate text-slate-200 text-[10px] text-xs">{{ session('userName') }}</span>
-        <span class="text-[10px] font-bold text-teal-400 block uppercase tracking-wider">{{ session('userBranch') }} Lecturer</span>
-      </div>
-    </div>
+    <!-- Global Sidebar Navigation Component -->
+    <x-layout.sidebar active="my_batches" role="faculty" />
 
-    <!-- Navigation Menus -->
-    <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 ">
-        <span class="material-symbols-rounded text-lg">grid_view</span> My Batches
-      </button>
-
-
-
-      @php
-        $mobileNo = session('userId');
-        $isTutor = \App\Models\ClassManagement::where('tutor_mobile_no', $mobileNo)->exists();
-        $isMentor = \App\Models\ClassManagement::where('mentor_mobile_no', $mobileNo)->exists();
-      @endphp
-
-      @if(session('userRole') === 'HOD')
-      <a href="/dashboard/hod" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
-        <span class="material-symbols-rounded text-lg">admin_panel_settings</span> HOD Console
-      </a>
-      @endif
-
-      @if($isTutor)
-      <a href="/dashboard/tutor" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
-        <span class="material-symbols-rounded text-lg">admin_panel_settings</span> Tutor Console
-      </a>
-      @endif
-
-      @if($isTutor || $isMentor)
-      <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
-        <span class="material-symbols-rounded text-lg">diversity_3</span> My Mentoring
-      </a>
-      @endif
+    <!-- Main Viewport Container -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#FAFAFB]">
       
-      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
-         <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
-      </a>
+      <!-- Global Topbar Header Component -->
+      <x-layout.topbar title="My Batches" subtitle="Assigned classes, subject allocations, course files, and virtual classrooms" />
 
-      <a href="/remedial-sessions" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
-         <span class="material-symbols-rounded text-lg">health_and_safety</span> Remedial Sessions
-      </a>
-
-      <a href="/course-files" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
-         <span class="material-symbols-rounded text-lg">folder_open</span> Course Files (2021)
-      </a>
-
-      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
-         <span class="material-symbols-rounded text-lg">event_note</span> My Leave & Attendance Log
-      </a>
-
-      <a href="/staff/professional-activities" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
-         <span class="material-symbols-rounded text-lg">school</span> Professional Activities
-      </a>
-
-      <button id="navSecurity" onclick="switchPanel('security')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer mt-4">
-        <span class="material-symbols-rounded text-lg">settings</span> My Profile
-      </button>
-    </nav>
-
-    <!-- Logout -->
-    <div class="p-4 border-t border-slate-800/80 space-y-2.5">
-      <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to logout?')" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium">
-        <span class="material-symbols-rounded text-sm">logout</span> Sign Out
-      </a>
-
-      <!-- Support Badge -->
-      <div onclick="openStaffSupportModal()" class="p-2 bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 rounded-xl text-center select-none cursor-pointer transition-premium" title="Click to Request Remote Support Assist">
-        <div class="flex items-center justify-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-          <span class="material-symbols-rounded text-xs text-blue-400">headset_mic</span> Live Assist
-        </div>
-        <div class="text-[11px] font-black text-slate-200 mt-0.5">Dhanush.A</div>
-        <div class="text-[9px] text-slate-400 font-medium">Dept. of Electronics</div>
-      </div>
-    </div>
-  </aside>
-  @endif
-
-  <!-- Main Workspace -->
-  <main class="flex-grow flex flex-col relative">
-    
-    <!-- Top Header -->
-    <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-10">
-      <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-2xl">My Batches</h1>
-      <div class="flex items-center gap-3">
-        <div id="aiStatusBadge" class="hidden"></div>
-        <button onclick="toggleTheme()" class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-700/80 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-premium cursor-pointer" title="Toggle Light/Dark Theme">
-          <span id="themeToggleIcon" class="material-symbols-rounded text-lg">light_mode</span>
-          <span id="themeToggleText" class="text-xs font-bold uppercase tracking-wider">Light Mode</span>
-        </button>
-      </div>
-    </header>
-
-    <!-- Panel Container -->
-    <div class="flex-grow overflow-y-auto p-6 md:p-8 space-y-6">
+      <!-- Scrollable Main Workspace -->
+      <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
       
       <!-- PANEL 1: DASHBOARD (BATCH CARDS) -->
       <div id="panelDashboard" class="space-y-6">
@@ -941,23 +282,26 @@
           <!-- Populated dynamically -->
         </div>
 
-        <div id="assignedClassroomHeader" class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl gap-4">
+        <div id="assignedClassroomHeader" class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white border border-slate-200 p-5 rounded-2xl gap-4 shadow-sm">
           <div>
-            <h3 class="text-lg font-black text-slate-200">My Assigned Batches & Classrooms</h3>
-            <p class="text-sm text-slate-400 mt-0.5">Select a subject to enter the virtual classroom for assignments and assessments.</p>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900">My Assigned Batches &amp; Classrooms</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Select a subject to enter the virtual classroom for syllabus coverage, assignments and assessments.</p>
           </div>
-          <div class="flex bg-slate-900 border border-slate-800 p-1 rounded-xl shadow-inner">
-            <button onclick="setDashboardBatchFilter('active')" id="btnFilterActive" class="px-4 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white shadow transition-premium cursor-pointer">
+          <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-2xs self-stretch sm:self-auto">
+            <button onclick="setDashboardBatchFilter('active')" id="btnFilterActive" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold bg-white text-blue-600 shadow-sm transition-all cursor-pointer">
               Active Batches
             </button>
-            <button onclick="setDashboardBatchFilter('historical')" id="btnFilterHistorical" class="px-4 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">
+            <button onclick="setDashboardBatchFilter('historical')" id="btnFilterHistorical" class="flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-all cursor-pointer">
               Archived Batches
             </button>
           </div>
         </div>
         
         <div id="lecturerBatchGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div class="col-span-full py-12 text-center text-slate-500 font-bold text-sm animate-pulse">Loading batches...</div>
+          <div class="col-span-full py-16 text-center text-slate-400 font-semibold text-sm">
+            <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+            <span>Loading assigned batches &amp; classrooms...</span>
+          </div>
         </div>
       </div>
 
@@ -1614,11 +958,9 @@
         </div>
 
       </div>
-
-
-
-    </div>
-  </main>
+    </main>
+  </div>
+</div>
 
   <script>
     // Self-executing theme preference loader to run immediately and prevent flashing dark theme
@@ -1694,7 +1036,9 @@
         'classroom': 'Virtual Classroom',
         'mobileSeminar': 'Seminar Evaluation'
       };
-      document.getElementById('panelTitle').innerText = titles[panelId] || 'Lecturer Console';
+      
+      const titleEl = document.getElementById('panelTitle') || document.querySelector('.topbar-title') || document.querySelector('header h1');
+      if (titleEl) titleEl.innerText = titles[panelId] || 'My Batches';
 
       if (panelId === 'security') loadSecurityLogs();
       if (panelId === 'dashboard') loadLecturerBatches();
@@ -1709,11 +1053,11 @@
       const historicalBtn = document.getElementById('btnFilterHistorical');
 
       if (status === 'active') {
-        if (activeBtn) activeBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white shadow transition-premium cursor-pointer';
-        if (historicalBtn) historicalBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-200 transition-premium cursor-pointer';
+        if (activeBtn) activeBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold bg-white text-blue-600 shadow-sm transition-all cursor-pointer';
+        if (historicalBtn) historicalBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-all cursor-pointer';
       } else {
-        if (activeBtn) activeBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold text-slate-400 hover:text-slate-200 transition-premium cursor-pointer';
-        if (historicalBtn) historicalBtn.className = 'px-4 py-2 rounded-lg text-sm font-bold bg-blue-600 text-white shadow transition-premium cursor-pointer';
+        if (activeBtn) activeBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 transition-all cursor-pointer';
+        if (historicalBtn) historicalBtn.className = 'flex-1 sm:flex-none px-4 py-2 rounded-lg text-xs font-semibold bg-white text-blue-600 shadow-sm transition-all cursor-pointer';
       }
 
       loadLecturerBatches();
@@ -1721,7 +1065,12 @@
 
     function loadLecturerBatches() {
       const grid = document.getElementById('lecturerBatchGrid');
-      grid.innerHTML = '<div class="col-span-full py-12 text-center text-slate-500 font-bold text-[10px] animate-pulse">Loading batches...</div>';
+      grid.innerHTML = `
+        <div class="col-span-full py-16 text-center text-slate-400 font-semibold text-sm">
+          <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+          <span>Loading assigned batches &amp; classrooms...</span>
+        </div>
+      `;
 
       fetch(`/api/lecturer/my-batches?status=${currentDashboardFilter}`, {
         headers: { 'Content-Type': 'application/json' }
@@ -1731,11 +1080,11 @@
         if (data.status === 'SUCCESS') {
           renderBatchCards(data.batches);
         } else {
-          grid.innerHTML = `<div class="col-span-full p-4 bg-red-950/40 text-red-400 border border-red-900 rounded-xl text-[10px]">${data.message}</div>`;
+          grid.innerHTML = `<div class="col-span-full p-6 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs font-semibold">${data.message || 'Failed to load batches.'}</div>`;
         }
       })
       .catch(() => {
-        grid.innerHTML = `<div class="col-span-full p-4 bg-red-950/40 text-red-400 border border-red-900 rounded-xl text-[10px]">Error loading batches.</div>`;
+        grid.innerHTML = `<div class="col-span-full p-6 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs font-semibold">Error communicating with server while loading batches.</div>`;
       });
     }
 
@@ -1745,10 +1094,12 @@
 
       if (batches.length === 0) {
         grid.innerHTML = `
-          <div class="col-span-full bg-slate-950/40 border border-slate-800/60 p-8 rounded-2xl text-center shadow-sm max-w-2xl mx-auto">
-            <span class="material-symbols-rounded text-5xl text-slate-700 mb-3">sentiment_dissatisfied</span>
-            <p class="font-bold text-slate-300 text-sm">No batches assigned</p>
-            <p class="text-xs text-slate-500 mt-1">You have not been assigned as a Tutor, Mentor, or Subject Staff for any batches yet.</p>
+          <div class="col-span-full bg-white border border-slate-200 p-12 rounded-3xl text-center shadow-sm max-w-xl mx-auto space-y-3">
+            <div class="w-14 h-14 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto">
+              <span class="material-symbols-rounded text-3xl">school</span>
+            </div>
+            <h4 class="font-bold text-slate-900 text-base">No batches found</h4>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto">You do not have any assigned classes or subjects under the <strong>${currentDashboardFilter === 'active' ? 'Active' : 'Archived'}</strong> filter.</p>
           </div>
         `;
         return;
@@ -1757,108 +1108,107 @@
       batches.forEach(b => {
         let rolesHtml = '';
         b.roles.forEach(r => {
-          let color = 'slate';
-          if (r === 'Tutor') color = 'sky';
-          if (r === 'Mentor') color = 'emerald';
-          if (r === 'Subject Staff') color = 'violet';
-          rolesHtml += `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-${color}-500/10 text-${color}-400 border border-${color}-500/20">${r}</span>`;
+          let badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
+          if (r === 'Tutor') badgeClass = 'bg-sky-50 text-sky-700 border-sky-200';
+          if (r === 'Mentor') badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+          if (r === 'Subject Staff') badgeClass = 'bg-indigo-50 text-indigo-700 border-indigo-200';
+          if (r === 'Executive Supervision') badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+          rolesHtml += `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${badgeClass}">${r}</span>`;
         });
+
+        const isGraduated = (b.current_semester || 1) > 6;
+        const semBadge = isGraduated
+          ? `<span class="px-2.5 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-full font-bold text-xs flex items-center gap-1"><span class="material-symbols-rounded text-xs">school</span>Graduated</span>`
+          : `<span class="px-2.5 py-0.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-full font-bold text-xs font-mono">S-${b.current_semester || 1}</span>`;
 
         let subjectsHtml = '';
         if (b.subjects && b.subjects.length > 0) {
-          b.subjects.forEach(s => {
+          subjectsHtml = b.subjects.map(s => {
             let topicsPct = s.total_topics > 0 ? Math.round((s.covered_topics / s.total_topics) * 100) : 0;
             let hoursPct  = s.total_hours  > 0 ? Math.round((s.engaged_hours  / s.total_hours)  * 100) : 0;
             let barPct    = topicsPct || hoursPct;
-            let barColor  = barPct >= 80 ? 'from-emerald-500 to-teal-400' : barPct >= 50 ? 'from-blue-500 to-sky-400' : 'from-violet-500 to-indigo-400';
+            let barColor  = barPct >= 80 ? 'from-emerald-500 to-teal-500' : barPct >= 50 ? 'from-blue-600 to-indigo-600' : 'from-violet-600 to-purple-600';
 
-            subjectsHtml += `
-              <div class="w-full px-3 py-2.5 bg-slate-900/60 border border-slate-800/60 rounded-xl transition-premium group hover:border-blue-500/50">
-                <div class="flex justify-between items-center cursor-pointer" onclick="openClassroom('${b.classroom_id}', '${s.id}', '${s.name}', '${s.code}', '${s.syllabus_revision_code || 'REV2021'}', '${s.type}')">
-                  <div class="flex-1 min-w-0 pr-2">
-                    <div class="text-sm font-bold text-slate-200 group-hover:text-blue-400 transition-premium truncate">${s.name}</div>
-                    <div class="text-xs text-slate-400 font-mono mt-0.5">Sem ${s.semester} · ${s.type} · ${s.code}</div>
+            const safeName = escapeQuotes(s.name);
+            const safeCode = escapeQuotes(s.code);
+            const revision = s.syllabus_revision_code || 'REV2021';
+
+            return `
+              <div onclick="openClassroom('${b.classroom_id}', '${s.id}', '${safeName}', '${safeCode}', '${revision}', '${s.type}')" class="w-full p-4 bg-slate-50 hover:bg-blue-50/50 border border-slate-200 hover:border-blue-300 rounded-2xl transition-all cursor-pointer group flex flex-col gap-2.5 shadow-2xs">
+                <div class="flex justify-between items-start gap-2">
+                  <div class="flex-1 min-w-0">
+                    <h5 class="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug break-words">${s.name}</h5>
+                    <div class="text-xs text-slate-500 font-mono mt-0.5 flex items-center gap-1.5 flex-wrap">
+                      <span>Sem ${s.semester}</span>
+                      <span>•</span>
+                      <span>${s.type}</span>
+                      <span>•</span>
+                      <span class="font-semibold text-slate-700">${s.code}</span>
+                    </div>
                   </div>
-                  <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-500 text-sm transition-premium flex-shrink-0">open_in_new</span>
+                  <div class="w-7 h-7 rounded-lg bg-white group-hover:bg-blue-600 group-hover:text-white text-slate-400 border border-slate-200 group-hover:border-blue-600 flex items-center justify-center transition-all shrink-0 shadow-2xs">
+                    <span class="material-symbols-rounded text-sm">arrow_forward</span>
+                  </div>
                 </div>
-                <!-- Compact progress bar -->
-                <div class="mt-1.5 flex items-center gap-2">
-                  <div class="flex-1 bg-slate-950 rounded-full h-1 overflow-hidden">
-                    <div class="bg-gradient-to-r ${barColor} h-1 rounded-full transition-all duration-500" style="width: ${barPct}%"></div>
+                
+                <!-- Progress bar -->
+                <div class="flex items-center gap-2.5 pt-1 border-t border-slate-100">
+                  <div class="flex-1 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-gradient-to-r ${barColor} h-1.5 rounded-full transition-all duration-500" style="width: ${barPct}%"></div>
                   </div>
-                  <span class="text-[11px] font-bold text-slate-400 whitespace-nowrap flex-shrink-0">${s.engaged_hours}/${s.total_hours} hrs</span>
+                  <span class="text-xs font-bold text-slate-600 font-mono shrink-0">${s.engaged_hours}/${s.total_hours} hrs</span>
                 </div>
               </div>
             `;
-          });
+          }).join('');
         } else {
-          subjectsHtml = `<div class="text-xs text-slate-500 italic px-2 py-2">No subjects assigned in this batch.</div>`;
+          subjectsHtml = `<div class="text-xs text-slate-400 italic py-4 text-center bg-slate-50 rounded-xl border border-dashed border-slate-200">No subjects assigned in this batch.</div>`;
         }
 
         const card = document.createElement('div');
-        // Add a top accent border based on batch year to visually separate admission years
-        let yearBorderColor = 'border-t-violet-500';
-        if (b.batch_year % 3 === 0) yearBorderColor = 'border-t-sky-500';
-        else if (b.batch_year % 3 === 1) yearBorderColor = 'border-t-emerald-500';
-        
-        card.className = `bg-slate-950/40 border border-slate-800/80 ${yearBorderColor} border-t-[3px] rounded-2xl overflow-hidden flex flex-col transition-premium hover:shadow-xl hover:shadow-black/50 hover:border-slate-700/60`;
+        card.className = "bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 transition-all flex flex-col h-[460px]";
         card.innerHTML = `
-          <div class="p-4 border-b border-slate-800/60 bg-slate-900/40">
-            <div class="flex justify-between items-start">
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                  <h4 class="font-black text-slate-100 text-lg tracking-tight">Admission ${b.batch_year}</h4>
-                  ${(b.current_semester || 1) > 6
-                    ? `<span class="px-2.5 py-0.5 bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 rounded-lg font-bold text-sm select-none flex items-center gap-1"><span class="material-symbols-rounded" style="font-size:14px">school</span>Graduated</span>`
-                    : `<span class="px-2.5 py-0.5 bg-indigo-600/80 text-white rounded-lg font-bold text-sm select-none">S-${b.current_semester || 1}</span>`
-                  }
+          <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col gap-3 shrink-0">
+            <div class="flex justify-between items-start gap-2">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <h4 class="font-bold text-slate-900 text-base">Admission ${b.batch_year}</h4>
+                  ${semBadge}
                 </div>
-                <span class="inline-block px-2.5 py-0.5 bg-slate-800 border border-slate-600/60 rounded-lg font-mono text-sm font-bold text-slate-300 tracking-wide">${b.classroom_id}</span>
+                <span class="inline-block px-2.5 py-0.5 bg-white border border-slate-200 rounded-lg font-mono text-xs font-bold text-slate-700">${b.classroom_id}</span>
               </div>
-              <div class="flex flex-col items-end gap-1">
+              <div class="flex flex-col items-end gap-1.5">
                 <div class="flex flex-wrap gap-1 justify-end">${rolesHtml}</div>
-                <span class="flex items-center gap-1 text-xs font-bold text-slate-400 mt-1">
-                  <span class="material-symbols-rounded" style="font-size:13px">group</span>${b.student_count || 0} students
+                <span class="flex items-center gap-1 text-xs font-semibold text-slate-500">
+                  <span class="material-symbols-rounded text-sm text-slate-400">group</span>
+                  <span>${b.student_count || 0} students</span>
                 </span>
               </div>
             </div>
           </div>
-          
-          <div class="p-4 flex-grow space-y-3 bg-slate-950/20">
-            <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5"><span class="material-symbols-rounded text-xs">book</span> Assigned Subjects</h5>
-            <div class="space-y-3 divide-y divide-slate-800/80">
-              ${b.subjects && b.subjects.length > 0 ? b.subjects.map((s, idx) => {
-                let topicsPct = s.total_topics > 0 ? Math.round((s.covered_topics / s.total_topics) * 100) : 0;
-                let hoursPct  = s.total_hours  > 0 ? Math.round((s.engaged_hours  / s.total_hours)  * 100) : 0;
-                let barPct    = topicsPct || hoursPct;
-                let barColor  = barPct >= 80 ? 'from-emerald-500 to-teal-400' : barPct >= 50 ? 'from-blue-500 to-sky-400' : 'from-violet-500 to-indigo-400';
-                
-                return `
-                  <div class="${idx > 0 ? 'pt-3' : ''} w-full">
-                    <div class="w-full px-3.5 py-3 bg-slate-900/80 border border-slate-800 rounded-xl transition-premium group hover:border-blue-500/50 hover:bg-slate-900 flex flex-col gap-2">
-                      <div class="flex justify-between items-center cursor-pointer" onclick="openClassroom('${b.classroom_id}', '${s.id}', '${s.name}', '${s.code}', '${s.syllabus_revision_code || 'REV2021'}', '${s.type}')">
-                        <div class="flex-1 min-w-0 pr-2">
-                          <div class="text-base font-extrabold text-slate-200 group-hover:text-blue-400 transition-premium truncate">${s.name}</div>
-                          <div class="text-xs text-slate-450 font-mono mt-0.5">Sem ${s.semester} · ${s.type} · ${s.code}</div>
-                        </div>
-                        <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-500 text-base transition-premium flex-shrink-0">open_in_new</span>
-                      </div>
-                      <!-- Compact progress bar -->
-                      <div class="flex items-center gap-2 mt-1">
-                        <div class="flex-1 bg-slate-950 rounded-full h-1.5 overflow-hidden border border-slate-900">
-                          <div class="bg-gradient-to-r ${barColor} h-1.5 rounded-full transition-all duration-500" style="width: ${barPct}%"></div>
-                        </div>
-                        <span class="text-[11px] font-bold text-slate-400 whitespace-nowrap flex-shrink-0">${s.engaged_hours}/${s.total_hours} hrs</span>
-                      </div>
-                    </div>
-                  </div>
-                `;
-              }).join('') : `<div class="text-xs text-slate-500 italic px-2 py-2">No subjects assigned in this batch.</div>`}
+
+          <div class="p-5 flex-1 flex flex-col min-h-0 bg-white space-y-3">
+            <div class="flex items-center justify-between pb-1 shrink-0">
+              <h5 class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                <span class="material-symbols-rounded text-sm text-blue-600">book</span>
+                <span>Assigned Subjects</span>
+              </h5>
+              <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">${(b.subjects || []).length} Total</span>
+            </div>
+            <div class="space-y-2.5 overflow-y-auto flex-1 pr-1.5 scrollbar-hidden">
+              ${subjectsHtml}
             </div>
           </div>
         `;
         grid.appendChild(card);
       });
+
+      if (window.initLucide) window.initLucide();
+    }
+
+    function escapeQuotes(str) {
+      if (!str) return '';
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 
     let currentSubjectId = null;
