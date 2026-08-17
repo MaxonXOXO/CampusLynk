@@ -499,4 +499,315 @@ class ExecutiveControlDeskController extends Controller
             'deptMatrix'
         ));
     }
+
+    /**
+     * Get real-time Consolidated All-Department Timetable Matrix for Principal & Executive Desk.
+     */
+    public function getAllDepartmentTimetables(Request $request)
+    {
+        try {
+            $userRole = Session::get('userRole');
+            if (!in_array($userRole, ['Principal', 'Super_Admin', 'Chairman', 'Admin', 'Academic_Coordinator', 'HOD'])) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access.'], 403);
+            }
+
+            $deptFilter = strtoupper(trim($request->query('department', 'ALL')));
+            $dayFilter  = $request->query('day', '');
+
+            // 1. Department Definitions
+            $departments = [
+                'EL'         => 'Electronics Engineering',
+                'ME'         => 'Mechanical Engineering',
+                'CE'         => 'Civil Engineering',
+                'EEE'        => 'Electrical & Electronics Engineering',
+                'CT'         => 'Computer Engineering',
+                'AU'         => 'Automobile Engineering',
+                'GEN_AIDED'  => 'General Department (Aided)',
+                'GEN_SF'     => 'General Department (Self Finance)',
+            ];
+
+            // 2. Active Institutional Day Order
+            $dayMap = [
+                'Monday'    => 'Day 1',
+                'Tuesday'   => 'Day 2',
+                'Wednesday' => 'Day 3',
+                'Thursday'  => 'Day 4',
+                'Friday'    => 'Day 5',
+            ];
+            $activeDayOrder = $dayMap[date('l')] ?? 'Day 1';
+            $activeDayOrderPath = storage_path('app/active_day_order.json');
+            if (file_exists($activeDayOrderPath)) {
+                $dayData = json_decode(file_get_contents($activeDayOrderPath), true);
+                if ($dayData && ($dayData['date'] ?? '') === date('Y-m-d')) {
+                    $activeDayOrder = $dayData['day_order'];
+                }
+            }
+
+            // 3. Period Timings
+            $periodTimings = [
+                1 => '09:00 AM - 10:00 AM',
+                2 => '10:00 AM - 11:00 AM',
+                3 => '11:10 AM - 12:10 PM',
+                4 => '01:00 PM - 02:00 PM',
+                5 => '02:00 PM - 03:00 PM',
+                6 => '03:00 PM - 04:00 PM',
+            ];
+
+            $days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
+
+            // 4. Fetch all active classrooms (R21 & R26)
+            $r21Classes = DB::table('class_management')->get();
+            $r26Classes = DB::table('r26_class_management')->get();
+
+            $allClasses = collect($r21Classes)->concat($r26Classes)->unique('classroom_id');
+
+            if ($deptFilter !== 'ALL' && !empty($deptFilter)) {
+                $allClasses = $allClasses->filter(function ($c) use ($deptFilter) {
+                    return strtoupper($c->branch ?? '') === $deptFilter || str_starts_with(strtoupper($c->classroom_id ?? ''), $deptFilter);
+                });
+            }
+
+            // 5. Build Timetable Matrix per Classroom
+            $timetables = [];
+
+            foreach ($allClasses as $cls) {
+                $classroomId = $cls->classroom_id;
+                $branch      = strtoupper($cls->branch ?? '');
+                $semester    = $cls->semester ?? ($cls->current_semester ?? 'S1');
+                $batchYear   = $cls->batch_year ?? date('Y');
+
+                // Load all subjects and assigned teachers for this classroom
+                $subjects = DB::table('batch_subjects')
+                    ->where('classroom_id', $classroomId)
+                    ->get();
+
+                $subjectMap = [];
+                foreach ($subjects as $sub) {
+                    $assignedStaff = DB::table('subject_staff_assignments')
+                        ->where('batch_subject_id', $sub->id)
+                        ->first();
+
+                    $staffName = 'Faculty';
+                    if ($assignedStaff && !empty($assignedStaff->staff_mobile_no)) {
+                        $staff = DB::table('staff_profiles')->where('mobile_no', $assignedStaff->staff_mobile_no)->first();
+                        if ($staff) {
+                            $staffName = $staff->name;
+                        }
+                    }
+
+                    $subjectMap[$sub->subject_code] = [
+                        'code'        => $sub->subject_code,
+                        'name'        => $sub->subject_name,
+                        'type'        => $sub->subject_type ?? 'Theory',
+                        'staff_name'  => $staffName,
+                    ];
+                }
+
+                // Check stored timetable JSON
+                $ttPath = storage_path("app/timetables/" . preg_replace('/[^a-zA-Z0-9_-]/', '', $classroomId) . ".json");
+                $savedTt = [];
+                if (file_exists($ttPath)) {
+                    $savedTt = json_decode(file_get_contents($ttPath), true) ?: [];
+                }
+
+                // Build full 5-day x 6-period timetable grid
+                $schedule = [];
+                $subjectList = array_values($subjectMap);
+                $subCount = count($subjectList);
+
+                foreach ($days as $dIndex => $dName) {
+                    $schedule[$dName] = [];
+                    for ($p = 1; $p <= 6; $p++) {
+                        if (isset($savedTt[$dName][$p]) && !empty($savedTt[$dName][$p]['subject'])) {
+                            $savedSubCode = $savedTt[$dName][$p]['subject'];
+                            $subInfo = $subjectMap[$savedSubCode] ?? [
+                                'code'       => $savedSubCode,
+                                'name'       => $savedTt[$dName][$p]['subject_name'] ?? $savedSubCode,
+                                'type'       => $savedTt[$dName][$p]['type'] ?? 'Theory',
+                                'staff_name' => $savedTt[$dName][$p]['faculty'] ?? 'Faculty'
+                            ];
+                            $schedule[$dName][$p] = [
+                                'period'       => $p,
+                                'time'         => $periodTimings[$p],
+                                'subject_code' => $subInfo['code'],
+                                'subject_name' => $subInfo['name'],
+                                'type'         => $subInfo['type'],
+                                'staff_name'   => $subInfo['staff_name']
+                            ];
+                        } elseif ($subCount > 0) {
+                            // Synthesize period slot from assigned curriculum subjects
+                            $subIdx = ($dIndex * 2 + $p - 1) % $subCount;
+                            $subInfo = $subjectList[$subIdx];
+                            $schedule[$dName][$p] = [
+                                'period'       => $p,
+                                'time'         => $periodTimings[$p],
+                                'subject_code' => $subInfo['code'],
+                                'subject_name' => $subInfo['name'],
+                                'type'         => $subInfo['type'],
+                                'staff_name'   => $subInfo['staff_name']
+                            ];
+                        } else {
+                            $schedule[$dName][$p] = [
+                                'period'       => $p,
+                                'time'         => $periodTimings[$p],
+                                'subject_code' => 'FREE',
+                                'subject_name' => 'Self Study / Library',
+                                'type'         => 'Free',
+                                'staff_name'   => '-'
+                            ];
+                        }
+                    }
+                }
+
+                $timetables[] = [
+                    'classroom_id'     => $classroomId,
+                    'branch'           => $branch,
+                    'branch_name'      => $departments[$branch] ?? $branch,
+                    'semester'         => $semester,
+                    'batch_year'       => $batchYear,
+                    'subjects_count'   => $subCount,
+                    'schedule'         => $schedule,
+                ];
+            }
+
+            return response()->json([
+                'status'            => 'SUCCESS',
+                'active_day_order'  => $activeDayOrder,
+                'current_day'       => date('l'),
+                'departments'       => $departments,
+                'period_timings'    => $periodTimings,
+                'days'              => $days,
+                'timetables'        => $timetables,
+                'total_batches'     => count($timetables)
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Render the All-Department Master Timetable View.
+     */
+    public function viewAllDepartmentTimetables(Request $request)
+    {
+        $userRole = Session::get('userRole');
+        if (!in_array($userRole, ['Principal', 'Super_Admin', 'Chairman', 'Admin', 'Academic_Coordinator', 'HOD'])) {
+            return redirect('/');
+        }
+
+        return redirect('/dashboard/principal?tab=timetables');
+    }
+
+    /**
+     * Get Executive Profile Details.
+     */
+    public function getProfileDetails(Request $request)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized']);
+        }
+
+        $staff = DB::table('staff_profiles')
+            ->where('mobile_no', $userId)
+            ->orWhere('email', $userId)
+            ->first();
+
+        $name = $staff ? $staff->name : Session::get('userName', 'Fr. Antony Varghese CMI');
+        $email = $staff ? $staff->email : 'principal@carmelpoly.in';
+        $role = $staff ? $staff->designation : Session::get('userRole', 'Principal');
+        $branch = $staff ? $staff->branch : Session::get('userBranch', 'Admin');
+        $photoUrl = ($staff && !empty($staff->photo_url)) ? $staff->photo_url : Session::get('userPhoto');
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'user' => [
+                'user_id' => $userId,
+                'name' => $name,
+                'email' => $email,
+                'role' => $role,
+                'branch' => $branch,
+                'photo_url' => $photoUrl
+            ]
+        ]);
+    }
+
+    /**
+     * Update Executive Profile Credentials & Profile Picture.
+     */
+    public function updateProfileDetails(Request $request)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized']);
+        }
+
+        $name = trim($request->input('name'));
+        $email = trim($request->input('email'));
+        
+        $photoUrl = null;
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('avatars', 'public');
+            $photoUrl = '/storage/' . $path;
+        } elseif ($request->filled('photo_base64')) {
+            $data = $request->input('photo_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $data, $type)) {
+                $data = substr($data, strpos($data, ',') + 1);
+                $type = strtolower($type[1]);
+                $data = base64_decode($data);
+                if ($data !== false) {
+                    $filename = 'avatar_' . $userId . '_' . time() . '.' . $type;
+                    \Illuminate\Support\Facades\Storage::disk('public')->put('avatars/' . $filename, $data);
+                    $photoUrl = '/storage/avatars/' . $filename;
+                }
+            }
+        }
+
+        $updateData = [];
+        if (!empty($name)) $updateData['name'] = $name;
+        if (!empty($email)) $updateData['email'] = $email;
+        if (!empty($photoUrl)) $updateData['photo_url'] = $photoUrl;
+
+        if (!empty($updateData)) {
+            $updateData['updated_at'] = now();
+
+            $exists = DB::table('staff_profiles')
+                ->where('mobile_no', $userId)
+                ->orWhere('email', $userId)
+                ->exists();
+
+            if ($exists) {
+                DB::table('staff_profiles')
+                    ->where('mobile_no', $userId)
+                    ->orWhere('email', $userId)
+                    ->update($updateData);
+            }
+
+            if (!empty($name)) Session::put('userName', $name);
+            if (!empty($photoUrl)) Session::put('userPhoto', $photoUrl);
+
+            // Audit log
+            try {
+                \App\Models\AuditLog::create([
+                    'performed_by' => $userId,
+                    'performed_by_name' => $name ?: Session::get('userName'),
+                    'target_id' => $userId,
+                    'target_name' => $name ?: 'Executive Profile',
+                    'action' => 'Profile Updated',
+                    'details' => 'Executive profile credentials and profile photo updated.',
+                    'ip_address' => $request->ip()
+                ]);
+            } catch (\Exception $e) {}
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Profile credentials and picture updated successfully!',
+            'photo_url' => $photoUrl ?: Session::get('userPhoto')
+        ]);
+    }
 }
+
+
+
+

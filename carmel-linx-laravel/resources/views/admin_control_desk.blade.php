@@ -14,6 +14,10 @@
   <!-- Google Icons & Lucide Icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Leaflet Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   
   <!-- Vite Assets -->
   @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -548,6 +552,102 @@
         </div>
 
         <!-- ========================================================================= -->
+        <!-- PANEL: ALL-DEPARTMENT TIMETABLES & LIVE CLASS SCHEDULES                   -->
+        <!-- ========================================================================= -->
+        <div id="panelAll_timetables" class="hidden space-y-6">
+          
+          <!-- Header Bar -->
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white border border-slate-200 p-5 rounded-2xl gap-4 shadow-sm">
+            <div>
+              <div class="flex items-center gap-2.5">
+                <div class="p-2 bg-blue-50 text-blue-600 rounded-xl">
+                  <span class="material-symbols-rounded text-xl">calendar_month</span>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">All-Department Master Timetables</h3>
+              </div>
+              <p class="text-sm text-slate-500 mt-1">Live period schedules, classroom allocations, and faculty assignments across all branches.</p>
+            </div>
+            
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <!-- Active Day Order Indicator -->
+              <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Active Day: <strong id="ttActiveDayOrderBadge" class="text-blue-700 font-bold">Day 1</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter & Controls Bar -->
+          <div class="bg-white border border-slate-200 p-5 rounded-2xl space-y-4 shadow-sm">
+            
+            <!-- Department Selection Tabs -->
+            <div>
+              <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Select Department</label>
+              <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hidden" id="ttDeptFilterContainer">
+                <button type="button" onclick="filterTtDepartment('ALL')" id="ttDeptBtn_ALL" class="tt-dept-btn px-4 py-2 rounded-xl text-sm font-bold transition-all shrink-0 bg-blue-600 text-white shadow-sm">All Departments</button>
+                <button type="button" onclick="filterTtDepartment('EL')" id="ttDeptBtn_EL" class="tt-dept-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">Electronics (EL)</button>
+                <button type="button" onclick="filterTtDepartment('ME')" id="ttDeptBtn_ME" class="tt-dept-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">Mechanical (ME)</button>
+                <button type="button" onclick="filterTtDepartment('CE')" id="ttDeptBtn_CE" class="tt-dept-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">Civil (CE)</button>
+                <button type="button" onclick="filterTtDepartment('EEE')" id="ttDeptBtn_EEE" class="tt-dept-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">Electrical (EEE)</button>
+                <button type="button" onclick="filterTtDepartment('CT')" id="ttDeptBtn_CT" class="tt-dept-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">Computer (CT)</button>
+                <button type="button" onclick="filterTtDepartment('AU')" id="ttDeptBtn_AU" class="tt-dept-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">Automobile (AU)</button>
+                <button type="button" onclick="filterTtDepartment('GEN_AIDED')" id="ttDeptBtn_GEN_AIDED" class="tt-dept-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">General Aided</button>
+                <button type="button" onclick="filterTtDepartment('GEN_SF')" id="ttDeptBtn_GEN_SF" class="tt-dept-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">General SF</button>
+              </div>
+            </div>
+
+            <!-- Day & Semester Filter Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+              <!-- Day Order Selector Tabs -->
+              <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Schedule Day View</label>
+                <div class="grid grid-cols-5 gap-1.5" id="ttDayFilterContainer">
+                  <button type="button" onclick="filterTtDay('Day 1')" id="ttDayBtn_Day1" class="tt-day-btn py-2 px-2 rounded-xl text-xs font-bold transition-all text-center bg-blue-600 text-white shadow-sm">Day 1 (Mon)</button>
+                  <button type="button" onclick="filterTtDay('Day 2')" id="ttDayBtn_Day2" class="tt-day-btn py-2 px-2 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">Day 2 (Tue)</button>
+                  <button type="button" onclick="filterTtDay('Day 3')" id="ttDayBtn_Day3" class="tt-day-btn py-2 px-2 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">Day 3 (Wed)</button>
+                  <button type="button" onclick="filterTtDay('Day 4')" id="ttDayBtn_Day4" class="tt-day-btn py-2 px-2 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">Day 4 (Thu)</button>
+                  <button type="button" onclick="filterTtDay('Day 5')" id="ttDayBtn_Day5" class="tt-day-btn py-2 px-2 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">Day 5 (Fri)</button>
+                </div>
+              </div>
+
+              <!-- Semester Filter Tabs -->
+              <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Filter Semester</label>
+                <div class="grid grid-cols-7 gap-1.5" id="ttSemFilterContainer">
+                  <button type="button" onclick="filterTtSem('ALL')" id="ttSemBtn_ALL" class="tt-sem-btn py-2 px-1 rounded-xl text-xs font-bold transition-all text-center bg-blue-600 text-white shadow-sm">All</button>
+                  <button type="button" onclick="filterTtSem('S1')" id="ttSemBtn_S1" class="tt-sem-btn py-2 px-1 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">S1</button>
+                  <button type="button" onclick="filterTtSem('S2')" id="ttSemBtn_S2" class="tt-sem-btn py-2 px-1 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">S2</button>
+                  <button type="button" onclick="filterTtSem('S3')" id="ttSemBtn_S3" class="tt-sem-btn py-2 px-1 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">S3</button>
+                  <button type="button" onclick="filterTtSem('S4')" id="ttSemBtn_S4" class="tt-sem-btn py-2 px-1 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">S4</button>
+                  <button type="button" onclick="filterTtSem('S5')" id="ttSemBtn_S5" class="tt-sem-btn py-2 px-1 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">S5</button>
+                  <button type="button" onclick="filterTtSem('S6')" id="ttSemBtn_S6" class="tt-sem-btn py-2 px-1 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300">S6</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Timetable Period Grid Header -->
+          <div class="bg-slate-100 border border-slate-200 px-5 py-3 rounded-xl flex items-center justify-between text-xs font-bold text-slate-600 uppercase tracking-wider">
+            <span class="flex items-center gap-2">
+              <span class="material-symbols-rounded text-sm text-blue-600">schedule</span>
+              <span>Class Periods &amp; Time Slots (9:00 AM - 4:00 PM)</span>
+            </span>
+            <span id="ttTotalBatchesFound" class="font-mono text-blue-700 normal-case font-bold">Loading schedules...</span>
+          </div>
+
+          <!-- Dynamic Timetable Batches Container -->
+          <div id="ttBatchesListContainer" class="space-y-4">
+            <!-- Loaded dynamically via loadAllDepartmentTimetables() -->
+            <div class="bg-white border border-slate-200 p-8 rounded-2xl text-center text-slate-400">
+              <span class="material-symbols-rounded text-4xl block text-slate-300 mb-2">hourglass_empty</span>
+              <span class="text-sm font-semibold text-slate-600">Loading department timetables...</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ========================================================================= -->
         <!-- 2. PANEL: USER ACCOUNTS DIRECTORY -->
         <!-- ========================================================================= -->
         <div id="panelDirectory" class="hidden space-y-6">
@@ -843,7 +943,7 @@
                   <input type="text" id="profActTitle" required placeholder="e.g. Advanced Embedded IoT Systems FDP" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Organizing Body</label>
                     <input type="text" id="profActOrganizer" required placeholder="e.g. DTE / NITTTR" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
@@ -851,6 +951,10 @@
                   <div>
                     <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Duration / Days</label>
                     <input type="text" id="profActDuration" required placeholder="e.g. 5 Days / 40 Hrs" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Start Date</label>
+                    <input type="date" id="profActStartDate" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
                   </div>
                 </div>
 
@@ -1060,16 +1164,21 @@
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             <div class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
               <div class="flex flex-col items-center text-center space-y-3">
-                <div class="relative">
-                  <div class="w-24 h-24 rounded-full bg-blue-600 text-white font-bold text-2xl flex items-center justify-center shadow-md overflow-hidden border-4 border-slate-50">
+                <div class="relative group cursor-pointer" onclick="document.getElementById('profileInputPhoto').click()" title="Click to change profile picture">
+                  <div class="w-24 h-24 rounded-full bg-blue-600 text-white font-bold text-2xl flex items-center justify-center shadow-md overflow-hidden border-4 border-slate-50 relative">
+                    <img id="profileAvatarImg" src="" alt="Avatar" class="w-full h-full object-cover hidden">
                     <span id="profileAvatarInitial">P</span>
+                    <div class="absolute inset-0 bg-black/40 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span class="material-symbols-rounded text-xl">photo_camera</span>
+                      <span class="text-[10px] font-semibold">Change</span>
+                    </div>
                   </div>
                   <div class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-emerald-500 border-2 border-white flex items-center justify-center text-white" title="Verified Account">
                     <span class="material-symbols-rounded text-xs">check</span>
                   </div>
                 </div>
                 <div>
-                  <h4 id="profileDisplayName" class="font-bold text-slate-900 text-lg">Dr. Thomas Mathew</h4>
+                  <h4 id="profileDisplayName" class="font-bold text-slate-900 text-lg">Fr. Antony Varghese CMI</h4>
                   <p id="profileDisplayRole" class="text-xs text-blue-600 font-semibold">Principal &amp; Institutional Head</p>
                   <p class="text-xs text-slate-400 font-medium mt-0.5">Carmel Polytechnic College</p>
                 </div>
@@ -1078,11 +1187,11 @@
               <div class="border-t border-slate-100 pt-4 space-y-3 text-sm">
                 <div class="flex justify-between items-center text-xs">
                   <span class="text-slate-500">Executive ID:</span>
-                  <span id="profileDisplayId" class="font-mono font-bold text-slate-800">ADMIN-001</span>
+                  <span id="profileDisplayId" class="font-mono font-bold text-slate-800">9946847236</span>
                 </div>
                 <div class="flex justify-between items-center text-xs">
                   <span class="text-slate-500">Official Email:</span>
-                  <span id="profileDisplayEmail" class="font-semibold text-slate-800">principal@carmelpolytechnic.ac.in</span>
+                  <span id="profileDisplayEmail" class="font-semibold text-slate-800">principal@carmelpoly.in</span>
                 </div>
                 <div class="flex justify-between items-center text-xs">
                   <span class="text-slate-500">Authority Scope:</span>
@@ -1104,7 +1213,7 @@
                 <p class="text-xs text-slate-500 mt-0.5">Modify administrator details and official notification endpoints.</p>
               </div>
 
-              <form id="profileUpdateForm" onsubmit="submitProfileUpdate(event)" class="space-y-4">
+              <form id="profileUpdateForm" onsubmit="submitProfileUpdate(event)" class="space-y-4" enctype="multipart/form-data">
                 <div>
                   <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Full Legal Name</label>
                   <input type="text" id="profileInputName" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
@@ -1113,10 +1222,15 @@
                   <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Official Email Address</label>
                   <input type="email" id="profileInputEmail" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
                 </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Profile Picture</label>
+                  <input type="file" id="profileInputPhoto" accept="image/*" onchange="previewProfilePhoto(this)" class="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3.5 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border border-slate-200 rounded-xl">
+                  <p class="text-[11px] text-slate-400 mt-1">Upload a JPG, PNG, or WEBP portrait photo (Max 2MB).</p>
+                </div>
 
                 <div id="profileUpdateAlert" class="hidden p-3 rounded-xl font-semibold border text-xs"></div>
 
-                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm">
+                <button type="submit" id="profileSaveBtn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm">
                   <span class="material-symbols-rounded text-base">save</span>
                   <span>Save Profile Updates</span>
                 </button>
@@ -1277,9 +1391,9 @@
     </div>
   </div>
 
-  <!-- 4. REGISTER NEW USER MODAL -->
+  <!-- 4. REGISTER NEW PROFILE MODAL (RESTORED FULL FIELDS) -->
   <div id="registerModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-5">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-lg p-6 sm:p-8 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center border-b border-slate-100 pb-3">
         <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
           <span class="material-symbols-rounded text-blue-600">person_add</span>
@@ -1288,62 +1402,120 @@
         <button onclick="closeRegisterModal()" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"><span class="material-symbols-rounded">close</span></button>
       </div>
 
-      <form id="registerUserForm" onsubmit="submitNewUser(event)" class="space-y-3.5">
+      <form id="registerUserForm" onsubmit="submitNewUser(event)" class="space-y-3.5 text-xs">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">User Type</label>
-          <select id="regType" onchange="toggleRegFields()" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
-            <option value="Staff">Faculty / Staff</option>
-            <option value="Student">Student</option>
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">User Type <span class="text-rose-500">*</span></label>
+          <select id="regType" onchange="toggleRegFields()" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 font-semibold">
+            <option value="Student" selected>Student Profile</option>
+            <option value="Staff">Faculty / Staff Profile</option>
           </select>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Full Name</label>
-          <input type="text" id="regName" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Full Name <span class="text-rose-500">*</span></label>
+            <input type="text" id="regName" required placeholder="e.g. Rahul K" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Email Address <span class="text-rose-500">*</span></label>
+            <input type="email" id="regEmail" required placeholder="name@carmelpoly.edu.in" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+          </div>
+        </div>
+
+        <!-- Student Specific Fields -->
+        <div id="regStudentSpecific" class="space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Register No <span class="text-slate-400 font-normal">(Optional)</span></label>
+              <input type="text" id="regRegisterNo" placeholder="e.g. 25EL1001" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 uppercase">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Admission No <span class="text-rose-500">*</span></label>
+              <input type="text" id="regAdmNo" placeholder="e.g. ADM25EL01" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 uppercase">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Branch <span class="text-rose-500">*</span></label>
+              <select id="regStudentBranch" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                <option value="EL">EL</option>
+                <option value="ME">ME</option>
+                <option value="CE">CE</option>
+                <option value="EEE">EEE</option>
+                <option value="CT">CT</option>
+                <option value="AU">AU</option>
+                <option value="GEN_AIDED">GEN_AIDED</option>
+                <option value="GEN_SF">GEN_SF</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Adm Year <span class="text-rose-500">*</span></label>
+              <input type="number" id="regAdmYear" value="{{ date('Y') }}" min="2020" max="2035" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 font-bold">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Semester <span class="text-rose-500">*</span></label>
+              <select id="regSemester" class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                <option value="S1">S1</option>
+                <option value="S2">S2</option>
+                <option value="S3" selected>S3</option>
+                <option value="S4">S4</option>
+                <option value="S5">S5</option>
+                <option value="S6">S6</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Staff Specific Fields -->
+        <div id="regStaffSpecific" class="space-y-3 hidden">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Mobile / Staff ID <span class="text-rose-500">*</span></label>
+              <input type="text" id="regStaffMobile" placeholder="e.g. 9876543210" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Department Branch <span class="text-rose-500">*</span></label>
+              <select id="regStaffBranch" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                <option value="EL">Electronics Engineering (EL)</option>
+                <option value="ME">Mechanical Engineering (ME)</option>
+                <option value="CE">Civil Engineering (CE)</option>
+                <option value="EEE">Electrical &amp; Electronics Engineering (EEE)</option>
+                <option value="CT">Computer Engineering (CT)</option>
+                <option value="AU">Automobile Engineering (AU)</option>
+                <option value="GEN_AIDED">General Department Aided (GEN_AIDED)</option>
+                <option value="GEN_SF">General Department Self Finance (GEN_SF)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Designation <span class="text-rose-500">*</span></label>
+            <select id="regDesignation" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+              <option value="Lecturer">Lecturer</option>
+              <option value="HOD">Head of Department (HOD)</option>
+              <option value="Academic_Coordinator">Academic Coordinator</option>
+              <option value="Demonstrator">Demonstrator</option>
+              <option value="Physical_Instructor">Physical Instructor</option>
+              <option value="Trade_Instructor">Trade Instructor</option>
+              <option value="Workshop_Superintendent">Workshop Superintendent</option>
+            </select>
+          </div>
         </div>
 
         <div>
-          <label id="regIdLabel" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Mobile Number / Staff ID</label>
-          <input type="text" id="regIdentifier" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Department Branch</label>
-          <select id="regBranch" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
-            <option value="EL">Electronics Engineering (EL)</option>
-            <option value="ME">Mechanical Engineering (ME)</option>
-            <option value="CE">Civil Engineering (CE)</option>
-            <option value="EEE">Electrical &amp; Electronics Engineering (EEE)</option>
-            <option value="CT">Computer Engineering (CT)</option>
-            <option value="AU">Automobile Engineering (AU)</option>
-            <option value="GEN_AIDED">General Department Aided (GEN_AIDED)</option>
-            <option value="GEN_SF">General Department Self Finance (GEN_SF)</option>
-          </select>
-        </div>
-
-        <div id="regStaffSpecific">
-          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Designation</label>
-          <select id="regDesignation" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
-            <option value="Lecturer">Lecturer</option>
-            <option value="HOD">Head of Department (HOD)</option>
-            <option value="Academic_Coordinator">Academic Coordinator</option>
-            <option value="Demonstrator">Demonstrator</option>
-            <option value="Physical_Instructor">Physical Instructor</option>
-            <option value="Trade_Instructor">Trade Instructor</option>
-            <option value="Workshop_Superintendent">Workshop Superintendent</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Initial Password</label>
-          <input type="password" id="regPassword" required minlength="4" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Password <span class="text-rose-500">*</span></label>
+          <input type="password" id="regPassword" required minlength="4" placeholder="e.g. 12345" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
         </div>
 
         <div id="registerAlert" class="hidden p-3 rounded-xl font-semibold border text-sm"></div>
 
         <div class="flex gap-3 pt-2">
           <button type="button" onclick="closeRegisterModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-100 rounded-xl font-semibold text-slate-700 transition-all text-sm">Cancel</button>
-          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all text-sm">Create Account</button>
+          <button type="submit" id="regSubmitBtn" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all text-sm flex items-center justify-center gap-1.5 shadow-sm">
+            <span class="material-symbols-rounded text-base">person_add</span>
+            <span>Register Profile</span>
+          </button>
         </div>
       </form>
     </div>
@@ -1746,52 +1918,130 @@
     </div>
   </div>
 
-  <!-- 10. CAMPUS GEOFENCE SETUP MODAL -->
-  <div id="geofenceModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
-        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-          <span class="material-symbols-rounded text-emerald-600">location_on</span>
-          <span>Campus GPS Geofence Setup</span>
-        </h3>
-        <button onclick="closeGeofenceModal()" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg"><span class="material-symbols-rounded">close</span></button>
+  <!-- 10. CAMPUS GEOFENCE SETUP MODAL (PORTED INTERACTIVE MAP & CONTROLS) -->
+  <div id="geofenceModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4 md:p-6 overflow-y-auto">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      
+      <!-- Header -->
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+            <span class="material-symbols-rounded text-2xl">location_on</span>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              Campus GPS &amp; Google Map Setup
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">Define centroid coordinates, geofence radius circle, and device GPS accuracy limit.</p>
+          </div>
+        </div>
+        <button onclick="closeGeofenceModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer">
+          <span class="material-symbols-rounded text-xl">close</span>
+        </button>
       </div>
 
-      <form id="geofenceForm" onsubmit="submitGeofenceSetup(event)" class="space-y-3.5">
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Campus Name</label>
-          <input type="text" id="geoCampusName" value="Carmel Polytechnic College" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+      <!-- 2-Column Responsive Body -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 overflow-y-auto custom-scrollbar flex-grow">
+        
+        <!-- Left Column: Parameters & Config -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+            <span class="material-symbols-rounded text-emerald-600 text-lg">tune</span>
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm">Campus Geofence Config</h4>
+              <p class="text-[11px] text-slate-500">Define centroid coordinates and radius for staff punching.</p>
+            </div>
+          </div>
+
+          <!-- Capture Current Location Button -->
+          <button type="button" onclick="captureCurrentGPS()" class="w-full py-2.5 px-4 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs">
+            <span class="material-symbols-rounded text-base">my_location</span>
+            <span>Capture My Current Location as Centroid</span>
+          </button>
+
+          <form id="geofenceForm" onsubmit="submitGeofenceSetup(event)" class="space-y-3.5 text-xs">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <span class="material-symbols-rounded text-xs text-slate-400">account_balance</span>
+                <span>Campus Name <span class="text-rose-500">*</span></span>
+              </label>
+              <input type="text" id="geoCampusName" name="campus_name" value="Carmel polytechnic College Campus punapra" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <span class="material-symbols-rounded text-xs text-slate-400">north</span>
+                <span>Centroid Latitude (°N) <span class="text-rose-500">*</span></span>
+              </label>
+              <input type="number" step="any" id="geoLat" name="centroid_lat" value="9.43727187" onchange="updateMapFromInputs()" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 font-mono outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+            </div>
+
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                <span class="material-symbols-rounded text-xs text-slate-400">east</span>
+                <span>Centroid Longitude (°E) <span class="text-rose-500">*</span></span>
+              </label>
+              <input type="number" step="any" id="geoLng" name="centroid_lng" value="76.34358649" onchange="updateMapFromInputs()" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 font-mono outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <span class="material-symbols-rounded text-xs text-slate-400">straighten</span>
+                  <span>Radius (Meters) <span class="text-rose-500">*</span></span>
+                </label>
+                <input type="number" id="geoRadius" name="radius_meters" value="110" min="10" max="5000" oninput="updateCircleRadius()" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 font-bold outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <span class="material-symbols-rounded text-xs text-slate-400">adjust</span>
+                  <span>Max Accuracy <span class="text-rose-500">*</span></span>
+                </label>
+                <input type="number" id="geoAccuracy" name="max_accuracy_meters" value="100" min="5" max="500" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 font-bold outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+              </div>
+            </div>
+
+            <div id="geofenceAlert" class="hidden p-3 rounded-xl font-semibold border text-xs"></div>
+
+            <button type="submit" id="geoSaveBtn" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm">
+              <span class="material-symbols-rounded text-base">save</span>
+              <span>Save GPS Location Setup</span>
+            </button>
+          </form>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Centroid Latitude</label>
-            <input type="number" step="any" id="geoLat" value="10.23120000" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+        <!-- Right Column: Interactive Map Preview & Pinpoint -->
+        <div class="lg:col-span-7 flex flex-col space-y-3">
+          <div class="flex items-center gap-2.5 pb-2 border-b border-slate-100">
+            <span class="material-symbols-rounded text-blue-600 text-lg">public</span>
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm">Interactive Map Preview &amp; Pinpoint</h4>
+              <p class="text-[11px] text-slate-500">Drag the marker or click on map to position campus center.</p>
+            </div>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Centroid Longitude</label>
-            <input type="number" step="any" id="geoLng" value="76.20450000" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
-          </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Allowed Radius (Meters)</label>
-            <input type="number" id="geoRadius" value="250" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+          <!-- Instructions & Coords display -->
+          <div class="flex items-center justify-between gap-2 p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs flex-wrap">
+            <span class="text-slate-600 flex items-center gap-1.5 font-medium">
+              <span class="material-symbols-rounded text-sm text-blue-600">touch_app</span>
+              <span>Drag pin or click map to move pin</span>
+            </span>
+            <span id="geoCoordDisplay" class="font-mono font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
+              9.43727187, 76.34358649
+            </span>
           </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Max Accuracy (Meters)</label>
-            <input type="number" id="geoAccuracy" value="50" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
-          </div>
-        </div>
 
-        <div id="geofenceAlert" class="hidden p-3 rounded-xl font-semibold border text-sm"></div>
+          <!-- Leaflet Map Canvas Container -->
+          <div id="geofenceMapContainer" class="w-full h-80 sm:h-96 rounded-2xl border border-slate-200 overflow-hidden shadow-inner relative z-0 bg-slate-100"></div>
 
-        <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeGeofenceModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-100 rounded-xl font-semibold text-slate-700 transition-all text-sm">Cancel</button>
-          <button type="submit" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold transition-all text-sm">Save Geofence</button>
+          <!-- Open in Google Maps External Link -->
+          <a id="geoBtnGmapsLink" href="https://www.google.com/maps?q=9.43727187,76.34358649" target="_blank" class="w-full py-2.5 px-4 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer">
+            <span class="material-symbols-rounded text-base text-rose-500">map</span>
+            <span>Open Coordinates in Google Maps</span>
+            <span class="material-symbols-rounded text-xs text-slate-400">open_in_new</span>
+          </a>
         </div>
-      </form>
+      </div>
     </div>
   </div>
 
@@ -1819,13 +2069,14 @@
 
     function switchPanel(panelId) {
       const panels = [
-        'dashboard', 'directory', 'backups', 'audit', 'settings', 
+        'dashboard', 'all_timetables', 'directory', 'backups', 'audit', 'settings', 
         'prof_activities', 'leave_ledger', 'sf_attendance', 'profile'
       ];
       
       panels.forEach(p => {
-        const capitalized = p.charAt(0).toUpperCase() + p.slice(1);
-        const el = document.getElementById('panel' + capitalized);
+        let elId = 'panel' + p.charAt(0).toUpperCase() + p.slice(1);
+        if (p === 'all_timetables') elId = 'panelAll_timetables';
+        const el = document.getElementById(elId);
         if (el) {
           if (p === panelId) {
             el.classList.remove('hidden');
@@ -1837,6 +2088,7 @@
 
       const titleMap = {
         'dashboard': { title: 'Dashboard Overview', subtitle: 'Campus-wide institutional metrics, faculty compliance, and administrative controls.' },
+        'all_timetables': { title: 'All-Department Timetables & Schedules', subtitle: 'Live period schedules, classroom allocations, and faculty assignments across all branches.' },
         'directory': { title: 'User Accounts Directory', subtitle: 'Search, audit, activate, and manage institutional staff and student profiles.' },
         'backups': { title: 'Drive Backups & System Sync', subtitle: 'Automated Google Drive cloud backups and offline SQL dump exports.' },
         'audit': { title: 'System Security Audit Trail', subtitle: 'Detailed chronological lifecycle logs, password resets, and access records.' },
@@ -1859,6 +2111,7 @@
 
       if (window.lucide) window.lucide.createIcons();
 
+      if (panelId === 'all_timetables') loadAllDepartmentTimetables();
       if (panelId === 'directory') loadUsers();
       if (panelId === 'audit') loadAuditTrail();
       if (panelId === 'prof_activities') loadProfActivities();
@@ -1869,6 +2122,215 @@
 
     function handleAdminSidebarNav(panelId) {
       switchPanel(panelId);
+    }
+
+    // -------------------------------------------------------------------------
+    // ALL-DEPARTMENT MASTER TIMETABLES LOGIC
+    // -------------------------------------------------------------------------
+    let allDeptTimetableCache = null;
+    let selectedTtDept = 'ALL';
+    let selectedTtDay = 'Day 1';
+    let selectedTtSem = 'ALL';
+
+    async function loadAllDepartmentTimetables() {
+      const container = document.getElementById('ttBatchesListContainer');
+      if (container && (!allDeptTimetableCache || !allDeptTimetableCache.timetables || allDeptTimetableCache.timetables.length === 0)) {
+        container.innerHTML = `
+          <div class="bg-white border border-slate-200 p-8 rounded-2xl text-center text-slate-400">
+            <span class="material-symbols-rounded text-4xl block text-blue-500 animate-spin mb-2">sync</span>
+            <span class="text-sm font-semibold text-slate-700">Loading master department timetables...</span>
+          </div>
+        `;
+      }
+
+      try {
+        const res = await fetch('/api/admin/timetables/all-departments');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (data.status === 'SUCCESS') {
+          allDeptTimetableCache = data;
+          if (data.active_day_order) {
+            const badge = document.getElementById('ttActiveDayOrderBadge');
+            if (badge) badge.innerText = data.active_day_order;
+            if (!selectedTtDay || selectedTtDay === 'Day 1') {
+              selectedTtDay = data.active_day_order;
+              updateDayFilterTabsUI();
+            }
+          }
+          renderAllDepartmentTimetablesUI();
+        } else {
+          if (container) {
+            container.innerHTML = `
+              <div class="bg-white border border-rose-200 p-8 rounded-2xl text-center text-rose-500">
+                <span class="material-symbols-rounded text-4xl block mb-2">error</span>
+                <span class="text-sm font-semibold">${data.message || 'Failed to load timetables.'}</span>
+              </div>
+            `;
+          }
+        }
+      } catch (err) {
+        if (container) {
+          container.innerHTML = `
+            <div class="bg-white border border-slate-200 p-8 rounded-2xl text-center text-slate-400">
+              <span class="material-symbols-rounded text-4xl block text-slate-400 mb-2">cloud_off</span>
+              <span class="text-sm font-semibold text-slate-600">Failed to connect to timetable service: ${err.message}</span>
+            </div>
+          `;
+        }
+      }
+    }
+
+    function filterTtDepartment(dept) {
+      selectedTtDept = dept;
+      document.querySelectorAll('.tt-dept-btn').forEach(btn => {
+        if (btn.id === 'ttDeptBtn_' + dept) {
+          btn.className = 'tt-dept-btn px-4 py-2 rounded-xl text-sm font-bold transition-all shrink-0 bg-blue-600 text-white shadow-sm';
+        } else {
+          btn.className = 'tt-dept-btn px-4 py-2 rounded-xl text-sm font-semibold transition-all shrink-0 bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300';
+        }
+      });
+      renderAllDepartmentTimetablesUI();
+    }
+
+    function filterTtDay(day) {
+      selectedTtDay = day;
+      updateDayFilterTabsUI();
+      renderAllDepartmentTimetablesUI();
+    }
+
+    function updateDayFilterTabsUI() {
+      const dayMap = { 'Day 1': 'Day1', 'Day 2': 'Day2', 'Day 3': 'Day3', 'Day 4': 'Day4', 'Day 5': 'Day5' };
+      document.querySelectorAll('.tt-day-btn').forEach(btn => {
+        const idKey = dayMap[selectedTtDay] || 'Day1';
+        if (btn.id === 'ttDayBtn_' + idKey) {
+          btn.className = 'tt-day-btn py-2 px-2 rounded-xl text-xs font-bold transition-all text-center bg-blue-600 text-white shadow-sm';
+        } else {
+          btn.className = 'tt-day-btn py-2 px-2 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300';
+        }
+      });
+    }
+
+    function filterTtSem(sem) {
+      selectedTtSem = sem;
+      document.querySelectorAll('.tt-sem-btn').forEach(btn => {
+        if (btn.id === 'ttSemBtn_' + sem) {
+          btn.className = 'tt-sem-btn py-2 px-1 rounded-xl text-xs font-bold transition-all text-center bg-blue-600 text-white shadow-sm';
+        } else {
+          btn.className = 'tt-sem-btn py-2 px-1 rounded-xl text-xs font-semibold transition-all text-center bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300';
+        }
+      });
+      renderAllDepartmentTimetablesUI();
+    }
+
+    function renderAllDepartmentTimetablesUI() {
+      const container = document.getElementById('ttBatchesListContainer');
+      if (!container || !allDeptTimetableCache) return;
+
+      const rawBatches = allDeptTimetableCache.timetables || [];
+      const periodTimings = allDeptTimetableCache.period_timings || {
+        1: '09:00 - 10:00 AM', 2: '10:00 - 11:00 AM', 3: '11:10 - 12:10 PM',
+        4: '01:00 - 02:00 PM', 5: '02:00 - 03:00 PM', 6: '03:00 - 04:00 PM'
+      };
+
+      const dayKey = selectedTtDay || 'Day 1';
+
+      // Filter by department and semester
+      const filtered = rawBatches.filter(b => {
+        const matchesDept = (selectedTtDept === 'ALL') || (b.branch === selectedTtDept) || (b.classroom_id.startsWith(selectedTtDept + '_'));
+        const matchesSem  = (selectedTtSem === 'ALL') || (b.semester === selectedTtSem);
+        return matchesDept && matchesSem;
+      });
+
+      const countEl = document.getElementById('ttTotalBatchesFound');
+      if (countEl) {
+        countEl.innerText = `${filtered.length} Classroom Batches (${dayKey})`;
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white border border-slate-200 p-8 rounded-2xl text-center text-slate-400">
+            <span class="material-symbols-rounded text-4xl block text-slate-300 mb-2">event_busy</span>
+            <span class="text-sm font-semibold text-slate-600">No classroom timetables found matching selected filters (${selectedTtDept} - ${selectedTtSem}).</span>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(b => {
+        const daySchedule = (b.schedule && b.schedule[dayKey]) ? b.schedule[dayKey] : {};
+        
+        let periodsHtml = '';
+        for (let p = 1; p <= 6; p++) {
+          const slot = daySchedule[p] || {
+            period: p,
+            time: periodTimings[p] || '',
+            subject_code: 'FREE',
+            subject_name: 'Free Period / Library',
+            type: 'Free',
+            staff_name: '-'
+          };
+
+          const isFree = slot.subject_code === 'FREE' || slot.type === 'Free';
+          const isLab = slot.type === 'Practical' || slot.type === 'Lab' || slot.type === 'Practicum';
+          
+          let cardBg = 'bg-white border-slate-200';
+          let badgeBg = 'bg-blue-50 text-blue-700 border-blue-200';
+          if (isLab) {
+            badgeBg = 'bg-purple-50 text-purple-700 border-purple-200';
+          } else if (isFree) {
+            cardBg = 'bg-slate-50/70 border-slate-200 opacity-75';
+            badgeBg = 'bg-slate-100 text-slate-500 border-slate-200';
+          }
+
+          periodsHtml += `
+            <div class="${cardBg} border rounded-xl p-3 flex flex-col justify-between shadow-2xs hover:border-blue-300 transition-all">
+              <div>
+                <div class="flex items-center justify-between gap-1 mb-1.5">
+                  <span class="text-[11px] font-mono font-bold text-slate-500">Period ${p}</span>
+                  <span class="text-[10px] font-mono font-medium text-slate-400">${slot.time || periodTimings[p] || ''}</span>
+                </div>
+                <div class="mb-1">
+                  <span class="px-2 py-0.5 rounded-md text-[11px] font-bold border uppercase tracking-wider ${badgeBg}">
+                    ${slot.subject_code}
+                  </span>
+                </div>
+                <p class="text-xs font-semibold text-slate-800 line-clamp-2 leading-tight mt-1" title="${slot.subject_name}">
+                  ${slot.subject_name}
+                </p>
+              </div>
+              <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center gap-1.5 text-xs text-slate-600">
+                <span class="material-symbols-rounded text-xs text-slate-400">person</span>
+                <span class="truncate font-medium text-[11px] text-slate-700">${slot.staff_name || 'Faculty'}</span>
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3.5 hover:border-slate-300 transition-all">
+            <!-- Batch Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm border border-blue-100 shrink-0">
+                  ${b.semester}
+                </div>
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                    <span>${b.classroom_id}</span>
+                    <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">${b.branch_name || b.branch}</span>
+                  </h4>
+                  <p class="text-xs text-slate-500 mt-0.5">Semester ${b.semester} • Batch Year: ${b.batch_year} • ${b.subjects_count || 0} Assigned Courses</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- 6 Periods Grid -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+              ${periodsHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     // 1. EXECUTIVE METRICS & DASHBOARD OVERVIEW DATA LOADER (RESTORED PREVIOUS LOGIC)
@@ -2207,9 +2669,11 @@
                     </div>
                     <h5 class="font-bold text-slate-900 text-sm">${details.title || details.topic || 'Professional Activity'}</h5>
                     <p class="text-xs text-slate-600 leading-relaxed">${details.description || details.organizer || 'Organized program / workshop'}</p>
-                    <div class="text-xs text-slate-400 flex items-center gap-3 pt-1">
-                      <span>Duration: ${details.duration || '-'}</span>
-                      <span>Organizer: ${details.organizer || '-'}</span>
+                    <div class="text-xs text-slate-500 flex items-center gap-3 pt-1 flex-wrap">
+                      ${details.start_date ? `<span class="font-semibold text-blue-700">📅 Start Date: <strong>${details.start_date}</strong></span><span>•</span>` : ''}
+                      <span><strong>Duration:</strong> ${details.duration || '-'}</span>
+                      <span>•</span>
+                      <span><strong>Organizer:</strong> ${details.organizer || '-'}</span>
                     </div>
                   </div>
                   <button onclick="deleteProfActivity(${r.id})" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition shrink-0" title="Delete record">
@@ -2235,6 +2699,7 @@
       const title = document.getElementById('profActTitle').value;
       const organizer = document.getElementById('profActOrganizer').value;
       const duration = document.getElementById('profActDuration').value;
+      const startDate = document.getElementById('profActStartDate')?.value || '';
       const description = document.getElementById('profActDesc').value;
 
       try {
@@ -2244,7 +2709,7 @@
           body: JSON.stringify({
             academic_year: ay,
             activity_type: type,
-            details: { title, organizer, duration, description }
+            details: { title, organizer, duration, start_date: startDate, description }
           })
         });
 
@@ -2444,7 +2909,18 @@
           document.getElementById('profileDisplayName').innerText = u.name;
           document.getElementById('profileDisplayId').innerText = u.user_id;
           document.getElementById('profileDisplayEmail').innerText = u.email;
-          document.getElementById('profileAvatarInitial').innerText = (u.name || 'P').charAt(0);
+          
+          const avatarImg = document.getElementById('profileAvatarImg');
+          const avatarInitial = document.getElementById('profileAvatarInitial');
+          if (u.photo_url) {
+            avatarImg.src = u.photo_url;
+            avatarImg.classList.remove('hidden');
+            avatarInitial.classList.add('hidden');
+          } else {
+            avatarImg.classList.add('hidden');
+            avatarInitial.classList.remove('hidden');
+            avatarInitial.innerText = (u.name || 'P').charAt(0);
+          }
           
           document.getElementById('profileInputName').value = u.name;
           document.getElementById('profileInputEmail').value = u.email;
@@ -2452,28 +2928,62 @@
       } catch (err) {}
     }
 
+    function previewProfilePhoto(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const avatarImg = document.getElementById('profileAvatarImg');
+          const avatarInitial = document.getElementById('profileAvatarInitial');
+          avatarImg.src = e.target.result;
+          avatarImg.classList.remove('hidden');
+          avatarInitial.classList.add('hidden');
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
     async function submitProfileUpdate(e) {
       e.preventDefault();
       const name = document.getElementById('profileInputName').value;
       const email = document.getElementById('profileInputEmail').value;
+      const photoInput = document.getElementById('profileInputPhoto');
       const alertEl = document.getElementById('profileUpdateAlert');
+      const btn = document.getElementById('profileSaveBtn');
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="material-symbols-rounded animate-spin text-base">sync</span><span>Saving...</span>`;
 
       try {
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
+        if (photoInput && photoInput.files && photoInput.files[0]) {
+          formData.append('photo', photoInput.files[0]);
+        }
+
         const res = await fetch('/api/executive/profile/update', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-          body: JSON.stringify({ name, email })
+          headers: { 'X-CSRF-TOKEN': csrfToken },
+          body: formData
         });
         const data = await res.json();
         alertEl.classList.remove('hidden');
-        alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-emerald-50 text-emerald-700 border-emerald-200';
-        alertEl.innerText = data.message || 'Profile details updated!';
-        loadProfileDetails();
-        setTimeout(() => alertEl.classList.add('hidden'), 3000);
+        if (data.status === 'SUCCESS') {
+          alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-emerald-50 text-emerald-700 border-emerald-200';
+          alertEl.innerText = data.message || 'Profile details updated!';
+          loadProfileDetails();
+        } else {
+          alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-rose-50 text-rose-700 border-rose-200';
+          alertEl.innerText = data.message || 'Failed to update profile.';
+        }
+        setTimeout(() => alertEl.classList.add('hidden'), 4000);
       } catch (err) {
         alertEl.classList.remove('hidden');
         alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-rose-50 text-rose-700 border-rose-200';
         alertEl.innerText = 'Failed to update profile.';
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<span class="material-symbols-rounded text-base">save</span><span>Save Profile Updates</span>`;
       }
     }
 
@@ -2583,14 +3093,14 @@
 
     function toggleRegFields() {
       const type = document.getElementById('regType').value;
+      const studentDiv = document.getElementById('regStudentSpecific');
       const staffDiv = document.getElementById('regStaffSpecific');
-      const label = document.getElementById('regIdLabel');
       if (type === 'Student') {
+        if (studentDiv) studentDiv.classList.remove('hidden');
         if (staffDiv) staffDiv.classList.add('hidden');
-        if (label) label.innerText = 'Student Register Number';
       } else {
+        if (studentDiv) studentDiv.classList.add('hidden');
         if (staffDiv) staffDiv.classList.remove('hidden');
-        if (label) label.innerText = 'Mobile Number / Staff ID';
       }
     }
 
@@ -2598,16 +3108,51 @@
       e.preventDefault();
       const type = document.getElementById('regType').value;
       const name = document.getElementById('regName').value;
-      const identifier = document.getElementById('regIdentifier').value;
-      const branch = document.getElementById('regBranch').value;
-      const designation = document.getElementById('regDesignation').value;
+      const email = document.getElementById('regEmail').value;
       const password = document.getElementById('regPassword').value;
       const alertEl = document.getElementById('registerAlert');
+      const submitBtn = document.getElementById('regSubmitBtn');
 
-      const url = type === 'Student' ? '/register/student' : '/register/staff';
-      const bodyData = type === 'Student' 
-        ? { name, register_no: identifier, branch, password }
-        : { name, mobile_no: identifier, branch, designation, password };
+      let url = '/register/staff';
+      let bodyData = {};
+
+      if (type === 'Student') {
+        url = '/register/student';
+        const admNo = document.getElementById('regAdmNo').value;
+        const regNo = document.getElementById('regRegisterNo').value;
+        const branch = document.getElementById('regStudentBranch').value;
+        const admYear = document.getElementById('regAdmYear').value;
+        const semester = document.getElementById('regSemester').value;
+
+        bodyData = {
+          name,
+          email,
+          admNo,
+          branch,
+          admissionYear: parseInt(admYear) || new Date().getFullYear(),
+          admissionType: 'Regular',
+          semester: semester,
+          password: password,
+          sbteRegNo: regNo || ''
+        };
+      } else {
+        url = '/register/staff';
+        const mobileNo = document.getElementById('regStaffMobile').value;
+        const branch = document.getElementById('regStaffBranch').value;
+        const designation = document.getElementById('regDesignation').value;
+
+        bodyData = {
+          name,
+          email,
+          mobileNo,
+          branch,
+          designation,
+          password
+        };
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span class="material-symbols-rounded animate-spin text-base">sync</span><span>Creating...</span>`;
 
       try {
         const res = await fetch(url, {
@@ -2619,7 +3164,8 @@
         alertEl.classList.remove('hidden');
         if (data.status === 'SUCCESS' || res.ok) {
           alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-emerald-50 text-emerald-700 border-emerald-200';
-          alertEl.innerText = 'User account created successfully!';
+          alertEl.innerText = data.message || 'User account created successfully!';
+          document.getElementById('registerUserForm').reset();
           setTimeout(() => {
             closeRegisterModal();
             loadUsers();
@@ -2632,6 +3178,9 @@
         alertEl.classList.remove('hidden');
         alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-rose-50 text-rose-700 border-rose-200';
         alertEl.innerText = 'Server error.';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span class="material-symbols-rounded text-base">person_add</span><span>Register Profile</span>`;
       }
     }
 
@@ -3076,13 +3625,132 @@
       }
     }
 
-    function openGeofenceModal() {
-      document.getElementById('geofenceModal').classList.remove('hidden');
-      document.getElementById('geofenceModal').classList.add('flex');
+    // 10. CAMPUS GEOFENCE INTERACTIVE MAP & PINPOINT CONTROLLER
+    let geofenceMap = null;
+    let geofenceMarker = null;
+    let geofenceCircle = null;
+
+    async function openGeofenceModal() {
+      const modal = document.getElementById('geofenceModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      try {
+        const res = await fetch('/api/admin/geofence/settings');
+        const data = await res.json();
+        if (data.status === 'SUCCESS' && data.geofence) {
+          const g = data.geofence;
+          document.getElementById('geoCampusName').value = g.campus_name || 'Carmel polytechnic College Campus punapra';
+          document.getElementById('geoLat').value = g.centroid_lat;
+          document.getElementById('geoLng').value = g.centroid_lng;
+          document.getElementById('geoRadius').value = g.radius_meters || 110;
+          document.getElementById('geoAccuracy').value = g.max_accuracy_meters || 100;
+          document.getElementById('geoCoordDisplay').innerText = `${parseFloat(g.centroid_lat).toFixed(8)}, ${parseFloat(g.centroid_lng).toFixed(8)}`;
+          document.getElementById('geoBtnGmapsLink').href = `https://www.google.com/maps?q=${g.centroid_lat},${g.centroid_lng}`;
+        }
+      } catch (err) {}
+
+      initOrUpdateGeofenceMap();
     }
+
     function closeGeofenceModal() {
-      document.getElementById('geofenceModal').classList.add('hidden');
-      document.getElementById('geofenceModal').classList.remove('flex');
+      const modal = document.getElementById('geofenceModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function initOrUpdateGeofenceMap() {
+      const lat = parseFloat(document.getElementById('geoLat').value) || 9.43727187;
+      const lng = parseFloat(document.getElementById('geoLng').value) || 76.34358649;
+      const radius = parseInt(document.getElementById('geoRadius').value) || 110;
+
+      setTimeout(() => {
+        const container = document.getElementById('geofenceMapContainer');
+        if (!container) return;
+
+        if (!geofenceMap) {
+          geofenceMap = L.map('geofenceMapContainer').setView([lat, lng], 16);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(geofenceMap);
+
+          geofenceMarker = L.marker([lat, lng], { draggable: true }).addTo(geofenceMap);
+          geofenceCircle = L.circle([lat, lng], {
+            color: '#2563eb',
+            fillColor: '#3b82f6',
+            fillOpacity: 0.25,
+            radius: radius
+          }).addTo(geofenceMap);
+
+          geofenceMarker.on('dragend', function(e) {
+            const pos = geofenceMarker.getLatLng();
+            updateGeofenceCoordinates(pos.lat, pos.lng);
+          });
+
+          geofenceMap.on('click', function(e) {
+            geofenceMarker.setLatLng(e.latlng);
+            updateGeofenceCoordinates(e.latlng.lat, e.latlng.lng);
+          });
+        } else {
+          geofenceMap.setView([lat, lng], 16);
+          geofenceMarker.setLatLng([lat, lng]);
+          geofenceCircle.setLatLng([lat, lng]);
+          geofenceCircle.setRadius(radius);
+          geofenceMap.invalidateSize();
+        }
+      }, 150);
+    }
+
+    function updateGeofenceCoordinates(lat, lng) {
+      const formattedLat = parseFloat(lat).toFixed(8);
+      const formattedLng = parseFloat(lng).toFixed(8);
+
+      document.getElementById('geoLat').value = formattedLat;
+      document.getElementById('geoLng').value = formattedLng;
+      document.getElementById('geoCoordDisplay').innerText = `${formattedLat}, ${formattedLng}`;
+
+      if (geofenceCircle) geofenceCircle.setLatLng([lat, lng]);
+
+      const gmapsBtn = document.getElementById('geoBtnGmapsLink');
+      if (gmapsBtn) {
+        gmapsBtn.href = `https://www.google.com/maps?q=${formattedLat},${formattedLng}`;
+      }
+    }
+
+    function updateMapFromInputs() {
+      const lat = parseFloat(document.getElementById('geoLat').value);
+      const lng = parseFloat(document.getElementById('geoLng').value);
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        if (geofenceMarker) geofenceMarker.setLatLng([lat, lng]);
+        if (geofenceCircle) geofenceCircle.setLatLng([lat, lng]);
+        if (geofenceMap) geofenceMap.panTo([lat, lng]);
+        document.getElementById('geoCoordDisplay').innerText = `${lat.toFixed(8)}, ${lng.toFixed(8)}`;
+        document.getElementById('geoBtnGmapsLink').href = `https://www.google.com/maps?q=${lat},${lng}`;
+      }
+    }
+
+    function updateCircleRadius() {
+      const rad = parseInt(document.getElementById('geoRadius').value);
+      if (geofenceCircle && !isNaN(rad) && rad > 0) {
+        geofenceCircle.setRadius(rad);
+      }
+    }
+
+    function captureCurrentGPS() {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          updateGeofenceCoordinates(lat, lng);
+          if (geofenceMap) geofenceMap.setView([lat, lng], 17);
+        }, (err) => {
+          alert("Unable to fetch current GPS coordinates. Please grant location access.");
+        }, { enableHighAccuracy: true });
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
     }
 
     async function submitGeofenceSetup(e) {
@@ -3093,6 +3761,10 @@
       const radius_meters = document.getElementById('geoRadius').value;
       const max_accuracy_meters = document.getElementById('geoAccuracy').value;
       const alertEl = document.getElementById('geofenceAlert');
+      const saveBtn = document.getElementById('geoSaveBtn');
+
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = `<span class="material-symbols-rounded animate-spin text-base">sync</span><span>Saving...</span>`;
 
       try {
         const res = await fetch('/sf-attendance/geofence-setup', {
@@ -3100,14 +3772,23 @@
           headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
           body: JSON.stringify({ campus_name, centroid_lat, centroid_lng, radius_meters, max_accuracy_meters })
         });
+        const data = await res.json();
         alertEl.classList.remove('hidden');
-        alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-emerald-50 text-emerald-700 border-emerald-200';
-        alertEl.innerText = 'Campus GPS Geofence saved successfully!';
-        setTimeout(() => closeGeofenceModal(), 1500);
+        if (data.status === 'SUCCESS' || res.ok) {
+          alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-emerald-50 text-emerald-700 border-emerald-200';
+          alertEl.innerText = data.message || 'Campus GPS Geofence saved successfully!';
+          setTimeout(() => closeGeofenceModal(), 1500);
+        } else {
+          alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-rose-50 text-rose-700 border-rose-200';
+          alertEl.innerText = data.message || 'Failed to update geofence.';
+        }
       } catch (err) {
         alertEl.classList.remove('hidden');
         alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-rose-50 text-rose-700 border-rose-200';
         alertEl.innerText = 'Failed to update geofence.';
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = `<span class="material-symbols-rounded text-base">save</span><span>Save GPS Location Setup</span>`;
       }
     }
 
