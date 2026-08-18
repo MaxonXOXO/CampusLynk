@@ -98,6 +98,7 @@
                 @endif
             @endforeach
         </nav>
+        <script>if (typeof window !== 'undefined' && typeof window.initLucide === 'function') window.initLucide();</script>
     </div>
 
     <!-- Bottom User Profile Card -->
@@ -112,7 +113,7 @@
                 title="View My Profile"
             >
                 @if(session('userPhoto'))
-                    <img src="{{ session('userPhoto') }}" alt="Profile" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-10 h-10 rounded-xl object-cover border border-slate-700 shadow-sm">
+                    <img src="{{ session('userPhoto') }}" alt="Profile" width="40" height="40" decoding="sync" fetchpriority="high" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-10 h-10 rounded-xl object-cover border border-slate-700 shadow-sm">
                     <div style="display:none;" class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
                         {{ strtoupper(substr(session('userName', 'U'), 0, 2)) }}
                     </div>

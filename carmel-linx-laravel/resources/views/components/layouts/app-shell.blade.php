@@ -13,6 +13,10 @@
 
     <!-- Vite Asset Pipeline -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        [data-lucide] { display: inline-block; width: 1.25rem; height: 1.25rem; vertical-align: middle; }
+    </style>
 </head>
 <body class="min-h-screen bg-[#FAFAFB] text-slate-900 flex antialiased">
     <!-- Sidebar Navigation (Sidebar.v1) -->
