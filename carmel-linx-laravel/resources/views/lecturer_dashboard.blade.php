@@ -255,21 +255,21 @@
     }
   </style>
 </head>
-<body class="bg-[#FAFAFB] text-slate-900 min-h-screen font-sans antialiased overflow-hidden">
+<body class="bg-[#FAFAFB] text-slate-900 min-h-screen font-sans antialiased">
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
   <!-- Master Application Shell -->
-  <div class="flex h-screen overflow-hidden bg-[#FAFAFB]">
+  <div class="flex min-h-screen bg-[#FAFAFB]">
 
     <!-- Global Sidebar Navigation Component -->
-    <x-layout.sidebar active="my_batches" role="faculty" />
+    <x-layout.sidebar role="faculty" active="my_batches" />
 
     <!-- Main Viewport Container -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#FAFAFB]">
+    <div class="flex-1 flex flex-col min-w-0 bg-[#FAFAFB]">
       
       <!-- Global Topbar Header Component -->
-      <x-layout.topbar title="My Batches" subtitle="Assigned classes, subject allocations, course files, and virtual classrooms" />
+      <x-layout.topbar title="My Batches" subtitle="Assigned classes and teaching workload." />
 
       <!-- Scrollable Main Workspace -->
       <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">

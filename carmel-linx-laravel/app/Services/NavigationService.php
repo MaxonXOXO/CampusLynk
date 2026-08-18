@@ -36,10 +36,10 @@ class NavigationService
                 $returnItem = [
                     [
                         'id' => 'return_principal',
-                        'label' => 'Principal Control Desk',
-                        'icon' => 'shield',
+                        'label' => 'Return to Dashboard',
+                        'icon' => 'arrow-left',
                         'url' => '/dashboard/principal',
-                        'position' => 'after:my_batches',
+                        'position' => 'before:my_batches',
                     ]
                 ];
                 $items = self::insertItems($items, $returnItem);
@@ -47,16 +47,38 @@ class NavigationService
                 $returnItem = [
                     [
                         'id' => 'return_admin',
-                        'label' => 'Control Desk',
-                        'icon' => 'layout-dashboard',
+                        'label' => 'Return to Dashboard',
+                        'icon' => 'arrow-left',
                         'url' => '/dashboard/admin',
-                        'position' => 'after:my_batches',
+                        'position' => 'before:my_batches',
+                    ]
+                ];
+                $items = self::insertItems($items, $returnItem);
+            } elseif ($sessionRole === 'HOD') {
+                $returnItem = [
+                    [
+                        'id' => 'return_hod',
+                        'label' => 'Return to Dashboard',
+                        'icon' => 'arrow-left',
+                        'url' => '/dashboard/hod',
+                        'position' => 'before:my_batches',
+                    ]
+                ];
+                $items = self::insertItems($items, $returnItem);
+            } elseif (in_array($sessionRole, ['Demonstrator', 'Trade_Instructor', 'Workshop_Superintendent'])) {
+                $returnItem = [
+                    [
+                        'id' => 'return_demonstrator',
+                        'label' => 'Return to Console',
+                        'icon' => 'arrow-left',
+                        'url' => '/dashboard/demonstrator',
+                        'position' => 'before:my_batches',
                     ]
                 ];
                 $items = self::insertItems($items, $returnItem);
             }
 
-            if ($isPrincipal || $isAdminUser) {
+            if ($isPrincipal || $isAdminUser || $sessionRole === 'HOD' || in_array($sessionRole, ['Demonstrator', 'Trade_Instructor', 'Workshop_Superintendent'])) {
                 // Remove redundant items that already exist in the executive main dashboard sidebar
                 $items = array_values(array_filter($items, function ($it) {
                     return !in_array($it['id'], ['prof_activities', 'profile']);

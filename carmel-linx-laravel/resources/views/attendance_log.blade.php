@@ -1,41 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>Class Log & Attendance | Carmel Linx</title>
-  
-  <!-- Google Fonts & Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  
-  <style>
-    body {
-      font-family: 'Outfit', sans-serif;
-    }
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.3);
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: rgba(99, 102, 241, 0.3);
-      border-radius: 99px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: rgba(99, 102, 241, 0.5);
-    }
-  </style>
-</head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased pb-12">
+<x-layouts.faculty-shell title="Class Attendance Log" subtitle="Daily attendance and lesson tracking." activeNav="attendance_log">
 
   @php
     $role = session('userRole');
@@ -44,66 +7,54 @@
     if ($role === 'Demonstrator') $backLink = '/dashboard/demonstrator';
     if ($role === 'Trade_Instructor') $backLink = '/dashboard/tradeinstructor';
     if ($role === 'Workshop_Superintendent') $backLink = '/dashboard/workshop';
+    if ($role === 'Principal' || $role === 'Executive') $backLink = '/dashboard/principal';
+    if ($role === 'Admin' || $role === 'Super_Admin' || $role === 'SuperAdmin') $backLink = '/dashboard/admin';
   @endphp
 
-  <!-- Top Navigation Header -->
-  <header class="bg-slate-950/60 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-30 px-6 py-4 flex items-center justify-between shadow-lg">
-    <div class="flex items-center gap-3">
-      <a href="{{ $backLink }}" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors flex items-center justify-center">
-        <span class="material-symbols-rounded">arrow_back</span>
-      </a>
-      <div>
-        <h1 class="font-extrabold text-white text-base sm:text-lg tracking-tight">Class Log & Attendance</h1>
-        <p class="text-sm text-slate-400 font-medium">Record today's class topics and attendance.</p>
-      </div>
-    </div>
-    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black rounded-lg w-9 h-9 flex items-center justify-center shadow-lg text-sm">CL</div>
-  </header>
+  <div class="max-w-2xl mx-auto w-full space-y-6">
 
-  <!-- Notification Banner -->
-  <div id="globalAlert" class="hidden max-w-xl mx-auto mt-4 px-4 py-3 rounded-xl text-sm font-bold text-center border shadow-md animate-pulse"></div>
+    <!-- Notification Banner -->
+    <div id="globalAlert" class="hidden px-4 py-3 rounded-xl text-sm font-semibold text-center border shadow-xs transition-all"></div>
 
-  <main class="max-w-xl mx-auto w-full px-4 mt-6 flex-grow space-y-6">
-    
     <!-- CLASS SELECTOR CARD -->
-    <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-      <div class="flex items-center gap-2 pb-2 border-b border-slate-800/60">
-        <span class="material-symbols-rounded text-indigo-400 text-lg">school</span>
-        <h2 class="font-bold text-sm text-slate-200">Select Batch & Subject</h2>
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+      <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+        <span class="material-symbols-rounded text-blue-600 text-xl">school</span>
+        <h2 class="font-bold text-sm text-slate-900">Select Batch &amp; Subject</h2>
       </div>
 
       <div>
-        <label class="block text-sm font-bold text-slate-400 mb-1.5">Class Subject / Batch</label>
-        <select id="subjectSelect" onchange="onSubjectChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-sm text-slate-200 outline-none focus:border-indigo-500 cursor-pointer">
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Class Subject / Batch</label>
+        <select id="subjectSelect" onchange="onSubjectChange()" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs">
           <option value="" disabled selected>-- Choose Subject --</option>
         </select>
       </div>
     </div>
 
     <!-- SUB-BATCH SELECTOR CARD (LABS ONLY) -->
-    <div id="subBatchCard" class="hidden bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-      <div class="flex items-center gap-2 pb-2 border-b border-slate-800/60">
-        <span class="material-symbols-rounded text-indigo-400 text-lg">splitscreen</span>
-        <h2 class="font-bold text-sm text-slate-200">Lab Sub-Batch Partitioning</h2>
+    <div id="subBatchCard" class="hidden bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+      <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+        <span class="material-symbols-rounded text-blue-600 text-xl">splitscreen</span>
+        <h2 class="font-bold text-sm text-slate-900">Lab Sub-Batch Partitioning</h2>
       </div>
       <div>
-        <label class="block text-sm font-bold text-slate-400 mb-2">Select Lab Sub-Batch</label>
+        <label class="block text-sm font-semibold text-slate-700 mb-2">Select Lab Sub-Batch</label>
         <div class="grid grid-cols-3 gap-3">
           <label class="cursor-pointer">
             <input type="radio" name="subBatchSelect" value="Whole" checked onchange="filterStudentsByBatch()" class="sr-only peer">
-            <div class="p-3 text-center rounded-xl border border-slate-700 bg-slate-900 text-sm font-bold text-slate-300 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 hover:bg-slate-800 transition-all select-none">
+            <div class="p-3 text-center rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-slate-100 transition-all select-none shadow-2xs">
               Whole Class
             </div>
           </label>
           <label class="cursor-pointer">
             <input type="radio" name="subBatchSelect" value="1" onchange="filterStudentsByBatch()" class="sr-only peer">
-            <div id="batch1Text" class="p-3 text-center rounded-xl border border-slate-700 bg-slate-900 text-sm font-bold text-slate-300 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 hover:bg-slate-800 transition-all select-none">
+            <div id="batch1Text" class="p-3 text-center rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-slate-100 transition-all select-none shadow-2xs">
               Batch 1
             </div>
           </label>
           <label class="cursor-pointer">
             <input type="radio" name="subBatchSelect" value="2" onchange="filterStudentsByBatch()" class="sr-only peer">
-            <div id="batch2Text" class="p-3 text-center rounded-xl border border-slate-700 bg-slate-900 text-sm font-bold text-slate-300 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 hover:bg-slate-800 transition-all select-none">
+            <div id="batch2Text" class="p-3 text-center rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-slate-100 transition-all select-none shadow-2xs">
               Batch 2
             </div>
           </label>
@@ -112,24 +63,24 @@
     </div>
 
     <!-- DAILY CLASS LOG DETAILS -->
-    <div id="classLogCard" class="hidden bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-      <div class="flex items-center gap-2 pb-2 border-b border-slate-800/60">
-        <span class="material-symbols-rounded text-indigo-400 text-lg">edit_note</span>
-        <h2 class="font-bold text-sm text-slate-200">Class Log Details</h2>
+    <div id="classLogCard" class="hidden bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+      <div class="flex items-center gap-2 pb-3 border-b border-slate-100">
+        <span class="material-symbols-rounded text-blue-600 text-xl">edit_note</span>
+        <h2 class="font-bold text-sm text-slate-900">Class Log Details</h2>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-bold text-slate-400 mb-1.5">Date</label>
-          <input type="date" id="logDate" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-sm text-slate-200 outline-none focus:border-indigo-500" value="{{ date('Y-m-d') }}">
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Date</label>
+          <input type="date" id="logDate" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs" value="{{ date('Y-m-d') }}">
         </div>
         <div>
-          <label class="block text-sm font-bold text-slate-400 mb-1.5">Period / Hour (Select multiple if Lab or Combined Class)</label>
+          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Period / Hour (Select multiple if Lab)</label>
           <div class="flex flex-wrap gap-2">
             @for ($p = 1; $p <= 7; $p++)
               <label class="cursor-pointer">
                 <input type="checkbox" name="logPeriods" value="{{ $p }}" class="sr-only peer">
-                <div class="px-3.5 py-2 rounded-xl border border-slate-700 bg-slate-900 text-sm font-bold text-slate-300 peer-checked:bg-indigo-600 peer-checked:text-white peer-checked:border-indigo-500 hover:bg-slate-800 transition-all select-none">
+                <div class="px-3.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 hover:bg-slate-100 transition-all select-none shadow-2xs">
                   P{{ $p }}
                 </div>
               </label>
@@ -139,49 +90,49 @@
       </div>
 
       <div>
-        <label class="block text-sm font-bold text-slate-400 mb-1.5">Syllabus / Lesson Plan Topic</label>
-        <select id="lessonPlanSelect" onchange="onLessonPlanChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-sm text-slate-200 outline-none focus:border-indigo-500 cursor-pointer">
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Syllabus / Lesson Plan Topic</label>
+        <select id="lessonPlanSelect" onchange="onLessonPlanChange()" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 cursor-pointer shadow-2xs">
           <option value="">-- Manual Entry --</option>
         </select>
       </div>
 
       <div>
-        <label class="block text-sm font-bold text-slate-400 mb-1.5">Topics Covered (Editable)</label>
-        <textarea id="topicsCovered" rows="3" placeholder="Describe the topics covered in class today..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-sm text-slate-200 outline-none focus:border-indigo-500 resize-none"></textarea>
+        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Topics Covered (Editable)</label>
+        <textarea id="topicsCovered" rows="3" placeholder="Describe the topics covered in class today..." class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none shadow-2xs"></textarea>
       </div>
     </div>
 
     <!-- ATTENDANCE ENTRY PANEL -->
-    <div id="attendanceCard" class="hidden bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
-      <div class="flex items-center justify-between pb-2 border-b border-slate-800/60">
+    <div id="attendanceCard" class="hidden bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
         <div class="flex items-center gap-2">
-          <span class="material-symbols-rounded text-indigo-400 text-lg">fact_check</span>
-          <h2 class="font-bold text-sm text-slate-200">Attendance Panel</h2>
+          <span class="material-symbols-rounded text-blue-600 text-xl">fact_check</span>
+          <h2 class="font-bold text-sm text-slate-900">Attendance Panel</h2>
         </div>
         <!-- Mode Switch -->
-        <div class="flex bg-slate-900 border border-slate-800 rounded-lg p-0.5">
-          <button onclick="switchMode('list')" id="btnModeList" class="px-2.5 py-1 text-sm font-bold rounded-md bg-indigo-600 text-white transition-all">List</button>
-          <button onclick="switchMode('grid')" id="btnModeGrid" class="px-2.5 py-1 text-sm font-bold rounded-md text-slate-400 transition-all">Grid</button>
+        <div class="flex bg-slate-100 border border-slate-200 rounded-lg p-0.5">
+          <button onclick="switchMode('list')" id="btnModeList" class="px-3 py-1 text-xs font-bold rounded-md bg-white text-blue-600 shadow-2xs transition-all cursor-pointer">List</button>
+          <button onclick="switchMode('grid')" id="btnModeGrid" class="px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition-all cursor-pointer">Grid</button>
         </div>
       </div>
 
       <!-- MODE 1: LIST VIEW -->
       <div id="attendanceModeList" class="space-y-3">
         <div class="flex justify-between items-center mb-2">
-          <span class="text-sm text-slate-400 font-bold" id="studentCountLabel">Total Students: 0</span>
-          <button onclick="toggleAllCheckboxes()" id="btnCheckAll" class="text-sm font-bold text-indigo-400 hover:text-indigo-300">Mark All Present</button>
+          <span class="text-sm text-slate-600 font-semibold" id="studentCountLabel">Total Students: 0</span>
+          <button onclick="toggleAllCheckboxes()" id="btnCheckAll" class="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer">Mark All Present</button>
         </div>
         
-        <div class="max-h-[300px] overflow-y-auto custom-scrollbar border border-slate-850 rounded-xl bg-slate-900/10">
+        <div class="max-h-[360px] overflow-y-auto border border-slate-200 rounded-xl bg-slate-50/50">
           <table class="w-full text-left text-sm border-collapse">
             <thead>
-              <tr class="bg-slate-900/60 text-slate-400 border-b border-slate-850 uppercase tracking-wider text-sm font-black sticky top-0">
+              <tr class="bg-slate-100/80 text-slate-600 border-b border-slate-200 text-xs font-bold sticky top-0">
                 <th class="p-3 w-16 text-center">Roll No</th>
                 <th class="p-3">Name</th>
-                <th class="p-3 w-16 text-center">Present</th>
+                <th class="p-3 w-20 text-center">Present</th>
               </tr>
             </thead>
-            <tbody id="studentListContainer">
+            <tbody id="studentListContainer" class="divide-y divide-slate-100">
               <!-- Rendered via JS -->
             </tbody>
           </table>
@@ -191,27 +142,27 @@
       <!-- MODE 2: GRID VIEW (Roll numbers only) -->
       <div id="attendanceModeGrid" class="hidden space-y-4">
         <div class="flex justify-between items-center">
-          <p class="text-sm text-slate-400">Tap buttons to toggle <strong class="text-red-400">Absent (Red)</strong> / <strong class="text-emerald-400">Present (Green)</strong>.</p>
-          <button onclick="toggleAllGrid(true)" class="text-sm font-bold text-indigo-400 hover:text-indigo-300">Reset Present</button>
+          <p class="text-xs text-slate-500 font-medium">Tap buttons to toggle <strong class="text-rose-600">Absent (Red)</strong> / <strong class="text-emerald-600">Present (Green)</strong>.</p>
+          <button onclick="toggleAllGrid(true)" class="text-xs font-bold text-blue-600 hover:text-blue-700 cursor-pointer">Reset Present</button>
         </div>
 
-        <div class="grid grid-cols-5 gap-3 p-1" id="studentGridContainer">
+        <div class="grid grid-cols-5 gap-2.5 p-1" id="studentGridContainer">
           <!-- Rendered via JS -->
         </div>
       </div>
 
       <!-- ACTION BUTTONS -->
-      <div class="pt-4 border-t border-slate-800/60">
-        <button onclick="saveAttendanceAndLog()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 active:scale-[0.98] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition-premium cursor-pointer">
-          <span class="material-symbols-rounded">check_circle</span> Save Log & Attendance
+      <div class="pt-4 border-t border-slate-100">
+        <button onclick="saveAttendanceAndLog()" class="w-full py-3.5 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 shadow-sm shadow-blue-500/20 transition-premium cursor-pointer">
+          <span class="material-symbols-rounded text-lg">check_circle</span> Save Log &amp; Attendance
         </button>
       </div>
 
     </div>
 
-  </main>
+  </div>
 
-  <!-- Javascript Logic -->
+  @push('scripts')
   <script>
     let activeMode = 'list'; // 'list' or 'grid'
     let currentStudents = [];
@@ -226,9 +177,9 @@
       const banner = document.getElementById('globalAlert');
       banner.classList.remove('hidden');
       if (isError) {
-        banner.className = "max-w-xl mx-auto mt-4 px-4 py-3 rounded-xl text-sm font-bold text-center border bg-red-950/40 text-red-400 border-red-900 block shadow-md animate-pulse";
+        banner.className = "px-4 py-3 rounded-xl text-sm font-semibold text-center border bg-rose-50 text-rose-700 border-rose-200 block shadow-xs";
       } else {
-        banner.className = "max-w-xl mx-auto mt-4 px-4 py-3 rounded-xl text-sm font-bold text-center border bg-green-950/40 text-green-400 border-green-900 block shadow-md animate-pulse";
+        banner.className = "px-4 py-3 rounded-xl text-sm font-semibold text-center border bg-emerald-50 text-emerald-700 border-emerald-200 block shadow-xs";
       }
       banner.innerText = msg;
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -253,7 +204,7 @@
         });
     }
 
-     function onSubjectChange() {
+    function onSubjectChange() {
       const subjectId = document.getElementById('subjectSelect').value;
       if (!subjectId) return;
 
@@ -332,14 +283,14 @@
       const divGrid = document.getElementById('attendanceModeGrid');
 
       if (mode === 'list') {
-        btnList.className = "px-2.5 py-1 text-sm font-bold rounded-md bg-indigo-600 text-white transition-all";
-        btnGrid.className = "px-2.5 py-1 text-sm font-bold rounded-md text-slate-400 transition-all";
+        btnList.className = "px-3 py-1 text-xs font-bold rounded-md bg-white text-blue-600 shadow-2xs transition-all cursor-pointer";
+        btnGrid.className = "px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition-all cursor-pointer";
         divList.classList.remove('hidden');
         divGrid.classList.add('hidden');
         renderList();
       } else {
-        btnGrid.className = "px-2.5 py-1 text-sm font-bold rounded-md bg-indigo-600 text-white transition-all";
-        btnList.className = "px-2.5 py-1 text-sm font-bold rounded-md text-slate-400 transition-all";
+        btnGrid.className = "px-3 py-1 text-xs font-bold rounded-md bg-white text-blue-600 shadow-2xs transition-all cursor-pointer";
+        btnList.className = "px-3 py-1 text-xs font-semibold rounded-md text-slate-600 hover:text-slate-900 transition-all cursor-pointer";
         divGrid.classList.remove('hidden');
         divList.classList.add('hidden');
         renderGrid();
@@ -376,18 +327,18 @@
 
       const filtered = getFilteredStudents();
       if (filtered.length === 0) {
-        container.innerHTML = '<tr><td colspan="3" class="p-6 text-center text-slate-400">No students registered in this class.</td></tr>';
+        container.innerHTML = '<tr><td colspan="3" class="p-6 text-center text-slate-400 text-xs">No students registered in this class.</td></tr>';
         return;
       }
 
       filtered.forEach((student, index) => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium";
+        tr.className = "hover:bg-slate-50 transition-premium";
         tr.innerHTML = `
-          <td class="p-3 text-center font-bold font-mono text-slate-500">${student.roll_no || index + 1}</td>
-          <td class="p-3 font-bold text-white">${student.name}</td>
+          <td class="p-3 text-center font-semibold font-mono text-slate-500 text-xs">${student.roll_no || index + 1}</td>
+          <td class="p-3 font-semibold text-slate-900 text-sm">${student.name}</td>
           <td class="p-3 text-center">
-            <input type="checkbox" onchange="toggleStudentPresent('${student.reg_no}', this.checked)" ${student.present ? 'checked' : ''} class="w-5 h-5 rounded bg-slate-950 border-slate-700 text-indigo-500 focus:ring-indigo-600 cursor-pointer">
+            <input type="checkbox" onchange="toggleStudentPresent('${student.reg_no}', this.checked)" ${student.present ? 'checked' : ''} class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
           </td>
         `;
         container.appendChild(tr);
@@ -400,7 +351,7 @@
 
       const filtered = getFilteredStudents();
       if (filtered.length === 0) {
-        container.innerHTML = '<div class="col-span-full p-6 text-center text-slate-400">No students registered.</div>';
+        container.innerHTML = '<div class="col-span-full p-6 text-center text-slate-400 text-xs">No students registered.</div>';
         return;
       }
 
@@ -413,9 +364,9 @@
         };
         
         if (student.present) {
-          btn.className = "py-3 rounded-xl font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 text-sm text-center cursor-pointer hover:bg-emerald-600/30 transition-premium shadow-inner shadow-emerald-500/10";
+          btn.className = "py-2.5 rounded-xl font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs text-center cursor-pointer hover:bg-emerald-100 transition-premium shadow-2xs";
         } else {
-          btn.className = "py-3 rounded-xl font-bold bg-rose-600/20 text-rose-400 border border-rose-500/30 text-sm text-center cursor-pointer hover:bg-rose-600/30 transition-premium shadow-inner shadow-rose-500/10";
+          btn.className = "py-2.5 rounded-xl font-bold bg-rose-50 text-rose-700 border border-rose-200 text-xs text-center cursor-pointer hover:bg-rose-100 transition-premium shadow-2xs";
         }
         btn.innerText = roll;
         container.appendChild(btn);
@@ -498,10 +449,9 @@
       .then(data => {
         if (data.status === 'SUCCESS') {
           showMessage(data.message, false);
-          // Wait 2 seconds then redirect back to dashboard
           setTimeout(() => {
             window.location.href = "{{ $backLink }}";
-          }, 2000);
+          }, 1500);
         } else {
           showMessage(data.message || "Failed to save attendance log.", true);
         }
@@ -512,5 +462,5 @@
       });
     }
   </script>
-</body>
-</html>
+  @endpush
+</x-layouts.faculty-shell>
