@@ -2,15 +2,18 @@
 
   <div class="space-y-6">
 
-    <!-- Dashboard Tabs -->
-    <div class="flex items-center justify-between bg-white border border-slate-200 p-2 rounded-2xl shadow-2xs">
+    <!-- Dashboard Header & Action Bar -->
+    <div class="flex items-center justify-between bg-white border border-slate-200 p-2.5 rounded-2xl shadow-2xs">
       <div class="flex items-center gap-2">
-        <button onclick="switchTab('roomsList')" id="tab_roomsList" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-premium cursor-pointer">Active Rooms</button>
-        <button onclick="switchTab('createRoom')" id="tab_createRoom" class="px-5 py-2.5 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-transparent hover:bg-slate-50 hover:text-slate-900 transition-premium cursor-pointer">Create New Room</button>
+        <button onclick="switchTab('roomsList')" id="tab_roomsList" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 transition-premium cursor-pointer">
+          Active Rooms
+        </button>
       </div>
-      <div class="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-500 px-3">
-        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-        <span>Diagnostic Intervention Center</span>
+      <div>
+        <button onclick="switchTab('createRoom')" id="tab_createRoom" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white shadow-sm shadow-blue-500/20 flex items-center gap-1.5 transition-premium cursor-pointer">
+          <span class="material-symbols-rounded text-base">add_circle</span>
+          <span>Create New Room</span>
+        </button>
       </div>
     </div>
 
@@ -24,57 +27,134 @@
       </div>
     </div>
 
-    <!-- Create Room Panel -->
+    <!-- Create Room Panel (Desktop 12-Column Responsive Workspace) -->
     <div id="panel_createRoom" class="hidden space-y-6">
-      <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs max-w-4xl mx-auto w-full">
-        <h2 class="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2">
-          <span class="bg-blue-50 text-blue-700 w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold border border-blue-200">1</span>
-          Select Subject
-        </h2>
-        <div class="flex flex-col sm:flex-row gap-3 mb-6">
-          <div class="flex-grow">
-            <select id="subjectSelect" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-premium cursor-pointer shadow-2xs">
-              <option value="">Select a Subject...</option>
-            </select>
-          </div>
-          <button onclick="fetchStudentPerformance()" class="bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white rounded-xl font-bold text-xs px-6 py-2.5 transition-premium shadow-sm shadow-blue-500/20 cursor-pointer">Analyze Performance</button>
-        </div>
-        
-        <div id="performanceSection" class="hidden space-y-4 pt-4 border-t border-slate-100">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-            <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <span class="bg-blue-50 text-blue-700 w-6 h-6 rounded-lg flex items-center justify-center text-xs font-bold border border-blue-200">2</span>
-              Identify Weak Students
-            </h2>
-            <div class="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl p-2">
-              <label class="text-xs text-slate-600 font-semibold">Auto-Select Below Marks:</label>
-              <input type="number" id="thresholdMark" value="20" class="w-16 bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-xs text-slate-800 outline-none focus:border-blue-500 text-center font-bold">
-              <button onclick="applyThreshold()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg px-3 py-1 text-xs font-bold transition-premium cursor-pointer">Apply</button>
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- LEFT COLUMN: Configuration & Steps (5 Columns) -->
+        <div class="lg:col-span-5 space-y-6">
+
+          <!-- Step 1: Select Subject Card -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200">
+                  <span class="material-symbols-rounded text-lg">school</span>
+                </div>
+                <div>
+                  <h2 class="font-bold text-sm text-slate-900 leading-tight">Subject Selection</h2>
+                  <p class="text-xs text-slate-500">Pick class to analyze performance</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full">Step 1</span>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Class Subject / Batch</label>
+                <select id="subjectSelect" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-premium cursor-pointer shadow-2xs font-medium">
+                  <option value="">Select a Subject...</option>
+                </select>
+              </div>
+
+              <button onclick="fetchStudentPerformance()" class="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white rounded-xl font-bold text-xs py-3 px-6 transition-premium shadow-sm shadow-blue-500/20 flex items-center justify-center gap-2 cursor-pointer">
+                <span class="material-symbols-rounded text-base">analytics</span>
+                <span>Analyze Student Performance</span>
+              </button>
             </div>
           </div>
-          
-          <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-            <table class="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold text-xs">
-                  <th class="p-3 w-12 text-center">
-                    <input type="checkbox" id="selectAllStudents" onchange="toggleAllStudents()" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
-                  </th>
-                  <th class="p-3">Reg No</th>
-                  <th class="p-3">Name</th>
-                  <th class="p-3 text-right">Total Marks</th>
-                </tr>
-              </thead>
-              <tbody id="performanceTableBody" class="divide-y divide-slate-100">
-              </tbody>
-            </table>
+
+          <!-- Step 2: Threshold & Room Provision Controls (Shown after analysis) -->
+          <div id="performanceConfigCard" class="hidden bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200">
+                  <span class="material-symbols-rounded text-lg">tune</span>
+                </div>
+                <div>
+                  <h2 class="font-bold text-sm text-slate-900 leading-tight">Intervention Criteria</h2>
+                  <p class="text-xs text-slate-500">Filter students by score threshold</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full">Step 2</span>
+            </div>
+
+            <div class="space-y-4">
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Auto-Select Threshold Marks</label>
+                <div class="flex items-center gap-2">
+                  <input type="number" id="thresholdMark" value="20" class="flex-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 text-center font-bold shadow-2xs">
+                  <button onclick="applyThreshold()" class="bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl px-4 py-2 text-xs font-bold transition-premium cursor-pointer shadow-2xs">
+                    Apply Filter
+                  </button>
+                </div>
+                <p class="text-[11px] text-slate-500">Students scoring below this total will be automatically checked for remedial intervention.</p>
+              </div>
+
+              <!-- Provision CTA Button -->
+              <button onclick="provisionRoom()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white rounded-xl font-bold text-sm py-3.5 px-6 transition-premium shadow-sm shadow-emerald-500/20 flex items-center justify-center gap-2 cursor-pointer">
+                <span class="material-symbols-rounded text-lg">add_task</span>
+                <span id="btnProvisionText">Provision Remedial Room</span>
+              </button>
+            </div>
           </div>
 
-          <div class="flex justify-end pt-4">
-            <button onclick="provisionRoom()" class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs px-8 py-3 transition-premium shadow-sm shadow-emerald-500/20 cursor-pointer">Provision Remedial Room</button>
-          </div>
         </div>
+
+        <!-- RIGHT COLUMN: Student Candidate Roster (7 Columns) -->
+        <div class="lg:col-span-7 space-y-6">
+
+          <!-- Performance Roster Section (Loaded after analyze) -->
+          <div id="performanceSection" class="hidden bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200">
+                  <span class="material-symbols-rounded text-lg">group</span>
+                </div>
+                <div>
+                  <h2 class="font-bold text-sm text-slate-900 leading-tight">Candidate Student Roster</h2>
+                  <p class="text-xs text-slate-500" id="selectedStudentSummary">Review and select students for this room</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full" id="selectedCountBadge">
+                0 Selected
+              </span>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white max-h-[500px] overflow-y-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold text-xs sticky top-0 z-10">
+                    <th class="p-3.5 w-12 text-center">
+                      <input type="checkbox" id="selectAllStudents" onchange="toggleAllStudents()" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+                    </th>
+                    <th class="p-3.5">Reg No</th>
+                    <th class="p-3.5">Student Name</th>
+                    <th class="p-3.5 text-right">Total Marks</th>
+                    <th class="p-3.5 text-center w-24">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="performanceTableBody" class="divide-y divide-slate-100">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Empty Prompt Before Analyze -->
+          <div id="performanceEmptyPrompt" class="bg-white border border-slate-200 rounded-2xl p-12 text-center shadow-xs space-y-3">
+            <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto border border-blue-200">
+              <span class="material-symbols-rounded text-3xl">analytics</span>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base">Select a Subject to Analyze</h3>
+            <p class="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed">Choose an assigned subject from the left panel and click "Analyze Student Performance" to query internal assessment records and identify students needing support.</p>
+          </div>
+
+        </div>
+
       </div>
+
     </div>
 
   </div>
@@ -341,11 +421,18 @@
       document.getElementById('panel_roomsList').classList.add('hidden');
       document.getElementById('panel_createRoom').classList.add('hidden');
       
-      document.getElementById('tab_roomsList').className = "px-5 py-2.5 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-transparent hover:bg-slate-50 hover:text-slate-900 transition-premium cursor-pointer";
-      document.getElementById('tab_createRoom').className = "px-5 py-2.5 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-transparent hover:bg-slate-50 hover:text-slate-900 transition-premium cursor-pointer";
+      const tabRooms = document.getElementById('tab_roomsList');
+      const tabCreate = document.getElementById('tab_createRoom');
 
-      document.getElementById('panel_' + tabId).classList.remove('hidden');
-      document.getElementById('tab_' + tabId).className = "px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-premium cursor-pointer";
+      if (tabId === 'roomsList') {
+        document.getElementById('panel_roomsList').classList.remove('hidden');
+        tabRooms.className = "px-5 py-2.5 rounded-xl text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 transition-premium cursor-pointer";
+        tabCreate.className = "px-4 py-2.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white shadow-sm shadow-blue-500/20 flex items-center gap-1.5 transition-premium cursor-pointer";
+      } else {
+        document.getElementById('panel_createRoom').classList.remove('hidden');
+        tabRooms.className = "px-5 py-2.5 rounded-xl text-xs font-semibold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 transition-premium cursor-pointer";
+        tabCreate.className = "px-4 py-2.5 rounded-xl text-xs font-bold bg-blue-700 text-white shadow-sm shadow-blue-600/30 flex items-center gap-1.5 ring-2 ring-blue-400/30 transition-premium cursor-pointer";
+      }
     }
 
     function loadAssignedSubjects() {
@@ -364,6 +451,15 @@
         });
     }
 
+    function updateSelectedStudentCount() {
+      const selected = document.querySelectorAll('.student-checkbox:checked').length;
+      const total = currentStudentPerformance.length;
+      const badge = document.getElementById('selectedCountBadge');
+      const text = document.getElementById('btnProvisionText');
+      if (badge) badge.innerText = `${selected} of ${total} Selected`;
+      if (text) text.innerText = `Provision Remedial Room (${selected} Students)`;
+    }
+
     function fetchStudentPerformance() {
       const idx = document.getElementById('subjectSelect').value;
       if (idx === '') return alert('Select a subject first');
@@ -375,7 +471,11 @@
           if(data.status === 'SUCCESS') {
             currentStudentPerformance = data.students;
             renderPerformanceGrid();
+            document.getElementById('performanceConfigCard').classList.remove('hidden');
             document.getElementById('performanceSection').classList.remove('hidden');
+            const emptyPrompt = document.getElementById('performanceEmptyPrompt');
+            if (emptyPrompt) emptyPrompt.classList.add('hidden');
+            applyThreshold();
           }
         });
     }
@@ -384,23 +484,31 @@
       const tbody = document.getElementById('performanceTableBody');
       let html = '';
       currentStudentPerformance.forEach((s, i) => {
+        const isLow = s.total_marks < 20;
         html += `
           <tr class="hover:bg-slate-50 transition-colors">
-            <td class="p-3 text-center">
-              <input type="checkbox" value="${s.reg_no}" class="student-checkbox w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
+            <td class="p-3.5 text-center">
+              <input type="checkbox" value="${s.reg_no}" onchange="updateSelectedStudentCount()" class="student-checkbox w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer">
             </td>
-            <td class="p-3 text-xs text-slate-600 font-mono">${s.reg_no}</td>
-            <td class="p-3 text-sm font-semibold text-slate-900">${s.name}</td>
-            <td class="p-3 text-right text-xs font-bold ${s.total_marks < 20 ? 'text-rose-600' : 'text-emerald-600'}">${s.total_marks}</td>
+            <td class="p-3.5 text-xs text-slate-600 font-mono font-bold">${s.reg_no}</td>
+            <td class="p-3.5 text-sm font-semibold text-slate-900">${s.name}</td>
+            <td class="p-3.5 text-right text-xs font-bold ${isLow ? 'text-rose-600 font-mono' : 'text-emerald-600 font-mono'}">${s.total_marks}</td>
+            <td class="p-3.5 text-center">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase ${isLow ? 'text-rose-700 bg-rose-50 border border-rose-200' : 'text-emerald-700 bg-emerald-50 border border-emerald-200'}">
+                ${isLow ? 'Priority' : 'Normal'}
+              </span>
+            </td>
           </tr>
         `;
       });
       tbody.innerHTML = html;
+      updateSelectedStudentCount();
     }
 
     function toggleAllStudents() {
       const isChecked = document.getElementById('selectAllStudents').checked;
       document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = isChecked);
+      updateSelectedStudentCount();
     }
 
     function applyThreshold() {
@@ -412,6 +520,7 @@
           if(cb) cb.checked = true;
         }
       });
+      updateSelectedStudentCount();
     }
 
     function provisionRoom() {
