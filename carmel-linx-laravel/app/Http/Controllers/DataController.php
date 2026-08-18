@@ -2102,41 +2102,6 @@ class DataController extends Controller
                 }
             }
 
-            // If executive user (Principal / Admin / Super_Admin / Chairman) and no direct teaching batches found, populate all active classrooms
-            $userRole = \Illuminate\Support\Facades\Session::get('userRole');
-            if (empty($batchesMap) && in_array($userRole, ['Principal', 'Super_Admin', 'Admin', 'Chairman'])) {
-                $allClasses = \App\Models\ClassManagement::where('current_semester', '<=', 6)->get();
-                $allR26Classes = \App\Models\R26ClassManagement::where('current_semester', '<=', 6)->get();
-                foreach ($allClasses->concat($allR26Classes)->unique('classroom_id') as $batch) {
-                    $cid = $batch->classroom_id;
-                    $subjects = \App\Models\BatchSubject::where('classroom_id', $cid)->get();
-                    $subjList = [];
-                    foreach ($subjects as $sub) {
-                        $subjList[] = [
-                            'id' => $sub->id,
-                            'code' => $sub->subject_code,
-                            'name' => $sub->subject_name,
-                            'semester' => $sub->semester,
-                            'type' => $sub->subject_type,
-                            'syllabus_revision_code' => $sub->syllabus_revision_code,
-                            'total_topics' => \App\Models\LessonPlan::where('batch_subject_id', $sub->id)->count(),
-                            'covered_topics' => \App\Models\LessonPlan::where('batch_subject_id', $sub->id)->where('status', 'Completed')->count(),
-                            'engaged_hours' => \DB::table('class_logs_attendance')->where('batch_subject_id', $sub->id)->count(),
-                            'total_hours' => \App\Models\LessonPlan::where('batch_subject_id', $sub->id)->sum('allocated_hours') ?: 0
-                        ];
-                    }
-                    $batchesMap[$cid] = [
-                        'classroom_id'     => $batch->classroom_id,
-                        'batch_year'       => $batch->batch_year,
-                        'current_semester' => $batch->current_semester ?? $batch->semester,
-                        'branch'           => $batch->branch,
-                        'student_count'    => \App\Models\Student::where('classroom_id', $batch->classroom_id)->count(),
-                        'roles'            => ['Executive Supervision'],
-                        'subjects'         => $subjList
-                    ];
-                }
-            }
-
             // Sort subjects by semester
             foreach ($batchesMap as &$b) {
                 usort($b['subjects'], function($a, $b_item) {
