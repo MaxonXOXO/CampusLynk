@@ -1974,7 +1974,7 @@ class DataController extends Controller
             return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
         }
 
-        $filterStatus = $request->query('status', 'active'); // 'active' or 'historical'
+        $filterStatus = in_array(strtolower($request->query('status', 'active')), ['historical', 'archived']) ? 'historical' : 'active';
 
         try {
             // 1. Get batches where user is Tutor or Mentor
