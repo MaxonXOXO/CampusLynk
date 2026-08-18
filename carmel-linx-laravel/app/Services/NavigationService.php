@@ -56,6 +56,13 @@ class NavigationService
                 $items = self::insertItems($items, $returnItem);
             }
 
+            if ($isPrincipal || $isAdminUser) {
+                // Remove redundant items that already exist in the executive main dashboard sidebar
+                $items = array_values(array_filter($items, function ($it) {
+                    return !in_array($it['id'], ['prof_activities', 'profile']);
+                }));
+            }
+
             $isHod = ($sessionRole === 'HOD') || ($context['is_hod'] ?? false);
             $isTutor = ($context['is_tutor'] ?? false);
             $isMentor = ($context['is_mentor'] ?? false);
