@@ -21,10 +21,7 @@
         aria-haspopup="true"
     >
         @if($userPhoto)
-            <img src="{{ $userPhoto }}" alt="{{ $userName }}" width="36" height="36" decoding="sync" fetchpriority="high" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" class="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0">
-            <div style="display:none;" class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
-                {{ $userInitials }}
-            </div>
+            <img src="{{ $userPhoto }}" alt="{{ $userName }}" width="36" height="36" decoding="sync" fetchpriority="high" class="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0">
         @else
             <div class="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
                 {{ $userInitials }}

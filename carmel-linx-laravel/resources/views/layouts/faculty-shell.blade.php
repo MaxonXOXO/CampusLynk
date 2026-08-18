@@ -27,7 +27,6 @@
         .transition-premium { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .scrollbar-hidden::-webkit-scrollbar { display: none; }
         .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
-        [data-lucide] { display: inline-block; width: 1.25rem; height: 1.25rem; vertical-align: middle; }
     </style>
 
     @stack('styles')
