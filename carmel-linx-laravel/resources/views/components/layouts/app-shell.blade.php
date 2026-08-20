@@ -1,9 +1,15 @@
+@props([
+    'title' => 'CampusLynk - AMS',
+    'topbarTitle' => null,
+    'topbarSubtitle' => null,
+    'activeNav' => 'dashboard'
+])
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-[#FAFAFB]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'CampusLynk - AMS' }}</title>
+    <title>{{ $title }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Google Fonts: Poppins -->
@@ -16,12 +22,12 @@
 </head>
 <body class="min-h-screen bg-[#FAFAFB] text-slate-900 flex antialiased">
     <!-- Sidebar Navigation (Sidebar.v1) -->
-    <x-layout.sidebar :active="$activeNav ?? 'dashboard'" />
+    <x-layout.sidebar :active="$activeNav" />
 
     <!-- Main Workspace Container -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <!-- Topbar (TopBar.v1) -->
-        <x-layout.topbar />
+        <x-layout.topbar :title="$topbarTitle ?? $title" :subtitle="$topbarSubtitle" />
 
         <!-- Main Content Area -->
         <main class="flex-1 overflow-y-auto p-6 md:p-8 max-w-[1600px] w-full mx-auto">

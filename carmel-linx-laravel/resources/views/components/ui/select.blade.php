@@ -31,7 +31,7 @@
 
 <div class="w-full relative custom-dropdown-container" id="container-{{ $selectId }}">
     @if($label)
-        <label class="block text-xs font-semibold text-slate-700 mb-1">
+        <label class="block text-sm font-medium text-slate-700 mb-1.5">
             {{ $label }}
         </label>
     @endif

@@ -16,8 +16,15 @@
         </div>
     </div>
 
-    <!-- Right Header Controls (Search Bar pinned directly next to Notification Bell & Profile) -->
+    <!-- Right Header Controls (AI Status, Search Bar, Notifications, User Menu) -->
     <div class="flex items-center gap-3 shrink-0 ml-auto">
+        <!-- Live AI System Status Indicator Pill in Topbar -->
+        <div id="aiStatusBadge" class="hidden"></div>
+        <div id="loadingIndicator" class="hidden items-center gap-2 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+            <div class="w-3.5 h-3.5 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin"></div>
+            <span>Syncing...</span>
+        </div>
+
         @if($showSearch)
             <div class="w-64 lg:w-80 hidden md:block">
                 <x-ui.search />
@@ -31,3 +38,4 @@
         <x-layout.user-menu />
     </div>
 </header>
+

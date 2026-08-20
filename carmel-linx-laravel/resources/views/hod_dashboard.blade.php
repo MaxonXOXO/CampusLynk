@@ -1,67 +1,18 @@
 @php
   $activeBranch = $branchOverride ?? session('userBranch');
   $isPrincipalMode = isset($isPrincipalView) && $isPrincipalView;
+  $initialPanel = request()->query('panel', request()->query('tab', $activePanel ?? 'batches'));
+  if (!in_array($initialPanel, ['batches', 'directory', 'subjects', 'audit', 'leave_ledger', 'prof_activities', 'profile'])) {
+    $initialPanel = 'batches';
+  }
 @endphp
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carmel Linx - {{ $isPrincipalMode ? 'Principal view' : 'HOD Dashboard' }}</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- Google Icons -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-  
+<x-layouts.app-shell 
+    :title="'CampusLynk - ' . ($isPrincipalMode ? 'Principal View' : 'HOD Console')" 
+    :topbarTitle="'Batch & Class Management'" 
+    :topbarSubtitle="'Department management, academics, faculty and reporting'" 
+    :activeNav="$initialPanel"
+>
   <style>
-    @media (max-width: 1440px) {
-      html, body {
-        font-size: 13px !important;
-      }
-      .p-6 {
-        padding: 1rem !important;
-      }
-      .p-8 {
-        padding: 1.25rem !important;
-      }
-      .gap-6 {
-        gap: 1rem !important;
-      }
-      .gap-8 {
-        gap: 1.25rem !important;
-      }
-      .table-responsive {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      .text-nowrap {
-        white-space: nowrap !important;
-      }
-    }
-    html {
-      font-size: 90%;
-    }
-    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
-    .font-extrabold, .font-black {
-      font-weight: 700 !important;
-    }
-    input, select, textarea {
-      font-size: 0.875rem !important; /* 14px (text-sm) minimum */
-    }
-    .text-lg {
-      font-size: 1.05rem !important;
-    }
-    .text-base {
-      font-size: 0.875rem !important;
-    }
-    nav.space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
-      margin-top: 0.125rem !important;
-    }
-    nav.space-y-1\.5 a, nav.space-y-1\.5 button {
-      padding-top: 0.375rem !important;
-      padding-bottom: 0.375rem !important;
-    }
     .transition-premium {
       transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -77,7 +28,7 @@
       height: 6px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.3);
+      background: rgba(15, 23, 42, 0.05);
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
       background: rgba(99, 102, 241, 0.3);
@@ -86,280 +37,61 @@
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
       background: rgba(99, 102, 241, 0.5);
     }
-
-    /* Compact Sidebar Navigation Sizing Standard (Enforcing Principal Desk Density) */
-    @media (min-width: 768px) {
-      aside nav {
-        padding: 0.75rem !important;
-      }
-      aside nav > :not([hidden]) ~ :not([hidden]) {
-        margin-top: 0.125rem !important;
-      }
-      aside nav a, aside nav button {
-        padding-top: 0.375rem !important;
-        padding-bottom: 0.375rem !important;
-        padding-left: 0.875rem !important;
-        padding-right: 0.875rem !important;
-        font-size: 11px !important;
-        gap: 0.625rem !important;
-      }
-      aside nav span.material-symbols-rounded {
-        font-size: 16px !important;
-      }
-    }
-
-    /* MOBILE-SPECIFIC SIDEBAR & CARD FIXES (MD breakpoint is 768px) */
-    @media (max-width: 767px) {
-      html, body {
-        font-size: 15px !important;
-      }
-      p, span, a, button, input, select, textarea, td, th {
-        font-size: 14px !important;
-      }
-      h1, .text-2xl {
-        font-size: 20px !important;
-      }
-      h2, .text-xl {
-        font-size: 18px !important;
-      }
-      h3, .text-lg {
-        font-size: 16px !important;
-      }
-
-      /* Sidebar changes: multi-row horizontal block on mobile */
-      aside {
-        width: 100% !important;
-        position: relative !important;
-        border-right: none !important;
-        border-bottom: 1px solid #1e293b !important;
-        flex-direction: column !important; /* Stack rows vertically */
-        align-items: stretch !important;
-        padding: 0.75rem 1rem 0.5rem !important;
-        gap: 0.75rem !important;
-      }
-      
-      /* Make sidebar brand logo header container visible inline on Row 1 */
-      aside > div.border-b {
-        display: flex !important;
-        border-bottom: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-      }
-
-      aside > div.border-b img {
-        width: 2.25rem !important;
-        height: 2.25rem !important;
-      }
-
-      aside > div.border-b h2 {
-        font-size: 18px !important;
-        font-weight: 900 !important;
-      }
-
-      aside > div.border-b span {
-        display: none !important; /* Hide subtitle to keep Row 1 clean */
-      }
-      
-      /* Make logout block sit inline on Row 1 (far right) with extra top offset spacing */
-      aside > div.border-t {
-        border-top: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        display: block !important;
-        width: auto !important;
-        position: absolute !important;
-        right: 1rem !important;
-        top: 0.85rem !important;
-      }
-      
-      aside > div.border-t a {
-        padding: 0.4rem 0.65rem !important;
-        border-radius: 0.5rem !important;
-        font-size: 13px !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.25rem !important;
-        white-space: nowrap !important;
-        background-color: rgba(239, 68, 68, 0.18) !important;
-        color: #f87171 !important;
-        border: 1px solid rgba(239, 68, 68, 0.4) !important;
-      }
-
-      /* Convert vertical nav list to an inline horizontal row on Row 2 with a dark gradient */
-      aside nav {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-        width: 100% !important;
-        padding: 0.4rem 0.5rem !important;
-        margin: 0 !important;
-        justify-content: space-between !important;
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
-        border: 1px solid rgba(51, 65, 85, 0.4) !important;
-        border-radius: 0.75rem !important;
-      }
-      
-      /* Reset standard padding on links/buttons for inline fit */
-      aside nav a, aside nav button {
-        padding: 0.4rem 0.65rem !important;
-        margin: 0 !important;
-        border-radius: 0.5rem !important;
-        font-size: 13px !important; /* compact font to fit */
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.25rem !important;
-        white-space: nowrap !important;
-        width: auto !important;
-        border-left: none !important; /* Remove custom vertical border indicators */
-      }
-      
-      /* Hide all links in mobile navigation except those explicitly marked as mobile-link */
-      aside nav > :not(.mobile-link) {
-        display: none !important;
-      }
-      
-      /* Active profile avatar banner is too large on mobile - hide */
-      #sidebarAvatarContainer {
-        display: none !important;
-      }
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
   </style>
-</head>
-<body class="bg-slate-900 text-slate-100 h-screen w-full flex flex-col md:flex-row overflow-hidden">
 
-  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <!-- Global Alert Banner -->
+  <div id="globalAlert" class="hidden p-4 rounded-xl text-sm font-semibold transition-all border mb-6"></div>
 
-  <!-- Sidebar Navigation -->
-  <aside class="w-full md:w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl">
-    <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
-      <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-slate-800/60">
-      <div>
-        <h2 class="font-black tracking-tight leading-tight text-white" style="font-size: 1.15rem; font-weight: 900; letter-spacing: -0.3px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Carmel Linx</h2>
-        <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">{{ $isPrincipalMode ? 'Principal View' : 'HOD Console' }}</span>
-      </div>
-    </div>
-
-    <!-- Active Profile Info -->
-    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3" id="sidebarAvatarContainer">
-      <img id="sidebarStaffImg" src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
-      <div class="overflow-hidden">
-        <span class="font-black text-base block truncate text-white leading-tight">{{ session('userName') }}</span>
-        <span class="text-xs font-bold text-teal-400 block uppercase tracking-wider">{{ $activeBranch }} {{ $isPrincipalMode ? 'Batch Status' : 'HOD' }}</span>
-      </div>
-    </div>
-
-    <!-- Navigation Menus -->
-    <nav class="flex-grow p-3 space-y-1">
-      @if($isPrincipalMode)
-      <a href="/dashboard/principal" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-amber-400 hover:bg-amber-950/30 hover:text-amber-300 cursor-pointer no-underline mb-2">
-         <span class="material-symbols-rounded text-base">arrow_back</span> Return to Desk
-      </a>
-      @endif
-      <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
-        <span class="material-symbols-rounded text-base">group</span> User Directory
-      </button>
-      <button id="navBatches" onclick="switchPanel('batches')" class="w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-2.5 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 mobile-link">
-        <span class="material-symbols-rounded text-base">school</span> Batch Management
-      </button>
-      <button id="navSubjects" onclick="switchPanel('subjects')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
-        <span class="material-symbols-rounded text-base">library_books</span> Subject Allocation
-      </button>
-      <button id="navAudit" onclick="switchPanel('audit')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
-        <span class="material-symbols-rounded text-base">receipt_long</span> Department Audit Trail
-      </button>
-      <a href="/dashboard/lecturer" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-base">calendar_view_week</span> My Batches
-      </a>
-      <a href="/hod/report-centre" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-base">analytics</span> Report Centre
-      </a>
-      <a href="/staff/leave/reports" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-base">event_note</span> Staff Leave Ledger
-      </a>
-      <a href="/staff/attendance-log" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-base">co_present</span> Class Attendance Log
-      </a>
-      <a href="/remedial-sessions" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-base">health_and_safety</span> Remedial Sessions
-      </a>
-      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mobile-link">
-         <span class="material-symbols-rounded text-base">event_note</span> My Leave & Attendance Log
-      </a>
-      <a href="/staff/professional-activities" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block">
-         <span class="material-symbols-rounded text-base">school</span> Professional Activities
-      </a>
-
-      <button id="navProfile" onclick="switchPanel('profile')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer">
-        <span class="material-symbols-rounded text-base">settings</span> My Profile
-      </button>
-    </nav>
-
-    <!-- Logout -->
-    <div class="p-4 border-t border-slate-800/80 space-y-2.5">
-      <a href="{{ url('/logout') }}" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-sm flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
-        <span class="material-symbols-rounded text-sm text-base">logout</span> Sign Out
-      </a>
-
-      <!-- Support Badge -->
-      <div onclick="openStaffSupportModal()" class="p-2 bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 rounded-xl text-center select-none cursor-pointer transition-premium" title="Click to Request Remote Support Assist">
-        <div class="flex items-center justify-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-          <span class="material-symbols-rounded text-xs text-blue-400">headset_mic</span> Live Assist
-        </div>
-        <div class="text-[11px] font-black text-slate-200 mt-0.5">Dhanush.A</div>
-        <div class="text-[9px] text-slate-400 font-medium">Dept. of Electronics</div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Main Workspace -->
-  <main class="flex-grow flex flex-col overflow-hidden relative">
-    
-    <!-- Top Header -->
-    <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-10">
-      <h1 id="panelTitle" class="font-bold text-slate-100 tracking-tight text-lg">Batch & Class Management</h1>
-      <div class="flex items-center gap-3">
-        <div id="aiStatusBadge" class="hidden"></div>
-        <div id="loadingIndicator" class="hidden items-center gap-2 text-sm text-slate-400 text-sm">
-          <div class="w-4 h-4 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin"></div>
-          <span>Syncing...</span>
-        </div>
-      </div>
-    </header>
-
-    <!-- Panel Container -->
-    <div class="flex-grow overflow-y-auto p-6 md:p-8 space-y-6">
-      
-      <!-- Alert Banner -->
-      <div id="globalAlert" class="hidden p-4 rounded-xl text-sm font-bold transition-premium border text-sm"></div>
+  <div class="space-y-6">
 
       <!-- PANEL 1: USER DIRECTORY -->
-      <div id="panelDirectory" class="hidden space-y-6">
+      <div id="panelDirectory" class="{{ $initialPanel === 'directory' ? '' : 'hidden' }} space-y-6">
         
         <!-- Directory Header -->
-        <div class="flex justify-between items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl">
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h3 class="text-sm font-bold text-slate-200 text-sm">Department Registered Accounts ({{ $activeBranch }})</h3>
-            <p class="text-sm text-slate-400 mt-0.5">Filter, search, audit, and manage profile lifecycle states for students and staff in your branch.</p>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 font-semibold text-xs border border-blue-100 uppercase tracking-wider">{{ $activeBranch }} Department</span>
+              <span class="text-xs text-slate-400">·</span>
+              <span class="text-xs text-slate-500 font-medium">User Directory</span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Department Registered Accounts</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Filter, search, audit, and manage profile lifecycle states for students and staff in your branch.</p>
           </div>
-          <button onclick="openRegisterModal()" class="px-4 py-2.5 bg-gradient-to-r from-blue-500 to-sky-600 hover:from-blue-600 hover:to-sky-700 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-500/10 text-sm">
-            <span class="material-symbols-rounded text-base">person_add</span> Register User
+          <button 
+            type="button" 
+            onclick="openRegisterModal()" 
+            class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all shadow-xs shrink-0 cursor-pointer"
+          >
+            <i data-lucide="user-plus" class="w-4 h-4 text-white"></i>
+            <span>Register User</span>
           </button>
         </div>
 
         <!-- Filters Console -->
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+        <div class="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
           <!-- Search input -->
           <div>
-            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Search User</label>
-            <input type="text" id="filterSearch" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm" placeholder="Name, Register No, Mobile...">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Search User</label>
+            <input 
+              type="text" 
+              id="filterSearch" 
+              class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400" 
+              placeholder="Name, Register No, Mobile..."
+            >
           </div>
           <!-- Role filter -->
           <div>
-            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Designation / Role</label>
-            <select id="filterRole" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none text-sm">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Designation / Role</label>
+            <select 
+              id="filterRole" 
+              class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none transition-all cursor-pointer"
+            >
               <option value="">All Roles</option>
               <option value="student">Students Only</option>
               <option value="Lecturer">Lecturers Only</option>
@@ -373,8 +105,11 @@
           </div>
           <!-- Status select -->
           <div>
-            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Account Status</label>
-            <select id="filterStatus" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none text-sm">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Account Status</label>
+            <select 
+              id="filterStatus" 
+              class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none transition-all cursor-pointer"
+            >
               <option value="">All Statuses</option>
               <option value="Approved">Approved</option>
               <option value="Pending">Pending</option>
@@ -383,18 +118,23 @@
           </div>
           <!-- Search Button -->
           <div>
-            <button onclick="loadUsers()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center justify-center gap-2 h-[38px] text-sm">
-              <span class="material-symbols-rounded text-base">search</span> Load Directory
+            <button 
+              type="button" 
+              onclick="loadUsers()" 
+              class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold transition-all cursor-pointer flex items-center justify-center gap-2 h-[38px] shadow-xs"
+            >
+              <i data-lucide="search" class="w-4 h-4 text-white"></i>
+              <span>Load Directory</span>
             </button>
           </div>
         </div>
 
         <!-- Users Table Grid -->
-        <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
+        <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
           <div class="max-h-[calc(100vh-320px)] overflow-auto custom-scrollbar">
             <table class="min-w-[1100px] w-full text-left border-collapse text-sm">
               <thead>
-                <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
+                <tr class="bg-slate-50/90 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider">
                   <th class="p-4">Profile</th>
                   <th class="p-4">Mobile / Reg No</th>
                   <th class="p-4">Branch</th>
@@ -406,15 +146,15 @@
                 </tr>
               </thead>
               <tbody id="usersTableBody">
-                <tr><td colspan="8" class="p-8 text-center text-slate-500 font-medium text-base">Use the filters and click "Load Directory" to view accounts.</td></tr>
+                <tr><td colspan="8" class="p-12 text-center text-slate-500 font-medium text-sm">Use the filters above and click "Load Directory" to view accounts.</td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- PANEL 2: BATCH MANAGEMENT -->
-      <div id="panelBatches" class="space-y-6">
+      <!-- PANEL 2: BATCH MANAGEMENT (HOD OVERVIEW) -->
+      <div id="panelBatches" class="{{ $initialPanel === 'batches' ? '' : 'hidden' }} space-y-6">
 
         <!-- Seminar Presentations Today dynamic notifications section -->
         <div id="seminarNotificationsContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-2">
@@ -422,24 +162,51 @@
         </div>
 
         <!-- Panel Header -->
-          <div class="flex justify-between items-start md:items-center bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl flex-col md:flex-row gap-4">
-            <div class="flex-1">
-              <h3 class="text-sm font-bold text-slate-200 text-lg">Batch & Class Management ({{ session('userBranch') }})</h3>
-              <p class="text-sm text-slate-400 mt-0.5">Create admission-year batches, assign a Tutor (class teacher) and Mentor for each batch.<br>Students auto-assign on registration.</p>
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 font-semibold text-xs border border-blue-100 uppercase tracking-wider">{{ $activeBranch }} Department</span>
+              <span class="text-xs text-slate-400">·</span>
+              <span class="text-xs text-slate-500 font-medium">Academic Console</span>
             </div>
-            <div class="flex items-center gap-4 ml-auto">
-            <div class="flex bg-slate-900 rounded-xl p-1 border border-slate-800">
-              <button id="btnHodFilterActive" onclick="loadBatches('active')" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-premium bg-violet-600/20 text-violet-400 text-sm">Current Batches</button>
-              <button id="btnHodFilterHistorical" onclick="loadBatches('historical')" class="px-4 py-1.5 rounded-lg text-sm font-bold transition-premium text-slate-500 hover:text-slate-300 text-sm">Previous Batches</button>
+            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Batch & Classroom Management</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Manage admission-year batches, class tutors, batch mentors, and semester progression.</p>
+          </div>
+          <div class="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+            <!-- Active / Historical Filter Pills -->
+            <div class="inline-flex p-1 bg-slate-100/80 border border-slate-200/60 rounded-xl">
+              <button 
+                id="btnHodFilterActive" 
+                type="button" 
+                onclick="loadBatches('active')" 
+                class="px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all bg-white text-slate-900 shadow-xs border border-slate-200/60 cursor-pointer"
+              >
+                Current Batches
+              </button>
+              <button 
+                id="btnHodFilterHistorical" 
+                type="button" 
+                onclick="loadBatches('historical')" 
+                class="px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 hover:text-slate-900 cursor-pointer"
+              >
+                Previous Batches
+              </button>
             </div>
-            <button onclick="openCreateBatchModal()" class="px-4 py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-violet-500/10 text-sm">
-              <span class="material-symbols-rounded text-base">add</span> Create Batch
+
+            <!-- Primary Action CTA -->
+            <button 
+              type="button" 
+              onclick="openCreateBatchModal()" 
+              class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all shadow-xs shrink-0 cursor-pointer"
+            >
+              <i data-lucide="plus-circle" class="w-4 h-4 text-white"></i>
+              <span>Create Batch</span>
             </button>
           </div>
         </div>
 
         <!-- Batch Alert -->
-        <div id="batchGlobalAlert" class="hidden p-4 rounded-xl text-sm font-bold border text-sm"></div>
+        <div id="batchGlobalAlert" class="hidden p-4 rounded-xl text-sm font-semibold border mb-4"></div>
 
         <!-- Batch Cards Grid -->
         <div id="batchCardsGrid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -447,85 +214,121 @@
         </div>
 
         <!-- Empty state -->
-        <div id="batchEmptyState" class="hidden flex flex-col items-center justify-center py-16 text-center">
-          <span class="material-symbols-rounded text-slate-700 mb-3 text-5xl">folder_open</span>
-          <p class="text-slate-500 font-bold text-base">No batches created yet.</p>
-          <p class="text-slate-600 text-sm mt-1 text-sm">Click "Create Batch" to set up your first admission year batch.</p>
+        <div id="batchEmptyState" class="hidden bg-white border border-slate-200/80 rounded-2xl p-12 text-center shadow-xs">
+          <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+            <i data-lucide="folder-open" class="w-6 h-6 text-slate-400"></i>
+          </div>
+          <h4 class="text-base font-bold text-slate-800">No batches found</h4>
+          <p class="text-sm text-slate-500 mt-1 max-w-sm mx-auto">No admission year batches exist for this filter. Click "Create Batch" to initialize your first department batch.</p>
         </div>
 
       </div>
 
       <!-- PANEL: SUBJECT ALLOCATION -->
-      <div id="panelSubjects" class="hidden space-y-6">
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl">
-          <div class="mb-4 pb-4 border-b border-slate-800/60">
-            <h3 class="text-sm font-bold text-slate-200 text-sm">Subject & Staff Allocation</h3>
-            <p class="text-sm text-slate-400 mt-0.5">Map curriculum subjects to batches per semester and assign staff across departments.</p>
-          </div>
-          <div class="flex flex-col sm:flex-row gap-4 items-end">
-            <div class="flex-1">
-              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Select Target Batch</label>
-              <select id="subjectBatchSelect" onchange="loadSubjects()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
-                <option value="">-- Choose a Classroom --</option>
-                <!-- Loaded via JS -->
-              </select>
-            </div>
-            <div class="flex-1">
-              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Select Semester</label>
-              <select id="subjectSemesterSelect" onchange="loadSubjects()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
-                <option value="1" selected>Semester 1</option>
-                <option value="2">Semester 2</option>
-                <option value="3">Semester 3</option>
-                <option value="4">Semester 4</option>
-                <option value="5">Semester 5</option>
-                <option value="6">Semester 6</option>
-              </select>
-            </div>
-            <div>
-              <button onclick="openSubjectModal()" class="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-500/10 h-[34px]">
-                <span class="material-symbols-rounded text-sm">add_box</span> Add Subject
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
-          <table class="w-full text-left text-sm border-collapse">
-            <thead>
-              <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
-                <th class="p-4">Subject Code</th>
-                <th class="p-4">Subject Name</th>
-                <th class="p-4">Type</th>
-                <th class="p-4">Assigned Staff</th>
-                <th class="p-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="subjectsTableBody">
-              <tr><td colspan="5" class="p-8 text-center text-slate-500">Select a batch to view its subjects.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- PANEL 3: AUDIT TRAIL -->
-      <div id="panelAudit" class="hidden space-y-6">
-        <!-- Audit Logs Controls -->
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+      <div id="panelSubjects" class="{{ $initialPanel === 'subjects' ? '' : 'hidden' }} space-y-6">
+        
+        <!-- Header Card -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h3 class="font-bold text-slate-200 text-sm">Department Audit Trail</h3>
-            <p class="text-sm text-slate-400 mt-1">Lifecycle events, status updates, registrations, and actions performed within the {{ session('userBranch') }} branch.</p>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 font-semibold text-xs border border-blue-100 uppercase tracking-wider">{{ $activeBranch }} Department</span>
+              <span class="text-xs text-slate-400">·</span>
+              <span class="text-xs text-slate-500 font-medium">Curriculum Management</span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Subject & Staff Allocation</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Map curriculum subjects to batches per semester and assign staff across departments.</p>
           </div>
-          <button onclick="loadAuditTrail()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold transition-premium cursor-pointer flex items-center gap-2">
-            <span class="material-symbols-rounded text-sm">sync</span> Refresh Log
+          <button 
+            type="button" 
+            onclick="openSubjectModal()" 
+            class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-semibold transition-all shadow-xs shrink-0 cursor-pointer"
+          >
+            <i data-lucide="plus-circle" class="w-4 h-4 text-white"></i>
+            <span>Add Subject</span>
           </button>
         </div>
 
-        <!-- Audit Table -->
-        <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
-          <div class="overflow-x-auto scrollbar-hidden">
-            <table class="w-full text-left text-sm border-collapse">
+        <!-- Filters & Action Bar -->
+        <div class="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Select Target Batch</label>
+            <select 
+              id="subjectBatchSelect" 
+              onchange="loadSubjects()" 
+              class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none transition-all cursor-pointer font-medium"
+            >
+              <option value="">-- Choose a Classroom --</option>
+              <!-- Loaded via JS -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Select Semester</label>
+            <select 
+              id="subjectSemesterSelect" 
+              onchange="loadSubjects()" 
+              class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none transition-all cursor-pointer font-medium"
+            >
+              <option value="1" selected>Semester 1</option>
+              <option value="2">Semester 2</option>
+              <option value="3">Semester 3</option>
+              <option value="4">Semester 4</option>
+              <option value="5">Semester 5</option>
+              <option value="6">Semester 6</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Data Table Container -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
+          <div class="max-h-[calc(100vh-320px)] overflow-auto custom-scrollbar">
+            <table class="min-w-[900px] w-full text-left border-collapse text-sm">
               <thead>
-                <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
+                <tr class="bg-slate-50/90 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider">
+                  <th class="p-4">Subject Code</th>
+                  <th class="p-4">Subject Name</th>
+                  <th class="p-4">Type</th>
+                  <th class="p-4">Assigned Staff</th>
+                  <th class="p-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="subjectsTableBody">
+                <tr><td colspan="5" class="p-12 text-center text-slate-500 font-medium text-sm">Select a batch above to view its allocated subjects.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PANEL 3: AUDIT TRAIL -->
+      <div id="panelAudit" class="{{ $initialPanel === 'audit' ? '' : 'hidden' }} space-y-6">
+        <!-- Audit Logs Controls -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 font-semibold text-xs border border-blue-100 uppercase tracking-wider">{{ session('userBranch') }} Branch</span>
+              <span class="text-xs text-slate-400">·</span>
+              <span class="text-xs text-slate-500 font-medium">Security & Integrity</span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 tracking-tight">Department Audit Trail</h2>
+            <p class="text-sm text-slate-500 mt-0.5">Lifecycle events, status updates, registrations, and actions performed within the {{ session('userBranch') }} branch.</p>
+          </div>
+          <button 
+            type="button" 
+            onclick="loadAuditTrail()" 
+            class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold transition-all shadow-xs shrink-0 cursor-pointer"
+          >
+            <i data-lucide="refresh-cw" class="w-4 h-4 text-white"></i>
+            <span>Refresh Log</span>
+          </button>
+        </div>
+
+        <!-- Audit Table Container -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
+          <div class="max-h-[calc(100vh-320px)] overflow-auto custom-scrollbar">
+            <table class="min-w-[1000px] w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="bg-slate-50/90 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider">
                   <th class="p-4">Timestamp</th>
                   <th class="p-4">Actor</th>
                   <th class="p-4">Target User (ID)</th>
@@ -535,62 +338,317 @@
                 </tr>
               </thead>
               <tbody id="auditTableBody">
-                <!-- Audit logs render dynamically -->
+                <tr><td colspan="6" class="p-12 text-center text-slate-500 font-medium text-sm">Click "Refresh Log" to query audit records.</td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
-      <!-- PANEL 3: MY PROFILE -->
-      <div id="panelProfile" class="hidden space-y-6">
-        @include('partials.staff_profile_panel')
+      <!-- PANEL: STAFF LEAVE MASTER LEDGER -->
+      <div id="panelLeave_ledger" class="{{ $initialPanel === 'leave_ledger' ? '' : 'hidden' }} space-y-6">
+        
+        <!-- Header & Filters Card -->
+        <div class="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100 shrink-0">
+              <i data-lucide="calendar-range" class="w-6 h-6 text-rose-600"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200/80">
+                  <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                  {{ $activeBranch }} Department · Leave Ledger
+                </span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mt-1">Staff Leave Master Ledger &amp; Report Center</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Multi-stage approval audit trail, departmental leave balances, and official leave orders.</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <select id="leaveLedgerYear" onchange="loadLeaveLedger()" class="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-2xs">
+              @foreach([date('Y'), date('Y')-1, date('Y')-2] as $yr)
+                <option value="{{ $yr }}">{{ $yr }} - {{ $yr+1 }}</option>
+              @endforeach
+            </select>
+
+            <select id="leaveLedgerDept" onchange="loadLeaveLedger()" class="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-2xs">
+              <option value="{{ $activeBranch }}">{{ $activeBranch }} Department</option>
+              <option value="">All Departments</option>
+              <option value="EL">Electronics (EL)</option>
+              <option value="ME">Mechanical (ME)</option>
+              <option value="CE">Civil (CE)</option>
+              <option value="EEE">Electrical (EEE)</option>
+              <option value="CT">Computer (CT)</option>
+              <option value="AU">Automobile (AU)</option>
+              <option value="GEN_AIDED">Gen Aided</option>
+              <option value="GEN_SF">Gen SF</option>
+            </select>
+
+            <select id="leaveLedgerStatus" onchange="loadLeaveLedger()" class="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-2xs">
+              <option value="">All Statuses</option>
+              <option value="Pending_HOD">Pending HOD Recommendation</option>
+              <option value="Pending_Coordinator">Pending Coordinator</option>
+              <option value="Pending_Principal">Pending Principal Approval</option>
+              <option value="Approved">Final Approved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+
+            <button type="button" onclick="loadLeaveLedger()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition cursor-pointer border border-slate-200 flex items-center gap-2 text-sm font-semibold" title="Refresh Leave Ledger">
+              <i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600"></i>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 6 KPI Metric Summary Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div class="bg-white border border-slate-200/80 p-4 rounded-2xl text-center shadow-xs">
+            <span class="text-xs text-slate-500 font-bold uppercase tracking-wider block">Total Days</span>
+            <span id="leaveKpiTotal" class="text-xl font-bold text-slate-900 block mt-1">0.0</span>
+            <span class="text-[11px] text-slate-400 font-medium">Days in Selection</span>
+          </div>
+          <div class="bg-white border border-slate-200/80 p-4 rounded-2xl text-center shadow-xs">
+            <span class="text-xs text-blue-600 font-bold uppercase tracking-wider block">Casual (CL)</span>
+            <span id="leaveKpiCL" class="text-xl font-bold text-blue-600 block mt-1">0.0</span>
+            <span class="text-[11px] text-slate-400 font-medium">Casual Leave</span>
+          </div>
+          <div class="bg-white border border-slate-200/80 p-4 rounded-2xl text-center shadow-xs">
+            <span class="text-xs text-amber-600 font-bold uppercase tracking-wider block">Comp (CCL)</span>
+            <span id="leaveKpiCCL" class="text-xl font-bold text-amber-600 block mt-1">0.0</span>
+            <span class="text-[11px] text-slate-400 font-medium">Compensatory</span>
+          </div>
+          <div class="bg-white border border-slate-200/80 p-4 rounded-2xl text-center shadow-xs">
+            <span class="text-xs text-indigo-600 font-bold uppercase tracking-wider block">Duty (DL)</span>
+            <span id="leaveKpiDL" class="text-xl font-bold text-indigo-600 block mt-1">0.0</span>
+            <span class="text-[11px] text-slate-400 font-medium">Duty Leave</span>
+          </div>
+          <div class="bg-white border border-slate-200/80 p-4 rounded-2xl text-center shadow-xs">
+            <span class="text-xs text-emerald-600 font-bold uppercase tracking-wider block">Medical (ML)</span>
+            <span id="leaveKpiML" class="text-xl font-bold text-emerald-600 block mt-1">0.0</span>
+            <span class="text-[11px] text-slate-400 font-medium">Medical Leave</span>
+          </div>
+          <div class="bg-white border border-slate-200/80 p-4 rounded-2xl text-center shadow-xs">
+            <span class="text-xs text-rose-600 font-bold uppercase tracking-wider block">Loss of Pay</span>
+            <span id="leaveKpiLOP" class="text-xl font-bold text-rose-600 block mt-1">0.0</span>
+            <span class="text-[11px] text-slate-400 font-medium">LOP Leave</span>
+          </div>
+        </div>
+
+        <!-- Master Leave Table Container -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
+          <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse text-sm">
+              <thead>
+                <tr class="bg-slate-50/90 border-b border-slate-200 text-slate-700 font-semibold uppercase tracking-wider text-xs">
+                  <th class="py-3.5 px-4">Application &amp; Staff</th>
+                  <th class="py-3.5 px-4">Leave Type</th>
+                  <th class="py-3.5 px-4">Duration &amp; Dates</th>
+                  <th class="py-3.5 px-4">Reason &amp; Duty Arrangement</th>
+                  <th class="py-3.5 px-4 text-center">Multi-Stage Status</th>
+                  <th class="py-3.5 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="leaveLedgerTableBody" class="divide-y divide-slate-100 text-slate-800">
+                <tr><td colspan="6" class="p-12 text-center text-slate-500 font-medium text-sm">Loading leave ledger applications...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PANEL: PROFESSIONAL ACTIVITIES (5/7 WORKSPACE ARCHETYPE) -->
+      <div id="panelProf_activities" class="{{ $initialPanel === 'prof_activities' ? '' : 'hidden' }} space-y-6">
+        
+        <!-- Header & Filters Toolbar Card -->
+        <div class="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 shrink-0">
+              <i data-lucide="award" class="w-6 h-6 text-indigo-600"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                  <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                  {{ $activeBranch }} Department · Faculty Professional Activities
+                </span>
+              </div>
+              <h3 class="text-base font-bold text-slate-900 mt-1">Professional Activities</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Faculty development, publications, workshops, projects, and academic contributions.</p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <select id="profActAyFilter" onchange="loadProfActivities()" class="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-2xs">
+              @php
+                $sYear = 2020;
+                $eYear = date('Y') + 3;
+              @endphp
+              @for($y = $eYear; $y >= $sYear; $y--)
+                @php $yr = $y . '-' . ($y + 1); @endphp
+                <option value="{{ $yr }}" {{ $yr === (date('Y') . '-' . (date('Y') + 1)) ? 'selected' : '' }}>AY {{ $yr }}</option>
+              @endfor
+            </select>
+
+            <select id="profActDeptFilter" onchange="loadProfActivities()" class="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-2xs">
+              <option value="{{ $activeBranch }}">{{ $activeBranch }} Department</option>
+              <option value="">All Departments</option>
+              <option value="EL">Electronics (EL)</option>
+              <option value="ME">Mechanical (ME)</option>
+              <option value="CE">Civil (CE)</option>
+              <option value="EEE">Electrical (EEE)</option>
+              <option value="CT">Computer (CT)</option>
+              <option value="AU">Automobile (AU)</option>
+              <option value="GEN_AIDED">Gen Aided</option>
+              <option value="GEN_SF">Gen SF</option>
+            </select>
+
+            <button type="button" onclick="loadProfActivities()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition cursor-pointer border border-slate-200 flex items-center gap-2 text-sm font-semibold" title="Refresh Activities">
+              <i data-lucide="refresh-cw" class="w-4 h-4 text-slate-600"></i>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 5/7 Split Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          <!-- Left 5 Columns: Activity Entry Form -->
+          <div class="lg:col-span-5 bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i>
+                <span>Record Professional Activity</span>
+              </h4>
+              <span class="text-xs text-slate-400 font-mono" id="profActAyLabel">AY {{ date('Y') }}-{{ date('Y') + 1 }}</span>
+            </div>
+
+            <form id="profActivityForm" onsubmit="submitProfActivity(event)" class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Activity Category <span class="text-rose-500">*</span></label>
+                <select id="profActType" onchange="toggleProfActFields(this.value)" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all font-medium">
+                  <option value="fdp_attended">Faculty Development Program (FDP) / Training</option>
+                  <option value="workshop_attended">Technical Workshop / Hands-on BootCamp</option>
+                  <option value="course_attended">Online Certification / MOOC / NPTEL Course</option>
+                  <option value="gap_in_syllabus">Curricular Gap Identified in Syllabus</option>
+                  <option value="project_guided">Student Major / Minor Project Guided</option>
+                  <option value="seminar_guided">Student Technical Seminar Guided</option>
+                  <option value="publication">Research Paper / Journal Publication</option>
+                  <option value="book_published">Book Published (with ISBN)</option>
+                </select>
+              </div>
+
+              <!-- Dynamic Schema Fields Container -->
+              <div id="profActDynamicFields" class="space-y-3 pt-1">
+                <!-- Rendered dynamically by JS toggleProfActFields -->
+              </div>
+
+              <div id="profActAlert" class="hidden p-3 rounded-xl font-semibold border text-sm"></div>
+
+              <button type="submit" id="btnSaveProfAct" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs">
+                <i data-lucide="save" class="w-4 h-4 text-white"></i>
+                <span>Save Activity Record</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Right 7 Columns: KPI Metrics & Activity Feed -->
+          <div class="lg:col-span-7 space-y-4">
+            
+            <!-- 3 Metric KPI Summary Cards -->
+            <div class="grid grid-cols-3 gap-3">
+              <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs text-center">
+                <span class="text-xs text-slate-500 font-bold uppercase tracking-wider block">Total Recorded</span>
+                <span id="profActTotalCount" class="text-xl font-bold text-slate-900 block mt-1">0</span>
+                <span class="text-[11px] text-slate-400 font-medium">Department Items</span>
+              </div>
+              <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs text-center">
+                <span class="text-xs text-indigo-600 font-bold uppercase tracking-wider block">FDPs &amp; Workshops</span>
+                <span id="profActFdpCount" class="text-xl font-bold text-indigo-600 block mt-1">0</span>
+                <span class="text-[11px] text-slate-400 font-medium">Training Programs</span>
+              </div>
+              <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs text-center">
+                <span class="text-xs text-emerald-600 font-bold uppercase tracking-wider block">Publications &amp; Books</span>
+                <span id="profActPubCount" class="text-xl font-bold text-emerald-600 block mt-1">0</span>
+                <span class="text-[11px] text-slate-400 font-medium">Research &amp; Text</span>
+              </div>
+            </div>
+
+            <!-- Activity Registry Feed Card -->
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3.5">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  <i data-lucide="award" class="w-4 h-4 text-blue-600"></i>
+                  <span>Professional Activity Registry</span>
+                </h4>
+                <span id="profActRegistryCount" class="text-xs text-slate-500 font-medium">0 records in AY</span>
+              </div>
+
+              <!-- List Container -->
+              <div id="profActListContainer" class="space-y-3 max-h-[560px] overflow-y-auto custom-scrollbar">
+                <div class="p-8 text-center text-slate-400 text-sm">Loading activity records...</div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- PANEL 4: MY PROFILE -->
+      <div id="panelProfile" class="{{ $initialPanel === 'profile' ? '' : 'hidden' }} space-y-6">
+        @include('partials.staff_profile_panel', ['hideAuditLog' => true])
       </div>
 
     </div>
-  </main>
 
   <!-- CREATE BATCH MODAL -->
-  <div id="createBatchModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-violet-400 text-xs">school</span> Create New Batch
+  <div id="createBatchModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i data-lucide="school" class="w-5 h-5 text-blue-600"></i>
+          <span>Create New Batch</span>
         </h3>
-        <button onclick="closeCreateBatchModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
+        <button type="button" onclick="closeCreateBatchModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
       <div class="space-y-4">
         <!-- Admission Year -->
         <div id="batchAdmYearContainer">
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Admission Year</label>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Admission Year</label>
           <input type="number" id="batchAdmYear" min="2000" max="2100" value="2026"
             oninput="updateBatchPreview()"
-            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 focus:ring-1 focus:ring-violet-500 outline-none">
+            class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none">
         </div>
 
         <!-- Batch Type -->
         <div>
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Batch Type</label>
-          <select id="batchTypeSelect" onchange="toggleBatchCreationLetView(); updateBatchPreview();" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 outline-none cursor-pointer">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Batch Type</label>
+          <select id="batchTypeSelect" onchange="toggleBatchCreationLetView(); updateBatchPreview();" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none cursor-pointer">
             <option value="Regular" selected>Regular (Default 3-Year Batch)</option>
             <option value="LET">Lateral Entry (LET Batch - Copy Tutor/Mentor, Starts S3)</option>
           </select>
         </div>
 
         <!-- Preview -->
-        <div class="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 flex items-center gap-3">
-          <span class="material-symbols-rounded text-violet-400 text-sm">info</span>
+        <div class="bg-blue-50/60 border border-blue-100 rounded-xl p-3.5 flex items-center gap-3">
+          <i data-lucide="info" class="w-4 h-4 text-blue-600 shrink-0"></i>
           <div>
-            <p class="text-sm text-slate-400">Classroom ID that will be created:</p>
-            <p id="batchIdPreview" class="font-mono font-bold text-violet-300 text-sm">{{ session('userBranch') }}_2025_2028</p>
+            <p class="text-xs text-slate-600 font-medium">Classroom ID that will be created:</p>
+            <p id="batchIdPreview" class="font-mono font-bold text-blue-700 text-sm">{{ session('userBranch') }}_2025_2028</p>
           </div>
         </div>
 
         <!-- Starting Semester -->
         <div id="batchStartSemesterContainer">
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Starting Semester</label>
-          <select id="batchStartSemesterSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 outline-none">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Starting Semester</label>
+          <select id="batchStartSemesterSelect" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
             <option value="1" selected>Semester 1 (S1)</option>
             <option value="2">Semester 2 (S2)</option>
             <option value="3">Semester 3 (S3)</option>
@@ -602,16 +660,16 @@
 
         <!-- Optional Tutor -->
         <div id="batchTutorContainer">
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Assign Tutor (Optional)</label>
-          <select id="batchTutorSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 outline-none">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Assign Tutor (Optional)</label>
+          <select id="batchTutorSelect" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
             <option value=""> Select Tutor (optional) </option>
           </select>
         </div>
 
         <!-- Optional Mentor -->
         <div id="batchMentorContainer">
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Assign Mentor (Optional)</label>
-          <select id="batchMentorSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-violet-500 outline-none">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Assign Mentor (Optional)</label>
+          <select id="batchMentorSelect" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
             <option value="">Select Mentor (optional) </option>
           </select>
         </div>
@@ -620,85 +678,92 @@
       <div id="createBatchAlert" class="hidden p-3 rounded-xl text-sm font-bold border"></div>
 
       <div class="flex gap-3 pt-2">
-        <button onclick="closeCreateBatchModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Cancel</button>
-        <button onclick="submitCreateBatch()" class="flex-1 py-2.5 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
+        <button type="button" onclick="closeCreateBatchModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-100 rounded-xl font-semibold text-sm text-slate-700 transition-colors cursor-pointer">Cancel</button>
+        <button type="button" onclick="submitCreateBatch()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-xs">
           <span>Create Batch</span>
           <div id="createBatchSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
         </button>
       </div>
     </div>
   </div>
+      </div>
+    </div>
+  </div>
 
   <!-- BATCH DETAIL MODAL -->
-  <div id="batchDetailModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-7xl shadow-2xl flex flex-col max-h-[95vh]">
+  <div id="batchDetailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-7xl shadow-2xl flex flex-col max-h-[95vh]">
       <!-- Modal Header -->
-      <div class="flex justify-between items-center border-b border-slate-800 p-5 flex-shrink-0">
+      <div class="flex justify-between items-center border-b border-slate-100 p-5 flex-shrink-0">
         <div>
-          <h3 id="batchDetailTitle" class="font-black text-slate-100 text-sm">Batch Detail</h3>
-          <p id="batchDetailSubtitle" class="text-sm text-slate-400 mt-0.5">Manage tutor, mentor, subjects, and enrolled students</p>
+          <h3 id="batchDetailTitle" class="font-bold text-slate-900 text-base">Batch Detail</h3>
+          <p id="batchDetailSubtitle" class="text-xs text-slate-500 mt-0.5">Manage tutor, mentor, subjects, and enrolled students</p>
         </div>
         <div class="flex items-center gap-2">
           <!-- Graduate / Archive Batch button (NEW - purely additive) -->
-          <button id="btnGraduateBatch" onclick="confirmGraduateBatch()" class="hidden px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5">
-            <span class="material-symbols-rounded" style="font-size:15px">school</span> Graduate / Archive Batch
+          <button id="btnGraduateBatch" onclick="confirmGraduateBatch()" class="hidden px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-xl text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5">
+            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+            <span>Graduate / Archive</span>
           </button>
           <!-- Delete Batch button -->
-          <button id="btnDeleteBatch" onclick="confirmDeleteBatch()" class="hidden px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5">
-            <span class="material-symbols-rounded" style="font-size:15px">delete_forever</span> Delete Batch
+          <button id="btnDeleteBatch" onclick="confirmDeleteBatch()" class="hidden px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <span>Delete Batch</span>
           </button>
-          <button onclick="closeBatchDetailModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
+          <button type="button" onclick="closeBatchDetailModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
         </div>
       </div>
 
       <!-- Tabs Navigation -->
-      <div class="flex border-b border-slate-800/60 px-5 pt-3 gap-6">
-         <button onclick="switchBatchTab('tutorMentor')" id="tabBtn_tutorMentor" class="pb-3 text-sm font-bold border-b-2 border-violet-500 text-white transition-premium cursor-pointer">Tutor &amp; Mentor</button>
-         <button onclick="switchBatchTab('subjects')" id="tabBtn_subjects" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Allocated Subjects</button>
-         <button onclick="switchBatchTab('students')" id="tabBtn_students" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Enrolled Students</button>
-         <button onclick="switchBatchTab('timetable')" id="tabBtn_timetable" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Time Table</button>
-         <button onclick="switchBatchTab('semesterHistory')" id="tabBtn_semesterHistory" class="pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer">Semester History</button>
+      <div class="flex border-b border-slate-100 px-5 pt-3 gap-6 overflow-x-auto">
+         <button onclick="switchBatchTab('tutorMentor')" id="tabBtn_tutorMentor" class="pb-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition-colors cursor-pointer whitespace-nowrap">Tutor &amp; Mentor</button>
+         <button onclick="switchBatchTab('subjects')" id="tabBtn_subjects" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors cursor-pointer whitespace-nowrap">Allocated Subjects</button>
+         <button onclick="switchBatchTab('students')" id="tabBtn_students" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors cursor-pointer whitespace-nowrap">Enrolled Students</button>
+         <button onclick="switchBatchTab('timetable')" id="tabBtn_timetable" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors cursor-pointer whitespace-nowrap">Time Table</button>
+         <button onclick="switchBatchTab('semesterHistory')" id="tabBtn_semesterHistory" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors cursor-pointer whitespace-nowrap">Semester History</button>
       </div>
 
       <div class="flex-grow overflow-y-auto p-5 relative">
         <!-- Tab: Tutor & Mentor -->
-        <div id="batchTab_tutorMentor" class="block space-y-4 fade-up">
+        <div id="batchTab_tutorMentor" class="block space-y-4">
 
         <!-- Assignment Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
           <!-- Tutor Card -->
-          <div class="bg-slate-950/60 border border-slate-800/60 rounded-2xl p-4 space-y-3">
+          <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 space-y-3">
             <div class="flex items-center gap-2">
-              <span class="material-symbols-rounded text-sky-400 text-xs">person_pin</span>
-              <h4 class="font-black text-slate-200 text-sm">Class Tutor</h4>
+              <i data-lucide="user-check" class="w-4 h-4 text-blue-600"></i>
+              <h4 class="font-bold text-slate-900 text-sm">Class Tutor</h4>
             </div>
-            <div id="tutorCurrentDisplay" class="text-sm text-slate-400">Not assigned</div>
+            <div id="tutorCurrentDisplay" class="text-sm text-slate-600 font-medium">Not assigned</div>
             <div class="space-y-2">
-              <select id="detailTutorSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-sky-500 outline-none">
+              <select id="detailTutorSelect" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
                 <option value="">- None (Remove) -</option>
               </select>
-              <button onclick="submitAssignTutor()" class="w-full py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
-                <span class="material-symbols-rounded text-sm">how_to_reg</span> Update Tutor
-                <div id="assignTutorSpinner" class="hidden w-3 h-3 border-2 border-sky-200 border-t-white rounded-full animate-spin"></div>
+              <button onclick="submitAssignTutor()" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                <span>Update Tutor</span>
+                <div id="assignTutorSpinner" class="hidden w-3 h-3 border-2 border-blue-200 border-t-white rounded-full animate-spin"></div>
               </button>
             </div>
             <div id="assignTutorAlert" class="hidden p-2 rounded-lg text-sm font-bold border"></div>
           </div>
 
           <!-- Mentor Card -->
-          <div class="bg-slate-950/60 border border-slate-800/60 rounded-2xl p-4 space-y-3">
+          <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-5 space-y-3">
             <div class="flex items-center gap-2">
-              <span class="material-symbols-rounded text-emerald-400 text-xs">supervisor_account</span>
-              <h4 class="font-black text-slate-200 text-sm">Class Mentor</h4>
+              <i data-lucide="users" class="w-4 h-4 text-emerald-600"></i>
+              <h4 class="font-bold text-slate-900 text-sm">Class Mentor</h4>
             </div>
-            <div id="mentorCurrentDisplay" class="text-sm text-slate-400">Not assigned</div>
+            <div id="mentorCurrentDisplay" class="text-sm text-slate-600 font-medium">Not assigned</div>
             <div class="space-y-2">
-              <select id="detailMentorSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
+              <select id="detailMentorSelect" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
                 <option value="">- None (Remove) -</option>
               </select>
-              <button onclick="submitAssignMentor()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
-                <span class="material-symbols-rounded text-sm">group_add</span> Update Mentor
+              <button onclick="submitAssignMentor()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-xs">
+                <span>Update Mentor</span>
                 <div id="assignMentorSpinner" class="hidden w-3 h-3 border-2 border-emerald-200 border-t-white rounded-full animate-spin"></div>
               </button>
             </div>
@@ -708,11 +773,11 @@
         </div>
 
         <!-- Tab: Subjects -->
-        <div id="batchTab_subjects" class="hidden space-y-4 fade-up">
+        <div id="batchTab_subjects" class="hidden space-y-4">
           <div class="flex items-center gap-4 mb-2">
             <div class="flex items-center gap-2">
-              <label class="text-sm text-slate-400 font-bold uppercase tracking-wider">Select Semester:</label>
-              <select id="modalSubjectSemester" onchange="loadModalSubjects()" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-sm text-white focus:border-violet-500 outline-none">
+              <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Semester:</label>
+              <select id="modalSubjectSemester" onchange="loadModalSubjects()" class="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-sm text-slate-900 focus:border-blue-600 outline-none">
                 <option value="1" selected>Semester 1</option>
                 <option value="2">Semester 2</option>
                 <option value="3">Semester 3</option>
@@ -721,14 +786,15 @@
                 <option value="6">Semester 6</option>
               </select>
             </div>
-            <button onclick="openSubjectModalFromDetail()" class="ml-auto px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg font-bold text-sm transition-premium cursor-pointer flex items-center gap-1">
-              <span class="material-symbols-rounded text-sm">add</span> Allocate Subject
+            <button onclick="openSubjectModalFromDetail()" class="ml-auto px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1 shadow-xs">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>Allocate Subject</span>
             </button>
           </div>
-          <div class="overflow-x-auto max-h-[450px] overflow-y-auto bg-slate-950/40 border border-slate-800/40 rounded-2xl">
+          <div class="overflow-x-auto max-h-[450px] overflow-y-auto bg-white border border-slate-200/80 rounded-2xl">
             <table class="min-w-[950px] w-full text-left text-sm border-collapse">
               <thead>
-                <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold sticky top-0 z-10">
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider sticky top-0 z-10">
                   <th class="p-3">Code</th>
                   <th class="p-3">Rev</th>
                   <th class="p-3">Subject Name</th>
@@ -739,26 +805,26 @@
                 </tr>
               </thead>
               <tbody id="modalSubjectsTableBody">
-                <tr><td colspan="6" class="p-6 text-center text-slate-500">Select a semester to view subjects.</td></tr>
+                <tr><td colspan="7" class="p-6 text-center text-slate-500">Select a semester to view subjects.</td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
         <!-- Tab: Enrolled Students -->
-        <div id="batchTab_students" class="hidden fade-up">
-        <div class="bg-slate-950/40 border border-slate-800/40 rounded-2xl overflow-hidden">
-          <div class="p-4 border-b border-slate-800/60 flex items-center justify-between">
-            <h4 class="font-black text-slate-200 text-sm flex items-center gap-2">
-              <span class="material-symbols-rounded text-slate-400 text-sm">groups</span>
-              Enrolled Students
-              <span id="rosterCountBadge" class="px-2 py-0.5 bg-slate-800 text-slate-400 rounded-full text-sm font-mono">0</span>
+        <div id="batchTab_students" class="hidden">
+        <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden">
+          <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+              <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
+              <span>Enrolled Students</span>
+              <span id="rosterCountBadge" class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-full text-xs font-mono font-semibold">0</span>
             </h4>
           </div>
           <div class="overflow-x-auto max-h-[450px] overflow-y-auto">
             <table class="min-w-[950px] w-full text-left text-sm border-collapse">
               <thead>
-                <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold sticky top-0">
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider sticky top-0">
                   <th class="p-3">Name</th>
                   <th class="p-3">Reg No</th>
                   <th class="p-3">Adm No</th>
@@ -778,41 +844,44 @@
       </div>
 
       <!-- Tab: Time Table -->
-      <div id="batchTab_timetable" class="hidden space-y-4 fade-up">
-        <div class="flex justify-between items-center bg-slate-950/20 border border-slate-800/60 p-4 rounded-xl">
+      <div id="batchTab_timetable" class="hidden space-y-4">
+        <div class="flex justify-between items-center bg-slate-50 border border-slate-200 p-4 rounded-xl">
           <div>
-            <h4 class="text-sm font-bold text-white">Batch Weekly Timetable</h4>
-            <p class="text-xs text-slate-400">Configure weekly lecture and lab hours. 3 periods forenoon, 3 periods afternoon.</p>
+            <h4 class="text-sm font-bold text-slate-900">Batch Weekly Timetable</h4>
+            <p class="text-xs text-slate-500">Configure weekly lecture and lab hours. 3 periods forenoon, 3 periods afternoon.</p>
           </div>
           <div class="flex gap-2">
-            <button onclick="printTimetable()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center gap-1.5">
-              <span class="material-symbols-rounded text-sm">print</span> Print
+            <button onclick="printTimetable()" class="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5">
+              <i data-lucide="printer" class="w-4 h-4"></i>
+              <span>Print</span>
             </button>
-            <button id="btnEditTimetable" onclick="toggleTimetableEdit(true)" class="px-3.5 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-violet-600/10">
-              <span class="material-symbols-rounded text-sm">edit</span> Edit Timetable
+            <button id="btnEditTimetable" onclick="toggleTimetableEdit(true)" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs">
+              <i data-lucide="edit-3" class="w-4 h-4"></i>
+              <span>Edit Timetable</span>
             </button>
-            <button id="btnCancelTimetable" onclick="toggleTimetableEdit(false)" class="hidden px-3.5 py-2 border border-slate-800 hover:bg-slate-800 text-slate-300 rounded-xl font-bold text-sm transition-premium cursor-pointer">
+            <button id="btnCancelTimetable" onclick="toggleTimetableEdit(false)" class="hidden px-3.5 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-xl font-semibold text-xs transition-colors cursor-pointer">
               Cancel
             </button>
-            <button id="btnSaveTimetable" onclick="submitTimetable()" class="hidden px-3.5 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-emerald-500/10">
-              <span class="material-symbols-rounded text-sm">save</span> Save Changes
+            <button id="btnSaveTimetable" onclick="submitTimetable()" class="hidden px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs">
+              <i data-lucide="save" class="w-4 h-4"></i>
+              <span>Save Changes</span>
             </button>
           </div>
         </div>
 
         <!-- View Mode -->
-        <div id="timetableDisplayArea" class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
+        <div id="timetableDisplayArea" class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden">
           <table class="w-full text-left text-sm border-collapse">
             <thead>
-              <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
+              <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider">
                 <th class="p-3 text-center w-24">Day</th>
-                <th class="p-3 text-center">Period 1<br><span class="text-xs text-slate-500">09:00 - 10:00</span></th>
-                <th class="p-3 text-center">Period 2<br><span class="text-xs text-slate-500">10:00 - 11:00</span></th>
-                <th class="p-3 text-center">Period 3<br><span class="text-xs text-slate-500">11:10 - 12:10</span></th>
-                <th class="p-3 text-center bg-slate-900/20 w-16">Lunch</th>
-                <th class="p-3 text-center">Period 4<br><span class="text-xs text-slate-500">01:00 - 02:00</span></th>
-                <th class="p-3 text-center">Period 5<br><span class="text-xs text-slate-500">02:00 - 03:00</span></th>
-                <th class="p-3 text-center">Period 6<br><span class="text-xs text-slate-500">03:00 - 04:00</span></th>
+                <th class="p-3 text-center">Period 1<br><span class="text-[11px] text-slate-500 font-normal">09:00 - 10:00</span></th>
+                <th class="p-3 text-center">Period 2<br><span class="text-[11px] text-slate-500 font-normal">10:00 - 11:00</span></th>
+                <th class="p-3 text-center">Period 3<br><span class="text-[11px] text-slate-500 font-normal">11:10 - 12:10</span></th>
+                <th class="p-3 text-center bg-slate-100/60 w-16 text-slate-500">Lunch</th>
+                <th class="p-3 text-center">Period 4<br><span class="text-[11px] text-slate-500 font-normal">01:00 - 02:00</span></th>
+                <th class="p-3 text-center">Period 5<br><span class="text-[11px] text-slate-500 font-normal">02:00 - 03:00</span></th>
+                <th class="p-3 text-center">Period 6<br><span class="text-[11px] text-slate-500 font-normal">03:00 - 04:00</span></th>
               </tr>
             </thead>
             <tbody id="timetableDisplayBody">
@@ -820,6 +889,10 @@
             </tbody>
           </table>
         </div>
+      </div>
+      </div> <!-- Close flex-grow container -->
+    </div>
+  </div>
 
         <!-- Edit Mode (Form Grid) -->
         <div id="timetableEditArea" class="hidden bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-x-auto">
@@ -853,55 +926,59 @@
   <!-- ============================================================ -->
 
   <!-- PASSWORD RESET MODAL -->
-  <div id="passwordModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-xs">lock_reset</span> Password Reset
+  <div id="passwordModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i data-lucide="key-round" class="w-5 h-5 text-blue-600"></i>
+          <span>Password Reset</span>
         </h3>
-        <button onclick="closePasswordModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
+        <button type="button" onclick="closePasswordModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
       <div class="space-y-3">
-        <p class="text-sm text-slate-400">
-          Set a new password for <span id="pwdResetName" class="font-bold text-slate-200"></span> (<span id="pwdResetId" class="text-blue-400 font-mono"></span>).
+        <p class="text-sm text-slate-600">
+          Set a new password for <span id="pwdResetName" class="font-bold text-slate-900"></span> (<span id="pwdResetId" class="text-blue-600 font-mono"></span>).
         </p>
         <div>
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">New Password</label>
-          <input type="text" id="newPasswordInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Minimum 4 characters">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">New Password</label>
+          <input type="text" id="newPasswordInput" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600" placeholder="Minimum 4 characters">
         </div>
       </div>
 
       <div id="pwdAlert" class="hidden p-3 rounded-xl text-sm font-bold border"></div>
 
       <div class="flex gap-3 pt-2">
-        <button onclick="closePasswordModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Cancel</button>
-        <button onclick="submitPasswordReset()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer">Save Changes</button>
+        <button type="button" onclick="closePasswordModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-100 rounded-xl font-semibold text-sm text-slate-700 transition-colors cursor-pointer">Cancel</button>
+        <button type="button" onclick="submitPasswordReset()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer">Save Changes</button>
       </div>
     </div>
   </div>
 
-
-
   <!-- AUDIT LOG MODAL FOR SINGLE PROFILE -->
-  <div id="auditModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl p-6 shadow-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-xs">receipt_long</span> Profile Audit Trail
+  <div id="auditModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
+          <span>Profile Audit Trail</span>
         </h3>
-        <button onclick="closeAuditModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
+        <button type="button" onclick="closeAuditModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
       <div class="space-y-3">
-        <p class="text-sm text-slate-400">
-          History log for <span id="auditProfileName" class="font-bold text-slate-200"></span> (<span id="auditProfileId" class="text-blue-400 font-mono"></span>).
+        <p class="text-sm text-slate-600">
+          History log for <span id="auditProfileName" class="font-bold text-slate-900"></span> (<span id="auditProfileId" class="text-blue-600 font-mono"></span>).
         </p>
 
-        <div class="max-h-[300px] overflow-y-auto scrollbar-hidden border border-slate-800/60 rounded-xl">
+        <div class="max-h-[300px] overflow-y-auto scrollbar-hidden border border-slate-200 rounded-xl">
           <table class="w-full text-left text-sm border-collapse">
             <thead>
-              <tr class="bg-slate-955/80 border-b border-slate-800 text-slate-400 font-bold">
+              <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider">
                 <th class="p-3">Time</th>
                 <th class="p-3">Actor</th>
                 <th class="p-3">Action</th>
@@ -916,26 +993,29 @@
       </div>
 
       <div class="flex pt-2">
-        <button onclick="closeAuditModal()" class="w-full py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Close Window</button>
+        <button type="button" onclick="closeAuditModal()" class="w-full py-2.5 border border-slate-200 hover:bg-slate-100 rounded-xl font-semibold text-sm text-slate-700 transition-colors cursor-pointer">Close Window</button>
       </div>
     </div>
   </div>
 
   <!-- DIRECT REGISTRATION MODAL -->
-  <div id="registerModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-xs">person_add</span> Register New Profile
+  <div id="registerModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5 text-blue-600"></i>
+          <span>Register New Profile</span>
         </h3>
-        <button onclick="closeRegisterModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
+        <button type="button" onclick="closeRegisterModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
       <form id="directRegisterForm" onsubmit="handleDirectRegister(event)" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 scrollbar-hidden">
         <!-- Type Selection -->
         <div>
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">User Type</label>
-          <select id="regType" onchange="toggleDirectRegisterFields(this.value)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">User Type</label>
+          <select id="regType" onchange="toggleDirectRegisterFields(this.value)" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
             <option value="student">Student Profile</option>
             <option value="staff">Staff Profile</option>
           </select>
@@ -944,12 +1024,12 @@
         <!-- Common Fields -->
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Full Name</label>
-            <input type="text" id="directRegName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Full Name</label>
+            <input type="text" id="directRegName" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
           </div>
           <div>
-            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Email Address</label>
-            <input type="email" id="directRegEmail" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" placeholder="name@carmelpoly.edu.in">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email Address</label>
+            <input type="email" id="directRegEmail" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none" placeholder="name@carmelpoly.edu.in">
           </div>
         </div>
 
@@ -957,37 +1037,37 @@
         <div id="directStudentFields" class="space-y-4">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Admission Type</label>
-              <select id="directRegAdmType" onchange="handleAdmTypeChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Admission Type</label>
+              <select id="directRegAdmType" onchange="handleAdmTypeChange()" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
                 <option value="Regular">Regular</option>
                 <option value="LET">Lateral Entry (LET)</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Adm Year</label>
-              <input type="number" id="directRegStudentYear" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" value="2026">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Adm Year</label>
+              <input type="number" id="directRegStudentYear" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none" value="2026">
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Register No</label>
-              <input type="text" id="directRegStudentId" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" placeholder="e.g. 25EL1001">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Register No</label>
+              <input type="text" id="directRegStudentId" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none" placeholder="e.g. 25EL1001">
             </div>
             <div>
-              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Admission No</label>
-              <input type="text" id="directRegStudentAdm" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" placeholder="e.g. ADM25EL01">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Admission No</label>
+              <input type="text" id="directRegStudentAdm" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none" placeholder="e.g. ADM25EL01">
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch</label>
-              <input type="text" id="directRegStudentBranch" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-400 focus:outline-none" value="{{ $activeBranch }}">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Branch</label>
+              <input type="text" id="directRegStudentBranch" readonly class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-500 focus:outline-none cursor-not-allowed" value="{{ $activeBranch }}">
             </div>
             <div>
-              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Semester</label>
-              <select id="directRegStudentSem" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Semester</label>
+              <select id="directRegStudentSem" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
                 <option value="S1">S1</option>
                 <option value="S2">S2</option>
                 <option value="S3" selected>S3</option>
@@ -1003,12 +1083,12 @@
         <div id="directStaffFields" class="space-y-4 hidden">
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Mobile No (Login ID)</label>
-              <input type="text" id="directRegStaffMobile" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" placeholder="10-digit number">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Mobile No (Login ID)</label>
+              <input type="text" id="directRegStaffMobile" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none" placeholder="10-digit number">
             </div>
             <div>
-              <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Designation</label>
-              <select id="directRegStaffDesig" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Designation</label>
+              <select id="directRegStaffDesig" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
                 <option value="Lecturer" selected>Lecturer</option>
                 <option value="Demonstrator">Demonstrator</option>
                 <option value="Physical_Instructor">Physical Instructor</option>
@@ -1021,22 +1101,22 @@
           </div>
 
           <div>
-            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch</label>
-            <input type="text" id="directRegStaffBranch" readonly class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-400 focus:outline-none" value="{{ $activeBranch }}">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Branch</label>
+            <input type="text" id="directRegStaffBranch" readonly class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-500 focus:outline-none cursor-not-allowed" value="{{ $activeBranch }}">
           </div>
         </div>
 
         <!-- Password -->
         <div>
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Password</label>
-          <input type="text" id="directRegPassword" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none" placeholder="e.g. 12345">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
+          <input type="text" id="directRegPassword" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none" placeholder="e.g. 12345">
         </div>
 
         <div id="directRegAlert" class="hidden p-3 rounded-xl text-sm font-bold border"></div>
 
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeRegisterModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Cancel</button>
-          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
+          <button type="button" onclick="closeRegisterModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-100 rounded-xl font-semibold text-sm text-slate-700 transition-colors cursor-pointer">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center gap-2">
             <span>Register Profile</span>
             <div id="directRegSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
           </button>
@@ -1045,14 +1125,16 @@
     </div>
   </div>
   <!-- SUBJECT MODAL (Add + Edit mode) -->
-  <div id="subjectModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 id="subjectModalTitle" class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span id="subjectModalIcon" class="material-symbols-rounded text-emerald-400 text-xs">add_box</span>
+  <div id="subjectModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 id="subjectModalTitle" class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i data-lucide="book-open" class="w-5 h-5 text-emerald-600"></i>
           <span id="subjectModalTitleText">Add Curriculum Subject</span>
         </h3>
-        <button onclick="closeSubjectModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
+        <button type="button" onclick="closeSubjectModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
       <form id="subjectForm" onsubmit="saveSubject(event)" class="space-y-4">
@@ -1061,24 +1143,24 @@
         <input type="hidden" id="modalFormSubjectBatch">
         <input type="hidden" id="modalFormSubjectSemester">
 
-        <div id="subjectBatchSemRow" class="p-3 bg-slate-950 border border-slate-800 rounded-xl mb-2 flex justify-between items-center text-sm">
-          <span class="text-slate-400">Target Batch: <span id="displaySubjectBatch" class="font-bold text-slate-200"></span></span>
-          <span class="text-slate-400">Semester: <span id="displaySubjectSemester" class="font-bold text-slate-200"></span></span>
+        <div id="subjectBatchSemRow" class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl mb-2 flex justify-between items-center text-sm">
+          <span class="text-slate-600 font-medium">Target Batch: <span id="displaySubjectBatch" class="font-bold text-slate-900"></span></span>
+          <span class="text-slate-600 font-medium">Semester: <span id="displaySubjectSemester" class="font-bold text-slate-900"></span></span>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Subject Code</label>
-            <div class="flex items-stretch rounded-xl overflow-hidden border border-slate-800 focus-within:border-emerald-500 bg-slate-950">
-              <span id="subjectCodePrefix" class="hidden items-center px-3 bg-slate-900 text-emerald-400 font-bold font-mono text-sm border-r border-slate-800 select-none whitespace-nowrap"></span>
-              <input type="text" id="subjectCodeRaw" class="flex-1 bg-transparent px-3 py-2 text-sm text-white outline-none" placeholder="e.g. ENG101">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Subject Code</label>
+            <div class="flex items-stretch rounded-xl overflow-hidden border border-slate-200 focus-within:border-blue-600 bg-white">
+              <span id="subjectCodePrefix" class="hidden items-center px-3 bg-slate-100 text-blue-700 font-bold font-mono text-xs border-r border-slate-200 select-none whitespace-nowrap"></span>
+              <input type="text" id="subjectCodeRaw" class="flex-1 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none" placeholder="e.g. ENG101">
             </div>
             <!-- Keep hidden field to maintain integration with save handlers -->
             <input type="hidden" id="subjectCode">
           </div>
           <div>
-            <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Subject Type</label>
-            <select id="subjectType" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Subject Type</label>
+            <select id="subjectType" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
               <option value="Theory">Theory</option>
               <option value="Practical / Lab">Practical / Lab</option>
               <option value="Practicum">Practicum</option>
@@ -1090,13 +1172,13 @@
         </div>
 
         <div>
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Subject Name</label>
-          <input type="text" id="subjectName" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none" placeholder="e.g. Engineering Mathematics">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Subject Name</label>
+          <input type="text" id="subjectName" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none" placeholder="e.g. Engineering Mathematics">
         </div>
 
         <div>
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Syllabus Revision</label>
-          <select id="subjectRevisionYear" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Syllabus Revision</label>
+          <select id="subjectRevisionYear" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
             <option value="REV2026">REV2026 (Current)</option>
             <option value="REV2021">REV2021</option>
             <option value="REV2015">REV2015</option>
@@ -1107,8 +1189,8 @@
         <div id="subjectAlert" class="hidden p-3 rounded-xl text-sm font-bold border"></div>
 
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeSubjectModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Cancel</button>
-          <button type="submit" id="subjectSubmitBtn" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
+          <button type="button" onclick="closeSubjectModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-100 rounded-xl font-semibold text-sm text-slate-700 transition-colors cursor-pointer">Cancel</button>
+          <button type="submit" id="subjectSubmitBtn" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-xs">
             <span id="subjectSubmitLabel">Add Subject</span>
             <div id="subjectSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
           </button>
@@ -1118,23 +1200,26 @@
   </div>
 
   <!-- ASSIGN STAFF MODAL -->
-  <div id="assignStaffModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-xs">group_add</span> Assign Teaching Staff
+  <div id="assignStaffModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5 text-blue-600"></i>
+          <span>Assign Teaching Staff</span>
         </h3>
-        <button onclick="closeAssignStaffModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
+        <button type="button" onclick="closeAssignStaffModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
 
       <form id="assignStaffForm" onsubmit="assignStaff(event)" class="space-y-4">
         <input type="hidden" id="assignSubjectId">
         
-        <p class="text-sm text-slate-400">Select one or more staff members to assign to <strong id="assignSubjectName" class="text-slate-200"></strong>.</p>
+        <p class="text-sm text-slate-600">Select one or more staff members to assign to <strong id="assignSubjectName" class="text-slate-900 font-bold"></strong>.</p>
         
         <div>
-          <label class="block text-sm text-slate-400 font-bold uppercase tracking-wider mb-1.5">Branch Filter (For Inter-Department)</label>
-          <select id="staffBranchFilter" onchange="renderAssignStaffList()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:border-blue-500 outline-none">
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Branch Filter (For Inter-Department)</label>
+          <select id="staffBranchFilter" onchange="renderAssignStaffList()" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:border-blue-600 outline-none">
             <option value="">All Branches</option>
             <option value="EL">Electronics (EL)</option>
             <option value="ME">Mechanical (ME)</option>
@@ -1147,17 +1232,15 @@
           </select>
         </div>
 
-        <div class="max-h-[300px] overflow-y-auto scrollbar-hidden border border-slate-800/60 rounded-xl p-2 space-y-1" id="staffCheckboxList">
+        <div class="max-h-[300px] overflow-y-auto custom-scrollbar border border-slate-200 rounded-xl p-2 space-y-1" id="staffCheckboxList">
           <!-- Populated by JS -->
         </div>
 
         <div id="assignStaffAlert" class="hidden p-3 rounded-xl text-sm font-bold border"></div>
 
         <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeAssignStaffModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-sm text-slate-300 transition-premium cursor-pointer">Cancel</button>
-          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm transition-premium cursor-pointer flex items-center justify-center gap-1.5">
-            <span>Save Assignments</span>
-            <div id="assignStaffSpinner" class="hidden w-4 h-4 border-2 border-slate-300 border-t-white rounded-full animate-spin"></div>
+          <button type="button" onclick="closeAssignStaffModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-100 rounded-xl font-semibold text-sm text-slate-700 transition-colors cursor-pointer">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center gap-2 shadow-xs">
           </button>
         </div>
       </form>
@@ -1186,10 +1269,24 @@
       };
     }
 
-    let activePanel = "batches";
+    let activePanel = @json($initialPanel);
     let selectedUserForReset = null;
     let activeBatchId = null;
     let deptStaffCache = [];
+
+    function handleHodSidebarNav(panelId) {
+      switchPanel(panelId);
+      if (typeof selectSidebarNav === 'function') {
+        selectSidebarNav(panelId);
+      }
+      try {
+        const url = new URL(window.location);
+        url.searchParams.set('panel', panelId);
+        url.searchParams.delete('tab');
+        window.history.replaceState({}, '', url);
+      } catch (e) {}
+    }
+    window.handleHodSidebarNav = handleHodSidebarNav;
 
     function syncSubjectTypeOptions(revision, preselectedValue = null) {
       const typeSelect = document.getElementById('subjectType');
@@ -1231,6 +1328,11 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlTab = urlParams.get('tab') || urlParams.get('panel') || (window.location.hash ? window.location.hash.replace('#', '') : null);
+      if (urlTab && ['batches', 'directory', 'subjects', 'audit', 'leave_ledger', 'prof_activities', 'profile'].includes(urlTab)) {
+        activePanel = urlTab;
+      }
       switchPanel(activePanel);
       // Pre-load dept staff for batch modals
       loadDeptStaffCache();
@@ -1243,6 +1345,7 @@
         });
       }
     });
+
     function getHeaders() {
       return {
         'Content-Type': 'application/json',
@@ -1251,37 +1354,58 @@
     }
 
     function switchPanel(panelId) {
+      if (!panelId) panelId = 'batches';
       activePanel = panelId;
-      const panels = ['directory', 'batches', 'subjects', 'audit', 'profile'];
+      const panels = ['batches', 'directory', 'subjects', 'audit', 'leave_ledger', 'prof_activities', 'profile'];
       
       panels.forEach(id => {
-        const el = document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1));
-        const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
-        
-        if (id === panelId) {
-          if (el) el.classList.remove('hidden');
-          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold text-xs flex items-center gap-2.5 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
-        } else {
-          if (nav) nav.className = "w-full text-left px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
-          if (el) el.classList.add('hidden');
+        let elId = 'panel' + id.charAt(0).toUpperCase() + id.slice(1);
+        if (id === 'leave_ledger') elId = 'panelLeave_ledger';
+        if (id === 'prof_activities') elId = 'panelProf_activities';
+        const el = document.getElementById(elId);
+        if (el) {
+          if (id === panelId) {
+            el.classList.remove('hidden');
+          } else {
+            el.classList.add('hidden');
+          }
         }
       });
 
-      const titles = {
-        'directory': 'User Accounts Directory',
-        'batches': 'Batch & Class Management',
-        'subjects': 'Curriculum & Staff Allocation',
-        'audit': 'Department Audit Trail',
-        'profile': 'My HOD Profile'
-      };
-      document.getElementById('panelTitle').innerText = titles[panelId] || 'Overview';
+      if (typeof selectSidebarNav === 'function') {
+        selectSidebarNav(panelId);
+      }
 
-      // if (panelId === 'directory') loadUsers(); // Optional auto-load removed to prevent crowding
+      const titles = {
+        'batches': { title: 'Batch & Class Management', subtitle: 'Manage admission-year batches, class tutors, batch mentors, and semester progression.' },
+        'directory': { title: 'User Accounts Directory', subtitle: 'Filter, search, audit, and manage profile lifecycle states for students and staff in your branch.' },
+        'subjects': { title: 'Subject & Staff Allocation', subtitle: 'Map curriculum subjects to batches per semester and assign staff across departments.' },
+        'audit': { title: 'Department Audit Trail', subtitle: 'Lifecycle events, status updates, registrations, and actions performed within the branch.' },
+        'leave_ledger': { title: 'Staff Leave Master Ledger & Report Center', subtitle: 'Multi-stage approval audit trail, departmental leave balances, and official leave orders.' },
+        'prof_activities': { title: 'Professional Activities', subtitle: 'Faculty development, publications, workshops, projects, and academic contributions.' },
+        'profile': { title: 'My Profile & Security Settings', subtitle: 'Manage your personal account credentials, profile avatar, and view security activity logs.' }
+      };
+
+      const info = titles[panelId] || { title: 'Overview', subtitle: '' };
+      const titleEl = document.getElementById('panelTitle');
+      const subtitleEl = document.getElementById('panelSubtitle');
+      if (titleEl) titleEl.innerText = info.title;
+      if (subtitleEl) subtitleEl.innerText = info.subtitle;
+
       if (panelId === 'batches') loadBatches();
+      if (panelId === 'directory') loadUsers();
       if (panelId === 'subjects') loadBatchesForSubjects();
       if (panelId === 'audit') loadAuditTrail();
+      if (panelId === 'leave_ledger') loadLeaveLedger();
+      if (panelId === 'prof_activities') {
+        loadProfActivities();
+        toggleProfActFields('fdp_attended');
+      }
       if (panelId === 'profile') loadSelfSecurityLogs();
+
+      if (window.initLucide) window.initLucide();
     }
+    window.switchPanel = switchPanel;
 
     function loadBatchesForSubjects() {
       // Just populate the dropdown if it's empty
@@ -1324,23 +1448,26 @@
 
     function loadUsers() {
       const indicator = document.getElementById('loadingIndicator');
-      indicator.classList.remove('hidden');
+      if (indicator) indicator.classList.remove('hidden');
 
-      const search = document.getElementById('filterSearch').value;
-      const role = document.getElementById('filterRole').value;
-      const status = document.getElementById('filterStatus').value;
+      const search = document.getElementById('filterSearch')?.value || '';
+      const role = document.getElementById('filterRole')?.value || '';
+      const status = document.getElementById('filterStatus')?.value || '';
+      const branch = '{{ $activeBranch }}';
 
-      const url = `/api/admin/users?search=${encodeURIComponent(search)}&role=${role}&status=${status}`;
+      const url = `/api/admin/users?search=${encodeURIComponent(search)}&role=${role}&status=${status}&branch=${encodeURIComponent(branch)}`;
 
       fetch(url)
         .then(res => res.json())
         .then(data => {
-          indicator.classList.add('hidden');
+          if (indicator) indicator.classList.add('hidden');
           if (data.status === 'SUCCESS') {
             renderUsersGrid(data.users);
           }
         })
-        .catch(() => indicator.classList.add('hidden'));
+        .catch(() => {
+          if (indicator) indicator.classList.add('hidden');
+        });
     }
 
     function renderUsersGrid(users) {
@@ -1350,43 +1477,47 @@
       if (users.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="8" class="p-8 text-center text-slate-500 font-medium font-sans">
-              No matching registered profiles found.
+            <td colspan="8" class="p-12 text-center text-slate-500 font-medium text-sm">
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                <i data-lucide="users" class="w-5 h-5"></i>
+              </div>
+              <p class="font-semibold text-slate-800">No matching profiles found</p>
+              <p class="text-xs text-slate-400 mt-0.5">Try adjusting your search filters above.</p>
             </td>
           </tr>
         `;
+        if (window.initLucide) window.initLucide();
         return;
       }
 
       users.forEach(user => {
-        // Prevent listing self or other HODs if needed (handled by backend, but safe-check)
         const tr = document.createElement('tr');
-        tr.className = "border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium";
+        tr.className = "border-b border-slate-100 hover:bg-slate-50/70 transition-colors";
 
-        let statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-sm font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>`;
+        let statusBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">Pending</span>`;
         if (user.status === 'Approved') {
-          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-sm font-bold bg-green-500/10 text-green-400 border border-green-500/20">Approved</span>`;
+          statusBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Approved</span>`;
         } else if (user.status === 'Suspended') {
-          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-sm font-bold bg-red-500/10 text-red-400 border border-red-500/20">Suspended</span>`;
+          statusBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">Suspended</span>`;
         }
 
         let toggleButton = '';
         if (user.id !== "{{ session('userId') }}") {
           if (user.status === 'Pending') {
             toggleButton = `
-              <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-sm font-bold text-white transition-premium cursor-pointer">
+              <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer">
                 Approve
               </button>
             `;
           } else if (user.status === 'Approved') {
             toggleButton = `
-              <button onclick="changeStatus('${user.id}', '${user.type}', 'Suspended')" class="px-2 py-1 bg-red-950 hover:bg-red-900 border border-red-800 rounded text-sm font-bold text-red-300 transition-premium cursor-pointer">
+              <button onclick="changeStatus('${user.id}', '${user.type}', 'Suspended')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg text-xs font-semibold transition-colors cursor-pointer">
                 Suspend
               </button>
             `;
           } else if (user.status === 'Suspended') {
             toggleButton = `
-              <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-sm font-bold text-white transition-premium cursor-pointer">
+              <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer">
                 Activate
               </button>
             `;
@@ -1394,59 +1525,59 @@
         }
 
         let roleCol = user.role;
-        // HOD can't promote role designations in general, we just display it.
 
         tr.innerHTML = `
-          <td class="p-2.5 flex items-center gap-3">
-            <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-8 h-8 rounded-full object-cover border border-slate-800 shadow">
-            <div>
-              <span class="font-bold text-slate-100 block text-sm">${user.name}</span>
-              <span class="text-sm text-slate-500 block">${user.email}</span>
+          <td class="p-3.5 flex items-center gap-3">
+            <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-9 h-9 rounded-full object-cover border border-slate-200 shadow-2xs shrink-0">
+            <div class="min-w-0">
+              <span class="font-semibold text-slate-900 block text-sm truncate">${user.name}</span>
+              <span class="text-xs text-slate-500 block truncate">${user.email}</span>
             </div>
           </td>
-          <td class="p-2.5 font-mono font-bold text-slate-300 text-sm">${user.id}</td>
-          <td class="p-2.5"><span class="font-bold font-mono text-sm bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
-          <td class="p-2.5">
+          <td class="p-3.5 font-mono font-medium text-slate-700 text-sm whitespace-nowrap">${user.id}</td>
+          <td class="p-3.5"><span class="font-mono font-semibold text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">${user.branch}</span></td>
+          <td class="p-3.5">
             ${user.type === 'student' ? `
-              <button onclick="editStudentSemester('${user.id}', '${user.semester || 'S1'}')" class="text-indigo-400 hover:text-indigo-300 underline font-bold text-sm cursor-pointer" title="Click to Edit Semester">
+              <button onclick="editStudentSemester('${user.id}', '${user.semester || 'S1'}')" class="text-blue-600 hover:text-blue-800 font-semibold text-sm cursor-pointer underline" title="Click to Edit Semester">
                 ${user.semester || 'S1'}
               </button>
-              <button onclick="editStudentBatch('${user.id}', '${user.classroom_id || ''}')" class="text-violet-400 hover:text-violet-300 underline font-bold text-sm cursor-pointer ml-2" title="Move Batch">
+              <button onclick="editStudentBatch('${user.id}', '${user.classroom_id || ''}')" class="text-slate-600 hover:text-slate-900 font-medium text-xs ml-2 px-1.5 py-0.5 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-md cursor-pointer transition-colors" title="Move Batch">
                 Move
               </button>
-            ` : '<span class="text-slate-500 font-bold text-sm">N/A</span>'}
+            ` : '<span class="text-slate-400 font-medium text-sm">—</span>'}
           </td>
-          <td class="p-2.5 text-sm">${roleCol}</td>
-          <td class="p-2.5 text-sm">${statusBadge}</td>
-          <td class="p-2.5">
+          <td class="p-3.5 text-sm text-slate-700 font-medium whitespace-nowrap">${roleCol}</td>
+          <td class="p-3.5 text-sm">${statusBadge}</td>
+          <td class="p-3.5">
             ${user.type === 'student' ? `
-              <select onchange="updateAcademicStatusDirectly('${user.id}', this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-sm outline-none focus:border-blue-500 font-bold cursor-pointer ${
-                user.academic_status === 'Active' ? 'text-green-400 border-green-500/20' :
-                user.academic_status === 'Discontinued' ? 'text-amber-400 border-amber-500/20' :
-                'text-red-400 border-red-500/20'
+              <select onchange="updateAcademicStatusDirectly('${user.id}', this.value)" class="bg-white border rounded-lg px-2.5 py-1 text-sm outline-none focus:border-blue-600 font-semibold cursor-pointer transition-colors ${
+                user.academic_status === 'Active' ? 'text-emerald-700 bg-emerald-50/50 border-emerald-200' :
+                user.academic_status === 'Discontinued' ? 'text-amber-700 bg-amber-50/50 border-amber-200' :
+                'text-rose-700 bg-rose-50/50 border-rose-200'
               }">
                 <option value="Active" ${user.academic_status === 'Active' ? 'selected' : ''}>Active</option>
                 <option value="Discontinued" ${user.academic_status === 'Discontinued' ? 'selected' : ''}>Discontinued</option>
                 <option value="TC Issued" ${user.academic_status === 'TC Issued' ? 'selected' : ''}>TC Issued</option>
               </select>
-            ` : '<span class="text-slate-500 font-bold text-sm">N/A</span>'}
+            ` : '<span class="text-slate-400 font-medium text-sm">—</span>'}
           </td>
-          <td class="p-2.5 text-right space-x-1 text-sm">
+          <td class="p-3.5 text-right space-x-1.5 text-sm whitespace-nowrap">
             ${toggleButton}
-            <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-sm font-bold transition-premium cursor-pointer">
+            <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold transition-colors cursor-pointer">
               Reset Pwd
             </button>
-            <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-blue-900 border border-slate-800 text-slate-300 rounded text-sm font-bold transition-premium cursor-pointer" title="View Audit Trail">
+            <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer" title="View Audit Trail">
               Audit
             </button>
             ${user.id !== "{{ session('userId') }}" ? `
-            <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded text-sm font-bold transition-premium cursor-pointer" title="Delete User">
+            <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg text-xs font-semibold transition-colors cursor-pointer" title="Delete User">
               Delete
             </button>` : ''}
           </td>
         `;
         tbody.appendChild(tr);
       });
+      if (window.initLucide) window.initLucide();
     }
 
     function changeStatus(userId, userType, newStatus) {
@@ -1627,38 +1758,56 @@
 
     function loadAuditTrail() {
       const tbody = document.getElementById('auditTableBody');
-      tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500 font-bold">Querying department audit logs...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="p-12 text-center text-slate-500 font-medium text-sm"><div class="w-4 h-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-2"></div>Querying department audit logs...</td></tr>`;
 
-      fetch('/api/audit-logs')
+      fetch('/api/audit-logs?branch={{ $activeBranch }}')
         .then(res => res.json())
         .then(data => {
           if (data.status === 'SUCCESS') {
             tbody.innerHTML = "";
             if (data.logs.length === 0) {
-              tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500 font-bold">No department audit logs found.</td></tr>`;
+              tbody.innerHTML = `
+                <tr>
+                  <td colspan="6" class="p-12 text-center text-slate-500 font-medium text-sm">
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                      <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-semibold text-slate-800">No department audit logs found</p>
+                    <p class="text-xs text-slate-400 mt-0.5">No administrative activity records exist for this branch yet.</p>
+                  </td>
+                </tr>
+              `;
+              if (window.initLucide) window.initLucide();
               return;
             }
             data.logs.forEach(log => {
               const tr = document.createElement('tr');
-              tr.className = "border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium";
+              tr.className = "border-b border-slate-100 hover:bg-slate-50/70 transition-colors";
               
               const date = new Date(log.created_at).toLocaleString();
               tr.innerHTML = `
-                <td class="p-4 text-slate-400 font-mono">${date}</td>
-                <td class="p-4 font-bold text-slate-300">${log.performed_by_name || 'System'}<br><span class="text-sm text-slate-500 font-mono">${log.performed_by || ''}</span></td>
-                <td class="p-4 font-bold text-white">${log.target_name}<br><span class="text-sm text-blue-400 font-mono">${log.target_id}</span></td>
-                <td class="p-4"><span class="px-2 py-0.5 rounded text-sm font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
-                <td class="p-4 font-mono text-slate-400">${log.ip_address || '-'}</td>
-                <td class="p-4 text-slate-300 font-sans leading-relaxed">${log.details || ''}</td>
+                <td class="p-3.5 text-slate-500 font-mono text-xs whitespace-nowrap">${date}</td>
+                <td class="p-3.5 font-medium">
+                  <span class="font-semibold text-slate-900 text-sm block">${log.performed_by_name || 'System'}</span>
+                  <span class="text-xs text-slate-500 font-mono">${log.performed_by || ''}</span>
+                </td>
+                <td class="p-3.5 font-medium">
+                  <span class="font-semibold text-slate-900 text-sm block">${log.target_name || '—'}</span>
+                  <span class="text-xs text-blue-600 font-mono">${log.target_id || ''}</span>
+                </td>
+                <td class="p-3.5"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">${log.action}</span></td>
+                <td class="p-3.5 font-mono text-slate-500 text-xs">${log.ip_address || '—'}</td>
+                <td class="p-3.5 text-slate-600 text-sm leading-relaxed">${log.details || '—'}</td>
               `;
               tbody.appendChild(tr);
             });
+            if (window.initLucide) window.initLucide();
           } else {
-            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-400 font-bold">Error loading logs.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-600 font-semibold text-sm">Error loading audit logs.</td></tr>`;
           }
         })
         .catch(() => {
-          tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-400 font-bold">Request failed.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-600 font-semibold text-sm">Request failed.</td></tr>`;
         });
     }
 
@@ -1889,22 +2038,24 @@
       const grid = document.getElementById('batchCardsGrid');
       const empty = document.getElementById('batchEmptyState');
       grid.innerHTML = `
-        <div class="col-span-full flex items-center justify-center py-12 text-sm">
-          <div class="flex items-center gap-3 text-slate-500 text-sm font-bold">
-            <div class="w-5 h-5 border-2 border-slate-700 border-t-violet-400 rounded-full animate-spin"></div>
-            Loading batches...
+        <div class="col-span-full flex items-center justify-center py-16 text-sm">
+          <div class="flex items-center gap-3 text-slate-600 text-sm font-medium bg-white px-5 py-3 rounded-2xl border border-slate-200 shadow-xs">
+            <div class="w-4 h-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin"></div>
+            <span>Loading department batches...</span>
           </div>
         </div>
       `;
       empty.classList.add('hidden');
 
-      // Update toggle UI
+      // Update toggle UI with Design System pill styling
+      const btnActive = document.getElementById('btnHodFilterActive');
+      const btnHist = document.getElementById('btnHodFilterHistorical');
       if (status === 'active') {
-        document.getElementById('btnHodFilterActive').className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-premium bg-violet-600/20 text-violet-400';
-        document.getElementById('btnHodFilterHistorical').className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-premium text-slate-500 hover:text-slate-300';
+        if (btnActive) btnActive.className = 'px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all bg-white text-slate-900 shadow-xs border border-slate-200/60 cursor-pointer';
+        if (btnHist) btnHist.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 hover:text-slate-900 cursor-pointer';
       } else {
-        document.getElementById('btnHodFilterHistorical').className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-premium bg-slate-800 text-slate-300';
-        document.getElementById('btnHodFilterActive').className = 'px-4 py-1.5 rounded-lg text-sm font-bold transition-premium text-slate-500 hover:text-slate-300';
+        if (btnHist) btnHist.className = 'px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all bg-white text-slate-900 shadow-xs border border-slate-200/60 cursor-pointer';
+        if (btnActive) btnActive.className = 'px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all text-slate-600 hover:text-slate-900 cursor-pointer';
       }
 
       const p1 = fetch(`/api/hod/batches?status=${status}`).then(r => r.json()).catch(() => ({status: 'ERROR', batches: []}));
@@ -1931,97 +2082,59 @@
             return;
           }
           combined.forEach(batch => renderBatchCard(batch));
+          if (window.initLucide) window.initLucide();
         })
         .catch(() => {
-          grid.innerHTML = `<div class="col-span-full p-8 text-center text-red-400 font-bold text-sm">Failed to load batches.</div>`;
+          grid.innerHTML = `<div class="col-span-full p-8 text-center text-rose-600 font-semibold text-sm bg-white rounded-2xl border border-rose-100 shadow-xs">Failed to load department batches.</div>`;
         });
     }
 
     function renderBatchCard(batch) {
       const grid = document.getElementById('batchCardsGrid');
       
-      const wrapper = document.createElement('div');
-      wrapper.className = 'space-y-3';
-
-      let yearColorClass = 'text-slate-100';
-      let yearBadgeClass = 'bg-violet-500/10 text-violet-400 border-violet-500/20';
-      let borderHoverClass = 'hover:border-violet-500/50';
-      let progressColorClass = 'bg-violet-500';
-      let iconColorClass = 'text-violet-400';
-      let textAccentClass = 'text-violet-400';
-
       const isLetBatch = batch.classroom_id.includes('_LET');
       const isR26 = batch.is_r26 || batch.batch_year === 2026;
 
-      if (isR26) {
-        yearColorClass = 'text-emerald-400 font-extrabold';
-        yearBadgeClass = 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20';
-        borderHoverClass = 'hover:border-emerald-500/50';
-        progressColorClass = 'bg-emerald-500';
-        iconColorClass = 'text-emerald-400';
-        textAccentClass = 'text-emerald-400';
-      } else if (isLetBatch) {
-        yearColorClass = 'text-purple-450';
-        yearBadgeClass = 'bg-purple-500/20 text-purple-300 border-purple-500/40';
-        borderHoverClass = 'hover:border-purple-500/50';
-        progressColorClass = 'bg-purple-500';
-        iconColorClass = 'text-purple-400';
-        textAccentClass = 'text-purple-400';
-      } else if (batch.batch_year === 2024) {
-        yearColorClass = 'text-amber-400';
-        yearBadgeClass = 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-        borderHoverClass = 'hover:border-amber-500/50';
-        progressColorClass = 'bg-amber-500';
-        iconColorClass = 'text-amber-400';
-        textAccentClass = 'text-amber-400';
-      } else if (batch.batch_year === 2025) {
-        yearColorClass = 'text-sky-400';
-        yearBadgeClass = 'bg-sky-500/10 text-sky-400 border-sky-500/20';
-        borderHoverClass = 'hover:border-sky-500/50';
-        progressColorClass = 'bg-sky-500';
-        iconColorClass = 'text-sky-400';
-        textAccentClass = 'text-sky-400';
-      }
-
       const card = document.createElement('div');
       card.className = isR26
-        ? `bg-slate-950/45 border-2 border-emerald-500/80 rounded-2xl p-6 transition-premium hover:border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.25)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full relative overflow-hidden`
-        : (isLetBatch
-          ? `bg-slate-950/40 border-2 border-purple-500/70 rounded-2xl p-6 transition-premium hover:border-purple-400 shadow-[0_0_20px_rgba(168,85,247,0.2)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`
-          : `bg-slate-950/40 border-2 border-slate-700/60 rounded-2xl p-6 transition-premium hover:border-slate-500 shadow-[0_0_15px_rgba(255,255,255,0.03)] flex flex-col xl:flex-row gap-6 min-h-[280px] w-full`);
+        ? `bg-white border-2 border-emerald-500/80 rounded-2xl p-6 transition-all hover:shadow-md flex flex-col xl:flex-row gap-6 min-h-[280px] w-full relative shadow-xs`
+        : `bg-white border border-slate-200/90 rounded-2xl p-6 transition-all hover:shadow-md hover:border-slate-300 flex flex-col xl:flex-row gap-6 min-h-[280px] w-full relative shadow-xs`;
 
       const tutorHtml = batch.tutor_name
-        ? `<div class="flex items-center gap-2"><span class="material-symbols-rounded text-sky-400 text-sm">person_pin</span><span class="text-slate-300 font-medium">${batch.tutor_name}</span></div>`
-        : `<div class="flex items-center gap-2"><span class="material-symbols-rounded text-slate-600 text-sm">person_off</span><span class="text-slate-650 italic">No tutor assigned</span></div>`;
+        ? `<div class="flex items-center gap-2.5 text-sm"><div class="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-600"></i></div><span class="text-slate-500 font-medium">Tutor:</span> <span class="text-slate-900 font-semibold truncate">${batch.tutor_name}</span></div>`
+        : `<div class="flex items-center gap-2.5 text-sm"><div class="w-6 h-6 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0"><i data-lucide="user-x" class="w-3.5 h-3.5 text-slate-400"></i></div><span class="text-slate-400 italic">No tutor assigned</span></div>`;
 
       const mentorHtml = batch.mentor_name
-        ? `<div class="flex items-center gap-2"><span class="material-symbols-rounded text-emerald-400 text-sm">supervisor_account</span><span class="text-slate-300 font-medium">${batch.mentor_name}</span></div>`
-        : `<div class="flex items-center gap-2"><span class="material-symbols-rounded text-slate-600 text-sm">person_off</span><span class="text-slate-650 italic">No mentor assigned</span></div>`;
+        ? `<div class="flex items-center gap-2.5 text-sm"><div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"><i data-lucide="heart-handshake" class="w-3.5 h-3.5 text-emerald-600"></i></div><span class="text-slate-500 font-medium">Mentor:</span> <span class="text-slate-900 font-semibold truncate">${batch.mentor_name}</span></div>`
+        : `<div class="flex items-center gap-2.5 text-sm"><div class="w-6 h-6 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0"><i data-lucide="user-x" class="w-3.5 h-3.5 text-slate-400"></i></div><span class="text-slate-400 italic">No mentor assigned</span></div>`;
 
       // Subjects section builder
       let subjectsHtml = '';
       if (batch.subjects && batch.subjects.length > 0) {
         subjectsHtml = `
-          <div class="flex-1 bg-slate-950/50 border border-slate-800/80 rounded-xl p-4 space-y-3 custom-scrollbar overflow-y-auto max-h-[220px]">
-            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-900 pb-2">
-              <span class="material-symbols-rounded text-sm ${iconColorClass}">menu_book</span>
-              Active Subjects & Progress (S-${batch.current_semester || 1})
-            </p>
+          <div class="flex-1 bg-slate-50/80 border border-slate-200/80 rounded-xl p-4 space-y-3 custom-scrollbar overflow-y-auto max-h-[220px]">
+            <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
+              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="book-open" class="w-3.5 h-3.5 text-blue-600"></i>
+                Active Subjects (S-${batch.current_semester || 1})
+              </span>
+              <span class="text-xs font-semibold text-slate-400">${batch.subjects.length} Subjects</span>
+            </div>
             <div class="space-y-2">
               ${batch.subjects.map(subj => `
-                <div class="bg-slate-900/40 border border-slate-850 rounded-lg p-2.5 space-y-1.5 hover:border-slate-800 transition-premium">
+                <div class="bg-white border border-slate-200/80 rounded-xl p-2.5 space-y-1.5 hover:border-slate-300 transition-colors shadow-2xs">
                   <div class="flex justify-between items-center gap-2">
-                    <span class="text-slate-200 font-bold text-sm truncate" title="${subj.subject_name}">${subj.subject_name}</span>
-                    <span class="text-xs font-bold ${textAccentClass} font-mono">${subj.progress}%</span>
+                    <span class="text-slate-900 font-semibold text-sm truncate" title="${subj.subject_name}">${subj.subject_name}</span>
+                    <span class="text-xs font-bold text-blue-600 font-mono">${subj.progress}%</span>
                   </div>
                   
-                  <div class="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
-                    <div class="${progressColorClass} h-1.5 rounded-full" style="width: ${subj.progress}%"></div>
+                  <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-blue-600 h-1.5 rounded-full transition-all" style="width: ${subj.progress}%"></div>
                   </div>
 
-                  <div class="flex items-center justify-between text-[11px] text-slate-400">
-                    <span class="font-mono text-slate-500">${subj.subject_code}</span>
-                    <span class="truncate max-w-[150px]" title="${subj.staff_list}">Staff: ${subj.staff_list}</span>
+                  <div class="flex items-center justify-between text-xs text-slate-500">
+                    <span class="font-mono text-slate-600 font-medium">${subj.subject_code}</span>
+                    <span class="truncate max-w-[160px] text-slate-600" title="${subj.staff_list}">Staff: ${subj.staff_list}</span>
                   </div>
                 </div>
               `).join('')}
@@ -2030,8 +2143,10 @@
         `;
       } else {
         subjectsHtml = `
-          <div class="flex-1 bg-slate-950/50 border border-slate-800/80 rounded-xl p-6 flex items-center justify-center text-center text-xs text-slate-500 italic">
-            No subjects assigned for Semester ${batch.current_semester || 1} yet.
+          <div class="flex-1 bg-slate-50/80 border border-slate-200/80 rounded-xl p-6 flex flex-col items-center justify-center text-center text-sm text-slate-500">
+            <i data-lucide="book-open" class="w-8 h-8 text-slate-300 mb-2"></i>
+            <p class="font-medium text-slate-600">No subjects allocated yet</p>
+            <p class="text-xs text-slate-400 mt-0.5">Semester ${batch.current_semester || 1}</p>
           </div>
         `;
       }
@@ -2039,38 +2154,39 @@
       card.innerHTML = `
         <div class="flex-1 flex flex-col justify-between space-y-4">
           <div class="space-y-3">
-            <div class="flex items-center gap-2.5">
-              <span class="px-2.5 py-1 border rounded-lg font-mono text-sm font-bold ${yearBadgeClass} whitespace-nowrap">${batch.classroom_id}</span>
-              ${batch.classroom_id.includes('_LET') ? `<span class="bg-purple-950/80 border border-purple-500/40 text-purple-400 font-extrabold text-[10px] px-2 py-0.5 rounded uppercase select-none whitespace-nowrap">LET</span>` : ''}
-              ${isR26 ? `<span class="bg-emerald-950/80 border border-emerald-500/40 text-emerald-450 font-extrabold text-[10px] px-2 py-0.5 rounded uppercase select-none tracking-wide animate-pulse whitespace-nowrap">Revision 2026</span>` : ''}
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="px-2.5 py-1 border rounded-lg font-mono text-sm font-bold bg-slate-100 text-slate-800 border-slate-200/80 whitespace-nowrap">${batch.classroom_id}</span>
+              ${batch.classroom_id.includes('_LET') ? `<span class="bg-purple-50 border border-purple-200 text-purple-700 font-bold text-xs px-2.5 py-0.5 rounded uppercase select-none whitespace-nowrap">LET</span>` : ''}
+              ${isR26 ? `<span class="bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-xs px-2.5 py-0.5 rounded uppercase select-none tracking-wide whitespace-nowrap">Revision 2026</span>` : ''}
             </div>
             
             <div class="flex items-center justify-between gap-3">
               <div>
-                <h4 class="font-bold text-xl ${yearColorClass}">Admission ${batch.batch_year}${isLetBatch ? ' (LET)' : ''}</h4>
-                <p class="text-xs text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} ${isLetBatch ? 'Lateral Entry ' : ''}Batch</p>
+                <h4 class="font-bold text-lg text-slate-900">Admission ${batch.batch_year}${isLetBatch ? ' (LET)' : ''}</h4>
+                <p class="text-sm text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} ${isLetBatch ? 'Lateral Entry ' : ''}Batch</p>
               </div>
-              <div class="flex-shrink-0">
+              <div class="shrink-0">
                 ${(batch.current_semester || 1) > 6
-                  ? `<span class="px-3 py-1 bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 rounded-xl font-bold text-sm tracking-wide flex items-center gap-1 select-none whitespace-nowrap"><span class="material-symbols-rounded" style="font-size:14px">school</span>Graduated</span>`
-                  : `<span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-md select-none transition-premium whitespace-nowrap" title="Click to Change Batch Semester">S-${batch.current_semester || 1}</span>`
+                  ? `<span class="px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl font-bold text-sm tracking-wide flex items-center gap-1 select-none whitespace-nowrap"><i data-lucide="graduation-cap" class="w-4 h-4 text-emerald-600"></i>Graduated</span>`
+                  : `<span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-2xs select-none transition-colors whitespace-nowrap" title="Click to Change Batch Semester">Semester ${batch.current_semester || 1}</span>`
                 }
               </div>
             </div>
 
-            <div class="border-t border-slate-900 pt-3.5 space-y-2 text-sm">
+            <div class="border-t border-slate-100 pt-3.5 space-y-2 text-sm">
               ${tutorHtml}
               ${mentorHtml}
             </div>
           </div>
 
-          <div class="flex items-center justify-between border-t border-slate-900 pt-3">
-            <div>
-              <span class="text-lg font-black text-slate-200">${batch.student_count}</span>
-              <span class="text-xs text-slate-500 ml-1">students</span>
+          <div class="flex items-center justify-between border-t border-slate-100 pt-3.5">
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-xl font-bold text-slate-900">${batch.student_count}</span>
+              <span class="text-sm text-slate-500 font-medium">students</span>
             </div>
-            <button onclick="openBatchDetail(${JSON.stringify(batch).replace(/"/g, '&quot;')})" class="px-4 py-2 bg-slate-800 hover:bg-violet-900 hover:text-white text-slate-300 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5">
-              <span class="material-symbols-rounded text-sm">open_in_new</span> Manage Batch
+            <button onclick="openBatchDetail(${JSON.stringify(batch).replace(/"/g, '&quot;')})" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-sm font-semibold transition-colors cursor-pointer">
+              <i data-lucide="settings" class="w-4 h-4 text-slate-600"></i>
+              <span>Manage Batch</span>
             </button>
           </div>
         </div>
@@ -3429,11 +3545,11 @@
       
       const tbody = document.getElementById('subjectsTableBody');
       if (!classroomId) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Select a batch to view its subjects.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-slate-500 font-medium text-sm">Select a batch above to view its allocated subjects.</td></tr>`;
         return;
       }
 
-      tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Loading subjects...</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-slate-500 font-medium text-sm"><div class="w-4 h-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-2"></div>Loading subjects...</td></tr>`;
 
       fetch(`/api/hod/batches/${encodeURIComponent(classroomId)}/subjects?semester=${semester}`)
         .then(res => res.json())
@@ -3442,37 +3558,55 @@
             allCollegeStaffCache = data.all_staff || [];
             tbody.innerHTML = '';
             if (data.subjects.length === 0) {
-              tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">No subjects allocated for this semester yet.</td></tr>`;
+              tbody.innerHTML = `
+                <tr>
+                  <td colspan="5" class="p-12 text-center text-slate-500 font-medium text-sm">
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                      <i data-lucide="book-open" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-semibold text-slate-800">No subjects allocated yet</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Click "Add Subject" to map a curriculum subject to this semester.</p>
+                  </td>
+                </tr>
+              `;
+              if (window.initLucide) window.initLucide();
               return;
             }
 
             data.subjects.forEach(subj => {
-              let staffList = subj.staff.map(s => `<span class="block text-sm text-slate-400"><span class="font-bold text-slate-300">${s.name}</span> (${s.branch})</span>`).join('');
-              if (subj.staff.length === 0) staffList = `<span class="text-red-400 text-sm font-bold">Unassigned</span>`;
+              let staffList = subj.staff.map(s => `<span class="inline-flex items-center gap-1.5 mr-2 mb-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 text-xs font-semibold border border-slate-200"><i data-lucide="user" class="w-3 h-3 text-slate-500"></i>${s.name} <span class="text-slate-500 font-mono">(${s.branch})</span></span>`).join('');
+              if (subj.staff.length === 0) staffList = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">Unassigned</span>`;
               
               const currentStaffIds = subj.staff.map(s => s.mobile_no).join(',');
 
               const tr = document.createElement('tr');
-              tr.className = 'border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium';
+              tr.className = 'border-b border-slate-100 hover:bg-slate-50/70 transition-colors';
               tr.innerHTML = `
-                <td class="p-4 font-mono text-slate-300 font-bold">${subj.subject_code}</td>
-                <td class="p-4 font-bold text-slate-200">${subj.subject_name}</td>
-                <td class="p-4 text-slate-400 text-sm">${subj.subject_type}</td>
+                <td class="p-4 font-mono text-slate-900 font-bold text-sm whitespace-nowrap">${subj.subject_code}</td>
+                <td class="p-4 font-semibold text-slate-900 text-sm">${subj.subject_name}</td>
+                <td class="p-4 text-sm"><span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200">${subj.subject_type}</span></td>
                 <td class="p-4">${staffList}</td>
-                <td class="p-4 text-right space-x-2">
-                  <button onclick="openEditSubjectModal(${JSON.stringify(subj).replace(/"/g, '&quot;')})" class="px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-lg text-sm font-bold transition-premium border border-amber-500/20 cursor-pointer"><span class="material-symbols-rounded text-sm align-middle" style="font-size:14px">edit</span> Edit</button>
-                  <button onclick="openAssignStaffModal(this, ${subj.id}, '${currentStaffIds}')" data-subject-name="${subj.subject_name.replace(/"/g, '&quot;')}" class="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-bold transition-premium border border-blue-500/20 cursor-pointer">Assign Staff</button>
-                  <button onclick="deleteSubject(${subj.id})" class="px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg text-sm font-bold transition-premium border border-red-500/20 cursor-pointer">Delete</button>
+                <td class="p-4 text-right space-x-1.5 text-sm whitespace-nowrap">
+                  <button onclick="openEditSubjectModal(${JSON.stringify(subj).replace(/"/g, '&quot;')})" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer">
+                    Edit
+                  </button>
+                  <button onclick="openAssignStaffModal(this, ${subj.id}, '${currentStaffIds}')" data-subject-name="${subj.subject_name.replace(/"/g, '&quot;')}" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-semibold transition-colors cursor-pointer">
+                    Assign Staff
+                  </button>
+                  <button onclick="deleteSubject(${subj.id})" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg text-xs font-semibold transition-colors cursor-pointer">
+                    Delete
+                  </button>
                 </td>
               `;
               tbody.appendChild(tr);
             });
+            if (window.initLucide) window.initLucide();
           } else {
-            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400">Failed to load subjects.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-rose-600 font-semibold text-sm">Failed to load subjects.</td></tr>`;
           }
         })
         .catch(() => {
-          tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400">Error fetching subjects.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-rose-600 font-semibold text-sm">Error fetching subjects.</td></tr>`;
         });
     }
 
@@ -4123,28 +4257,28 @@
             const count = items.length;
 
             const card = document.createElement('div');
-            // Catchy glowing orange/purple notification card
-            card.className = "p-4 bg-gradient-to-br from-amber-500/20 via-orange-600/15 to-violet-950/40 border border-amber-500/40 hover:border-amber-400/80 rounded-2xl flex items-center justify-between shadow-[0_0_15px_rgba(245,158,11,0.1)] hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] transition-premium cursor-pointer group relative overflow-hidden";
+            card.className = "p-4 bg-amber-50 border border-amber-200/80 hover:border-amber-300 rounded-2xl flex items-center justify-between shadow-2xs hover:shadow-xs transition-all cursor-pointer group";
             card.onclick = () => {
               window.location.href = `/dashboard/lecturer?subject_id=${first.batch_subject_id}&subject_name=${encodeURIComponent(first.subject_name || 'Seminar')}&classroom_id=${encodeURIComponent(cid)}`;
             };
 
             card.innerHTML = `
               <div class="flex items-center gap-3 min-w-0">
-                <div class="bg-amber-500/10 p-2 rounded-xl text-amber-400 group-hover:bg-amber-500 group-hover:text-black transition-premium">
-                  <span class="material-symbols-rounded text-lg block">co_present</span>
+                <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                  <i data-lucide="presentation" class="w-5 h-5 text-amber-700"></i>
                 </div>
                 <div class="min-w-0">
-                  <h5 class="text-xs font-black text-amber-300 group-hover:text-white transition-premium truncate">Seminar Day (${count})</h5>
-                  <p class="text-[11px] text-slate-400 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
+                  <h5 class="text-sm font-bold text-amber-900 group-hover:text-amber-950 transition-colors truncate">Seminar Presentations Today (${count})</h5>
+                  <p class="text-xs text-amber-700 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
                 </div>
               </div>
-              <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-400 text-sm transition-premium flex-shrink-0">arrow_forward_ios</span>
+              <i data-lucide="chevron-right" class="w-4 h-4 text-amber-500 group-hover:text-amber-700 transition-colors shrink-0"></i>
             `;
             container.appendChild(card);
           });
 
           container.classList.remove('hidden');
+          if (window.initLucide) window.initLucide();
         } else {
           container.classList.add('hidden');
         }
@@ -4152,59 +4286,481 @@
       .catch(err => console.error('Failed to load today seminars:', err));
     }
 
-    // Live AI Status Indicator for HOD
-    document.addEventListener("DOMContentLoaded", () => {
-      fetch('/api/system/ai-status')
-        .then(res => res.json())
-        .then(data => {
-          const badge = document.getElementById('aiStatusBadge');
-          if (badge && data.status === 'SUCCESS') {
-            badge.classList.remove('hidden');
-            if (data.ai_generation_enabled) {
-              badge.innerHTML = `<span class="px-2.5 py-1.5 bg-emerald-950/40 text-emerald-400 border border-emerald-900/60 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping shrink-0"></span> AI Active</span>`;
-            } else {
-              badge.innerHTML = `<span class="px-2.5 py-1.5 bg-amber-950/40 text-amber-400 border border-amber-900/60 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm" title="Gemini AI is deactivated to save API credits. Lesson plans, descriptive questions, and MCQs are generated from local databases and question banks."><span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span> AI Offline (Local DB)</span>`;
-            }
+    // =========================================================================
+    // STAFF LEAVE MASTER LEDGER HANDLERS
+    // =========================================================================
+    async function loadLeaveLedger() {
+      const dept = document.getElementById('leaveLedgerDept')?.value || '';
+      const year = document.getElementById('leaveLedgerYear')?.value || '';
+      const status = document.getElementById('leaveLedgerStatus')?.value || '';
+      const tbody = document.getElementById('leaveLedgerTableBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = `<tr><td colspan="6" class="p-12 text-center text-slate-500 font-medium text-sm">
+        <div class="inline-flex items-center gap-2 text-slate-500">
+          <div class="w-4 h-4 border-2 border-rose-600 border-t-transparent rounded-full animate-spin"></div>
+          <span>Loading staff leave records...</span>
+        </div>
+      </td></tr>`;
+
+      try {
+        const query = new URLSearchParams();
+        if (dept) query.set('department', dept);
+        if (year) query.set('academic_year', year);
+        if (status) query.set('status', status);
+
+        const res = await fetch(`/api/staff/leave/reports-data?${query.toString()}`);
+        const data = await res.json();
+
+        if (data.status === 'SUCCESS' && data.leaves) {
+          const sm = data.summary || {};
+          const kTotal = document.getElementById('leaveKpiTotal');
+          const kCL = document.getElementById('leaveKpiCL');
+          const kCCL = document.getElementById('leaveKpiCCL');
+          const kDL = document.getElementById('leaveKpiDL');
+          const kML = document.getElementById('leaveKpiML');
+          const kLOP = document.getElementById('leaveKpiLOP');
+
+          if (kTotal) kTotal.innerText = (sm.TOTAL_DAYS || 0).toFixed(1);
+          if (kCL) kCL.innerText = (sm.CL || 0).toFixed(1);
+          if (kCCL) kCCL.innerText = (sm.CCL || 0).toFixed(1);
+          if (kDL) kDL.innerText = (sm.DL || 0).toFixed(1);
+          if (kML) kML.innerText = (sm.ML || 0).toFixed(1);
+          if (kLOP) kLOP.innerText = (sm.LOP || 0).toFixed(1);
+
+          if (data.leaves.length > 0) {
+            tbody.innerHTML = data.leaves.map(l => {
+              const staffName = l.staff_name || 'Staff Member';
+              const initial = staffName.charAt(0).toUpperCase();
+              
+              let badgeColor = 'bg-amber-50 text-amber-700 border-amber-200/80';
+              let badgeDot = 'bg-amber-500';
+              if (l.overall_status === 'Approved') {
+                badgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200/80';
+                badgeDot = 'bg-emerald-500';
+              } else if (l.overall_status === 'Rejected') {
+                badgeColor = 'bg-rose-50 text-rose-700 border-rose-200/80';
+                badgeDot = 'bg-rose-500';
+              }
+
+              const statusBadge = `
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${badgeColor} border">
+                  <span class="w-1.5 h-1.5 rounded-full ${badgeDot}"></span>
+                  ${l.overall_status?.replace('_', ' ') || 'Pending'}
+                </span>
+              `;
+
+              const canApprove = (l.overall_status === 'Pending_HOD' || (!l.overall_status?.includes('Approved') && !l.overall_status?.includes('Rejected')));
+
+              return `
+                <tr class="hover:bg-slate-50/70 transition-colors">
+                  <td class="p-4">
+                    <div class="flex items-center gap-3">
+                      <div class="w-9 h-9 rounded-full bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-700 font-bold text-sm shrink-0">
+                        ${initial}
+                      </div>
+                      <div>
+                        <span class="font-bold text-slate-900 block text-sm leading-tight">${staffName}</span>
+                        <span class="text-xs text-slate-500 font-mono mt-0.5 block">${l.department} • <strong class="text-blue-600">${l.leave_code || ('SLV-' + l.id)}</strong></span>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="p-4">
+                    <span class="inline-block px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200/80">
+                      ${l.leave_type || 'Casual Leave'}
+                    </span>
+                  </td>
+                  <td class="p-4">
+                    <span class="text-sm font-semibold text-slate-900 block">${l.from_date} to ${l.to_date}</span>
+                    <span class="text-xs text-slate-500 font-medium mt-0.5 inline-block px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200/60">${l.total_days} Day(s) (${l.session_type || 'Full Day'})</span>
+                  </td>
+                  <td class="p-4 text-xs text-slate-600 max-w-xs">
+                    <span class="line-clamp-2">${l.reason || '-'}</span>
+                  </td>
+                  <td class="p-4 text-center">
+                    ${statusBadge}
+                  </td>
+                  <td class="p-4 text-right">
+                    <div class="flex items-center justify-end gap-1.5">
+                      ${canApprove ? `
+                        <button 
+                          type="button" 
+                          onclick="processLeaveApproval(${l.id}, 'Approve')" 
+                          class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold transition cursor-pointer shadow-xs" 
+                          title="Recommend/Approve Leave"
+                        >
+                          Approve
+                        </button>
+                        <button 
+                          type="button" 
+                          onclick="processLeaveApproval(${l.id}, 'Reject')" 
+                          class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition cursor-pointer shadow-xs" 
+                          title="Reject Leave"
+                        >
+                          Reject
+                        </button>
+                      ` : ''}
+                      <a 
+                        href="/staff/leave/${l.id}/pdf" 
+                        target="_blank" 
+                        class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition cursor-pointer" 
+                        title="Print Official Leave PDF Application"
+                      >
+                        <i data-lucide="printer" class="w-4 h-4"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join('');
+            if (window.initLucide) window.initLucide();
+          } else {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="6" class="p-12 text-center text-slate-500 font-medium text-sm">
+                  <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="folder-open" class="w-6 h-6 text-slate-400"></i>
+                  </div>
+                  <h4 class="text-base font-bold text-slate-800">No staff leave records found</h4>
+                  <p class="text-sm text-slate-500 mt-1 max-w-sm mx-auto">No leave applications matching the selected criteria.</p>
+                </td>
+              </tr>
+            `;
+            if (window.initLucide) window.initLucide();
           }
-        })
-        .catch(err => console.error("Failed to load system AI status:", err));
-    });
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-12 text-center text-rose-600 font-semibold text-sm">Failed to load leave records. Please check network connection.</td></tr>`;
+      }
+    }
+
+    async function processLeaveApproval(id, decision) {
+      const remarks = prompt(`Enter optional remarks for ${decision.toLowerCase()}ing leave application:`, decision === 'Approve' ? 'Recommended/Approved by HOD' : 'Rejected');
+      if (remarks === null) return;
+
+      try {
+        const res = await fetch('/api/staff/leave/process-approval', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({
+            leave_id: id,
+            stage: 'HOD',
+            decision: decision,
+            remarks: remarks
+          })
+        });
+        const data = await res.json();
+        if (data.status === 'SUCCESS') {
+          showGlobalMessage(`Leave application ${decision.toLowerCase()}d successfully.`, false);
+          loadLeaveLedger();
+        } else {
+          showGlobalMessage(data.message || 'Error processing leave decision.', true);
+        }
+      } catch (err) {
+        showGlobalMessage('Network error updating leave decision.', true);
+      }
+    }
+
+    // =========================================================================
+    // PROFESSIONAL ACTIVITIES HANDLERS (CAMPUSLYNK 5/7 ARCHETYPE)
+    // =========================================================================
+    const profActSchemas = {
+      fdp_attended: [
+        { label: 'Title of FDP / Training Program', name: 'title', type: 'text', placeholder: 'e.g. Advanced Laravel & Microservices', fullWidth: true, required: true },
+        { label: 'Duration (Days / Hours)', name: 'duration', type: 'text', placeholder: 'e.g. 5 Days / 40 Hrs', required: true },
+        { label: 'Start Date', name: 'date', type: 'date', required: false },
+        { label: 'Organizing Venue / Institution', name: 'venue', type: 'text', placeholder: 'e.g. Carmel Polytechnic / NITTTR', fullWidth: true, required: true }
+      ],
+      workshop_attended: [
+        { label: 'Title of Workshop / BootCamp', name: 'title', type: 'text', placeholder: 'e.g. IoT Systems & Embedded Networks', fullWidth: true, required: true },
+        { label: 'Duration (Days / Hours)', name: 'duration', type: 'text', placeholder: 'e.g. 2 Days', required: true },
+        { label: 'Date', name: 'date', type: 'date', required: false },
+        { label: 'Organizing Body / Venue', name: 'venue', type: 'text', placeholder: 'e.g. Govt Polytechnic College', fullWidth: true, required: true }
+      ],
+      course_attended: [
+        { label: 'Course / Certification Title', name: 'title', type: 'text', placeholder: 'e.g. NPTEL Data Structures & Algorithms', fullWidth: true, required: true },
+        { label: 'Duration', name: 'duration', type: 'text', placeholder: 'e.g. 8 Weeks', required: true },
+        { label: 'Platform / Certifying Body', name: 'venue', type: 'text', placeholder: 'e.g. NPTEL / Swayam / Coursera', required: true }
+      ],
+      gap_in_syllabus: [
+        { label: 'Subject Name & Code', name: 'subject', type: 'text', placeholder: 'e.g. Computer Networks (CN-302)', fullWidth: true, required: true },
+        { label: 'Identified Curricular Gap Details', name: 'gap_details', type: 'textarea', placeholder: 'Identify details where syllabus falls short of industrial expectations...', fullWidth: true, required: true },
+        { label: 'Action Taken / Bridge Course Plan', name: 'action_taken', type: 'text', placeholder: 'e.g. Conducted a 3-hour hands-on seminar on IPv6 Routing', fullWidth: true, required: true }
+      ],
+      project_guided: [
+        { label: 'Project Title', name: 'title', type: 'text', placeholder: 'e.g. Smart Campus Face Recognition System', fullWidth: true, required: true },
+        { label: 'Batch / Academic Year', name: 'batch', type: 'text', placeholder: 'e.g. 2023-2026 Batch', required: true },
+        { label: 'Student Names', name: 'students', type: 'text', placeholder: 'e.g. Arjun, Vishnu, Rahul', required: true }
+      ],
+      seminar_guided: [
+        { label: 'Seminar Topic', name: 'title', type: 'text', placeholder: 'e.g. Introduction to Quantum Computing & Cryptography', fullWidth: true, required: true },
+        { label: 'Student Name', name: 'students', type: 'text', placeholder: 'e.g. Anjali Nair', required: true },
+        { label: 'Date Presented', name: 'date', type: 'date', required: false }
+      ],
+      publication: [
+        { label: 'Paper / Research Title', name: 'title', type: 'text', placeholder: 'e.g. AI-driven Automated Grading Engines', fullWidth: true, required: true },
+        { label: 'Journal / Conference Name', name: 'journal', type: 'text', placeholder: 'e.g. International Journal of Engineering & Tech', required: true },
+        { label: 'Publication Year', name: 'year', type: 'number', placeholder: 'e.g. 2026', required: true }
+      ],
+      book_published: [
+        { label: 'Book Title', name: 'title', type: 'text', placeholder: 'e.g. Fundamentals of Embedded Systems & C', fullWidth: true, required: true },
+        { label: 'Publisher Name', name: 'publisher', type: 'text', placeholder: 'e.g. Pearson India', required: true },
+        { label: 'ISBN Number', name: 'isbn', type: 'text', placeholder: 'e.g. 978-3-16-148410-0', required: true },
+        { label: 'Year of Publication', name: 'year', type: 'number', placeholder: 'e.g. 2025', required: true }
+      ]
+    };
+
+    function toggleProfActFields(type) {
+      const container = document.getElementById('profActDynamicFields');
+      if (!container) return;
+      container.innerHTML = '';
+      
+      const fields = profActSchemas[type] || [];
+      fields.forEach(f => {
+        const wrap = document.createElement('div');
+        wrap.className = f.fullWidth ? 'space-y-1' : 'space-y-1';
+        
+        const label = document.createElement('label');
+        label.className = 'block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1';
+        label.innerHTML = `${f.label} ${f.required ? '<span class="text-rose-500">*</span>' : ''}`;
+        wrap.appendChild(label);
+        
+        if (f.type === 'textarea') {
+          const textarea = document.createElement('textarea');
+          textarea.name = `details[${f.name}]`;
+          textarea.id = `field_${f.name}`;
+          textarea.placeholder = f.placeholder;
+          textarea.rows = 2;
+          textarea.className = 'w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all resize-none';
+          if (f.required) textarea.required = true;
+          wrap.appendChild(textarea);
+        } else {
+          const input = document.createElement('input');
+          input.type = f.type;
+          input.name = `details[${f.name}]`;
+          input.id = `field_${f.name}`;
+          input.placeholder = f.placeholder;
+          input.className = 'w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all';
+          if (f.required) input.required = true;
+          wrap.appendChild(input);
+        }
+        
+        container.appendChild(wrap);
+      });
+    }
+    window.toggleProfActFields = toggleProfActFields;
+
+    async function loadProfActivities() {
+      const ay = document.getElementById('profActAyFilter')?.value || '';
+      const dept = document.getElementById('profActDeptFilter')?.value || '';
+      const container = document.getElementById('profActListContainer');
+      const ayLabel = document.getElementById('profActAyLabel');
+      if (ayLabel) ayLabel.innerText = ay;
+
+      if (container) container.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm">Loading activity records...</div>`;
+
+      try {
+        const query = new URLSearchParams({ academic_year: ay, department: dept }).toString();
+        const res = await fetch(`/api/staff/professional-activities/fetch?${query}`);
+        const data = await res.json();
+
+        if (data.status === 'SUCCESS' && data.records) {
+          const totalCountEl = document.getElementById('profActTotalCount');
+          const fdpCountEl = document.getElementById('profActFdpCount');
+          const pubCountEl = document.getElementById('profActPubCount');
+          const regCountEl = document.getElementById('profActRegistryCount');
+
+          if (totalCountEl) totalCountEl.innerText = data.records.length;
+          const fdpCount = data.records.filter(r => r.activity_type?.includes('fdp') || r.activity_type?.includes('workshop') || r.activity_type?.includes('course')).length;
+          const pubCount = data.records.filter(r => r.activity_type?.includes('publication') || r.activity_type?.includes('book')).length;
+          if (fdpCountEl) fdpCountEl.innerText = fdpCount;
+          if (pubCountEl) pubCountEl.innerText = pubCount;
+          if (regCountEl) regCountEl.innerText = `${data.records.length} records in AY ${ay}`;
+
+          if (data.records.length > 0) {
+            container.innerHTML = data.records.map(r => {
+              const details = r.details || {};
+              const actTypeFormatted = (r.activity_type || 'Activity').replace(/_/g, ' ');
+              const canDelete = (r.lecturer_mobile_no === window.currentUserId) || ('{{ session('userId') }}' === r.lecturer_mobile_no);
+
+              let detailsSnippet = '';
+              if (r.activity_type === 'gap_in_syllabus') {
+                detailsSnippet = `
+                  <div class="text-xs text-slate-600 space-y-0.5 mt-1">
+                    <div><strong class="text-slate-700">Subject:</strong> ${escapeHtml(details.subject || '-')}</div>
+                    <div><strong class="text-slate-700">Identified Gap:</strong> ${escapeHtml(details.gap_details || '-')}</div>
+                    <div><strong class="text-slate-700">Action Plan:</strong> ${escapeHtml(details.action_taken || '-')}</div>
+                  </div>
+                `;
+              } else if (r.activity_type === 'project_guided' || r.activity_type === 'seminar_guided') {
+                detailsSnippet = `
+                  <div class="text-xs text-slate-500 flex items-center gap-2.5 pt-1 flex-wrap font-medium">
+                    ${details.batch ? `<span><strong>Batch:</strong> ${escapeHtml(details.batch)}</span><span>•</span>` : ''}
+                    <span><strong>Students:</strong> ${escapeHtml(details.students || '-')}</span>
+                    ${details.date ? `<span>•</span><span><strong>Date:</strong> ${escapeHtml(details.date)}</span>` : ''}
+                  </div>
+                `;
+              } else if (r.activity_type === 'publication' || r.activity_type === 'book_published') {
+                detailsSnippet = `
+                  <div class="text-xs text-slate-500 flex items-center gap-2.5 pt-1 flex-wrap font-medium">
+                    ${details.journal ? `<span><strong>Journal:</strong> ${escapeHtml(details.journal)}</span><span>•</span>` : ''}
+                    ${details.publisher ? `<span><strong>Publisher:</strong> ${escapeHtml(details.publisher)}</span><span>•</span>` : ''}
+                    ${details.isbn ? `<span><strong>ISBN:</strong> ${escapeHtml(details.isbn)}</span><span>•</span>` : ''}
+                    <span><strong>Year:</strong> ${escapeHtml(details.year || '-')}</span>
+                  </div>
+                `;
+              } else {
+                detailsSnippet = `
+                  <div class="text-xs text-slate-500 flex items-center gap-2.5 pt-1 flex-wrap font-medium">
+                    ${details.duration ? `<span><strong>Duration:</strong> ${escapeHtml(details.duration)}</span><span>•</span>` : ''}
+                    ${details.venue ? `<span><strong>Venue/Platform:</strong> ${escapeHtml(details.venue)}</span><span>•</span>` : ''}
+                    ${details.date ? `<span><strong>Date:</strong> ${escapeHtml(details.date)}</span>` : ''}
+                  </div>
+                `;
+              }
+
+              return `
+                <div class="p-4 bg-white border border-slate-200/80 rounded-2xl flex items-start justify-between gap-4 hover:border-slate-300 transition-all shadow-2xs">
+                  <div class="space-y-1 min-w-0 flex-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200/80 rounded-full text-xs font-bold uppercase tracking-wider">${escapeHtml(actTypeFormatted)}</span>
+                      <span class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md text-xs font-semibold">${escapeHtml(r.department || 'General')}</span>
+                      <span class="text-xs text-slate-500 font-medium">• ${escapeHtml(r.staff_name || 'Faculty')} (${escapeHtml(r.designation || 'Lecturer')})</span>
+                    </div>
+                    <h5 class="font-bold text-slate-900 text-sm mt-1">${escapeHtml(details.title || details.subject || 'Professional Activity')}</h5>
+                    ${detailsSnippet}
+                  </div>
+                  ${canDelete ? `
+                    <button type="button" onclick="deleteProfActivity(${r.id})" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer shrink-0" title="Delete record">
+                      <i data-lucide="trash-2" class="w-4 h-4 text-rose-500"></i>
+                    </button>
+                  ` : ''}
+                </div>
+              `;
+            }).join('');
+          } else {
+            container.innerHTML = `
+              <div class="p-12 text-center text-slate-400 text-sm space-y-2">
+                <i data-lucide="award" class="w-8 h-8 text-slate-300 mx-auto block"></i>
+                <p>No professional activity records found for AY ${escapeHtml(ay)}.</p>
+                <p class="text-xs text-slate-400">Use the form on the left to record new faculty activities.</p>
+              </div>
+            `;
+          }
+          if (window.initLucide) window.initLucide();
+        }
+      } catch (err) {
+        if (container) container.innerHTML = `<div class="p-8 text-center text-rose-500 text-sm">Failed to load professional activities.</div>`;
+      }
+    }
+    window.loadProfActivities = loadProfActivities;
+
+    async function submitProfActivity(e) {
+      e.preventDefault();
+      const alertEl = document.getElementById('profActAlert');
+      const ay = document.getElementById('profActAyFilter')?.value || '{{ date('Y') }}-{{ date('Y') + 1 }}';
+      const type = document.getElementById('profActType').value;
+      const form = document.getElementById('profActivityForm');
+
+      // Build details object dynamically from input schema
+      const details = {};
+      const inputs = form.querySelectorAll('[name^="details["]');
+      inputs.forEach(inp => {
+        const match = inp.name.match(/details\[(.*?)\]/);
+        if (match && match[1]) {
+          details[match[1]] = inp.value;
+        }
+      });
+
+      const btn = document.getElementById('btnSaveProfAct');
+      if (btn) btn.disabled = true;
+
+      try {
+        const res = await fetch('/staff/professional-activities/save', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({
+            academic_year: ay,
+            activity_type: type,
+            details: details
+          })
+        });
+
+        if (res.ok) {
+          alertEl.classList.remove('hidden');
+          alertEl.className = 'p-3 rounded-xl font-semibold border text-sm bg-emerald-50 text-emerald-800 border-emerald-200';
+          alertEl.innerText = 'Professional activity recorded successfully!';
+          form.reset();
+          toggleProfActFields(type);
+          loadProfActivities();
+          setTimeout(() => alertEl.classList.add('hidden'), 3500);
+        } else {
+          throw new Error('Server returned error response');
+        }
+      } catch (err) {
+        alertEl.classList.remove('hidden');
+        alertEl.className = 'p-3 rounded-xl font-semibold border text-sm bg-rose-50 text-rose-800 border-rose-200';
+        alertEl.innerText = 'Error saving activity record. Please check inputs.';
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+    window.submitProfActivity = submitProfActivity;
+
+    async function deleteProfActivity(id) {
+      if (!confirm('Are you sure you want to delete this activity record?')) return;
+      try {
+        const res = await fetch(`/staff/professional-activities/delete/${id}`, {
+          method: 'POST',
+          headers: getHeaders()
+        });
+        if (res.ok) {
+          showGlobalMessage('Activity deleted successfully.', false);
+          loadProfActivities();
+        } else {
+          showGlobalMessage('Failed to delete activity record.', true);
+        }
+      } catch (err) {
+        showGlobalMessage('Network error deleting activity.', true);
+      }
+    }
+    window.deleteProfActivity = deleteProfActivity;
   </script>
 
   <!-- SUBJECT PROGRESS POPUP CARD -->
-  <div id="subjectProgressPopup" class="fixed hidden bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-2xl z-[60] w-72 pointer-events-none transition-premium flex flex-col gap-3">
-    <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-      <h4 id="popupSubjName" class="font-extrabold text-sm text-slate-100 truncate w-48">Subject Name</h4>
-      <span id="popupSubjCode" class="font-mono text-xs font-bold text-violet-400 bg-violet-950/40 border border-violet-900/60 px-2 py-0.5 rounded">ENG101</span>
+  <div id="subjectProgressPopup" class="fixed hidden bg-white border border-slate-200 rounded-2xl p-4 shadow-xl z-[60] w-72 pointer-events-none transition-all flex flex-col gap-3">
+    <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+      <h4 id="popupSubjName" class="font-bold text-sm text-slate-900 truncate w-48">Subject Name</h4>
+      <span id="popupSubjCode" class="font-mono text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md">ENG101</span>
     </div>
-    <div class="space-y-2 text-sm">
+    <div class="space-y-2 text-xs">
       <div class="flex justify-between items-center">
-        <span class="text-slate-400 text-sm">Allotted Hours:</span>
-        <span id="popupAllottedHours" class="font-bold text-slate-200">0 hrs</span>
+        <span class="text-slate-500">Allotted Hours:</span>
+        <span id="popupAllottedHours" class="font-semibold text-slate-900">0 hrs</span>
       </div>
       <div class="flex justify-between items-center">
-        <span class="text-slate-400 text-sm">Completed Hours:</span>
-        <span id="popupCompletedHours" class="font-bold text-slate-200">0 hrs</span>
+        <span class="text-slate-500">Completed Hours:</span>
+        <span id="popupCompletedHours" class="font-semibold text-slate-900">0 hrs</span>
       </div>
       <div class="flex justify-between items-center">
-        <span class="text-slate-400 text-sm">Assignment Initiated:</span>
-        <span id="popupAssignmentStatus" class="font-bold text-slate-500">Not Initiated</span>
+        <span class="text-slate-500">Assignment Initiated:</span>
+        <span id="popupAssignmentStatus" class="font-semibold text-slate-400">Not Initiated</span>
       </div>
       <div class="flex justify-between items-center">
-        <span class="text-slate-400 text-sm">Written Test Initiated:</span>
-        <span id="popupWrittenTestStatus" class="font-bold text-slate-500">Not Initiated</span>
+        <span class="text-slate-500">Written Test Initiated:</span>
+        <span id="popupWrittenTestStatus" class="font-semibold text-slate-400">Not Initiated</span>
       </div>
       <div class="flex justify-between items-center">
-        <span class="text-slate-400 text-sm">MCQ Status:</span>
-        <span id="popupMcqStatus" class="font-bold text-slate-500">Not Initiated</span>
+        <span class="text-slate-500">MCQ Status:</span>
+        <span id="popupMcqStatus" class="font-semibold text-slate-400">Not Initiated</span>
       </div>
       <div class="flex justify-between items-center">
-        <span class="text-slate-400 text-sm">Mid-Sem Survey:</span>
-        <span id="popupMidSemStatus" class="font-bold text-slate-500">Not Initiated</span>
+        <span class="text-slate-500">Mid-Sem Survey:</span>
+        <span id="popupMidSemStatus" class="font-semibold text-slate-400">Not Initiated</span>
       </div>
       <div class="flex justify-between items-center">
-        <span class="text-slate-400 text-sm">End-Sem Survey:</span>
-        <span id="popupEndSemStatus" class="font-bold text-slate-500">Not Initiated</span>
+        <span class="text-slate-500">End-Sem Survey:</span>
+        <span id="popupEndSemStatus" class="font-semibold text-slate-400">Not Initiated</span>
       </div>
     </div>
   </div>
@@ -4212,5 +4768,4 @@
   @include('mentoring_diary_modal')
   @include('partials.support_desk_overlay')
 
-</body>
-</html>
+</x-layouts.app-shell>

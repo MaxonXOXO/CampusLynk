@@ -105,3 +105,29 @@ All page migrations must follow the strict granular sequence below:
 
 ### Rule 6: Local-First Development & Git Safety
 * **NEVER** execute `git commit`, `git add`, or `git push` unless explicitly instructed.
+
+### Rule 7: Control Strategy & Component Governance
+* **New UI Select Policy**: New and migrated UI must use `<x-ui.select>` for standardized Blade forms, filters, search bars, and configuration panels unless native browser select behavior is explicitly required.
+* **Native Select Usage**: Native `<select>` is permitted where native browser popups are intentionally required or inside dedicated print reports.
+* **JavaScript-Generated Controls**: Do NOT automatically rewrite or break dynamic `document.createElement` / `innerHTML` form controls in client-side scripts.
+* **Component Mapping for New UI**:
+  - Buttons: `<x-ui.button>` or explicit design system button utility classes
+  - Inputs: `<x-ui.input>`
+  - Selects: `<x-ui.select>`
+  - Badges & Chips: `<x-ui.badge>` / `<x-ui.chip>`
+  - Cards & Panels: `<x-ui.card>` or structured token containers
+  - Data Tables: `<x-ui.table>` or tokenized data table markup
+  - Modals: `<x-ui.modal>`
+  - Tabs: `<x-ui.tabs>`
+  - Alerts & Notices: `<x-ui.alert>`
+  - Search: `<x-ui.search>`
+
+### Rule 8: CDN Guardrails & Canonical Asset Pipeline
+* **Vite is Canonical**: All new layouts and migrated views MUST inherit assets exclusively through the compiled Vite pipeline (`@vite(['resources/css/app.css', 'resources/js/app.js'])`).
+* **Prohibited CDN Imports**: New and migrated views **MUST NOT** load:
+  - Runtime Tailwind CDN (`@tailwindcss/browser@4` or `cdn.tailwindcss.com`)
+  - Runtime Lucide CDN (`unpkg.com/lucide@latest`)
+  - FontAwesome CDN (`cdnjs.cloudflare.com/.../font-awesome`)
+  - Duplicate Google Fonts link tags outside master shells
+  - Duplicate Chart.js CDN links
+

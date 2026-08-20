@@ -250,7 +250,36 @@ Route::middleware(['web'])->group(function () {
         if ($request->has('mobile') || ($isMobileDevice && $request->input('mode') !== 'desktop')) {
             return app(\App\Http\Controllers\HodMobileController::class)->index($request);
         }
-        return noCacheView('hod_dashboard');
+        $activePanel = $request->query('panel', $request->query('tab', 'batches'));
+        return noCacheView('hod_dashboard', ['activePanel' => $activePanel]);
+    });
+
+    Route::get('/dashboard/hod/batches', function () {
+        return redirect('/dashboard/hod?panel=batches');
+    });
+    Route::get('/dashboard/hod/directory', function () {
+        return redirect('/dashboard/hod?panel=directory');
+    });
+    Route::get('/dashboard/hod/subjects', function () {
+        return redirect('/dashboard/hod?panel=subjects');
+    });
+    Route::get('/dashboard/hod/audit', function () {
+        return redirect('/dashboard/hod?panel=audit');
+    });
+    Route::get('/dashboard/hod/sf-attendance', function () {
+        return redirect('/dashboard/hod?panel=sf_attendance');
+    });
+    Route::get('/dashboard/hod/leave-ledger', function () {
+        return redirect('/dashboard/hod?panel=leave_ledger');
+    });
+    Route::get('/dashboard/hod/profile', function () {
+        return redirect('/dashboard/hod?panel=profile');
+    });
+    Route::get('/dashboard/hod/my-batches', function () {
+        return redirect('/dashboard/lecturer');
+    });
+    Route::get('/hod/my-batches', function () {
+        return redirect('/dashboard/lecturer');
     });
 
     Route::get('/hod/mobile', [\App\Http\Controllers\HodMobileController::class, 'index']);
@@ -2015,6 +2044,18 @@ Route::middleware(['web'])->group(function () {
         ]);
     });
 
+    Route::delete('/sf-attendance/delete-punch/{id}', function($id) {
+        $userRole = Session::get('userRole');
+        if (!in_array($userRole, ['Principal', 'Super_Admin', 'Chairman', 'Admin', 'Academic_Coordinator', 'HOD', 'Gen_Dept_Coordinator_Self_Finance'])) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized'], 403);
+        }
+        $deleted = DB::table('sf_staff_time_punches')->where('id', $id)->delete();
+        if ($deleted) {
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Punch record deleted successfully.']);
+        }
+        return response()->json(['status' => 'ERROR', 'message' => 'Punch record not found.'], 404);
+    });
+
     // Executive Profile JSON API
     Route::get('/api/executive/profile/details', function() {
         $userId = Session::get('userId', 'ADMIN-001');
@@ -2068,6 +2109,22 @@ Route::middleware(['web'])->group(function () {
         $role = trim($request->query('role', ''));
         $status = trim($request->query('status', ''));
 
+        $branchAliases = [];
+        if (!empty($branch)) {
+            $branchCode = strtoupper($branch);
+            $branchAliases = match($branchCode) {
+                'CT' => ['CT', 'Computer Engineering', 'Computer', 'Computer Technology', 'Computer Tech'],
+                'EL' => ['EL', 'Electronics Engineering', 'Electronics', 'Electronics & Communication'],
+                'ME' => ['ME', 'Mechanical Engineering', 'Mechanical'],
+                'CE' => ['CE', 'Civil Engineering', 'Civil'],
+                'EEE' => ['EEE', 'Electrical Engineering', 'Electrical & Electronics', 'Electrical'],
+                'AU' => ['AU', 'Automobile Engineering', 'Automobile'],
+                'GEN_AIDED' => ['GEN_AIDED', 'General Aided', 'General'],
+                'GEN_SF' => ['GEN_SF', 'General SF', 'General (SF)'],
+                default => [$branchCode, $branch]
+            };
+        }
+
         $users = [];
 
         // Query Students if role is empty or student
@@ -2081,8 +2138,8 @@ Route::middleware(['web'])->group(function () {
                       ->orWhere('email', 'like', "%{$search}%");
                 });
             }
-            if (!empty($branch)) {
-                $studentQuery->where('branch', strtoupper($branch));
+            if (!empty($branchAliases)) {
+                $studentQuery->whereIn('branch', $branchAliases);
             }
             if (!empty($status)) {
                 $studentQuery->where('status', $status);
@@ -2114,8 +2171,8 @@ Route::middleware(['web'])->group(function () {
                       ->orWhere('email', 'like', "%{$search}%");
                 });
             }
-            if (!empty($branch)) {
-                $staffQuery->where('branch', strtoupper($branch));
+            if (!empty($branchAliases)) {
+                $staffQuery->whereIn('branch', $branchAliases);
             }
             if (!empty($role)) {
                 $staffQuery->where('designation', $role);
@@ -2271,8 +2328,47 @@ Route::middleware(['web'])->group(function () {
         return response()->json(['status' => 'SUCCESS', 'audit' => $audit]);
     });
 
-    Route::get('/api/audit-logs', function() {
-        $logs = DB::table('audit_logs')->orderBy('created_at', 'desc')->limit(100)->get();
+    Route::get('/api/audit-logs', function(\Illuminate\Http\Request $request) {
+        $branch = $request->query('branch', Session::get('userBranch'));
+        $role = Session::get('userRole');
+        $targetId = $request->query('targetId');
+
+        $query = DB::table('audit_logs');
+        if (!empty($targetId)) {
+            $query->where('target_id', $targetId);
+        } elseif ($role === 'HOD' || !empty($branch)) {
+            $branchCode = strtoupper($branch);
+            $aliases = match($branchCode) {
+                'CT' => ['CT', 'Computer Engineering', 'Computer', 'Computer Technology', 'Computer Tech'],
+                'EL' => ['EL', 'Electronics Engineering', 'Electronics', 'Electronics & Communication'],
+                'ME' => ['ME', 'Mechanical Engineering', 'Mechanical'],
+                'CE' => ['CE', 'Civil Engineering', 'Civil'],
+                'EEE' => ['EEE', 'Electrical Engineering', 'Electrical & Electronics', 'Electrical'],
+                'AU' => ['AU', 'Automobile Engineering', 'Automobile'],
+                'GEN_AIDED' => ['GEN_AIDED', 'General Aided', 'General'],
+                'GEN_SF' => ['GEN_SF', 'General SF', 'General (SF)'],
+                default => [$branchCode]
+            };
+
+            $staffMobiles = DB::table('staff_profiles')->whereIn('branch', $aliases)->pluck('mobile_no')->toArray();
+            $studentIds = DB::table('students')->whereIn('branch', $aliases)->pluck('reg_no')->toArray();
+            $allTargetIds = array_filter(array_merge($staffMobiles, $studentIds));
+
+            $query->where(function($q) use ($allTargetIds, $staffMobiles, $branchCode) {
+                if (!empty($allTargetIds)) {
+                    $q->whereIn('target_id', $allTargetIds);
+                }
+                if (!empty($staffMobiles)) {
+                    $q->orWhereIn('performed_by', $staffMobiles);
+                }
+                $q->orWhere('target_id', 'like', "{$branchCode}_%")
+                  ->orWhere('target_name', 'like', "%{$branchCode}_%")
+                  ->orWhere('target_name', 'like', "%{$branchCode}%")
+                  ->orWhere('details', 'like', "%{$branchCode}_%")
+                  ->orWhere('details', 'like', "%{$branchCode}%");
+            });
+        }
+        $logs = $query->orderBy('created_at', 'desc')->limit(100)->get();
         return response()->json(['status' => 'SUCCESS', 'logs' => $logs]);
     });
 

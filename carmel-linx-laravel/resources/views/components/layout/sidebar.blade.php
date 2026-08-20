@@ -162,6 +162,33 @@
         }
     }
 
+    // Universal HOD Navigation Handler
+    function handleHodSidebarNav(id) {
+        if (typeof window.switchPanel === 'function') {
+            window.switchPanel(id);
+            selectSidebarNav(id);
+            try {
+                const url = new URL(window.location);
+                url.searchParams.set('panel', id);
+                url.searchParams.delete('tab');
+                window.history.replaceState({}, '', url);
+            } catch (e) {}
+        } else if (typeof switchPanel === 'function') {
+            switchPanel(id);
+            selectSidebarNav(id);
+            try {
+                const url = new URL(window.location);
+                url.searchParams.set('panel', id);
+                url.searchParams.delete('tab');
+                window.history.replaceState({}, '', url);
+            } catch (e) {}
+        } else {
+            window.location.href = '/dashboard/hod?panel=' + id;
+        }
+    }
+    window.handleHodSidebarNav = handleHodSidebarNav;
+    window.selectSidebarNav = selectSidebarNav;
+
     // Universal Sidebar Navigation Highlighting
     function selectSidebarNav(id) {
         document.querySelectorAll('#sidebar-nav-container button, #sidebar-nav-container a').forEach(el => {
@@ -189,7 +216,7 @@
             @elseif($isAdmin)
                 window.location.href = '/dashboard/principal';
             @else
-                window.location.href = '/modern/ui-playground';
+                window.location.href = '/dashboard/hod';
             @endif
         }
     }
@@ -199,10 +226,14 @@
         if (sidebar && sidebar.classList.contains('is-collapsed')) {
             expandSidebar();
         }
-        if (typeof openExecutiveProfileModal === 'function') {
+        if (typeof handleHodSidebarNav === 'function' && window.location.pathname.includes('/dashboard/hod')) {
+            handleHodSidebarNav('profile');
+        } else if (typeof openExecutiveProfileModal === 'function') {
             openExecutiveProfileModal();
         } else if (typeof handleStudentSidebarNav === 'function') {
             handleStudentSidebarNav('profile');
+        } else {
+            window.location.href = '/dashboard/hod?panel=profile';
         }
     }
 
