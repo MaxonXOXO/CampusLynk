@@ -2352,20 +2352,15 @@ Route::middleware(['web'])->group(function () {
 
             $staffMobiles = DB::table('staff_profiles')->whereIn('branch', $aliases)->pluck('mobile_no')->toArray();
             $studentIds = DB::table('students')->whereIn('branch', $aliases)->pluck('reg_no')->toArray();
-            $allTargetIds = array_filter(array_merge($staffMobiles, $studentIds));
+            $allBranchUserIds = array_values(array_filter(array_unique(array_merge($staffMobiles, $studentIds))));
 
-            $query->where(function($q) use ($allTargetIds, $staffMobiles, $branchCode) {
-                if (!empty($allTargetIds)) {
-                    $q->whereIn('target_id', $allTargetIds);
-                }
-                if (!empty($staffMobiles)) {
-                    $q->orWhereIn('performed_by', $staffMobiles);
+            $query->where(function($q) use ($allBranchUserIds, $branchCode) {
+                if (!empty($allBranchUserIds)) {
+                    $q->whereIn('target_id', $allBranchUserIds)
+                      ->orWhereIn('performed_by', $allBranchUserIds);
                 }
                 $q->orWhere('target_id', 'like', "{$branchCode}_%")
-                  ->orWhere('target_name', 'like', "%{$branchCode}_%")
-                  ->orWhere('target_name', 'like', "%{$branchCode}%")
-                  ->orWhere('details', 'like', "%{$branchCode}_%")
-                  ->orWhere('details', 'like', "%{$branchCode}%");
+                  ->orWhere('target_name', 'like', "Batch {$branchCode}_%");
             });
         }
         $logs = $query->orderBy('created_at', 'desc')->limit(100)->get();
@@ -2420,6 +2415,48 @@ Route::middleware(['web'])->group(function () {
 
     Route::post('/api/system/backup/google-drive', [\App\Http\Controllers\BackupController::class, 'backupDatabaseToDrive']);
     Route::post('/api/system/backup', [\App\Http\Controllers\BackupController::class, 'backupDatabaseToDrive']);
+    Route::post('/api/system/restore', [\App\Http\Controllers\BackupController::class, 'restoreDatabase']);
+
+    // WebAuthn Biometric & Passkey Authentication
+    Route::post('/api/webauthn/register-options', [\App\Http\Controllers\WebAuthnController::class, 'getRegisterOptions']);
+    Route::post('/api/webauthn/register', [\App\Http\Controllers\WebAuthnController::class, 'registerCredential']);
+    Route::post('/api/webauthn/auth-options', [\App\Http\Controllers\WebAuthnController::class, 'getAuthOptions']);
+    Route::post('/api/webauthn/authenticate', [\App\Http\Controllers\WebAuthnController::class, 'authenticate']);
+    Route::get('/api/webauthn/credentials', [\App\Http\Controllers\WebAuthnController::class, 'listUserCredentials']);
+    Route::delete('/api/webauthn/credentials/{id}', [\App\Http\Controllers\WebAuthnController::class, 'deleteCredential']);
+
+    // Principal Today's Institutional Timetable Desk
+    Route::get('/dashboard/principal/today-timetable', [\App\Http\Controllers\PrincipalDashboardController::class, 'showTodayTimetable']);
+    Route::get('/api/principal/today-timetable', [\App\Http\Controllers\PrincipalDashboardController::class, 'getTodayTimetableData']);
+
+    // Student Batch Upload, Credentials Print & First-Login Onboarding
+    Route::post('/api/admin/batch-student-upload', [\App\Http\Controllers\BatchStudentUploadController::class, 'uploadBatchStudents']);
+    Route::post('/api/students/bulk-import', [\App\Http\Controllers\DataController::class, 'bulkImportStudents']);
+    Route::get('/api/students/template/download', [\App\Http\Controllers\DataController::class, 'downloadStudentImportTemplate']);
+    Route::post('/api/student/complete-first-login-profile', [\App\Http\Controllers\BatchStudentUploadController::class, 'completeFirstLoginProfile']);
+    Route::get('/hod/batches/{classroomId}/credentials/print', [\App\Http\Controllers\BatchStudentUploadController::class, 'printBatchStudentCredentials']);
+
+    // Academic Theory, Practicum & Drawing Enhancements
+    Route::post('/api/classroom/{subjectId}/copo-mapping/save', [\App\Http\Controllers\ClassroomController::class, 'saveTheoryCoPoMapping']);
+    Route::delete('/api/classroom/{subjectId}/lesson-plans/{planId}', [\App\Http\Controllers\ClassroomController::class, 'deleteLessonPlanRow']);
+    Route::post('/api/classroom/{subjectId}/save-lesson-plans', [\App\Http\Controllers\ClassroomController::class, 'bulkUpdateLessonPlans']);
+
+    Route::get('/api/r26/classroom/{subjectId}/ese-marks', [\App\Http\Controllers\R26ClassroomController::class, 'getEseMarks']);
+    Route::get('/api/r26/classroom/{subjectId}/attainment-summary', [\App\Http\Controllers\R26ClassroomController::class, 'getAttainmentSummary']);
+
+    Route::post('/api/r26/classroom/practicum/course-file/{subjectId}/save-doc', [\App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveCourseFileDoc']);
+    Route::get('/r26/classroom/practicum/{subjectId}/print-timetable', [\App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printClassroomTimetable']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/copo-matrix/save', [\App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveCoPoMatrix']);
+
+    Route::post('/api/r26/classroom/drawing/{subjectId}/exercises/add', [\App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'addExerciseApi']);
+    Route::get('/r26/classroom/drawing/exercises/print/{subjectId}', [\App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'printExerciseList']);
+    Route::get('/r26/classroom/drawing/ce-consolidated/print/{subjectId}', [\App\Http\Controllers\R26VirtualClassroomDrawingController::class, 'printCeConsolidatedReport']);
+
+    // Staff Avatar Framing, Student Self-Service & Flash Notices
+    Route::post('/api/staff/profile/save-avatar-framing', [\App\Http\Controllers\DataController::class, 'saveStaffAvatarFraming']);
+    Route::post('/api/student/profile/update-self', [\App\Http\Controllers\DataController::class, 'updateSelfStudentProfile']);
+    Route::post('/api/student/update-email', [\App\Http\Controllers\DataController::class, 'updateStudentEmail']);
+    Route::get('/api/flash-notices/active', [\App\Http\Controllers\ExecutiveFlashNoticeController::class, 'getActiveNotices']);
 });
 
 // CampusLynk Modern V2 UI Preview Routes (Reference Implementation)

@@ -160,7 +160,7 @@
   <!-- Sidebar Navigation -->
   <aside class="w-full md:w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl">
     <div class="p-5 border-b border-slate-800/60 flex items-center gap-3">
-      <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-amber-500/30">
+      <img src="{{ asset('logo.svg') }}" class="w-10 h-10 rounded-xl object-contain shadow-lg border border-amber-500/30 p-0.5 bg-white/10">
       <div>
         <h2 class="font-black tracking-tight leading-tight" style="font-size:1.1rem;background:linear-gradient(to right,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Carmel Linx</h2>
         <span class="text-xs text-amber-400 font-bold uppercase tracking-widest">Chairman Desk</span>

@@ -719,8 +719,6 @@
       <!-- Tabs Navigation -->
       <div class="flex border-b border-slate-100 px-5 pt-3 gap-6 overflow-x-auto">
          <button onclick="switchBatchTab('tutorMentor')" id="tabBtn_tutorMentor" class="pb-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition-colors cursor-pointer whitespace-nowrap">Tutor &amp; Mentor</button>
-         <button onclick="switchBatchTab('subjects')" id="tabBtn_subjects" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors cursor-pointer whitespace-nowrap">Allocated Subjects</button>
-         <button onclick="switchBatchTab('students')" id="tabBtn_students" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors cursor-pointer whitespace-nowrap">Enrolled Students</button>
          <button onclick="switchBatchTab('timetable')" id="tabBtn_timetable" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors cursor-pointer whitespace-nowrap">Time Table</button>
          <button onclick="switchBatchTab('semesterHistory')" id="tabBtn_semesterHistory" class="pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors cursor-pointer whitespace-nowrap">Semester History</button>
       </div>
@@ -771,77 +769,6 @@
           </div>
         </div>
         </div>
-
-        <!-- Tab: Subjects -->
-        <div id="batchTab_subjects" class="hidden space-y-4">
-          <div class="flex items-center gap-4 mb-2">
-            <div class="flex items-center gap-2">
-              <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Semester:</label>
-              <select id="modalSubjectSemester" onchange="loadModalSubjects()" class="bg-white border border-slate-200 rounded-lg px-2.5 py-1 text-sm text-slate-900 focus:border-blue-600 outline-none">
-                <option value="1" selected>Semester 1</option>
-                <option value="2">Semester 2</option>
-                <option value="3">Semester 3</option>
-                <option value="4">Semester 4</option>
-                <option value="5">Semester 5</option>
-                <option value="6">Semester 6</option>
-              </select>
-            </div>
-            <button onclick="openSubjectModalFromDetail()" class="ml-auto px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-xs transition-colors cursor-pointer flex items-center gap-1 shadow-xs">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-              <span>Allocate Subject</span>
-            </button>
-          </div>
-          <div class="overflow-x-auto max-h-[450px] overflow-y-auto bg-white border border-slate-200/80 rounded-2xl">
-            <table class="min-w-[950px] w-full text-left text-sm border-collapse">
-              <thead>
-                <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider sticky top-0 z-10">
-                  <th class="p-3">Code</th>
-                  <th class="p-3">Rev</th>
-                  <th class="p-3">Subject Name</th>
-                  <th class="p-3">Type</th>
-                  <th class="p-3">Assigned Staff</th>
-                  <th class="p-3">Course File</th>
-                  <th class="p-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="modalSubjectsTableBody">
-                <tr><td colspan="7" class="p-6 text-center text-slate-500">Select a semester to view subjects.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Tab: Enrolled Students -->
-        <div id="batchTab_students" class="hidden">
-        <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden">
-          <div class="p-4 border-b border-slate-100 flex items-center justify-between">
-            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-              <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
-              <span>Enrolled Students</span>
-              <span id="rosterCountBadge" class="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-full text-xs font-mono font-semibold">0</span>
-            </h4>
-          </div>
-          <div class="overflow-x-auto max-h-[450px] overflow-y-auto">
-            <table class="min-w-[950px] w-full text-left text-sm border-collapse">
-              <thead>
-                <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider sticky top-0">
-                  <th class="p-3">Name</th>
-                  <th class="p-3">Reg No</th>
-                  <th class="p-3">Adm No</th>
-                  <th class="p-3">SBTE No</th>
-                  <th class="p-3">Type</th>
-                  <th class="p-3">Semester</th>
-                  <th class="p-3">Status</th>
-                  <th class="p-3"></th>
-                </tr>
-              </thead>
-              <tbody id="batchRosterTableBody">
-                <tr><td colspan="8" class="p-6 text-center text-slate-500">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
 
       <!-- Tab: Time Table -->
       <div id="batchTab_timetable" class="hidden space-y-4">
@@ -2097,100 +2024,56 @@
 
       const card = document.createElement('div');
       card.className = isR26
-        ? `bg-white border-2 border-emerald-500/80 rounded-2xl p-6 transition-all hover:shadow-md flex flex-col xl:flex-row gap-6 min-h-[280px] w-full relative shadow-xs`
-        : `bg-white border border-slate-200/90 rounded-2xl p-6 transition-all hover:shadow-md hover:border-slate-300 flex flex-col xl:flex-row gap-6 min-h-[280px] w-full relative shadow-xs`;
+        ? `bg-white border-2 border-emerald-500/80 rounded-2xl p-6 transition-all hover:shadow-md flex flex-col justify-between min-h-[220px] w-full relative shadow-xs`
+        : `bg-white border border-slate-200/90 rounded-2xl p-6 transition-all hover:shadow-md hover:border-slate-300 flex flex-col justify-between min-h-[220px] w-full relative shadow-xs`;
 
       const tutorHtml = batch.tutor_name
-        ? `<div class="flex items-center gap-2.5 text-sm"><div class="w-6 h-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><i data-lucide="user-check" class="w-3.5 h-3.5 text-blue-600"></i></div><span class="text-slate-500 font-medium">Tutor:</span> <span class="text-slate-900 font-semibold truncate">${batch.tutor_name}</span></div>`
-        : `<div class="flex items-center gap-2.5 text-sm"><div class="w-6 h-6 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0"><i data-lucide="user-x" class="w-3.5 h-3.5 text-slate-400"></i></div><span class="text-slate-400 italic">No tutor assigned</span></div>`;
+        ? `<div class="flex items-center gap-2.5 text-sm"><div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><i data-lucide="user-check" class="w-4 h-4 text-blue-600"></i></div><div class="min-w-0"><span class="text-xs text-slate-400 block font-medium">Class Tutor</span><span class="text-slate-900 font-semibold truncate block text-sm" title="${batch.tutor_name}">${batch.tutor_name}</span></div></div>`
+        : `<div class="flex items-center gap-2.5 text-sm"><div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0"><i data-lucide="user-x" class="w-4 h-4 text-slate-400"></i></div><div><span class="text-xs text-slate-400 block font-medium">Class Tutor</span><span class="text-slate-400 italic text-sm">Not assigned</span></div></div>`;
 
       const mentorHtml = batch.mentor_name
-        ? `<div class="flex items-center gap-2.5 text-sm"><div class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"><i data-lucide="heart-handshake" class="w-3.5 h-3.5 text-emerald-600"></i></div><span class="text-slate-500 font-medium">Mentor:</span> <span class="text-slate-900 font-semibold truncate">${batch.mentor_name}</span></div>`
-        : `<div class="flex items-center gap-2.5 text-sm"><div class="w-6 h-6 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0"><i data-lucide="user-x" class="w-3.5 h-3.5 text-slate-400"></i></div><span class="text-slate-400 italic">No mentor assigned</span></div>`;
-
-      // Subjects section builder
-      let subjectsHtml = '';
-      if (batch.subjects && batch.subjects.length > 0) {
-        subjectsHtml = `
-          <div class="flex-1 bg-slate-50/80 border border-slate-200/80 rounded-xl p-4 space-y-3 custom-scrollbar overflow-y-auto max-h-[220px]">
-            <div class="flex items-center justify-between border-b border-slate-200/80 pb-2">
-              <span class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                <i data-lucide="book-open" class="w-3.5 h-3.5 text-blue-600"></i>
-                Active Subjects (S-${batch.current_semester || 1})
-              </span>
-              <span class="text-xs font-semibold text-slate-400">${batch.subjects.length} Subjects</span>
-            </div>
-            <div class="space-y-2">
-              ${batch.subjects.map(subj => `
-                <div class="bg-white border border-slate-200/80 rounded-xl p-2.5 space-y-1.5 hover:border-slate-300 transition-colors shadow-2xs">
-                  <div class="flex justify-between items-center gap-2">
-                    <span class="text-slate-900 font-semibold text-sm truncate" title="${subj.subject_name}">${subj.subject_name}</span>
-                    <span class="text-xs font-bold text-blue-600 font-mono">${subj.progress}%</span>
-                  </div>
-                  
-                  <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                    <div class="bg-blue-600 h-1.5 rounded-full transition-all" style="width: ${subj.progress}%"></div>
-                  </div>
-
-                  <div class="flex items-center justify-between text-xs text-slate-500">
-                    <span class="font-mono text-slate-600 font-medium">${subj.subject_code}</span>
-                    <span class="truncate max-w-[160px] text-slate-600" title="${subj.staff_list}">Staff: ${subj.staff_list}</span>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
-      } else {
-        subjectsHtml = `
-          <div class="flex-1 bg-slate-50/80 border border-slate-200/80 rounded-xl p-6 flex flex-col items-center justify-center text-center text-sm text-slate-500">
-            <i data-lucide="book-open" class="w-8 h-8 text-slate-300 mb-2"></i>
-            <p class="font-medium text-slate-600">No subjects allocated yet</p>
-            <p class="text-xs text-slate-400 mt-0.5">Semester ${batch.current_semester || 1}</p>
-          </div>
-        `;
-      }
+        ? `<div class="flex items-center gap-2.5 text-sm"><div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0"><i data-lucide="heart-handshake" class="w-4 h-4 text-emerald-600"></i></div><div class="min-w-0"><span class="text-xs text-slate-400 block font-medium">Class Mentor</span><span class="text-slate-900 font-semibold truncate block text-sm" title="${batch.mentor_name}">${batch.mentor_name}</span></div></div>`
+        : `<div class="flex items-center gap-2.5 text-sm"><div class="w-8 h-8 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center shrink-0"><i data-lucide="user-x" class="w-4 h-4 text-slate-400"></i></div><div><span class="text-xs text-slate-400 block font-medium">Class Mentor</span><span class="text-slate-400 italic text-sm">Not assigned</span></div></div>`;
 
       card.innerHTML = `
-        <div class="flex-1 flex flex-col justify-between space-y-4">
-          <div class="space-y-3">
-            <div class="flex items-center gap-2 flex-wrap">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between gap-3 flex-wrap">
+            <div class="flex items-center gap-2">
               <span class="px-2.5 py-1 border rounded-lg font-mono text-sm font-bold bg-slate-100 text-slate-800 border-slate-200/80 whitespace-nowrap">${batch.classroom_id}</span>
               ${batch.classroom_id.includes('_LET') ? `<span class="bg-purple-50 border border-purple-200 text-purple-700 font-bold text-xs px-2.5 py-0.5 rounded uppercase select-none whitespace-nowrap">LET</span>` : ''}
               ${isR26 ? `<span class="bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-xs px-2.5 py-0.5 rounded uppercase select-none tracking-wide whitespace-nowrap">Revision 2026</span>` : ''}
             </div>
-            
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <h4 class="font-bold text-lg text-slate-900">Admission ${batch.batch_year}${isLetBatch ? ' (LET)' : ''}</h4>
-                <p class="text-sm text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} ${isLetBatch ? 'Lateral Entry ' : ''}Batch</p>
-              </div>
-              <div class="shrink-0">
-                ${(batch.current_semester || 1) > 6
-                  ? `<span class="px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl font-bold text-sm tracking-wide flex items-center gap-1 select-none whitespace-nowrap"><i data-lucide="graduation-cap" class="w-4 h-4 text-emerald-600"></i>Graduated</span>`
-                  : `<span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-2xs select-none transition-colors whitespace-nowrap" title="Click to Change Batch Semester">Semester ${batch.current_semester || 1}</span>`
-                }
-              </div>
-            </div>
-
-            <div class="border-t border-slate-100 pt-3.5 space-y-2 text-sm">
-              ${tutorHtml}
-              ${mentorHtml}
+            <div class="shrink-0">
+              ${(batch.current_semester || 1) > 6
+                ? `<span class="px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-xl font-bold text-sm tracking-wide flex items-center gap-1 select-none whitespace-nowrap"><i data-lucide="graduation-cap" class="w-4 h-4 text-emerald-600"></i>Graduated</span>`
+                : `<span onclick="event.stopPropagation(); changeBatchSemesterPrompt('${batch.classroom_id}', ${batch.current_semester || 1})" class="px-3 py-1 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 rounded-xl font-bold text-sm tracking-wide cursor-pointer shadow-2xs select-none transition-colors whitespace-nowrap" title="Click to Change Batch Semester">Semester ${batch.current_semester || 1}</span>`
+              }
             </div>
           </div>
+          
+          <div>
+            <h4 class="font-bold text-lg text-slate-900">Admission ${batch.batch_year}${isLetBatch ? ' (LET)' : ''}</h4>
+            <p class="text-sm text-slate-500">${batch.batch_year} – ${batch.batch_year + 3} ${isLetBatch ? 'Lateral Entry ' : ''}Batch</p>
+          </div>
 
-          <div class="flex items-center justify-between border-t border-slate-100 pt-3.5">
-            <div class="flex items-baseline gap-1.5">
-              <span class="text-xl font-bold text-slate-900">${batch.student_count}</span>
-              <span class="text-sm text-slate-500 font-medium">students</span>
-            </div>
-            <button onclick="openBatchDetail(${JSON.stringify(batch).replace(/"/g, '&quot;')})" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-sm font-semibold transition-colors cursor-pointer">
-              <i data-lucide="settings" class="w-4 h-4 text-slate-600"></i>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 border-t border-slate-100 pt-3.5">
+            ${tutorHtml}
+            ${mentorHtml}
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between border-t border-slate-100 pt-4 mt-4">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-xl font-bold text-slate-900">${batch.student_count}</span>
+            <span class="text-sm text-slate-500 font-medium">students enrolled</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="openBatchDetail(${JSON.stringify(batch).replace(/"/g, '&quot;')})" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer shadow-xs">
+              <i data-lucide="settings" class="w-4 h-4 text-slate-300"></i>
               <span>Manage Batch</span>
             </button>
           </div>
         </div>
-        ${subjectsHtml}
       `;
 
       grid.appendChild(card);
@@ -2364,9 +2247,6 @@
       if (batch.tutor_mobile_no) document.getElementById('detailTutorSelect').value = batch.tutor_mobile_no;
       if (batch.mentor_mobile_no) document.getElementById('detailMentorSelect').value = batch.mentor_mobile_no;
 
-      // Load roster
-      loadBatchRoster(batch.classroom_id);
-
       // Show Graduate button ONLY for S6 batches (final semester)
       const graduateBtn = document.getElementById('btnGraduateBatch');
       if (graduateBtn) {
@@ -2496,36 +2376,6 @@
     // NEW: SEMESTER HISTORY TAB — purely additive, no existing functions modified
     // ============================================================
 
-    // Extend switchBatchTab to handle the new 'semesterHistory' tab
-    (function() {
-      const _originalSwitchBatchTab = switchBatchTab;
-      switchBatchTab = function(tab) {
-        // For the new tab, we manage its panel manually
-        if (tab === 'semesterHistory') {
-          // Hide all existing tab panels
-          ['tutorMentor', 'subjects', 'students', 'timetable'].forEach(t => {
-            const el = document.getElementById('batchTab_' + t);
-            const btn = document.getElementById('tabBtn_' + t);
-            if (el) { el.classList.add('hidden'); el.classList.remove('block'); }
-            if (btn) btn.className = 'pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer';
-          });
-          // Activate this tab button
-          const btn = document.getElementById('tabBtn_semesterHistory');
-          if (btn) btn.className = 'pb-3 text-sm font-bold border-b-2 border-violet-500 text-white transition-premium cursor-pointer';
-          // Show or create the semester history panel
-          _ensureSemesterHistoryPanel();
-          return;
-        }
-        // Hide semester history panel if switching away
-        const semPanel = document.getElementById('batchTab_semesterHistory');
-        if (semPanel) semPanel.classList.add('hidden');
-        const semBtn = document.getElementById('tabBtn_semesterHistory');
-        if (semBtn) semBtn.className = 'pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer';
-        // Call original
-        _originalSwitchBatchTab(tab);
-      };
-    })();
-
     function _ensureSemesterHistoryPanel() {
       const flexContainer = document.querySelector('#batchDetailModal .flex-grow.overflow-y-auto');
       if (!flexContainer) return;
@@ -2537,11 +2387,11 @@
         panel.innerHTML = `
           <!-- Semester Selector -->
           <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">Select Semester:</span>
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">Select Semester:</span>
             ${[1,2,3,4,5,6].map(s => `
               <button id="semHistBtn_${s}" onclick="loadSemesterSnapshot(activeBatchId, ${s})"
-                class="px-3 py-1.5 rounded-lg text-sm font-bold border border-slate-700 text-slate-400 hover:border-violet-500 hover:text-violet-300 transition-premium cursor-pointer bg-slate-950">
-                S${s}
+                class="px-3.5 py-1.5 rounded-xl text-sm font-semibold border border-slate-200 text-slate-600 hover:border-blue-600 hover:text-blue-600 transition-colors cursor-pointer bg-white shadow-2xs">
+                Semester ${s}
               </button>
             `).join('')}
           </div>
@@ -2564,13 +2414,13 @@
         const btn = document.getElementById('semHistBtn_' + s);
         if (btn) {
           btn.className = s === semester
-            ? 'px-3 py-1.5 rounded-lg text-sm font-bold border border-violet-500 text-violet-300 transition-premium cursor-pointer bg-violet-500/10'
-            : 'px-3 py-1.5 rounded-lg text-sm font-bold border border-slate-700 text-slate-400 hover:border-violet-500 hover:text-violet-300 transition-premium cursor-pointer bg-slate-950';
+            ? 'px-3.5 py-1.5 rounded-xl text-sm font-semibold border border-blue-600 text-blue-600 transition-colors cursor-pointer bg-blue-50/60 shadow-2xs'
+            : 'px-3.5 py-1.5 rounded-xl text-sm font-semibold border border-slate-200 text-slate-600 hover:border-blue-600 hover:text-blue-600 transition-colors cursor-pointer bg-white shadow-2xs';
         }
       }
 
       const content = document.getElementById('semHistContent');
-      content.innerHTML = `<div class="p-10 text-center text-slate-500 text-sm flex items-center justify-center gap-3"><div class="w-5 h-5 border-2 border-slate-700 border-t-violet-400 rounded-full animate-spin"></div> Loading Semester ${semester} data...</div>`;
+      content.innerHTML = `<div class="p-10 text-center text-slate-500 text-sm flex items-center justify-center gap-3"><div class="w-4 h-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin"></div> Loading Semester ${semester} data...</div>`;
 
       fetch(`/api/hod/batches/${encodeURIComponent(classroomId)}/semester/${semester}/snapshot`, {
         headers: getHeaders()
@@ -2578,13 +2428,13 @@
       .then(r => r.json())
       .then(data => {
         if (data.status !== 'SUCCESS') {
-          content.innerHTML = `<div class="p-8 text-center text-red-400 font-bold text-sm">${data.message || 'Failed to load semester data.'}</div>`;
+          content.innerHTML = `<div class="p-8 text-center text-rose-600 font-semibold text-sm">${data.message || 'Failed to load semester data.'}</div>`;
           return;
         }
         _renderSemesterSnapshot(data, semester);
       })
       .catch(() => {
-        content.innerHTML = `<div class="p-8 text-center text-red-400 font-bold text-sm">Error fetching semester data.</div>`;
+        content.innerHTML = `<div class="p-8 text-center text-rose-600 font-semibold text-sm">Error fetching semester data.</div>`;
       });
     }
 
@@ -2595,24 +2445,24 @@
       let subjectsHtml = '';
       if (data.subjects && data.subjects.length > 0) {
         const rows = data.subjects.map(s => `
-          <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
-            <td class="p-3 font-mono text-slate-300 font-bold text-sm">${s.subject_code}</td>
-            <td class="p-3 font-bold text-slate-200 text-sm">${s.subject_name}</td>
-            <td class="p-3 text-slate-400 text-sm">${s.subject_type}</td>
-            <td class="p-3 text-sm">${s.staff.length > 0 ? s.staff.map(n => `<span class="block text-slate-300 font-bold">${n}</span>`).join('') : '<span class="text-red-400 font-bold">Unassigned</span>'}</td>
-            <td class="p-3 text-center text-sm font-bold text-sky-300">${s.classes_conducted}</td>
-            <td class="p-3 text-center text-sm ${s.course_file_status === 'Submitted' ? 'text-emerald-400' : 'text-amber-400'} font-bold">${s.course_file_status}</td>
+          <tr class="border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
+            <td class="p-3 font-mono text-slate-900 font-bold text-sm">${s.subject_code}</td>
+            <td class="p-3 font-semibold text-slate-900 text-sm">${s.subject_name}</td>
+            <td class="p-3 text-slate-600 text-sm">${s.subject_type}</td>
+            <td class="p-3 text-sm">${s.staff.length > 0 ? s.staff.map(n => `<span class="block text-slate-900 font-medium">${n}</span>`).join('') : '<span class="text-rose-600 font-semibold">Unassigned</span>'}</td>
+            <td class="p-3 text-center text-sm font-bold text-blue-600">${s.classes_conducted}</td>
+            <td class="p-3 text-center text-sm ${s.course_file_status === 'Submitted' ? 'text-emerald-600' : 'text-amber-600'} font-semibold">${s.course_file_status}</td>
           </tr>
         `).join('');
         subjectsHtml = `
-          <div class="bg-slate-950/30 border border-slate-600/40 rounded-2xl overflow-hidden">
-            <div class="p-3 border-b border-slate-800/40 flex items-center gap-2">
-              <span class="material-symbols-rounded text-violet-400" style="font-size:16px">menu_book</span>
-              <span class="font-bold text-slate-200 text-sm">Subjects &amp; Staff Log — Semester ${semester}</span>
+          <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs mb-4">
+            <div class="p-3.5 bg-slate-50 border-b border-slate-200/80 flex items-center gap-2">
+              <i data-lucide="book-open" class="w-4 h-4 text-blue-600"></i>
+              <span class="font-bold text-slate-900 text-sm">Subjects &amp; Staff Log — Semester ${semester}</span>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm border-collapse">
-                <thead><tr class="bg-slate-900/60 text-slate-400 font-bold text-xs uppercase tracking-wider">
+                <thead><tr class="bg-slate-50/90 text-slate-600 font-semibold text-xs uppercase tracking-wider">
                   <th class="p-3">Code</th><th class="p-3">Subject</th><th class="p-3">Type</th>
                   <th class="p-3">Assigned Staff</th><th class="p-3 text-center">Classes Taken</th><th class="p-3 text-center">Course File</th>
                 </tr></thead>
@@ -2621,7 +2471,7 @@
             </div>
           </div>`;
       } else {
-        subjectsHtml = `<div class="p-6 bg-slate-950/30 border border-slate-700/40 rounded-2xl text-slate-500 text-sm italic">No subjects found for Semester ${semester}.</div>`;
+        subjectsHtml = `<div class="p-6 bg-slate-50 border border-slate-200/80 rounded-2xl text-slate-500 text-sm italic mb-4">No subjects found for Semester ${semester}.</div>`;
       }
 
       // ---- Section 2: Student Attendance ----
@@ -2629,31 +2479,33 @@
       if (data.students && data.students.length > 0) {
         const rows = data.students.map(s => {
           const pct = s.overall_attendance_percent ?? '—';
-          const pctClass = pct === '—' ? 'text-slate-500' : (pct >= 75 ? 'text-emerald-400' : (pct >= 60 ? 'text-amber-400' : 'text-red-400'));
+          const pctClass = pct === '—' ? 'text-slate-500' : (pct >= 75 ? 'text-emerald-600' : (pct >= 60 ? 'text-amber-600' : 'text-rose-600'));
           const bySubj = s.subject_attendance && s.subject_attendance.length > 0
-            ? s.subject_attendance.map(a => `<span class="text-xs text-slate-400">${a.subject_code}: <span class="font-bold ${a.percent >= 75 ? 'text-emerald-400' : a.percent >= 60 ? 'text-amber-400' : 'text-red-400'}">${a.percent}%</span></span>`).join(' &nbsp;|&nbsp; ')
-            : '<span class="text-slate-600 text-xs">No logs</span>';
+            ? s.subject_attendance.map(a => `<span class="text-xs text-slate-600">${a.subject_code}: <span class="font-bold ${a.percent >= 75 ? 'text-emerald-600' : a.percent >= 60 ? 'text-amber-600' : 'text-rose-600'}">${a.percent}%</span></span>`).join(' &nbsp;|&nbsp; ')
+            : '<span class="text-slate-400 text-xs">No logs</span>';
           return `
-            <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
-              <td class="p-3 text-slate-400 text-sm font-mono">${s.roll_no || '—'}</td>
-              <td class="p-3 font-bold text-slate-200 text-sm">${s.name}</td>
+            <tr class="border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
+              <td class="p-3 text-slate-600 text-sm font-mono">${s.roll_no || '—'}</td>
+              <td class="p-3 font-semibold text-slate-900 text-sm">${s.name}</td>
               <td class="p-3 text-center font-bold text-sm ${pctClass}">${pct !== '—' ? pct + '%' : '—'}</td>
               <td class="p-3 text-sm">${bySubj}</td>
-              <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-lg text-xs font-bold ${
-                s.academic_status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400'
+              <td class="p-3 text-center"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                s.academic_status === 'Active' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600'
               }">${s.academic_status}</span></td>
             </tr>`;
         }).join('');
         attendanceHtml = `
-          <div class="bg-slate-950/30 border border-slate-600/40 rounded-2xl overflow-hidden">
-            <div class="p-3 border-b border-slate-800/40 flex items-center gap-2">
-              <span class="material-symbols-rounded text-sky-400" style="font-size:16px">groups</span>
-              <span class="font-bold text-slate-200 text-sm">Student Attendance — Semester ${semester}</span>
-              <span class="ml-auto text-xs text-slate-500">${data.students.length} students</span>
+          <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs mb-4">
+            <div class="p-3.5 bg-slate-50 border-b border-slate-200/80 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <i data-lucide="users" class="w-4 h-4 text-blue-600"></i>
+                <span class="font-bold text-slate-900 text-sm">Student Attendance — Semester ${semester}</span>
+              </div>
+              <span class="text-xs text-slate-500 font-medium">${data.students.length} students</span>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm border-collapse">
-                <thead><tr class="bg-slate-900/60 text-slate-400 font-bold text-xs uppercase tracking-wider">
+                <thead><tr class="bg-slate-50/90 text-slate-600 font-semibold text-xs uppercase tracking-wider">
                   <th class="p-3">Roll No</th><th class="p-3">Name</th>
                   <th class="p-3 text-center">Overall %</th><th class="p-3">Subject-wise</th><th class="p-3 text-center">Status</th>
                 </tr></thead>
@@ -2662,30 +2514,30 @@
             </div>
           </div>`;
       } else {
-        attendanceHtml = `<div class="p-6 bg-slate-950/30 border border-slate-700/40 rounded-2xl text-slate-500 text-sm italic">No student data found for Semester ${semester}.</div>`;
+        attendanceHtml = `<div class="p-6 bg-slate-50 border border-slate-200/80 rounded-2xl text-slate-500 text-sm italic mb-4">No student data found for Semester ${semester}.</div>`;
       }
 
       // ---- Section 3: Board Results / Marks ----
       let marksHtml = '';
       if (data.board_results && data.board_results.length > 0) {
         const rows = data.board_results.map(s => `
-          <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
-            <td class="p-3 text-slate-400 text-sm font-mono">${s.roll_no || '—'}</td>
-            <td class="p-3 font-bold text-slate-200 text-sm">${s.name}</td>
-            <td class="p-3 text-center font-bold text-sm ${s.result === 'Pass' ? 'text-emerald-400' : s.result === 'Fail' ? 'text-red-400' : 'text-slate-400'}">${s.result || '—'}</td>
-            <td class="p-3 text-center font-bold text-sm text-amber-300">${s.sgpa || '—'}</td>
-            <td class="p-3 text-center text-slate-400 text-sm">${s.board_marks || '—'}</td>
+          <tr class="border-b border-slate-100 hover:bg-slate-50/70 transition-colors">
+            <td class="p-3 text-slate-600 text-sm font-mono">${s.roll_no || '—'}</td>
+            <td class="p-3 font-semibold text-slate-900 text-sm">${s.name}</td>
+            <td class="p-3 text-center font-semibold text-sm ${s.result === 'Pass' ? 'text-emerald-600' : s.result === 'Fail' ? 'text-rose-600' : 'text-slate-500'}">${s.result || '—'}</td>
+            <td class="p-3 text-center font-bold text-sm text-amber-600">${s.sgpa || '—'}</td>
+            <td class="p-3 text-center text-slate-700 text-sm">${s.board_marks || '—'}</td>
           </tr>
         `).join('');
         marksHtml = `
-          <div class="bg-slate-950/30 border border-slate-600/40 rounded-2xl overflow-hidden">
-            <div class="p-3 border-b border-slate-800/40 flex items-center gap-2">
-              <span class="material-symbols-rounded text-amber-400" style="font-size:16px">emoji_events</span>
-              <span class="font-bold text-slate-200 text-sm">Board Results — Semester ${semester}</span>
+          <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
+            <div class="p-3.5 bg-slate-50 border-b border-slate-200/80 flex items-center gap-2">
+              <i data-lucide="award" class="w-4 h-4 text-amber-600"></i>
+              <span class="font-bold text-slate-900 text-sm">Board Results — Semester ${semester}</span>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm border-collapse">
-                <thead><tr class="bg-slate-900/60 text-slate-400 font-bold text-xs uppercase tracking-wider">
+                <thead><tr class="bg-slate-50/90 text-slate-600 font-semibold text-xs uppercase tracking-wider">
                   <th class="p-3">Roll No</th><th class="p-3">Name</th>
                   <th class="p-3 text-center">Result</th><th class="p-3 text-center">SGPA</th><th class="p-3 text-center">Board Marks</th>
                 </tr></thead>
@@ -2694,21 +2546,15 @@
             </div>
           </div>`;
       } else {
-        marksHtml = `<div class="p-6 bg-slate-950/30 border border-slate-700/40 rounded-2xl text-slate-500 text-sm italic">Board results not yet entered for Semester ${semester}.</div>`;
+        marksHtml = `<div class="p-6 bg-slate-50 border border-slate-200/80 rounded-2xl text-slate-500 text-sm italic">Board results not yet entered for Semester ${semester}.</div>`;
       }
 
       content.innerHTML = subjectsHtml + attendanceHtml + marksHtml;
+      if (window.initLucide) window.initLucide();
     }
 
-    // ============================================================
-    // END: Semester History additions
-    // ============================================================
-
-
-    function switchBatchTabOriginalRef() {} // marker only
-
     function switchBatchTab(tab) {
-      const tabs = ['tutorMentor', 'subjects', 'students', 'timetable'];
+      const tabs = ['tutorMentor', 'timetable', 'semesterHistory'];
       tabs.forEach(t => {
         const el = document.getElementById('batchTab_' + t);
         const btn = document.getElementById('tabBtn_' + t);
@@ -2717,22 +2563,27 @@
           el.classList.remove('block');
         }
         if (btn) {
-          btn.className = "pb-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition-premium cursor-pointer";
+          btn.className = "pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-colors cursor-pointer whitespace-nowrap";
         }
       });
-      const targetEl = document.getElementById('batchTab_' + tab);
+
       const targetBtn = document.getElementById('tabBtn_' + tab);
-      if (targetEl) {
-        targetEl.classList.remove('hidden');
-        targetEl.classList.add('block');
-      }
       if (targetBtn) {
-        targetBtn.className = "pb-3 text-sm font-bold border-b-2 border-violet-500 text-white transition-premium cursor-pointer";
+        targetBtn.className = "pb-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 transition-colors cursor-pointer whitespace-nowrap";
       }
-      
-      if (tab === 'subjects') {
-        loadModalSubjects();
+
+      if (tab === 'semesterHistory') {
+        _ensureSemesterHistoryPanel();
+      } else {
+        const semPanel = document.getElementById('batchTab_semesterHistory');
+        if (semPanel) semPanel.classList.add('hidden');
+        const targetEl = document.getElementById('batchTab_' + tab);
+        if (targetEl) {
+          targetEl.classList.remove('hidden');
+          targetEl.classList.add('block');
+        }
       }
+
       if (tab === 'timetable') {
         loadTimetable();
       }

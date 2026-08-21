@@ -90,13 +90,14 @@
             color: #a5f3fc;
         }
     </style>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('logo.svg') }}">
 </head>
 <body>
 
     <div class="login-card">
         <div class="text-center mb-4">
-            <div class="d-inline-flex align-items-center justify-content-center bg-info bg-opacity-10 text-cyan rounded-circle p-3 mb-3 border border-info border-opacity-25" style="width: 60px; height: 60px;">
-                <i class="fa-solid fa-user-shield fs-3 text-cyan"></i>
+            <div class="d-inline-flex align-items-center justify-content-center bg-white bg-opacity-10 rounded-circle p-2 mb-3 border border-info border-opacity-25" style="width: 68px; height: 68px;">
+                <img src="{{ asset('logo.svg') }}" alt="Carmel Linx Logo" style="width: 50px; height: 50px; object-fit: contain;">
             </div>
             <h4 class="fw-bold mb-1">Parent Portal Access</h4>
             <p class="text-secondary small mb-0">Carmel Polytechnic College, Alappuzha</p>

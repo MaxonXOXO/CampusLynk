@@ -257,7 +257,7 @@
         <!-- Top App Bar -->
         <div class="mobile-header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-3">
-                <img src="{{ asset('logo.jpg') }}" alt="Carmel Linx" class="rounded-circle" style="width: 38px; height: 38px; object-fit: cover; border: 1.5px solid #06b6d4; box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);">
+                <img src="{{ asset('logo.svg') }}" alt="Carmel Linx" class="rounded-circle bg-white" style="width: 38px; height: 38px; object-fit: contain; border: 1.5px solid #06b6d4; box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); p-0.5;">
                 <div class="ms-1">
                     <h5 class="fw-black mb-0 brand-title" style="font-size: 1.25rem;">Carmel Linx</h5>
                     <div class="d-flex align-items-center mt-0.5">

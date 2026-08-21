@@ -83,7 +83,7 @@
     <!-- Institutional Header -->
     <div class="border-b-2 border-slate-900 pb-4 mb-6 flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <img src="{{ asset('logo.jpg') }}" class="w-16 h-16 rounded-xl object-cover border border-slate-300 shadow-sm" alt="Carmel Logo">
+        <img src="{{ asset('logo.svg') }}" class="w-16 h-16 rounded-xl object-contain border border-slate-300 shadow-sm p-1 bg-white" alt="Carmel Logo">
         <div>
           <h1 class="font-black text-xl text-slate-900 uppercase tracking-tight">Carmel Polytechnic College</h1>
           <p class="text-xs text-slate-600 font-semibold">Punnapra, Alappuzha, Kerala - 688004 | Approved by AICTE &amp; Affiliated to SBTE Kerala</p>

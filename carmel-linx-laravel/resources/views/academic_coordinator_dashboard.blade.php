@@ -174,7 +174,7 @@
       <!-- Mobile Header -->
       <header class="mobile-header d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-2">
-          <img src="{{ asset('logo.jpg') }}" alt="Logo" style="width: 32px; height: 32px; border-radius: 10px;" class="shadow-sm">
+          <img src="{{ asset('logo.svg') }}" alt="Logo" style="width: 32px; height: 32px; border-radius: 10px; object-fit: contain;" class="shadow-sm">
           <div>
             <h5 class="brand-title mb-0" style="font-size: 1.18rem; font-weight: 900 !important;">Carmel Linx</h5>
             <span class="badge badge-app px-2 py-0.5" style="background-color: rgba(168, 85, 247, 0.2); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.45); font-size: 0.68rem; font-weight: 800; border-radius: 6px;">Academic Coordinator SF</span>
@@ -387,7 +387,7 @@
     <!-- Sidebar Navigation -->
     <aside class="w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl">
       <div class="p-5 border-b border-slate-800/60 flex items-center gap-3">
-        <img src="{{ asset('logo.jpg') }}" class="w-10 h-10 rounded-xl object-cover shadow-lg border border-slate-800/60">
+        <img src="{{ asset('logo.svg') }}" class="w-10 h-10 rounded-xl object-contain shadow-lg border border-slate-800/60 p-0.5 bg-white/10">
         <div>
           <h2 class="font-black tracking-tight leading-tight" style="font-size:1.1rem;background:linear-gradient(to right,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Carmel Linx</h2>
           <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest">Academic Coordinator</span>

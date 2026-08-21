@@ -68,6 +68,27 @@ class ClassroomController extends Controller
                 $targetHours = (int)$matches[1];
             }
 
+            // Extract CIA / ESE marks & credits dynamically from PDF text
+            $extractedCia = 60;
+            $extractedEse = 40;
+            $extractedCredits = 2.0;
+
+            if (preg_match('/CIA\s*:\s*(\d+)/i', $text, $mM)) {
+                $extractedCia = (int)$mM[1];
+            } elseif (preg_match('/Continuous\s+Internal\s+Assessment\s*[\:\-]?\s*(\d+)/i', $text, $mM)) {
+                $extractedCia = (int)$mM[1];
+            }
+
+            if (preg_match('/ESE\s*:\s*(\d+)/i', $text, $mM)) {
+                $extractedEse = (int)$mM[1];
+            } elseif (preg_match('/End\s+Semester\s+Examination\s*[\:\-]?\s*(\d+)/i', $text, $mM)) {
+                $extractedEse = (int)$mM[1];
+            }
+
+            if (preg_match('/Credits?\s*:\s*([\d\.]+)/i', $text, $mM)) {
+                $extractedCredits = (float)$mM[1];
+            }
+
             // CROSS-BATCH TEMPLATE AUTO-POPULATION:
             // If a template already exists for this subject code, load it directly instead of parsing / AI generation
             $templateRows = \DB::table('lesson_plan_templates')
@@ -3733,6 +3754,43 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
             'attendanceLogs' => $attendanceLogs,
             'studentAttendance' => $studentAttendance,
             'currentYear' => date('Y')
+        ]);
+    }
+
+    public function deleteLessonPlanRow(Request $request, $subjectId, $planId)
+    {
+        $userId = \Illuminate\Support\Facades\Session::get('userId');
+        if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 401);
+
+        \App\Models\LessonPlan::where('id', $planId)
+            ->where('batch_subject_id', $subjectId)
+            ->delete();
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Row deleted successfully.']);
+    }
+
+    public function saveTheoryCoPoMapping(Request $request, $subjectId)
+    {
+        $batchSubject = \App\Models\BatchSubject::findOrFail($subjectId);
+        $mapping = $request->input('copo_mapping') ?? $request->input('co_po_mapping');
+
+        if (!is_array($mapping)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Invalid mapping data.'], 400);
+        }
+
+        CourseFile::updateOrCreate(
+            ['batch_subject_id' => $subjectId],
+            ['parsed_copo' => $mapping]
+        );
+
+        \DB::table('syllabus_registry')->updateOrInsert(
+            ['subject_code' => $batchSubject->subject_code],
+            ['co_po_mapping' => json_encode($mapping), 'updated_at' => now()]
+        );
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'CO-PO & PSO Mapping Matrix saved successfully.'
         ]);
     }
 }

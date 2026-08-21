@@ -101,10 +101,7 @@ class NavigationService
                 }
             }
 
-            if ($isHod) {
-                $hodItems = config('navigation.roles.hod.items', []);
-                $items = self::insertItems($items, $hodItems);
-            }
+            // Keep faculty desk clean with Return to Dashboard link when HOD accesses My Batches
 
             if ($isTutor || $isMentor) {
                 $tutorItems = [];

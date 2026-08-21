@@ -117,6 +117,52 @@ class BackupController extends Controller
     }
 
     /**
+     * Restore database from uploaded SQL dump file.
+     */
+    public function restoreDatabase(Request $request)
+    {
+        $role = session('userRole');
+        if (!in_array($role, ['Super_Admin', 'Principal', 'Admin'])) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access.'], 403);
+        }
+
+        $request->validate([
+            'sql_file' => 'required|file',
+        ]);
+
+        try {
+            $file = $request->file('sql_file');
+            $extension = strtolower($file->getClientOriginalExtension());
+            if (!in_array($extension, ['sql', 'txt'])) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Invalid file format. Please select a valid .sql backup file.'], 422);
+            }
+
+            $sqlContent = file_get_contents($file->getRealPath());
+            if (empty(trim($sqlContent))) {
+                return response()->json(['status' => 'ERROR', 'message' => 'The uploaded SQL file is empty.'], 422);
+            }
+
+            DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
+            DB::unprepared($sqlContent);
+            DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
+
+            return response()->json([
+                'status' => 'SUCCESS',
+                'message' => 'Database successfully restored from "' . $file->getClientOriginalName() . '"!'
+            ]);
+        } catch (\Exception $e) {
+            try {
+                DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
+            } catch (\Exception $ex) {}
+
+            return response()->json([
+                'status' => 'ERROR',
+                'message' => 'Database restoration failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Helper to authenticate and upload file to Google Drive via OAuth 2.0.
      */
     private function uploadFileToGoogleDrive($filePath, $fileName)

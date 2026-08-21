@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <link rel="icon" type="image/svg+xml" href="{{ asset('logo.svg') }}">
     <!-- Vite Asset Pipeline -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -18,9 +19,7 @@
     <!-- Top Minimal Brand Header -->
     <header class="w-full max-w-5xl flex items-center justify-between py-4">
         <a href="/modern/login" class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                C
-            </div>
+            <img src="{{ asset('logo.svg') }}" alt="CampusLynk Logo" class="w-9 h-9 object-contain rounded-xl shadow-xs border border-slate-100" />
             <div>
                 <span class="text-sm font-bold text-slate-900 leading-tight">CampusLynk</span>
                 <span class="text-[10px] text-slate-500 font-semibold ml-1.5 uppercase">AMS</span>

@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
+    <link rel="icon" type="image/svg+xml" href="{{ asset('logo.svg') }}">
     <!-- Vite Asset Pipeline -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -18,9 +19,7 @@
     <!-- Top Header Navigation (Clean Neutral Surface) -->
     <header class="h-[70px] bg-white border-b border-slate-200 px-6 sm:px-12 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-xl shadow-sm">
-                C
-            </div>
+            <img src="{{ asset('logo.svg') }}" alt="CampusLynk Logo" class="w-10 h-10 object-contain rounded-xl shadow-xs border border-slate-100" />
             <div>
                 <h1 class="text-base font-bold text-slate-900 leading-tight">CampusLynk</h1>
                 <p class="text-[10px] text-slate-500 font-semibold tracking-wider uppercase">AMS Platform</p>

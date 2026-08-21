@@ -40,7 +40,7 @@
     <!-- HEADER -->
     <div class="flex flex-wrap justify-between items-center bg-panel border border-slate-800/80 rounded-xl px-6 py-4 gap-3 shadow-md">
       <div class="flex items-center gap-3">
-        <img src="/logo.jpg" class="w-10 h-10 rounded-xl object-cover shadow-md">
+        <img src="{{ asset('logo.svg') }}" class="w-10 h-10 rounded-xl object-contain shadow-md p-0.5 bg-white/10">
         <div>
           <div class="text-base font-bold text-slate-100 flex items-center gap-2">
             <span>Carmel Linx</span>

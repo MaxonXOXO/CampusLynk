@@ -129,7 +129,7 @@
     <div class="flex flex-wrap justify-between items-center bg-panel border rounded-xl px-4 py-2.5 gap-3 shadow-md">
       <!-- Left: Logo & App Title -->
       <div class="flex items-center gap-3">
-        <img src="/logo.jpg" class="w-10 h-10 rounded-xl object-cover shadow-md">
+        <img src="{{ asset('logo.svg') }}" class="w-10 h-10 rounded-xl object-contain shadow-md p-0.5 bg-white/10">
         <div>
           <div class="text-base font-bold tracking-tight text-title flex items-center gap-2">
             <span>Carmel Linx</span>

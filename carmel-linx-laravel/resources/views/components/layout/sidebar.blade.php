@@ -27,9 +27,7 @@
                 class="sidebar-brand-wrapper flex items-center gap-3 overflow-hidden min-w-0 group cursor-pointer" 
                 title="CampusLynk Portal"
             >
-                <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0 group-hover:bg-blue-500 transition-colors">
-                    C
-                </div>
+                <img src="{{ asset('logo.svg') }}" alt="CampusLynk Logo" class="w-10 h-10 object-contain rounded-xl shrink-0 p-0.5 bg-white/5 group-hover:bg-white/10 transition-colors" />
                 <div class="sidebar-label overflow-hidden transition-all duration-300">
                     <span class="font-bold text-base text-white tracking-tight block leading-tight truncate">CampusLynk</span>
                     <span class="text-xs text-slate-400 font-medium tracking-wide block truncate">

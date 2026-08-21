@@ -858,15 +858,33 @@ class DataController extends Controller
                 if (!empty($targetId)) {
                     $query->where('target_id', $targetId);
                 }
-            } elseif ($currentRole === 'HOD') {
-                $query->where(function($q) use ($currentBranch, $currentUserId) {
-                    $q->whereIn('target_id', function($sub) use ($currentBranch) {
-                        $sub->select('mobile_no')->from('staff_profiles')->where('branch', strtoupper($currentBranch))
-                            ->union(
-                                \DB::table('students')->select('reg_no')->where('branch', strtoupper($currentBranch))
-                            );
-                    })->orWhere('performed_by', $currentUserId)
-                      ->orWhere('target_id', $currentUserId);
+            } elseif ($currentRole === 'HOD' || !empty($currentBranch)) {
+                $branchCode = strtoupper($currentBranch);
+                $aliases = match($branchCode) {
+                    'CT' => ['CT', 'Computer Engineering', 'Computer', 'Computer Technology', 'Computer Tech'],
+                    'EL' => ['EL', 'Electronics Engineering', 'Electronics', 'Electronics & Communication'],
+                    'ME' => ['ME', 'Mechanical Engineering', 'Mechanical'],
+                    'CE' => ['CE', 'Civil Engineering', 'Civil'],
+                    'EEE' => ['EEE', 'Electrical Engineering', 'Electrical & Electronics', 'Electrical'],
+                    'AU' => ['AU', 'Automobile Engineering', 'Automobile'],
+                    'GEN_AIDED' => ['GEN_AIDED', 'General Aided', 'General'],
+                    'GEN_SF' => ['GEN_SF', 'General SF', 'General (SF)'],
+                    default => [$branchCode]
+                };
+
+                $staffMobiles = \DB::table('staff_profiles')->whereIn('branch', $aliases)->pluck('mobile_no')->toArray();
+                $studentIds = \DB::table('students')->whereIn('branch', $aliases)->pluck('reg_no')->toArray();
+                $allBranchUserIds = array_values(array_filter(array_unique(array_merge($staffMobiles, $studentIds))));
+
+                $query->where(function($q) use ($allBranchUserIds, $branchCode, $currentUserId) {
+                    if (!empty($allBranchUserIds)) {
+                        $q->whereIn('target_id', $allBranchUserIds)
+                          ->orWhereIn('performed_by', $allBranchUserIds);
+                    }
+                    $q->orWhere('target_id', 'like', "{$branchCode}_%")
+                      ->orWhere('target_name', 'like', "Batch {$branchCode}_%")
+                      ->orWhere('target_id', $currentUserId)
+                      ->orWhere('performed_by', $currentUserId);
                 });
 
                 if (!empty($targetId)) {
@@ -3045,5 +3063,375 @@ class DataController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Failed to upload photo: ' . $e->getMessage()]);
         }
+    }
+
+    public function updateStudentEmail(Request $request)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+
+        if (!$userId || $userRole !== 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access.']);
+        }
+
+        $email = strtolower(trim($request->input('email', '')));
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Please enter a valid email address.']);
+        }
+
+        $existing = Student::where('email', $email)->where('reg_no', '!=', $userId)->first();
+        if ($existing) {
+            return response()->json(['status' => 'ERROR', 'message' => 'This email address is already registered to another student.']);
+        }
+
+        $student = Student::where('reg_no', $userId)->first();
+        if (!$student) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Student record not found.']);
+        }
+
+        $student->email = $email;
+        $student->save();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Email address updated successfully!'
+        ]);
+    }
+
+    /**
+     * Download sample CSV template for bulk student import.
+     */
+    public function downloadStudentImportTemplate()
+    {
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=student_bulk_import_template.csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = ['Name', 'Admission_No', 'Branch', 'Admission_Year', 'Admission_Type', 'Semester', 'Email', 'SBTE_Reg_No'];
+
+        $callback = function() use ($columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            fputcsv($file, ['Arun Kumar', 'ADM24CT01', 'CT', '2024', 'Regular', 'S1', '', '']);
+            fputcsv($file, ['Beena S', 'ADM24ECL02', 'EL', '2024', 'LET', 'S3', 'beena@carmelpoly.in', '2403210451']);
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Bulk Import Students from Excel / CSV roster.
+     */
+    public function bulkImportStudents(Request $request)
+    {
+        $userRole = Session::get('userRole');
+        if (!in_array($userRole, ['Super_Admin', 'Admin', 'HOD', 'Principal', 'Lecturer', 'Demonstrator'])) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access.']);
+        }
+
+        $rows = $request->input('rows');
+        if (!is_array($rows) || count($rows) < 1) {
+            if ($request->hasFile('file')) {
+                $file = $request->file('file');
+                $handle = fopen($file->getRealPath(), 'r');
+                $header = fgetcsv($handle);
+                $rows = [];
+                while (($row = fgetcsv($handle)) !== false) {
+                    if (!empty(array_filter($row))) {
+                        $rows[] = $row;
+                    }
+                }
+                fclose($handle);
+            } else {
+                return response()->json(['status' => 'ERROR', 'message' => 'Please select a valid CSV/Excel file or roster.']);
+            }
+        }
+
+        try {
+            $importedCount = 0;
+            $updatedCount = 0;
+            $commonHashedPassword = \Illuminate\Support\Facades\Hash::make('carmel2026');
+
+            foreach ($rows as $index => $row) {
+                if ($index === 0 && (strcasecmp($row[0] ?? '', 'Name') === 0 || strcasecmp($row[0] ?? '', 'Full Name') === 0)) {
+                    continue;
+                }
+
+                $name = trim($row[0] ?? '');
+                $admNo = strtoupper(trim($row[1] ?? ''));
+                $branch = strtoupper(trim($row[2] ?? ''));
+                $admissionYear = intval(trim($row[3] ?? date('Y')));
+
+                if (empty($name) || empty($admNo) || empty($branch)) {
+                    continue;
+                }
+
+                $admissionType = trim($row[4] ?? 'Regular');
+                if (strcasecmp($admissionType, 'LET') !== 0 && strcasecmp($admissionType, 'Lateral') !== 0) {
+                    $admissionType = 'Regular';
+                } else {
+                    $admissionType = 'LET';
+                }
+
+                $semRaw = strtoupper(trim($row[5] ?? '1'));
+                $semester = (int) filter_var($semRaw, FILTER_SANITIZE_NUMBER_INT);
+                if ($semester < 1 || $semester > 6) {
+                    $semester = 1;
+                }
+
+                $email = strtolower(trim($row[6] ?? ''));
+                if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $email = strtolower($admNo) . '@carmelpoly.in';
+                }
+
+                $sbteRegNo = trim($row[7] ?? null);
+
+                $isLet = ($admissionType === 'LET');
+                $yy = substr((string)$admissionYear, -2);
+                $regNo = $yy . $branch . $admNo . ($isLet ? 'L' : '');
+
+                $startYear = $isLet ? ($admissionYear - 1) : $admissionYear;
+                $endYear = $startYear + 3;
+                $classroomId = "{$branch}_{$startYear}_{$endYear}";
+
+                // Always retain calculated classroom_id so students belong to their batch
+                $existing = Student::where('reg_no', $regNo)
+                    ->orWhere('adm_no', $admNo)
+                    ->first();
+
+                if ($existing) {
+                    $existing->update([
+                        'name' => $name,
+                        'email' => ($existing->email && !str_ends_with($existing->email, '@carmelpoly.in')) ? $existing->email : $email,
+                        'password' => $commonHashedPassword,
+                        'branch' => $branch,
+                        'admission_year' => $admissionYear,
+                        'admission_type' => $admissionType,
+                        'semester' => $semester,
+                        'classroom_id' => $classroomId,
+                        'sbte_reg_no' => $sbteRegNo ?: $existing->sbte_reg_no,
+                        'status' => 'Approved'
+                    ]);
+                    $updatedCount++;
+                } else {
+                    Student::create([
+                        'reg_no' => $regNo,
+                        'adm_no' => $admNo,
+                        'name' => $name,
+                        'email' => $email,
+                        'password' => $commonHashedPassword,
+                        'branch' => $branch,
+                        'admission_year' => $admissionYear,
+                        'admission_type' => $admissionType,
+                        'semester' => $semester,
+                        'classroom_id' => $classroomId,
+                        'sbte_reg_no' => $sbteRegNo,
+                        'status' => 'Approved',
+                        'academic_status' => 'Active'
+                    ]);
+                    $importedCount++;
+
+                    AuditLog::create([
+                        'performed_by' => Session::get('userId') ?: 'HOD/Tutor',
+                        'performed_by_name' => Session::get('userName') ?: 'Bulk Import',
+                        'action' => 'Bulk Student Registration',
+                        'details' => "Registered student {$regNo} ({$name}) in classroom " . ($classroomId ?: 'Unassigned'),
+                        'ip_address' => request()->ip()
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'status' => 'SUCCESS',
+                'message' => "Bulk import completed successfully! Newly registered: {$importedCount} students. Existing roster updated: {$updatedCount} students.",
+                'imported_count' => $importedCount,
+                'updated_count' => $updatedCount
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Bulk import failed: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Student self-service update profile details (Email, Phone, DOB, Guardian Mobile, Photo, Password).
+     */
+    public function updateSelfStudentProfile(Request $request)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+
+        if (!$userId || $userRole !== 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access. Student login required.']);
+        }
+
+        $student = Student::where('reg_no', $userId)->orWhere('adm_no', $userId)->first();
+        if (!$student) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Student profile record not found.']);
+        }
+
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'guardian_mobile' => 'nullable|string|max:20',
+            'guardian_name' => 'nullable|string|max:255',
+            'guardian_address' => 'nullable|string|max:500',
+            'sbte_reg_no' => 'nullable|string|max:50',
+            'old_password' => 'nullable|string',
+            'new_password' => 'nullable|string|min:4',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'ERROR',
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        try {
+            // Password update check if new_password supplied
+            if ($request->filled('new_password')) {
+                $oldPwd = $request->input('old_password');
+                if (empty($oldPwd)) {
+                    return response()->json(['status' => 'ERROR', 'message' => 'Current password is required to update your account password.']);
+                }
+                if (!$this->verifyPasswordHelper($oldPwd, $student->password)) {
+                    return response()->json(['status' => 'ERROR', 'message' => 'Current password entered is incorrect.']);
+                }
+                $student->password = \Illuminate\Support\Facades\Hash::make(trim($request->input('new_password')));
+            }
+
+            if ($request->filled('email')) {
+                $emailInput = strtolower(trim($request->input('email')));
+                $student->email = $emailInput;
+                Session::put('userEmail', $student->email);
+            }
+
+            if ($request->has('phone')) {
+                $student->phone = trim($request->input('phone'));
+            }
+
+            if ($request->has('date_of_birth')) {
+                $student->date_of_birth = $request->input('date_of_birth');
+            }
+
+            if ($request->has('guardian_mobile')) {
+                $student->guardian_mobile = trim($request->input('guardian_mobile'));
+            }
+
+            if ($request->has('guardian_name')) {
+                $student->guardian_name = trim($request->input('guardian_name'));
+            }
+
+            if ($request->has('guardian_address')) {
+                $student->guardian_address = trim($request->input('guardian_address'));
+            }
+
+            if ($request->has('sbte_reg_no')) {
+                $student->sbte_reg_no = strtoupper(trim($request->input('sbte_reg_no')));
+                Session::put('sbteRegNo', $student->sbte_reg_no);
+            }
+
+            // Upload profile photo
+            if ($request->hasFile('photo')) {
+                $file = $request->file('photo');
+                $filename = 'student_' . preg_replace('/[^a-zA-Z0-9]/', '', $student->reg_no) . '_' . time() . '.' . $file->getClientOriginalExtension();
+                $publicPath = public_path('uploads/students');
+                if (!file_exists($publicPath)) {
+                    mkdir($publicPath, 0755, true);
+                }
+                $file->move($publicPath, $filename);
+                $photoUrl = '/uploads/students/' . $filename;
+                $student->photo_url = $photoUrl;
+                Session::put('userPhoto', $photoUrl);
+            }
+
+            $student->save();
+
+            AuditLog::create([
+                'performed_by' => $student->reg_no,
+                'performed_by_name' => $student->name,
+                'target_id' => $student->reg_no,
+                'target_name' => $student->name,
+                'action' => 'Profile Updated',
+                'details' => "Student updated personal profile details (Email, Phone, DOB, Guardian Mobile, Photo, Password).",
+                'ip_address' => $request->ip()
+            ]);
+
+            return response()->json([
+                'status' => 'SUCCESS',
+                'message' => 'Profile details updated successfully!',
+                'photo_url' => $student->photo_url
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed to update profile: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Staff: Save avatar zoom and vertical position framing.
+     */
+    public function saveStaffAvatarFraming(Request $request)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+        
+        if (!$userId || $userRole === 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access.']);
+        }
+
+        $zoom = floatval($request->input('zoom', 1.08));
+        $pos = intval($request->input('pos', 15));
+
+        $zoom = max(1.0, min(3.0, round($zoom, 2)));
+        $pos = max(0, min(100, $pos));
+
+        try {
+            $cleanMobile = preg_replace('/[^0-9]/', '', $userId);
+            $staff = StaffProfile::where(function($q) use ($userId, $cleanMobile) {
+                $q->where('mobile_no', $userId);
+                if (!empty($cleanMobile)) {
+                    $q->orWhere('mobile_no', $cleanMobile);
+                }
+            })->first();
+
+            if ($staff) {
+                $staff->avatar_zoom = $zoom;
+                $staff->avatar_pos = $pos;
+                $staff->save();
+            }
+
+            Session::put('avatarZoom', $zoom);
+            Session::put('avatarPos', $pos);
+
+            return response()->json([
+                'status' => 'SUCCESS',
+                'message' => 'Avatar framing and zoom saved to your profile!',
+                'zoom' => $zoom,
+                'pos' => $pos
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Failed to save avatar framing: ' . $e->getMessage()]);
+        }
+    }
+
+    private function verifyPasswordHelper(?string $inputPassword, ?string $storedPassword): bool
+    {
+        if (empty($storedPassword) || empty($inputPassword)) return false;
+        if ($storedPassword === $inputPassword) return true;
+        if (str_starts_with($storedPassword, '$2y$') || str_starts_with($storedPassword, '$2a$') || str_starts_with($storedPassword, '$2b$')) {
+            try {
+                return \Illuminate\Support\Facades\Hash::check($inputPassword, $storedPassword);
+            } catch (\Throwable $e) {
+                return false;
+            }
+        }
+        return false;
     }
 }
