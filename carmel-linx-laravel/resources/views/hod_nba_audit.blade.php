@@ -1,119 +1,273 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NBA Criteria Folders - Carmel Linx</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-  
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #0b1329 0%, #030712 100%);
-      color: #f1f5f9;
-      min-height: 100vh;
+@php
+  $criteriaNames = [
+    1 => 'Vision, Mission & Program Educational Objectives',
+    2 => 'Program Curriculum & Teaching-Learning Process',
+    3 => 'Course Outcomes & Program Outcomes (CO-PO)',
+    4 => "Students' Performance & Success Rate",
+    5 => 'Faculty Information & Contributions',
+    6 => 'Facilities & Technical Support',
+    7 => 'Continuous Improvement',
+    8 => 'First Year Academics',
+    9 => 'Student Support Systems & Governance'
+  ];
+
+  $totalDocs = 0;
+  $verifiedCount = 0;
+  $uploadedCount = 0;
+  $pendingCount = 0;
+
+  for ($i = 1; $i <= 9; $i++) {
+    if (isset($documents[$i])) {
+      foreach ($documents[$i] as $doc) {
+        $totalDocs++;
+        if ($doc->status === 'Verified') {
+          $verifiedCount++;
+        } elseif ($doc->status === 'Uploaded') {
+          $uploadedCount++;
+        } else {
+          $pendingCount++;
+        }
+      }
     }
-    .custom-gradient-bg {
-      background: radial-gradient(circle at 10% 20%, rgba(244, 63, 94, 0.15), transparent 45%),
-                  radial-gradient(circle at 90% 10%, rgba(99, 102, 241, 0.12), transparent 40%),
-                  radial-gradient(circle at 50% 80%, rgba(20, 184, 166, 0.08), transparent 50%);
+  }
+@endphp
+
+<x-layouts.app-shell 
+    title="CampusLynk - NBA Criteria Accreditation" 
+    topbarTitle="NBA Criteria Accreditation" 
+    topbarSubtitle="NBA Self Assessment Report document compliance and accreditation readiness."
+    activeNav="report_centre">
+
+  <style>
+    .criteria-card.hidden-filter {
+      display: none;
+    }
+    .filter-btn.active {
+      background-color: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+    }
+    .filter-btn:not(.active) {
+      background-color: #ffffff;
+      color: #475569;
+      border-color: #e2e8f0;
+    }
+    .filter-btn:not(.active):hover {
+      background-color: #f8fafc;
+      color: #0f172a;
     }
   </style>
-</head>
-<body class="min-h-screen flex flex-col custom-gradient-bg relative selection:bg-rose-500/30 selection:text-rose-200">
 
-  <!-- Header Panel -->
-  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-40 shadow-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <a href="/hod/report-centre" class="text-slate-400 hover:text-white transition flex items-center">
-          <span class="material-symbols-rounded text-xl">arrow_back</span>
-        </a>
-        <h1 class="text-lg font-black tracking-tight text-white uppercase flex items-center gap-2">
-          <span class="material-symbols-rounded text-rose-500 text-xl">menu_book</span> NBA Criteria Accreditation
-        </h1>
-      </div>
-      <div class="flex items-center gap-3">
-        <form method="GET" action="/hod/nba-audit" class="flex items-center gap-2">
-          <select name="academic_year" onchange="this.form.submit()" class="bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-sm font-bold text-white outline-none cursor-pointer">
-            <option value="2025-2026" {{ $academicYear === '2025-2026' ? 'selected' : '' }}>2025-2026</option>
-            <option value="2026-2027" {{ $academicYear === '2026-2027' ? 'selected' : '' }}>2026-2027</option>
-          </select>
-        </form>
-        <a href="/hod/nba-audit/print?academic_year={{ urlencode($academicYear) }}" target="_blank" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold transition flex items-center gap-2 text-sm shadow-md border-none">
-          <span class="material-symbols-rounded text-sm">print</span> Print Audit
-        </a>
-      </div>
+  <div class="space-y-6 max-w-7xl mx-auto pb-12">
+    
+    <!-- Breadcrumb Navigation -->
+    <div class="flex items-center gap-2 text-sm text-slate-500">
+      <a href="/dashboard/hod?panel=report_centre" class="hover:text-blue-600 font-medium transition-colors flex items-center gap-1.5 no-underline">
+        <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i>
+        <span>Report Centre</span>
+      </a>
+      <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+      <span class="text-slate-900 font-semibold">NBA Criteria Accreditation</span>
     </div>
-  </header>
-
-  <!-- Main Console Layout -->
-  <main class="flex-grow max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
     @if(session('success'))
-      <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-4 rounded-xl text-sm font-bold">
-        {{ session('success') }}
+      <div class="bg-emerald-50 border border-emerald-200 text-emerald-900 p-4 rounded-2xl text-sm font-semibold flex items-center gap-3 shadow-xs">
+        <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 shrink-0"></i>
+        <span>{{ session('success') }}</span>
       </div>
     @endif
 
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-3 shadow-lg">
-      <h3 class="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
-        NBA Academic Year Status: <span class="text-rose-500 font-extrabold">{{ $academicYear }}</span>
-      </h3>
-      <p class="text-slate-300 text-sm leading-relaxed font-medium">
-        Maintain accreditation documentation criteria files for the <span class="font-bold text-slate-200">{{ $department }}</span> branch. Course files (Criteria 3) are managed separately under the Course Files tab.
-      </p>
+    @if(session('error'))
+      <div class="bg-rose-50 border border-rose-200 text-rose-900 p-4 rounded-2xl text-sm font-semibold flex items-center gap-3 shadow-xs">
+        <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
+        <span>{{ session('error') }}</span>
+      </div>
+    @endif
+
+    <!-- Header & Hero Panel -->
+    <div class="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shrink-0">
+          <i data-lucide="shield-check" class="w-6 h-6 text-blue-600"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-slate-900">NBA Criteria Accreditation Folders</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Manage, upload, and verify accreditation documents across Criteria 1 to 9 for the Self Assessment Report.</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5 shrink-0">
+        <!-- Academic Year Switcher Form -->
+        <form method="GET" action="/hod/nba-audit" class="flex items-center gap-2">
+          <div class="relative">
+            <select name="academic_year" onchange="this.form.submit()" class="bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-bold text-slate-800 outline-none cursor-pointer hover:bg-slate-100 transition-colors focus:border-blue-600">
+              <option value="2025-2026" {{ $academicYear === '2025-2026' ? 'selected' : '' }}>AY 2025–2026</option>
+              <option value="2026-2027" {{ $academicYear === '2026-2027' ? 'selected' : '' }}>AY 2026–2027</option>
+              <option value="2024-2025" {{ $academicYear === '2024-2025' ? 'selected' : '' }}>AY 2024–2025</option>
+            </select>
+          </div>
+        </form>
+
+        <a href="/hod/nba-audit/print?academic_year={{ urlencode($academicYear) }}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-xl transition-all shadow-xs flex items-center gap-2 no-underline cursor-pointer">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Print Audit Sheet</span>
+        </a>
+
+        <a href="/dashboard/hod?panel=report_centre" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs border border-slate-200 rounded-xl shadow-2xs transition-all duration-200 flex items-center gap-1.5 no-underline cursor-pointer">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5 text-slate-500"></i>
+          <span>Back to Report Centre</span>
+        </a>
+      </div>
     </div>
 
-    <!-- Criteria Folders Layout -->
-    <div class="space-y-6">
+    <!-- Overview Metrics Row -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4.5 shadow-xs flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 border border-blue-100">
+          <i data-lucide="folder" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Criteria Folders</span>
+          <h4 class="text-lg font-bold text-slate-900 mt-0.5">9 Folders</h4>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4.5 shadow-xs flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-700 flex items-center justify-center shrink-0 border border-slate-200">
+          <i data-lucide="file-text" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Documents</span>
+          <h4 class="text-lg font-bold text-slate-900 mt-0.5">{{ $totalDocs }} Files</h4>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4.5 shadow-xs flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200">
+          <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Uploaded / Ready</span>
+          <h4 class="text-lg font-bold text-emerald-700 mt-0.5">{{ $uploadedCount + $verifiedCount }} Uploaded</h4>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4.5 shadow-xs flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-200">
+          <i data-lucide="clock" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending Audit</span>
+          <h4 class="text-lg font-bold text-slate-800 mt-0.5">{{ $pendingCount }} Missing</h4>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Segment Filter Navigation -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-2 border border-slate-200/80 rounded-2xl shadow-xs">
+      <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+        <button type="button" onclick="filterCriteria('all')" id="filter_all" class="filter-btn active px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer shadow-2xs">
+          <span>All Criteria (1–9)</span>
+        </button>
+        <button type="button" onclick="filterCriteria('group1')" id="filter_group1" class="filter-btn px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer shadow-2xs">
+          <span>Criteria 1–3: Curriculum & Outcomes</span>
+        </button>
+        <button type="button" onclick="filterCriteria('group2')" id="filter_group2" class="filter-btn px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer shadow-2xs">
+          <span>Criteria 4–6: Students & Faculty</span>
+        </button>
+        <button type="button" onclick="filterCriteria('group3')" id="filter_group3" class="filter-btn px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 cursor-pointer shadow-2xs">
+          <span>Criteria 7–9: Improvement & Governance</span>
+        </button>
+      </div>
+
+      <div class="text-xs font-bold text-slate-400 px-3">
+        Self Assessment Report
+      </div>
+    </div>
+
+    <!-- 9 Criteria Folders Workspace Stack -->
+    <div class="space-y-5" id="criteriaContainer">
       @for($i = 1; $i <= 9; $i++)
-        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-lg hover:border-slate-700/60 transition duration-300">
-          <div class="bg-slate-950 px-6 py-4.5 border-b border-slate-800 flex justify-between items-center">
-            <h4 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
-              <span class="material-symbols-rounded text-rose-500 text-lg">folder</span> Criteria {{ $i }} Folder
-            </h4>
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Self Assessment Report (SAR)</span>
+        @php
+          $folderName = $criteriaNames[$i] ?? "Criteria $i";
+          $folderDocs = $documents[$i] ?? collect();
+          $groupClass = ($i <= 3) ? 'group1' : (($i <= 6) ? 'group2' : 'group3');
+          $uploadedInFolder = $folderDocs->whereIn('status', ['Uploaded', 'Verified'])->count();
+        @endphp
+
+        <div class="criteria-card bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden transition-all duration-200" data-group="{{ $groupClass }}">
+          
+          <!-- Folder Header -->
+          <div class="bg-slate-50/80 px-6 py-4.5 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3.5">
+              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 font-black text-sm flex items-center justify-center border border-blue-100 shrink-0">
+                0{{ $i }}
+              </div>
+              <div>
+                <h4 class="text-base font-bold text-slate-900">Criteria {{ $i }}: {{ $folderName }}</h4>
+                <p class="text-xs text-slate-500 font-medium mt-0.5">National Board of Accreditation &bull; Self Assessment Report (SAR)</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold {{ $uploadedInFolder === $folderDocs->count() && $folderDocs->count() > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700 border border-slate-200' }}">
+                <span class="w-1.5 h-1.5 rounded-full {{ $uploadedInFolder === $folderDocs->count() && $folderDocs->count() > 0 ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
+                {{ $uploadedInFolder }} of {{ $folderDocs->count() }} Attached
+              </span>
+            </div>
           </div>
 
-          <div class="p-6 divide-y divide-slate-800">
-            @if(isset($documents[$i]))
+          <!-- Folder Document Items -->
+          <div class="p-6 divide-y divide-slate-100">
+            @if(isset($documents[$i]) && count($documents[$i]) > 0)
               @foreach($documents[$i] as $doc)
-                <div class="py-4 first:pt-0 last:pb-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="py-4.5 first:pt-0 last:pb-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div class="space-y-2">
-                    <p class="text-sm font-bold text-slate-100">{{ $doc->document_name }}</p>
-                    <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-lg bg-slate-50 text-slate-600 flex items-center justify-center shrink-0 border border-slate-200">
+                        <i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i>
+                      </div>
+                      <div>
+                        <p class="text-sm font-bold text-slate-900">{{ $doc->document_name }}</p>
+                        <p class="text-xs text-slate-400 font-medium mt-0.5">Academic Year: {{ $doc->academic_year }}</p>
+                      </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-3 pl-10.5">
                       @if($doc->status === 'Verified')
-                        <span class="inline-flex items-center gap-1.5 text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-lg">
-                          <span class="material-symbols-rounded text-sm">check_circle</span> Verified
+                        <span class="inline-flex items-center gap-1.5 text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-lg">
+                          <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
+                          <span>Verified by Auditor</span>
                         </span>
                       @elseif($doc->status === 'Uploaded')
-                        <span class="inline-flex items-center gap-1.5 text-xs font-black bg-rose-500/10 text-rose-400 border border-rose-500/30 px-3 py-1 rounded-lg">
-                          <span class="material-symbols-rounded text-sm">hourglass_empty</span> Uploaded (Audit Pending)
+                        <span class="inline-flex items-center gap-1.5 text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-lg">
+                          <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-600"></i>
+                          <span>Uploaded (Audit Pending)</span>
                         </span>
                       @else
-                        <span class="inline-flex items-center gap-1.5 text-xs font-black bg-slate-800 text-slate-350 border border-slate-700 px-3 py-1 rounded-lg">
-                          <span class="material-symbols-rounded text-sm">cancel</span> Missing / Pending
+                        <span class="inline-flex items-center gap-1.5 text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200 px-2.5 py-1 rounded-lg">
+                          <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-slate-400"></i>
+                          <span>Missing / Pending Upload</span>
                         </span>
                       @endif
-                      
+
                       @if($doc->file_path)
-                        <a href="{{ $doc->file_path }}" target="_blank" class="text-xs font-black text-rose-400 hover:text-rose-350 hover:underline flex items-center gap-1.5 transition">
-                          <span class="material-symbols-rounded text-sm">visibility</span> View PDF
+                        <a href="{{ $doc->file_path }}" target="_blank" class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 no-underline">
+                          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                          <span>View Document</span>
                         </a>
                       @endif
                     </div>
                   </div>
 
-                  <!-- File Upload Panel -->
-                  <div class="w-full md:w-auto">
+                  <!-- Native Form File Upload Trigger -->
+                  <div class="w-full md:w-auto pl-10.5 md:pl-0">
                     <form method="POST" action="/hod/nba-audit/upload" enctype="multipart/form-data" class="flex items-center gap-2">
                       @csrf
                       <input type="hidden" name="id" value="{{ $doc->id }}">
-                      <label class="flex-1 md:flex-initial cursor-pointer px-4 py-2.5 bg-slate-950 hover:bg-slate-800 text-slate-200 border border-slate-800 hover:border-slate-700 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2 shadow-md">
-                        <span class="material-symbols-rounded text-sm">cloud_upload</span> Choose File
+                      <label class="cursor-pointer px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs border border-slate-200 hover:border-slate-300 rounded-xl transition-all shadow-2xs flex items-center justify-center gap-2">
+                        <i data-lucide="upload-cloud" class="w-4 h-4 text-blue-600"></i>
+                        <span>{{ $doc->file_path ? 'Replace Document' : 'Upload Document' }}</span>
                         <input type="file" name="file" accept=".pdf,image/*" onchange="this.form.submit()" class="hidden">
                       </label>
                     </form>
@@ -124,16 +278,39 @@
               <p class="text-slate-400 italic text-sm p-4">No compliance files registered for this criteria folder.</p>
             @endif
           </div>
+
         </div>
       @endfor
     </div>
 
-  </main>
+  </div>
 
-  <!-- Sticky Footer -->
-  <footer class="bg-slate-950 border-t border-slate-900 py-4 text-center text-slate-550 text-xs mt-auto">
-    <p>&copy; 2026 Carmel Linx - NBA Criteria Audit Engine. All rights reserved.</p>
-  </footer>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    });
 
-</body>
-</html>
+    function filterCriteria(group) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById('filter_' + group);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const cards = document.querySelectorAll('.criteria-card');
+      cards.forEach(card => {
+        if (group === 'all' || card.getAttribute('data-group') === group) {
+          card.classList.remove('hidden-filter');
+        } else {
+          card.classList.add('hidden-filter');
+        }
+      });
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+    window.filterCriteria = filterCriteria;
+  </script>
+
+</x-layouts.app-shell>
