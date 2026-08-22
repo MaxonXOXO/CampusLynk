@@ -367,4 +367,43 @@ class StaffLeaveController extends Controller
 
         return view('staff_leave_reports', compact('leaves', 'summary', 'academicYear'));
     }
+
+    /**
+     * Show Desktop My Leave & Attendance Workspace Foundation (Phase 2D.1 & 2D.2).
+     */
+    public function showMyLeaveDesktop(Request $request)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+
+        if (!$userId || $userRole === 'Student') {
+            return redirect('/');
+        }
+
+        $staff = StaffProfile::where('mobile_no', $userId)->first();
+        if (!$staff) {
+            $staff = (object) [
+                'name'        => Session::get('userName', 'Staff Member'),
+                'mobile_no'   => $userId,
+                'designation' => $userRole ?? 'Lecturer',
+                'department'  => Session::get('userBranch', 'General'),
+            ];
+        }
+
+        // Today's Biometric Attendance Punch Record
+        $staffId = Session::get('userStaffId') ?? Session::get('mobileNo') ?? $userId ?? 'SF-STAFF-DEMO';
+        $todayPunch = null;
+        if (\Illuminate\Support\Facades\Schema::hasTable('sf_staff_time_punches')) {
+            $todayPunch = \App\Models\SfStaffTimePunch::where(function($q) use ($staffId, $userId) {
+                $q->where('staff_id', $staffId);
+                if ($userId) {
+                    $q->orWhere('staff_id', $userId);
+                }
+            })
+            ->where('punch_date', now()->format('Y-m-d'))
+            ->first();
+        }
+
+        return view('staff_my_leave', compact('staff', 'todayPunch'));
+    }
 }
