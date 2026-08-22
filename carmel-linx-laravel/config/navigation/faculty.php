@@ -12,9 +12,15 @@ return [
             'url' => '/dashboard/lecturer',
         ],
         [
+            'id' => 'my_leave',
+            'label' => 'My Leave & Attendance',
+            'icon' => 'calendar-check-2',
+            'url' => '/staff/my-leave',
+        ],
+        [
             'id' => 'attendance_log',
             'label' => 'Class Attendance Log',
-            'icon' => 'calendar-check-2',
+            'icon' => 'clipboard-check',
             'url' => '/staff/attendance-log',
         ],
         [
