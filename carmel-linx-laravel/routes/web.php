@@ -272,6 +272,9 @@ Route::middleware(['web'])->group(function () {
     Route::get('/dashboard/hod/leave-ledger', function () {
         return redirect('/dashboard/hod?panel=leave_ledger');
     });
+    Route::get('/dashboard/hod/report-centre', function () {
+        return redirect('/dashboard/hod?panel=report_centre');
+    });
     Route::get('/dashboard/hod/profile', function () {
         return redirect('/dashboard/hod?panel=profile');
     });
@@ -781,15 +784,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/hod/report-centre', function () {
         $role = Session::get('userRole');
         if (!$role || !in_array($role, ['HOD', 'Principal'])) return redirect('/');
-        
-        $dept = Session::get('userBranch');
-        $batches = DB::table('class_management')
-            ->where('branch', $dept)
-            ->get();
-
-        return view('hod_report_centre', [
-            'batches' => $batches
-        ]);
+        return redirect('/dashboard/hod?panel=report_centre');
     });
 
     Route::get('/hod/report-centre/workload-panel', function () {
@@ -1805,6 +1800,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/student/change-password', [App\Http\Controllers\AuthController::class, 'changeStudentPassword']);
 
     // Staff Leave Application System Routes (New Module)
+    Route::get('/staff/my-leave', [App\Http\Controllers\StaffLeaveController::class, 'showMyLeaveDesktop']);
     Route::post('/api/staff/leave/apply', [App\Http\Controllers\StaffLeaveController::class, 'applyLeave']);
     Route::get('/api/staff/leave/my-history', [App\Http\Controllers\StaffLeaveController::class, 'getMyLeaveHistory']);
     Route::get('/api/staff/leave/pending-approvals', [App\Http\Controllers\StaffLeaveController::class, 'getPendingApprovals']);
