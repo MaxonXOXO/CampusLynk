@@ -1,107 +1,94 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Workload & Timetable Control Panel - Carmel Linx</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,600,1,0" rel="stylesheet" />
-  <meta name="csrf-token" content="{{ csrf_token() }}">
-  
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-    .transition-premium {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    body, button, select, input, textarea, table, th, td, div, p, span, a {
-      font-size: 14px !important;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      font-size: 16px !important;
-      font-weight: 800 !important;
-    }
-    .card-gradient {
-      background: linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
-    }
-  </style>
-</head>
-<body class="bg-slate-950 text-slate-300 min-h-screen flex flex-col relative overflow-x-hidden selection:bg-amber-500/30">
+<x-layouts.app-shell 
+    title="CampusLynk - Faculty Workload & Timetables" 
+    topbarTitle="Workload & Timetables" 
+    activeNav="report_centre">
 
-  <!-- Header -->
-  <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40 shadow-2xl">
-    <div class="px-6 h-12 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <a href="/hod/report-centre" class="flex items-center gap-1.5 px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg font-bold transition-premium no-underline">
-          <span class="material-symbols-rounded text-sm">arrow_back</span>
-          <span class="text-sm">Back</span>
-        </a>
-        <div class="bg-gradient-to-br from-amber-500 to-orange-600 text-white font-black rounded-md w-7 h-7 flex items-center justify-center text-xs shadow-lg shadow-amber-500/20">WP</div>
+  <div class="space-y-6 max-w-7xl mx-auto">
+    
+    <!-- Breadcrumb Context Navigation -->
+    <div class="flex items-center gap-2 text-sm text-slate-500">
+      <a href="/dashboard/hod?panel=report_centre" class="hover:text-blue-600 font-medium transition-colors flex items-center gap-1.5 no-underline">
+        <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i>
+        <span>Report Centre</span>
+      </a>
+      <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+      <span class="text-slate-900 font-semibold">Faculty Workload &amp; Timetables</span>
+    </div>
+
+    <!-- Header & Operational Overview Card -->
+    <div class="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shrink-0">
+          <i data-lucide="briefcase" class="w-6 h-6 text-blue-600"></i>
+        </div>
         <div>
-          <h1 class="font-extrabold text-slate-100 tracking-wide text-sm flex items-center gap-2">
-            Workload & Timetable Reports
-            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-widest bg-slate-800/50 px-1.5 py-0.5 rounded border border-slate-700/50">{{ $department }} Dept</span>
-          </h1>
+          <h3 class="text-base font-bold text-slate-900">Faculty Workload &amp; Timetables</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Faculty workload, batch timetables, and consolidated clash review.</p>
         </div>
       </div>
-    </div>
-  </header>
 
-  <!-- Main Content -->
-  <main class="flex-grow p-4 lg:p-6 max-w-5xl mx-auto w-full space-y-5">
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div class="flex items-center gap-2">
+        <a href="/dashboard/hod?panel=report_centre" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs border border-slate-200 rounded-xl shadow-2xs transition-all duration-200 flex items-center gap-1.5 no-underline cursor-pointer">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>Back to Report Centre</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Two-Column Workspace: Faculty Workload & Individual Timetable -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
       
-      <!-- Card 1: Department Workload -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-amber-500/30 transition-premium flex flex-col justify-between">
-        <div class="space-y-2">
+      <!-- Section 1: Department Faculty Workload Card -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+        <div class="space-y-3">
           <div class="flex items-center justify-between">
-            <div class="p-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg">
-              <span class="material-symbols-rounded text-xl">pending_actions</span>
+            <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+              <i data-lucide="briefcase" class="w-5 h-5 text-amber-600"></i>
             </div>
-            <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Ready</span>
           </div>
-          <h3 class="text-white text-sm font-black">1. Department Faculty Workload</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
-            Generate the official weekly engaged hours report for all lecturers and demonstrators in the department, calculated dynamically from active timetables.
-          </p>
+          <div>
+            <h4 class="text-base font-bold text-slate-900">1. Department Faculty Workload</h4>
+            <p class="text-sm text-slate-500 leading-relaxed mt-1">
+              Review the department's weekly theory and laboratory workload for faculty commencement and academic planning.
+            </p>
+          </div>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">Commencement Format</span>
-          <a href="/hod/workload-report/print" target="_blank" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold rounded-lg transition-premium text-sm shadow-lg shadow-amber-500/15">
-            Print Workload
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+          <span class="text-xs font-medium text-slate-400">Commencement Format</span>
+          <a href="/hod/workload-report/print" target="_blank" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-sm rounded-xl shadow-xs transition-all duration-200 flex items-center gap-2 no-underline cursor-pointer">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Print Workload Report</span>
           </a>
         </div>
       </div>
 
-      <!-- Card 2: Batch Timetable Printer -->
-      <div class="card-gradient border border-slate-800/80 rounded-xl p-4 space-y-3 hover:border-violet-500/30 transition-premium flex flex-col justify-between">
-        <div class="space-y-2">
+      <!-- Section 2: Individual Batch Timetable Card -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+        <div class="space-y-3">
           <div class="flex items-center justify-between">
-            <div class="p-2 bg-violet-500/10 border border-violet-500/20 text-violet-400 rounded-lg">
-              <span class="material-symbols-rounded text-xl">calendar_today</span>
+            <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100">
+              <i data-lucide="calendar-days" class="w-5 h-5 text-purple-600"></i>
             </div>
-            <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Active</span>
           </div>
-          <h3 class="text-white text-sm font-black">2. Individual Batch Timetable</h3>
-          <p class="text-slate-400 text-sm leading-relaxed">
-            Select any department batch and semester to preview and print its finalized A4 landscape weekly timetable.
-          </p>
+          <div>
+            <h4 class="text-base font-bold text-slate-900">2. Individual Batch Timetable</h4>
+            <p class="text-sm text-slate-500 leading-relaxed mt-1">
+              Select any department batch and semester to preview and print its finalized A4 landscape weekly timetable.
+            </p>
+          </div>
           
-          <div class="grid grid-cols-2 gap-3 pt-1">
-            <div class="space-y-0.5">
-              <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Classroom</label>
-              <select id="singleBatchSelect" class="w-full bg-slate-900 border border-slate-850 rounded-lg p-2 text-sm text-white focus:border-violet-500 outline-none">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Classroom</label>
+              <select id="singleBatchSelect" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer transition-colors">
                 @foreach ($batches as $b)
                   <option value="{{ $b->classroom_id }}">{{ $b->classroom_id }}</option>
                 @endforeach
               </select>
             </div>
-            <div class="space-y-0.5">
-              <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Semester</label>
-              <select id="singleSemSelect" class="w-full bg-slate-900 border border-slate-850 rounded-lg p-2 text-sm text-white focus:border-violet-500 outline-none">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Semester</label>
+              <select id="singleSemSelect" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer transition-colors">
                 <option value="1">Semester 1</option>
                 <option value="2">Semester 2</option>
                 <option value="3" selected>Semester 3</option>
@@ -112,98 +99,116 @@
             </div>
           </div>
         </div>
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500">A4 Landscape Grid</span>
-          <button onclick="printSingleTimetable()" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-lg transition-premium text-sm cursor-pointer shadow-lg shadow-violet-600/15">
-            Print Timetable
+
+        <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+          <span class="text-xs font-medium text-slate-400">A4 Landscape Grid</span>
+          <button type="button" onclick="printSingleTimetable()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-sm rounded-xl shadow-xs transition-all duration-200 flex items-center gap-2 cursor-pointer">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Print Timetable</span>
           </button>
         </div>
       </div>
 
     </div>
 
-    <!-- Card 3: Consolidated Timetable (3 Batches) -->
-    <div class="card-gradient border border-slate-800/80 rounded-xl p-5 space-y-4 hover:border-emerald-500/30 transition-premium shadow-xl">
-      <div class="space-y-1.5">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg">
-              <span class="material-symbols-rounded text-xl">dashboard_customize</span>
-            </div>
-            <div>
-              <h3 class="text-white text-sm font-black">3. Semester Consolidated Timetable</h3>
-              <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Select up to 3 active classes</p>
-            </div>
+    <!-- Section 3: Semester Consolidated Timetable (Clash Audit) -->
+    <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs hover:shadow-md transition-all duration-200 space-y-5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+            <i data-lucide="layout-grid" class="w-5 h-5 text-emerald-600"></i>
           </div>
-          <span class="px-2 py-0.5 rounded text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Clash Audit</span>
+          <div>
+            <h4 class="text-base font-bold text-slate-900">3. Semester Consolidated Timetable</h4>
+            <p class="text-xs text-slate-500 font-medium mt-0.5">Select up to 3 active classes for departmental clash audit</p>
+          </div>
         </div>
-        <p class="text-slate-400 text-sm leading-relaxed max-w-3xl">
-          Pick exactly 2 or 3 active classes to compile a consolidated semester timetable sheet. It places schedules side-by-side per period, ideal for monitoring department clash reviews.
-        </p>
       </div>
 
-      <form id="consolidatedForm" action="/hod/consolidated-timetable/print" method="GET" target="_blank" onsubmit="return validateConsolidatedForm(event)" class="space-y-4 pt-1.5">
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+      <p class="text-sm text-slate-600 leading-relaxed max-w-4xl">
+        Pick exactly 2 or 3 active classes to compile a consolidated semester timetable sheet. It places schedules side-by-side per period, ideal for monitoring department clash reviews.
+      </p>
+
+      <form id="consolidatedForm" action="/hod/consolidated-timetable/print" method="GET" target="_blank" onsubmit="return validateConsolidatedForm(event)" class="space-y-5 pt-1">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
           @forelse ($batches as $b)
-            <label class="flex items-center gap-2 p-3 bg-slate-900/40 border border-slate-850 hover:border-emerald-500/30 rounded-xl transition-premium cursor-pointer select-none">
-              <input type="checkbox" name="batches[]" value="{{ $b->classroom_id }}" class="w-4 h-4 rounded border-slate-800 text-emerald-600 focus:ring-emerald-500 bg-slate-950 accent-emerald-500 batch-checkbox" />
+            <label class="flex items-center gap-3.5 p-3.5 bg-slate-50/50 hover:bg-blue-50/30 border border-slate-200/80 hover:border-blue-300 rounded-xl transition-all duration-200 cursor-pointer select-none">
+              <input type="checkbox" name="batches[]" value="{{ $b->classroom_id }}" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 bg-white accent-blue-600 batch-checkbox" />
               <div>
-                <span class="text-sm font-bold text-slate-200 block">{{ $b->classroom_id }}</span>
+                <span class="text-sm font-bold text-slate-900 block">{{ $b->classroom_id }}</span>
                 <span class="text-xs text-slate-500">Admission Year: {{ $b->batch_year }}</span>
               </div>
             </label>
           @empty
-            <div class="col-span-full p-6 text-center text-slate-500 italic">No batches created for this department.</div>
+            <div class="col-span-full p-6 text-center text-slate-400 italic bg-slate-50 rounded-xl border border-slate-200">
+              No batches created for this department.
+            </div>
           @endforelse
         </div>
 
-        <div class="pt-3 border-t border-slate-800/60 flex items-center justify-between">
-          <span class="text-xs text-slate-500" id="selectionStatus">Select batches to begin (Max 3)</span>
-          <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition-premium text-sm cursor-pointer shadow-lg shadow-emerald-600/15">
-            Generate Consolidated Sheet
+        <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <span class="text-sm font-medium text-slate-500" id="selectionStatus">Select batches to begin (Max 3)</span>
+          <button type="submit" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-sm rounded-xl shadow-xs transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Generate Consolidated Sheet</span>
           </button>
         </div>
       </form>
     </div>
 
-  </main>
+  </div>
 
   <script>
-    // Max 3 validation for consolidated checkboxes
-    const checkboxes = document.querySelectorAll('.batch-checkbox');
-    const selectionStatus = document.getElementById('selectionStatus');
+    document.addEventListener("DOMContentLoaded", () => {
+      // Max 3 validation for consolidated checkboxes
+      const checkboxes = document.querySelectorAll('.batch-checkbox');
+      const selectionStatus = document.getElementById('selectionStatus');
 
-    checkboxes.forEach(cb => {
-      cb.addEventListener('change', () => {
-        const checkedCount = document.querySelectorAll('.batch-checkbox:checked').length;
-        if (checkedCount > 3) {
-          cb.checked = false;
-          alert('You can select a maximum of 3 batches for consolidated view.');
-          return;
-        }
-        updateSelectionStatus();
+      checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+          const checkedCount = document.querySelectorAll('.batch-checkbox:checked').length;
+          if (checkedCount > 3) {
+            cb.checked = false;
+            alert('You can select a maximum of 3 batches for consolidated view.');
+            return;
+          }
+          updateSelectionStatus();
+        });
       });
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
     });
 
     function updateSelectionStatus() {
+      const selectionStatus = document.getElementById('selectionStatus');
       const checkedCount = document.querySelectorAll('.batch-checkbox:checked').length;
-      selectionStatus.innerText = `${checkedCount} of 3 batches selected`;
+      if (selectionStatus) {
+        selectionStatus.innerText = `${checkedCount} of 3 batches selected`;
+      }
     }
+    window.updateSelectionStatus = updateSelectionStatus;
 
     function validateConsolidatedForm(e) {
       const checkedCount = document.querySelectorAll('.batch-checkbox:checked').length;
       if (checkedCount < 2) {
         alert('Please select at least 2 batches to generate a consolidated timetable.');
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         return false;
       }
       return true;
     }
+    window.validateConsolidatedForm = validateConsolidatedForm;
 
     // Individual Timetable printing logic
     function printSingleTimetable() {
-      const classroomId = document.getElementById('singleBatchSelect').value;
-      const sem = document.getElementById('singleSemSelect').value;
+      const batchEl = document.getElementById('singleBatchSelect');
+      const semEl = document.getElementById('singleSemSelect');
+      if (!batchEl || !semEl) return;
+
+      const classroomId = batchEl.value;
+      const sem = semEl.value;
       if (!classroomId) {
         alert('No batch selected.');
         return;
@@ -228,6 +233,7 @@
         alert('Error preparing printout: ' + err.message);
       });
     }
+    window.printSingleTimetable = printSingleTimetable;
 
     function triggerPrintTimetableWindow(classroomId, sem, allocatedSubjects, timetableData) {
       const printWindow = window.open('', '_blank');
@@ -344,9 +350,12 @@
       const deptNames = {
         "EL": "Electronics Engineering",
         "CS": "Computer Engineering",
+        "CT": "Computer Engineering",
         "ME": "Mechanical Engineering",
         "EE": "Electrical & Electronics Engineering",
+        "EEE": "Electrical & Electronics Engineering",
         "CE": "Civil Engineering",
+        "AU": "Automobile Engineering",
         "CH": "Chemical Engineering"
       };
       const deptShort = classroomId.split('_')[0];
@@ -531,6 +540,7 @@
       `);
       printWindow.document.close();
     }
+    window.triggerPrintTimetableWindow = triggerPrintTimetableWindow;
   </script>
-</body>
-</html>
+
+</x-layouts.app-shell>
