@@ -2,9 +2,13 @@
   $activeBranch = $branchOverride ?? session('userBranch');
   $isPrincipalMode = isset($isPrincipalView) && $isPrincipalView;
   $initialPanel = request()->query('panel', request()->query('tab', $activePanel ?? 'batches'));
-  if (!in_array($initialPanel, ['batches', 'directory', 'subjects', 'audit', 'leave_ledger', 'prof_activities', 'profile'])) {
+  if (!in_array($initialPanel, ['batches', 'directory', 'subjects', 'audit', 'leave_ledger', 'prof_activities', 'report_centre', 'profile'])) {
     $initialPanel = 'batches';
   }
+  $batches = DB::table('class_management')
+      ->where('branch', $activeBranch)
+      ->orderBy('current_semester', 'asc')
+      ->get();
 @endphp
 <x-layouts.app-shell 
     :title="'CampusLynk - ' . ($isPrincipalMode ? 'Principal View' : 'HOD Console')" 
@@ -603,6 +607,302 @@
         @include('partials.staff_profile_panel', ['hideAuditLog' => true])
       </div>
 
+      <!-- PANEL: REPORT CENTRE (SINGLE-WORKSPACE CATALOG) -->
+      <div id="panelReport_centre" class="{{ $initialPanel === 'report_centre' ? '' : 'hidden' }} space-y-6">
+        
+        <!-- Header & Operational Overview Card -->
+        <div class="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shrink-0">
+              <i data-lucide="bar-chart-3" class="w-6 h-6 text-blue-600"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900">Report Centre</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Centralized academic, faculty, compliance, and accreditation reporting workspace.</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1.5 bg-blue-50 border border-blue-100 text-blue-700 rounded-xl text-xs font-bold font-mono">
+              11 reporting modules
+            </span>
+            <span class="px-3 py-1.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold font-mono">
+              {{ $activeBranch }} Dept Scope
+            </span>
+          </div>
+        </div>
+
+        <!-- 11 Report Categories Grid (Desktop: 4 columns, Tablet: 2 columns, Mobile: 1 column) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          
+          <!-- Card 1: Attendance, Log & Condonation -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100">
+                  <i data-lucide="calendar-check" class="w-5 h-5 text-sky-600"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Attendance &amp; Condonation</h4>
+                <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                  Compile course coverage, attendance rosters, and condonation reports for a selected classroom.
+                </p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-400">Coverage &amp; Shortage</span>
+              <button type="button" onclick="openAttendanceModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-xl shadow-xs transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                <span>Compile Logs</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 2: Remedial Coaching Analytics -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100">
+                  <i data-lucide="heart-pulse" class="w-5 h-5 text-purple-600"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Remedial Coaching Analytics</h4>
+                <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                  Review remedial coaching activity, diagnostics, and outcomes.
+                </p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-400">Diagnostic Reports</span>
+              <button type="button" onclick="openRemedialModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-xl shadow-xs transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                <span>Analyze Data</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 3: Faculty Workload & Timetables -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+                  <i data-lucide="briefcase" class="w-5 h-5 text-amber-600"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Faculty Workload &amp; Timetables</h4>
+                <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                  Review departmental faculty workload and batch timetables.
+                </p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-400">Commencement Week</span>
+              <a href="/hod/report-centre/workload-panel" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-xl shadow-xs transition-all duration-200 flex items-center gap-1.5 no-underline">
+                <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+                <span>View Panel</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Card 4: Extra-Curricular Activity Points -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100">
+                  <i data-lucide="trophy" class="w-5 h-5 text-rose-600"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Extra-Curricular Claims</h4>
+                <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                  Audit student extracurricular activity point claims.
+                </p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-400">Activity Points Audit</span>
+              <button type="button" onclick="openActivityPointsModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-xl shadow-xs transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                <span>View Claims</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 5: Department Course Files -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                  <i data-lucide="folder-check" class="w-5 h-5 text-emerald-600"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Department Course Files</h4>
+                <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                  Review course-file preparation and compliance.
+                </p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-400">Curriculum Compliance</span>
+              <button type="button" onclick="openCourseFilesModal()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-xl shadow-xs transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                <span>Check Status</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 6: Student Mentoring Diaries -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
+                  <i data-lucide="notebook" class="w-5 h-5 text-indigo-600"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Student Mentoring Diaries</h4>
+                <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                  Student cumulative mentoring dossiers, tutor consultation notes, family profiles, and academic progression.
+                </p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-400">Dossier &amp; Notes</span>
+              <button type="button" onclick="handleHodSidebarNav('batches')" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 font-medium text-xs border border-slate-200 rounded-xl shadow-2xs transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                <span>Access Logs</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 7: SBTE Annual Compliance Audit -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center border border-cyan-100">
+                  <i data-lucide="shield-check" class="w-5 h-5 text-cyan-600"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">SBTE Annual Audit (Part C)</h4>
+                <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                  Open the departmental SBTE annual compliance workspace.
+                </p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-400">SBTE Accreditation</span>
+              <a href="/hod/sbte-audit" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-xl shadow-xs transition-all duration-200 flex items-center gap-1.5 no-underline">
+                <i data-lucide="file-check" class="w-3.5 h-3.5"></i>
+                <span>View Console</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Card 8: NBA Criteria Accreditation -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100">
+                  <i data-lucide="award" class="w-5 h-5 text-rose-600"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">NBA Criteria Accreditation</h4>
+                <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                  Manage accreditation documents across NBA criteria.
+                </p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-400">Accreditation Files</span>
+              <a href="/hod/nba-audit" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-xl shadow-xs transition-all duration-200 flex items-center gap-1.5 no-underline">
+                <i data-lucide="folder" class="w-3.5 h-3.5"></i>
+                <span>View Console</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Card 9: Academic Calendar Planner -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+                  <i data-lucide="calendar-range" class="w-5 h-5 text-amber-600"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Academic Calendar Planner</h4>
+                <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                  Plan and manage the departmental academic calendar.
+                </p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-400">Academic Planning</span>
+              <a href="/hod/academic-calendar" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-xl shadow-xs transition-all duration-200 flex items-center gap-1.5 no-underline">
+                <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+                <span>Open Planner</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Card 10: Security & Operations Audit Trail -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center border border-violet-100">
+                  <i data-lucide="shield" class="w-5 h-5 text-violet-600"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Security &amp; Operations Audit</h4>
+                <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                  Review departmental security and administrative audit events.
+                </p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-400">Audit History</span>
+              <button type="button" onclick="handleHodSidebarNav('audit')" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-xl shadow-xs transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                <span>Extract Logs</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card 11: Staff Leave Master Ledger -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                  <i data-lucide="calendar-days" class="w-5 h-5 text-emerald-600"></i>
+                </div>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-slate-900">Staff Leave Master Ledger</h4>
+                <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                  Review the staff leave ledger and approval records.
+                </p>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+              <span class="text-xs font-medium text-slate-400">Printable Ledger</span>
+              <button type="button" onclick="handleHodSidebarNav('leave_ledger')" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-medium text-xs rounded-xl shadow-xs transition-all duration-200 flex items-center gap-1.5 cursor-pointer">
+                <i data-lucide="calendar-check-2" class="w-3.5 h-3.5"></i>
+                <span>Open Ledger</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
 
   <!-- CREATE BATCH MODAL -->
@@ -1174,6 +1474,196 @@
     </div>
   </div>
 
+  <!-- ATTENDANCE MODAL -->
+  <div id="attendanceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100">
+            <i data-lucide="calendar-check" class="w-4 h-4 text-sky-600"></i>
+          </div>
+          <span>Attendance Summary &amp; Condonation</span>
+        </h3>
+        <button type="button" onclick="closeAttendanceModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Select a semester batch to generate the consolidated class attendance summary, lesson plan coverage rates, and condonation candidate roster.
+        </p>
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Select Semester Batch</label>
+            <select id="selectAttendanceBatch" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer">
+              @foreach($batches as $batch)
+                <option value="{{ $batch->classroom_id }}">{{ $batch->classroom_id }} (Sem {{ $batch->current_semester }})</option>
+              @endforeach
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Select Report Type</label>
+            <select id="selectAttendanceReportType" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer">
+              <option value="coverage">Course Coverage Rates &amp; Hours Conducted</option>
+              <option value="roster">Student Attendance Roster &amp; Deficiencies</option>
+              <option value="condonation">Condonation Students List (SBTE No)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button type="button" onclick="closeAttendanceModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-50 rounded-xl font-medium transition-all text-slate-700 text-sm cursor-pointer">
+            Cancel
+          </button>
+          <button type="button" onclick="printAttendanceSummary()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl font-medium shadow-sm transition-all flex items-center justify-center gap-2 text-sm cursor-pointer">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Print Summary</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REMEDIAL MODAL -->
+  <div id="remedialModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100">
+            <i data-lucide="heart-pulse" class="w-4 h-4 text-purple-600"></i>
+          </div>
+          <span>Remedial Coaching Analytics</span>
+        </h3>
+        <button type="button" onclick="closeRemedialModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Select a semester batch to generate the consolidated Remedial Session Analytics, conducted hours, and registered slower learners list.
+        </p>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Select Semester Batch</label>
+          <select id="selectRemedialBatch" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer">
+            @foreach($batches as $batch)
+              <option value="{{ $batch->classroom_id }}">{{ $batch->classroom_id }} (Sem {{ $batch->current_semester }})</option>
+            @endforeach
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button type="button" onclick="closeRemedialModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-50 rounded-xl font-medium transition-all text-slate-700 text-sm cursor-pointer">
+            Cancel
+          </button>
+          <button type="button" onclick="printRemedialReport()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl font-medium shadow-sm transition-all flex items-center justify-center gap-2 text-sm cursor-pointer">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Print Report</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COURSE FILES MODAL -->
+  <div id="courseFilesModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+            <i data-lucide="folder-check" class="w-4 h-4 text-emerald-600"></i>
+          </div>
+          <span>Course Files Compliance Status</span>
+        </h3>
+        <button type="button" onclick="closeCourseFilesModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Select a semester batch to generate the consolidated syllabus registry, CO-PO mapping, and NBA Course File compliance status report.
+        </p>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Select Semester Batch</label>
+          <select id="selectCourseFilesBatch" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer">
+            @foreach($batches as $batch)
+              <option value="{{ $batch->classroom_id }}">{{ $batch->classroom_id }} (Sem {{ $batch->current_semester }})</option>
+            @endforeach
+          </select>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button type="button" onclick="closeCourseFilesModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-50 rounded-xl font-medium transition-all text-slate-700 text-sm cursor-pointer">
+            Cancel
+          </button>
+          <button type="button" onclick="printCourseFilesReport()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl font-medium shadow-sm transition-all flex items-center justify-center gap-2 text-sm cursor-pointer">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Print Report</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY POINTS MODAL -->
+  <div id="activityPointsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100">
+            <i data-lucide="trophy" class="w-4 h-4 text-rose-600"></i>
+          </div>
+          <span>Activity Points Audit Report</span>
+        </h3>
+        <button type="button" onclick="closeActivityPointsModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-sm text-slate-600 leading-relaxed">
+          Generate semester-wise or batch-wise student activity points audits showing target thresholds for course completion (75 points standard).
+        </p>
+        
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Select Semester Batch</label>
+            <select id="selectActivityBatch" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer">
+              @foreach($batches as $batch)
+                <option value="{{ $batch->classroom_id }}">{{ $batch->classroom_id }} (Sem {{ $batch->current_semester }})</option>
+              @endforeach
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Select Semester Scope</label>
+            <select id="selectActivitySemester" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer">
+              <option value="all">All Semesters (Cumulative)</option>
+              <option value="1">Semester 1</option>
+              <option value="2">Semester 2</option>
+              <option value="3">Semester 3</option>
+              <option value="4">Semester 4</option>
+              <option value="5">Semester 5</option>
+              <option value="6">Semester 6</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 pt-2">
+          <button type="button" onclick="closeActivityPointsModal()" class="flex-1 py-2.5 border border-slate-200 hover:bg-slate-50 rounded-xl font-medium transition-all text-slate-700 text-sm cursor-pointer">
+            Cancel
+          </button>
+          <button type="button" onclick="printActivityPointsReport()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-xl font-medium shadow-sm transition-all flex items-center justify-center gap-2 text-sm cursor-pointer">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>Print Report</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- JAVASCRIPT LOGIC -->
   <script>
     window.isPrincipalView = @json($isPrincipalMode);
@@ -1257,7 +1747,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       const urlParams = new URLSearchParams(window.location.search);
       const urlTab = urlParams.get('tab') || urlParams.get('panel') || (window.location.hash ? window.location.hash.replace('#', '') : null);
-      if (urlTab && ['batches', 'directory', 'subjects', 'audit', 'leave_ledger', 'prof_activities', 'profile'].includes(urlTab)) {
+      if (urlTab && ['batches', 'directory', 'subjects', 'audit', 'leave_ledger', 'prof_activities', 'report_centre', 'profile'].includes(urlTab)) {
         activePanel = urlTab;
       }
       switchPanel(activePanel);
@@ -1283,12 +1773,13 @@
     function switchPanel(panelId) {
       if (!panelId) panelId = 'batches';
       activePanel = panelId;
-      const panels = ['batches', 'directory', 'subjects', 'audit', 'leave_ledger', 'prof_activities', 'profile'];
+      const panels = ['batches', 'directory', 'subjects', 'audit', 'leave_ledger', 'prof_activities', 'report_centre', 'profile'];
       
       panels.forEach(id => {
         let elId = 'panel' + id.charAt(0).toUpperCase() + id.slice(1);
         if (id === 'leave_ledger') elId = 'panelLeave_ledger';
         if (id === 'prof_activities') elId = 'panelProf_activities';
+        if (id === 'report_centre') elId = 'panelReport_centre';
         const el = document.getElementById(elId);
         if (el) {
           if (id === panelId) {
@@ -1308,6 +1799,7 @@
         'directory': { title: 'User Accounts Directory', subtitle: 'Filter, search, audit, and manage profile lifecycle states for students and staff in your branch.' },
         'subjects': { title: 'Subject & Staff Allocation', subtitle: 'Map curriculum subjects to batches per semester and assign staff across departments.' },
         'audit': { title: 'Department Audit Trail', subtitle: 'Lifecycle events, status updates, registrations, and actions performed within the branch.' },
+        'report_centre': { title: 'Report Centre', subtitle: 'Centralized academic, faculty, compliance, and accreditation reporting workspace.' },
         'leave_ledger': { title: 'Staff Leave Master Ledger & Report Center', subtitle: 'Multi-stage approval audit trail, departmental leave balances, and official leave orders.' },
         'prof_activities': { title: 'Professional Activities', subtitle: 'Faculty development, publications, workshops, projects, and academic contributions.' },
         'profile': { title: 'My Profile & Security Settings', subtitle: 'Manage your personal account credentials, profile avatar, and view security activity logs.' }
@@ -1333,6 +1825,137 @@
       if (window.initLucide) window.initLucide();
     }
     window.switchPanel = switchPanel;
+
+    // ═════════════════════════════════════════════════════════════════════════
+    // REPORT CENTRE MODAL HANDLERS
+    // ═════════════════════════════════════════════════════════════════════════
+    function openAttendanceModal() {
+      const modal = document.getElementById('attendanceModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (window.initLucide) window.initLucide();
+      }
+    }
+    window.openAttendanceModal = openAttendanceModal;
+
+    function closeAttendanceModal() {
+      const modal = document.getElementById('attendanceModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+    window.closeAttendanceModal = closeAttendanceModal;
+
+    function printAttendanceSummary() {
+      const batchEl = document.getElementById('selectAttendanceBatch');
+      const typeEl = document.getElementById('selectAttendanceReportType');
+      const batchId = batchEl ? batchEl.value : '';
+      const reportType = typeEl ? typeEl.value : 'coverage';
+      if (!batchId) {
+        alert('Please select a batch.');
+        return;
+      }
+      closeAttendanceModal();
+      window.open('/hod/attendance-summary/print?classroom_id=' + encodeURIComponent(batchId) + '&report_type=' + encodeURIComponent(reportType), '_blank');
+    }
+    window.printAttendanceSummary = printAttendanceSummary;
+
+    function openRemedialModal() {
+      const modal = document.getElementById('remedialModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (window.initLucide) window.initLucide();
+      }
+    }
+    window.openRemedialModal = openRemedialModal;
+
+    function closeRemedialModal() {
+      const modal = document.getElementById('remedialModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+    window.closeRemedialModal = closeRemedialModal;
+
+    function printRemedialReport() {
+      const batchEl = document.getElementById('selectRemedialBatch');
+      const batchId = batchEl ? batchEl.value : '';
+      if (!batchId) {
+        alert('Please select a batch.');
+        return;
+      }
+      closeRemedialModal();
+      window.open('/hod/remedial-report/print?classroom_id=' + encodeURIComponent(batchId), '_blank');
+    }
+    window.printRemedialReport = printRemedialReport;
+
+    function openCourseFilesModal() {
+      const modal = document.getElementById('courseFilesModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (window.initLucide) window.initLucide();
+      }
+    }
+    window.openCourseFilesModal = openCourseFilesModal;
+
+    function closeCourseFilesModal() {
+      const modal = document.getElementById('courseFilesModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+    window.closeCourseFilesModal = closeCourseFilesModal;
+
+    function printCourseFilesReport() {
+      const batchEl = document.getElementById('selectCourseFilesBatch');
+      const batchId = batchEl ? batchEl.value : '';
+      if (!batchId) {
+        alert('Please select a batch.');
+        return;
+      }
+      closeCourseFilesModal();
+      window.open('/hod/course-files-report/print?classroom_id=' + encodeURIComponent(batchId), '_blank');
+    }
+    window.printCourseFilesReport = printCourseFilesReport;
+
+    function openActivityPointsModal() {
+      const modal = document.getElementById('activityPointsModal');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (window.initLucide) window.initLucide();
+      }
+    }
+    window.openActivityPointsModal = openActivityPointsModal;
+
+    function closeActivityPointsModal() {
+      const modal = document.getElementById('activityPointsModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+    window.closeActivityPointsModal = closeActivityPointsModal;
+
+    function printActivityPointsReport() {
+      const batchEl = document.getElementById('selectActivityBatch');
+      const semEl = document.getElementById('selectActivitySemester');
+      const batchId = batchEl ? batchEl.value : '';
+      const sem = semEl ? semEl.value : 'all';
+      if (!batchId) {
+        alert('Please select a batch.');
+        return;
+      }
+      closeActivityPointsModal();
+      window.open('/hod/activity-points-report/print?classroom_id=' + encodeURIComponent(batchId) + '&semester=' + encodeURIComponent(sem), '_blank');
+    }
+    window.printActivityPointsReport = printActivityPointsReport;
 
     function loadBatchesForSubjects() {
       // Just populate the dropdown if it's empty
