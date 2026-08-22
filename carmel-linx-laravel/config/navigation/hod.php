@@ -39,7 +39,7 @@ return [
             'id' => 'report_centre',
             'label' => 'Report Centre',
             'icon' => 'bar-chart-3',
-            'url' => '/hod/report-centre',
+            'onclick' => "handleHodSidebarNav('report_centre')",
         ],
         [
             'id' => 'leave_ledger',
