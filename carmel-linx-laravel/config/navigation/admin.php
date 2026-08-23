@@ -12,12 +12,6 @@ return [
             'onclick' => "handleAdminSidebarNav('dashboard')",
         ],
         [
-            'id' => 'my_batches',
-            'label' => 'My Batches',
-            'icon' => 'presentation',
-            'url' => '/dashboard/lecturer',
-        ],
-        [
             'id' => 'all_timetables',
             'label' => 'All-Dept Timetables',
             'icon' => 'calendar-days',
@@ -28,6 +22,12 @@ return [
             'label' => 'User Directory',
             'icon' => 'users',
             'onclick' => "handleAdminSidebarNav('directory')",
+        ],
+        [
+            'id' => 'my_leave',
+            'label' => 'My Leave & Attendance',
+            'icon' => 'calendar-check-2',
+            'url' => '/staff/my-leave',
         ],
         [
             'id' => 'backups',
@@ -64,6 +64,12 @@ return [
             'label' => 'SF Staff Attendance',
             'icon' => 'user-check',
             'onclick' => "handleAdminSidebarNav('sf_attendance')",
+        ],
+        [
+            'id' => 'my_batches',
+            'label' => 'My Batches (Teaching)',
+            'icon' => 'presentation',
+            'url' => '/dashboard/lecturer',
         ],
         [
             'id' => 'profile',
