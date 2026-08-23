@@ -14,15 +14,19 @@ class BackupController extends Controller
      */
     public function backupDatabaseToDrive()
     {
+        $role = session('userRole');
+        if (!in_array($role, ['Super_Admin', 'SuperAdmin', 'Admin', 'Principal'])) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access.'], 403);
+        }
+
         try {
             $tables = DB::select('SHOW TABLES');
-            $dbNameKey = 'Tables_in_' . config('database.connections.mysql.database');
             
             $sqlContent = "-- Carmel Linx Database Backup\n";
             $sqlContent .= "-- Generated: " . date('Y-m-d H:i:s') . "\n\n";
 
             foreach ($tables as $table) {
-                $tableName = $table->$dbNameKey;
+                $tableName = array_values((array)$table)[0];
                 
                 // Fetch structure
                 $createTable = DB::select("SHOW CREATE TABLE `{$tableName}`");
@@ -72,20 +76,19 @@ class BackupController extends Controller
     public function downloadLocalBackup()
     {
         $role = session('userRole');
-        if (!in_array($role, ['Super_Admin', 'Principal', 'Admin'])) {
+        if (!in_array($role, ['Super_Admin', 'SuperAdmin', 'Admin', 'Principal'])) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         try {
             $tables = DB::select('SHOW TABLES');
-            $dbNameKey = 'Tables_in_' . config('database.connections.mysql.database');
             
             $sqlContent = "-- Carmel Linx Database Backup\n";
             $sqlContent .= "-- Generated: " . date('Y-m-d H:i:s') . "\n";
             $sqlContent .= "-- Database: " . config('database.connections.mysql.database') . "\n\n";
 
             foreach ($tables as $table) {
-                $tableName = $table->$dbNameKey;
+                $tableName = array_values((array)$table)[0];
                 
                 $createTable = DB::select("SHOW CREATE TABLE `{$tableName}`");
                 $createTableKey = 'Create Table';
@@ -117,13 +120,13 @@ class BackupController extends Controller
     }
 
     /**
-     * Restore database from uploaded SQL dump file.
+     * Restore database from uploaded SQL dump file. Super Admin only.
      */
     public function restoreDatabase(Request $request)
     {
         $role = session('userRole');
-        if (!in_array($role, ['Super_Admin', 'Principal', 'Admin'])) {
-            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access.'], 403);
+        if (!in_array($role, ['Super_Admin', 'SuperAdmin'])) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access. Only Super Administrator can restore the database.'], 403);
         }
 
         $request->validate([

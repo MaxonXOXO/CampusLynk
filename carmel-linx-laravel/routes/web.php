@@ -204,12 +204,18 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/dashboard/superadmin', function () {
         $role = Session::get('userRole');
-        if ($role !== 'Super_Admin' && $role !== 'Principal') return redirect('/');
+        if (!in_array($role, ['Super_Admin', 'SuperAdmin'])) return redirect('/');
         return noCacheView('admin_control_desk');
     });
 
     Route::get('/superadmin/show-users', function () {
-        if (Session::get('userRole') !== 'Super_Admin') return redirect('/');
+        $role = Session::get('userRole');
+        if (!in_array($role, ['Super_Admin', 'SuperAdmin', 'Admin'])) {
+            if ($role === 'Principal') {
+                return redirect('/dashboard/principal')->with('error', 'Access restricted to system administrators.');
+            }
+            return redirect('/');
+        }
         
         $staff = DB::table('staff_profiles')
             ->select('mobile_no', 'name', 'designation', 'branch', 'email', 'password', 'account_status')
@@ -225,15 +231,18 @@ Route::middleware(['web'])->group(function () {
             
         return noCacheView('admin_show_users_table', compact('staff', 'students'));
     });
+    Route::get('/superadmin/credentials', function () { return redirect('/superadmin/show-users'); });
+    Route::get('/admin/show-users', function () { return redirect('/superadmin/show-users'); });
 
     Route::get('/dashboard/admin', function () {
-        if (Session::get('userRole') !== 'Admin') return redirect('/');
-        return noCacheView('admin_dashboard');
+        $role = Session::get('userRole');
+        if (!in_array($role, ['Admin', 'Super_Admin', 'SuperAdmin'])) return redirect('/');
+        return noCacheView('admin_control_desk');
     });
 
     Route::get('/dashboard/principal', function () {
         $role = Session::get('userRole');
-        if ($role !== 'Super_Admin' && $role !== 'Principal') return redirect('/');
+        if (!in_array($role, ['Principal', 'Super_Admin', 'SuperAdmin'])) return redirect('/');
         return noCacheView('admin_control_desk');
     });
 
@@ -413,13 +422,13 @@ Route::middleware(['web'])->group(function () {
     });
 
     // Core Data Actions
-    Route::post('/api/approve-account', [DataController::class, 'approveAccount']);
-    Route::post('/api/student/update-sbte-reg', [DataController::class, 'updateSbteRegNo']);
-    Route::post('/api/student/update/{regNo}', [DataController::class, 'updateStudentProfile']);
-    Route::delete('/api/student/delete/{regNo}', [DataController::class, 'deleteStudentProfile']);
+    Route::post('/api/approve-account', [DataController::class, 'approveAccount'])->middleware(['role:admin,super_admin,principal']);
+    Route::post('/api/student/update-sbte-reg', [DataController::class, 'updateSbteRegNo'])->middleware(['role:admin,super_admin,hod,tutor']);
+    Route::post('/api/student/update/{regNo}', [DataController::class, 'updateStudentProfile'])->middleware(['role:admin,super_admin,hod,tutor']);
+    Route::delete('/api/student/delete/{regNo}', [DataController::class, 'deleteStudentProfile'])->middleware(['role:admin,super_admin,principal']);
     Route::get('/api/tutor/classroom/{tutorMobile}', [DataController::class, 'getTutorClassroomRoster']);
-    Route::post('/api/system/backup', [BackupController::class, 'backupDatabaseToDrive']);
-    Route::get('/api/system/backup/download', [BackupController::class, 'downloadLocalBackup']);
+    Route::post('/api/system/backup', [BackupController::class, 'backupDatabaseToDrive'])->middleware(['role:admin,super_admin,principal']);
+    Route::get('/api/system/backup/download', [BackupController::class, 'downloadLocalBackup'])->middleware(['role:admin,super_admin,principal']);
 
     // Universal Day Order Management
     Route::post('/api/system/set-day-order', function (Illuminate\Http\Request $request) {
@@ -459,15 +468,15 @@ Route::middleware(['web'])->group(function () {
         return response()->json(['status' => 'SUCCESS', 'day_order' => $default, 'date' => $todayStr]);
     });
 
-    // Admin/Super Admin Endpoints
-    Route::get('/api/admin/stats', [DataController::class, 'getAdminStats']);
-    Route::get('/api/admin/users', [DataController::class, 'getUsersList']);
-    Route::post('/api/admin/user/toggle-status', [DataController::class, 'toggleUserStatus']);
-    Route::post('/api/admin/user/reset-password', [DataController::class, 'resetUserPassword']);
-    Route::post('/api/admin/user/update-staff/{mobileNo}', [DataController::class, 'updateStaffProfileDirect']);
-    Route::post('/api/admin/user/change-role', [DataController::class, 'changeUserRole']);
-    Route::post('/api/admin/user/delete', [DataController::class, 'deleteUser']);
-    Route::get('/api/audit-logs', [DataController::class, 'getAuditLogs']);
+    // Admin/Super Admin/Principal Endpoints
+    Route::get('/api/admin/stats', [DataController::class, 'getAdminStats'])->middleware(['role:admin,super_admin,principal']);
+    Route::get('/api/admin/users', [DataController::class, 'getUsersList'])->middleware(['role:admin,super_admin,principal']);
+    Route::post('/api/admin/user/toggle-status', [DataController::class, 'toggleUserStatus'])->middleware(['role:admin,super_admin,principal']);
+    Route::post('/api/admin/user/reset-password', [DataController::class, 'resetUserPassword'])->middleware(['role:admin,super_admin,principal,hod,tutor']);
+    Route::post('/api/admin/user/update-staff/{mobileNo}', [DataController::class, 'updateStaffProfileDirect'])->middleware(['role:admin,super_admin,principal']);
+    Route::post('/api/admin/user/change-role', [DataController::class, 'changeUserRole'])->middleware(['role:super_admin,principal']);
+    Route::post('/api/admin/user/delete', [DataController::class, 'deleteUser'])->middleware(['role:admin,super_admin,principal']);
+    Route::get('/api/audit-logs', [DataController::class, 'getAuditLogs'])->middleware(['role:admin,super_admin,principal,hod']);
 
     // Live Remote Support Desk (Beta) Endpoints
     Route::post('/api/support/request', [SupportDeskController::class, 'requestAssist']);
@@ -2024,8 +2033,8 @@ Route::middleware(['web'])->group(function () {
 
         try {
             \App\Models\AuditLog::create([
-                'performed_by' => Session::get('userId', 'ADMIN-001'),
-                'performed_by_name' => Session::get('userName', 'Executive Officer'),
+                'performed_by' => Session::get('userId') ?? Session::get('mobileNo') ?? 'SYSTEM',
+                'performed_by_name' => Session::get('userName') ?? Session::get('name') ?? 'Executive Officer',
                 'target_id' => 'GEOFENCE-001',
                 'target_name' => $campusName,
                 'action' => 'Geofence Updated',
@@ -2217,8 +2226,8 @@ Route::middleware(['web'])->group(function () {
         }
 
         DB::table('audit_logs')->insert([
-            'performed_by' => Session::get('userId', 'ADMIN-001'),
-            'performed_by_name' => Session::get('userName', 'Principal'),
+            'performed_by' => Session::get('userId') ?? Session::get('mobileNo') ?? 'SYSTEM',
+            'performed_by_name' => Session::get('userName') ?? Session::get('name') ?? 'Administrator',
             'target_id' => $identifier,
             'target_name' => $identifier,
             'action' => 'Status Updated',
@@ -2229,7 +2238,7 @@ Route::middleware(['web'])->group(function () {
         ]);
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Status updated successfully.']);
-    });
+    })->middleware(['role:admin,super_admin,principal']);
 
     Route::post('/api/admin/user/toggle-status', function(Illuminate\Http\Request $request) {
         $userId = $request->input('userId') ?? $request->input('identifier');
@@ -2242,24 +2251,33 @@ Route::middleware(['web'])->group(function () {
         }
 
         if ($userType === 'staff') {
+            $targetStaff = DB::table('staff_profiles')->where('mobile_no', $userId)->first();
+            if ($targetStaff && in_array($targetStaff->designation, ['Super_Admin', 'SuperAdmin']) && !in_array(Session::get('userRole'), ['Super_Admin', 'SuperAdmin'])) {
+                return response()->json(['status' => 'FORBIDDEN', 'message' => 'Cannot modify status of Super Administrator.'], 403);
+            }
             DB::table('staff_profiles')->where('mobile_no', $userId)->update(['account_status' => $status, 'updated_at' => now()]);
         } else {
             DB::table('students')->where('reg_no', $userId)->orWhere('adm_no', $userId)->update(['status' => $status, 'updated_at' => now()]);
         }
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Status updated successfully.']);
-    });
+    })->middleware(['role:admin,super_admin,principal']);
 
     Route::post('/api/admin/users/reset-password', function(Illuminate\Http\Request $request) {
         $identifier = $request->input('identifier') ?? $request->input('userId');
         $newPassword = $request->input('new_password') ?? $request->input('newPassword');
 
+        $targetStaff = DB::table('staff_profiles')->where('mobile_no', $identifier)->first();
+        if ($targetStaff && in_array($targetStaff->designation, ['Super_Admin', 'SuperAdmin']) && !in_array(Session::get('userRole'), ['Super_Admin', 'SuperAdmin'])) {
+            return response()->json(['status' => 'FORBIDDEN', 'message' => 'Cannot reset password of Super Administrator.'], 403);
+        }
+
         DB::table('staff_profiles')->where('mobile_no', $identifier)->update(['password' => $newPassword, 'updated_at' => now()]);
         DB::table('students')->where('reg_no', $identifier)->orWhere('adm_no', $identifier)->update(['password' => $newPassword, 'updated_at' => now()]);
 
         DB::table('audit_logs')->insert([
-            'performed_by' => Session::get('userId', 'ADMIN-001'),
-            'performed_by_name' => Session::get('userName', 'Principal'),
+            'performed_by' => Session::get('userId') ?? Session::get('mobileNo') ?? 'SYSTEM',
+            'performed_by_name' => Session::get('userName') ?? Session::get('name') ?? 'Administrator',
             'target_id' => $identifier,
             'target_name' => $identifier,
             'action' => 'Password Reset',
@@ -2270,26 +2288,48 @@ Route::middleware(['web'])->group(function () {
         ]);
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Password reset successfully.']);
-    });
+    })->middleware(['role:admin,super_admin,principal,hod,tutor']);
 
     Route::post('/api/admin/user/reset-password', function(Illuminate\Http\Request $request) {
         $identifier = $request->input('userId') ?? $request->input('identifier');
         $newPassword = $request->input('newPassword') ?? $request->input('new_password');
 
+        $targetStaff = DB::table('staff_profiles')->where('mobile_no', $identifier)->first();
+        if ($targetStaff && in_array($targetStaff->designation, ['Super_Admin', 'SuperAdmin']) && !in_array(Session::get('userRole'), ['Super_Admin', 'SuperAdmin'])) {
+            return response()->json(['status' => 'FORBIDDEN', 'message' => 'Cannot reset password of Super Administrator.'], 403);
+        }
+
         DB::table('staff_profiles')->where('mobile_no', $identifier)->update(['password' => $newPassword, 'updated_at' => now()]);
         DB::table('students')->where('reg_no', $identifier)->orWhere('adm_no', $identifier)->update(['password' => $newPassword, 'updated_at' => now()]);
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Password reset successfully.']);
-    });
+    })->middleware(['role:admin,super_admin,principal,hod,tutor']);
 
     Route::post('/api/admin/user/change-role', function(Illuminate\Http\Request $request) {
+        $actorRole = Session::get('userRole');
+        if (!in_array($actorRole, ['Super_Admin', 'SuperAdmin', 'Principal'])) {
+            return response()->json(['status' => 'FORBIDDEN', 'message' => 'Unauthorized: Only Super Administrator and Principal can modify role designations.'], 403);
+        }
+
         $userId = $request->input('userId') ?? $request->input('identifier');
         $newRole = $request->input('newRole');
+
+        // Role boundary protection: Principal cannot assign Super Admin, nor modify Super Admin profiles
+        if (in_array($actorRole, ['Principal'])) {
+            if (in_array($newRole, ['Super_Admin', 'SuperAdmin'])) {
+                return response()->json(['status' => 'FORBIDDEN', 'message' => 'Principal cannot elevate user accounts to Super Administrator.'], 403);
+            }
+            $targetStaff = DB::table('staff_profiles')->where('mobile_no', $userId)->first();
+            if ($targetStaff && in_array($targetStaff->designation, ['Super_Admin', 'SuperAdmin'])) {
+                return response()->json(['status' => 'FORBIDDEN', 'message' => 'Principal cannot modify Super Administrator designations.'], 403);
+            }
+        }
+
         DB::table('staff_profiles')->where('mobile_no', $userId)->update(['designation' => $newRole, 'updated_at' => now()]);
 
         DB::table('audit_logs')->insert([
-            'performed_by' => Session::get('userId', 'ADMIN-001'),
-            'performed_by_name' => Session::get('userName', 'Principal'),
+            'performed_by' => Session::get('userId') ?? Session::get('mobileNo') ?? 'SYSTEM',
+            'performed_by_name' => Session::get('userName') ?? Session::get('name') ?? 'Administrator',
             'target_id' => $userId,
             'target_name' => $userId,
             'action' => 'Role Changed',
@@ -2300,39 +2340,56 @@ Route::middleware(['web'])->group(function () {
         ]);
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Role changed successfully.']);
-    });
+    })->middleware(['role:super_admin,principal']);
 
     Route::delete('/api/admin/users/{userId}', function($userId) {
+        $targetStaff = DB::table('staff_profiles')->where('mobile_no', $userId)->first();
+        if ($targetStaff && in_array($targetStaff->designation, ['Super_Admin', 'SuperAdmin']) && !in_array(Session::get('userRole'), ['Super_Admin', 'SuperAdmin'])) {
+            return response()->json(['status' => 'FORBIDDEN', 'message' => 'Cannot delete Super Administrator profile.'], 403);
+        }
+
         DB::table('staff_profiles')->where('mobile_no', $userId)->delete();
         DB::table('students')->where('reg_no', $userId)->orWhere('adm_no', $userId)->delete();
         return response()->json(['status' => 'SUCCESS', 'message' => 'User deleted successfully.']);
-    });
+    })->middleware(['role:admin,super_admin,principal']);
 
     Route::post('/api/admin/user/delete', function(Illuminate\Http\Request $request) {
         $userId = $request->input('userId') ?? $request->input('identifier');
+
+        $targetStaff = DB::table('staff_profiles')->where('mobile_no', $userId)->first();
+        if ($targetStaff && in_array($targetStaff->designation, ['Super_Admin', 'SuperAdmin']) && !in_array(Session::get('userRole'), ['Super_Admin', 'SuperAdmin'])) {
+            return response()->json(['status' => 'FORBIDDEN', 'message' => 'Cannot delete Super Administrator profile.'], 403);
+        }
+
         DB::table('staff_profiles')->where('mobile_no', $userId)->delete();
         DB::table('students')->where('reg_no', $userId)->orWhere('adm_no', $userId)->delete();
         return response()->json(['status' => 'SUCCESS', 'message' => 'User deleted successfully.']);
-    });
+    })->middleware(['role:admin,super_admin,principal']);
 
     Route::get('/api/admin/users/audit/{userId}', function($userId) {
         $audit = DB::table('audit_logs')
             ->where('target_id', $userId)
             ->orWhere('performed_by', $userId)
             ->orderBy('created_at', 'desc')
+            ->limit(100)
             ->get();
         return response()->json(['status' => 'SUCCESS', 'audit' => $audit]);
-    });
+    })->middleware(['role:admin,super_admin,principal,hod,tutor']);
 
     Route::get('/api/audit-logs', function(\Illuminate\Http\Request $request) {
-        $branch = $request->query('branch', Session::get('userBranch'));
         $role = Session::get('userRole');
         $targetId = $request->query('targetId');
+        $branch = $request->query('branch');
+
+        // Only enforce branch filtering automatically if caller is HOD, or if explicitly requested in query param
+        if ($role === 'HOD' && empty($branch)) {
+            $branch = Session::get('userBranch');
+        }
 
         $query = DB::table('audit_logs');
         if (!empty($targetId)) {
             $query->where('target_id', $targetId);
-        } elseif ($role === 'HOD' || !empty($branch)) {
+        } elseif (!empty($branch) && $branch !== 'ALL' && $branch !== 'Administration') {
             $branchCode = strtoupper($branch);
             $aliases = match($branchCode) {
                 'CT' => ['CT', 'Computer Engineering', 'Computer', 'Computer Technology', 'Computer Tech'],
@@ -2361,11 +2418,11 @@ Route::middleware(['web'])->group(function () {
         }
         $logs = $query->orderBy('created_at', 'desc')->limit(100)->get();
         return response()->json(['status' => 'SUCCESS', 'logs' => $logs]);
-    });
+    })->middleware(['role:admin,super_admin,principal,hod']);
 
-    Route::get('/api/admin/settings', [\App\Http\Controllers\SystemSettingController::class, 'getSettings']);
-    Route::post('/api/admin/settings', [\App\Http\Controllers\SystemSettingController::class, 'saveSettings']);
-    Route::post('/api/admin/settings/ai-toggle', [\App\Http\Controllers\SystemSettingController::class, 'saveSettings']);
+    Route::get('/api/admin/settings', [\App\Http\Controllers\SystemSettingController::class, 'getSettings'])->middleware(['role:admin,super_admin,principal']);
+    Route::post('/api/admin/settings', [\App\Http\Controllers\SystemSettingController::class, 'saveSettings'])->middleware(['role:admin,super_admin,principal']);
+    Route::post('/api/admin/settings/ai-toggle', [\App\Http\Controllers\SystemSettingController::class, 'saveSettings'])->middleware(['role:admin,super_admin,principal']);
 
     Route::get('/api/admin/executive-kpis', [\App\Http\Controllers\ExecutiveControlDeskController::class, 'getInstitutionalKpis']);
     Route::get('/api/admin/executive-compliance', [\App\Http\Controllers\ExecutiveControlDeskController::class, 'getComplianceSummary']);
@@ -2391,8 +2448,8 @@ Route::middleware(['web'])->group(function () {
         DB::table('staff_profiles')->where('mobile_no', $mobileNo)->update($updates);
 
         DB::table('audit_logs')->insert([
-            'performed_by' => Session::get('userId', 'ADMIN-001'),
-            'performed_by_name' => Session::get('userName', 'Principal'),
+            'performed_by' => Session::get('userId') ?? Session::get('mobileNo') ?? 'SYSTEM',
+            'performed_by_name' => Session::get('userName') ?? Session::get('name') ?? 'Administrator',
             'target_id' => $mobileNo,
             'target_name' => $name ?: $mobileNo,
             'action' => 'Profile Modified',
@@ -2403,15 +2460,15 @@ Route::middleware(['web'])->group(function () {
         ]);
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Staff profile updated successfully!']);
-    });
+    })->middleware(['role:admin,super_admin,principal']);
 
     Route::get('/api/principal/events', [\App\Http\Controllers\PrincipalScheduledEventController::class, 'index']);
     Route::post('/api/principal/events/schedule', [\App\Http\Controllers\PrincipalScheduledEventController::class, 'schedule']);
     Route::delete('/api/principal/events/{id}', [\App\Http\Controllers\PrincipalScheduledEventController::class, 'destroy']);
 
-    Route::post('/api/system/backup/google-drive', [\App\Http\Controllers\BackupController::class, 'backupDatabaseToDrive']);
-    Route::post('/api/system/backup', [\App\Http\Controllers\BackupController::class, 'backupDatabaseToDrive']);
-    Route::post('/api/system/restore', [\App\Http\Controllers\BackupController::class, 'restoreDatabase']);
+    Route::post('/api/system/backup/google-drive', [\App\Http\Controllers\BackupController::class, 'backupDatabaseToDrive'])->middleware(['role:admin,super_admin,principal']);
+    Route::post('/api/system/backup', [\App\Http\Controllers\BackupController::class, 'backupDatabaseToDrive'])->middleware(['role:admin,super_admin,principal']);
+    Route::post('/api/system/restore', [\App\Http\Controllers\BackupController::class, 'restoreDatabase'])->middleware(['role:super_admin']);
 
     // WebAuthn Biometric & Passkey Authentication
     Route::post('/api/webauthn/register-options', [\App\Http\Controllers\WebAuthnController::class, 'getRegisterOptions']);
@@ -2426,8 +2483,8 @@ Route::middleware(['web'])->group(function () {
     Route::get('/api/principal/today-timetable', [\App\Http\Controllers\PrincipalDashboardController::class, 'getTodayTimetableData']);
 
     // Student Batch Upload, Credentials Print & First-Login Onboarding
-    Route::post('/api/admin/batch-student-upload', [\App\Http\Controllers\BatchStudentUploadController::class, 'uploadBatchStudents']);
-    Route::post('/api/students/bulk-import', [\App\Http\Controllers\DataController::class, 'bulkImportStudents']);
+    Route::post('/api/admin/batch-student-upload', [\App\Http\Controllers\BatchStudentUploadController::class, 'uploadBatchStudents'])->middleware(['role:admin,super_admin,hod']);
+    Route::post('/api/students/bulk-import', [\App\Http\Controllers\DataController::class, 'bulkImportStudents'])->middleware(['role:admin,super_admin,hod']);
     Route::get('/api/students/template/download', [\App\Http\Controllers\DataController::class, 'downloadStudentImportTemplate']);
     Route::post('/api/student/complete-first-login-profile', [\App\Http\Controllers\BatchStudentUploadController::class, 'completeFirstLoginProfile']);
     Route::get('/hod/batches/{classroomId}/credentials/print', [\App\Http\Controllers\BatchStudentUploadController::class, 'printBatchStudentCredentials']);

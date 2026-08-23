@@ -326,8 +326,21 @@ class DataController extends Controller
 
         if (!$currentUserId) return false;
 
-        // Super Admin, Principal, Admin, Chairman, and Workshop Superintendent have elevated access
-        if (in_array($currentRole, ['Super_Admin', 'Principal', 'Admin', 'Chairman', 'Workshop_Superintendent'])) {
+        // Super Admin has absolute operational access
+        if (in_array($currentRole, ['Super_Admin', 'SuperAdmin'])) {
+            return true;
+        }
+
+        // Target protection: non-Super Admin cannot manage Super Admin accounts
+        if ($targetType === 'staff') {
+            $targetStaff = StaffProfile::where('mobile_no', $targetId)->first();
+            if ($targetStaff && in_array($targetStaff->designation, ['Super_Admin', 'SuperAdmin'])) {
+                return false;
+            }
+        }
+
+        // Admin, Principal, and Workshop Superintendent have elevated operational access across students and non-SuperAdmin staff
+        if (in_array($currentRole, ['Admin', 'Principal', 'Workshop_Superintendent'])) {
             return true;
         }
 
@@ -411,7 +424,8 @@ class DataController extends Controller
             }
 
             if ($canQueryStudents && (empty($role) || strtolower($role) === 'student')) {
-                $studentQuery = Student::query();
+                $studentQuery = Student::query()
+                    ->select('reg_no', 'adm_no', 'name', 'email', 'branch', 'status', 'academic_status', 'status_notes', 'photo_url', 'sbte_reg_no', 'semester', 'classroom_id');
 
                 if ($studentScopeField) {
                     $studentQuery->where($studentScopeField, $studentScopeValue);
@@ -468,7 +482,8 @@ class DataController extends Controller
             }
 
             if ($canQueryStaff && (empty($role) || strtolower($role) !== 'student')) {
-                $staffQuery = StaffProfile::query();
+                $staffQuery = StaffProfile::query()
+                    ->select('mobile_no', 'name', 'email', 'designation', 'branch', 'account_status', 'photo_url');
 
                 if ($staffScopeFilter === 'hod') {
                     $staffQuery->where(function($q) use ($currentBranch, $currentUserId) {
@@ -724,15 +739,20 @@ class DataController extends Controller
 
             return response()->json(['status' => 'SUCCESS', 'message' => 'Password reset successful.']);
         } catch (\Exception $e) {
-            return response()->json(['status' => 'ERROR', 'message' => 'Failed to reset password: ' . $e->getMessage()]);
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
         }
     }
 
     /**
-     * Admin/Super Admin/HOD: Change a staff member's role designation and log.
+     * Super Admin & Principal: Change a staff member's role designation and log.
      */
     public function changeUserRole(Request $request)
     {
+        $currentRole = Session::get('userRole');
+        if (!in_array($currentRole, ['Super_Admin', 'SuperAdmin', 'Principal'])) {
+            return response()->json(['status' => 'FORBIDDEN', 'message' => 'Unauthorized: Only Super Administrator and Principal can modify role designations.'], 403);
+        }
+
         $request->validate([
             'userId' => 'required|string',
             'newRole' => 'required|string',
@@ -741,14 +761,23 @@ class DataController extends Controller
         $userId = $request->input('userId');
         $newRole = $request->input('newRole'); // designation string
 
+        // Role boundary protection: Principal cannot assign Super Admin
+        if (in_array($currentRole, ['Principal']) && in_array($newRole, ['Super_Admin', 'SuperAdmin'])) {
+            return response()->json(['status' => 'FORBIDDEN', 'message' => 'Principal cannot elevate user accounts to Super Administrator.'], 403);
+        }
+
         if (!$this->checkUserManagementPermission($userId, 'staff')) {
-            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized action on this profile.']);
+            return response()->json(['status' => 'FORBIDDEN', 'message' => 'Unauthorized action on this profile.'], 403);
         }
 
         try {
             $staff = StaffProfile::where('mobile_no', $userId)->first();
             if (!$staff) {
                 return response()->json(['status' => 'ERROR', 'message' => 'Staff profile not found.']);
+            }
+
+            if (in_array($currentRole, ['Principal']) && in_array($staff->designation, ['Super_Admin', 'SuperAdmin'])) {
+                return response()->json(['status' => 'FORBIDDEN', 'message' => 'Principal cannot modify Super Administrator designations.'], 403);
             }
 
             $oldRole = $staff->designation;

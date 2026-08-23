@@ -43,15 +43,16 @@ class SystemSettingController extends Controller
      */
     public function saveSettings(Request $request)
     {
-        $request->validate([
-            'ai_generation_enabled' => 'required|boolean'
-        ]);
+        $aiEnabled = $request->input('ai_generation_enabled', $request->input('ai_enabled'));
+        if ($aiEnabled === null) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Missing AI status parameter.'], 422);
+        }
 
-        $aiEnabled = $request->input('ai_generation_enabled') ? '1' : '0';
+        $val = filter_var($aiEnabled, FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
 
         DB::table('system_settings')->updateOrInsert(
             ['key' => 'ai_generation_enabled'],
-            ['value' => $aiEnabled, 'updated_at' => now()]
+            ['value' => $val, 'updated_at' => now()]
         );
 
         // Clear the cache
@@ -59,7 +60,8 @@ class SystemSettingController extends Controller
 
         return response()->json([
             'status' => 'SUCCESS',
-            'message' => 'System settings updated successfully.'
+            'message' => 'System settings updated successfully.',
+            'ai_generation_enabled' => $val === '1'
         ]);
     }
 

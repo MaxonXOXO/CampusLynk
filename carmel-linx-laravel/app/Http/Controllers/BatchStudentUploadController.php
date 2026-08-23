@@ -20,8 +20,8 @@ class BatchStudentUploadController extends Controller
     public function uploadBatchStudents(Request $request)
     {
         $userRole = Session::get('userRole');
-        if (!in_array($userRole, ['Super_Admin', 'Admin', 'HOD', 'Principal', 'Workshop_Superintendent'])) {
-            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access.']);
+        if (!in_array($userRole, ['Super_Admin', 'SuperAdmin', 'Admin', 'HOD', 'Workshop_Superintendent'])) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access.'], 403);
         }
 
         if (!$request->hasFile('file')) {
