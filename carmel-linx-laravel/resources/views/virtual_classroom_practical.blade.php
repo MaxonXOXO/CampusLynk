@@ -6,36 +6,61 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>[{{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }}] Virtual Lab - {{ $batchSubject->subject_name }}</title>
 
-    <!-- Google Fonts & Tailwind CSS -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canonical Vite Asset Pipeline -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        :root {
+            --bg-primary: #FAFAFB;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #030712; /* Darker slate-950 background */
-            color: #f3f4f6;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #FAFAFB;
+            color: #0f172a;
+            min-height: 100vh;
+        }
+
+        h1, h2, h3, h4, h5, h6, .font-heading, .brand-font {
+            font-family: 'Outfit', 'Poppins', sans-serif;
+            text-shadow: none !important;
+            filter: none !important;
+        }
+
+        span, p, label, button, a, th, td, div {
+            text-shadow: none !important;
+            filter: none !important;
         }
 
         .glass-panel {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 1.25rem;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
         }
 
         .slider-accent {
-            accent-color: #3b82f6;
+            accent-color: #2563eb;
         }
 
         /* Large touch range sliders */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
-            height: 12px;
-            border-radius: 6px;
-            background: #1f2937;
+            height: 8px;
+            border-radius: 4px;
+            background: #cbd5e1;
             outline: none;
             cursor: pointer;
         }
@@ -43,136 +68,202 @@
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 28px;
-            height: 28px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
-            background: #3b82f6;
+            background: #2563eb;
             cursor: pointer;
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
             transition: transform 0.15s ease, background-color 0.15s ease;
         }
 
         input[type=range]::-webkit-slider-thumb:active {
-            transform: scale(1.3);
-            background: #60a5fa;
+            transform: scale(1.2);
+            background: #1d4ed8;
         }
         
         .transition-premium {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden">
+<body class="bg-[#FAFAFB] text-slate-900 min-h-screen flex flex-col overflow-x-hidden antialiased">
+    @php
+        $role = Session::get('userRole');
+        $dashboardUrl = '/dashboard/lecturer';
+        $dashboardLabel = 'Faculty Platform';
+        if ($role === 'HOD') {
+            $dashboardUrl = '/dashboard/hod';
+            $dashboardLabel = 'Department Console (HOD)';
+        } elseif ($role === 'Principal') {
+            $dashboardUrl = '/dashboard/principal';
+            $dashboardLabel = 'Principal Desk';
+        } elseif ($role === 'Demonstrator') {
+            $dashboardUrl = '/dashboard/demonstrator';
+            $dashboardLabel = 'Demonstrator Desk';
+        } elseif ($role === 'Super_Admin' || $role === 'SuperAdmin') {
+            $dashboardUrl = '/dashboard/superadmin';
+            $dashboardLabel = 'SuperAdmin Desk';
+        } elseif ($role === 'Admin') {
+            $dashboardUrl = '/dashboard/admin';
+            $dashboardLabel = 'Admin Desk';
+        }
+    @endphp
 
-    <!-- Top Navigation Header -->
-    <header class="glass-panel mx-4 mt-4 px-6 py-4 flex items-center justify-between shadow-2xl relative z-40">
-        <div class="flex items-center gap-4">
-            <a href="/dashboard/lecturer" class="p-3 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition-premium">
-                <i class="fa-solid fa-arrow-left text-base"></i>
-            </a>
-            <div>
-                <div class="flex items-center gap-2">
-                    <span class="px-3 py-1 text-[11px] font-black tracking-wider rounded-md bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                        VIRTUAL LAB ({{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }})
-                    </span>
-                    <span class="text-xs text-slate-500 font-mono font-bold">{{ $batchSubject->subject_code }}</span>
-                </div>
-                <h1 class="text-xl font-black text-white tracking-tight mt-1">{{ $batchSubject->subject_name }}</h1>
+    <!-- 1. TOP BREADCRUMB & TOOLBAR -->
+    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-50 px-4 md:px-8 py-3 shadow-xs">
+        <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <nav class="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500 flex-wrap">
+                <a href="{{ $dashboardUrl }}" class="hover:text-blue-600 transition flex items-center gap-1.5 font-semibold text-slate-700">
+                    <span class="material-symbols-rounded text-base text-blue-600">domain</span>
+                    <span>{{ $dashboardLabel }}</span>
+                </a>
+                <span class="text-slate-300">/</span>
+                <a href="{{ $dashboardUrl }}" class="hover:text-blue-600 transition font-medium text-slate-600">My Batches</a>
+                <span class="text-slate-300">/</span>
+                <span class="font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>Virtual Lab</span>
+                    <span class="text-xs font-bold font-mono px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200/80 rounded-md">{{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R2021' : 'R2026' }}</span>
+                </span>
+            </nav>
+
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <button onclick="toggleFullscreen()" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-xl font-bold border border-slate-200 shadow-2xs transition flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-rounded text-sm">fullscreen</span>
+                    <span class="hidden sm:inline">Fullscreen</span>
+                </button>
+                
+                <button onclick="toggleSidebar()" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-xl font-bold border border-slate-200 shadow-2xs transition flex items-center gap-1.5 cursor-pointer">
+                    <span class="material-symbols-rounded text-sm">view_sidebar</span>
+                    <span class="hidden sm:inline">Sidebar</span>
+                </button>
+
+                <a href="/classroom/practical/{{ $batchSubject->id }}/report/print" target="_blank" class="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs rounded-xl font-bold border border-emerald-200 shadow-2xs transition flex items-center gap-1.5">
+                    <span class="material-symbols-rounded text-sm">print</span>
+                    <span class="hidden sm:inline">Print CIA Report</span>
+                </a>
+
+                <a href="{{ $dashboardUrl }}" class="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs rounded-xl font-bold border border-rose-200 shadow-2xs transition flex items-center gap-1.5">
+                    <span class="material-symbols-rounded text-sm">arrow_back</span>
+                    <span>Back</span>
+                </a>
             </div>
-        </div>
-
-        <div class="flex items-center gap-3">
-            <!-- Fullscreen Toggle -->
-            <button onclick="toggleFullscreen()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-350 text-xs rounded-xl font-bold border border-slate-800 hover:border-slate-700 transition flex items-center gap-2">
-                <i class="fa-solid fa-expand"></i> <span class="hidden sm:inline">Fullscreen</span>
-            </button>
-            
-            <!-- Sidebar Toggle -->
-            <button onclick="toggleSidebar()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-350 text-xs rounded-xl font-bold border border-slate-800 hover:border-slate-700 transition flex items-center gap-2">
-                <i class="fa-solid fa-bars"></i> <span class="hidden sm:inline">Toggle Sidebar</span>
-            </button>
-
-            <a href="/classroom/practical/{{ $batchSubject->id }}/report/print" target="_blank" class="px-4 py-2 bg-emerald-600/20 border border-emerald-500/30 hover:bg-emerald-600/35 text-emerald-400 text-xs rounded-xl font-bold transition flex items-center gap-2">
-                <i class="fa-solid fa-print"></i> <span class="hidden sm:inline">Print CIA Report</span>
-            </a>
         </div>
     </header>
 
+    <!-- HERO HEADER CARD -->
+    <div class="max-w-[1600px] mx-auto px-4 md:px-8 mt-5 w-full">
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
+            <div class="space-y-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="px-2.5 py-0.5 rounded-md font-bold text-xs bg-blue-50 text-blue-700 border border-blue-200/80">
+                        {{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R2021 · PRACTICAL (LAB)' : 'R2026 · PRACTICAL (LAB)' }}
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-md font-bold text-xs bg-purple-50 text-purple-700 border border-purple-200/80">
+                        {{ $batchSubject->classroom_id }} · S{{ $batchSubject->semester }}
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-md font-mono font-bold text-xs bg-slate-100 text-slate-700 border border-slate-200">
+                        {{ $batchSubject->subject_code }}
+                    </span>
+                </div>
+
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                    {{ $batchSubject->subject_name }}
+                </h1>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Workspace Layout -->
-    <div class="flex-grow flex flex-col lg:flex-row gap-6 p-4 md:p-6 transition-premium relative z-30">
+    <div class="max-w-[1600px] mx-auto px-4 md:px-8 mt-5 flex-grow flex flex-col lg:flex-row gap-6 transition-premium relative z-30 w-full pb-10">
 
         <!-- Left Sidebar: Tab controls & configurations -->
         <aside id="workspaceSidebar" class="w-full lg:w-80 space-y-4 transition-premium flex-shrink-0">
             
             <!-- Navigation Modules Card -->
             <div class="glass-panel p-4 space-y-2">
-                <h2 class="text-xs font-bold text-slate-455 uppercase tracking-widest px-2 mb-3">Evaluation Sheets</h2>
+                <h2 class="text-xs font-bold text-slate-500 uppercase tracking-widest px-2 mb-3">Evaluation Sheets</h2>
 
-                <button onclick="switchTab('table22')" id="btn-table22" class="tab-btn w-full flex items-center justify-between p-3.5 rounded-xl bg-blue-600/20 border border-blue-500/40 text-blue-400 font-bold text-sm transition-premium">
+                <button onclick="switchTab('table22')" id="btn-table22" class="tab-btn w-full flex items-center justify-between p-3.5 rounded-xl bg-blue-50 border border-blue-200/80 text-blue-700 font-bold text-sm transition-premium cursor-pointer">
                     <span class="flex items-center gap-3">
                         <i class="fa-solid fa-flask"></i>
                         <span>Lab Work Log</span>
                     </span>
-                    <span class="text-[10px] bg-blue-500/20 px-2 py-0.5 rounded text-blue-300 font-mono">Table 2.2</span>
+                    <span class="text-xs bg-blue-100 px-2 py-0.5 rounded-md text-blue-700 font-mono font-bold">Table 2.2</span>
                 </button>
 
-                <button onclick="switchTab('table23')" id="btn-table23" class="tab-btn w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 font-bold text-sm transition-premium">
+                <button onclick="switchTab('table23')" id="btn-table23" class="tab-btn w-full flex items-center justify-between p-3.5 rounded-xl text-slate-600 hover:bg-slate-50 font-bold text-sm transition-premium border border-transparent cursor-pointer">
                     <span class="flex items-center gap-3">
                         <i class="fa-solid fa-lightbulb"></i>
                         <span>Open-Ended Projects</span>
                     </span>
-                    <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-350 font-mono">Table 2.3</span>
+                    <span class="text-xs bg-slate-100 px-2 py-0.5 rounded-md text-slate-600 font-mono font-bold">Table 2.3</span>
                 </button>
 
-                <button onclick="switchTab('table31')" id="btn-table31" class="tab-btn w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 font-bold text-sm transition-premium">
+                <button onclick="switchTab('table31')" id="btn-table31" class="tab-btn w-full flex items-center justify-between p-3.5 rounded-xl text-slate-600 hover:bg-slate-50 font-bold text-sm transition-premium border border-transparent cursor-pointer">
                     <span class="flex items-center gap-3">
                         <i class="fa-solid fa-file-signature"></i>
                         <span>Series Practical Tests</span>
                     </span>
-                    <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-355 font-mono">Table 3.1</span>
+                    <span class="text-xs bg-slate-100 px-2 py-0.5 rounded-md text-slate-600 font-mono font-bold">Table 3.1</span>
                 </button>
 
-                <button onclick="switchTab('summary')" id="btn-summary" class="tab-btn w-full flex items-center justify-between p-3.5 rounded-xl hover:bg-slate-900/60 text-slate-400 font-bold text-sm transition-premium">
+                <button onclick="switchTab('summary')" id="btn-summary" class="tab-btn w-full flex items-center justify-between p-3.5 rounded-xl text-slate-600 hover:bg-slate-50 font-bold text-sm transition-premium border border-transparent cursor-pointer">
                     <span class="flex items-center gap-3">
                         <i class="fa-solid fa-award"></i>
                         <span>CIA Consolidated</span>
                     </span>
-                    <span class="text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded text-emerald-400 font-mono font-bold">60 M</span>
+                    <span class="text-xs bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md text-emerald-700 font-mono font-bold">60 M</span>
                 </button>
             </div>
 
             <!-- Lab Splits configuration -->
             <div class="glass-panel p-4 space-y-3">
-                <h3 class="text-xs font-bold text-slate-455 uppercase tracking-widest px-1">Lab Batches Filter</h3>
+                <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest px-1">Lab Batches Filter</h3>
                 <div class="grid grid-cols-2 gap-2 text-xs">
-                    <button onclick="filterLabBatch('All')" id="batch-filter-All" class="batch-filter-btn py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 border border-blue-500 text-blue-400 font-extrabold transition-premium">
+                    <button onclick="filterLabBatch('All')" id="batch-filter-All" class="batch-filter-btn py-2 px-3 rounded-xl bg-blue-600 text-white font-extrabold transition-premium cursor-pointer">
                         All Classes
                     </button>
-                    <button onclick="filterLabBatch('Unassigned')" id="batch-filter-Unassigned" class="batch-filter-btn py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 font-extrabold transition-premium">
+                    <button onclick="filterLabBatch('Unassigned')" id="batch-filter-Unassigned" class="batch-filter-btn py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold transition-premium cursor-pointer">
                         Unassigned
                     </button>
-                    <button onclick="filterLabBatch('Batch A')" id="batch-filter-A" class="batch-filter-btn py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 font-extrabold transition-premium">
+                    <button onclick="filterLabBatch('Batch A')" id="batch-filter-A" class="batch-filter-btn py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold transition-premium cursor-pointer">
                         Batch A
                     </button>
-                    <button onclick="filterLabBatch('Batch B')" id="batch-filter-B" class="batch-filter-btn py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 font-extrabold transition-premium">
+                    <button onclick="filterLabBatch('Batch B')" id="batch-filter-B" class="batch-filter-btn py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold transition-premium cursor-pointer">
                         Batch B
                     </button>
                 </div>
             </div>
 
             <!-- R2026 Practical Regulations -->
-            <div class="glass-panel p-4 border-l-4 border-blue-500 bg-blue-950/10">
-                <h4 class="text-sm font-black text-blue-400 flex items-center gap-2">
+            <div class="glass-panel p-4 border-l-4 border-blue-500 bg-blue-50/50">
+                <h4 class="text-sm font-bold text-blue-700 flex items-center gap-2">
                     <i class="fa-solid fa-graduation-cap"></i> R2026 Practical CIA Specs
                 </h4>
-                <p class="text-xs text-slate-355 leading-relaxed mt-2">
+                <p class="text-xs text-slate-600 leading-relaxed mt-2">
                     Evaluation breakdown according to Kerala SBTE standard rules:
                 </p>
-                <div class="grid grid-cols-2 gap-2 text-[11px] font-mono mt-3 text-slate-300">
-                    <div class="bg-slate-900/60 p-1.5 rounded border border-slate-800"><span class="block text-slate-500">Day Work</span><b>30 Marks</b></div>
-                    <div class="bg-slate-900/60 p-1.5 rounded border border-slate-800"><span class="block text-slate-500">Series Exam</span><b>15 Marks</b></div>
-                    <div class="bg-slate-900/60 p-1.5 rounded border border-slate-800"><span class="block text-slate-500">Open-ended</span><b>10 Marks</b></div>
-                    <div class="bg-slate-900/60 p-1.5 rounded border border-slate-800"><span class="block text-slate-500">Attendance</span><b>5 Marks</b></div>
+                <div class="grid grid-cols-2 gap-2 text-xs font-mono mt-3 text-slate-700">
+                    <div class="bg-white p-2 rounded-lg border border-slate-200"><span class="block text-slate-400 text-[11px]">Day Work</span><b>30 Marks</b></div>
+                    <div class="bg-white p-2 rounded-lg border border-slate-200"><span class="block text-slate-400 text-[11px]">Series Exam</span><b>15 Marks</b></div>
+                    <div class="bg-white p-2 rounded-lg border border-slate-200"><span class="block text-slate-400 text-[11px]">Open-ended</span><b>10 Marks</b></div>
+                    <div class="bg-white p-2 rounded-lg border border-slate-200"><span class="block text-slate-400 text-[11px]">Attendance</span><b>5 Marks</b></div>
                 </div>
             </div>
 
@@ -547,14 +638,16 @@
             activeTab = tabId;
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('bg-blue-600/20', 'border-blue-500/40', 'text-blue-400');
-                el.classList.add('hover:bg-slate-900/60', 'text-slate-400');
+                el.classList.remove('bg-blue-50', 'border-blue-200/80', 'text-blue-700', 'shadow-2xs');
+                el.classList.add('text-slate-600', 'hover:bg-slate-50', 'border-transparent');
             });
 
             document.getElementById('tab-' + tabId).classList.remove('hidden');
             const btn = document.getElementById('btn-' + tabId);
-            btn.classList.remove('hover:bg-slate-900/60', 'text-slate-400');
-            btn.classList.add('bg-blue-600/20', 'border-blue-500/40', 'text-blue-400');
+            if (btn) {
+                btn.classList.remove('text-slate-600', 'hover:bg-slate-50', 'border-transparent');
+                btn.classList.add('bg-blue-50', 'border-blue-200/80', 'text-blue-700', 'shadow-2xs');
+            }
         }
 
         // Toggle Sidebar display

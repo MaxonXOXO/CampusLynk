@@ -19,6 +19,7 @@
         .scheme-text { padding: 8px 12px; font-size: 12px; color: #1e293b; line-height: 1.5; }
         .total-mark-badge { background: #1e3a5f; color: white; font-weight: bold; font-size: 12px; padding: 2px 8px; border-radius: 4px; float: right; }
     </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body class="p-8 max-w-3xl mx-auto">
 @php

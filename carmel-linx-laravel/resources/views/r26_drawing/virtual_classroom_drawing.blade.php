@@ -5,143 +5,137 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $batchSubject->subject_name }} ({{ $batchSubject->subject_code }}) - Virtual Drawing Hall (R2026)</title>
+    
+    <!-- Canonical Vite Asset Pipeline -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+
     <style>
         :root {
-            --bg-primary: #0b0f19;
-            --bg-secondary: #111827;
-            --bg-card: #1f2937;
-            --bg-card-hover: #374151;
-            --border-color: #374151;
-            --accent-cyan: #06b6d4;
-            --accent-blue: #3b82f6;
-            --accent-indigo: #6366f1;
-            --accent-purple: #8b5cf6;
-            --accent-emerald: #10b981;
-            --accent-amber: #f59e0b;
-            --accent-rose: #f43f5e;
-            --text-main: #f9fafb;
-            --text-muted: #9ca3af;
+            --bg-primary: #FAFAFB;
+            --bg-secondary: #ffffff;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --accent-blue: #2563eb;
         }
 
         body {
-            background-color: var(--bg-primary);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif;
+            background-color: #FAFAFB;
+            color: #0f172a;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
-            font-size: 0.85rem;
+            font-size: 0.875rem;
         }
 
         h1, h2, h3, h4, h5, h6, .brand-font {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Outfit', 'Poppins', sans-serif;
+            text-shadow: none !important;
+            filter: none !important;
+        }
+        span, p, label, button, a, th, td, div {
+            text-shadow: none !important;
+            filter: none !important;
         }
 
-        .navbar-custom {
-            background-color: rgba(17, 24, 39, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .glass-card {
-            background: rgba(31, 41, 55, 0.6);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .glass-card:hover {
-            border-color: rgba(6, 182, 212, 0.4);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-        }
-
-        .glass-card h2 {
-            font-size: 1.15rem !important;
-        }
-
-        .glass-card h5 {
-            font-size: 0.92rem !important;
+        .glass-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05); }
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
+            transition: all 0.2s ease;
         }
 
         .stat-card {
-            padding: 0.6rem 0.85rem;
-            border-radius: 10px;
-            background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%);
-            border: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            border-radius: 0.75rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
         }
 
         .stat-card .stat-val {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 800;
         }
 
         .nav-tabs-custom {
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: none;
             gap: 0.35rem;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            padding: 0.35rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
         }
 
         .nav-tabs-custom .nav-link {
-            color: var(--text-muted);
+            color: #64748b;
             border: 1px solid transparent;
-            border-radius: 6px 6px 0 0;
-            padding: 0.45rem 0.85rem;
-            font-size: 0.8rem;
+            border-radius: 0.75rem !important;
+            padding: 0.5rem 0.875rem;
+            font-size: 0.85rem;
             font-weight: 600;
             transition: all 0.2s ease;
         }
 
         .nav-tabs-custom .nav-link:hover {
-            color: var(--text-main);
-            background: rgba(55, 65, 81, 0.4);
+            color: #0f172a;
+            background: #f8fafc;
         }
 
         .nav-tabs-custom .nav-link.active {
-            color: #fff;
-            background: var(--bg-card);
-            border-color: var(--border-color) var(--border-color) transparent;
-            border-top: 2.5px solid var(--accent-cyan);
+            color: #1d4ed8 !important;
+            background: #eff6ff !important;
+            border-color: #bfdbfe !important;
+            font-weight: 700;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
         }
 
         .table-custom {
-            color: var(--text-main);
-            border-color: var(--border-color);
-            font-size: 0.82rem;
+            color: #0f172a;
+            border-color: #e2e8f0;
+            font-size: 0.875rem;
         }
 
         .table-custom th {
-            background-color: #111827;
-            color: var(--text-muted);
-            font-weight: 600;
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             letter-spacing: 0.04em;
-            padding: 0.45rem 0.5rem;
-            border-bottom: 1px solid var(--border-color);
+            padding: 0.625rem 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
             white-space: nowrap;
         }
 
         .table-custom td {
-            background-color: var(--bg-card);
-            border-color: var(--border-color);
+            background-color: #ffffff;
+            border-color: #e2e8f0;
             vertical-align: middle;
-            padding: 0.4rem 0.5rem;
+            padding: 0.625rem 0.75rem;
         }
 
         .form-control-custom {
-            background-color: #111827;
-            border: 1px solid var(--border-color);
-            color: #fff;
-            border-radius: 6px;
-            font-size: 0.82rem;
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
         }
 
         .form-control-custom:focus {
-            background-color: #1f2937;
-            border-color: var(--accent-cyan);
-            color: #fff;
-            box-shadow: 0 0 0 0.2rem rgba(6, 182, 212, 0.25);
+            background-color: #ffffff;
+            border-color: #2563eb;
+            color: #0f172a;
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
         }
 
         .growable-textarea {
@@ -149,140 +143,134 @@
             overflow-y: hidden;
             min-height: 38px;
             line-height: 1.4;
-            font-size: 0.82rem;
+            font-size: 0.875rem;
             white-space: pre-wrap;
             word-wrap: break-word;
-            border-radius: 6px;
-            background-color: #111827;
-            color: #fff;
-            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            background-color: #ffffff;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
             width: 100%;
         }
 
         .growable-textarea:focus {
-            background-color: #1f2937;
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 0 0.2rem rgba(6, 182, 212, 0.25);
-            color: #fff;
+            background-color: #ffffff;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+            color: #0f172a;
             outline: none;
         }
 
-        .badge-cyan { background-color: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); font-size: 0.72rem; padding: 0.25em 0.55em; }
-        .badge-emerald { background-color: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); font-size: 0.72rem; padding: 0.25em 0.55em; }
-        .badge-amber { background-color: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid var(--accent-amber); font-size: 0.72rem; padding: 0.25em 0.55em; }
-        .badge-rose { background-color: rgba(244, 63, 94, 0.15); color: var(--accent-rose); border: 1px solid var(--accent-rose); font-size: 0.72rem; padding: 0.25em 0.55em; }
-        .badge-purple { background-color: rgba(139, 92, 246, 0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); font-size: 0.72rem; padding: 0.25em 0.55em; }
-
-        .mark-cell {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3px;
-            min-width: 90px;
-        }
+        .badge-cyan { background-color: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-size: 0.75rem; padding: 0.3em 0.6em; border-radius: 0.375rem; }
+        .badge-emerald { background-color: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-size: 0.75rem; padding: 0.3em 0.6em; border-radius: 0.375rem; }
+        .badge-amber { background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; font-size: 0.75rem; padding: 0.3em 0.6em; border-radius: 0.375rem; }
+        .badge-rose { background-color: #fff1f2; color: #be123c; border: 1px solid #fecdd3; font-size: 0.75rem; padding: 0.3em 0.6em; border-radius: 0.375rem; }
+        .badge-purple { background-color: #faf5ff; color: #7e22ce; border: 1px solid #e9d5ff; font-size: 0.75rem; padding: 0.3em 0.6em; border-radius: 0.375rem; }
 
         .rubric-input {
-            width: 52px;
+            width: 56px;
             text-align: center;
             font-weight: 700;
-            font-size: 0.82rem;
-            padding: 0.15rem 0.25rem;
-            height: 28px;
-            border-radius: 5px;
-            border: 1px solid var(--border-color);
-            background-color: #111827;
-            color: #fff;
+            font-size: 0.875rem;
+            padding: 0.25rem;
+            height: 32px;
+            border-radius: 0.375rem;
+            border: 1px solid #cbd5e1;
+            background-color: #ffffff;
+            color: #0f172a;
         }
 
         .mark-slider {
             width: 100%;
-            accent-color: var(--accent-cyan);
+            accent-color: #2563eb;
             height: 5px;
-            background: #374151;
+            background: #cbd5e1;
             border-radius: 4px;
             cursor: pointer;
             margin: 2px 0 0 0;
         }
 
-        .mark-slider::-webkit-slider-thumb {
-            width: 14px;
-            height: 14px;
-            background: var(--accent-cyan);
-            border-radius: 50%;
-            box-shadow: 0 0 8px rgba(6, 182, 212, 0.8);
-            cursor: pointer;
-        }
-
         .btn-cyan {
-            background-color: var(--accent-cyan);
-            color: #000;
+            background-color: #2563eb;
+            color: #ffffff;
             font-weight: 600;
             border: none;
-            font-size: 0.82rem;
-            padding: 0.35rem 0.75rem;
+            font-size: 0.875rem;
+            padding: 0.45rem 0.85rem;
+            border-radius: 0.5rem;
         }
         .btn-cyan:hover {
-            background-color: #22d3ee;
-            color: #000;
-        }
-
-        @media (max-width: 768px) {
-            .nav-tabs-custom {
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                padding-bottom: 5px;
-            }
-            .nav-tabs-custom .nav-link {
-                white-space: nowrap;
-            }
-            .mark-cell {
-                min-width: 110px;
-            }
-            .mark-slider {
-                height: 8px; /* Thicker touch target on mobile */
-            }
+            background-color: #1d4ed8;
+            color: #ffffff;
         }
     </style>
 </head>
-<body>
+<body class="bg-[#FAFAFB] text-slate-900 min-h-screen antialiased">
+    @php
+        $role = Session::get('userRole');
+        $dashboardUrl = '/dashboard/lecturer';
+        $dashboardLabel = 'Faculty Platform';
+        if ($role === 'HOD') {
+            $dashboardUrl = '/dashboard/hod';
+            $dashboardLabel = 'Department Console (HOD)';
+        } elseif ($role === 'Principal') {
+            $dashboardUrl = '/dashboard/principal';
+            $dashboardLabel = 'Principal Desk';
+        } elseif ($role === 'Demonstrator') {
+            $dashboardUrl = '/dashboard/demonstrator';
+            $dashboardLabel = 'Demonstrator Desk';
+        } elseif ($role === 'Super_Admin' || $role === 'SuperAdmin') {
+            $dashboardUrl = '/dashboard/superadmin';
+            $dashboardLabel = 'SuperAdmin Desk';
+        } elseif ($role === 'Admin') {
+            $dashboardUrl = '/dashboard/admin';
+            $dashboardLabel = 'Admin Desk';
+        }
+    @endphp
 
-    <!-- Header Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top py-3">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand d-flex align-items-center gap-2" href="/dashboard/lecturer">
-                <i class="fa-solid fa-drafting-compass text-info fs-3"></i>
-                <div>
-                    <span class="fs-5 fw-bold brand-font">Carmel Linx</span>
-                    <span class="badge badge-cyan ms-2">{{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }} Drawing Hall</span>
-                </div>
-            </a>
-            <div class="d-flex align-items-center gap-3">
-                <div class="text-end d-none d-md-block">
-                    <div class="fw-bold">{{ $batchSubject->subject_name }} ({{ $batchSubject->subject_code }})</div>
-                    <small class="text-muted">{{ $classroom->classroom_id }} | Sem {{ $classroom->current_semester ?? 'I' }}</small>
-                </div>
-                <a href="/dashboard/lecturer" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left me-1"></i> Dashboard</a>
+    <!-- 1. TOP BREADCRUMB & TOOLBAR -->
+    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-50 px-4 md:px-8 py-3 shadow-xs">
+        <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <nav class="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500 flex-wrap">
+                <a href="{{ $dashboardUrl }}" class="hover:text-blue-600 transition flex items-center gap-1.5 font-semibold text-slate-700 text-decoration-none">
+                    <span class="material-symbols-rounded text-base text-blue-600">domain</span>
+                    <span>{{ $dashboardLabel }}</span>
+                </a>
+                <span class="text-slate-300">/</span>
+                <a href="{{ $dashboardUrl }}" class="hover:text-blue-600 transition font-medium text-slate-600 text-decoration-none">My Batches</a>
+                <span class="text-slate-300">/</span>
+                <span class="font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>Drawing Virtual Hall</span>
+                    <span class="text-xs font-bold font-mono px-2 py-0.5 bg-amber-50 text-amber-700 border border-amber-200/80 rounded-md">R2026</span>
+                </span>
+            </nav>
+
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <a href="{{ $dashboardUrl }}" class="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition flex items-center gap-1.5 border border-rose-200 shadow-2xs text-decoration-none">
+                    <span class="material-symbols-rounded text-sm">arrow_back</span>
+                    <span>Dashboard</span>
+                </a>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Main Container -->
-    <div class="container-fluid px-4 py-3">
+    <div class="max-w-[1600px] mx-auto px-4 md:px-8 py-4">
 
-        <!-- Top Banner -->
-        <div class="glass-card p-3 mb-3">
+        <!-- Top Banner / Hero Card -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm mb-4">
             <div class="row align-items-center g-3">
                 <div class="col-lg-7">
-                    <div class="d-flex align-items-center gap-1.5 mb-1 flex-wrap">
-                        <span class="badge badge-cyan px-2 py-0.5" style="font-size: 0.68rem;"><i class="fa-solid fa-flask me-1"></i> R2026 Lab Paper</span>
+                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                        <span class="badge badge-cyan px-2.5 py-1"><i class="fa-solid fa-compass-drafting me-1"></i> R2026 Drawing Course</span>
                         
                         <!-- Batch Badge -->
-                        <span class="badge badge-emerald px-2 py-0.5" style="font-size: 0.68rem;">
+                        <span class="badge badge-emerald px-2.5 py-1">
                             <i class="fa-solid fa-users me-1"></i> Batch: {{ $classroom->batch_year ?? 'R26' }} ({{ $batchSubject->classroom_id }})
                         </span>
 
                         <!-- Assigned Faculty Badge -->
-                        <span class="badge badge-purple px-2 py-0.5" style="font-size: 0.68rem;">
+                        <span class="badge badge-purple px-2.5 py-1">
                             <i class="fa-solid fa-user-tie me-1"></i> Faculty: 
                             @if(isset($assignedStaff) && count($assignedStaff) > 0)
                                 {{ $assignedStaff->pluck('name')->implode(', ') }}
@@ -296,34 +284,34 @@
                             $isAiActive = \App\Http\Controllers\SystemSettingController::isAiEnabled();
                         @endphp
                         @if($isAiActive)
-                            <span class="badge badge-cyan px-2 py-0.5 d-inline-flex align-items-center gap-1" style="font-size: 0.68rem;" title="AI Support API Active">
-                                <span class="rounded-circle bg-emerald-400 d-inline-block" style="width:5px; height:5px;"></span>
+                            <span class="badge badge-emerald px-2.5 py-1 d-inline-flex align-items-center gap-1" title="AI Support API Active">
+                                <span class="rounded-circle bg-success d-inline-block" style="width:6px; height:6px;"></span>
                                 <span>AI Active</span>
                             </span>
                         @else
-                            <span class="badge bg-secondary text-light px-2 py-0.5 d-inline-flex align-items-center gap-1" style="font-size: 0.68rem;" title="AI Support API Deactivated">
-                                <span class="rounded-circle bg-secondary-subtle d-inline-block" style="width:5px; height:5px;"></span>
+                            <span class="badge bg-light text-secondary border px-2.5 py-1 d-inline-flex align-items-center gap-1" title="AI Support API Deactivated">
+                                <span class="rounded-circle bg-secondary d-inline-block" style="width:6px; height:6px;"></span>
                                 <span>AI Off</span>
                             </span>
                         @endif
 
-                        <span class="badge badge-amber px-2 py-0.5" style="font-size: 0.68rem;"><i class="fa-solid fa-clock me-1"></i> 45 Hours</span>
+                        <span class="badge badge-amber px-2.5 py-1"><i class="fa-solid fa-clock me-1"></i> 45 Hours</span>
                     </div>
-                    <h3 class="fw-bold mb-1 fs-5">{{ $drawingCourseFile->course_title ?? $batchSubject->subject_name }}</h3>
-                    <p class="text-muted mb-0" style="font-size: 0.75rem;">Course Code: <strong>{{ $drawingCourseFile->course_code ?? $batchSubject->subject_code }}</strong> | Scheme L:T:P:R: <strong>{{ $drawingCourseFile->teaching_scheme }}</strong> | Credits: <strong>{{ $drawingCourseFile->credits }}</strong></p>
+                    <h2 class="fw-bold mb-1 fs-4 text-slate-900">{{ $drawingCourseFile->course_title ?? $batchSubject->subject_name }}</h2>
+                    <p class="text-muted mb-0" style="font-size: 0.8125rem;">Course Code: <strong class="text-slate-800">{{ $drawingCourseFile->course_code ?? $batchSubject->subject_code }}</strong> | Scheme L:T:P:R: <strong class="text-slate-800">{{ $drawingCourseFile->teaching_scheme }}</strong> | Credits: <strong class="text-slate-800">{{ $drawingCourseFile->credits }}</strong></p>
                 </div>
                 <div class="col-lg-5">
                     <div class="row g-2">
                         <div class="col-6">
-                            <div class="stat-card text-center py-1.5 px-2 rounded-lg" style="background: rgba(6, 182, 212, 0.12); border: 1px solid var(--accent-cyan);">
-                                <div class="fw-bold text-uppercase" style="font-size: 0.68rem; color: #38bdf8; letter-spacing: 0.2px;">Continuous Assessment</div>
-                                <span class="stat-val d-block fw-bold text-white mt-0.5" style="font-size: 0.92rem;">60 Marks</span>
+                            <div class="stat-card text-center py-2 px-3 rounded-xl" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                                <div class="fw-bold text-uppercase" style="font-size: 0.68rem; color: #1d4ed8; letter-spacing: 0.2px;">Continuous Assessment</div>
+                                <span class="stat-val d-block fw-bold text-blue-700 mt-0.5" style="font-size: 1.1rem;">60 Marks</span>
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="stat-card text-center py-1.5 px-2 rounded-lg" style="background: rgba(245, 158, 11, 0.12); border: 1px solid var(--accent-amber);">
-                                <div class="fw-bold text-uppercase" style="font-size: 0.68rem; color: #fbbf24; letter-spacing: 0.2px;">End Semester Exam</div>
-                                <span class="stat-val d-block fw-bold text-white mt-0.5" style="font-size: 0.92rem;">40 Marks</span>
+                            <div class="stat-card text-center py-2 px-3 rounded-xl" style="background: #fffbeb; border: 1px solid #fde68a;">
+                                <div class="fw-bold text-uppercase" style="font-size: 0.68rem; color: #b45309; letter-spacing: 0.2px;">End Semester Exam</div>
+                                <span class="stat-val d-block fw-bold text-amber-700 mt-0.5" style="font-size: 1.1rem;">40 Marks</span>
                             </div>
                         </div>
                     </div>
@@ -334,7 +322,7 @@
         <!-- Navigation Tabs -->
         <ul class="nav nav-tabs nav-tabs-custom mb-4" id="drawingHallTabs" role="tablist">
             <li class="nav-item">
-                <button class="nav-link active" id="tab-syllabus-link" data-bs-toggle="tab" data-bs-target="#tab-syllabus" type="button"><i class="fa-solid fa-file-pdf me-2 text-info"></i>Syllabus & Parser</button>
+                <button class="nav-link active" id="tab-syllabus-link" data-bs-toggle="tab" data-bs-target="#tab-syllabus" type="button"><i class="fa-solid fa-file-pdf me-2 text-primary"></i>Syllabus & Parser</button>
             </li>
             <li class="nav-item">
                 <button class="nav-link" id="tab-lessonplan-link" data-bs-toggle="tab" data-bs-target="#tab-lessonplan" type="button"><i class="fa-solid fa-calendar-days me-2 text-warning"></i>Lesson Plan</button>
@@ -346,7 +334,7 @@
                 <button class="nav-link" id="tab-ca-link" data-bs-toggle="tab" data-bs-target="#tab-ca" type="button"><i class="fa-solid fa-pen-to-square me-2 text-primary"></i>Practical Tests (15M)</button>
             </li>
             <li class="nav-item">
-                <button class="nav-link" id="tab-oee-link" data-bs-toggle="tab" data-bs-target="#tab-oee" type="button"><i class="fa-solid fa-lightbulb me-2 text-amber"></i>Open-Ended (10M)</button>
+                <button class="nav-link" id="tab-oee-link" data-bs-toggle="tab" data-bs-target="#tab-oee" type="button"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Open-Ended (10M)</button>
             </li>
             <li class="nav-item">
                 <button class="nav-link" id="tab-ese-link" data-bs-toggle="tab" data-bs-target="#tab-ese" type="button"><i class="fa-solid fa-desktop me-2 text-danger"></i>End Sem CAD Exam (40M)</button>
@@ -364,61 +352,170 @@
 
             <!-- TAB 1: SYLLABUS & PARSER -->
             <div class="tab-pane fade show active" id="tab-syllabus" role="tabpanel">
-                <div class="row g-4">
-                    <div class="col-lg-4">
-                        <div class="glass-card p-4">
-                            <h5 class="fw-bold mb-3"><i class="fa-solid fa-cloud-arrow-up me-2 text-info"></i>Upload Drawing Syllabus PDF</h5>
-                            <form id="uploadSyllabusForm" enctype="multipart/form-data">
-                                <div class="mb-3">
-                                    <label class="form-label text-muted small">Select Syllabus PDF File</label>
-                                    <input type="file" class="form-control form-control-custom" name="syllabus_file" accept=".pdf" required>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    
+                    <!-- Left Col: Syllabus Upload & Auto-Extraction Workspace -->
+                    <div class="space-y-4">
+                        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-sm font-bold border border-blue-200/80">
+                                        <svg class="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6"/><path d="M9 11h6"/></svg>
+                                    </span>
+                                    <h3 class="font-bold text-slate-900 text-sm">Drawing Syllabus File</h3>
                                 </div>
-                                <button type="submit" class="btn btn-cyan w-100" id="uploadBtn">
-                                    <i class="fa-solid fa-gears me-1"></i> Parse & Extract Syllabus
+                                @if(isset($drawingCourseFile) && $drawingCourseFile && $drawingCourseFile->syllabus_pdf_path)
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80">Active</span>
+                                @endif
+                            </div>
+
+                            @if(isset($drawingCourseFile) && $drawingCourseFile && $drawingCourseFile->syllabus_pdf_path)
+                                <div class="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-xl flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                        <span class="text-xs font-bold text-emerald-950 truncate max-w-[130px] sm:max-w-none">Parsed Syllabus Active</span>
+                                    </div>
+                                    <a href="/storage/{{ $drawingCourseFile->syllabus_pdf_path }}" target="_blank" class="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-lg border border-emerald-200 flex items-center gap-1 shadow-2xs">
+                                        <svg class="w-3.5 h-3.5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg>
+                                        <span>View PDF</span>
+                                    </a>
+                                </div>
+                            @endif
+
+                            <form id="uploadSyllabusForm" enctype="multipart/form-data" class="space-y-3">
+                                @csrf
+                                <div id="drawingSyllabusDropzone" ondragover="handleDrawingDragOver(event)" ondragleave="handleDrawingDragLeave(event)" ondrop="handleDrawingFileDrop(event)" onclick="document.getElementById('drawingSyllabusInput').click()" class="border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50/70 hover:bg-blue-50/40 rounded-2xl p-5 text-center space-y-2 transition cursor-pointer">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 mx-auto flex items-center justify-center border border-blue-200">
+                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xs font-bold text-slate-900">Select Drawing Syllabus PDF</h4>
+                                        <p class="text-xs text-slate-500 mt-0.5">Drag &amp; drop PDF or <span class="text-blue-600 font-semibold underline">browse</span></p>
+                                    </div>
+                                    <input type="file" id="drawingSyllabusInput" name="syllabus_file" accept=".pdf" class="hidden" onchange="handleDrawingFileInput(this)">
+                                </div>
+
+                                <!-- Selected File Preview Box -->
+                                <div id="drawingFilePreview" class="hidden p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-rose-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/></svg>
+                                        <span id="drawingFileName" class="text-xs font-bold text-slate-900 truncate max-w-[140px]">syllabus.pdf</span>
+                                    </div>
+                                    <button type="button" onclick="cancelDrawingSelectedFile(event)" class="text-slate-400 hover:text-slate-600">
+                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+
+                                <!-- Processing State -->
+                                <div id="drawingProcessingState" class="hidden p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl text-center space-y-1">
+                                    <div class="flex items-center justify-center gap-2 text-blue-700 text-xs font-bold">
+                                        <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                                        <span>Extracting Drawing Specifications...</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500">Detecting manual sheets, CAD modules, and CO-PO matrix.</p>
+                                </div>
+
+                                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-xs cursor-pointer" id="uploadBtn">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    <span>Parse &amp; Extract Syllabus</span>
                                 </button>
                             </form>
-                            <div class="mt-3 p-3 rounded" style="background: rgba(6,182,212,0.1); border: 1px dashed var(--accent-cyan);">
-                                <small class="text-info d-block fw-semibold mb-1"><i class="fa-solid fa-circle-info me-1"></i> Auto Extraction Support</small>
-                                <small class="text-muted">Parses Course Title, Code, L:T:P:R, Credits, CO1-CO4 descriptions, Bloom's levels, CO-PO Matrix, and Drawing Exercises automatically.</small>
+
+                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                                <span class="text-xs font-bold text-slate-700 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                    Auto Extraction Support
+                                </span>
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    Parses Course Title, Code, L:T:P:R, Credits, CO1–CO4 descriptions, Bloom's cognitive levels, CO-PO Matrix, and 45h Drawing Exercises.
+                                </p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-8">
-                        <div class="glass-card p-4 mb-4">
-                            <h5 class="fw-bold mb-3"><i class="fa-solid fa-bullseye me-2 text-info"></i>Course Outcomes (COs)</h5>
-                            <div class="row g-3">
-                                @foreach($drawingCourseFile->parsed_cos ?? [] as $co)
-                                <div class="col-md-6">
-                                    <div class="p-3 rounded" style="background: #111827; border: 1px solid var(--border-color);">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="badge badge-cyan fw-bold">{{ $co['id'] }}</span>
-                                            <span class="badge badge-purple">{{ $co['cognitive_level'] ?? 'Apply' }}</span>
-                                        </div>
-                                        <p class="small mb-0 text-light">{{ $co['description'] }}</p>
-                                    </div>
+
+                    <!-- Right 2 Cols: Course Outcomes & CO-PO Matrix -->
+                    <div class="lg:col-span-2 space-y-5">
+                        
+                        <!-- Course Outcomes (COs) Card -->
+                        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-sm font-bold border border-blue-200/80">
+                                        <span class="material-symbols-rounded text-base">stars</span>
+                                    </span>
+                                    <h3 class="font-bold text-slate-900 text-base">Drawing Course Outcomes (COs)</h3>
                                 </div>
-                                @endforeach
+                                <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200">
+                                    {{ count($drawingCourseFile->parsed_cos ?? []) }} Outcomes
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                @forelse($drawingCourseFile->parsed_cos ?? [] as $co)
+                                @php
+                                    $cog = strtolower($co['cognitive_level'] ?? 'apply');
+                                    $badgeClasses = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                                    if (str_contains($cog, 'understand')) {
+                                        $badgeClasses = 'bg-blue-50 text-blue-700 border-blue-200';
+                                    } elseif (str_contains($cog, 'analy') || str_contains($cog, 'eval')) {
+                                        $badgeClasses = 'bg-purple-50 text-purple-700 border-purple-200';
+                                    }
+                                @endphp
+                                <div class="p-4 rounded-xl bg-slate-50/60 border border-slate-200/80 hover:border-blue-300 transition-all space-y-2">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 font-bold font-mono text-xs border border-blue-200">{{ $co['id'] }}</span>
+                                        <span class="px-2 py-0.5 rounded-md font-semibold text-xs border {{ $badgeClasses }}">{{ $co['cognitive_level'] ?? 'Apply' }}</span>
+                                    </div>
+                                    <p class="text-sm font-medium text-slate-800 leading-relaxed">{{ $co['description'] }}</p>
+                                </div>
+                                @empty
+                                <div class="col-span-2 text-center py-6 text-slate-500 text-sm italic bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                                    Drawing outcomes not uploaded yet.
+                                </div>
+                                @endforelse
                             </div>
                         </div>
 
-                        <!-- CO-PO Matrix -->
-                        <div class="glass-card p-4">
-                            <h5 class="fw-bold mb-3"><i class="fa-solid fa-table-cells me-2 text-warning"></i>CO-PO Articulation Matrix</h5>
-                            <div class="table-responsive">
-                                <table class="table table-custom table-bordered text-center align-middle mb-0">
+                        <!-- CO-PO Matrix Card -->
+                        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-4">
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-sm font-bold border border-indigo-200/80">
+                                        <span class="material-symbols-rounded text-base">grid_on</span>
+                                    </span>
+                                    <div>
+                                        <h3 class="font-bold text-slate-900 text-base">CO-PO Articulation Matrix</h3>
+                                        <p class="text-xs text-slate-500">Mapping strengths: 3 = High, 2 = Medium, 1 = Low</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 text-xs font-medium text-slate-600">
+                                    <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold flex items-center justify-center text-[10px]">3</span> High</span>
+                                    <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-blue-100 text-blue-800 border border-blue-300 font-bold flex items-center justify-center text-[10px]">2</span> Med</span>
+                                    <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-slate-100 text-slate-700 border border-slate-300 font-bold flex items-center justify-center text-[10px]">1</span> Low</span>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-center border-collapse text-sm">
                                     <thead>
-                                        <tr>
-                                            <th>CO Tag</th>
-                                            @for($p=1; $p<=11; $p++) <th>PO{{ $p }}</th> @endfor
+                                        <tr class="bg-slate-50 text-slate-700 font-bold text-xs uppercase border-b border-slate-200">
+                                            <th class="p-3 text-left pl-4 w-24">CO Tag</th>
+                                            @for($p=1; $p<=11; $p++) <th class="p-3 font-mono">PO{{ $p }}</th> @endfor
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody class="divide-y divide-slate-100">
                                         @foreach(['CO1', 'CO2', 'CO3', 'CO4'] as $coTag)
-                                        <tr>
-                                            <th class="text-info">{{ $coTag }}</th>
+                                        <tr class="hover:bg-slate-50/80 transition-all">
+                                            <td class="p-3 text-left font-bold text-blue-700 pl-4 font-mono">{{ $coTag }}</td>
                                             @for($p=1; $p<=11; $p++)
-                                                @php $val = $mappings[$coTag]["PO{$p}"] ?? '-'; @endphp
-                                                <td class="{{ $val != '-' ? 'fw-bold text-success' : 'text-muted' }}">{{ $val }}</td>
+                                                @php
+                                                    $val = $mappings[$coTag]["PO{$p}"] ?? '-';
+                                                    $cellClass = 'text-slate-400 font-normal';
+                                                    if ($val == '3') $cellClass = 'font-bold text-emerald-700 bg-emerald-50/60';
+                                                    elseif ($val == '2') $cellClass = 'font-bold text-blue-700 bg-blue-50/60';
+                                                    elseif ($val == '1') $cellClass = 'font-semibold text-slate-700 bg-slate-50';
+                                                @endphp
+                                                <td class="p-2.5 font-mono text-sm {{ $cellClass }}">{{ $val }}</td>
                                             @endfor
                                         </tr>
                                         @endforeach
@@ -426,13 +523,14 @@
                                 </table>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
 
             <!-- TAB 2: 45-HOUR DRAWING LAB LESSON PLANNER -->
             <div class="tab-pane fade" id="tab-lessonplan" role="tabpanel">
-                <div class="glass-card p-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 pb-3 border-bottom border-secondary">
                         <div>
                             <h5 class="fw-bold mb-1 text-warning"><i class="fa-solid fa-list-check me-2"></i>45-Hour Drawing Lab Lesson Plan</h5>
@@ -527,7 +625,7 @@
 
             <!-- TAB 3: CONTINUOUS EVALUATION (CE - 30 MARKS) WITH SLIDER INPUTS -->
             <div class="tab-pane fade" id="tab-ce" role="tabpanel">
-                <div class="glass-card p-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
                     <div class="row align-items-center g-3 mb-4">
                         <div class="col-md-5">
                             <h5 class="fw-bold mb-1"><i class="fa-solid fa-pen-ruler me-2 text-success"></i>Continuous Practical Evaluation (CE)</h5>
@@ -623,7 +721,7 @@
 
             <!-- TAB 4: PRACTICAL SERIES TESTS (CA1 & CA2 - 15 MARKS) WITH SLIDER INPUTS -->
             <div class="tab-pane fade" id="tab-ca" role="tabpanel">
-                <div class="glass-card p-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
                     <div class="row align-items-center g-3 mb-4">
                         <div class="col-md-4">
                             <h5 class="fw-bold mb-1"><i class="fa-solid fa-pen-to-square me-2 text-primary"></i>Practical Series Tests (CA1 & CA2)</h5>
@@ -735,7 +833,7 @@
 
             <!-- TAB 5: OPEN-ENDED EXPERIMENT (OEE - 10 MARKS) WITH SLIDER INPUTS -->
             <div class="tab-pane fade" id="tab-oee" role="tabpanel">
-                <div class="glass-card p-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                         <div>
                             <h5 class="fw-bold mb-1"><i class="fa-solid fa-lightbulb me-2 text-amber"></i>Open-Ended Experiment (OEE)</h5>
@@ -814,7 +912,7 @@
 
             <!-- TAB 6: END SEMESTER EXAM (ESE - 40 MARKS) WITH SLIDER INPUTS -->
             <div class="tab-pane fade" id="tab-ese" role="tabpanel">
-                <div class="glass-card p-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
                     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
                         <div>
                             <h5 class="fw-bold mb-1"><i class="fa-solid fa-desktop me-2 text-danger"></i>End Semester CAD Practical Exam (ESE)</h5>
@@ -888,7 +986,7 @@
 
             <!-- TAB 7: CONSOLIDATED CIE, SURVEYS & REPORTS -->
             <div class="tab-pane fade" id="tab-cie" role="tabpanel">
-                <div class="glass-card p-4 mb-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm mb-4">
                     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                         <h5 class="fw-bold mb-0"><i class="fa-solid fa-chart-pie me-2 text-purple"></i>Consolidated Course Score Sheet</h5>
                         <div class="btn-group">
@@ -945,7 +1043,7 @@
                 <!-- Surveys & CO-PO Attainment -->
                 <div class="row g-4">
                     <div class="col-lg-6">
-                        <div class="glass-card p-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
                             <h5 class="fw-bold mb-3 text-info"><i class="fa-solid fa-poll me-2"></i>Indirect Attainment via Surveys</h5>
                             
                             <!-- Course Exit Survey Box -->
@@ -1022,7 +1120,7 @@
                         </div>
                     </div>
                     <div class="col-lg-6">
-                        <div class="glass-card p-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm">
                             <h5 class="fw-bold mb-3"><i class="fa-solid fa-award me-2 text-warning"></i>CO Attainment Levels (80% Direct + 20% Indirect)</h5>
                             <div class="table-responsive">
                                 <table class="table table-custom table-bordered text-center align-middle mb-0">
@@ -1185,13 +1283,86 @@
             });
         }
 
+        function handleDrawingDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropzone = document.getElementById('drawingSyllabusDropzone');
+            if (dropzone) dropzone.classList.add('border-blue-500', 'bg-blue-50/60');
+        }
+
+        function handleDrawingDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropzone = document.getElementById('drawingSyllabusDropzone');
+            if (dropzone) dropzone.classList.remove('border-blue-500', 'bg-blue-50/60');
+        }
+
+        function handleDrawingFileDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropzone = document.getElementById('drawingSyllabusDropzone');
+            if (dropzone) dropzone.classList.remove('border-blue-500', 'bg-blue-50/60');
+
+            const files = e.dataTransfer.files;
+            if (!files || files.length === 0) return;
+            const file = files[0];
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                alert('Please drop a valid PDF file.');
+                return;
+            }
+            const input = document.getElementById('drawingSyllabusInput');
+            if (input) {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                showDrawingFilePreview(file);
+            }
+        }
+
+        function handleDrawingFileInput(input) {
+            if (!input.files || input.files.length === 0) return;
+            showDrawingFilePreview(input.files[0]);
+        }
+
+        function showDrawingFilePreview(file) {
+            const dropzone = document.getElementById('drawingSyllabusDropzone');
+            const preview = document.getElementById('drawingFilePreview');
+            const nameEl = document.getElementById('drawingFileName');
+            if (nameEl) nameEl.innerText = file.name;
+            if (dropzone) dropzone.classList.add('hidden');
+            if (preview) preview.classList.remove('hidden');
+        }
+
+        function cancelDrawingSelectedFile(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            const input = document.getElementById('drawingSyllabusInput');
+            if (input) input.value = '';
+            const dropzone = document.getElementById('drawingSyllabusDropzone');
+            const preview = document.getElementById('drawingFilePreview');
+            const processing = document.getElementById('drawingProcessingState');
+
+            if (preview) preview.classList.add('hidden');
+            if (processing) processing.classList.add('hidden');
+            if (dropzone) dropzone.classList.remove('hidden');
+        }
+
         // Upload Syllabus PDF
         document.getElementById('uploadSyllabusForm').addEventListener('submit', async function(e) {
             e.preventDefault();
+            const input = document.getElementById('drawingSyllabusInput');
+            if (!input || !input.files || input.files.length === 0) {
+                alert('Please select a syllabus PDF file first.');
+                return;
+            }
             const formData = new FormData(this);
             const btn = document.getElementById('uploadBtn');
+            const preview = document.getElementById('drawingFilePreview');
+            const processing = document.getElementById('drawingProcessingState');
+
             btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Parsing PDF...';
+            btn.innerHTML = '<svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> <span>Extracting...</span>';
+            if (preview) preview.classList.add('hidden');
+            if (processing) processing.classList.remove('hidden');
 
             try {
                 const res = await fetch(`/api/r26/classroom/drawing/${subjectId}/syllabus`, {
@@ -1201,16 +1372,21 @@
                 });
                 const data = await res.json();
                 if(data.status === 'SUCCESS') {
-                    alert('Syllabus uploaded and parsed successfully!');
                     window.location.reload();
                 } else {
                     alert('Error: ' + data.message);
+                    if (processing) processing.classList.add('hidden');
+                    const dropzone = document.getElementById('drawingSyllabusDropzone');
+                    if (dropzone) dropzone.classList.remove('hidden');
                 }
             } catch(err) {
                 alert('Parsing failed: ' + err.message);
+                if (processing) processing.classList.add('hidden');
+                const dropzone = document.getElementById('drawingSyllabusDropzone');
+                if (dropzone) dropzone.classList.remove('hidden');
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-gears me-1"></i> Parse & Extract Syllabus';
+                btn.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> <span>Parse &amp; Extract Syllabus</span>';
             }
         });
 
@@ -1498,16 +1674,16 @@
     <!-- Survey Questionnaire Preview Modal -->
     <div class="modal fade" id="surveyPreviewModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content glass-card border-secondary text-light">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title fw-bold text-info" id="surveyPreviewTitle"><i class="fa-solid fa-clipboard-question me-2"></i>Survey Questionnaire Preview</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content bg-white border border-slate-200 rounded-2xl shadow-2xl text-slate-800">
+                <div class="modal-header border-b border-slate-100 p-4">
+                    <h5 class="modal-title font-bold text-slate-900 text-sm flex items-center" id="surveyPreviewTitle"><i class="fa-solid fa-clipboard-question text-blue-600 me-2"></i>Survey Questionnaire Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4" id="surveyPreviewBody">
+                <div class="modal-body p-5" id="surveyPreviewBody">
                     <!-- Dynamic Preview Content -->
                 </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close Preview</button>
+                <div class="modal-footer border-t border-slate-100 p-3">
+                    <button type="button" class="btn btn-light btn-sm text-slate-700 font-bold border border-slate-200 rounded-xl px-4 py-2" data-bs-dismiss="modal">Close Preview</button>
                 </div>
             </div>
         </div>
@@ -1516,87 +1692,79 @@
     <!-- Editable Drawing Course Exit Survey Questionnaire Modal -->
     <div class="modal fade" id="drawingExitSurveyInitModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content glass-card border-secondary text-light">
-                <div class="modal-header border-secondary">
+            <div class="modal-content bg-white border border-slate-200 rounded-2xl shadow-2xl text-slate-800">
+                <div class="modal-header border-b border-slate-100 p-4">
                     <div>
-                        <h5 class="modal-title fw-bold text-cyan"><i class="fa-solid fa-pen-to-square me-2"></i>Edit Course Exit Survey Questionnaire (CO-Mapped)</h5>
-                        <small class="text-muted">Faculty can edit and customize all 8 CO questions before publishing to students.</small>
+                        <h5 class="modal-title font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-pen-to-square text-cyan-600 me-2"></i>Edit Course Exit Survey Questionnaire (CO-Mapped)</h5>
+                        <small class="text-slate-500">Faculty can edit and customize all 8 CO questions before publishing to students.</small>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-5">
                     <form id="drawingExitSurveyForm" onsubmit="submitDrawingExitInit(event)">
-                        <div class="mb-3 p-3 rounded" style="background: rgba(6,182,212,0.12); border: 1px solid var(--accent-cyan);">
-                            <div class="fw-bold text-info mb-1"><i class="fa-solid fa-circle-info me-1"></i> CO-Mapped Questionnaire Standard</div>
-                            <small class="text-light">Customize or edit question wording below before initiating. Students evaluate each CO question on a 3-Point Likert Scale (3 = High, 2 = Medium, 1 = Low).</small>
+                        <div class="mb-3.5 p-3.5 rounded-xl bg-cyan-50 border border-cyan-200">
+                            <div class="font-bold text-cyan-800 text-xs mb-1"><i class="fa-solid fa-circle-info me-1"></i> CO-Mapped Questionnaire Standard</div>
+                            <small class="text-cyan-700 text-xs">Customize or edit question wording below before initiating. Students evaluate each CO question on a 3-Point Likert Scale (3 = High, 2 = Medium, 1 = Low).</small>
                         </div>
 
-                        <div class="row g-3">
+                        <div class="space-y-3">
                             <!-- CO1 Questions -->
-                            <div class="col-12">
-                                <div class="p-3 rounded bg-dark border border-secondary">
-                                    <div class="fw-bold text-cyan mb-2"><i class="fa-solid fa-compass me-1"></i> CO1: Manual Geometrical Drawing & Constructions</div>
-                                    <div class="mb-2">
-                                        <label class="form-label text-muted small fw-bold mb-1">Question 1 (CO1 - Manual Constructions)</label>
-                                        <input type="text" id="drg-ex-q1" class="form-control bg-dark text-light border-secondary form-control-sm" value="1. Rate your ability to manually construct regular polygons, conic sections, and developments." required>
-                                    </div>
-                                    <div>
-                                        <label class="form-label text-muted small fw-bold mb-1">Question 2 (CO1 - Step-by-Step Guidance)</label>
-                                        <input type="text" id="drg-ex-q2" class="form-control bg-dark text-light border-secondary form-control-sm" value="2. Rate instructor step-by-step guidance and demonstration during manual sheet exercises." required>
-                                    </div>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <div class="font-bold text-cyan-700 text-xs mb-2.5 flex items-center"><i class="fa-solid fa-compass me-1.5"></i> CO1: Manual Geometrical Drawing &amp; Constructions</div>
+                                <div class="mb-2.5">
+                                    <label class="form-label text-slate-600 text-xs font-bold mb-1">Question 1 (CO1 - Manual Constructions)</label>
+                                    <input type="text" id="drg-ex-q1" class="form-control bg-white text-slate-800 border-slate-200 rounded-lg text-xs py-1.5 focus:border-cyan-500 shadow-2xs" value="1. Rate your ability to manually construct regular polygons, conic sections, and developments." required>
+                                </div>
+                                <div>
+                                    <label class="form-label text-slate-600 text-xs font-bold mb-1">Question 2 (CO1 - Step-by-Step Guidance)</label>
+                                    <input type="text" id="drg-ex-q2" class="form-control bg-white text-slate-800 border-slate-200 rounded-lg text-xs py-1.5 focus:border-cyan-500 shadow-2xs" value="2. Rate instructor step-by-step guidance and demonstration during manual sheet exercises." required>
                                 </div>
                             </div>
 
                             <!-- CO2 Questions -->
-                            <div class="col-12">
-                                <div class="p-3 rounded bg-dark border border-secondary">
-                                    <div class="fw-bold text-warning mb-2"><i class="fa-solid fa-cube me-1"></i> CO2: Orthographic Projections & Sectional Views</div>
-                                    <div class="mb-2">
-                                        <label class="form-label text-muted small fw-bold mb-1">Question 3 (CO2 - Projection Principles)</label>
-                                        <input type="text" id="drg-ex-q3" class="form-control bg-dark text-light border-secondary form-control-sm" value="3. Rate your clarity on 1st & 3rd angle projection principles and sectional views." required>
-                                    </div>
-                                    <div>
-                                        <label class="form-label text-muted small fw-bold mb-1">Question 4 (CO2 - Slot Feedback)</label>
-                                        <input type="text" id="drg-ex-q4" class="form-control bg-dark text-light border-secondary form-control-sm" value="4. Rate the timeliness of feedback during continuous slot evaluation of drawing sheets." required>
-                                    </div>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <div class="font-bold text-amber-700 text-xs mb-2.5 flex items-center"><i class="fa-solid fa-cube me-1.5"></i> CO2: Orthographic Projections &amp; Sectional Views</div>
+                                <div class="mb-2.5">
+                                    <label class="form-label text-slate-600 text-xs font-bold mb-1">Question 3 (CO2 - Projection Principles)</label>
+                                    <input type="text" id="drg-ex-q3" class="form-control bg-white text-slate-800 border-slate-200 rounded-lg text-xs py-1.5 focus:border-amber-500 shadow-2xs" value="3. Rate your clarity on 1st &amp; 3rd angle projection principles and sectional views." required>
+                                </div>
+                                <div>
+                                    <label class="form-label text-slate-600 text-xs font-bold mb-1">Question 4 (CO2 - Slot Feedback)</label>
+                                    <input type="text" id="drg-ex-q4" class="form-control bg-white text-slate-800 border-slate-200 rounded-lg text-xs py-1.5 focus:border-amber-500 shadow-2xs" value="4. Rate the timeliness of feedback during continuous slot evaluation of drawing sheets." required>
                                 </div>
                             </div>
 
                             <!-- CO3 Questions -->
-                            <div class="col-12">
-                                <div class="p-3 rounded bg-dark border border-secondary">
-                                    <div class="fw-bold text-success mb-2"><i class="fa-solid fa-laptop-code me-1"></i> CO3: CAD Software Interface & Commands</div>
-                                    <div class="mb-2">
-                                        <label class="form-label text-muted small fw-bold mb-1">Question 5 (CO3 - CAD Tools)</label>
-                                        <input type="text" id="drg-ex-q5" class="form-control bg-dark text-light border-secondary form-control-sm" value="5. Rate your proficiency in using CAD draw/modify tools, layer management, and dimensioning." required>
-                                    </div>
-                                    <div>
-                                        <label class="form-label text-muted small fw-bold mb-1">Question 6 (CO3 - Workstation Facilities)</label>
-                                        <input type="text" id="drg-ex-q6" class="form-control bg-dark text-light border-secondary form-control-sm" value="6. Rate the availability and performance of CAD workstation hardware/software facilities." required>
-                                    </div>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <div class="font-bold text-emerald-700 text-xs mb-2.5 flex items-center"><i class="fa-solid fa-laptop-code me-1.5"></i> CO3: CAD Software Interface &amp; Commands</div>
+                                <div class="mb-2.5">
+                                    <label class="form-label text-slate-600 text-xs font-bold mb-1">Question 5 (CO3 - CAD Tools)</label>
+                                    <input type="text" id="drg-ex-q5" class="form-control bg-white text-slate-800 border-slate-200 rounded-lg text-xs py-1.5 focus:border-emerald-500 shadow-2xs" value="5. Rate your proficiency in using CAD draw/modify tools, layer management, and dimensioning." required>
+                                </div>
+                                <div>
+                                    <label class="form-label text-slate-600 text-xs font-bold mb-1">Question 6 (CO3 - Workstation Facilities)</label>
+                                    <input type="text" id="drg-ex-q6" class="form-control bg-white text-slate-800 border-slate-200 rounded-lg text-xs py-1.5 focus:border-emerald-500 shadow-2xs" value="6. Rate the availability and performance of CAD workstation hardware/software facilities." required>
                                 </div>
                             </div>
 
                             <!-- CO4 Questions -->
-                            <div class="col-12">
-                                <div class="p-3 rounded bg-dark border border-secondary">
-                                    <div class="fw-bold text-danger mb-2"><i class="fa-solid fa-draw-polygon me-1"></i> CO4: 2D Component Drafting & Sectional Plotting</div>
-                                    <div class="mb-2">
-                                        <label class="form-label text-muted small fw-bold mb-1">Question 7 (CO4 - 2D Component Drafting)</label>
-                                        <input type="text" id="drg-ex-q7" class="form-control bg-dark text-light border-secondary form-control-sm" value="7. Rate your confidence in generating 2D orthographic component drawings & sectional views in CAD." required>
-                                    </div>
-                                    <div>
-                                        <label class="form-label text-muted small fw-bold mb-1">Question 8 (CO4 - Overall Satisfaction)</label>
-                                        <input type="text" id="drg-ex-q8" class="form-control bg-dark text-light border-secondary form-control-sm" value="8. Rate overall satisfaction with the 45-hour Drawing Lab curriculum delivery and outcomes." required>
-                                    </div>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                                <div class="font-bold text-rose-700 text-xs mb-2.5 flex items-center"><i class="fa-solid fa-draw-polygon me-1.5"></i> CO4: 2D Component Drafting &amp; Sectional Plotting</div>
+                                <div class="mb-2.5">
+                                    <label class="form-label text-slate-600 text-xs font-bold mb-1">Question 7 (CO4 - 2D Component Drafting)</label>
+                                    <input type="text" id="drg-ex-q7" class="form-control bg-white text-slate-800 border-slate-200 rounded-lg text-xs py-1.5 focus:border-rose-500 shadow-2xs" value="7. Rate your confidence in generating 2D orthographic component drawings &amp; sectional views in CAD." required>
+                                </div>
+                                <div>
+                                    <label class="form-label text-slate-600 text-xs font-bold mb-1">Question 8 (CO4 - Overall Satisfaction)</label>
+                                    <input type="text" id="drg-ex-q8" class="form-control bg-white text-slate-800 border-slate-200 rounded-lg text-xs py-1.5 focus:border-rose-500 shadow-2xs" value="8. Rate overall satisfaction with the 45-hour Drawing Lab curriculum delivery and outcomes." required>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mt-4 d-flex justify-content-end gap-2">
-                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-cyan font-bold px-4">
-                                <i class="fa-solid fa-paper-plane me-1"></i> Initiate & Send to Student Portal
+                        <div class="mt-4 d-flex justify-content-end gap-2 pt-3 border-t border-slate-100">
+                            <button type="button" class="btn btn-light btn-sm text-slate-700 font-bold border border-slate-200 rounded-xl px-4 py-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary btn-sm font-bold px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-700 text-white shadow-xs">
+                                <i class="fa-solid fa-paper-plane me-1"></i> Initiate &amp; Send to Student Portal
                             </button>
                         </div>
                     </form>
@@ -1608,43 +1776,43 @@
     <!-- Question Bank & Question Paper Editor Modal -->
     <div class="modal fade" id="questionBankModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content glass-card border-secondary text-light">
-                <div class="modal-header border-secondary">
+            <div class="modal-content bg-white border border-slate-200 rounded-2xl shadow-2xl text-slate-800">
+                <div class="modal-header border-b border-slate-100 p-4">
                     <div>
-                        <h5 class="modal-title fw-bold text-warning"><i class="fa-solid fa-pen-to-square me-2"></i>Question Bank & Series Test Paper Manager</h5>
-                        <small class="text-muted">Edit questions, choices, valuation rubrics, and answer keys. Saved changes persist in Question Bank database.</small>
+                        <h5 class="modal-title font-bold text-slate-900 text-sm flex items-center"><i class="fa-solid fa-pen-to-square text-amber-600 me-2"></i>Question Bank &amp; Series Test Paper Manager</h5>
+                        <small class="text-slate-500">Edit questions, choices, valuation rubrics, and answer keys. Saved changes persist in Question Bank database.</small>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body p-5">
                     <div class="row g-3 mb-3 align-items-center">
                         <div class="col-md-4">
-                            <label class="form-label text-muted small fw-bold">Select Series Test Exam</label>
-                            <select class="form-select bg-dark text-light border-secondary" id="qbModalTestNoSelect" onchange="loadQuestionBankData(this.value)">
-                                <option value="1">Series Test 1 (Manual Drawing - Modules I & II)</option>
-                                <option value="2">Series Test 2 (CAD Exam - Modules III & IV)</option>
+                            <label class="form-label text-slate-600 text-xs font-bold mb-1">Select Series Test Exam</label>
+                            <select class="form-select bg-white text-slate-800 border-slate-200 rounded-lg text-xs py-1.5 focus:border-amber-500 shadow-2xs" id="qbModalTestNoSelect" onchange="loadQuestionBankData(this.value)">
+                                <option value="1">Series Test 1 (Manual Drawing - Modules I &amp; II)</option>
+                                <option value="2">Series Test 2 (CAD Exam - Modules III &amp; IV)</option>
                             </select>
                         </div>
                         <div class="col-md-8">
-                            <label class="form-label text-muted small fw-bold">Paper Title</label>
-                            <input type="text" class="form-control bg-dark text-light border-secondary" id="qbTestTitleInput">
+                            <label class="form-label text-slate-600 text-xs font-bold mb-1">Paper Title</label>
+                            <input type="text" class="form-control bg-white text-slate-800 border-slate-200 rounded-lg text-xs py-1.5 focus:border-amber-500 shadow-2xs" id="qbTestTitleInput">
                         </div>
                         <div class="col-md-12">
-                            <label class="form-label text-muted small fw-bold">Instructions to Candidates</label>
-                            <input type="text" class="form-control bg-dark text-light border-secondary" id="qbInstructionsInput">
+                            <label class="form-label text-slate-600 text-xs font-bold mb-1">Instructions to Candidates</label>
+                            <input type="text" class="form-control bg-white text-slate-800 border-slate-200 rounded-lg text-xs py-1.5 focus:border-amber-500 shadow-2xs" id="qbInstructionsInput">
                         </div>
                     </div>
 
-                    <hr class="border-secondary my-3">
+                    <hr class="border-slate-100 my-3">
 
                     <div id="qbQuestionsEditorContainer">
                         <!-- Dynamic Question Cards -->
                     </div>
                 </div>
-                <div class="modal-footer border-secondary justify-content-between">
-                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-cyan btn-sm" onclick="saveQuestionBankData()">
-                        <i class="fa-solid fa-floppy-disk me-1"></i> Save to Question Bank & Update QP
+                <div class="modal-footer border-t border-slate-100 p-3 justify-content-between">
+                    <button type="button" class="btn btn-light btn-sm text-slate-700 font-bold border border-slate-200 rounded-xl px-4 py-2" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary btn-sm font-bold rounded-xl px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-xs" onclick="saveQuestionBankData()">
+                        <i class="fa-solid fa-floppy-disk me-1"></i> Save to Question Bank &amp; Update QP
                     </button>
                 </div>
             </div>

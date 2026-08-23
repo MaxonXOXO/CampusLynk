@@ -11,9 +11,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Google Icons & Lucide Icons -->
+  <!-- Pre-Paint Synchronous Sidebar State Hydration (Anti-FOUC) -->
+  <script>
+    (function() {
+      try {
+        var isCollapsed = localStorage.getItem('campuslynk_sidebar_collapsed') === 'true' || 
+                          document.cookie.indexOf('campuslynk_sidebar_collapsed=true') !== -1;
+        if (isCollapsed && window.innerWidth >= 1024) {
+          document.documentElement.classList.add('sidebar-is-collapsed');
+        }
+      } catch(e) {}
+    })();
+  </script>
+
+  <!-- Google Icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-  <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Vite Assets -->
   @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -43,17 +55,42 @@
         display: none !important;
       }
     }
-
-    /* Clean overrides to enlarge fonts in the virtual classroom and related containers to normal readable sizes */
-    #panelClassroom {
-      background-color: #060b13 !important; /* Darker slate/black background */
-      border: 1px solid #111827 !important;
-      border-radius: 1.5rem !important;
-      padding: 1.5rem !important;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3) !important;
+    @media (max-width: 640px) {
+      .mobile-sem-btn {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding-top: 0.625rem !important;
+        padding-bottom: 0.625rem !important;
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+      }
+      .mobile-sem-btn span:first-child {
+        font-size: 10px !important;
+        margin-bottom: 0.125rem !important;
+      }
+      .mobile-sem-btn span:last-child {
+        font-size: 12px !important;
+      }
+      #mobileSeminarNotificationsContainer h4,
+      #seminarNotificationsContainer h4 {
+        font-size: 15px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 13px !important;
+      }
     }
 
-    /* Clean overrides to enlarge fonts in the virtual classroom and related containers to normal readable sizes */
+    /* CampusLynk Modern Virtual Classroom Panel Styles */
+    #panelClassroom {
+      background-color: #FAFAFB !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1.5rem !important;
+      padding: 1.5rem !important;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05) !important;
+    }
+
     #panelClassroom, 
     #panelClassroom button,
     #panelClassroom select,
@@ -67,13 +104,13 @@
     #panelClassroom h4,
     #panelClassroom h5,
     #panelClassroom span {
-      font-size: 13px !important;
+      font-size: 14px;
     }
     
     #panelClassroom h3#vcTitle,
     #panelClassroom h3#vcTitle span {
       font-size: 18px !important;
-      font-weight: 900 !important;
+      font-weight: 700 !important;
     }
     
     #panelClassroom #vcSubtitle,
@@ -84,29 +121,21 @@
     #panelClassroom #vcViewStudentsBtn,
     #panelClassroom #vcViewStudentsBtn span {
       font-size: 13px !important;
-      font-weight: bold !important;
+      font-weight: 700 !important;
     }
 
-    #panelClassroom #tabStructure,
-    #panelClassroom #tabPlanner,
-    #panelClassroom #tabAssessment,
-    #panelClassroom #tabSummative {
-      font-size: 14px !important;
-      font-weight: 900 !important;
+    #panelClassroom .classroom-tab-btn {
+      font-size: 13.5px !important;
+      font-weight: 600 !important;
+      padding: 0.5rem 0.875rem !important;
+      border-radius: 0.75rem !important;
+      transition: all 0.15s ease !important;
     }
 
-    #panelClassroom #tabStructure span,
-    #panelClassroom #tabPlanner span,
-    #panelClassroom #tabAssessment span,
-    #panelClassroom #tabSummative span {
-      font-size: 16px !important;
-    }
-
-    /* Course structure, lesson planner, formative, summative & online test setup container headings */
     #panelClassroom h4, 
     #panelClassroom h5 {
       font-size: 15px !important;
-      font-weight: bold !important;
+      font-weight: 700 !important;
     }
 
     /* Manual mark entry table title, names, and internal grid data font sizes */
@@ -255,7 +284,7 @@
     }
   </style>
 </head>
-<body class="bg-[#FAFAFB] text-slate-900 min-h-screen font-sans antialiased">
+<body class="bg-[#FAFAFB] text-slate-900 min-h-screen font-sans antialiased sidebar-preload">
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -305,161 +334,167 @@
         </div>
       </div>
 
-      <!-- PANEL: VIRTUAL CLASSROOM -->
-      <div id="panelClassroom" class="hidden space-y-6">
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex items-center justify-between">
+      <!-- PANEL: VIRTUAL CLASSROOM (R2021 THEORY) -->
+      <div id="panelClassroom" class="hidden space-y-5">
+        
+        <!-- Header Card -->
+        <div class="bg-white border border-slate-200/80 p-5 rounded-2xl flex items-center justify-between shadow-xs">
           <div>
             @if(session('userRole') === 'Demonstrator')
-              <a href="/dashboard/demonstrator" class="text-sm font-bold text-blue-400 hover:text-blue-300 uppercase tracking-wider flex items-center gap-2 transition-premium mb-2 cursor-pointer no-underline inline-flex items-center">
-                <span class="material-symbols-rounded text-lg text-blue-500 group-hover:text-blue-400">arrow_back</span> Back to Console
+              <a href="/dashboard/demonstrator" class="text-xs font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wider flex items-center gap-1.5 transition mb-2 cursor-pointer no-underline inline-flex">
+                <span class="material-symbols-rounded text-base text-blue-600">arrow_back</span> Back to Console
               </a>
             @else
-              <button onclick="switchPanel('dashboard')" class="text-sm font-bold text-slate-300 hover:text-white uppercase tracking-wider flex items-center gap-1.5 transition-premium mb-1 cursor-pointer">
+              <button onclick="switchPanel('dashboard')" class="text-xs font-bold text-slate-600 hover:text-slate-900 uppercase tracking-wider flex items-center gap-1.5 transition mb-1 cursor-pointer">
                 <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Dashboard
               </button>
             @endif
-            <h3 id="vcTitle" class="text-base font-black text-slate-200 flex items-center gap-2 mt-1">
-              <span class="material-symbols-rounded text-blue-400 text-lg">meeting_room</span> Virtual Classroom
+            <h3 id="vcTitle" class="text-lg font-bold text-slate-900 flex items-center gap-2 mt-1">
+              <span class="material-symbols-rounded text-blue-600 text-xl">meeting_room</span> Virtual Classroom
             </h3>
-            <p id="vcSubtitle" class="text-sm text-slate-400 mt-0.5 font-mono">Loading...</p>
+            <p id="vcSubtitle" class="text-xs sm:text-sm text-slate-500 mt-0.5 font-mono">Loading...</p>
           </div>
-          <button id="vcViewStudentsBtn" onclick="showVcStudentsList()" class="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-md border border-slate-700/60">
-            <span class="material-symbols-rounded text-sm">groups</span> View Students
+          <button id="vcViewStudentsBtn" onclick="showVcStudentsList()" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs border border-slate-200">
+            <span class="material-symbols-rounded text-sm text-blue-600">groups</span> View Students
           </button>
         </div>
 
         <!-- Top Banner: Course File Actions -->
-        <div class="flex flex-col md:flex-row gap-6 mb-6">
+        <div class="flex flex-col md:flex-row gap-4 mb-4">
              <!-- Syllabus Setup Card -->
-             <div class="flex-grow bg-slate-950/40 border border-slate-800/60 p-4 rounded-2xl relative overflow-hidden group flex items-center justify-between">
+             <div class="flex-grow bg-white border border-slate-200/80 p-4 rounded-2xl relative overflow-hidden group flex items-center justify-between shadow-xs">
                 <div class="flex items-center gap-4">
-                  <div id="syllabusUploadBox" class="border border-dashed border-slate-700/60 rounded-xl px-4 py-2 text-center hover:border-blue-500/50 hover:bg-slate-900/40 transition-premium cursor-pointer relative z-10 flex items-center gap-3" onclick="document.getElementById('syllabusFileInput').click()">
-                    <span class="material-symbols-rounded text-base text-slate-500">picture_as_pdf</span>
+                  <div id="syllabusUploadBox" class="border-2 border-dashed border-slate-300 rounded-xl px-4 py-2.5 text-center hover:border-blue-500 hover:bg-blue-50/50 transition cursor-pointer relative z-10 flex items-center gap-3" onclick="document.getElementById('syllabusFileInput').click()">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200/80">
+                      <svg class="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6"/><path d="M9 11h6"/></svg>
+                    </div>
                     <div class="text-left">
-                      <p class="text-sm font-bold text-slate-300">Upload Syllabus PDF</p>
-                      <p class="text-xs text-slate-500">Max 10MB</p>
+                      <p class="text-xs font-bold text-slate-800">Upload Syllabus PDF</p>
+                      <p class="text-xs text-slate-400">PDF • Max 10MB</p>
                     </div>
                     <input type="file" id="syllabusFileInput" class="hidden" accept="application/pdf" onchange="handleSyllabusUpload(this)">
                   </div>
                   
-                  <div id="syllabusUploadProgress" class="hidden relative z-10 flex-col justify-center min-w-[200px]">
-                    <div class="flex justify-between text-xs font-bold text-blue-400 mb-1">
-                      <span>Extracting...</span>
-                      <span id="syllabusProgressText" class="animate-pulse">Processing</span>
+                  <div id="syllabusUploadProgress" class="hidden relative z-10 flex-col justify-center min-w-[220px]">
+                    <div class="flex justify-between text-xs font-bold text-blue-700 mb-1">
+                      <span>Extracting Academic Structure...</span>
+                      <span id="syllabusProgressText" class="animate-pulse font-mono">Processing</span>
                     </div>
-                    <div class="w-full bg-slate-900 rounded-full h-1.5 border border-slate-800 overflow-hidden">
-                      <div class="bg-gradient-to-r from-blue-600 to-sky-400 h-1.5 rounded-full w-full animate-[progress_2s_ease-in-out_infinite]"></div>
+                    <div class="w-full bg-slate-100 rounded-full h-1.5 border border-slate-200 overflow-hidden">
+                      <div class="bg-blue-600 h-1.5 rounded-full w-full animate-pulse"></div>
                     </div>
                   </div>
 
-                  <div id="vcSubjectInfo" style="display:none" class="flex-col justify-center border-l border-slate-800/80 pl-4 relative z-10">
-                    <span id="vcSubjectName" class="text-sm font-bold text-slate-200"></span>
-                    <span id="vcSubjectCode" class="text-xs font-semibold text-blue-400 mt-0.5 font-mono"></span>
-                    <span id="vcSyllabusProposedHours" class="text-[11px] font-bold text-emerald-400 mt-0.5 whitespace-nowrap"></span>
+                  <div id="vcSubjectInfo" style="display:none" class="flex-col justify-center border-l border-slate-200 pl-4 relative z-10">
+                    <span id="vcSubjectName" class="text-sm font-bold text-slate-900 leading-tight"></span>
+                    <div class="flex items-center gap-2 mt-0.5">
+                      <span id="vcSubjectCode" class="text-xs font-semibold text-blue-700 font-mono"></span>
+                      <span id="vcSyllabusProposedHours" class="text-xs font-bold text-emerald-700 whitespace-nowrap"></span>
+                    </div>
                   </div>
                 </div>
-                 <span id="parseStatusBadge" class="text-xs font-bold px-3 py-1.5 rounded-md bg-slate-800/80 text-slate-300 border border-slate-700/50 whitespace-nowrap">Waiting for upload</span>
+                 <span id="parseStatusBadge" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap shadow-2xs">Waiting for upload</span>
              </div>
 
              <!-- Download Active Syllabus Card -->
-             <div id="activeSyllabusCard" class="hidden bg-slate-950/30 border border-slate-800/40 p-4 rounded-2xl flex items-center gap-4 transition-premium border-l-2 border-l-emerald-500 min-w-[250px]">
-                <div class="bg-emerald-500/10 p-2 rounded-lg flex-shrink-0">
-                  <span class="material-symbols-rounded text-emerald-400 text-xs block">check_circle</span>
+             <div id="activeSyllabusCard" class="hidden bg-white border border-slate-200/80 p-4 rounded-2xl flex items-center gap-3 transition min-w-[250px] shadow-xs">
+                <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-5 h-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                 </div>
                 <div class="flex-grow">
-                  <h4 class="text-sm font-black text-slate-200">Active Syllabus</h4>
-                   <p class="text-xs text-slate-400">Parsed &amp; ready</p>
+                  <h4 class="text-sm font-bold text-slate-900 leading-tight">Active Syllabus</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">Parsed &amp; synced</p>
                 </div>
-                <button id="downloadSyllabusBtn" onclick="downloadSyllabusPDF()" title="View / Download Syllabus PDF" class="text-slate-400 hover:text-blue-400 transition-premium bg-slate-900/50 p-1.5 rounded-lg border border-slate-800 hover:border-blue-500/50 cursor-pointer">
-                   <span class="material-symbols-rounded text-sm block">open_in_new</span>
+                <button id="downloadSyllabusBtn" onclick="downloadSyllabusPDF()" title="View / Download Syllabus PDF" class="text-slate-600 hover:text-blue-700 transition bg-slate-50 hover:bg-blue-50 p-2 rounded-xl border border-slate-200 hover:border-blue-300 cursor-pointer shadow-2xs">
+                   <svg class="w-4 h-4 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                 </button>
              </div>
         </div>
         
-         <!-- Toggle Buttons -->
-         <div class="flex flex-wrap items-center gap-4 border-b border-slate-800/60 pb-3 mb-4">
-             <button onclick="toggleClassroomTab('structure')" id="tabStructure" class="text-base font-black text-blue-400 flex items-center gap-1.5 transition-premium border-b-2 border-blue-500 pb-1">
-               <span class="material-symbols-rounded text-lg">account_tree</span> Course Structure
+         <!-- Toggle Buttons Navigation Strip -->
+         <div class="bg-white border border-slate-200/80 p-2 rounded-2xl flex flex-wrap items-center gap-2 mb-4 shadow-xs">
+             <button onclick="toggleClassroomTab('structure')" id="tabStructure" class="classroom-tab-btn flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs cursor-pointer">
+               <span class="material-symbols-rounded text-base">account_tree</span> Course Structure
              </button>
-             <button onclick="toggleClassroomTab('planner')" id="tabPlanner" class="text-base font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-               <span class="material-symbols-rounded text-lg">calendar_month</span> Lesson Planner
+             <button onclick="toggleClassroomTab('planner')" id="tabPlanner" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
+               <span class="material-symbols-rounded text-base">calendar_month</span> Lesson Planner
              </button>
-             <button onclick="toggleClassroomTab('assessment')" id="tabAssessment" class="text-base font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-               <span class="material-symbols-rounded text-lg">assignment_turned_in</span> Formative Assessment
+             <button onclick="toggleClassroomTab('assessment')" id="tabAssessment" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
+               <span class="material-symbols-rounded text-base">assignment_turned_in</span> Formative Assessment
              </button>
-             <button onclick="toggleClassroomTab('summative')" id="tabSummative" class="text-base font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-               <span class="material-symbols-rounded text-lg">school</span> Summative Assessment
+             <button onclick="toggleClassroomTab('summative')" id="tabSummative" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
+               <span class="material-symbols-rounded text-base">school</span> Summative Assessment
              </button>
-             <button onclick="toggleClassroomTab('reports')" id="tabReports" class="text-base font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-               <span class="material-symbols-rounded text-lg">assessment</span> Reports
+             <button onclick="toggleClassroomTab('reports')" id="tabReports" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
+               <span class="material-symbols-rounded text-base">assessment</span> Reports
              </button>
-             <button onclick="toggleClassroomTab('qbank')" id="tabQBank" class="text-base font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-               <span class="material-symbols-rounded text-lg">database</span> Question Bank
+             <button onclick="toggleClassroomTab('qbank')" id="tabQBank" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
+               <span class="material-symbols-rounded text-base">database</span> Question Bank
              </button>
-             <button onclick="toggleClassroomTab('survey')" id="tabSurvey" class="text-base font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-               <span class="material-symbols-rounded text-lg">rate_review</span> Mid-Sem Survey
+             <button onclick="toggleClassroomTab('survey')" id="tabSurvey" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
+               <span class="material-symbols-rounded text-base">rate_review</span> Mid-Sem Survey
              </button>
-             <button onclick="toggleClassroomTab('exit_survey')" id="tabExitSurvey" class="text-base font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-               <span class="material-symbols-rounded text-lg">assignment_turned_in</span> Course Exit Survey
+             <button onclick="toggleClassroomTab('exit_survey')" id="tabExitSurvey" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
+               <span class="material-symbols-rounded text-base">assignment_turned_in</span> Course Exit Survey
              </button>
-             <button onclick="toggleClassroomTab('seminar_evaluation')" id="tabSeminar" class="hidden text-base font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-               <span class="material-symbols-rounded text-lg">co_present</span> Seminar Evaluation
+             <button onclick="toggleClassroomTab('seminar_evaluation')" id="tabSeminar" class="hidden classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
+               <span class="material-symbols-rounded text-base">co_present</span> Seminar Evaluation
              </button>
-             <button onclick="toggleClassroomTab('lab_evaluation')" id="tabLab" class="hidden text-base font-bold text-slate-500 hover:text-slate-300 flex items-center gap-1.5 transition-premium pb-1 border-b-2 border-transparent hover:border-slate-600">
-               <span class="material-symbols-rounded text-lg">science</span> Lab Evaluation
+             <button onclick="toggleClassroomTab('lab_evaluation')" id="tabLab" class="hidden classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
+               <span class="material-symbols-rounded text-base">science</span> Lab Evaluation
              </button>
          </div>
 
         <!-- Parsed Data View (Full Width) -->
-        <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl min-h-[400px] flex flex-col w-full">
+        <div class="bg-white border border-slate-200/80 p-6 rounded-2xl min-h-[400px] flex flex-col w-full shadow-xs">
             <div id="courseStructureContent" class="space-y-6 flex-grow overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
-                <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+                <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
                   <span class="material-symbols-rounded text-xl text-slate-600">inventory_2</span>
                 </div>
-                <p class="text-sm font-bold text-slate-300">No syllabus loaded.</p>
+                <p class="text-sm font-bold text-slate-700">No syllabus loaded.</p>
                 <p class="text-sm mt-1.5 max-w-xs text-slate-400 leading-relaxed">Upload a syllabus PDF to automatically populate Course Outcomes, Modules, and Textbooks.</p>
               </div>
             </div>
             
             <div id="coursePlannerContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
-                <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+                <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
                   <span class="material-symbols-rounded text-xl text-slate-600">event_note</span>
                 </div>
-                <p class="text-sm font-bold text-slate-300">Planner not generated.</p>
+                <p class="text-sm font-bold text-slate-700">Planner not generated.</p>
                 <p class="text-sm mt-1.5 max-w-xs text-slate-400 leading-relaxed">Upload a syllabus to automatically generate the lesson plan.</p>
               </div>
             </div>
 
             <div id="formativeAssessmentContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
-                <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+                <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
                   <span class="material-symbols-rounded text-xl text-slate-600">quiz</span>
                 </div>
-                <p class="text-sm font-bold text-slate-300">No students or COs available.</p>
+                <p class="text-sm font-bold text-slate-700">No students or COs available.</p>
                 <p class="text-sm mt-1.5 max-w-xs text-slate-400 leading-relaxed">Upload a syllabus to activate formative assessment tasks.</p>
               </div>
             </div>
 
             <div id="summativeAssessmentContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
-                <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+                <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
                   <span class="material-symbols-rounded text-xl text-slate-600">school</span>
                 </div>
-                <p class="text-sm font-bold text-slate-300">Loading summative assessments...</p>
+                <p class="text-sm font-bold text-slate-700">Loading summative assessments...</p>
               </div>
             </div>
 
             <div id="classReportsContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
               <div class="flex flex-wrap gap-3">
-                <button onclick="loadClassReport('attendance_log')" id="btnReportLog" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm cursor-pointer transition-premium">
+                <button onclick="loadClassReport('attendance_log')" id="btnReportLog" class="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-xs cursor-pointer transition-premium">
                   Class Attendance Log
                 </button>
-                <button onclick="loadClassReport('subject_log')" id="btnReportSubject" class="px-4 py-2 bg-slate-900 text-slate-300 border border-slate-800 rounded-xl font-bold text-sm cursor-pointer hover:bg-slate-800 transition-premium">
+                <button onclick="loadClassReport('subject_log')" id="btnReportSubject" class="px-4 py-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm shadow-2xs cursor-pointer transition-premium">
                   Class Subject Log
                 </button>
-                <button onclick="loadClassReport('summary_matrix')" id="btnReportMatrix" class="px-4 py-2 bg-slate-900 text-slate-300 border border-slate-800 rounded-xl font-bold text-sm cursor-pointer hover:bg-slate-800 transition-premium">
+                <button onclick="loadClassReport('summary_matrix')" id="btnReportMatrix" class="px-4 py-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm shadow-2xs cursor-pointer transition-premium">
                   Attendance Matrix
                 </button>
               </div>
@@ -471,16 +506,16 @@
 
             <!-- Question Bank Panel -->
             <div id="questionBankContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
-              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/60 pb-4">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
                 <div>
-                  <h4 class="text-sm font-black text-slate-200">Shared Question Bank Pool</h4>
+                  <h4 class="text-sm font-bold text-slate-800">Shared Question Bank Pool</h4>
                   <p class="text-sm text-slate-400 mt-1">Manage and import MCQ or Descriptive questions for this subject code. These questions are pooled across all batches.</p>
                 </div>
                 <div class="flex items-center gap-3 flex-wrap">
-                  <button onclick="downloadExcelTemplate()" class="px-4 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-200 rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 shadow-md cursor-pointer">
+                  <button onclick="downloadExcelTemplate()" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 shadow-xs cursor-pointer">
                     <span class="material-symbols-rounded text-base">download</span> Download Excel Template
                   </button>
-                  <button onclick="document.getElementById('qbankFileInput').click()" class="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-md border border-slate-700/60">
+                  <button onclick="document.getElementById('qbankFileInput').click()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-xs">
                     <span class="material-symbols-rounded text-base">upload_file</span> Upload Filled Excel
                   </button>
                   <input type="file" id="qbankFileInput" class="hidden" accept=".xlsx,.xls,.csv" onchange="handleQBankUpload(this)">
@@ -488,7 +523,7 @@
               </div>
 
               <!-- Question Bank View -->
-              <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl p-6 shadow-inner">
+              <div class="bg-white border border-slate-200/80 rounded-xl p-6 shadow-xs">
                 <div class="space-y-6" id="qbankCoGroups">
                   <div class="text-sm font-bold text-slate-400 py-10 text-center">Loading Question Bank...</div>
                 </div>
@@ -497,9 +532,9 @@
 
             <!-- Mid Semester Survey Panel (SAR Criterion 2) -->
             <div id="midSemesterSurveyContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
-              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/60 pb-4">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
                 <div>
-                  <h4 class="text-sm font-black text-slate-200">Mid-Semester Survey Evaluation (SAR Criterion 2)</h4>
+                  <h4 class="text-sm font-bold text-slate-800">Mid-Semester Survey Evaluation (SAR Criterion 2)</h4>
                   <p class="text-sm text-slate-400 mt-1">Conduct real-time Teaching-Learning process evaluation to identify learning difficulties and plan immediate corrective actions.</p>
                 </div>
                 <div class="flex items-center gap-3 font-semibold text-sm" id="surveyHeaderActions">
@@ -515,9 +550,9 @@
 
             <!-- Course Exit Survey Panel (Indirect CO Attainment) -->
             <div id="courseExitSurveyContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
-              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/60 pb-4">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
                 <div>
-                  <h4 class="text-sm font-black text-slate-200">Course Exit Survey (Indirect CO Attainment)</h4>
+                  <h4 class="text-sm font-bold text-slate-800">Course Exit Survey (Indirect CO Attainment)</h4>
                   <p class="text-sm text-slate-400 mt-1">Evaluates indirect Course Outcome (CO) attainment parameters at semester-end for NBA course file accreditation.</p>
                 </div>
                 <div class="flex items-center gap-3 font-semibold text-sm" id="exitSurveyHeaderActions">
@@ -533,7 +568,7 @@
 
             <!-- Seminar Evaluation Workspace -->
             <div id="seminarEvaluationContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
-              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/60 pb-4">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
                 <div>
                   <h4 class="text-sm font-black text-slate-200">Seminar Evaluation (Revision 2021)</h4>
                   <p class="text-sm text-slate-400 mt-1">Grade student seminars based on CIA criteria. Multiple assessors' scores will be averaged to formulate the final mark.</p>
@@ -549,11 +584,11 @@
               </div>
 
               <!-- Students List with Split Evaluation Details -->
-              <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner">
+              <div class="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-xs">
                 <div class="overflow-x-auto">
                   <table class="w-full text-left border-collapse">
                     <thead>
-                      <tr class="border-b border-slate-800 text-slate-300 font-bold uppercase tracking-wider text-xs bg-slate-900/60">
+                      <tr class="border-b border-slate-800 text-slate-300 font-bold uppercase tracking-wider text-xs bg-white">
                         <th class="p-3">Roll No</th>
                         <th class="p-3">Student Name</th>
                         <th class="p-3">Topic</th>
@@ -654,19 +689,19 @@
                   Practical Reports (A4 Landscape):
                 </span>
                 <div class="flex flex-wrap gap-2.5">
-                  <a id="pRepBtnRegister" target="_blank" class="px-4 py-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
+                  <a id="pRepBtnRegister" target="_blank" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
                     <span class="material-symbols-rounded text-sm text-teal-400">grid_on</span> Consolidated Register
                   </a>
-                  <a id="pRepBtnAttendance" target="_blank" class="px-4 py-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
+                  <a id="pRepBtnAttendance" target="_blank" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
                     <span class="material-symbols-rounded text-sm text-emerald-400">playlist_add_check</span> Attendance Log
                   </a>
-                  <a id="pRepBtnExperiments" target="_blank" class="px-4 py-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
+                  <a id="pRepBtnExperiments" target="_blank" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
                     <span class="material-symbols-rounded text-sm text-amber-400">list_alt</span> Experiments List
                   </a>
-                  <a id="pRepBtnPlanner" target="_blank" class="px-4 py-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
+                  <a id="pRepBtnPlanner" target="_blank" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
                     <span class="material-symbols-rounded text-sm text-purple-400">calendar_today</span> Lesson Planner
                   </a>
-                  <a id="pRepBtnProjects" target="_blank" class="px-4 py-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
+                  <a id="pRepBtnProjects" target="_blank" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
                     <span class="material-symbols-rounded text-sm text-rose-400">assignment</span> Open-Ended Projects
                   </a>
                 </div>
@@ -677,7 +712,7 @@
                 <div class="overflow-x-auto">
                   <table class="w-full text-left border-collapse min-w-[1100px]">
                     <thead>
-                      <tr class="border-b border-slate-800/80 text-slate-350 font-bold uppercase tracking-wider text-sm bg-slate-900/80">
+                      <tr class="border-b border-slate-800/80 text-slate-350 font-bold uppercase tracking-wider text-sm bg-slate-50">
                         <th class="p-4 w-20 text-center">Roll No</th>
                         <th class="p-4">Student Name</th>
                         <th class="p-4 text-center">Graded Exps</th>
@@ -704,7 +739,7 @@
 
             <!-- Lab CO-PO Articulation Matrix Workspace -->
             <div id="labCoPoMappingContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
-              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800/60 pb-4">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
                 <div>
                   <h4 class="text-sm font-black text-slate-200">CO-PO &amp; CO-PSO Mapping Articulation Matrix</h4>
                   <p class="text-sm text-slate-400 mt-1">Map each Course Outcome (CO1 - CO4) to Program Outcomes (PO1 - PO11) and Program Specific Outcomes (PSO1 - PSO3) on a scale of 1 to 3.</p>
@@ -714,11 +749,11 @@
                 </button>
               </div>
 
-              <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner">
+              <div class="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-xs">
                 <div class="overflow-x-auto">
                   <table class="w-full text-left border-collapse min-w-[900px] text-xs">
                     <thead>
-                      <tr class="bg-slate-900/60 border-b border-slate-800 text-slate-300 font-bold uppercase">
+                      <tr class="bg-white border-b border-slate-800 text-slate-300 font-bold uppercase">
                         <th class="p-3 w-16">CO</th>
                         <th class="p-3">Course Outcome Statement</th>
                         <!-- POs -->
@@ -785,7 +820,7 @@
         <div id="mobileSemStep1" class="space-y-4">
 
           <!-- Pending Invitations -->
-          <div class="bg-slate-900/60 border border-amber-600/30 rounded-2xl overflow-hidden shadow-lg">
+          <div class="bg-white border border-amber-600/30 rounded-2xl overflow-hidden shadow-lg">
             <div class="px-5 py-4 border-b border-amber-600/20 flex items-center gap-3 bg-amber-950/20">
               <span class="material-symbols-rounded text-amber-400 text-xl">mark_email_unread</span>
               <h4 class="text-base font-black text-amber-200">Pending Invitations</h4>
@@ -796,7 +831,7 @@
           </div>
 
           <!-- Accepted / Start Evaluation -->
-          <div class="bg-slate-900/60 border border-emerald-700/30 rounded-2xl overflow-hidden shadow-lg">
+          <div class="bg-white border border-emerald-700/30 rounded-2xl overflow-hidden shadow-lg">
             <div class="px-5 py-4 border-b border-emerald-700/20 flex items-center gap-3 bg-emerald-950/20">
               <span class="material-symbols-rounded text-emerald-400 text-xl">how_to_reg</span>
               <h4 class="text-base font-black text-emerald-200">Attending Seminars</h4>
@@ -1267,7 +1302,7 @@
       document.getElementById('syllabusUploadBox').classList.add('hidden');
       document.getElementById('syllabusUploadProgress').classList.remove('hidden');
       document.getElementById('parseStatusBadge').innerText = 'Extracting...';
-      document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-blue-900/30 text-blue-400 border border-blue-500/30';
+      document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs whitespace-nowrap';
 
       fetch(`/api/classroom/${currentSubjectId}/syllabus`, {
         method: 'POST',
@@ -1285,19 +1320,21 @@
         document.getElementById('syllabusFileInput').value = '';
         if (data.status === 'SUCCESS') {
           document.getElementById('parseStatusBadge').innerText = 'Parsed & Synced ✓';
-          document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-900/30 text-emerald-400 border border-emerald-500/30';
+          document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-2xs whitespace-nowrap';
           // Reload course details — it will auto-switch to Course Structure tab
           loadCourseDetails(currentSubjectId);
         } else {
           alert(data.message || 'Upload failed.');
           document.getElementById('parseStatusBadge').innerText = 'Upload Failed';
-          document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-red-900/30 text-red-400 border border-red-500/30';
+          document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200/80 shadow-2xs whitespace-nowrap';
         }
       })
       .catch(err => {
         document.getElementById('syllabusUploadBox').classList.remove('hidden');
         document.getElementById('syllabusUploadProgress').classList.add('hidden');
         document.getElementById('syllabusFileInput').value = '';
+        document.getElementById('parseStatusBadge').innerText = 'Upload Error';
+        document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200/80 shadow-2xs whitespace-nowrap';
         alert('Failed to upload syllabus: ' + err.message);
       });
     }
@@ -1323,8 +1360,8 @@
         
         if (t.id === tabName) {
           if (btn) {
-            btn.classList.add('border-blue-500', 'text-blue-400');
-            btn.classList.remove('border-transparent', 'text-slate-500', 'hover:border-slate-600', 'hover:text-slate-300');
+            btn.classList.add('bg-blue-50', 'text-blue-700', 'border-blue-200/80', 'shadow-2xs');
+            btn.classList.remove('border-transparent', 'text-slate-600', 'hover:bg-slate-50');
           }
           if (content) {
             content.classList.remove('hidden');
@@ -1332,8 +1369,8 @@
           }
         } else {
           if (btn) {
-            btn.classList.remove('border-blue-500', 'text-blue-400');
-            btn.classList.add('border-transparent', 'text-slate-500', 'hover:border-slate-600', 'hover:text-slate-300');
+            btn.classList.remove('bg-blue-50', 'text-blue-700', 'border-blue-200/80', 'shadow-2xs');
+            btn.classList.add('border-transparent', 'text-slate-600', 'hover:bg-slate-50');
           }
           if (content) {
             content.classList.add('hidden');
@@ -1504,17 +1541,17 @@
             const dlBtn = document.getElementById('downloadSyllabusBtn');
             if (dlBtn) dlBtn.dataset.url = `/api/classroom/${subjectId}/syllabus/download`;
             document.getElementById('parseStatusBadge').innerText = 'Parsed & Synced';
-            document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-900/30 text-emerald-400 border border-emerald-500/30';
+            document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-2xs whitespace-nowrap';
           } else {
             document.getElementById('parseStatusBadge').innerText = 'Waiting for upload';
-            document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/50';
+            document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap shadow-2xs';
           }
         } else {
           document.getElementById('parseStatusBadge').innerText = 'Waiting for upload';
-          document.getElementById('parseStatusBadge').className = 'text-[10px] font-bold px-2.5 py-1 rounded-md bg-slate-800/80 text-slate-400 border border-slate-700/50';
+          document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap shadow-2xs';
           document.getElementById('courseStructureContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
-              <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+              <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
                 <span class="material-symbols-rounded text-xl text-slate-600">inventory_2</span>
               </div>
               <p class="text-sm font-bold text-slate-400">No syllabus loaded.</p>
@@ -1523,7 +1560,7 @@
           `;
           document.getElementById('coursePlannerContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
-              <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+              <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
                 <span class="material-symbols-rounded text-xl text-slate-600">event_note</span>
               </div>
               <p class="text-sm font-bold text-slate-400">Planner not generated.</p>
@@ -1532,7 +1569,7 @@
           `;
           document.getElementById('formativeAssessmentContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
-              <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+              <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
                 <span class="material-symbols-rounded text-xl text-slate-600">assignment_turned_in</span>
               </div>
               <p class="text-sm font-bold text-slate-400">Formative Assessment Inactive.</p>
@@ -1541,7 +1578,7 @@
           `;
           document.getElementById('summativeAssessmentContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
-              <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+              <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
                 <span class="material-symbols-rounded text-xl text-slate-600">quiz</span>
               </div>
               <p class="text-sm font-bold text-slate-400">Summative Assessment Inactive.</p>
@@ -1552,7 +1589,7 @@
           if (qbContent) {
               qbContent.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
-                  <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+                  <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
                     <span class="material-symbols-rounded text-xl text-slate-600">database</span>
                   </div>
                   <p class="text-sm font-bold text-slate-400">Question Bank Inactive.</p>
@@ -1600,12 +1637,12 @@
 
     // CO colour palette for lesson planner badges
     const CO_COLORS = {
-      'CO1': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-      'CO2': 'bg-violet-500/10 text-violet-400 border-violet-500/20',
-      'CO3': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-      'CO4': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-      'CO5': 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-      'CO6': 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+      'CO1': 'bg-blue-50 text-blue-700 border-blue-200',
+      'CO2': 'bg-violet-50 text-violet-700 border-violet-200',
+      'CO3': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      'CO4': 'bg-amber-50 text-amber-700 border-amber-200',
+      'CO5': 'bg-rose-50 text-rose-700 border-rose-200',
+      'CO6': 'bg-cyan-50 text-cyan-700 border-cyan-200',
     };
 
     function renderCoursePlanner(lessonPlans) {
@@ -1628,7 +1665,7 @@
             </button>`;
         container.innerHTML = `
           <div class="flex flex-col items-center justify-center py-16 text-center h-full">
-            <div class="bg-slate-900/50 p-4 rounded-full mb-4 border border-slate-800/60">
+            <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
               <span class="material-symbols-rounded text-xl ${emptyColor}">${emptyIcon}</span>
             </div>
             <p class="text-sm font-bold text-slate-400">No Lesson Plan Generated Yet</p>
@@ -1652,41 +1689,41 @@
 
       // Header buttons
       let practicalRegenBtn = window.isCurrentSubjectPractical
-        ? `<button onclick="openGeneratePlannerModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/50 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1">
+        ? `<button onclick="openGeneratePlannerModal()" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs">
              <span class="material-symbols-rounded text-xs">science</span> Regenerate (Lab)
            </button>` : '';
 
       let html = `
-        <div class="flex flex-wrap justify-between items-center gap-3 mb-4 pb-3 border-b border-slate-800/60">
+        <div class="flex flex-wrap justify-between items-center gap-3 mb-4 pb-3 border-b border-slate-200">
           <div>
-            <h4 class="text-sm font-black text-slate-200">Lesson Planner</h4>
+            <h4 class="text-sm font-bold text-slate-800">Lesson Planner</h4>
             <p class="text-xs text-slate-500 mt-0.5">${lectureDays} lecture days · ${testDays} test days · ${totalHours} total hours (Syllabus Proposed: ${proposedVal} hours) · Click any topic to edit inline</p>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             ${practicalRegenBtn}
-            <button onclick="regenerateLessonPlan()" id="btnRegenPlan" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/50 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1" title="Re-generate all lesson plans from stored syllabus data">
+            <button onclick="regenerateLessonPlan()" id="btnRegenPlan" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Re-generate all lesson plans from stored syllabus data">
               <span class="material-symbols-rounded text-xs">refresh</span> Regenerate
             </button>
-            <button onclick="saveLessonPlanChanges()" id="btnSavePlan" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1">
+            <button onclick="saveLessonPlanChanges()" id="btnSavePlan" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs">
               <span class="material-symbols-rounded text-xs">save</span> Save Changes
             </button>
-            <button onclick="saveLessonPlanAsTemplate()" id="btnSavePlanTemplate" class="px-3 py-1.5 bg-violet-800/80 hover:bg-violet-700/80 text-violet-200 border border-violet-600/30 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1" title="Save as reusable template for other batches with the same subject">
+            <button onclick="saveLessonPlanAsTemplate()" id="btnSavePlanTemplate" class="px-3 py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Save as reusable template for other batches with the same subject">
               <span class="material-symbols-rounded text-xs">bookmark_add</span> Save as Template
             </button>
-            <button onclick="loadLessonPlanTemplate()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/50 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1" title="Load previously saved template">
+            <button onclick="loadLessonPlanTemplate()" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Load previously saved template">
               <span class="material-symbols-rounded text-xs">download</span> Load Template
             </button>
-            <a href="/classroom/${currentSubjectId}/lesson-plan/print" target="_blank" class="px-3 py-1.5 bg-sky-800 hover:bg-sky-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1" title="Print Lesson Plan (A4)">
+            <a href="/classroom/${currentSubjectId}/lesson-plan/print" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Print Lesson Plan (A4)">
               <span class="material-symbols-rounded text-xs">print</span> Print Plan
             </a>
           </div>
         </div>
 
-        <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner">
+        <div class="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-xs">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[900px]" id="lessonPlanTable">
               <thead>
-                <tr class="bg-slate-900/80 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/60">
+                <tr class="bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
                   <th class="p-3 w-10 text-center">#</th>
                   <th class="p-3 w-8 text-center">CO</th>
                   <th class="p-3">Topic / Content <span class="text-slate-600 normal-case font-normal">(editable)</span></th>
@@ -1702,7 +1739,7 @@
 
       lessonPlans.forEach((lp, index) => {
         let co        = lp.co_id || '';
-        let coColor   = CO_COLORS[co] || 'bg-slate-700/30 text-slate-400 border-slate-600/30';
+        let coColor   = CO_COLORS[co] || 'bg-slate-100 text-slate-700 border-slate-200';
         let coBadge   = co ? `<span class="px-1.5 py-0.5 rounded border text-[10px] font-bold ${coColor}">${co}</span>` : `<span class="text-slate-700 text-[10px]">—</span>`;
         let proposed  = lp.proposed_date || '';
         let pedagogy  = lp.pedagogy || 'Lecture';
@@ -1710,37 +1747,37 @@
         let topic     = (lp.topic_content || '').replace(/"/g, '&quot;');
         let dayNo     = lp.day_no || (index + 1);
         let isTest    = pedagogy.toLowerCase() === 'test';
-        let rowBg     = isTest ? 'bg-amber-950/20 border-amber-900/20' : 'border-slate-800/40';
+        let rowBg     = isTest ? 'bg-slate-100/90 border-b border-slate-200 hover:bg-slate-100' : 'bg-white border-b border-slate-100 hover:bg-slate-50/80';
         let actual    = lp.actual_date
           ? `<span class="text-emerald-400 font-mono text-[10px]">${lp.actual_date}</span>`
           : `<span class="text-slate-700 text-[10px]">—</span>`;
 
         html += `
-          <tr class="border-b ${rowBg} last:border-0 hover:bg-slate-900/20 transition-premium" data-lp-id="${lp.id}">
-            <td class="p-2 text-center text-xs font-bold text-slate-600">${dayNo}</td>
+          <tr class="border-b ${rowBg} last:border-0 hover:bg-slate-50/80 transition-colors" data-lp-id="${lp.id}">
+            <td class="p-2 text-center text-xs font-bold text-slate-700">${dayNo}</td>
             <td class="p-2 text-center">${coBadge}</td>
             <td class="p-2">
               <input type="text" value="${topic}" data-field="topic"
-                class="w-full bg-transparent border border-transparent hover:border-slate-700/60 focus:border-blue-500/50 focus:bg-slate-900/60 rounded px-2 py-1 text-slate-300 text-xs focus:outline-none transition-all placeholder:text-slate-600"
+                class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2.5 py-1.5 text-slate-900 font-medium text-xs shadow-2xs outline-none transition-all placeholder:text-slate-400"
                 placeholder="Enter topic..."
                 onchange="markPlanDirty(${lp.id})">
             </td>
             <td class="p-2">
               <input type="date" value="${proposed}" data-field="proposed_date"
-                class="w-full bg-slate-900/60 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-xs focus:outline-none focus:border-blue-500/50 font-mono"
+                class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2 py-1.5 text-slate-800 text-xs font-mono shadow-2xs outline-none transition-all"
                 onchange="markPlanDirty(${lp.id}); autoSavePlanRow(${lp.id}, this.closest('tr'))">
             </td>
             <td class="p-2 text-center">${actual}</td>
-            <td class="p-2 text-center text-xs font-mono text-slate-500">${lp.allocated_hours || 1}</td>
+            <td class="p-2 text-center text-xs font-bold font-mono text-slate-700">${lp.allocated_hours || 1}</td>
             <td class="p-2">
               <input type="text" value="${pedagogy}" data-field="pedagogy"
-                class="w-full bg-transparent border border-transparent hover:border-slate-700/60 focus:border-blue-500/50 focus:bg-slate-900/60 rounded px-2 py-1 text-slate-400 text-xs focus:outline-none transition-all"
+                class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2.5 py-1.5 text-slate-800 text-xs shadow-2xs outline-none transition-all placeholder:text-slate-400"
                 placeholder="Lecture, Demo, Lab..."
                 onchange="markPlanDirty(${lp.id})">
             </td>
             <td class="p-2">
               <input type="text" value="${remarks}" data-field="remarks"
-                class="w-full bg-transparent border border-transparent hover:border-slate-700/60 focus:border-blue-500/50 focus:bg-slate-900/60 rounded px-2 py-1 text-slate-500 text-xs focus:outline-none transition-all"
+                class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2.5 py-1.5 text-slate-800 text-xs shadow-2xs outline-none transition-all placeholder:text-slate-400"
                 placeholder="Add remarks..."
                 onchange="markPlanDirty(${lp.id})">
             </td>
@@ -1919,10 +1956,10 @@
 
         <div id="aiQuestionsContainer" class="grid-cols-1 md:grid-cols-2 gap-4 mb-6" style="display:none;"></div>
 
-        <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner">
-          <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 flex items-center justify-between">
-            <div class="font-bold text-base text-slate-300 flex items-center gap-2 tracking-wide uppercase">
-              <span class="material-symbols-rounded text-base text-emerald-400">edit_note</span> Enter Assignment Marks
+        <div class="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-xs">
+          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <div class="font-bold text-sm text-slate-800 flex items-center gap-2 tracking-wide uppercase">
+              <span class="material-symbols-rounded text-base text-emerald-600">edit_note</span> Enter Assignment Marks
             </div>
             <button onclick="saveAssignmentMarks('${currentSubjectId}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer">
               Save Marks
@@ -1931,7 +1968,7 @@
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[700px]">
               <thead>
-                <tr class="bg-slate-900/40 text-sm font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/60">
+                <tr class="bg-slate-50 text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-200">
                   <th class="p-3 w-12">S.No.</th>
                   <th class="p-3">Student Name</th>
                   <th class="p-3 w-28">Admission No</th>
@@ -1953,11 +1990,11 @@
           const getInputHtml = (co, val) => {
             let isSubmitted = (sub[co] === 'Submitted');
             let isGraded = val !== null && val !== '';
-            let styleClasses = "co-mark w-full bg-slate-900 border rounded-lg px-2 py-2 text-slate-100 text-base font-bold focus:outline-none text-center ";
+            let styleClasses = "co-mark w-full bg-white border border-slate-200 rounded-lg px-2 py-2 text-slate-900 text-base font-bold shadow-2xs focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none text-center ";
             let indicator = "";
 
             if (isGraded) {
-              styleClasses += "border-slate-800 focus:border-blue-400";
+              styleClasses += "border-slate-200 focus:border-blue-500";
             } else if (isSubmitted) {
               // Highlight input field with an amber border and a pulsing indicator dot
               styleClasses += "border-amber-500/70 bg-amber-950/20 focus:border-amber-400";
@@ -1976,11 +2013,11 @@
           };
 
           html += `
-            <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/40 transition-premium" data-reg="${student.reg_no}">
-              <td class="px-4 py-4 text-slate-400 font-bold text-base text-center">${index + 1}</td>
-              <td class="px-4 py-4 font-bold text-slate-50 text-lg tracking-wide">${student.name}</td>
-              <td class="px-4 py-4 font-mono text-slate-200 text-base">${student.reg_no}</td>
-              <td class="px-4 py-4 font-mono text-slate-200 text-base">${student.sbte_reg_no || '-'}</td>
+            <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50/80 transition-colors text-slate-800" data-reg="${student.reg_no}">
+              <td class="px-4 py-4 text-slate-700 font-bold text-base text-center">${index + 1}</td>
+              <td class="px-4 py-4 font-bold text-slate-900 text-base tracking-wide">${student.name}</td>
+              <td class="px-4 py-4 font-mono text-slate-700 text-sm font-semibold">${student.reg_no}</td>
+              <td class="px-4 py-4 font-mono text-slate-700 text-sm font-semibold">${student.sbte_reg_no || '-'}</td>
               <td class="px-3 py-3">${getInputHtml('CO1', m.CO1)}</td>
               <td class="px-3 py-3">${getInputHtml('CO2', m.CO2)}</td>
               <td class="px-3 py-3">${getInputHtml('CO3', m.CO3)}</td>
@@ -2004,10 +2041,10 @@
       // Show empty-state prompt if no questions have been generated yet
       if (!questionsData || Object.keys(questionsData).length === 0) {
         container.innerHTML = `
-          <div class="col-span-full flex flex-col items-center justify-center py-12 text-center bg-slate-900/40 border border-dashed border-slate-700/60 rounded-xl">
-            <span class="material-symbols-rounded text-5xl text-slate-600 mb-3">smart_toy</span>
-            <p class="font-bold text-slate-300 text-sm mb-1">No Assignment Questions Yet</p>
-            <p class="text-xs text-slate-500 mb-4">Click <strong>AI Generate Questions</strong> above to generate questions for all Course Outcomes using Gemini AI.</p>
+          <div class="col-span-full flex flex-col items-center justify-center py-12 text-center bg-slate-50/60 border border-dashed border-slate-300 rounded-2xl shadow-2xs">
+            <span class="material-symbols-rounded text-5xl text-blue-500 mb-3">smart_toy</span>
+            <p class="font-bold text-slate-800 text-sm mb-1">No Assignment Questions Yet</p>
+            <p class="text-xs text-slate-600 mb-4">Click <strong>AI Generate Questions</strong> above to generate questions for all Course Outcomes using Gemini AI.</p>
           </div>
         `;
         return;
@@ -2036,7 +2073,7 @@
             }
           }
           let marksText = marksVal ? ` <span class="text-slate-500 font-bold">(${marksVal} Marks)</span>` : '';
-          return `<li class="text-sm text-slate-300 mb-2 leading-relaxed font-medium">${qText}${cog}${marksText}</li>`;
+          return `<li class="text-sm text-slate-800 mb-2 leading-relaxed font-medium">${qText}${cog}${marksText}</li>`;
         }).join('');
         let schedule = currentDeadlines[co] || { start: '', due: '', locked: false };
         if (typeof schedule === 'string') schedule = { start: '', due: schedule, locked: false }; // Legacy fallback
@@ -2045,45 +2082,43 @@
         let lockStr = isLocked ? `<span class="material-symbols-rounded text-[10px] text-amber-500 ml-1" title="Locked">lock</span>` : '';
         let disabledAttr = isLocked ? 'disabled' : '';
         let regenBtn = isLocked ? '' : `
-                <button onclick="generateAIQuestions('${subjectId}', '${co}', 'ai')" class="p-1 rounded-lg bg-slate-800 hover:bg-blue-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Generate via AI (Gemini)">
-                  <span class="material-symbols-rounded text-[14px] block">auto_awesome</span>
+                <button onclick="generateAIQuestions('${subjectId}', '${co}', 'ai')" class="p-1.5 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Generate via AI (Gemini)">
+                  <span class="material-symbols-rounded text-sm block">auto_awesome</span>
                 </button>
-                <button onclick="generateAIQuestions('${subjectId}', '${co}', 'bank')" class="p-1 rounded-lg bg-slate-800 hover:bg-indigo-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Pull from Question Bank Pool">
-                  <span class="material-symbols-rounded text-[14px] block">database</span>
+                <button onclick="generateAIQuestions('${subjectId}', '${co}', 'bank')" class="p-1.5 rounded-lg bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Pull from Question Bank Pool">
+                  <span class="material-symbols-rounded text-sm block">database</span>
                 </button>
         `;
         let editBtn = isLocked ? '' : `
-                <button onclick="openEditQuestionsModal('${subjectId}', '${co}')" class="p-1 rounded-lg bg-slate-800 hover:bg-amber-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Manually Edit Questions">
-                  <span class="material-symbols-rounded text-[14px] block">edit</span>
+                <button onclick="openEditQuestionsModal('${subjectId}', '${co}')" class="p-1.5 rounded-lg bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Manually Edit Questions">
+                  <span class="material-symbols-rounded text-sm block">edit</span>
                 </button>
         `;
         let lockBtn = isLocked ? '' : `
-                <button onclick="toggleAssignmentLock('${subjectId}', '${co}')" class="p-1 rounded-lg bg-slate-800 hover:bg-amber-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Lock & Finalize">
-                  <span class="material-symbols-rounded text-[14px] block">lock</span>
+                <button onclick="toggleAssignmentLock('${subjectId}', '${co}')" class="p-1.5 rounded-lg bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Lock & Finalize">
+                  <span class="material-symbols-rounded text-sm block">lock</span>
                 </button>
         `;
         let printBtn = `
-                <button onclick="printAssignmentPaperAndRubrics('${subjectId}', '${co}')" class="p-1 rounded-lg bg-slate-800 hover:bg-emerald-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Print Assignment & Rubrics">
-                  <span class="material-symbols-rounded text-[14px] block">print</span>
+                <button onclick="printAssignmentPaperAndRubrics('${subjectId}', '${co}')" class="p-1.5 rounded-lg bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Print Assignment & Rubrics">
+                  <span class="material-symbols-rounded text-sm block">print</span>
                 </button>
         `;
 
         html += `
-          <div class="bg-slate-900/50 border border-slate-800/60 p-4 rounded-xl relative overflow-hidden group ${isLocked ? 'ring-1 ring-amber-500/30' : ''}">
-            <div class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-premium pointer-events-none"></div>
-            
-            <div class="flex items-center justify-between mb-3 border-b border-slate-800/60 pb-2 relative z-10">
-              <h5 class="text-[10px] font-black text-blue-400 flex items-center gap-1">
-                <span class="px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-[10px] mr-1">${co}</span> Assignment ${lockStr}
+          <div class="bg-white border border-slate-200/80 p-5 rounded-2xl relative overflow-hidden group shadow-xs ${isLocked ? 'ring-1 ring-amber-500/30' : ''}">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3 relative z-10">
+              <h5 class="text-sm font-bold text-slate-900 flex items-center gap-1">
+                <span class="px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold mr-1">${co}</span> Assignment ${lockStr}
               </h5>
               <div class="flex items-center gap-2">
-                <div class="flex items-center gap-1 bg-slate-950/80 px-2 py-1 rounded border border-slate-700/50">
-                  <span class="text-[10px] text-slate-500 font-bold uppercase">Start</span>
-                  <input type="date" value="${schedule.start || ''}" ${disabledAttr} class="bg-transparent text-[10px] text-slate-300 font-mono outline-none w-20" onchange="updateAssignmentSchedule('${subjectId}', '${co}', 'start', this.value)">
+                <div class="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs">
+                  <span class="text-xs text-slate-600 font-bold uppercase">Start</span>
+                  <input type="date" value="${schedule.start || ''}" ${disabledAttr} class="bg-white text-xs text-slate-800 font-mono outline-none w-24 rounded border border-slate-200 px-1 py-0.5 shadow-2xs" onchange="updateAssignmentSchedule('${subjectId}', '${co}', 'start', this.value)">
                 </div>
-                <div class="flex items-center gap-1 bg-slate-950/80 px-2 py-1 rounded border border-slate-700/50">
-                  <span class="text-[10px] text-slate-500 font-bold uppercase">Due</span>
-                  <input type="date" value="${schedule.due || ''}" ${disabledAttr} class="bg-transparent text-[10px] text-slate-300 font-mono outline-none w-20" onchange="updateAssignmentSchedule('${subjectId}', '${co}', 'due', this.value)">
+                <div class="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 shadow-2xs">
+                  <span class="text-xs text-slate-600 font-bold uppercase">Due</span>
+                  <input type="date" value="${schedule.due || ''}" ${disabledAttr} class="bg-white text-xs text-slate-800 font-mono outline-none w-24 rounded border border-slate-200 px-1 py-0.5 shadow-2xs" onchange="updateAssignmentSchedule('${subjectId}', '${co}', 'due', this.value)">
                 </div>
                 ${regenBtn}
                 ${editBtn}
@@ -2092,7 +2127,7 @@
               </div>
             </div>
             
-            <ul id="questions-list-${co}" class="list-none m-0 p-0 relative z-10 min-h-[60px]">${qList}</ul>
+            <ul id="questions-list-${co}" class="list-none m-0 p-0 relative z-10 min-h-[60px] divide-y divide-slate-100">${qList}</ul>
           </div>
         `;
       }
@@ -2222,30 +2257,30 @@
     function addManualQuestionField(question = '', btLevel = 'Understand', marks = 5) {
       const container = document.getElementById('editQuestionsFieldsContainer');
       const div = document.createElement('div');
-      div.className = "p-4 bg-slate-950/40 border border-slate-800 rounded-xl space-y-3 relative question-field-row";
+      div.className = "p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 relative question-field-row shadow-2xs";
       
       div.innerHTML = `
         <div class="flex justify-between items-center">
-          <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Question</span>
-          <button type="button" onclick="this.closest('.question-field-row').remove(); updateEditQuestionsTotalMarks();" class="text-rose-400 hover:text-rose-350 cursor-pointer">
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wide">Question</span>
+          <button type="button" onclick="this.closest('.question-field-row').remove(); updateEditQuestionsTotalMarks();" class="text-rose-500 hover:text-rose-700 cursor-pointer transition-colors">
             <span class="material-symbols-rounded text-base">delete</span>
           </button>
         </div>
         <div>
-          <textarea class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 text-sm outline-none focus:border-blue-500 resize-y q-text" rows="2" placeholder="Type question description..." required>${question}</textarea>
+          <textarea class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs resize-y q-text" rows="2" placeholder="Type question description..." required>${question}</textarea>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">BT Level</label>
-            <select class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:border-blue-500 outline-none q-bt">
+            <label class="text-xs font-bold text-slate-600 uppercase block mb-1">BT Level</label>
+            <select class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-800 focus:border-blue-500 shadow-2xs outline-none q-bt">
               <option value="Remember" ${btLevel === 'Remember' ? 'selected' : ''}>Remember</option>
               <option value="Understand" ${btLevel === 'Understand' ? 'selected' : ''}>Understand</option>
               <option value="Apply" ${btLevel === 'Apply' ? 'selected' : ''}>Apply</option>
             </select>
           </div>
           <div>
-            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Marks</label>
-            <input type="number" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs font-bold text-white focus:border-blue-500 outline-none q-marks" value="${marks}" min="1" max="20" onchange="updateEditQuestionsTotalMarks()" required>
+            <label class="text-xs font-bold text-slate-600 uppercase block mb-1">Marks</label>
+            <input type="number" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-900 focus:border-blue-500 shadow-2xs outline-none q-marks" value="${marks}" min="1" max="20" onchange="updateEditQuestionsTotalMarks()" required>
           </div>
         </div>
       `;
@@ -2368,43 +2403,58 @@
       if (!container) { console.error('[renderCourseStructure] courseStructureContent not found!'); return; }
 
       let html = `
-        <div class="flex items-center gap-3 mb-4 pb-3 border-b border-slate-800/60">
-          <span class="material-symbols-rounded text-sky-400 text-base">library_books</span>
-          <div class="flex gap-3 text-xs font-bold text-slate-400">
-            <span class="bg-sky-900/20 border border-sky-500/20 text-sky-400 px-2 py-0.5 rounded-lg">${cos ? cos.length : 0} COs</span>
-            <span class="bg-violet-900/20 border border-violet-500/20 text-violet-400 px-2 py-0.5 rounded-lg">${modules ? modules.length : 0} Modules</span>
-            <span class="bg-amber-900/20 border border-amber-500/20 text-amber-400 px-2 py-0.5 rounded-lg">${textbooks ? textbooks.length : 0} Textbooks</span>
+        <div class="flex items-center justify-between gap-3 mb-5 p-4 bg-white border border-slate-200/80 rounded-2xl shadow-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-sm font-bold border border-blue-200/80">
+              <span class="material-symbols-rounded text-base">library_books</span>
+            </span>
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">Course Structure &amp; Syllabus Elements</h3>
+              <p class="text-xs text-slate-500">Extracted syllabus specifications and mapping matrices</p>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs font-bold">
+            <span class="bg-blue-50 border border-blue-200 text-blue-700 px-2.5 py-1 rounded-lg">${cos ? cos.length : 0} COs</span>
+            <span class="bg-purple-50 border border-purple-200 text-purple-700 px-2.5 py-1 rounded-lg">${modules ? modules.length : 0} Modules</span>
+            <span class="bg-amber-50 border border-amber-200 text-amber-700 px-2.5 py-1 rounded-lg">${textbooks ? textbooks.length : 0} Textbooks</span>
           </div>
         </div>
       `;
 
       if (cos && cos.length > 0) {
-        let cosList = cos.map(co => `
-          <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[10px]">
-            <td class="p-3 font-bold text-blue-400 whitespace-nowrap">${co.id}</td>
-            <td class="p-3 text-slate-300 leading-relaxed">${co.description}</td>
-            <td class="p-3 text-center text-slate-400">${co.duration ? co.duration + ' hrs' : '-'}</td>
-            <td class="p-3 text-emerald-400 font-mono">${co.cognitive_level || '-'}</td>
-          </tr>
-        `).join('');
-        html += `
-          <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner mb-6">
-            <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 font-bold text-[10px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-[10px] text-sky-400">target</span> Course Outcomes
+        let cosList = cos.map(co => {
+          let cog = (co.cognitive_level || 'Apply').toLowerCase();
+          let badgeClasses = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+          if (cog.includes('understand')) badgeClasses = 'bg-blue-50 text-blue-700 border-blue-200';
+          else if (cog.includes('analy') || cog.includes('eval')) badgeClasses = 'bg-purple-50 text-purple-700 border-purple-200';
+
+          return `
+          <div class="p-4 rounded-xl bg-slate-50/60 border border-slate-200/80 hover:border-blue-300 transition-all space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 font-bold font-mono text-xs border border-blue-200">${co.id}</span>
+                ${co.duration ? `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-semibold text-xs border border-slate-200">${co.duration} hrs</span>` : ''}
+              </div>
+              <span class="px-2 py-0.5 rounded-md font-semibold text-xs border ${badgeClasses}">${co.cognitive_level || 'Apply'}</span>
             </div>
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr class="bg-slate-900/40 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800/60">
-                  <th class="p-3 w-16">CO</th>
-                  <th class="p-3">Description</th>
-                  <th class="p-3 text-center w-20">Duration</th>
-                  <th class="p-3 w-32">Cognitive Level</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${cosList}
-              </tbody>
-            </table>
+            <p class="text-sm font-medium text-slate-800 leading-relaxed">${co.description}</p>
+          </div>
+        `}).join('');
+
+        html += `
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs mb-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-sm font-bold border border-blue-200/80">
+                  <span class="material-symbols-rounded text-base">stars</span>
+                </span>
+                <h3 class="font-bold text-slate-900 text-sm">Course Outcomes (COs)</h3>
+              </div>
+              <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200">${cos.length} Outcomes</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              ${cosList}
+            </div>
           </div>
         `;
       }
@@ -2415,11 +2465,15 @@
             let poCells = '';
             for(let i = 1; i <= 12; i++) {
                 let val = mapping['PO' + i] || '-';
-                poCells += `<td class="p-2 text-center text-slate-400 ${val !== '-' ? 'font-bold text-emerald-400' : ''}">${val}</td>`;
+                let cellClass = 'text-slate-400 font-normal';
+                if (val == '3') cellClass = 'font-bold text-emerald-700 bg-emerald-50/60';
+                else if (val == '2') cellClass = 'font-bold text-blue-700 bg-blue-50/60';
+                else if (val == '1') cellClass = 'font-semibold text-slate-700 bg-slate-50';
+                poCells += `<td class="p-2.5 text-center font-mono text-sm ${cellClass}">${val}</td>`;
             }
             return `
-              <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-[10px]">
-                <td class="p-2 font-bold text-blue-400 whitespace-nowrap border-r border-slate-800/60">${coKey}</td>
+              <tr class="hover:bg-slate-50/80 transition-all">
+                <td class="p-3 text-left font-bold text-blue-700 pl-4 font-mono">${coKey}</td>
                 ${poCells}
               </tr>
             `;
@@ -2427,23 +2481,36 @@
         
         let poHeaders = '';
         for(let i=1; i<=12; i++) {
-            poHeaders += `<th class="p-2 text-center">PO${i}</th>`;
+            poHeaders += `<th class="p-2.5 text-center font-mono text-xs">PO${i}</th>`;
         }
 
         html += `
-          <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner mb-6">
-            <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 font-bold text-[10px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-[10px] text-amber-400">grid_on</span> CO-PO Mapping Matrix
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs mb-5 space-y-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-sm font-bold border border-indigo-200/80">
+                  <span class="material-symbols-rounded text-base">grid_on</span>
+                </span>
+                <div>
+                  <h3 class="font-bold text-slate-900 text-sm">CO-PO Articulation Matrix</h3>
+                  <p class="text-xs text-slate-500">Mapping correlation: 3 = High, 2 = Medium, 1 = Low</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 text-xs font-medium text-slate-600">
+                <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold flex items-center justify-center text-[10px]">3</span> High</span>
+                <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-blue-100 text-blue-800 border border-blue-300 font-bold flex items-center justify-center text-[10px]">2</span> Med</span>
+                <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-slate-100 text-slate-700 border border-slate-300 font-bold flex items-center justify-center text-[10px]">1</span> Low</span>
+              </div>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-center border-collapse text-sm">
                   <thead>
-                    <tr class="bg-slate-900/40 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800/60">
-                      <th class="p-2 w-16 border-r border-slate-800/60">CO</th>
+                    <tr class="bg-slate-50 text-slate-700 font-bold text-xs uppercase border-b border-slate-200">
+                      <th class="p-3 text-left pl-4 w-20">CO</th>
                       ${poHeaders}
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody class="divide-y divide-slate-100">
                     ${copoList}
                   </tbody>
                 </table>
@@ -2455,19 +2522,30 @@
       // Render Modules section
       if (modules && modules.length > 0) {
         let modulesList = modules.map((m, idx) => `
-          <div class="border-b border-slate-800/40 last:border-0 px-4 py-3 hover:bg-slate-900/30 transition-premium">
-            <div class="flex items-start gap-3">
-              <span class="flex-shrink-0 w-7 h-7 rounded-lg bg-violet-500/15 border border-violet-500/30 flex items-center justify-center text-violet-400 text-xs font-black">${m.module_id || (idx + 1)}</span>
-              <p class="text-sm text-slate-300 leading-relaxed">${m.content || ''}</p>
+          <div class="p-4 rounded-xl bg-slate-50/60 border border-slate-200/80 hover:border-purple-300 transition-all space-y-2">
+            <div class="flex items-center justify-between gap-2 border-b border-slate-200/60 pb-2">
+              <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold">Module ${m.module_id || (idx + 1)}</span>
+                <span>${m.title || 'Unit ' + (m.module_id || (idx + 1))}</span>
+              </h4>
+              ${m.hours ? `<span class="px-2.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-bold text-xs font-mono shadow-2xs">${m.hours} Hours</span>` : ''}
             </div>
+            <p class="text-sm font-normal text-slate-700 leading-relaxed whitespace-pre-line pt-1">${m.content || ''}</p>
           </div>
         `).join('');
+
         html += `
-          <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner mb-6">
-            <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 font-bold text-xs text-slate-400 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-xs text-violet-400">layers</span> Modules / Units
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs mb-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center text-sm font-bold border border-purple-200/80">
+                  <span class="material-symbols-rounded text-base">collections_bookmark</span>
+                </span>
+                <h3 class="font-bold text-slate-900 text-sm">Course Modules / Units</h3>
+              </div>
+              <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200">${modules.length} Modules</span>
             </div>
-            <div class="divide-y divide-slate-800/40">
+            <div class="space-y-3">
               ${modulesList}
             </div>
           </div>
@@ -2477,17 +2555,24 @@
       // Render Textbooks section
       if (textbooks && textbooks.length > 0) {
         let textbooksList = textbooks.map((tb, idx) => `
-          <div class="flex items-start gap-3 px-4 py-3 border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium">
-            <span class="flex-shrink-0 w-5 h-5 mt-0.5 rounded bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 text-xs font-bold">${idx + 1}</span>
-            <p class="text-sm text-slate-300 leading-relaxed">${tb}</p>
+          <div class="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50/60 border border-slate-200/80 hover:border-amber-300 transition-all">
+            <span class="flex-shrink-0 w-6 h-6 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 text-xs font-bold mt-0.5">${idx + 1}</span>
+            <p class="text-sm font-medium text-slate-800 leading-relaxed">${tb}</p>
           </div>
         `).join('');
+
         html += `
-          <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner mb-6">
-            <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 font-bold text-xs text-slate-400 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-xs text-amber-400">menu_book</span> Textbooks &amp; References
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs mb-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center text-sm font-bold border border-amber-200/80">
+                  <span class="material-symbols-rounded text-base">menu_book</span>
+                </span>
+                <h3 class="font-bold text-slate-900 text-sm">Textbooks &amp; References</h3>
+              </div>
+              <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200">${textbooks.length} Books</span>
             </div>
-            <div class="divide-y divide-slate-800/40">
+            <div class="space-y-2.5">
               ${textbooksList}
             </div>
           </div>
@@ -2495,7 +2580,7 @@
       }
 
       if (html === '') {
-        html = `<div class="p-6 text-center text-sm text-slate-500 border border-dashed border-slate-700/50 rounded-xl">Could not extract structured data. The syllabus might have an unparseable format.</div>`;
+        html = `<div class="p-6 text-center text-sm text-slate-500 border border-dashed border-slate-200 rounded-2xl bg-white">Could not extract structured data. The syllabus might have an unparseable format.</div>`;
       }
 
       console.log('[renderCourseStructure] Writing HTML to courseStructureContent, length:', html.length);
@@ -2506,25 +2591,25 @@
       let html = `
         <div class="flex items-center justify-between mb-4 no-print">
           <div>
-            <h4 class="text-[10px] font-black text-slate-200">Summative Assessment (Manual Tests)</h4>
-            <p class="text-[10px] text-slate-500 mt-1">Configure and generate precise Cognitive Level based question papers for each CO.</p>
+            <h4 class="text-base font-bold text-slate-900">Summative Assessment (Manual Tests)</h4>
+            <p class="text-sm text-slate-600 mt-0.5">Configure and generate precise Cognitive Level based question papers for each CO.</p>
           </div>
         </div>
       `;
 
       // Build the marks entry table FIRST so it's at the top
       let marksEntryHtml = `
-        <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner no-print mb-6">
-          <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-premium" onclick="document.getElementById('manualMarksWrapper').classList.toggle('hidden'); document.getElementById('marksToggleIcon').innerText = document.getElementById('manualMarksWrapper').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
-            <div class="font-bold text-sm text-slate-400 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-sm text-emerald-400">edit_document</span> Enter Manual Marks
+        <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs no-print mb-6">
+          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors" onclick="document.getElementById('manualMarksWrapper').classList.toggle('hidden'); document.getElementById('marksToggleIcon').innerText = document.getElementById('manualMarksWrapper').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
+            <div class="font-bold text-sm text-slate-800 flex items-center gap-2 tracking-wider uppercase">
+              <span class="material-symbols-rounded text-base text-emerald-600">edit_document</span> Enter Manual Marks
               <span id="marksToggleIcon" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
             </div>
             <div class="flex items-center gap-2">
-              <button onclick="event.stopPropagation(); printSummativeReport('${currentSubjectId}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer">
+              <button onclick="event.stopPropagation(); printSummativeReport('${currentSubjectId}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer shadow-xs">
                 Print Written Report
               </button>
-              <button onclick="event.stopPropagation(); saveSummativeMarks('${currentSubjectId}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer">
+              <button onclick="event.stopPropagation(); saveSummativeMarks('${currentSubjectId}')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer shadow-xs">
                 Save Written Marks
               </button>
             </div>
@@ -2532,7 +2617,7 @@
           <div id="manualMarksWrapper" class="hidden overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[700px]">
               <thead>
-                <tr class="bg-slate-900/40 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800/60">
+                <tr class="bg-slate-50 text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-200">
                   <th class="p-3 w-12">S.No.</th>
                   <th class="p-3">Student Name</th>
                   <th class="p-3 w-28">Admission No</th>
@@ -2550,15 +2635,15 @@
         students.forEach((student, index) => {
           let sm = student.summative_marks || {};
           marksEntryHtml += `
-            <tr class="border-b border-slate-800/40 last:border-0 hover:bg-slate-900/30 transition-premium text-sm" data-reg="${student.reg_no}">
-              <td class="p-3 text-slate-400 font-bold">${index + 1}</td>
-              <td class="p-3 font-bold text-slate-200">${student.name}</td>
-              <td class="p-3 font-mono text-slate-400">${student.reg_no}</td>
-              <td class="p-3 font-mono text-slate-400">${student.sbte_reg_no || '-'}</td>
-              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO1 !== null ? Math.round(sm.CO1) : ''}" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO1"></td>
-              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO2 !== null ? Math.round(sm.CO2) : ''}" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO2"></td>
-              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO3 !== null ? Math.round(sm.CO3) : ''}" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO3"></td>
-              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO4 !== null ? Math.round(sm.CO4) : ''}" placeholder="-" class="summ-mark w-full bg-slate-900/80 border border-slate-700/60 rounded px-2 py-1 text-slate-300 text-sm focus:outline-none focus:border-blue-500/50 text-center" data-co="CO4"></td>
+            <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50/80 transition-colors text-sm text-slate-800" data-reg="${student.reg_no}">
+              <td class="p-3 text-slate-700 font-bold">${index + 1}</td>
+              <td class="p-3 font-bold text-slate-900">${student.name}</td>
+              <td class="p-3 font-mono text-slate-600">${student.reg_no}</td>
+              <td class="p-3 font-mono text-slate-600">${student.sbte_reg_no || '-'}</td>
+              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO1 !== null ? Math.round(sm.CO1) : ''}" placeholder="-" class="summ-mark w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-900 font-bold text-sm shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-center" data-co="CO1"></td>
+              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO2 !== null ? Math.round(sm.CO2) : ''}" placeholder="-" class="summ-mark w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-900 font-bold text-sm shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-center" data-co="CO2"></td>
+              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO3 !== null ? Math.round(sm.CO3) : ''}" placeholder="-" class="summ-mark w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-900 font-bold text-sm shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-center" data-co="CO3"></td>
+              <td class="p-3"><input type="number" step="1" min="0" value="${sm.CO4 !== null ? Math.round(sm.CO4) : ''}" placeholder="-" class="summ-mark w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-slate-900 font-bold text-sm shadow-2xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-center" data-co="CO4"></td>
             </tr>
           `;
         });
@@ -2579,27 +2664,27 @@
           let generatedContent = '';
           
           if (testData) {
-            let partAStr = testData.part_a ? testData.part_a.questions.map(q => `<li class="mb-1.5"><span class="font-mono text-sm text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-sm text-slate-500">(${q.marks})</span></li>`).join('') : '';
-            let partBStr = testData.part_b ? testData.part_b.questions.map(q => `<li class="mb-1.5"><span class="font-mono text-sm text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-sm text-slate-500">(${q.marks})</span></li>`).join('') : '';
-            let partCStr = testData.part_c ? testData.part_c.questions.map(q => `<li class="mb-1.5"><span class="font-mono text-sm text-emerald-400 mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-sm text-slate-500">(${q.marks})</span></li>`).join('') : '';
+            let partAStr = testData.part_a ? testData.part_a.questions.map(q => `<li class="mb-1.5"><span class="font-mono text-sm text-emerald-700 font-bold mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-sm text-slate-500">(${q.marks})</span></li>`).join('') : '';
+            let partBStr = testData.part_b ? testData.part_b.questions.map(q => `<li class="mb-1.5"><span class="font-mono text-sm text-emerald-700 font-bold mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-sm text-slate-500">(${q.marks})</span></li>`).join('') : '';
+            let partCStr = testData.part_c ? testData.part_c.questions.map(q => `<li class="mb-1.5"><span class="font-mono text-sm text-emerald-700 font-bold mr-1">[${q.level}]</span> ${q.q} <span class="float-right text-sm text-slate-500">(${q.marks})</span></li>`).join('') : '';
 
             generatedContent = `
-              <div class="mt-4 pt-4 border-t border-slate-800/60" id="paper-${co.id}">
+              <div class="mt-4 pt-4 border-t border-slate-200" id="paper-${co.id}">
                 <div class="flex justify-between items-center mb-2">
-                  <span class="text-sm font-bold text-emerald-400 uppercase tracking-widest">Generated Question Paper</span>
+                  <span class="text-sm font-bold text-emerald-700 uppercase tracking-widest">Generated Question Paper</span>
                   <div class="flex items-center gap-2">
-                    <button onclick="printSummativePaper('${co.id}', ${testData.total_marks})" class="flex items-center gap-1.5 text-sm bg-blue-700/30 hover:bg-blue-600 border border-blue-600/40 px-3 py-1.5 rounded-lg text-blue-300 hover:text-white transition-premium cursor-pointer">
+                    <button onclick="printSummativePaper('${co.id}', ${testData.total_marks})" class="flex items-center gap-1.5 text-sm bg-blue-50 hover:bg-blue-600 border border-blue-200 hover:border-blue-600 px-3 py-1.5 rounded-lg text-blue-700 hover:text-white transition-premium cursor-pointer shadow-2xs">
                       <span class="material-symbols-rounded text-base">print</span> Print Q Paper
                     </button>
-                    <button onclick="printAnswerKey('${co.id}', ${testData.total_marks})" class="flex items-center gap-1.5 text-sm bg-amber-700/30 hover:bg-amber-600 border border-amber-600/40 px-3 py-1.5 rounded-lg text-amber-300 hover:text-white transition-premium cursor-pointer">
+                    <button onclick="printAnswerKey('${co.id}', ${testData.total_marks})" class="flex items-center gap-1.5 text-sm bg-amber-50 hover:bg-amber-600 border border-amber-200 hover:border-amber-600 px-3 py-1.5 rounded-lg text-amber-700 hover:text-white transition-premium cursor-pointer shadow-2xs">
                       <span class="material-symbols-rounded text-base">assignment</span> Print Answer Key
                     </button>
                   </div>
                 </div>
-                <div class="text-sm text-slate-300 bg-slate-950/50 p-4 rounded-lg border border-slate-800/40">
-                  ${partAStr ? `<div class="font-bold mb-1.5 text-slate-400">PART A (Short Answers)</div><ul class="list-decimal pl-5 mb-4">${partAStr}</ul>` : ''}
-                  ${partBStr ? `<div class="font-bold mb-1.5 text-slate-400">PART B (Medium Answers)</div><ul class="list-decimal pl-5 mb-4">${partBStr}</ul>` : ''}
-                  ${partCStr ? `<div class="font-bold mb-1.5 text-slate-400">PART C (Long Answers)</div><ul class="list-decimal pl-5 mb-2">${partCStr}</ul>` : ''}
+                <div class="text-sm text-slate-800 bg-slate-50/70 p-5 rounded-xl border border-slate-200 shadow-2xs">
+                  ${partAStr ? `<div class="font-bold mb-1.5 text-slate-700">PART A (Short Answers)</div><ul class="list-decimal pl-5 mb-4">${partAStr}</ul>` : ''}
+                  ${partBStr ? `<div class="font-bold mb-1.5 text-slate-700">PART B (Medium Answers)</div><ul class="list-decimal pl-5 mb-4">${partBStr}</ul>` : ''}
+                  ${partCStr ? `<div class="font-bold mb-1.5 text-slate-700">PART C (Long Answers)</div><ul class="list-decimal pl-5 mb-2">${partCStr}</ul>` : ''}
                 </div>
               </div>
             `;
@@ -2618,28 +2703,28 @@
           let mC = tempSummativePatterns[co.id] ? tempSummativePatterns[co.id].mC : (testData?.part_c?.marks_per_q || '');
 
           let lockBtn = isLocked || !testData ? '' : `
-            <button onclick="lockSummativeTest('${currentSubjectId}', '${co.id}')" class="p-1.5 rounded-lg bg-slate-800 hover:bg-amber-600 text-slate-400 hover:text-white transition-premium cursor-pointer" title="Lock & Finalize">
+            <button onclick="lockSummativeTest('${currentSubjectId}', '${co.id}')" class="p-1.5 rounded-lg bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Lock & Finalize">
               <span class="material-symbols-rounded text-base block">lock</span>
             </button>
           `;
 
           let genBtn = isLocked ? '' : `
-              <button id="gen_btn_${co.id}" onclick="generateSummativePaper('${currentSubjectId}', '${co.id}')" class="w-full py-2.5 bg-blue-600/20 hover:bg-blue-600 border border-blue-500/30 text-blue-400 hover:text-white rounded-xl text-sm font-bold transition-premium mt-3 cursor-pointer">
+              <button id="gen_btn_${co.id}" onclick="generateSummativePaper('${currentSubjectId}', '${co.id}')" class="w-full py-2.5 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white border border-blue-200 hover:border-blue-600 rounded-xl text-sm font-bold transition-premium mt-3 cursor-pointer shadow-2xs">
                 ${testData ? 'Regenerate Question Paper' : 'Generate AI Question Paper'}
               </button>
           `;
           
           let dateInputStr = `
-            <div class="flex items-center gap-1.5 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700/80 shadow-inner">
-              <span class="text-sm text-slate-400 font-bold uppercase flex items-center gap-1"><span class="material-symbols-rounded text-sm">calendar_today</span>Date</span>
-              <input type="date" id="summ_date_${co.id}" value="${dateStr}" ${disabledAttr} onchange="saveSummativeConfig('${currentSubjectId}', '${co.id}')" class="bg-slate-900 text-sm text-slate-200 font-mono outline-none w-[110px] px-2 py-0.5 rounded border border-slate-700 focus:border-blue-500">
+            <div class="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+              <span class="text-xs text-slate-600 font-bold uppercase flex items-center gap-1"><span class="material-symbols-rounded text-sm">calendar_today</span>Date</span>
+              <input type="date" id="summ_date_${co.id}" value="${dateStr}" ${disabledAttr} onchange="saveSummativeConfig('${currentSubjectId}', '${co.id}')" class="bg-white text-sm text-slate-800 font-mono outline-none w-[110px] px-2 py-0.5 rounded border border-slate-200 focus:border-blue-500 shadow-2xs">
             </div>
           `;
 
           html += `
-            <div id="summ_card_${co.id}" class="bg-slate-900/50 border border-slate-800/60 p-5 rounded-xl relative ${isLocked ? 'ring-1 ring-amber-500/30' : ''}">
-              <div class="flex items-center justify-between mb-4 border-b border-slate-800/60 pb-3 cursor-pointer hover:opacity-80 transition-premium" onclick="document.getElementById('co_body_${co.id}').classList.toggle('hidden'); document.getElementById('co_icon_${co.id}').innerText = document.getElementById('co_body_${co.id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
-                <h5 class="text-sm font-black text-blue-400 flex items-center gap-1">
+            <div id="summ_card_${co.id}" class="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs relative ${isLocked ? 'ring-1 ring-amber-500/30' : ''}">
+              <div class="flex items-center justify-between mb-4 border-b border-slate-200 pb-3 cursor-pointer hover:opacity-80 transition-premium" onclick="document.getElementById('co_body_${co.id}').classList.toggle('hidden'); document.getElementById('co_icon_${co.id}').innerText = document.getElementById('co_body_${co.id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
+                <h5 class="text-sm font-bold text-slate-900 flex items-center gap-1">
                   <span id="co_icon_${co.id}" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
                   ${co.id} Written Test ${lockStr}
                 </h5>
@@ -2651,46 +2736,46 @@
  
               <div id="co_body_${co.id}" class="hidden pt-2">
  
-              <div class="flex items-center gap-4 mb-4 mt-1 text-sm font-bold text-slate-400 bg-slate-950/50 p-2 rounded-lg border border-slate-800/40 w-max">
-                 <label class="flex items-center gap-1.5 cursor-pointer hover:text-blue-400 transition-premium">
-                   <input type="radio" name="summ_mode_${co.id}" value="ai" ${(!testData || !testData.manual_mode) ? 'checked' : ''} onchange="toggleSummativeMode('${co.id}')" class="text-blue-500 focus:ring-blue-500 bg-slate-900 border-slate-700" ${disabledAttr}>
+              <div class="flex items-center gap-4 mb-4 mt-1 text-sm font-bold text-slate-700 bg-slate-50 p-2 rounded-xl border border-slate-200 w-max shadow-2xs">
+                 <label class="flex items-center gap-1.5 cursor-pointer hover:text-blue-600 transition-premium">
+                   <input type="radio" name="summ_mode_${co.id}" value="ai" ${(!testData || !testData.manual_mode) ? 'checked' : ''} onchange="toggleSummativeMode('${co.id}')" class="text-blue-600 focus:ring-blue-500 bg-white border-slate-300" ${disabledAttr}>
                    AI Generation
                  </label>
-                 <label class="flex items-center gap-1.5 cursor-pointer hover:text-emerald-400 transition-premium">
-                   <input type="radio" name="summ_mode_${co.id}" value="manual" ${(testData && testData.manual_mode) ? 'checked' : ''} onchange="toggleSummativeMode('${co.id}')" class="text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-700" ${disabledAttr}>
+                 <label class="flex items-center gap-1.5 cursor-pointer hover:text-emerald-600 transition-premium">
+                   <input type="radio" name="summ_mode_${co.id}" value="manual" ${(testData && testData.manual_mode) ? 'checked' : ''} onchange="toggleSummativeMode('${co.id}')" class="text-emerald-600 focus:ring-emerald-500 bg-white border-slate-300" ${disabledAttr}>
                    Manual Entry
                  </label>
               </div>
               
               <div class="space-y-3 mb-4">
-                <div class="flex items-center gap-3 text-sm text-slate-400 font-bold mb-1"><span class="w-24 shrink-0 whitespace-nowrap">Part</span><span class="flex-1 text-center">Q. Count</span><span class="w-4"></span><span class="flex-1 text-center">Marks/Q</span></div>
+                <div class="flex items-center gap-3 text-xs text-slate-600 font-bold mb-1"><span class="w-24 shrink-0 whitespace-nowrap">Part</span><span class="flex-1 text-center">Q. Count</span><span class="w-4"></span><span class="flex-1 text-center">Marks/Q</span></div>
                 <div class="flex items-center justify-between gap-3">
-                  <span class="text-sm text-slate-400 font-bold w-24 shrink-0 whitespace-nowrap">PART A</span>
-                  <input type="number" id="summ_q_A_${co.id}" value="${qA}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
-                  <span class="text-slate-600 text-sm font-bold">x</span>
-                  <input type="number" id="summ_m_A_${co.id}" value="${mA}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
+                  <span class="text-xs text-slate-800 font-bold w-24 shrink-0 whitespace-nowrap">PART A</span>
+                  <input type="number" id="summ_q_A_${co.id}" value="${qA}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-900 text-center shadow-2xs outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                  <span class="text-slate-400 text-sm font-bold">x</span>
+                  <input type="number" id="summ_m_A_${co.id}" value="${mA}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-900 text-center shadow-2xs outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
                 </div>
                 <div class="flex items-center justify-between gap-3">
-                  <span class="text-sm text-slate-400 font-bold w-24 shrink-0 whitespace-nowrap">PART B</span>
-                  <input type="number" id="summ_q_B_${co.id}" value="${qB}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
-                  <span class="text-slate-600 text-sm font-bold">x</span>
-                  <input type="number" id="summ_m_B_${co.id}" value="${mB}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
+                  <span class="text-xs text-slate-800 font-bold w-24 shrink-0 whitespace-nowrap">PART B</span>
+                  <input type="number" id="summ_q_B_${co.id}" value="${qB}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-900 text-center shadow-2xs outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                  <span class="text-slate-400 text-sm font-bold">x</span>
+                  <input type="number" id="summ_m_B_${co.id}" value="${mB}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-900 text-center shadow-2xs outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
                 </div>
                 <div class="flex items-center justify-between gap-3">
-                  <span class="text-sm text-slate-400 font-bold w-24 shrink-0 whitespace-nowrap">PART C</span>
-                  <input type="number" id="summ_q_C_${co.id}" value="${qC}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
-                  <span class="text-slate-600 text-sm font-bold">x</span>
-                  <input type="number" id="summ_m_C_${co.id}" value="${mC}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-blue-500">
+                  <span class="text-xs text-slate-800 font-bold w-24 shrink-0 whitespace-nowrap">PART C</span>
+                  <input type="number" id="summ_q_C_${co.id}" value="${qC}" placeholder="Qty" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-900 text-center shadow-2xs outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                  <span class="text-slate-400 text-sm font-bold">x</span>
+                  <input type="number" id="summ_m_C_${co.id}" value="${mC}" placeholder="Marks" ${disabledAttr} oninput="syncSummativeInputs('${co.id}')" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-900 text-center shadow-2xs outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
                 </div>
               </div>
 
-              <div class="flex items-center justify-between mb-4 border-t border-slate-800/40 pt-3">
-                <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-400 hover:text-slate-200 transition-premium">
-                  <input type="checkbox" id="sync_pattern_${co.id}" ${disabledAttr} onchange="if(this.checked) applySummativePatternToAll('${co.id}')" class="rounded border-slate-700 bg-slate-900 text-blue-500 focus:ring-blue-500/30">
+              <div class="flex items-center justify-between mb-4 border-t border-slate-100 pt-3">
+                <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-600 hover:text-slate-900 transition-colors font-medium">
+                  <input type="checkbox" id="sync_pattern_${co.id}" ${disabledAttr} onchange="if(this.checked) applySummativePatternToAll('${co.id}')" class="rounded border-slate-300 bg-white text-blue-600 focus:ring-blue-500/30">
                   <span>Apply pattern to all COs</span>
                 </label>
-                <div class="text-sm font-bold text-slate-300 bg-slate-800/50 px-3 py-1 rounded-lg border border-slate-700/50">
-                  Total Marks: <span id="summ_total_${co.id}" class="${testData ? 'text-emerald-400' : 'text-blue-400'}">${testData ? testData.total_marks : '0'}</span>
+                <div class="text-xs font-bold text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                  Total Marks: <span id="summ_total_${co.id}" class="${testData ? 'text-emerald-600 font-black' : 'text-blue-600 font-black'}">${testData ? testData.total_marks : '0'}</span>
                 </div>
               </div>
               
@@ -2709,71 +2794,75 @@
 
       // Online MCQ Test Setup (Collapsible)
       let onlineTestHtml = `
-        <div class="bg-slate-950/50 border border-slate-800/60 rounded-xl overflow-hidden shadow-inner no-print mb-6">
-          <div class="px-4 py-3 bg-slate-900/80 border-b border-slate-800/60 flex items-center justify-between cursor-pointer hover:bg-slate-800/80 transition-premium" onclick="document.getElementById('onlineTestWrapper').classList.toggle('hidden'); document.getElementById('onlineTestIcon').innerText = document.getElementById('onlineTestWrapper').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
-            <div class="font-bold text-[10px] text-slate-400 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-[10px] text-purple-400">devices</span> Online MCQ Tests Setup
-              <span id="onlineTestIcon" class="material-symbols-rounded text-[10px] text-slate-500">expand_more</span>
+        <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs no-print mb-6">
+          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors" onclick="document.getElementById('onlineTestWrapper').classList.toggle('hidden'); document.getElementById('onlineTestIcon').innerText = document.getElementById('onlineTestWrapper').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
+            <div class="font-bold text-sm text-slate-800 flex items-center gap-2 tracking-wider uppercase">
+              <span class="material-symbols-rounded text-base text-purple-600">devices</span> Online MCQ Tests Setup
+              <span id="onlineTestIcon" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
             </div>
           </div>
-          <div id="onlineTestWrapper" class="hidden p-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div id="onlineTestWrapper" class="hidden p-5">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <!-- Configuration Form -->
-              <div class="col-span-2 bg-slate-900/50 p-4 rounded-lg border border-slate-800/50">
-                <h5 class="text-[10px] font-bold text-slate-300 mb-3 border-b border-slate-800/60 pb-2">Publish New Online Test</h5>
-                <div class="grid grid-cols-2 gap-3 mb-3">
+              <div class="col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+                <h5 class="text-sm font-bold text-slate-900 mb-4 border-b border-slate-100 pb-2.5">Publish New Online Test</h5>
+                <div class="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Target COs (Multiple)</label>
-                    <select id="online_test_cos" multiple class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500 h-[96px]">
+                    <label class="block text-xs text-slate-600 font-bold mb-1.5 uppercase">Target COs (Multiple)</label>
+                    <select id="online_test_cos" multiple class="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 h-[104px] shadow-2xs">
                       ${cos ? cos.map(co => `<option value="${co.id}">${co.id}</option>`).join('') : ''}
                     </select>
                   </div>
-                  <div>
-                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Max Attempts</label>
-                    <input type="number" id="online_test_attempts" value="1" min="1" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
-                    <label class="block text-[10px] text-slate-500 font-bold mt-2 mb-1 uppercase">Duration (Minutes)</label>
-                    <input type="number" id="online_test_duration" value="30" min="5" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
+                  <div class="space-y-3">
+                    <div>
+                      <label class="block text-xs text-slate-600 font-bold mb-1 uppercase">Max Attempts</label>
+                      <input type="number" id="online_test_attempts" value="1" min="1" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 shadow-2xs">
+                    </div>
+                    <div>
+                      <label class="block text-xs text-slate-600 font-bold mb-1 uppercase">Duration (Minutes)</label>
+                      <input type="number" id="online_test_duration" value="30" min="5" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 shadow-2xs">
+                    </div>
                   </div>
                 </div>
                 
-                <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Number of Questions</label>
-                    <input type="number" id="online_test_q_count" value="10" min="1" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
+                    <label class="block text-xs text-slate-600 font-bold mb-1.5 uppercase">Number of Questions</label>
+                    <input type="number" id="online_test_q_count" value="10" min="1" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 shadow-2xs">
                   </div>
                   <div>
-                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Generation Mode</label>
-                    <select id="online_test_gen_mode" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500">
+                    <label class="block text-xs text-slate-600 font-bold mb-1.5 uppercase">Generation Mode</label>
+                    <select id="online_test_gen_mode" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium text-slate-800 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 shadow-2xs">
                       <option value="bank">Mode B: Question Bank Pool</option>
                       <option value="ai">Mode A: AI Generator (Gemini)</option>
                     </select>
                   </div>
                 </div>
-                <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="grid grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Start Time</label>
-                    <input type="text" id="online_test_start" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500" placeholder="Select Date & Time">
+                    <label class="block text-xs text-slate-600 font-bold mb-1.5 uppercase">Start Time</label>
+                    <input type="text" id="online_test_start" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none focus:border-purple-500 shadow-2xs" placeholder="Select Date & Time">
                   </div>
                   <div>
-                    <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">End Time (Deadline)</label>
-                    <input type="text" id="online_test_end" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500" placeholder="Select Date & Time">
+                    <label class="block text-xs text-slate-600 font-bold mb-1.5 uppercase">End Time (Deadline)</label>
+                    <input type="text" id="online_test_end" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none focus:border-purple-500 shadow-2xs" placeholder="Select Date & Time">
                   </div>
                 </div>
                 
-                <div class="mb-4">
-                  <label class="block text-[10px] text-slate-500 font-bold mb-1 uppercase">Custom Test ID/Name (Optional)</label>
-                  <input type="text" id="online_test_name" class="w-full bg-slate-950 border border-slate-700/50 rounded px-2 py-1.5 text-[10px] text-slate-200 outline-none focus:border-purple-500" placeholder="e.g. Midterm Test 1">
+                <div class="mb-5">
+                  <label class="block text-xs text-slate-600 font-bold mb-1.5 uppercase">Custom Test ID/Name (Optional)</label>
+                  <input type="text" id="online_test_name" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none focus:border-purple-500 shadow-2xs" placeholder="e.g. Midterm Test 1">
                 </div>
-                <button onclick="publishOnlineTest('${currentSubjectId}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded-lg text-[10px] font-bold transition-premium flex items-center justify-center gap-2">
-                  <span class="material-symbols-rounded text-[10px]">rocket_launch</span> Generate & Publish to Students
+                <button onclick="publishOnlineTest('${currentSubjectId}')" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-premium flex items-center justify-center gap-2 shadow-xs cursor-pointer">
+                  <span class="material-symbols-rounded text-sm">rocket_launch</span> Generate & Publish to Students
                 </button>
               </div>
               
               <!-- Active Tests Dashboard -->
-              <div class="bg-slate-900/50 p-4 rounded-lg border border-slate-800/50">
-                <h5 class="text-[10px] font-bold text-slate-300 mb-3 border-b border-slate-800/60 pb-2">Active Online Tests</h5>
-                <div id="activeOnlineTestsList" class="space-y-2 text-[10px] text-slate-400">
-                   <div class="p-3 bg-slate-950 border border-slate-800 rounded text-center border-dashed">No active online tests found.</div>
+              <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-2xs flex flex-col">
+                <h5 class="text-xs font-bold text-slate-800 mb-3 border-b border-slate-200 pb-2">Active Online Tests</h5>
+                <div id="activeOnlineTestsList" class="space-y-2 text-xs text-slate-600 flex-1">
+                   <div class="p-4 bg-white border border-slate-200 rounded-xl text-center border-dashed text-slate-500 font-medium">No active online tests found.</div>
                 </div>
               </div>
             </div>
@@ -2968,20 +3057,20 @@
       let savedB = (testData && testData.manual_mode) ? (testData.part_b?.questions || []) : [];
       let savedC = (testData && testData.manual_mode) ? (testData.part_c?.questions || []) : [];
 
-      let html = `<div id="manual_form_${coTag}" class="mt-4 pt-4 border-t border-slate-800/60">`;
-      html += `<div class="text-sm text-slate-300 bg-slate-950/50 p-4 rounded-xl border border-slate-800/40 space-y-4">`;
+      let html = `<div id="manual_form_${coTag}" class="mt-4 pt-4 border-t border-slate-100">`;
+      html += `<div class="text-sm text-slate-800 bg-slate-50/70 p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">`;
       
       const buildFields = (count, partName, prefix, savedQuestions) => {
          let fHtml = '';
-         if(count > 0) fHtml += `<div class="font-bold text-slate-400 border-b border-slate-800 pb-1.5">${partName}</div><div class="space-y-3 mt-2">`;
+         if(count > 0) fHtml += `<div class="font-bold text-slate-800 border-b border-slate-200 pb-2 text-xs uppercase tracking-wider">${partName}</div><div class="space-y-3 mt-3">`;
          for(let i=0; i<count; i++) {
             let qText = savedQuestions && savedQuestions[i] ? savedQuestions[i].q : '';
             let qLvl = savedQuestions && savedQuestions[i] ? savedQuestions[i].level : 'U';
             fHtml += `
               <div class="flex gap-3 items-start">
-                 <span class="text-slate-500 mt-2 font-mono">${i+1}.</span>
-                 <textarea id="man_q_${prefix}_${coTag}_${i}" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 outline-none focus:border-emerald-500 text-sm" rows="2" placeholder="Enter question ${i+1}...">${qText}</textarea>
-                 <select id="man_lvl_${prefix}_${coTag}_${i}" class="bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-200 text-sm w-24 outline-none focus:border-emerald-500 mt-0.5">
+                 <span class="text-slate-500 mt-2 font-mono text-xs font-bold">${i+1}.</span>
+                 <textarea id="man_q_${prefix}_${coTag}_${i}" class="w-full bg-white border border-slate-200 rounded-lg p-2.5 text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm shadow-2xs placeholder:text-slate-400" rows="2" placeholder="Enter question ${i+1}...">${qText}</textarea>
+                 <select id="man_lvl_${prefix}_${coTag}_${i}" class="bg-white border border-slate-200 rounded-lg p-2 text-slate-800 font-medium text-xs w-36 outline-none focus:border-blue-500 shadow-2xs mt-0.5">
                     <option value="U" ${qLvl === 'U' ? 'selected' : ''}>U (Understand)</option>
                     <option value="R" ${qLvl === 'R' ? 'selected' : ''}>R (Remember)</option>
                     <option value="A" ${qLvl === 'A' ? 'selected' : ''}>A (Apply)</option>
@@ -3091,24 +3180,24 @@
             let html = '';
             data.data.forEach(t => {
               html += `
-                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800/80 mb-2">
-                  <div class="flex justify-between items-start mb-1">
-                    <h6 class="font-bold text-purple-400 text-[10px]">${t.test_name}</h6>
-                    <span class="bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded text-[10px] font-bold">${t.duration} Mins</span>
+                <div class="bg-white p-3.5 rounded-xl border border-slate-200/80 mb-3 shadow-2xs">
+                  <div class="flex justify-between items-start mb-1.5">
+                    <h6 class="font-bold text-purple-700 text-xs">${t.test_name}</h6>
+                    <span class="bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-md text-xs font-bold">${t.duration} Mins</span>
                   </div>
-                  <div class="text-[10px] text-slate-500 mb-2">
+                  <div class="text-xs text-slate-600 mb-3 leading-relaxed">
                     Start: ${t.start_time ? new Date(t.start_time).toLocaleString() : 'Now'}<br>
-                    Live Students: <span class="text-emerald-400 font-bold">${t.student_count || 0}</span> | Completed: <span class="text-blue-400 font-bold">${t.completed_count || 0}</span>
+                    Live Students: <span class="text-emerald-700 font-bold">${t.student_count || 0}</span> | Completed: <span class="text-blue-700 font-bold">${t.completed_count || 0}</span>
                   </div>
                   <div class="grid grid-cols-2 gap-2 mt-2">
-                      <button onclick="generateOnlineTestReport('${t.test_id}')" class="w-full py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700/50 flex items-center justify-center gap-1 text-[10px] transition-premium" title="Download Results">
-                        <span class="material-symbols-rounded text-[10px]">download</span> Report
+                      <button onclick="generateOnlineTestReport('${t.test_id}')" class="w-full py-1.5 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 flex items-center justify-center gap-1 text-xs font-semibold shadow-2xs transition-premium cursor-pointer" title="Download Results">
+                        <span class="material-symbols-rounded text-sm">download</span> Report
                       </button>
-                      <button onclick="printOnlineTest('${t.test_id}')" class="w-full py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700/50 flex items-center justify-center gap-1 text-[10px] transition-premium" title="Print Question Paper with Answers">
-                        <span class="material-symbols-rounded text-[10px]">print</span> Print Q&A
+                      <button onclick="printOnlineTest('${t.test_id}')" class="w-full py-1.5 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 flex items-center justify-center gap-1 text-xs font-semibold shadow-2xs transition-premium cursor-pointer" title="Print Question Paper with Answers">
+                        <span class="material-symbols-rounded text-sm">print</span> Print Q&A
                       </button>
-                      <button onclick="deleteOnlineTest('${t.test_id}', '${subjectId}')" class="col-span-2 w-full py-1 bg-red-900/50 hover:bg-red-800/80 text-red-300 rounded border border-red-800/50 flex items-center justify-center gap-1 text-[10px] transition-premium" title="Delete Test">
-                        <span class="material-symbols-rounded text-[10px]">delete</span> Delete
+                      <button onclick="deleteOnlineTest('${t.test_id}', '${subjectId}')" class="col-span-2 w-full py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg border border-rose-200 flex items-center justify-center gap-1 text-xs font-semibold shadow-2xs transition-premium cursor-pointer" title="Delete Test">
+                        <span class="material-symbols-rounded text-sm">delete</span> Delete
                       </button>
                     </div>
                 </div>
@@ -3116,7 +3205,7 @@
             });
             listDiv.innerHTML = html;
           } else {
-            listDiv.innerHTML = `<div class="p-3 bg-slate-950 border border-slate-800 rounded text-center border-dashed">No active online tests found.</div>`;
+            listDiv.innerHTML = `<div class="p-4 bg-white border border-slate-200 rounded-xl text-center border-dashed text-slate-500 font-medium text-xs">No active online tests found.</div>`;
           }
         });
     }
@@ -3994,32 +4083,32 @@
           html = `
             <table class="w-full text-left text-sm border-collapse">
               <thead>
-                <tr class="bg-slate-900 border-b border-slate-800 text-slate-400">
-                  <th class="p-3 font-bold w-12 text-center">No.</th>
-                  <th class="p-3 font-bold w-20 text-center">Roll No</th>
-                  <th class="p-3 font-bold w-32 text-center">SBTE Reg No</th>
-                  <th class="p-3 font-bold w-32 text-center">Admission No</th>
-                  <th class="p-3 font-bold">Student Name</th>
-                  <th class="p-3 font-bold w-48">Remarks</th>
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider">
+                  <th class="p-3.5 font-bold w-12 text-center">No.</th>
+                  <th class="p-3.5 font-bold w-20 text-center">Roll No</th>
+                  <th class="p-3.5 font-bold w-32 text-center">SBTE Reg No</th>
+                  <th class="p-3.5 font-bold w-32 text-center">Admission No</th>
+                  <th class="p-3.5 font-bold">Student Name</th>
+                  <th class="p-3.5 font-bold w-48">Remarks</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody class="divide-y divide-slate-100">
           `;
           window.currentVirtualStudents.forEach((s, idx) => {
             html += `
-              <tr class="border-b border-slate-800/50 hover:bg-slate-900/50 transition-colors text-sm">
-                <td class="p-3 text-center text-slate-500 font-bold">${idx + 1}</td>
-                <td class="p-3 text-center font-mono text-slate-300 font-bold">${s.roll_no || '-'}</td>
-                <td class="p-3 text-center font-mono text-slate-400">${s.sbte_reg_no || '-'}</td>
-                <td class="p-3 text-center font-mono text-slate-400">${s.reg_no}</td>
-                <td class="p-3 font-bold text-slate-200 max-w-[220px] whitespace-normal break-words">${s.name}</td>
-                <td class="p-2"><input type="text" placeholder="Add remark..." class="w-full bg-slate-900/50 border border-slate-800 rounded-lg px-3 py-1.5 text-sm text-slate-300 focus:outline-none focus:border-blue-500/50"></td>
+              <tr class="hover:bg-slate-50/80 transition-colors text-sm text-slate-800">
+                <td class="p-3 text-center text-slate-700 font-bold">${idx + 1}</td>
+                <td class="p-3 text-center font-mono text-slate-900 font-bold">${s.roll_no || '-'}</td>
+                <td class="p-3 text-center font-mono text-slate-600 text-xs font-semibold">${s.sbte_reg_no || '-'}</td>
+                <td class="p-3 text-center font-mono text-slate-600 text-xs font-semibold">${s.reg_no}</td>
+                <td class="p-3 font-bold text-slate-900 max-w-[220px] whitespace-normal break-words">${s.name}</td>
+                <td class="p-2.5"><input type="text" placeholder="Add remark..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-800 shadow-2xs focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"></td>
               </tr>
             `;
           });
           html += `</tbody></table>`;
         } else {
-          html = '<p class="text-sm text-slate-500 text-center py-4">No students enrolled in this classroom.</p>';
+          html = '<p class="text-sm font-bold text-slate-500 text-center py-6">No students enrolled in this classroom.</p>';
         }
         document.getElementById('vcStudentsListContent').innerHTML = html;
         document.getElementById('vcStudentsModal').classList.remove('hidden');
@@ -4168,9 +4257,9 @@
         const el = document.getElementById(b.btn);
         if (!el) return;
         if (b.id === type) {
-          el.className = "px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold text-sm cursor-pointer transition-premium";
+          el.className = "px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-xs cursor-pointer transition-premium";
         } else {
-          el.className = "px-4 py-2 bg-slate-900 text-slate-300 border border-slate-800 rounded-xl font-bold text-sm cursor-pointer hover:bg-slate-800 transition-premium";
+          el.className = "px-4 py-2 bg-white text-slate-700 hover:bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm shadow-2xs cursor-pointer transition-premium";
         }
       });
 
@@ -4199,10 +4288,10 @@
       }
 
       let html = `
-        <div class="overflow-x-auto border border-slate-800/60 rounded-xl bg-slate-900/20">
+        <div class="overflow-x-auto border border-slate-200/80 rounded-xl bg-white shadow-xs">
           <table class="w-full text-left text-sm border-collapse">
             <thead>
-              <tr class="bg-slate-950/40 text-slate-400 border-b border-slate-800 uppercase tracking-wider text-xs font-black">
+              <tr class="bg-slate-50 text-slate-700 border-b border-slate-200 uppercase tracking-wider text-xs font-bold">
                 <th class="p-4">Date</th>
                 <th class="p-4 text-center">Period</th>
                 <th class="p-4">Topics Covered</th>
@@ -4215,10 +4304,10 @@
 
       logs.forEach(log => {
         html += `
-          <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
-            <td class="p-4 font-mono font-bold text-slate-300">${log.date}</td>
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-colors text-slate-800">
+            <td class="p-4 font-mono font-bold text-slate-800">${log.date}</td>
             <td class="p-4 text-center font-bold text-slate-400">P${log.period}</td>
-            <td class="p-4 text-slate-200">${log.topics_covered || '-'}</td>
+            <td class="p-4 text-slate-800">${log.topics_covered || '-'}</td>
             <td class="p-4 text-center font-bold text-emerald-400">${log.present_count}</td>
             <td class="p-4 text-center font-bold text-rose-400">${log.absent_count}</td>
           </tr>
@@ -4241,10 +4330,10 @@
       }
 
       let html = `
-        <div class="overflow-x-auto border border-slate-800/60 rounded-xl bg-slate-900/20">
+        <div class="overflow-x-auto border border-slate-200/80 rounded-xl bg-white shadow-xs">
           <table class="w-full text-left text-sm border-collapse">
             <thead>
-              <tr class="bg-slate-950/40 text-slate-400 border-b border-slate-800 uppercase tracking-wider text-xs font-black">
+              <tr class="bg-slate-50 text-slate-700 border-b border-slate-200 uppercase tracking-wider text-xs font-bold">
                 <th class="p-4">Completed Date</th>
                 <th class="p-4 text-center">Period</th>
                 <th class="p-4">Lesson Plan Reference</th>
@@ -4256,11 +4345,11 @@
 
       logs.forEach(log => {
         html += `
-          <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
-            <td class="p-4 font-mono font-bold text-slate-300">${log.date}</td>
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-colors text-slate-800">
+            <td class="p-4 font-mono font-bold text-slate-800">${log.date}</td>
             <td class="p-4 text-center font-bold text-slate-400">P${log.period}</td>
             <td class="p-4 text-slate-400 font-bold">${log.lesson_plan_id ? 'LP ID: ' + log.lesson_plan_id : 'Manual Entry'}</td>
-            <td class="p-4 text-slate-200">${log.topics_covered || '-'}</td>
+            <td class="p-4 text-slate-800">${log.topics_covered || '-'}</td>
           </tr>
         `;
       });
@@ -4283,12 +4372,12 @@
       }
 
       let html = `
-        <div class="overflow-x-auto border border-slate-800/60 rounded-xl bg-slate-900/20 max-h-[500px]">
+        <div class="overflow-x-auto border border-slate-200/80 rounded-xl bg-white shadow-xs max-h-[500px]">
           <table class="w-full text-left text-sm border-collapse">
             <thead>
-              <tr class="bg-slate-950/40 text-slate-400 border-b border-slate-800 uppercase tracking-wider text-xs font-black sticky top-0 z-10">
-                <th class="p-4 bg-slate-950/90 w-16 text-center sticky left-0 z-20">Roll</th>
-                <th class="p-4 bg-slate-950/90 w-44 sticky left-16 z-20">Name</th>
+              <tr class="bg-slate-50 text-slate-700 border-b border-slate-200 uppercase tracking-wider text-xs font-bold sticky top-0 z-10">
+                <th class="p-4 bg-slate-50 text-slate-700 w-16 text-center sticky left-0 z-20">Roll</th>
+                <th class="p-4 bg-slate-50 text-slate-700 w-44 sticky left-16 z-20">Name</th>
       `;
 
       dates.forEach(d => {
@@ -4304,9 +4393,9 @@
 
       matrix.forEach(row => {
         html += `
-          <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium">
-            <td class="p-4 text-center font-bold text-slate-500 bg-slate-900/90 sticky left-0 z-10">${row.roll_no || '-'}</td>
-            <td class="p-4 font-bold text-white bg-slate-900/90 sticky left-16 z-10 truncate max-w-[176px]">${row.name}</td>
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-colors text-slate-800">
+            <td class="p-4 text-center font-bold text-slate-600 bg-white sticky left-0 z-10">${row.roll_no || '-'}</td>
+            <td class="p-4 font-bold text-slate-900 bg-white sticky left-16 z-10 truncate max-w-[176px]">${row.name}</td>
         `;
 
         dates.forEach(d => {
@@ -4363,10 +4452,10 @@
       if (!questions || questions.length === 0) {
         container.innerHTML = `
           <div class="text-center py-12 text-slate-400 space-y-4 max-w-md mx-auto">
-            <div class="bg-slate-900/50 p-4 rounded-full border border-slate-800/60 inline-block">
+            <div class="bg-white p-4 rounded-full border border-slate-800/60 inline-block">
               <span class="material-symbols-rounded text-3xl text-slate-600 block">database</span>
             </div>
-            <p class="text-sm font-bold text-slate-300">No questions in this subject's pool.</p>
+            <p class="text-sm font-bold text-slate-700">No questions in this subject's pool.</p>
             <p class="text-sm text-slate-500">You can download the template CSV, fill it with questions, and upload it. Alternatively, seed the pool instantly with high-quality questions using AI.</p>
             <div class="pt-2">
               <button onclick="seedQuestionBankWithAi(currentSubjectId)" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer shadow-md flex items-center gap-1.5 mx-auto">
@@ -4404,18 +4493,18 @@
         if (qList.length === 0) return;
 
         html += `
-          <div class="border border-slate-800/80 rounded-xl overflow-hidden bg-slate-900/10 mb-6">
-            <div class="bg-slate-900/60 p-4 flex justify-between items-center border-b border-slate-800/60">
+          <div class="border border-slate-200/80 rounded-xl overflow-hidden bg-white shadow-xs mb-6">
+            <div class="bg-slate-50/70 p-4 flex justify-between items-center border-b border-slate-200">
               <div class="flex items-center gap-2">
                 <span class="material-symbols-rounded text-blue-400 text-base">grade</span>
-                <span class="text-sm font-black text-slate-200">${groupName}</span>
+                <span class="text-sm font-bold text-slate-900">${groupName}</span>
               </div>
-              <span class="text-sm text-slate-400 font-bold bg-slate-950/40 px-2.5 py-1 rounded-md">${qList.length} Questions</span>
+              <span class="text-xs text-slate-600 font-bold bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">${qList.length} Questions</span>
             </div>
             <div class="p-0 overflow-x-auto">
               <table class="w-full text-left border-collapse">
                 <thead>
-                  <tr class="border-b border-slate-800/60 text-slate-400 text-sm bg-slate-950/20">
+                  <tr class="border-b border-slate-200 text-slate-700 text-xs font-bold bg-slate-50 uppercase tracking-wider">
                     <th class="py-2.5 px-4 font-bold w-12 text-center">#</th>
                     <th class="py-2.5 px-4 font-bold">Question Text</th>
                     <th class="py-2.5 px-4 font-bold w-20 text-center">CO Tag</th>
@@ -4423,26 +4512,26 @@
                     <th class="py-2.5 px-4 font-bold w-28 text-center">Type</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-800/30 text-slate-300">
+                <tbody class="divide-y divide-slate-100 text-slate-800">
         `;
 
         qList.forEach((q, index) => {
           const typeStr = q.type === 'MCQ' ? `MCQ (Ans: ${q.correct_answer || 'N/A'})` : 'Descriptive';
           html += `
-            <tr class="hover:bg-slate-900/20 transition-premium text-sm">
+            <tr class="hover:bg-slate-50/80 transition-colors text-sm">
               <td class="py-3 px-4 text-center text-slate-500 font-mono">${index + 1}</td>
-              <td class="py-3 px-4 font-bold text-slate-200">
+              <td class="py-3 px-4 font-semibold text-slate-900">
                 <div>${q.question_text}</div>
                 ${q.type === 'MCQ' && q.options ? renderCompactOptions(q.options, q.correct_answer) : ''}
               </td>
               <td class="py-3 px-4 text-center">
-                <span class="px-2 py-0.5 rounded bg-blue-950/40 text-blue-400 border border-blue-900/30 font-mono text-[11px] font-bold">${q.co_tag || 'CO1'}</span>
+                <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-mono text-[11px] font-bold">${q.co_tag || 'CO1'}</span>
               </td>
               <td class="py-3 px-4 text-center">
-                <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700/40 text-[11px] font-bold">${q.cognitive_level || 'Understand'}</span>
+                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-bold">${q.cognitive_level || 'Understand'}</span>
               </td>
               <td class="py-3 px-4 text-center">
-                <span class="px-2 py-0.5 rounded ${q.type === 'MCQ' ? 'bg-purple-950/40 text-purple-400 border border-purple-900/30' : 'bg-amber-950/40 text-amber-400 border border-amber-900/30'} text-[11px] font-bold">${typeStr}</span>
+                <span class="px-2.5 py-1 rounded-lg ${q.type === 'MCQ' ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'bg-slate-100 text-slate-700 border border-slate-200'} text-xs font-semibold shadow-2xs">${typeStr}</span>
               </td>
             </tr>
           `;
@@ -4609,12 +4698,12 @@
         .then(res => {
           if (res.status === 'INACTIVE') {
             workspace.innerHTML = `
-              <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 text-center max-w-xl mx-auto space-y-4">
+              <div class="bg-white border border-slate-200/80 rounded-2xl p-6 text-center max-w-xl mx-auto space-y-4">
                 <div class="h-12 w-12 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto mb-2 animate-pulse">
                   <span class="material-symbols-rounded text-2xl">forum</span>
                 </div>
-                <h4 class="text-base font-extrabold text-slate-200">Initiate Mid-Semester Feedback Survey</h4>
-                <p class="text-sm text-slate-400 leading-relaxed">
+                <h4 class="text-base font-bold text-slate-900">Initiate Mid-Semester Feedback Survey</h4>
+                <p class="text-sm text-slate-600 leading-relaxed">
                   Conducted around the 7th–9th week of the semester, this evaluates the teaching-learning process in real-time. It gathers student feedback on 5 criteria: Pace, Clarity, Interaction, Practicality, and Evaluation.
                 </p>
                 <button onclick="initiateMidSemSurvey(${subjectId})" class="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold border border-blue-500/30 transition-premium shadow-lg shadow-blue-500/10 cursor-pointer">
@@ -4631,33 +4720,33 @@
               workspace.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <!-- Live stats card -->
-                  <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                  <div class="bg-white border border-slate-200/80 rounded-2xl p-6 flex flex-col justify-between space-y-4">
                     <div>
-                      <span class="text-teal-400 font-bold uppercase tracking-widest text-[10px] block mb-1">Live Status</span>
-                      <h4 class="text-base font-extrabold text-slate-200">Survey Active</h4>
-                      <p class="text-xs text-slate-400 leading-relaxed mt-1">Students can now see and submit feedback from their dashboard task list.</p>
+                      <span class="text-teal-700 font-bold font-bold uppercase tracking-widest text-[10px] block mb-1">Live Status</span>
+                      <h4 class="text-base font-bold text-slate-900">Survey Active</h4>
+                      <p class="text-xs text-slate-600 leading-relaxed mt-1">Students can now see and submit feedback from their dashboard task list.</p>
                     </div>
-                    <div class="border-t border-slate-800/60 pt-4">
+                    <div class="border-t border-slate-200/80 pt-4">
                       <div class="flex justify-between text-sm font-bold mb-1">
-                        <span class="text-slate-400">Participation:</span>
-                        <span class="text-white">${responded} / ${total}</span>
+                        <span class="text-slate-600 font-semibold">Participation:</span>
+                        <span class="text-slate-900 font-bold">${responded} / ${total}</span>
                       </div>
-                      <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-900">
+                      <div class="w-full bg-slate-100 rounded-full h-2 border border-slate-200">
                         <div class="bg-teal-500 h-2 rounded-full" style="width: ${total > 0 ? (responded / total) * 100 : 0}%"></div>
                       </div>
                     </div>
                   </div>
 
                   <!-- Quick instructions card -->
-                  <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between col-span-2">
+                  <div class="bg-white border border-slate-200/80 rounded-2xl p-6 flex flex-col justify-between col-span-2">
                     <div>
-                      <h4 class="text-sm font-bold text-slate-300">Evaluating Criterion 2 (SAR)</h4>
-                      <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                      <h4 class="text-sm font-bold text-slate-700">Evaluating Criterion 2 (SAR)</h4>
+                      <p class="text-xs text-slate-600 mt-2 leading-relaxed">
                         To finalize results, draw graphs, and register action plan notes, you must close the active survey. Encourage students to participate before closing.
                       </p>
                     </div>
-                    <div class="pt-6 border-t border-slate-800/60 flex justify-end">
-                      <button onclick="closeMidSemSurvey(${subjectId})" class="px-4 py-2.5 bg-rose-600/20 hover:bg-rose-600/45 border border-rose-500/30 text-rose-300 rounded-xl text-sm font-bold transition-premium cursor-pointer">
+                    <div class="pt-6 border-t border-slate-200/80 flex justify-end">
+                      <button onclick="closeMidSemSurvey(${subjectId})" class="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 shadow-2xs rounded-xl text-sm font-bold transition-premium cursor-pointer">
                         Close & Finalize Survey
                       </button>
                     </div>
@@ -4672,47 +4761,47 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <!-- Stats overview -->
                   <div class="lg:col-span-1 space-y-6">
-                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
-                      <h4 class="text-sm font-black text-slate-200">Participation Details</h4>
+                    <div class="bg-white border border-slate-200/80 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-900">Participation Details</h4>
                       <div class="grid grid-cols-2 gap-4 text-xs font-semibold">
                         <div>
                           <span class="text-slate-500 block">Class Strength</span>
-                          <span class="text-slate-200 font-bold text-sm">${total}</span>
+                          <span class="text-slate-900 font-bold text-sm">${total}</span>
                         </div>
                         <div>
                           <span class="text-slate-500 block">Responded</span>
-                          <span class="text-slate-200 font-bold text-sm">${responded}</span>
+                          <span class="text-slate-900 font-bold text-sm">${responded}</span>
                         </div>
                       </div>
-                      <div class="pt-3 border-t border-slate-850">
+                      <div class="pt-3 border-t border-slate-100">
                         <span class="text-slate-500 block text-xs">Response Rate</span>
-                        <span class="text-emerald-400 font-black text-base">${total > 0 ? Math.round((responded / total) * 100) : 0}%</span>
+                        <span class="text-emerald-700 font-bold font-black text-base">${total > 0 ? Math.round((responded / total) * 100) : 0}%</span>
                       </div>
                     </div>
 
                     <!-- Average Score Card -->
-                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
-                      <h4 class="text-sm font-black text-slate-200">Average Scores Breakdown</h4>
+                    <div class="bg-white border border-slate-200/80 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-900">Average Scores Breakdown</h4>
                       <div class="space-y-3 text-xs font-semibold">
                         <div class="flex justify-between">
-                          <span class="text-slate-400">Pace of delivery</span>
-                          <span class="text-teal-400">${averages.pace} / 3</span>
+                          <span class="text-slate-600">Pace of delivery</span>
+                          <span class="text-teal-700 font-bold">${averages.pace} / 3</span>
                         </div>
                         <div class="flex justify-between">
-                          <span class="text-slate-400">Concept clarity</span>
-                          <span class="text-teal-400">${averages.clarity} / 3</span>
+                          <span class="text-slate-600">Concept clarity</span>
+                          <span class="text-teal-700 font-bold">${averages.clarity} / 3</span>
                         </div>
                         <div class="flex justify-between">
-                          <span class="text-slate-400">Interactive lectures</span>
-                          <span class="text-teal-400">${averages.interaction} / 3</span>
+                          <span class="text-slate-600">Interactive lectures</span>
+                          <span class="text-teal-700 font-bold">${averages.interaction} / 3</span>
                         </div>
                         <div class="flex justify-between">
-                          <span class="text-slate-400">Lab practicality</span>
-                          <span class="text-teal-400">${averages.practicality} / 3</span>
+                          <span class="text-slate-600">Lab practicality</span>
+                          <span class="text-teal-700 font-bold">${averages.practicality} / 3</span>
                         </div>
                         <div class="flex justify-between">
-                          <span class="text-slate-400">Prompt evaluation</span>
-                          <span class="text-teal-400">${averages.evaluation} / 3</span>
+                          <span class="text-slate-600">Prompt evaluation</span>
+                          <span class="text-teal-700 font-bold">${averages.evaluation} / 3</span>
                         </div>
                       </div>
                     </div>
@@ -4720,42 +4809,42 @@
 
                   <!-- Charts and Action Plan Notes -->
                   <div class="lg:col-span-2 space-y-6">
-                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6">
-                      <h4 class="text-sm font-black text-slate-200 mb-4">Feedback Chart (Teaching-Learning Process)</h4>
+                    <div class="bg-white border border-slate-200/80 rounded-2xl p-6">
+                      <h4 class="text-sm font-black text-slate-900 mb-4">Feedback Chart (Teaching-Learning Process)</h4>
                       <div class="h-64 relative">
                         <canvas id="surveyResultChart"></canvas>
                       </div>
                     </div>
 
                     <!-- Action Taken Form -->
-                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
-                      <h4 class="text-sm font-black text-slate-200">SAR Criterion 2 Action Plan Notes</h4>
+                    <div class="bg-white border border-slate-200/80 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-900">SAR Criterion 2 Action Plan Notes</h4>
                       
                       <div class="space-y-3">
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Improvements Noted by Faculty</label>
-                        <textarea id="improvementsNoted" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-xs focus:outline-none focus:border-blue-500 font-medium transition-all" rows="2" placeholder="e.g. Remedial classes identified for weak students, changing lecture pace...">${survey.improvements_noted || ''}</textarea>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Improvements Noted by Faculty</label>
+                        <textarea id="improvementsNoted" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 font-medium shadow-2xs transition-all" rows="2" placeholder="e.g. Remedial classes identified for weak students, changing lecture pace...">${survey.improvements_noted || ''}</textarea>
                       </div>
 
                       <div class="space-y-3">
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Corrective Action Taken (Faculty Member)</label>
-                        <textarea id="correctiveAction" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-xs focus:outline-none focus:border-blue-500 font-medium transition-all" rows="2" placeholder="e.g. Incorporated PPT slides, allocated extra laboratory session...">${survey.action_taken || ''}</textarea>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Corrective Action Taken (Faculty Member)</label>
+                        <textarea id="correctiveAction" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 font-medium shadow-2xs transition-all" rows="2" placeholder="e.g. Incorporated PPT slides, allocated extra laboratory session...">${survey.action_taken || ''}</textarea>
                       </div>
 
                       <div class="space-y-3">
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Action Taken Notes (Class Tutor Remarks)</label>
-                        <textarea id="actionTakenByTutor" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-xs focus:outline-none focus:border-blue-500 font-medium transition-all" rows="2" placeholder="Tutor remarks on student feedback and faculty actions...">${survey.action_taken_by_tutor || ''}</textarea>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Action Taken Notes (Class Tutor Remarks)</label>
+                        <textarea id="actionTakenByTutor" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 font-medium shadow-2xs transition-all" rows="2" placeholder="Tutor remarks on student feedback and faculty actions...">${survey.action_taken_by_tutor || ''}</textarea>
                       </div>
 
                       <div class="space-y-3">
-                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Action Taken Remarks (Head of Department / HOD)</label>
-                        <textarea id="actionTakenByHod" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-xs focus:outline-none focus:border-blue-500 font-medium transition-all" rows="2" placeholder="HOD remarks or corrective endorsement...">${survey.action_taken_by_hod || ''}</textarea>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Action Taken Remarks (Head of Department / HOD)</label>
+                        <textarea id="actionTakenByHod" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-xs focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 font-medium shadow-2xs transition-all" rows="2" placeholder="HOD remarks or corrective endorsement...">${survey.action_taken_by_hod || ''}</textarea>
                       </div>
 
                       <div class="flex justify-between items-center pt-2">
                         <button onclick="saveSurveyActionNotes(${subjectId})" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold border border-blue-500/30 transition-premium shadow cursor-pointer">
                           Save Notes
                         </button>
-                        <a href="/classroom/${subjectId}/survey/report" target="_blank" class="px-4 py-2 bg-teal-600/10 hover:bg-teal-600/25 border border-teal-500/30 text-teal-300 rounded-xl text-xs font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer">
+                        <a href="/classroom/${subjectId}/survey/report" target="_blank" class="px-4 py-2 bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 shadow-2xs rounded-xl text-xs font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer">
                           <span class="material-symbols-rounded text-sm">print</span> Print Survey Report
                         </a>
                       </div>
@@ -4897,12 +4986,12 @@
         .then(res => {
           if (res.status === 'INACTIVE') {
             workspace.innerHTML = `
-              <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 text-center max-w-xl mx-auto space-y-4">
-                <div class="h-12 w-12 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 flex items-center justify-center mx-auto mb-2 animate-pulse">
+              <div class="bg-white border border-slate-200/80 rounded-2xl p-6 text-center max-w-xl mx-auto space-y-4">
+                <div class="h-12 w-12 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-700 font-bold flex items-center justify-center mx-auto mb-2 animate-pulse">
                   <span class="material-symbols-rounded text-2xl">assignment_turned_in</span>
                 </div>
-                <h4 class="text-base font-extrabold text-slate-200">Initiate Course Exit Survey</h4>
-                <p class="text-sm text-slate-400 leading-relaxed">
+                <h4 class="text-base font-bold text-slate-900">Initiate Course Exit Survey</h4>
+                <p class="text-sm text-slate-600 leading-relaxed">
                   Conducted at the end of the semester, this exit survey maps directly to Course Outcomes (CO1 to CO4) using 10 specific attainment questions. Attainments are rated on a Low (1), Medium (2), and High (3) scale.
                 </p>
                 <button onclick="initiateExitSurvey(${subjectId})" class="px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-sm font-bold border border-teal-500/30 transition-premium shadow-lg shadow-teal-500/10 cursor-pointer">
@@ -4919,33 +5008,33 @@
               workspace.innerHTML = `
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <!-- Live stats card -->
-                  <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                  <div class="bg-white border border-slate-200/80 rounded-2xl p-6 flex flex-col justify-between space-y-4">
                     <div>
-                      <span class="text-teal-400 font-bold uppercase tracking-widest text-[10px] block mb-1">Live Status</span>
-                      <h4 class="text-base font-extrabold text-slate-200">Survey Active</h4>
-                      <p class="text-xs text-slate-400 leading-relaxed mt-1">Students can now submit exit responses mapping to COs via their dashboard.</p>
+                      <span class="text-teal-700 font-bold font-bold uppercase tracking-widest text-[10px] block mb-1">Live Status</span>
+                      <h4 class="text-base font-bold text-slate-900">Survey Active</h4>
+                      <p class="text-xs text-slate-600 leading-relaxed mt-1">Students can now submit exit responses mapping to COs via their dashboard.</p>
                     </div>
-                    <div class="border-t border-slate-800/60 pt-4">
+                    <div class="border-t border-slate-200/80 pt-4">
                       <div class="flex justify-between text-sm font-bold mb-1">
-                        <span class="text-slate-400">Participation:</span>
-                        <span class="text-white">${responded} / ${total}</span>
+                        <span class="text-slate-600 font-semibold">Participation:</span>
+                        <span class="text-slate-900 font-bold">${responded} / ${total}</span>
                       </div>
-                      <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-900">
+                      <div class="w-full bg-slate-100 rounded-full h-2 border border-slate-200">
                         <div class="bg-teal-500 h-2 rounded-full" style="width: ${total > 0 ? (responded / total) * 100 : 0}%"></div>
                       </div>
                     </div>
                   </div>
 
                   <!-- Quick instructions card -->
-                  <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 flex flex-col justify-between col-span-2">
+                  <div class="bg-white border border-slate-200/80 rounded-2xl p-6 flex flex-col justify-between col-span-2">
                     <div>
-                      <h4 class="text-sm font-bold text-slate-300">Course Outcome Attainment mapping</h4>
-                      <p class="text-xs text-slate-400 mt-2 leading-relaxed">
+                      <h4 class="text-sm font-bold text-slate-700">Course Outcome Attainment mapping</h4>
+                      <p class="text-xs text-slate-600 mt-2 leading-relaxed">
                         To calculate final attainment averages and view the printable Course Exit Report, you must close the active survey.
                       </p>
                     </div>
-                    <div class="pt-6 border-t border-slate-800/60 flex justify-end">
-                      <button onclick="closeExitSurvey(${subjectId})" class="px-4 py-2.5 bg-rose-600/20 hover:bg-rose-600/45 border border-rose-500/30 text-rose-300 rounded-xl text-sm font-bold transition-premium cursor-pointer">
+                    <div class="pt-6 border-t border-slate-200/80 flex justify-end">
+                      <button onclick="closeExitSurvey(${subjectId})" class="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 shadow-2xs rounded-xl text-sm font-bold transition-premium cursor-pointer">
                         Close & Finalize Exit Survey
                       </button>
                     </div>
@@ -4961,43 +5050,43 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <!-- Stats overview -->
                   <div class="lg:col-span-1 space-y-6">
-                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
-                      <h4 class="text-sm font-black text-slate-200">Participation Details</h4>
+                    <div class="bg-white border border-slate-200/80 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-900">Participation Details</h4>
                       <div class="grid grid-cols-2 gap-4 text-xs font-semibold">
                         <div>
                           <span class="text-slate-500 block">Class Strength</span>
-                          <span class="text-slate-200 font-bold text-sm">${total}</span>
+                          <span class="text-slate-900 font-bold text-sm">${total}</span>
                         </div>
                         <div>
                           <span class="text-slate-500 block">Responded</span>
-                          <span class="text-slate-200 font-bold text-sm">${responded}</span>
+                          <span class="text-slate-900 font-bold text-sm">${responded}</span>
                         </div>
                       </div>
-                      <div class="pt-3 border-t border-slate-850">
+                      <div class="pt-3 border-t border-slate-100">
                         <span class="text-slate-500 block text-xs">Response Rate</span>
-                        <span class="text-teal-400 font-black text-base">${total > 0 ? Math.round((responded / total) * 100) : 0}%</span>
+                        <span class="text-teal-700 font-bold font-black text-base">${total > 0 ? Math.round((responded / total) * 100) : 0}%</span>
                       </div>
                     </div>
 
                     <!-- Average Score Card -->
-                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
-                      <h4 class="text-sm font-black text-slate-200">CO Averages (Scale 1-3)</h4>
+                    <div class="bg-white border border-slate-200/80 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-900">CO Averages (Scale 1-3)</h4>
                       <div class="space-y-3 text-xs font-semibold">
                         <div class="flex justify-between">
-                          <span class="text-slate-400">CO1 Average score</span>
-                          <span class="text-teal-400">${averages.CO1} / 3</span>
+                          <span class="text-slate-600">CO1 Average score</span>
+                          <span class="text-teal-700 font-bold">${averages.CO1} / 3</span>
                         </div>
                         <div class="flex justify-between">
-                          <span class="text-slate-400">CO2 Average score</span>
-                          <span class="text-teal-400">${averages.CO2} / 3</span>
+                          <span class="text-slate-600">CO2 Average score</span>
+                          <span class="text-teal-700 font-bold">${averages.CO2} / 3</span>
                         </div>
                         <div class="flex justify-between">
-                          <span class="text-slate-400">CO3 Average score</span>
-                          <span class="text-teal-400">${averages.CO3} / 3</span>
+                          <span class="text-slate-600">CO3 Average score</span>
+                          <span class="text-teal-700 font-bold">${averages.CO3} / 3</span>
                         </div>
                         <div class="flex justify-between">
-                          <span class="text-slate-400">CO4 Average score</span>
-                          <span class="text-teal-400">${averages.CO4} / 3</span>
+                          <span class="text-slate-600">CO4 Average score</span>
+                          <span class="text-teal-700 font-bold">${averages.CO4} / 3</span>
                         </div>
                       </div>
                     </div>
@@ -5005,50 +5094,50 @@
 
                   <!-- Attainments and Print Action -->
                   <div class="lg:col-span-2 space-y-6">
-                    <div class="bg-slate-900/40 border border-slate-800/60 rounded-2xl p-6 space-y-4">
-                      <h4 class="text-sm font-black text-slate-200">Indirect CO Attainment Levels</h4>
-                      <p class="text-xs text-slate-400 leading-relaxed">Attainment is computed as: <code>(CO Average / 3) * 100</code></p>
+                    <div class="bg-white border border-slate-200/80 rounded-2xl p-6 space-y-4">
+                      <h4 class="text-sm font-black text-slate-900">Indirect CO Attainment Levels</h4>
+                      <p class="text-xs text-slate-600 leading-relaxed">Attainment is computed as: <code>(CO Average / 3) * 100</code></p>
                       
                       <div class="space-y-4 pt-2">
                         <div>
                           <div class="flex justify-between text-xs font-bold mb-1">
-                            <span class="text-slate-300">CO1 Attainment</span>
-                            <span class="text-teal-400">${attainments.CO1}%</span>
+                            <span class="text-slate-800">CO1 Attainment</span>
+                            <span class="text-teal-700 font-bold">${attainments.CO1}%</span>
                           </div>
-                          <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+                          <div class="w-full bg-slate-100 rounded-full h-2 border border-slate-200">
                             <div class="bg-teal-500 h-2 rounded-full" style="width: ${attainments.CO1}%"></div>
                           </div>
                         </div>
                         <div>
                           <div class="flex justify-between text-xs font-bold mb-1">
-                            <span class="text-slate-300">CO2 Attainment</span>
-                            <span class="text-teal-400">${attainments.CO2}%</span>
+                            <span class="text-slate-800">CO2 Attainment</span>
+                            <span class="text-teal-700 font-bold">${attainments.CO2}%</span>
                           </div>
-                          <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+                          <div class="w-full bg-slate-100 rounded-full h-2 border border-slate-200">
                             <div class="bg-teal-500 h-2 rounded-full" style="width: ${attainments.CO2}%"></div>
                           </div>
                         </div>
                         <div>
                           <div class="flex justify-between text-xs font-bold mb-1">
-                            <span class="text-slate-300">CO3 Attainment</span>
-                            <span class="text-teal-400">${attainments.CO3}%</span>
+                            <span class="text-slate-800">CO3 Attainment</span>
+                            <span class="text-teal-700 font-bold">${attainments.CO3}%</span>
                           </div>
-                          <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+                          <div class="w-full bg-slate-100 rounded-full h-2 border border-slate-200">
                             <div class="bg-teal-500 h-2 rounded-full" style="width: ${attainments.CO3}%"></div>
                           </div>
                         </div>
                         <div>
                           <div class="flex justify-between text-xs font-bold mb-1">
-                            <span class="text-slate-300">CO4 Attainment</span>
-                            <span class="text-teal-400">${attainments.CO4}%</span>
+                            <span class="text-slate-800">CO4 Attainment</span>
+                            <span class="text-teal-700 font-bold">${attainments.CO4}%</span>
                           </div>
-                          <div class="w-full bg-slate-950 rounded-full h-2 border border-slate-800">
+                          <div class="w-full bg-slate-100 rounded-full h-2 border border-slate-200">
                             <div class="bg-teal-500 h-2 rounded-full" style="width: ${attainments.CO4}%"></div>
                           </div>
                         </div>
                       </div>
 
-                      <div class="flex justify-end items-center pt-6 border-t border-slate-800/60">
+                      <div class="flex justify-end items-center pt-6 border-t border-slate-200/80">
                         <a href="/classroom/${subjectId}/course-exit/report" target="_blank" class="px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer shadow-md shadow-teal-600/10">
                           <span class="material-symbols-rounded text-base">print</span> Print Course Exit Report
                         </a>
@@ -5104,37 +5193,37 @@
 </script>
 
 <!-- Edit Assignment Questions Modal -->
-<div id="editQuestionsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-  <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[85vh]">
-    <div class="px-6 py-4 bg-slate-950/60 border-b border-slate-800 flex justify-between items-center">
+<div id="editQuestionsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-white border border-slate-200/80 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
+    <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
       <div>
-        <h3 class="text-base font-black text-white flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-lg">edit</span> Manually Edit Questions (<span id="editQuestionsCoBadge"></span>)
+        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <span class="material-symbols-rounded text-blue-600 text-lg">edit</span> Manually Edit Questions (<span id="editQuestionsCoBadge" class="text-blue-700 font-mono font-bold"></span>)
         </h3>
-        <p class="text-xs text-slate-400 mt-0.5">Define one or more descriptive questions for this Course Outcome. Total marks must equal exactly 20.</p>
+        <p class="text-xs text-slate-600 mt-0.5">Define one or more descriptive questions for this Course Outcome. Total marks must equal exactly 20.</p>
       </div>
-      <button onclick="closeEditQuestionsModal()" class="text-slate-400 hover:text-white transition-premium cursor-pointer">
-        <span class="material-symbols-rounded">close</span>
+      <button onclick="closeEditQuestionsModal()" class="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer">
+        <span class="material-symbols-rounded text-xl">close</span>
       </button>
     </div>
     
-    <div class="p-6 overflow-y-auto space-y-4 flex-1">
+    <div class="p-6 overflow-y-auto space-y-4 flex-1 bg-white">
       <div id="editQuestionsFieldsContainer" class="space-y-4">
         <!-- Dyn fields -->
       </div>
       
-      <button type="button" onclick="addManualQuestionField()" class="w-full py-2.5 bg-slate-800/80 hover:bg-slate-800 text-slate-355 hover:text-white border border-slate-700/60 rounded-xl text-xs font-bold transition-premium flex items-center justify-center gap-1.5 cursor-pointer">
-        <span class="material-symbols-rounded text-base">add_circle</span> Add Question
+      <button type="button" onclick="addManualQuestionField()" class="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 rounded-xl text-xs font-bold transition-premium flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
+        <span class="material-symbols-rounded text-base text-blue-600">add_circle</span> Add Question
       </button>
     </div>
     
-    <div class="px-6 py-4 bg-slate-950/60 border-t border-slate-800 flex justify-between items-center">
-      <div class="text-xs font-bold text-slate-400">
-        Total Marks: <span id="editQuestionsTotalMarks" class="text-slate-200 text-sm font-black">0</span> / 20
+    <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+      <div class="text-xs font-bold text-slate-700">
+        Total Marks: <span id="editQuestionsTotalMarks" class="text-emerald-700 text-sm font-black">0</span> / 20
       </div>
       <div class="flex gap-2">
-        <button type="button" onclick="closeEditQuestionsModal()" class="px-4 py-2 bg-slate-850 hover:bg-slate-800 text-slate-400 hover:text-slate-350 rounded-xl text-xs font-bold transition-premium cursor-pointer">Cancel</button>
-        <button type="button" onclick="saveManualQuestions()" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5">
+        <button type="button" onclick="closeEditQuestionsModal()" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold shadow-2xs transition-premium cursor-pointer">Cancel</button>
+        <button type="button" onclick="saveManualQuestions()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium shadow-xs cursor-pointer flex items-center gap-1.5">
           <span class="material-symbols-rounded text-sm">save</span> Save Questions
         </button>
       </div>
@@ -5143,120 +5232,120 @@
 </div>
 
 <!-- Virtual Classroom Students Modal -->
-<div id="vcStudentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
-  <div class="bg-slate-950 border border-slate-800/80 w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
-    <div class="p-4 border-b border-slate-800/80 bg-slate-900/50 flex justify-between items-center">
-      <h3 class="text-xl font-black text-slate-200 flex items-center gap-2 flex-wrap">
-        <span class="material-symbols-rounded text-blue-400 text-2xl flex-shrink-0">groups</span> Enrolled Students
-        <span id="vcModalBatchBadge" class="text-sm font-mono font-bold text-slate-300 bg-slate-800 border border-slate-700/60 px-2 py-0.5 rounded ml-2 flex-shrink-0"></span>
+<div id="vcStudentsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-white border border-slate-200/80 w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
+    <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+      <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+        <span class="material-symbols-rounded text-blue-600 text-2xl flex-shrink-0">groups</span> Enrolled Students
+        <span id="vcModalBatchBadge" class="text-xs font-mono font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md ml-2 flex-shrink-0"></span>
       </h3>
       <div class="flex items-center gap-3">
-        <button onclick="printVcStudentsList()" class="text-sm font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-4 py-2 rounded flex items-center gap-1.5 transition-premium">
-          <span class="material-symbols-rounded text-lg">print</span> Print List
+        <button onclick="printVcStudentsList()" class="text-xs font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs transition-premium cursor-pointer">
+          <span class="material-symbols-rounded text-base text-slate-600">print</span> Print List
         </button>
-        <button onclick="closeVcStudentsList()" class="text-slate-500 hover:text-white transition-premium ml-2">
-          <span class="material-symbols-rounded">close</span>
+        <button onclick="closeVcStudentsList()" class="text-slate-400 hover:text-slate-700 transition-colors ml-2 cursor-pointer">
+          <span class="material-symbols-rounded text-xl">close</span>
         </button>
       </div>
     </div>
-    <div class="p-0 overflow-y-auto custom-scrollbar flex-1">
+    <div class="p-0 overflow-y-auto custom-scrollbar flex-1 bg-white">
       <div id="vcStudentsListContent"></div>
     </div>
   </div>
 </div>
 
 <!-- Seminar Evaluation Pop-up Modal -->
-<div id="seminarEvaluationModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-[110] hidden flex items-center justify-center p-4">
-  <div class="bg-slate-950 border border-slate-850 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-    <div class="p-4 border-b border-slate-800/80 bg-slate-900/50 flex justify-between items-center">
-      <h3 class="text-base font-black text-slate-200">Evaluate Seminar Presentation</h3>
-      <button onclick="closeSeminarEvaluationModal()" class="text-slate-500 hover:text-white transition-premium">
+<div id="seminarEvaluationModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-[110] hidden flex items-center justify-center p-4">
+  <div class="bg-white border border-slate-200/80 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+    <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+      <h3 class="text-base font-bold text-slate-900">Evaluate Seminar Presentation</h3>
+      <button onclick="closeSeminarEvaluationModal()" class="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer">
         <span class="material-symbols-rounded">close</span>
       </button>
     </div>
     <form id="seminarEvaluationForm" onsubmit="submitSeminarEvaluation(event)" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
       <div>
-        <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Student</label>
-        <div id="semStudentName" class="text-base font-black text-white"></div>
+        <label class="block text-xs text-slate-600 font-bold uppercase tracking-wider mb-1">Student</label>
+        <div id="semStudentName" class="text-base font-bold text-slate-900"></div>
         <input type="hidden" id="semStudentRegNo">
       </div>
 
       <!-- Relevance Slider & Input -->
-      <div class="bg-slate-900/50 border border-slate-800/80 p-3.5 rounded-xl space-y-2">
+      <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl space-y-2 shadow-2xs">
         <div class="flex justify-between items-center">
-          <label class="block text-xs font-bold text-slate-200">Relevance (Max 7.5)</label>
+          <label class="block text-xs font-bold text-slate-800">Relevance (Max 7.5)</label>
           <input type="number" step="0.1" min="0" max="7.5" id="semRelevance" required
             oninput="syncSlider('semRelevance','semRelevanceSlider',7.5); calculateSeminarTotal()"
-            class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-sm font-black text-white text-center focus:border-blue-500 outline-none">
+            class="w-16 bg-white border border-slate-200 rounded-lg px-2 py-1 text-sm font-bold text-slate-900 text-center focus:border-blue-500 shadow-2xs outline-none">
         </div>
         <input type="range" id="semRelevanceSlider" min="0" max="7.5" step="0.1" value="0"
           oninput="document.getElementById('semRelevance').value = this.value; calculateSeminarTotal()"
-          class="w-full h-2 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
+          class="w-full h-2 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
       </div>
 
       <!-- Literature Survey Slider & Input -->
-      <div class="bg-slate-900/50 border border-slate-800/80 p-3.5 rounded-xl space-y-2">
+      <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl space-y-2 shadow-2xs">
         <div class="flex justify-between items-center">
-          <label class="block text-xs font-bold text-slate-200">Literature Survey (Max 7.5)</label>
+          <label class="block text-xs font-bold text-slate-800">Literature Survey (Max 7.5)</label>
           <input type="number" step="0.1" min="0" max="7.5" id="semLiterature" required
             oninput="syncSlider('semLiterature','semLiteratureSlider',7.5); calculateSeminarTotal()"
-            class="w-16 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-sm font-black text-white text-center focus:border-blue-500 outline-none">
+            class="w-16 bg-white border border-slate-200 rounded-lg px-2 py-1 text-sm font-bold text-slate-900 text-center focus:border-blue-500 shadow-2xs outline-none">
         </div>
         <input type="range" id="semLiteratureSlider" min="0" max="7.5" step="0.1" value="0"
           oninput="document.getElementById('semLiterature').value = this.value; calculateSeminarTotal()"
-          class="w-full h-2 rounded-full accent-indigo-500 bg-slate-800 cursor-pointer">
+          class="w-full h-2 rounded-full accent-indigo-600 bg-slate-200 cursor-pointer">
       </div>
 
       <!-- Presentation Slider & Input -->
-      <div class="bg-slate-900/50 border border-blue-950 p-3.5 rounded-xl space-y-2">
+      <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl space-y-2 shadow-2xs">
         <div class="flex justify-between items-center">
-          <label class="block text-xs font-bold text-blue-300">Presentation Quality (Max 37.5)</label>
+          <label class="block text-xs font-bold text-slate-800">Presentation Quality (Max 37.5)</label>
           <input type="number" step="0.5" min="0" max="37.5" id="semPresentation" required
             oninput="syncSlider('semPresentation','semPresentationSlider',37.5); calculateSeminarTotal()"
-            class="w-16 bg-slate-900 border border-blue-800 rounded-lg px-2 py-1 text-sm font-black text-blue-300 text-center focus:border-blue-500 outline-none">
+            class="w-16 bg-white border border-slate-200 rounded-lg px-2 py-1 text-sm font-bold text-slate-900 text-center focus:border-blue-500 shadow-2xs outline-none">
         </div>
         <input type="range" id="semPresentationSlider" min="0" max="37.5" step="0.5" value="0"
           oninput="document.getElementById('semPresentation').value = this.value; calculateSeminarTotal()"
-          class="w-full h-2 rounded-full accent-blue-400 bg-slate-800 cursor-pointer">
+          class="w-full h-2 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
       </div>
 
       <!-- Compact 3 Column Input Grid -->
       <div class="grid grid-cols-3 gap-3">
         <!-- Interaction -->
-        <div class="bg-slate-900/30 border border-slate-800/80 p-2.5 rounded-xl text-center space-y-1.5">
-          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Interaction</label>
+        <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center space-y-1.5 shadow-2xs">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Interaction</label>
           <input type="number" step="0.5" min="0" max="7.5" id="semInteraction" required
             oninput="syncSlider(this.id,null,7.5); calculateSeminarTotal()"
-            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1.5 text-sm font-bold text-white text-center focus:border-blue-500 outline-none">
-          <div class="text-[9px] text-slate-600">max 7.5</div>
+            class="w-full bg-white border border-slate-200 rounded-lg px-1.5 py-1.5 text-xs font-bold text-slate-900 text-center focus:border-blue-500 shadow-2xs outline-none">
+          <div class="text-[10px] text-slate-500 font-medium">max 7.5</div>
         </div>
 
         <!-- Report -->
-        <div class="bg-slate-900/30 border border-slate-800/80 p-2.5 rounded-xl text-center space-y-1.5">
-          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Report</label>
+        <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center space-y-1.5 shadow-2xs">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Report</label>
           <input type="number" step="0.5" min="0" max="7.5" id="semReport" required
             oninput="syncSlider(this.id,null,7.5); calculateSeminarTotal()"
-            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1.5 text-sm font-bold text-white text-center focus:border-blue-500 outline-none">
-          <div class="text-[9px] text-slate-600">max 7.5</div>
+            class="w-full bg-white border border-slate-200 rounded-lg px-1.5 py-1.5 text-xs font-bold text-slate-900 text-center focus:border-blue-500 shadow-2xs outline-none">
+          <div class="text-[10px] text-slate-500 font-medium">max 7.5</div>
         </div>
 
         <!-- Attendance -->
-        <div class="bg-slate-900/30 border border-slate-800/80 p-2.5 rounded-xl text-center space-y-1.5">
-          <label class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Attendance</label>
+        <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl text-center space-y-1.5 shadow-2xs">
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Attendance</label>
           <input type="number" step="0.5" min="0" max="7.5" id="semAttendance" required
             oninput="syncSlider(this.id,null,7.5); calculateSeminarTotal()"
-            class="w-full bg-slate-900 border border-slate-700 rounded-lg px-1.5 py-1.5 text-sm font-bold text-white text-center focus:border-blue-500 outline-none">
-          <div class="text-[9px] text-slate-600">max 7.5</div>
+            class="w-full bg-white border border-slate-200 rounded-lg px-1.5 py-1.5 text-xs font-bold text-slate-900 text-center focus:border-blue-500 shadow-2xs outline-none">
+          <div class="text-[10px] text-slate-500 font-medium">max 7.5</div>
         </div>
       </div>
 
       <!-- Total Score Banner -->
-      <div class="pt-4 border-t border-slate-900 flex justify-between items-center bg-slate-950/40 p-2 rounded-xl">
+      <div class="pt-4 border-t border-slate-200 flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-2xs">
         <div>
-          <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Total Score:</span>
-          <span id="semTotalScoreLabel" class="text-xl font-black text-blue-400 ml-2">0.00 / 75</span>
+          <span class="text-xs text-slate-600 font-bold uppercase tracking-wider">Total Score:</span>
+          <span id="semTotalScoreLabel" class="text-xl font-black text-blue-600 ml-2">0.00 / 75</span>
         </div>
-        <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold shadow-lg transition-premium cursor-pointer">
+        <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-premium cursor-pointer">
           Save Evaluation
         </button>
       </div>
@@ -5318,13 +5407,13 @@
       activeSeminarData.forEach(student => {
         const me = student.my_evaluation;
         const row = document.createElement('tr');
-        row.className = 'border-b border-slate-800/40 hover:bg-slate-900/20 text-xs font-semibold text-slate-300';
+        row.className = 'border-b border-slate-200/40 hover:bg-slate-900/20 text-xs font-semibold text-slate-800';
         
         row.innerHTML = `
           <td class="p-3 font-mono">${student.roll_no || '-'}</td>
           <td class="p-3 font-extrabold text-white">${student.name}</td>
           <td class="p-3 font-medium max-w-[200px] truncate" title="${student.topic || '-'}">${student.topic || '<span class="text-slate-600 italic">Not Registered</span>'}</td>
-          <td class="p-3 text-slate-400">${student.guide_name || '-'}</td>
+          <td class="p-3 text-slate-600">${student.guide_name || '-'}</td>
           <td class="p-3 text-center">${student.presentation_date || '-'}</td>
           <td class="p-3 text-center">${me ? me.relevance : '-'}</td>
           <td class="p-3 text-center">${me ? me.literature : '-'}</td>
@@ -5332,8 +5421,8 @@
           <td class="p-3 text-center">${me ? me.interaction : '-'}</td>
           <td class="p-3 text-center">${me ? me.report : '-'}</td>
           <td class="p-3 text-center">${me ? me.attendance : '-'}</td>
-          <td class="p-3 text-center font-bold text-slate-200">${me ? me.total_score : '-'}</td>
-          <td class="p-3 text-center font-bold text-teal-400">${student.average_score} <span class="text-[10px] text-slate-500 font-normal">(${student.evaluators_count} assessors)</span></td>
+          <td class="p-3 text-center font-bold text-slate-900">${me ? me.total_score : '-'}</td>
+          <td class="p-3 text-center font-bold text-teal-700 font-bold">${student.average_score} <span class="text-[10px] text-slate-500 font-normal">(${student.evaluators_count} assessors)</span></td>
           <td class="p-3 text-center">
             <button onclick="openSeminarEvaluationModal('${student.reg_no}')" class="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500 text-blue-400 hover:text-white rounded-lg font-bold text-[11px] transition-premium cursor-pointer border border-blue-500/25">
               ${me ? 'Modify' : 'Evaluate'}
@@ -5436,7 +5525,7 @@
       if (!isNaN(v) && v > max) input.value = max;
       if (!isNaN(v) && v < 0) input.value = 0;
       // Sync range slider sibling if present
-      const sliders = input.closest('.bg-slate-950\/40, .bg-slate-950\/40.border')?.querySelectorAll('input[type=range]');
+      const sliders = input.closest('.bg-slate-100\/40, .bg-slate-100\/40.border')?.querySelectorAll('input[type=range]');
       if (sliders && sliders.length) sliders[0].value = input.value;
     }
 
@@ -5502,7 +5591,7 @@
                   </div>
                   <div class="min-w-0">
                     <h5 class="text-xs font-black text-amber-300 group-hover:text-white transition-premium truncate">Seminar Day (${count})</h5>
-                    <p class="text-[11px] text-slate-400 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
+                    <p class="text-[11px] text-slate-600 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
                   </div>
                 </div>
                 <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-400 text-sm transition-premium flex-shrink-0">arrow_forward_ios</span>
@@ -5524,7 +5613,7 @@
                   </div>
                   <div class="min-w-0">
                     <h5 class="text-xs font-black text-amber-300 group-hover:text-white transition-premium truncate">Active Seminar Day (${count})</h5>
-                    <p class="text-[11px] text-slate-400 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
+                    <p class="text-[11px] text-slate-600 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
                   </div>
                 </div>
                 <span class="material-symbols-rounded text-slate-600 group-hover:text-amber-400 text-sm transition-premium flex-shrink-0">arrow_forward_ios</span>
@@ -5581,25 +5670,25 @@
           pendingList.innerHTML = '';
           pending.forEach(s => {
             const card = document.createElement('div');
-            card.className = 'bg-slate-900/60 border border-amber-700/30 rounded-xl p-4 space-y-3';
+            card.className = 'bg-white border border-amber-700/30 rounded-xl p-4 space-y-3';
             card.innerHTML = `
               <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0">
                   <div class="font-extrabold text-white text-sm truncate">${s.student_name}</div>
-                  <div class="text-[10px] font-mono text-slate-400">${s.sbte_reg_no || '-'}</div>
+                  <div class="text-[10px] font-mono text-slate-600">${s.sbte_reg_no || '-'}</div>
                 </div>
                 <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-900/60 text-amber-400 border border-amber-700/40">Pending</span>
               </div>
-              <div class="bg-slate-950/60 rounded-lg px-3 py-2">
+              <div class="bg-slate-100/60 rounded-lg px-3 py-2">
                 <div class="text-[10px] text-slate-500 uppercase tracking-wide">Topic</div>
                 <div class="text-xs text-white font-semibold mt-0.5 leading-snug">${s.topic || '-'}</div>
               </div>
-              <div class="text-[10px] text-slate-500">Guide: <span class="text-slate-300">${s.guide_name || '-'}</span></div>
+              <div class="text-[10px] text-slate-500">Guide: <span class="text-slate-800">${s.guide_name || '-'}</span></div>
               <div class="grid grid-cols-2 gap-2">
                 <button onclick="acceptMobileInvitation(${s.id})" class="py-2.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center justify-center gap-1">
                   <span class="material-symbols-rounded text-sm">how_to_reg</span> Accept
                 </button>
-                <button onclick="openMobSemEvaluation('${s.reg_no}')" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition-premium cursor-pointer flex items-center justify-center gap-1">
+                <button onclick="openMobSemEvaluation('${s.reg_no}')" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-900 rounded-xl text-xs font-bold border border-slate-700 transition-premium cursor-pointer flex items-center justify-center gap-1">
                   <span class="material-symbols-rounded text-sm">rate_review</span> Evaluate
                 </button>
               </div>
@@ -5616,11 +5705,11 @@
           attendingList.innerHTML = '';
           accepted.forEach(s => {
             const card = document.createElement('div');
-            card.className = 'bg-slate-900/40 border border-emerald-700/20 rounded-xl p-4 flex items-center justify-between gap-3';
+            card.className = 'bg-white border border-emerald-700/20 rounded-xl p-4 flex items-center justify-between gap-3';
             card.innerHTML = `
               <div class="min-w-0">
                 <div class="font-bold text-white text-sm truncate">${s.student_name}</div>
-                <div class="text-xs text-slate-400 mt-0.5 truncate">${s.topic || '-'}</div>
+                <div class="text-xs text-slate-600 mt-0.5 truncate">${s.topic || '-'}</div>
               </div>
               <button onclick="openMobSemEvaluation('${s.reg_no}')" class="shrink-0 px-4 py-2 bg-emerald-700/80 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1">
                 <span class="material-symbols-rounded text-sm">edit_note</span> Evaluate
@@ -5793,42 +5882,42 @@
     // ==========================================
     const dynamicLabModalsHtml = `
       <!-- Student Lab Modal -->
-      <div id="studentLabModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-          <div class="px-6 py-4 bg-slate-950/60 border-b border-slate-800 flex justify-between items-center">
+      <div id="studentLabModal" class="fixed inset-0 bg-slate-100/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
+        <div class="bg-slate-900 border border-slate-200 rounded-2xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+          <div class="px-6 py-4 bg-slate-100/60 border-b border-slate-200 flex justify-between items-center">
             <div>
               <h3 id="labModalStudentName" class="text-base font-black text-white">Student Evaluation</h3>
               <p id="labModalStudentReg" class="text-xs font-bold text-slate-500 font-mono"></p>
             </div>
-            <button onclick="closeStudentLabModal()" class="text-slate-400 hover:text-white transition-premium cursor-pointer">
+            <button onclick="closeStudentLabModal()" class="text-slate-600 hover:text-white transition-premium cursor-pointer">
               <span class="material-symbols-rounded">close</span>
             </button>
           </div>
-          <div class="px-6 py-2 bg-slate-900 border-b border-slate-800/50 flex gap-4 text-xs font-bold">
+          <div class="px-6 py-2 bg-slate-900 border-b border-slate-200/50 flex gap-4 text-xs font-bold">
             <button onclick="switchLabModalTab('exp')" id="labTabBtn_exp" class="py-2 border-b-2 border-blue-500 text-blue-400 px-1 transition-premium">Experiments (37.5)</button>
-            <button onclick="switchLabModalTab('test')" id="labTabBtn_test" class="py-2 border-b-2 border-transparent text-slate-400 px-1 transition-premium">Model Tests (15)</button>
-            <button onclick="switchLabModalTab('project')" id="labTabBtn_project" class="py-2 border-b-2 border-transparent text-slate-400 px-1 transition-premium">Micro-Project &amp; Attendance (22.5)</button>
-            <button onclick="switchLabModalTab('board')" id="labTabBtn_board" class="py-2 border-b-2 border-transparent text-slate-400 px-1 transition-premium font-black text-blue-400">Board Exam (50)</button>
+            <button onclick="switchLabModalTab('test')" id="labTabBtn_test" class="py-2 border-b-2 border-transparent text-slate-600 px-1 transition-premium">Model Tests (15)</button>
+            <button onclick="switchLabModalTab('project')" id="labTabBtn_project" class="py-2 border-b-2 border-transparent text-slate-600 px-1 transition-premium">Micro-Project &amp; Attendance (22.5)</button>
+            <button onclick="switchLabModalTab('board')" id="labTabBtn_board" class="py-2 border-b-2 border-transparent text-slate-600 px-1 transition-premium font-black text-blue-400">Board Exam (50)</button>
           </div>
           
           <div class="flex-grow overflow-y-auto p-6 space-y-6">
             <!-- TAB: EXPERIMENTS -->
             <div id="labModalTab_exp" class="space-y-5">
-              <div class="bg-slate-950/30 border border-slate-800/40 p-5 rounded-xl space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/50 pb-4">
+              <div class="bg-slate-100/30 border border-slate-200/40 p-5 rounded-xl space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/50 pb-4">
                   <div class="space-y-1">
-                    <label class="block text-sm font-black text-slate-200 uppercase tracking-wider">Select Lab Experiment</label>
+                    <label class="block text-sm font-black text-slate-900 uppercase tracking-wider">Select Lab Experiment</label>
                     <p class="text-xs text-slate-450 font-bold">Choose an experiment to grade or view scores.</p>
                   </div>
-                  <select id="labModalExpSelect" onchange="changeActiveExperiment()" class="bg-slate-950 border border-slate-800 text-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold focus:border-blue-500 outline-none w-full sm:w-80 shadow-inner">
+                  <select id="labModalExpSelect" onchange="changeActiveExperiment()" class="bg-slate-100 border border-slate-200 text-slate-900 rounded-xl px-4 py-2.5 text-sm font-bold focus:border-blue-500 outline-none w-full sm:w-80 shadow-inner">
                     <!-- Dynamic experiment options -->
                   </select>
                 </div>
 
                 <!-- Common sliders for the selected experiment -->
                 <div id="activeExperimentContainer" class="hidden space-y-4">
-                  <div class="flex justify-between items-center bg-slate-900/50 px-4 py-3 rounded-lg border border-slate-850/50">
-                    <span class="text-sm font-black text-slate-200" id="activeExpTitle">Experiment Details</span>
+                  <div class="flex justify-between items-center bg-white px-4 py-3 rounded-lg border border-slate-100/50">
+                    <span class="text-sm font-black text-slate-900" id="activeExpTitle">Experiment Details</span>
                     <span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-lg text-xs font-bold uppercase" id="activeExpCo">CO Map</span>
                   </div>
                   
@@ -5836,12 +5925,12 @@
                   <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     
                     <!-- Prereq -->
-                    <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-850/50 space-y-3 flex flex-col justify-between">
+                    <div class="bg-white p-4 rounded-xl border border-slate-100/50 space-y-3 flex flex-col justify-between">
                       <div class="flex justify-between items-center text-sm font-bold">
-                        <span class="text-slate-200 whitespace-nowrap">Prerequisites</span>
+                        <span class="text-slate-900 whitespace-nowrap">Prerequisites</span>
                         <input type="number" step="0.1" min="0" max="7.5" id="active_exp_prerequisite" 
                           oninput="syncSlider('active_exp_prerequisite','active_exp_prerequisite_slider',7.5); updateTempExpMark('prerequisite', this.value)"
-                          class="w-14 bg-slate-955 border border-slate-800 rounded-lg py-1 text-center font-normal text-slate-200 text-sm focus:border-blue-500 outline-none">
+                          class="w-14 bg-slate-955 border border-slate-200 rounded-lg py-1 text-center font-normal text-slate-900 text-sm focus:border-blue-500 outline-none">
                       </div>
                       <div class="space-y-1">
                         <input type="range" id="active_exp_prerequisite_slider" min="0" max="7.5" step="0.1" value="0"
@@ -5855,12 +5944,12 @@
                     </div>
 
                     <!-- Work Done -->
-                    <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-850/50 space-y-3 flex flex-col justify-between">
+                    <div class="bg-white p-4 rounded-xl border border-slate-100/50 space-y-3 flex flex-col justify-between">
                       <div class="flex justify-between items-center text-sm font-bold">
-                        <span class="text-slate-200 whitespace-nowrap">Work Done</span>
+                        <span class="text-slate-900 whitespace-nowrap">Work Done</span>
                         <input type="number" step="0.1" min="0" max="10" id="active_exp_execution" 
                           oninput="syncSlider('active_exp_execution','active_exp_execution_slider',10); updateTempExpMark('execution', this.value)"
-                          class="w-14 bg-slate-955 border border-slate-800 rounded-lg py-1 text-center font-normal text-slate-200 text-sm focus:border-blue-500 outline-none">
+                          class="w-14 bg-slate-955 border border-slate-200 rounded-lg py-1 text-center font-normal text-slate-900 text-sm focus:border-blue-500 outline-none">
                       </div>
                       <div class="space-y-1">
                         <input type="range" id="active_exp_execution_slider" min="0" max="10" step="0.1" value="0"
@@ -5874,12 +5963,12 @@
                     </div>
 
                     <!-- Result -->
-                    <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-850/50 space-y-3 flex flex-col justify-between">
+                    <div class="bg-white p-4 rounded-xl border border-slate-100/50 space-y-3 flex flex-col justify-between">
                       <div class="flex justify-between items-center text-sm font-bold">
-                        <span class="text-slate-200 whitespace-nowrap">Result</span>
+                        <span class="text-slate-900 whitespace-nowrap">Result</span>
                         <input type="number" step="0.1" min="0" max="5" id="active_exp_output" 
                           oninput="syncSlider('active_exp_output','active_exp_output_slider',5); updateTempExpMark('output', this.value)"
-                          class="w-14 bg-slate-955 border border-slate-800 rounded-lg py-1 text-center font-normal text-slate-200 text-sm focus:border-blue-500 outline-none">
+                          class="w-14 bg-slate-955 border border-slate-200 rounded-lg py-1 text-center font-normal text-slate-900 text-sm focus:border-blue-500 outline-none">
                       </div>
                       <div class="space-y-1">
                         <input type="range" id="active_exp_output_slider" min="0" max="5" step="0.1" value="0"
@@ -5893,12 +5982,12 @@
                     </div>
 
                     <!-- Rough Record -->
-                    <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-850/50 space-y-3 flex flex-col justify-between">
+                    <div class="bg-white p-4 rounded-xl border border-slate-100/50 space-y-3 flex flex-col justify-between">
                       <div class="flex justify-between items-center text-sm font-bold">
-                        <span class="text-slate-200 whitespace-nowrap">Rough Record</span>
+                        <span class="text-slate-900 whitespace-nowrap">Rough Record</span>
                         <input type="number" step="0.1" min="0" max="7.5" id="active_exp_rough_record" 
                           oninput="syncSlider('active_exp_rough_record','active_exp_rough_record_slider',7.5); updateTempExpMark('rough_record', this.value)"
-                          class="w-14 bg-slate-955 border border-slate-800 rounded-lg py-1 text-center font-normal text-slate-200 text-sm focus:border-blue-500 outline-none">
+                          class="w-14 bg-slate-955 border border-slate-200 rounded-lg py-1 text-center font-normal text-slate-900 text-sm focus:border-blue-500 outline-none">
                       </div>
                       <div class="space-y-1">
                         <input type="range" id="active_exp_rough_record_slider" min="0" max="7.5" step="0.1" value="0"
@@ -5912,12 +6001,12 @@
                     </div>
 
                     <!-- Fair Record -->
-                    <div class="bg-slate-900/40 p-4 rounded-xl border border-slate-850/50 space-y-3 flex flex-col justify-between">
+                    <div class="bg-white p-4 rounded-xl border border-slate-100/50 space-y-3 flex flex-col justify-between">
                       <div class="flex justify-between items-center text-sm font-bold">
-                        <span class="text-slate-200 whitespace-nowrap">Fair Record</span>
+                        <span class="text-slate-900 whitespace-nowrap">Fair Record</span>
                         <input type="number" step="0.1" min="0" max="7.5" id="active_exp_fair_record" 
                           oninput="syncSlider('active_exp_fair_record','active_exp_fair_record_slider',7.5); updateTempExpMark('fair_record', this.value)"
-                          class="w-14 bg-slate-955 border border-slate-800 rounded-lg py-1 text-center font-normal text-slate-200 text-sm focus:border-blue-500 outline-none">
+                          class="w-14 bg-slate-955 border border-slate-200 rounded-lg py-1 text-center font-normal text-slate-900 text-sm focus:border-blue-500 outline-none">
                       </div>
                       <div class="space-y-1">
                         <input type="range" id="active_exp_fair_record_slider" min="0" max="7.5" step="0.1" value="0"
@@ -5943,46 +6032,46 @@
             <div id="labModalTab_test" class="space-y-4 hidden">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Test 1 -->
-                <div class="bg-slate-950/30 border border-slate-800/40 p-4 rounded-xl space-y-4">
-                  <div class="border-b border-slate-800 pb-2 flex justify-between items-center">
+                <div class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4">
+                  <div class="border-b border-slate-200 pb-2 flex justify-between items-center">
                     <h4 class="text-xs font-black text-slate-350 uppercase tracking-widest">Model Test 1 (CO1 &amp; CO2)</h4>
                     <span class="text-xs font-bold text-blue-400" id="labModalT1Sum">0.0 / 15</span>
                   </div>
                   <div class="space-y-4">
-                    <div class="bg-slate-900/40 p-3 rounded-lg border border-slate-850/50 space-y-2">
+                    <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
                       <div class="flex justify-between items-center text-xs font-bold">
-                        <span class="text-slate-300">CO1 Score (Max 7.5)</span>
-                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t1_co1" oninput="syncSlider('labScore_t1_co1','labScore_t1_co1_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-base font-normal text-slate-200 text-center focus:border-blue-500 outline-none">
+                        <span class="text-slate-800">CO1 Score (Max 7.5)</span>
+                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t1_co1" oninput="syncSlider('labScore_t1_co1','labScore_t1_co1_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
                       </div>
                       <input type="range" id="labScore_t1_co1_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById('labScore_t1_co1').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
                     </div>
-                    <div class="bg-slate-900/40 p-3 rounded-lg border border-slate-850/50 space-y-2">
+                    <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
                       <div class="flex justify-between items-center text-xs font-bold">
-                        <span class="text-slate-300">CO2 Score (Max 7.5)</span>
-                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t1_co2" oninput="syncSlider('labScore_t1_co2','labScore_t1_co2_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-base font-normal text-slate-200 text-center focus:border-blue-500 outline-none">
+                        <span class="text-slate-800">CO2 Score (Max 7.5)</span>
+                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t1_co2" oninput="syncSlider('labScore_t1_co2','labScore_t1_co2_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
                       </div>
                       <input type="range" id="labScore_t1_co2_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById('labScore_t1_co2').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
                     </div>
                   </div>
                 </div>
                 <!-- Test 2 -->
-                <div class="bg-slate-950/30 border border-slate-800/40 p-4 rounded-xl space-y-4">
-                  <div class="border-b border-slate-800 pb-2 flex justify-between items-center">
+                <div class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4">
+                  <div class="border-b border-slate-200 pb-2 flex justify-between items-center">
                     <h4 class="text-xs font-black text-slate-350 uppercase tracking-widest">Model Test 2 (CO3 &amp; CO4)</h4>
                     <span class="text-xs font-bold text-blue-400" id="labModalT2Sum">0.0 / 15</span>
                   </div>
                   <div class="space-y-4">
-                    <div class="bg-slate-900/40 p-3 rounded-lg border border-slate-850/50 space-y-2">
+                    <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
                       <div class="flex justify-between items-center text-xs font-bold">
-                        <span class="text-slate-300">CO3 Score (Max 7.5)</span>
-                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t2_co3" oninput="syncSlider('labScore_t2_co3','labScore_t2_co3_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-base font-normal text-slate-200 text-center focus:border-blue-500 outline-none">
+                        <span class="text-slate-800">CO3 Score (Max 7.5)</span>
+                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t2_co3" oninput="syncSlider('labScore_t2_co3','labScore_t2_co3_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
                       </div>
                       <input type="range" id="labScore_t2_co3_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById('labScore_t2_co3').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
                     </div>
-                    <div class="bg-slate-900/40 p-3 rounded-lg border border-slate-850/50 space-y-2">
+                    <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
                       <div class="flex justify-between items-center text-xs font-bold">
-                        <span class="text-slate-300">CO4 Score (Max 7.5)</span>
-                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t2_co4" oninput="syncSlider('labScore_t2_co4','labScore_t2_co4_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-base font-normal text-slate-200 text-center focus:border-blue-500 outline-none">
+                        <span class="text-slate-800">CO4 Score (Max 7.5)</span>
+                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t2_co4" oninput="syncSlider('labScore_t2_co4','labScore_t2_co4_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
                       </div>
                       <input type="range" id="labScore_t2_co4_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById('labScore_t2_co4').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
                     </div>
@@ -5994,32 +6083,32 @@
             <!-- TAB: PROJECT & ATTENDANCE -->
             <div id="labModalTab_project" class="space-y-4 hidden">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-slate-950/30 border border-slate-800/40 p-4 rounded-xl space-y-4 flex flex-col justify-between">
+                <div class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4 flex flex-col justify-between">
                   <div>
-                    <h4 class="text-xs font-black text-slate-350 border-b border-slate-800 pb-2 uppercase tracking-widest mb-3">Open-Ended Project / Micro-Project</h4>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Project Topic Description</label>
-                    <input type="text" id="labScore_projectTopic" placeholder="Enter assigned micro-project topic..." class="w-full bg-slate-950 border border-slate-850 rounded-lg px-3 py-2 text-base font-normal text-slate-200 focus:border-blue-500 outline-none mb-4">
+                    <h4 class="text-xs font-black text-slate-350 border-b border-slate-200 pb-2 uppercase tracking-widest mb-3">Open-Ended Project / Micro-Project</h4>
+                    <label class="text-[10px] font-bold text-slate-600 uppercase block mb-1">Project Topic Description</label>
+                    <input type="text" id="labScore_projectTopic" placeholder="Enter assigned micro-project topic..." class="w-full bg-slate-100 border border-slate-100 rounded-lg px-3 py-2 text-base font-normal text-slate-900 focus:border-blue-500 outline-none mb-4">
                   </div>
-                  <div class="bg-slate-900/40 p-3 rounded-lg border border-slate-850/50 space-y-2">
+                  <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
                     <div class="flex justify-between items-center text-xs font-bold">
-                      <span class="text-slate-300">Project Mark (Max 7.5)</span>
-                      <input type="number" step="0.1" min="0" max="7.5" id="labScore_projectMark" oninput="syncSlider('labScore_projectMark','labScore_projectMark_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-base font-normal text-slate-200 text-center focus:border-blue-500 outline-none">
+                      <span class="text-slate-800">Project Mark (Max 7.5)</span>
+                      <input type="number" step="0.1" min="0" max="7.5" id="labScore_projectMark" oninput="syncSlider('labScore_projectMark','labScore_projectMark_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
                     </div>
                     <input type="range" id="labScore_projectMark_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById('labScore_projectMark').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
                   </div>
                 </div>
-                <div class="bg-slate-950/30 border border-slate-800/40 p-4 rounded-xl space-y-4 flex flex-col justify-between">
+                <div class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4 flex flex-col justify-between">
                   <div>
-                    <h4 class="text-xs font-black text-slate-350 border-b border-slate-800 pb-2 uppercase tracking-widest mb-3">Attendance Scoring</h4>
+                    <h4 class="text-xs font-black text-slate-350 border-b border-slate-200 pb-2 uppercase tracking-widest mb-3">Attendance Scoring</h4>
                     <div class="flex justify-between items-center mb-3">
-                      <span class="text-xs text-slate-400 font-bold">Class Attendance Percentage:</span>
+                      <span class="text-xs text-slate-600 font-bold">Class Attendance Percentage:</span>
                       <span class="text-xs font-black text-white font-mono" id="labModalStudentAttPct">0%</span>
                     </div>
                   </div>
-                  <div class="bg-slate-900/40 p-3 rounded-lg border border-slate-850/50 space-y-2">
+                  <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
                     <div class="flex justify-between items-center text-xs font-bold">
-                      <span class="text-slate-300">Attendance Mark (Max 15)</span>
-                      <input type="number" step="0.1" min="0" max="15" id="labScore_attendanceMark" oninput="syncSlider('labScore_attendanceMark','labScore_attendanceMark_slider',15); calcLabModalScores()" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-base font-normal text-slate-200 text-center focus:border-blue-500 outline-none">
+                      <span class="text-slate-800">Attendance Mark (Max 15)</span>
+                      <input type="number" step="0.1" min="0" max="15" id="labScore_attendanceMark" oninput="syncSlider('labScore_attendanceMark','labScore_attendanceMark_slider',15); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
                     </div>
                     <input type="range" id="labScore_attendanceMark_slider" min="0" max="15" step="0.1" value="0" oninput="document.getElementById('labScore_attendanceMark').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
                   </div>
@@ -6029,12 +6118,12 @@
 
             <!-- TAB: BOARD EXAM -->
             <div id="labModalTab_board" class="space-y-4 hidden">
-              <div class="bg-slate-950/30 border border-slate-800/40 p-4 rounded-xl space-y-4 max-w-md mx-auto">
-                <h4 class="text-xs font-black text-slate-350 border-b border-slate-800 pb-2 uppercase tracking-widest">External Board Examination</h4>
-                <div class="bg-slate-900/40 p-3 rounded-lg border border-slate-850/50 space-y-2">
+              <div class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4 max-w-md mx-auto">
+                <h4 class="text-xs font-black text-slate-350 border-b border-slate-200 pb-2 uppercase tracking-widest">External Board Examination</h4>
+                <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
                   <div class="flex justify-between items-center text-xs font-bold">
-                    <span class="text-slate-300">Board Exam Mark (Max 50)</span>
-                    <input type="number" step="0.5" min="0" max="50" id="labScore_boardExam" oninput="syncSlider('labScore_boardExam','labScore_boardExam_slider',50); calcLabModalScores()" class="w-16 bg-slate-950 border border-slate-800 rounded px-2 py-1 text-base font-normal text-slate-200 text-center focus:border-blue-500 outline-none" placeholder="0.0">
+                    <span class="text-slate-800">Board Exam Mark (Max 50)</span>
+                    <input type="number" step="0.5" min="0" max="50" id="labScore_boardExam" oninput="syncSlider('labScore_boardExam','labScore_boardExam_slider',50); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none" placeholder="0.0">
                   </div>
                   <input type="range" id="labScore_boardExam_slider" min="0" max="50" step="0.5" value="0" oninput="document.getElementById('labScore_boardExam').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
                 </div>
@@ -6043,11 +6132,11 @@
           </div>
 
           <!-- Bottom bar -->
-          <div class="px-6 py-4 bg-slate-950/60 border-t border-slate-800 flex justify-between items-center">
-            <div class="text-xs text-slate-400 font-bold flex gap-4">
-              <div>Lab Work Avg: <span class="text-slate-200 font-mono" id="labModalLabelExp">0.0</span></div>
-              <div>Model Test: <span class="text-slate-200 font-mono" id="labModalLabelTest">0.0</span></div>
-              <div>Internal CA: <span class="text-teal-400 font-black font-mono text-sm" id="labModalLabelInternals">0.0 / 75</span></div>
+          <div class="px-6 py-4 bg-slate-100/60 border-t border-slate-200 flex justify-between items-center">
+            <div class="text-xs text-slate-600 font-bold flex gap-4">
+              <div>Lab Work Avg: <span class="text-slate-900 font-mono" id="labModalLabelExp">0.0</span></div>
+              <div>Model Test: <span class="text-slate-900 font-mono" id="labModalLabelTest">0.0</span></div>
+              <div>Internal CA: <span class="text-teal-700 font-bold font-black font-mono text-sm" id="labModalLabelInternals">0.0 / 75</span></div>
             </div>
             <button onclick="saveStudentLabEvaluation()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-lg shadow-blue-500/10">
               <span class="material-symbols-rounded text-sm">save</span> Save Evaluation
@@ -6057,34 +6146,34 @@
       </div>
 
       <!-- Manage Experiments Modal -->
-      <div id="manageExperimentsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
-          <div class="px-6 py-4 bg-slate-950/60 border-b border-slate-800 flex justify-between items-center">
+      <div id="manageExperimentsModal" class="fixed inset-0 bg-slate-100/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
+        <div class="bg-slate-900 border border-slate-200 rounded-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+          <div class="px-6 py-4 bg-slate-100/60 border-b border-slate-200 flex justify-between items-center">
             <div>
               <h3 class="text-base font-black text-white">Experiments List</h3>
-              <p class="text-xs text-slate-400 mt-0.5">Setup the experiments syllabus for day-to-day continuous evaluation.</p>
+              <p class="text-xs text-slate-600 mt-0.5">Setup the experiments syllabus for day-to-day continuous evaluation.</p>
             </div>
-            <button onclick="closeManageExperimentsModal()" class="text-slate-400 hover:text-white transition-premium cursor-pointer">
+            <button onclick="closeManageExperimentsModal()" class="text-slate-600 hover:text-white transition-premium cursor-pointer">
               <span class="material-symbols-rounded">close</span>
             </button>
           </div>
 
           <div class="p-6 overflow-y-auto space-y-6 flex-grow">
             <!-- Add Experiment Form -->
-            <form onsubmit="savePracticalExperiment(event)" class="bg-slate-950/30 border border-slate-800/40 p-4 rounded-xl space-y-4">
+            <form onsubmit="savePracticalExperiment(event)" class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4">
               <input type="hidden" id="expEditId">
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="md:col-span-1">
-                  <label class="text-xs font-bold text-slate-400 uppercase block mb-1.5">Exp No.</label>
-                  <input type="text" id="expFormNo" required placeholder="e.g. 1, 2A" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-base font-normal text-slate-200 focus:border-blue-500 outline-none">
+                  <label class="text-xs font-bold text-slate-600 uppercase block mb-1.5">Exp No.</label>
+                  <input type="text" id="expFormNo" required placeholder="e.g. 1, 2A" class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-base font-normal text-slate-900 focus:border-blue-500 outline-none">
                 </div>
                 <div class="md:col-span-2">
-                  <label class="text-xs font-bold text-slate-400 uppercase block mb-1.5">Experiment Title / Objective</label>
-                  <textarea id="expFormTitle" required placeholder="Enter experiment objective / detailed description..." rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-lg font-normal text-slate-200 focus:border-blue-500 outline-none resize-y"></textarea>
+                  <label class="text-xs font-bold text-slate-600 uppercase block mb-1.5">Experiment Title / Objective</label>
+                  <textarea id="expFormTitle" required placeholder="Enter experiment objective / detailed description..." rows="2" class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-1.5 text-lg font-normal text-slate-900 focus:border-blue-500 outline-none resize-y"></textarea>
                 </div>
                 <div class="md:col-span-1">
-                  <label class="text-xs font-bold text-slate-400 uppercase block mb-1.5">Map CO</label>
-                  <select id="expFormCo" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-base font-normal text-slate-200 focus:border-blue-500 outline-none cursor-pointer">
+                  <label class="text-xs font-bold text-slate-600 uppercase block mb-1.5">Map CO</label>
+                  <select id="expFormCo" class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-base font-normal text-slate-900 focus:border-blue-500 outline-none cursor-pointer">
                     <option value="CO1">CO1</option>
                     <option value="CO2">CO2</option>
                     <option value="CO3">CO3</option>
@@ -6103,10 +6192,10 @@
             </form>
 
             <!-- Experiments List Table -->
-            <div class="border border-slate-800 rounded-xl overflow-hidden bg-slate-950/20">
+            <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-100/20">
               <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr class="bg-slate-900 border-b border-slate-800 text-slate-400 font-bold uppercase">
+                  <tr class="bg-slate-900 border-b border-slate-200 text-slate-600 font-bold uppercase">
                     <th class="p-3 w-16 text-center">No.</th>
                     <th class="p-3">Title / Objective</th>
                     <th class="p-3 w-20 text-center">CO</th>
@@ -6125,14 +6214,14 @@
       </div>
 
       <!-- Manage Tests Modal -->
-      <div id="manageTestsModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-xl md:max-w-4xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
-          <div class="px-6 py-4 bg-slate-950/60 border-b border-slate-800 flex justify-between items-center">
+      <div id="manageTestsModal" class="fixed inset-0 bg-slate-100/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
+        <div class="bg-slate-900 border border-slate-200 rounded-2xl w-full max-w-xl md:max-w-4xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+          <div class="px-6 py-4 bg-slate-100/60 border-b border-slate-200 flex justify-between items-center">
             <div>
               <h3 class="text-base font-black text-white">Configure Model Tests Questions</h3>
-              <p class="text-xs text-slate-400 mt-0.5">Design the question paper scheme for Test 1 and Test 2.</p>
+              <p class="text-xs text-slate-600 mt-0.5">Design the question paper scheme for Test 1 and Test 2.</p>
             </div>
-            <button onclick="closeManageTestsModal()" class="text-slate-400 hover:text-white transition-premium cursor-pointer">
+            <button onclick="closeManageTestsModal()" class="text-slate-600 hover:text-white transition-premium cursor-pointer">
               <span class="material-symbols-rounded">close</span>
             </button>
           </div>
@@ -6140,8 +6229,8 @@
           <form onsubmit="savePracticalTestQuestions(event)" class="flex-grow flex flex-col overflow-hidden">
             <div class="p-6 overflow-y-auto space-y-5 flex-grow">
               <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Select Model Test</label>
-                <select id="designTestName" onchange="renderTestQuestionsFields()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none cursor-pointer">
+                <label class="text-[10px] font-bold text-slate-600 uppercase block mb-1">Select Model Test</label>
+                <select id="designTestName" onchange="renderTestQuestionsFields()" class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none cursor-pointer">
                   <option value="Test 1">Model Test 1 (CO1 &amp; CO2)</option>
                   <option value="Test 2">Model Test 2 (CO3 &amp; CO4)</option>
                 </select>
@@ -6151,7 +6240,7 @@
                 <!-- Inputs generated dynamically -->
               </div>
             </div>
-            <div class="px-6 py-4 bg-slate-950/60 border-t border-slate-800 flex justify-end">
+            <div class="px-6 py-4 bg-slate-100/60 border-t border-slate-200 flex justify-end">
               <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-md">
                 <span class="material-symbols-rounded text-sm">save</span> Save Test Config
               </button>
@@ -6161,28 +6250,28 @@
       </div>
 
       <!-- Generate Lesson Planner Modal -->
-      <div id="generatePlannerModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-          <div class="px-6 py-4 bg-slate-950/60 border-b border-slate-800 flex justify-between items-center">
+      <div id="generatePlannerModal" class="fixed inset-0 bg-slate-100/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
+        <div class="bg-slate-900 border border-slate-200 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+          <div class="px-6 py-4 bg-slate-100/60 border-b border-slate-200 flex justify-between items-center">
             <h3 class="text-base font-black text-white">Generate Practical Lesson Plan</h3>
-            <button onclick="closeGeneratePlannerModal()" class="text-slate-400 hover:text-white transition-premium cursor-pointer">
+            <button onclick="closeGeneratePlannerModal()" class="text-slate-600 hover:text-white transition-premium cursor-pointer">
               <span class="material-symbols-rounded">close</span>
             </button>
           </div>
           <form onsubmit="generatePlannerFromExperiments(event)" class="p-6 space-y-4">
             <div>
-              <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Lab Batch Session Mode</label>
-              <select id="genPlannerBatchMode" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none cursor-pointer">
+              <label class="text-[10px] font-bold text-slate-600 uppercase block mb-1">Lab Batch Session Mode</label>
+              <select id="genPlannerBatchMode" class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none cursor-pointer">
                 <option value="combined">Combined / Full Class (1 entry per experiment)</option>
                 <option value="separate">Split Batches / Batch 1 &amp; 2 (2 entries per experiment)</option>
               </select>
             </div>
             <div>
-              <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Allocated Hours per Session</label>
-              <input type="number" id="genPlannerHours" value="3" min="1" max="10" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none">
+              <label class="text-[10px] font-bold text-slate-600 uppercase block mb-1">Allocated Hours per Session</label>
+              <input type="number" id="genPlannerHours" value="3" min="1" max="10" required class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none">
             </div>
             <div class="pt-2 flex justify-end gap-2">
-              <button type="button" onclick="closeGeneratePlannerModal()" class="px-4 py-2 bg-slate-850 hover:bg-slate-800 text-slate-400 hover:text-slate-350 rounded-xl text-xs font-bold transition-premium cursor-pointer">Cancel</button>
+              <button type="button" onclick="closeGeneratePlannerModal()" class="px-4 py-2 bg-slate-850 hover:bg-slate-800 text-slate-600 hover:text-slate-350 rounded-xl text-xs font-bold transition-premium cursor-pointer">Cancel</button>
               <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer">Generate</button>
             </div>
           </form>
@@ -6206,7 +6295,7 @@
       const tbody = document.getElementById('labEvaluationsTableBody');
       tbody.innerHTML = `
         <tr>
-          <td colspan="12" class="p-8 text-center text-slate-400 font-bold text-sm">
+          <td colspan="12" class="p-8 text-center text-slate-600 font-bold text-sm">
             <span class="animate-pulse">Loading student evaluation records...</span>
           </td>
         </tr>
@@ -6251,7 +6340,7 @@
 
       labStudentsData.forEach(student => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-slate-800/40 text-base hover:bg-slate-900/20";
+        tr.className = "border-b border-slate-200/40 text-base hover:bg-slate-900/20";
         tr.setAttribute('data-reg', student.reg_no);
         
         // Count graded experiments for this student
@@ -6270,18 +6359,18 @@
         const boardMarks = student.board_exam_marks !== null ? parseFloat(student.board_exam_marks).toFixed(1) : 'N/A';
 
         tr.innerHTML = `
-          <td class="p-3 font-mono font-bold text-slate-300 text-nowrap text-sm">${student.roll_no || '-'}</td>
+          <td class="p-3 font-mono font-bold text-slate-800 text-nowrap text-sm">${student.roll_no || '-'}</td>
           <td class="p-3 text-sm">
             <button onclick="openStudentLabModal('${student.reg_no}')" class="text-blue-400 hover:text-blue-300 font-bold cursor-pointer text-left block text-sm">
               ${student.name}
             </button>
             <span class="text-xs text-slate-500 block font-mono mt-0.5">${student.reg_no}</span>
           </td>
-          <td class="p-3 text-center text-slate-400 font-bold font-mono text-sm">${gradedCount} / ${labExperimentsData.length}</td>
-          <td class="p-3 text-center font-mono font-bold text-slate-300 text-sm">${expAverage}</td>
+          <td class="p-3 text-center text-slate-600 font-bold font-mono text-sm">${gradedCount} / ${labExperimentsData.length}</td>
+          <td class="p-3 text-center font-mono font-bold text-slate-800 text-sm">${expAverage}</td>
           <td class="p-3 text-center font-mono text-slate-455 text-sm">${t1Total}</td>
           <td class="p-3 text-center font-mono text-slate-455 text-sm">${t2Total}</td>
-          <td class="p-3 text-center font-mono text-slate-300 font-bold text-sm">${testsAvg}</td>
+          <td class="p-3 text-center font-mono text-slate-800 font-bold text-sm">${testsAvg}</td>
           <td class="p-3 text-center font-mono text-slate-455 text-sm">${microProjVal}</td>
           <td class="p-3 text-center font-mono text-sm">
             <div class="inline-flex flex-col items-center">
@@ -6289,10 +6378,10 @@
               <span class="text-xs text-slate-500 font-bold">${student.attendance_percentage}%</span>
             </div>
           </td>
-          <td class="p-3 text-center font-mono font-bold text-teal-400 text-base">${internalsTotal}</td>
+          <td class="p-3 text-center font-mono font-bold text-teal-700 font-bold text-base">${internalsTotal}</td>
           <td class="p-3 text-center font-mono font-bold text-blue-400 text-base">${boardMarks}</td>
           <td class="p-3 text-center">
-            <button onclick="openStudentLabModal('${student.reg_no}')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg text-xs font-bold transition-premium cursor-pointer border border-slate-700/50 flex items-center gap-1 mx-auto">
+            <button onclick="openStudentLabModal('${student.reg_no}')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-800 hover:text-white rounded-lg text-xs font-bold transition-premium cursor-pointer border border-slate-700/50 flex items-center gap-1 mx-auto">
               <span class="material-symbols-rounded text-xs">edit</span> Grade
             </button>
           </td>
@@ -6369,7 +6458,7 @@
         if (t === tabId) {
           el.classList.remove('hidden');
           btn.classList.add('border-blue-500', 'text-blue-400');
-          btn.classList.remove('border-transparent', 'text-slate-400');
+          btn.classList.remove('border-transparent', 'text-slate-600');
         } else {
           el.classList.add('hidden');
           btn.classList.remove('border-blue-500', 'text-blue-400');
@@ -6928,6 +7017,10 @@
           }
         })
         .catch(err => console.error("Failed to load system AI status:", err));
+
+      requestAnimationFrame(function() {
+        document.body.classList.remove('sidebar-preload');
+      });
     });
   </script>
 

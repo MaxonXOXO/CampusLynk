@@ -10,11 +10,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <!-- Pre-Paint Synchronous Sidebar State Hydration (Anti-FOUC) -->
+    <script>
+        (function() {
+            try {
+                var isCollapsed = localStorage.getItem('campuslynk_sidebar_collapsed') === 'true' || 
+                                  document.cookie.indexOf('campuslynk_sidebar_collapsed=true') !== -1;
+                if (isCollapsed && window.innerWidth >= 1024) {
+                    document.documentElement.classList.add('sidebar-is-collapsed');
+                }
+            } catch(e) {}
+        })();
+    </script>
 
     <!-- Vite Asset Pipeline -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-[#FAFAFB] text-slate-800 flex flex-col antialiased font-['Poppins']">
+<body class="min-h-screen bg-[#FAFAFB] text-slate-800 flex flex-col antialiased font-['Poppins'] sidebar-preload">
 
     <div class="flex h-screen overflow-hidden bg-[#FAFAFB]">
         
@@ -236,5 +250,10 @@
         </div>
     </div>
 
+    <script>
+        requestAnimationFrame(function() {
+            document.body.classList.remove('sidebar-preload');
+        });
+    </script>
 </body>
 </html>

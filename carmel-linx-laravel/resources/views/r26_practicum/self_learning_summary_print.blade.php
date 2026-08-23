@@ -12,6 +12,7 @@
             @page { size: A4 portrait; margin: 10mm; }
         }
     </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body class="p-8 max-w-5xl mx-auto bg-slate-50 text-slate-900">
 

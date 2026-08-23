@@ -20,6 +20,7 @@
         .co-badge { font-size: 10px; background: #dbeafe; color: #1e40af; padding: 1px 5px; border-radius: 4px; }
         .marks-col { min-width: 50px; text-align: right; font-weight: bold; color: #1e293b; }
     </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body class="p-8 max-w-3xl mx-auto">
 @php

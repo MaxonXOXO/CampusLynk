@@ -6,118 +6,76 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>[{{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }}] Practical Virtual Lab - {{ $batchSubject->subject_name }}</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canonical Vite Asset Pipeline -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Google Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
-            --bg-base:       #0f1117;
-            --bg-card:       #1a1d27;
-            --bg-card-hover: #1f2233;
-            --bg-stripe:     #161923;
-            --border:        #2a2d3e;
-            --border-light:  #323552;
-            --text-primary:  #e2e5f0;
-            --text-secondary:#a0a7be;
-            --text-muted:    #5a6180;
-            --accent:        #4f6ef7;
-            --accent-dim:    rgba(79,110,247,0.12);
-            --accent-hover:  #5c7aff;
-            --success:       #30d158;
-            --warning:       #ffa340;
-            --danger:        #ff5757;
+            --bg-base:       #FAFAFB;
+            --bg-card:       #ffffff;
+            --bg-card-hover: #f8fafc;
+            --bg-stripe:     #f8fafc;
+            --border:        #e2e8f0;
+            --border-light:  #cbd5e1;
+            --text-primary:  #0f172a;
+            --text-secondary:#334155;
+            --text-muted:    #64748b;
+            --accent:        #2563eb;
+            --accent-dim:    rgba(37, 99, 235, 0.1);
+            --accent-hover:  #1d4ed8;
+            --success:       #059669;
+            --warning:       #d97706;
+            --danger:        #dc2626;
         }
 
         *, *::before, *::after { box-sizing: border-box; }
 
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-size: 14px;
             line-height: 1.55;
-            background-color: var(--bg-base);
-            color: var(--text-primary);
+            background-color: #FAFAFB;
+            color: #0f172a;
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
-        h1, h2, h3, h4, h5, h6, .font-heading, span, p, label, button, a, th, td {
+        h1, h2, h3, h4, h5, h6, .font-heading {
+            font-family: 'Outfit', 'Poppins', sans-serif;
+            text-shadow: none !important;
+            filter: none !important;
+        }
+        span, p, label, button, a, th, td, div {
             text-shadow: none !important;
             filter: none !important;
         }
 
         /* ── Cards & Panels ───────────────────────────────── */
         .vl-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
         }
 
         .vl-card-inner {
-            background: var(--bg-stripe);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
         }
 
-        /* backward compat – old glass-panel wrappers become flat cards */
-        .glass-panel {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
+        .glass-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 1rem; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05); }
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
         }
-
-        /* ── Typography ───────────────────────────────────── */
-        .vl-page-title   { font-size: 15px; font-weight: 600; color: var(--text-primary); letter-spacing: -.01em; }
-        .vl-section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--text-muted); }
-        .vl-body          { font-size: 13px; color: var(--text-secondary); }
-        .vl-caption       { font-size: 11px; color: var(--text-muted); }
-
-        /* ── Header ───────────────────────────────────────── */
-        #vl-header {
-            background: var(--bg-card);
-            border-bottom: 1px solid var(--border);
-            padding: 0;
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-        #vl-header .row1 {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 10px 16px;
-        }
-        #vl-header .row2 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            padding: 7px 16px;
-            border-top: 1px solid var(--border);
-            background: var(--bg-stripe);
-        }
-
-        .vl-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 3px 10px;
-            border-radius: 6px;
-            font-size: 11.5px;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-        .vl-badge-blue  { background: var(--accent); color: #fff; }
-        .vl-badge-slate { background: #242740; border: 1px solid var(--border-light); color: var(--text-secondary); }
-        .vl-badge-green { background: rgba(48,209,88,.12); border: 1px solid rgba(48,209,88,.25); color: #30d158; }
 
         /* ── Buttons ──────────────────────────────────────── */
         .vl-btn {
@@ -125,28 +83,27 @@
             align-items: center;
             gap: 6px;
             padding: 7px 14px;
-            border-radius: 8px;
+            border-radius: 0.75rem;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
-            transition: background .15s, border-color .15s;
-            border: 1px solid var(--border-light);
-            background: #242740;
-            color: var(--text-secondary);
+            transition: all .15s ease;
+            border: 1px solid #e2e8f0;
+            background: #f1f5f9;
+            color: #475569;
         }
-        .vl-btn:hover { background: #2c3050; border-color: #444870; color: var(--text-primary); }
+        .vl-btn:hover { background: #e2e8f0; color: #0f172a; }
         .vl-btn-primary {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: #fff;
+            background: #2563eb !important;
+            border-color: #2563eb !important;
+            color: #fff !important;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
         }
-        .vl-btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; }
-        .vl-btn-sm { padding: 5px 10px; font-size: 12px; }
-        .vl-btn-icon { padding: 7px 10px; }
+        .vl-btn-primary:hover { background: #1d4ed8 !important; border-color: #1d4ed8 !important; }
 
         /* ── Sidebar Navigation ───────────────────────────── */
         #workspaceSidebar {
-            width: 260px;
+            width: 280px;
             flex-shrink: 0;
             transition: width .25s ease, opacity .25s ease;
         }
@@ -158,20 +115,21 @@
         }
 
         .sidebar-nav-group {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
             overflow: hidden;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05);
         }
         .sidebar-nav-header {
             padding: 10px 14px;
-            font-size: 10.5px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             letter-spacing: .07em;
             text-transform: uppercase;
-            color: var(--text-muted);
-            border-bottom: 1px solid var(--border);
-            background: var(--bg-stripe);
+            color: #475569;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
         }
         .tab-btn {
             width: 100%;
@@ -180,252 +138,180 @@
             justify-content: space-between;
             gap: 10px;
             padding: 10px 14px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #475569;
             background: transparent;
             border: none;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid #f1f5f9;
             cursor: pointer;
-            transition: background .12s, color .12s;
+            transition: all .15s ease;
             text-align: left;
         }
         .tab-btn:last-child { border-bottom: none; }
-        .tab-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+        .tab-btn:hover { background: #f8fafc; color: #0f172a; }
         .tab-btn.active {
-            background: var(--accent-dim);
-            color: var(--accent);
-            font-weight: 600;
+            background: #eff6ff !important;
+            color: #1d4ed8 !important;
+            font-weight: 700;
+            border-left: 4px solid #2563eb !important;
         }
-        .tab-btn .tab-icon {
-            width: 20px;
-            text-align: center;
-            flex-shrink: 0;
-            font-size: 13px;
-        }
-        .tab-badge {
-            font-size: 10px;
-            font-weight: 600;
-            padding: 1px 7px;
-            border-radius: 4px;
-            background: #242740;
-            color: var(--text-muted);
-            border: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-        .tab-badge-green {
-            background: rgba(48,209,88,.1);
-            border-color: rgba(48,209,88,.2);
-            color: #30d158;
-        }
-
-        /* ── Tab Content Panels ───────────────────────────── */
-        .tab-content { display: none; }
-        .tab-content.active-tab { display: block; }
-        /* Override old Tailwind 'hidden' toggle */
-        .tab-content:not(.hidden) { display: block; }
-        .tab-content.hidden { display: none !important; }
-
-        /* Tactile click feel for experiment inventory buttons */
-        .exp-btn-touch {
-            transition: transform 0.1s ease, filter 0.15s ease, box-shadow 0.15s ease;
-            user-select: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
-        .exp-btn-touch:hover {
-            filter: brightness(1.18);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-        }
-        .exp-btn-touch:active {
-            transform: scale(0.94);
-            filter: brightness(0.9);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        /* ── Tables ───────────────────────────────────────── */
-        .vl-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        .vl-table th {
-            padding: 9px 12px;
-            background: var(--bg-stripe);
-            color: var(--text-muted);
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            border: 1px solid var(--border);
-            white-space: nowrap;
-        }
-        .vl-table td {
-            padding: 9px 12px;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            vertical-align: middle;
-        }
-        .vl-table tbody tr:nth-child(even) td { background: var(--bg-stripe); }
-        .vl-table tbody tr:hover td { background: var(--bg-card-hover); }
-
-        /* ── Stat Cards ───────────────────────────────────── */
-        .vl-stat-card {
-            background: var(--bg-stripe);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px 14px;
-        }
-        .vl-stat-label { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
-        .vl-stat-value { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-top: 2px; }
-
-        /* ── CO-PO Matrix badges ──────────────────────────── */
-        .copo-3 { background: rgba(255,87,87,.15); color: #ff8f8f; border: 1px solid rgba(255,87,87,.25); }
-        .copo-2 { background: rgba(255,163,64,.15); color: #ffb96b; border: 1px solid rgba(255,163,64,.25); }
-        .copo-1 { background: rgba(79,110,247,.15); color: #849df9; border: 1px solid rgba(79,110,247,.25); }
-        .copo-dash { color: #3a3f5c; }
 
         /* ── Range Sliders ────────────────────────────────── */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
-            height: 8px;
-            border-radius: 4px;
-            background: var(--border-light);
+            height: 6px;
+            border-radius: 3px;
+            background: #cbd5e1;
             outline: none;
             cursor: pointer;
         }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
-            background: var(--accent);
+            background: #2563eb;
             cursor: pointer;
-            box-shadow: none;
-            transition: transform .12s;
         }
-        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.12); }
 
         /* ── Inputs / Selects ─────────────────────────────── */
         .vl-input {
-            background: var(--bg-base);
-            border: 1px solid var(--border-light);
-            color: var(--text-primary);
-            border-radius: 7px;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #0f172a;
+            border-radius: 0.5rem;
             padding: 7px 10px;
-            font-size: 13px;
+            font-size: 14px;
             font-family: inherit;
             width: 100%;
             transition: border-color .12s;
         }
-        .vl-input:focus { outline: none; border-color: var(--accent); }
+        .vl-input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
 
-        /* ── Misc ─────────────────────────────────────────── */
-        .vl-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
-        .transition-premium { transition: all .25s cubic-bezier(.4,0,.2,1); }
-
-        /* ── Mobile Responsive ────────────────────────────── */
-        @media (max-width: 768px) {
-            #workspaceSidebar {
-                width: 100%;
-            }
-            #workspaceSidebar.sidebar-collapsed {
-                width: 100%;
-                max-height: 0;
-                opacity: 0;
-                overflow: hidden;
-            }
-            .vl-stat-value { font-size: 15px; }
-            .tab-btn { padding: 12px 14px; font-size: 14px; } /* touch-friendly */
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
 </head>
-<body style="min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;">
+<body class="bg-[#FAFAFB] text-slate-900 min-h-screen flex flex-col overflow-x-hidden antialiased">
+    @php
+        $role = Session::get('userRole');
+        $dashboardUrl = '/dashboard/lecturer';
+        $dashboardLabel = 'Faculty Platform';
+        if ($role === 'HOD') {
+            $dashboardUrl = '/dashboard/hod';
+            $dashboardLabel = 'Department Console (HOD)';
+        } elseif ($role === 'Principal') {
+            $dashboardUrl = '/dashboard/principal';
+            $dashboardLabel = 'Principal Desk';
+        } elseif ($role === 'Demonstrator') {
+            $dashboardUrl = '/dashboard/demonstrator';
+            $dashboardLabel = 'Demonstrator Desk';
+        } elseif ($role === 'Super_Admin' || $role === 'SuperAdmin') {
+            $dashboardUrl = '/dashboard/superadmin';
+            $dashboardLabel = 'SuperAdmin Desk';
+        } elseif ($role === 'Admin') {
+            $dashboardUrl = '/dashboard/admin';
+            $dashboardLabel = 'Admin Desk';
+        }
+    @endphp
 
-    <!-- ═══ HEADER ═══════════════════════════════════════════════════════ -->
-    <header id="vl-header">
-        <!-- Row 1: Back · Badge · Subject Name · Actions -->
-        <div class="row1">
-            <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-                <a href="javascript:void(0)" onclick="handleVirtualLabBack(event)" class="exp-btn-touch" title="Back / Close Tab" style="padding:7px 14px;background:#f59e0b;border:1px solid #fbbf24;color:#0f172a;border-radius:8px;font-size:13px;font-weight:800;display:inline-flex;align-items:center;gap:7px;text-decoration:none;box-shadow:0 2px 8px rgba(245,158,11,0.4);">
-                    <i class="fa-solid fa-arrow-left-long" style="font-size:15px;color:#0f172a;"></i>
+    <!-- ═══ TOP BREADCRUMB & HEADER ═══════════════════════════════════════ -->
+    <header class="bg-white border-b border-slate-200/80 sticky top-0 z-50 px-4 md:px-8 py-3 shadow-xs">
+        <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            <!-- Breadcrumb Navigation -->
+            <nav class="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500 flex-wrap">
+                <a href="{{ $dashboardUrl }}" class="hover:text-blue-600 transition flex items-center gap-1.5 font-semibold text-slate-700">
+                    <span class="material-symbols-rounded text-base text-blue-600">domain</span>
+                    <span>{{ $dashboardLabel }}</span>
+                </a>
+                <span class="text-slate-300">/</span>
+                <a href="{{ $dashboardUrl }}" class="hover:text-blue-600 transition font-medium text-slate-600">My Batches</a>
+                <span class="text-slate-300">/</span>
+                <span class="font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>Virtual Lab</span>
+                    <span class="text-xs font-bold font-mono px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200/80 rounded-md">Practical</span>
+                </span>
+            </nav>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <button onclick="toggleFullscreen()" id="fullscreen-btn" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 border border-slate-200 shadow-2xs cursor-pointer" title="Toggle Fullscreen">
+                    <span class="material-symbols-rounded text-sm">fullscreen</span>
+                    <span>Fullscreen</span>
+                </button>
+                <button onclick="toggleSidebar()" id="sidebar-toggle-btn" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1.5 border border-slate-200 shadow-2xs cursor-pointer" title="Toggle Sidebar">
+                    <span class="material-symbols-rounded text-sm">view_sidebar</span>
+                    <span>Sidebar</span>
+                </button>
+                <a href="/r26/classroom/practical/course-file/{{ $batchSubject->id }}" class="px-3.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-bold transition flex items-center gap-1.5 border border-purple-200 shadow-2xs" title="Course File">
+                    <span class="material-symbols-rounded text-sm">folder_open</span>
+                    <span>Course File</span>
+                </a>
+                <a href="{{ $dashboardUrl }}" onclick="handleVirtualLabBack(event)" class="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition flex items-center gap-1.5 border border-rose-200 shadow-2xs" title="Back">
+                    <span class="material-symbols-rounded text-sm">arrow_back</span>
                     <span>Back</span>
                 </a>
+            </div>
+        </div>
+    </header>
 
+    <!-- HERO HEADER CARD -->
+    <div class="max-w-[1600px] mx-auto px-4 md:px-8 mt-4 w-full">
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-5">
+            <div class="space-y-2">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="px-2.5 py-0.5 rounded-md font-bold text-xs bg-blue-50 text-blue-700 border border-blue-200/80">
+                        {{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R2021 · PRACTICAL' : 'R2026 · PRACTICAL (LAB)' }}
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-md font-bold text-xs bg-purple-50 text-purple-700 border border-purple-200/80">
+                        {{ $batchSubject->classroom_id }} · S{{ $batchSubject->semester }}
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-md font-mono font-bold text-xs bg-slate-100 text-slate-700 border border-slate-200">
+                        {{ $batchSubject->subject_code }}
+                    </span>
+                </div>
 
-                <span class="vl-badge vl-badge-blue" style="font-size:11px;font-weight:700;letter-spacing:.06em;">
-                    <i class="fa-solid fa-flask-vial"></i> VIRTUAL LAB · {{ (str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), '2021') || str_contains(strtoupper($batchSubject->syllabus_revision_code ?? ''), 'R21')) ? 'R-2021' : 'R-2026' }}
-                </span>
-
-                <span class="vl-badge vl-badge-slate" id="header-subject-code" style="font-family:monospace;font-weight:700;">
-                    {{ $batchSubject->subject_code }}
-                </span>
-
-                <h1 id="header-subject-name" style="font-size:14px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0;">
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight" id="header-subject-name">
                     {{ $practicalCourseFile?->course_title ?: $batchSubject->subject_name }}
                 </h1>
+
+                <div class="flex items-center gap-3 text-xs sm:text-sm font-medium text-slate-500 flex-wrap">
+                    <span>Branch: <strong class="text-slate-800">{{ $classroom?->branch ?? '—' }}</strong></span>
+                    <span class="text-slate-300">•</span>
+                    <span>Batch: <strong class="text-slate-800">{{ $classroom?->batch_year ?? '—' }}</strong></span>
+                    <span class="text-slate-300">•</span>
+                    <span>Staff: <strong class="text-slate-800">{{ $staff?->name ?? Session::get('userName') ?? 'Faculty' }}</strong></span>
+                </div>
             </div>
 
-            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-                <button onclick="toggleFullscreen()" id="fullscreen-btn" class="exp-btn-touch" style="padding:7px 13px;background:rgba(6,182,212,.2);border:1px solid rgba(6,182,212,.5);color:#67e8f9;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;" title="Toggle Fullscreen">
-                    <i class="fa-solid fa-expand" id="fullscreen-icon" style="color:#22d3ee;"></i>
-                    <span class="hide-xs">Fullscreen</span>
-                </button>
-                <button onclick="toggleSidebar()" id="sidebar-toggle-btn" class="exp-btn-touch" style="padding:7px 13px;background:rgba(147,51,234,.2);border:1px solid rgba(147,51,234,.5);color:#c084fc;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;" title="Toggle Sidebar">
-                    <i class="fa-solid fa-table-columns" style="color:#a855f7;"></i>
-                    <span class="hide-xs">Sidebar</span>
-                </button>
-                <a href="/r26/classroom/practical/course-file/{{ $batchSubject->id }}" target="_blank" class="exp-btn-touch" style="padding:7px 13px;background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.5);color:#fcd34d;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;" title="Course File">
-                    <i class="fa-solid fa-folder-open" style="color:#fbbf24;"></i>
-                    <span class="hide-xs">Course File</span>
+            <!-- Quick Action: Print CIA Report -->
+            <div class="flex items-center gap-2.5">
+                <a href="/classroom/practical/{{ $batchSubject->id }}/report/print" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs transition border border-emerald-200 flex items-center gap-1.5 shadow-2xs">
+                    <span class="material-symbols-rounded text-sm">print</span>
+                    <span>Print CIA Statement</span>
                 </a>
             </div>
         </div>
-
-        <!-- Row 2: Lecturer · Branch · Batch · Semester · Parse Mode -->
-        <!-- Row 2: Staff Assignments (Lecturer, Demonstrator, etc.) · Branch · Batch · Semester · Parse Mode -->
-        <div class="row2">
-            @if(isset($assignedStaffList) && count($assignedStaffList) > 0)
-                @foreach($assignedStaffList as $st)
-                <span class="vl-badge vl-badge-slate" style="border-left:2px solid var(--accent);">
-                    <i class="fa-solid fa-chalkboard-user" style="color:var(--accent);"></i>
-                    <span style="color:var(--text-muted);">{{ $st['designation'] }}:</span>
-                    <strong style="color:var(--text-primary);font-weight:600;">{{ $st['name'] }}</strong>
-                </span>
-                @endforeach
-            @else
-                <span class="vl-badge vl-badge-slate">
-                    <i class="fa-solid fa-chalkboard-user" style="color:var(--text-muted);"></i>
-                    <span style="color:var(--text-muted);">Lecturer:</span>
-                    <strong style="color:var(--text-primary);font-weight:600;">{{ $staff?->name ?? 'N/A' }}</strong>
-                </span>
-            @endif
-            <span class="vl-badge vl-badge-slate">
-                <i class="fa-solid fa-code-branch" style="color:var(--text-muted);"></i>
-                <span style="color:var(--text-muted);">Branch:</span>
-                <strong style="color:var(--text-primary);font-weight:600;">{{ $classroom?->branch ?? '—' }}</strong>
-            </span>
-            <span class="vl-badge vl-badge-slate">
-                <i class="fa-solid fa-users" style="color:var(--text-muted);"></i>
-                <span style="color:var(--text-muted);">Batch:</span>
-                <strong style="color:var(--text-primary);font-weight:600;">{{ $classroom?->batch_year ?? '—' }}</strong>
-            </span>
-            <span class="vl-badge vl-badge-slate">
-                <i class="fa-solid fa-calendar" style="color:var(--text-muted);"></i>
-                <span style="color:var(--text-muted);">Sem:</span>
-                <strong style="color:var(--text-primary);font-weight:600;">{{ $batchSubject->semester }}</strong>
-            </span>
-            <span class="vl-badge vl-badge-slate" style="margin-left:auto;">
-                <i class="fa-solid fa-microchip" style="color:var(--text-muted);"></i>
-                <span style="color:var(--text-muted);">Parse:</span>
-                <strong style="color:var(--text-primary);font-weight:600;">{{ $parseModeLabel }}</strong>
-            </span>
-        </div>
-
+    </div>
 
     <!-- ═══ MAIN WORKSPACE ════════════════════════════════════════════════ -->
 
-    <div style="display:flex;flex:1;gap:0;overflow:hidden;">
+    <div class="max-w-[1600px] mx-auto px-4 md:px-8 mt-4 w-full flex flex-col lg:flex-row gap-5 flex-1 pb-10">
 
         <!-- ── Sidebar ──────────────────────────────────────── -->
         <aside id="workspaceSidebar" style="display:flex;flex-direction:column;gap:12px;padding:14px;overflow-y:auto;">
@@ -544,128 +430,189 @@
         <section id="workspaceContent" style="flex:1;overflow-y:auto;padding:14px;min-width:0;">
 
             <!-- TAB: Course Outline & CO-PO -->
-            <div id="tab-outline" class="tab-content glass-panel p-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
-                    <div>
-                        <h2 style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;background:linear-gradient(90deg,#38bdf8,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
-                            <i class="fa-solid fa-file-pdf" style="-webkit-text-fill-color:#38bdf8;color:#38bdf8;"></i> Syllabus &amp; Course Articulation
-                        </h2>
+            <div id="tab-outline" class="tab-content space-y-5">
+                
+                <!-- Course Identity & Practical Syllabus Header Card -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
+                        <div class="space-y-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="px-2.5 py-0.5 rounded-md font-bold text-xs bg-purple-50 text-purple-700 border border-purple-200/80">
+                                    R2026 · PRACTICAL VIRTUAL LAB
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-md font-bold text-xs bg-blue-50 text-blue-700 border border-blue-200/80">
+                                    Semester {{ $batchSubject->semester }}
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-md font-mono font-bold text-xs bg-slate-100 text-slate-700 border border-slate-200">
+                                    {{ $batchSubject->subject_code }}
+                                </span>
+                            </div>
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                                {{ $practicalCourseFile && $practicalCourseFile->course_title ? $practicalCourseFile->course_title : $batchSubject->subject_name }}
+                            </h2>
+                            <p class="text-xs text-slate-500">Continuous Day-Work (30M), Series Tests (15M), Open-Ended Project (10M), and Attendance (5M).</p>
+                        </div>
 
-                        <p class="text-xs text-slate-400 mt-1">Upload the practical syllabus PDF to automatically map Course Outcomes, Credits, and Schemes.</p>
+                        <div class="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                            @if($practicalCourseFile && $practicalCourseFile->syllabus_pdf_path)
+                                <a href="/storage/{{ $practicalCourseFile->syllabus_pdf_path }}" target="_blank" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-xs font-bold transition-all border border-slate-200 flex items-center gap-1.5 shadow-2xs">
+                                    <svg class="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6"/><path d="M9 11h6"/></svg>
+                                    <span>View Syllabus PDF</span>
+                                </a>
+                                <button onclick="togglePracticalSyllabusWorkspace()" class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border border-blue-200/80 cursor-pointer shadow-2xs">
+                                    <svg class="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                                    <span>Replace Syllabus</span>
+                                </button>
+                            @else
+                                <button id="syllabus-upload-btn" onclick="togglePracticalSyllabusWorkspace()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                    <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    <span>Upload Syllabus PDF</span>
+                                </button>
+                            @endif
+                            <input type="file" id="syllabus_pdf_input" accept=".pdf" class="hidden" onchange="uploadSyllabusPdf()">
+                        </div>
                     </div>
-                    <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-                        @if($practicalCourseFile && $practicalCourseFile->syllabus_pdf_path)
-                            <a href="/storage/{{ $practicalCourseFile->syllabus_pdf_path }}" target="_blank" class="exp-btn-touch" style="padding:8px 16px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.5);color:#fca5a5;border-radius:8px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;text-decoration:none;" title="View Syllabus PDF">
-                                <i class="fa-solid fa-file-pdf" style="color:#ef4444;"></i> View PDF
-                            </a>
-                        @endif
-                        <input type="file" id="syllabus_pdf_input" accept=".pdf" class="hidden" onchange="uploadSyllabusPdf()">
-                        <button id="syllabus-upload-btn" onclick="document.getElementById('syllabus_pdf_input').click()" class="exp-btn-touch" style="padding:8px 16px;background:#3b5bdb;border:1px solid #4c6ef5;color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
-                            <i class="fa-solid fa-upload"></i> Upload Syllabus PDF
-                        </button>
+
+                    <!-- Collapsible Syllabus Upload & Dropzone Workspace -->
+                    <div id="practicalSyllabusWorkspace" class="{{ ($practicalCourseFile && $practicalCourseFile->syllabus_pdf_path) ? 'hidden' : '' }} pt-2">
+                        <div id="practicalSyllabusDropzone" ondragover="handlePracticalDragOver(event)" ondragleave="handlePracticalDragLeave(event)" ondrop="handlePracticalFileDrop(event)" onclick="document.getElementById('syllabus_pdf_input').click()" class="border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50/70 hover:bg-blue-50/40 rounded-2xl p-6 text-center space-y-2.5 transition cursor-pointer">
+                            <div class="w-11 h-11 rounded-2xl bg-blue-100 text-blue-600 mx-auto flex items-center justify-center border border-blue-200">
+                                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Upload Practical Lab Syllabus PDF</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">Drag &amp; drop syllabus PDF here, or <span class="text-blue-600 font-semibold underline">browse files</span></p>
+                            </div>
+                            <div class="flex items-center justify-center gap-2 text-xs font-semibold text-slate-400">
+                                <span class="px-2 py-0.5 rounded bg-white border border-slate-200">PDF only</span>
+                                <span>•</span>
+                                <span class="px-2 py-0.5 rounded bg-white border border-slate-200">Max 10MB</span>
+                            </div>
+                        </div>
+
+                        {{-- Upload Status Bar --}}
+                        <div id="syllabus-upload-status" class="hidden mt-3 p-3.5 rounded-xl text-xs font-semibold flex items-center justify-between"></div>
                     </div>
-                </div>
 
-                {{-- Upload Status Bar --}}
-                <div id="syllabus-upload-status" class="hidden mt-4 p-3 rounded-xl text-sm font-semibold flex items-center gap-3"></div>
-
-                {{-- Uploaded File Banner --}}
-                @if($practicalCourseFile && $practicalCourseFile->syllabus_pdf_path)
-                <div style="margin-top:12px;padding:10px 14px;background:rgba(48,209,88,.08);border:1px solid rgba(48,209,88,.25);border-radius:8px;display:flex;align-items:center;gap:8px;font-size:13px;">
-                    <i class="fa-solid fa-circle-check" style="color:#30d158;font-size:15px;"></i>
-                    <span style="color:#30d158;font-weight:600;">Syllabus Loaded:</span>
-                    <strong style="color:var(--text-primary);">{{ $practicalCourseFile->course_title ?: $batchSubject->subject_name }}</strong>
-                </div>
-                @endif
-
-
-                <!-- Scheme parameters -->
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-6">
+                    {{-- Scheme Parameters --}}
                     @php
                         $copoDecoded = $practicalCourseFile ? json_decode($practicalCourseFile->parsed_copo, true) : [];
                     @endphp
-                    <div class="bg-slate-900/40 px-4 py-3 rounded-xl border border-slate-800/60">
-                        <span class="text-[11px] text-slate-600 font-medium block uppercase tracking-wide">Credits</span>
-                        <span class="text-base font-medium text-slate-400 mt-0.5 block" id="meta-credits">{{ $copoDecoded['credit'] ?? '1' }}</span>
-                    </div>
-                    <div class="bg-slate-900/40 px-4 py-3 rounded-xl border border-slate-800/60">
-                        <span class="text-[11px] text-slate-600 font-medium block uppercase tracking-wide">Proposed Hours</span>
-                        <span class="text-base font-medium text-slate-400 mt-0.5 block" id="meta-hours">{{ $copoDecoded['total_hours'] ?? '30' }} hrs</span>
-                    </div>
-                    <div class="bg-slate-900/40 px-4 py-3 rounded-xl border border-slate-800/60">
-                        <span class="text-[11px] text-slate-600 font-medium block uppercase tracking-wide">L:T:P:R</span>
-                        <span class="text-base font-medium text-slate-400 mt-0.5 block" id="meta-ltpr">{{ $copoDecoded['l_t_p_r'] ?? '0:0:2:0' }}</span>
-                    </div>
-                    <div class="bg-slate-900/40 px-4 py-3 rounded-xl border border-slate-800/60">
-                        <span class="text-[11px] text-slate-600 font-medium block uppercase tracking-wide">CIE Marks</span>
-                        <span class="text-base font-medium text-slate-400 mt-0.5 block" id="meta-cie">{{ $copoDecoded['cie_marks'] ?? '60' }} M</span>
-                    </div>
-                    <div class="bg-slate-900/40 px-4 py-3 rounded-xl border border-slate-800/60">
-                        <span class="text-[11px] text-slate-600 font-medium block uppercase tracking-wide">ESE Marks</span>
-                        <span class="text-base font-medium text-slate-400 mt-0.5 block" id="meta-ese">{{ $copoDecoded['ese_marks'] ?? '40' }} M</span>
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                        <div class="bg-slate-50 border border-slate-200/70 rounded-xl p-3">
+                            <span class="text-xs font-semibold text-slate-500 block uppercase tracking-wider">Credits</span>
+                            <span class="text-base font-bold text-slate-900 mt-0.5 block" id="meta-credits">{{ $copoDecoded['credit'] ?? '1' }} Credits</span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200/70 rounded-xl p-3">
+                            <span class="text-xs font-semibold text-slate-500 block uppercase tracking-wider">Proposed Hours</span>
+                            <span class="text-base font-bold text-slate-900 mt-0.5 block" id="meta-hours">{{ $copoDecoded['total_hours'] ?? '30' }} hrs</span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200/70 rounded-xl p-3">
+                            <span class="text-xs font-semibold text-slate-500 block uppercase tracking-wider">L:T:P:R</span>
+                            <span class="text-base font-bold font-mono text-slate-900 mt-0.5 block" id="meta-ltpr">{{ $copoDecoded['l_t_p_r'] ?? '0:0:2:0' }}</span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200/70 rounded-xl p-3">
+                            <span class="text-xs font-semibold text-slate-500 block uppercase tracking-wider">CIE Marks</span>
+                            <span class="text-base font-bold text-slate-900 mt-0.5 block" id="meta-cie">{{ $copoDecoded['cie_marks'] ?? '60' }} M</span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200/70 rounded-xl p-3">
+                            <span class="text-xs font-semibold text-slate-500 block uppercase tracking-wider">ESE Marks</span>
+                            <span class="text-base font-bold text-slate-900 mt-0.5 block" id="meta-ese">{{ $copoDecoded['ese_marks'] ?? '40' }} M</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Course Outcomes list -->
-                <div class="mt-8">
-                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Course Outcomes (COs)</h3>
-                    <div class="space-y-3" id="co-outcomes-container">
+                <!-- Practical Course Outcomes (COs) Section -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-sm font-bold border border-blue-200/80">
+                                <span class="material-symbols-rounded text-base">stars</span>
+                            </span>
+                            <h3 class="font-bold text-slate-900 text-base">Practical Course Outcomes (COs)</h3>
+                        </div>
+                        <span class="text-xs font-semibold px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200">
+                            {{ count($cosList ?? []) }} Outcomes
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="co-outcomes-container">
                         @php
                             $cosList = $practicalCourseFile ? json_decode($practicalCourseFile->parsed_cos, true) : [];
                         @endphp
                         @forelse($cosList as $co)
-                        <div class="p-4 rounded-xl bg-slate-900/30 border border-slate-800/60 flex gap-4">
-                            <span class="px-2.5 py-1 bg-slate-800 text-slate-400 font-semibold font-mono text-xs rounded border border-slate-700 h-fit">{{ $co['id'] }}</span>
-                            <div>
-                                <h4 class="text-sm font-medium text-slate-300">{{ $co['description'] }}</h4>
-                                <span class="text-xs text-slate-600 font-mono mt-1 block">Cognitive Level: {{ $co['cognitive_level'] }}</span>
+                        @php
+                            $cog = strtolower($co['cognitive_level'] ?? 'apply');
+                            $badgeClasses = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                            if (str_contains($cog, 'understand')) {
+                                $badgeClasses = 'bg-blue-50 text-blue-700 border-blue-200';
+                            } elseif (str_contains($cog, 'analy') || str_contains($cog, 'eval')) {
+                                $badgeClasses = 'bg-purple-50 text-purple-700 border-purple-200';
+                            }
+                        @endphp
+                        <div class="p-4 rounded-xl bg-slate-50/60 border border-slate-200/80 hover:border-blue-300 transition-all space-y-2">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="px-2.5 py-0.5 rounded-lg bg-blue-50 text-blue-700 font-bold font-mono text-xs border border-blue-200">{{ $co['id'] }}</span>
+                                @if(!empty($co['cognitive_level']))
+                                <span class="px-2 py-0.5 rounded-md font-semibold text-xs border {{ $badgeClasses }}">{{ $co['cognitive_level'] }}</span>
+                                @endif
                             </div>
+                            <p class="text-sm font-medium text-slate-800 leading-relaxed">{{ $co['description'] }}</p>
                         </div>
                         @empty
-                        <div class="text-xs text-slate-600 italic p-2">Syllabus outcomes not uploaded yet.</div>
+                        <div class="col-span-2 text-center py-6 text-slate-500 text-sm italic bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                            Practical syllabus outcomes not uploaded yet.
+                        </div>
                         @endforelse
                     </div>
                 </div>
 
-                <!-- Articulation matrix (CO-PO Mapping) -->
-                <div class="mt-8 pt-6 border-t border-slate-800">
-                    <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                        <i class="fa-solid fa-table text-slate-500"></i>
-                        CO-PO Articulation Matrix
-                        <span class="text-[10px] font-normal text-slate-600 ml-2">(1 = Low &nbsp;·&nbsp; 2 = Medium &nbsp;·&nbsp; 3 = High &nbsp;·&nbsp; - = No mapping)</span>
-                    </h3>
+                <!-- CO-PO Articulation Matrix Section -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-sm font-bold border border-indigo-200/80">
+                                <span class="material-symbols-rounded text-base">grid_on</span>
+                            </span>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-base">CO-PO Articulation Matrix</h3>
+                                <p class="text-xs text-slate-500">Mapping strengths: 3 = High, 2 = Medium, 1 = Low</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 text-xs font-medium text-slate-600">
+                            <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold flex items-center justify-center text-[10px]">3</span> High</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-blue-100 text-blue-800 border border-blue-300 font-bold flex items-center justify-center text-[10px]">2</span> Med</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-slate-100 text-slate-700 border border-slate-300 font-bold flex items-center justify-center text-[10px]">1</span> Low</span>
+                        </div>
+                    </div>
+
                     <div class="overflow-x-auto">
-                        <table class="w-full text-center text-xs text-slate-300 border border-slate-800 border-collapse rounded-xl overflow-hidden">
+                        <table class="w-full text-center border-collapse text-sm">
                             <thead>
-                                <tr class="bg-slate-900 font-bold text-slate-500 uppercase tracking-wider">
-                                    <th class="p-3 border border-slate-800 text-left text-slate-400 w-20">CO</th>
+                                <tr class="bg-slate-50 text-slate-700 font-bold text-xs uppercase border-b border-slate-200">
+                                    <th class="p-3 text-left pl-4 w-24">CO</th>
                                     @for($p = 1; $p <= 11; $p++)
-                                    <th class="p-3 border border-slate-800 text-center">PO{{ $p }}</th>
+                                    <th class="p-3 font-mono">PO{{ $p }}</th>
                                     @endfor
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="divide-y divide-slate-100">
                                 @php
                                     $mappings = $copoDecoded['mappings'] ?? [];
-                                    $badgeMap = [
-                                        '3' => 'bg-red-500/20 text-red-300 border border-red-500/30',
-                                        '2' => 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
-                                        '1' => 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
-                                        '-' => 'text-slate-700',
-                                    ];
                                 @endphp
                                 @foreach(['CO1', 'CO2', 'CO3', 'CO4'] as $coId)
-                                <tr class="hover:bg-slate-900/20 transition">
-                                    <td class="p-3 border border-slate-800 text-left font-semibold font-mono text-slate-400">{{ $coId }}</td>
+                                <tr class="hover:bg-slate-50/80 transition-all">
+                                    <td class="p-3 text-left font-bold text-blue-700 pl-4 font-mono">{{ $coId }}</td>
                                     @for($p = 1; $p <= 11; $p++)
                                     @php
                                         $poVal = $mappings[$coId]["PO$p"] ?? '-';
-                                        $badge = $badgeMap[$poVal] ?? $badgeMap['-'];
+                                        $cellClass = 'text-slate-400 font-normal';
+                                        if ($poVal == '3') $cellClass = 'font-bold text-emerald-700 bg-emerald-50/60';
+                                        elseif ($poVal == '2') $cellClass = 'font-bold text-blue-700 bg-blue-50/60';
+                                        elseif ($poVal == '1') $cellClass = 'font-semibold text-slate-700 bg-slate-50';
                                     @endphp
-                                    <td class="p-2 border border-slate-800">
-                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg font-black text-sm {{ $badge }}">
-                                            {{ $poVal }}
-                                        </span>
+                                    <td class="p-2.5 font-mono text-sm {{ $cellClass }}">
+                                        {{ $poVal }}
                                     </td>
                                     @endfor
                                 </tr>
@@ -673,19 +620,13 @@
                             </tbody>
                         </table>
                     </div>
-                    {{-- Legend --}}
-                    <div class="flex items-center gap-4 mt-3 text-xs text-slate-500">
-                        <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded bg-red-500/20 border border-red-500/30 inline-block"></span> 3 = High Correlation</span>
-                        <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded bg-amber-500/20 border border-amber-500/30 inline-block"></span> 2 = Medium</span>
-                        <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded bg-blue-500/20 border border-blue-500/30 inline-block"></span> 1 = Low</span>
-                        <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded bg-slate-900 border border-slate-800 inline-block"></span> - = None</span>
-                    </div>
                 </div>
+
             </div>
 
 
             <!-- TAB: List of Experiments -->
-            <div id="tab-experiments" class="tab-content glass-panel p-6 hidden">
+            <div id="tab-experiments" class="tab-content bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 hidden">
                 {{-- Header --}}
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--border);">
                     <div>
@@ -780,33 +721,33 @@
             </div>
 
             <!-- TAB: Lesson Planner -->
-            <div id="tab-lesson_plan" class="tab-content glass-panel p-6 hidden">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+            <div id="tab-lesson_plan" class="tab-content bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
                     <div>
-                        <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                             <i class="fa-solid fa-calendar-day text-slate-500"></i> Lab Lesson Planner splitup
                         </h2>
                         <p class="text-xs text-slate-400 mt-1">Split content modularly. Generates timeline including two series exams and open ended project.</p>
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <select id="lesson_planner_mode" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 font-bold">
+                        <select id="lesson_planner_mode" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-blue-500 font-bold shadow-xs">
                             <option value="single">Single/Whole Class Batch</option>
                             <option value="split">Split Batch (Batch A/B)</option>
                         </select>
                         <button onclick="generateLessonTimeline()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5">
                             <i class="fa-solid fa-arrows-rotate"></i> Generate Planner
                         </button>
-                        <a href="/r26/classroom/lesson-plan/print/{{ $batchSubject->id }}" target="_blank" class="px-3 py-2 bg-slate-900 border border-slate-800 text-slate-300 text-xs rounded-xl font-bold transition flex items-center gap-1.5">
+                        <a href="/r26/classroom/lesson-plan/print/{{ $batchSubject->id }}" target="_blank" class="px-3 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs rounded-xl font-bold transition flex items-center gap-1.5 shadow-xs">
                             <i class="fa-solid fa-print"></i> Print
                         </a>
                     </div>
                 </div>
 
                 <div class="mt-6 overflow-x-auto">
-                    <table class="w-full text-left text-xs border border-slate-800 border-collapse" id="lesson-plan-table">
+                    <table class="w-full text-left text-xs border border-slate-200 border-collapse divide-y divide-slate-100" id="lesson-plan-table">
                         <thead>
-                            <tr class="bg-slate-900/60 font-bold text-slate-400">
+                            <tr class="bg-slate-50 font-bold text-slate-700 border-b border-slate-200">
                                 <th class="p-3 w-16">Day No</th>
                                 <th class="p-3 w-28">Sub-Batch</th>
                                 <th class="p-3 w-36">Proposed Date</th>
@@ -820,41 +761,41 @@
                         </thead>
                         <tbody id="lesson-plan-rows-container">
                             @forelse($lessonPlans as $lp)
-                            <tr class="lesson-plan-row hover:bg-slate-900/20 border-b border-slate-855" data-id="{{ $lp->id }}">
+                            <tr class="lesson-plan-row hover:bg-slate-50/80 border-b border-slate-100 transition-colors" data-id="{{ $lp->id }}">
                                 <td class="p-3 font-mono">{{ $lp->day_no }}</td>
                                 <td class="p-3">
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $lp->sub_batch == 'Batch A' ? 'bg-indigo-500/10 text-indigo-400' : ($lp->sub_batch == 'Batch B' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-slate-800 text-slate-350') }}">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $lp->sub_batch == 'Batch A' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : ($lp->sub_batch == 'Batch B' ? 'bg-cyan-50 text-cyan-700 border border-cyan-200' : 'bg-slate-100 text-slate-600 border border-slate-200') }}">
                                         {{ $lp->sub_batch ?? 'Whole' }}
                                     </span>
                                 </td>
                                 <td class="p-2">
-                                    <input type="date" value="{{ $lp->proposed_date }}" class="lp-proposed px-2 py-1 bg-slate-950 border border-slate-850 rounded text-slate-200 focus:outline-none w-full font-sans">
+                                    <input type="date" value="{{ $lp->proposed_date }}" class="lp-proposed px-2 py-1 bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500 w-full font-sans shadow-2xs">
                                 </td>
                                 <td class="p-2">
-                                    <input type="date" value="{{ $lp->actual_date }}" class="lp-actual px-2 py-1 bg-slate-950 border border-slate-850 rounded text-slate-200 focus:outline-none w-full font-sans">
+                                    <input type="date" value="{{ $lp->actual_date }}" class="lp-actual px-2 py-1 bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500 w-full font-sans shadow-2xs">
                                 </td>
                                 <td class="p-2">
-                                    <input type="text" value="{{ $lp->topic_content }}" class="lp-topic px-2 py-1 bg-slate-950 border border-slate-850 rounded text-slate-200 focus:outline-none w-full">
+                                    <input type="text" value="{{ $lp->topic_content }}" class="lp-topic px-2 py-1 bg-white border border-slate-200 rounded text-slate-800 focus:outline-none focus:border-blue-500 w-full shadow-2xs">
                                 </td>
                                 <td class="p-2">
-                                    <select class="lp-co bg-slate-950 border border-slate-850 rounded px-1 py-1 focus:outline-none w-full">
+                                    <select class="lp-co bg-white border border-slate-200 rounded px-1 py-1 text-slate-800 focus:outline-none focus:border-blue-500 w-full shadow-2xs">
                                         @foreach(['CO1', 'CO2', 'CO3', 'CO4'] as $coId)
                                         <option value="{{ $coId }}" {{ $lp->co_id == $coId ? 'selected' : '' }}>{{ $coId }}</option>
                                         @endforeach
                                     </select>
                                 </td>
                                 <td class="p-2">
-                                    <input type="number" value="{{ $lp->allocated_hours }}" class="lp-hours px-2 py-1 bg-slate-950 border border-slate-850 rounded text-slate-200 text-center w-14">
+                                    <input type="number" value="{{ $lp->allocated_hours }}" class="lp-hours px-2 py-1 bg-white border border-slate-200 rounded text-slate-800 text-center focus:border-blue-500 w-14 shadow-2xs">
                                 </td>
                                 <td class="p-2">
-                                    <select class="lp-pedagogy bg-slate-950 border border-slate-850 rounded px-1 py-1 focus:outline-none w-full">
+                                    <select class="lp-pedagogy bg-white border border-slate-200 rounded px-1 py-1 text-slate-800 focus:outline-none focus:border-blue-500 w-full shadow-2xs">
                                         <option value="Practical" {{ $lp->pedagogy == 'Practical' ? 'selected' : '' }}>Practical</option>
                                         <option value="Exam" {{ $lp->pedagogy == 'Exam' ? 'selected' : '' }}>Exam</option>
                                         <option value="Lecture" {{ $lp->pedagogy == 'Lecture' ? 'selected' : '' }}>Lecture</option>
                                     </select>
                                 </td>
                                 <td class="p-2">
-                                    <select class="lp-status bg-slate-950 border border-slate-850 rounded px-1 py-1 focus:outline-none w-full font-bold">
+                                    <select class="lp-status bg-white border border-slate-200 rounded px-1 py-1 text-slate-800 focus:outline-none focus:border-blue-500 w-full font-bold shadow-2xs">
                                         <option value="Pending" {{ $lp->status == 'Pending' ? 'selected' : '' }} class="text-amber-500">Pending</option>
                                         <option value="Completed" {{ $lp->status == 'Completed' ? 'selected' : '' }} class="text-emerald-500">Completed</option>
                                     </select>
@@ -870,7 +811,7 @@
                 </div>
 
                 @if($lessonPlans->isNotEmpty())
-                <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+                <div class="mt-6 pt-4 border-t border-slate-200 flex justify-end">
                     <button onclick="saveLessonPlannerBulk()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-lg transition">
                         Save Planner Entries
                     </button>
@@ -879,93 +820,109 @@
             </div>
 
             <!-- TAB: Continuous Log (Table 2.2) -->
-            <div id="tab-table22" class="tab-content glass-panel p-6 hidden">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
-                    <div>
-                        <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-flask text-slate-500"></i> Daywork Log
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">Continuous laboratory evaluation log out of 50. Total averages scale to 30 marks.</p>
-                    </div>
+            <div id="tab-table22" class="tab-content hidden">
+                <!-- Header Card -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-xs">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-bold uppercase tracking-wider text-purple-600 bg-purple-50 px-2.5 py-1 rounded-md border border-purple-100 font-mono">TABLE 2.2</span>
+                                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100 font-mono">Continuous Daywork Evaluation</span>
+                            </div>
+                            <h3 class="text-base font-bold text-slate-900 mt-1">Daywork Log &mdash; Continuous Practical Evaluation</h3>
+                            <p class="text-slate-500 text-xs mt-0.5 leading-relaxed">Continuous laboratory evaluation log out of 50. Total averages scale to 30 marks. Select an experiment to load and enter marks.</p>
+                        </div>
 
-                    <div class="flex flex-wrap items-center gap-3">
-                        <div>
-                            <label class="block text-[10px] uppercase font-black text-slate-400 tracking-wider mb-1">Select Experiment</label>
-                            <select id="exp_select" onchange="switchActiveExperiment(this.value)" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 font-mono font-bold">
-                                <!-- Dynamic options -->
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[10px] uppercase font-black text-slate-400 tracking-wider mb-1">Experiment No</label>
-                            <input type="text" id="exp_no" value="Exp 1" oninput="onManualExpNoChange()" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 font-mono w-24">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] uppercase font-black text-slate-400 tracking-wider mb-1">Experiment Title</label>
-                            <input type="text" id="exp_title" placeholder="e.g. Verification of Ohm's Law" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-blue-500 w-48 sm:w-64">
+                        <!-- Experiment Controls -->
+                        <div class="flex flex-wrap items-end gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Select Experiment</label>
+                                <select id="exp_select" onchange="switchActiveExperiment(this.value)" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-purple-500 font-mono font-bold shadow-2xs">
+                                    <!-- Dynamic options -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Exp. No</label>
+                                <input type="text" id="exp_no" value="Exp 1" oninput="onManualExpNoChange()" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-purple-500 font-mono w-24 shadow-2xs">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Experiment Title</label>
+                                <input type="text" id="exp_title" placeholder="e.g. Verification of Ohm's Law" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-purple-500 w-52 sm:w-64 shadow-2xs">
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Student register -->
-                <div class="mt-6 space-y-3 max-h-[60vh] overflow-y-auto pr-1">
-                    @foreach($students as $index => $student)
-                    @php
-                        $savedBatch = $labBatches->get($student->reg_no)->lab_batch ?? null;
-                        $batchVal = $savedBatch ?: ($index < ($students->count() / 2) ? 'Batch A' : 'Batch B');
-                        $expLog = $experimentLogs->get('Exp 1') ? $experimentLogs->get('Exp 1')->where('reg_no', $student->reg_no)->first() : null;
-                    @endphp
-                    <div class="student-row p-4 rounded-2xl bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-premium" 
-                         data-reg-no="{{ $student->reg_no }}" 
-                         data-batch="{{ $batchVal }}">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <!-- Student Register Card -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden mt-4">
+                    <div class="p-4 sm:px-6 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Enrolled Students &mdash; Daywork Evaluation Register</span>
+                        </div>
+                        <span class="text-xs font-bold text-slate-500 font-mono">{{ $students->count() }} Students</span>
+                    </div>
+
+                    <div class="divide-y divide-slate-100 max-h-[60vh] overflow-y-auto">
+                        @foreach($students as $index => $student)
+                        @php
+                            $savedBatch = $labBatches->get($student->reg_no)->lab_batch ?? null;
+                            $batchVal = $savedBatch ?: ($index < ($students->count() / 2) ? 'Batch A' : 'Batch B');
+                            $expLog = $experimentLogs->get('Exp 1') ? $experimentLogs->get('Exp 1')->where('reg_no', $student->reg_no)->first() : null;
+                        @endphp
+                        <div class="student-row flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-6 py-3.5 hover:bg-slate-50/80 transition-colors"
+                             data-reg-no="{{ $student->reg_no }}"
+                             data-batch="{{ $batchVal }}">
+                            <!-- Student Identity -->
                             <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 font-black text-xs flex items-center justify-center border border-blue-500/20">
+                                <span class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-700 font-black text-sm flex items-center justify-center border border-indigo-100 flex-shrink-0">
                                     {{ $student->roll_no ?? ($index + 1) }}
                                 </span>
                                 <div>
-                                    <h4 class="text-sm font-bold text-slate-200">{{ $student->name }}</h4>
-                                    <span class="text-xs font-mono text-slate-400">{{ $student->reg_no }}</span>
+                                    <h4 class="text-sm font-bold text-slate-900">{{ $student->name }}</h4>
+                                    <span class="text-xs font-mono text-slate-500">{{ $student->reg_no }}</span>
                                 </div>
                             </div>
 
-                            <div class="flex items-center gap-4">
-                                <div class="flex items-center gap-1">
-                                    <span class="text-[10px] font-black uppercase text-slate-400">Lab Batch:</span>
-                                    <select onchange="updateLabBatch('{{ $student->reg_no }}', this.value)" class="student-batch-select-{{ $student->reg_no }} bg-slate-950 border border-slate-855 text-xs rounded py-1 px-1.5 text-slate-300 focus:outline-none focus:border-blue-500">
+                            <!-- Controls -->
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Lab Batch:</span>
+                                    <select onchange="updateLabBatch('{{ $student->reg_no }}', this.value)" class="student-batch-select-{{ $student->reg_no }} bg-white border border-slate-200 text-sm rounded-lg py-1 px-2 text-slate-700 focus:outline-none focus:border-indigo-400 shadow-2xs cursor-pointer">
                                         <option value="" {{ empty($savedBatch) ? '' : ($batchVal == 'Unassigned' || empty($batchVal) ? 'selected' : '') }}>Unassigned</option>
                                         <option value="Batch A" {{ $batchVal == 'Batch A' ? 'selected' : '' }}>Batch A</option>
                                         <option value="Batch B" {{ $batchVal == 'Batch B' ? 'selected' : '' }}>Batch B</option>
                                     </select>
                                 </div>
 
-
-                                <button onclick="openGradingModal('{{ $student->reg_no }}', 'table22')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-md shadow-blue-900/30 border border-blue-500">
-                                    <i class="fa-solid fa-sliders"></i> Evaluate
+                                <button onclick="openGradingModal('{{ $student->reg_no }}', 'table22')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-xs border border-indigo-500 cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    Evaluate
                                 </button>
 
-                                <div class="text-right min-w-[70px]">
-                                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Score</span>
-                                    <span id="score-text-exp-{{ $student->reg_no }}" class="font-mono text-xs font-bold text-slate-200">
+                                <div class="text-right min-w-[80px]">
+                                    <span class="text-xs uppercase font-bold text-slate-400 block">Score</span>
+                                    <span id="score-text-exp-{{ $student->reg_no }}" class="font-mono text-sm font-bold text-slate-800">
                                         {{ $expLog ? floatval($expLog->total_score_50) : '0.00' }} / 50
                                     </span>
                                 </div>
                             </div>
                         </div>
+                        @endforeach
                     </div>
-                    @endforeach
-                </div>
 
-                <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
-                    <button onclick="submitExpMarks()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-lg transition">
-                        Save Continuous Log
-                    </button>
+                    <div class="px-6 py-4 border-t border-slate-100 flex justify-end bg-slate-50/40">
+                        <button onclick="submitExpMarks()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-xs transition-all cursor-pointer">
+                            Save Continuous Log
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <!-- TAB: Open-Ended (Table 2.3) -->
-            <div id="tab-table23" class="tab-content glass-panel p-6 hidden">
-                <div class="pb-6 border-b border-slate-800">
-                    <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
+            <div id="tab-table23" class="tab-content bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 hidden">
+                <div class="pb-6 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-lightbulb text-amber-400"></i> Open-Ended Experiments
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">Assess originality and execution of open-ended projects out of 50. Normalized to 10 marks.</p>
@@ -978,7 +935,7 @@
                         $batchVal = $savedBatch ?: ($index < ($students->count() / 2) ? 'Batch A' : 'Batch B');
                         $openLog = $openEndedLogs->get($student->reg_no);
                     @endphp
-                    <div class="student-row p-4 rounded-2xl bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-premium" 
+                    <div class="student-row p-4 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all" 
                          data-reg-no="{{ $student->reg_no }}" 
                          data-batch="{{ $batchVal }}">
 
@@ -988,13 +945,13 @@
                                     {{ $student->roll_no ?? ($index + 1) }}
                                 </span>
                                 <div>
-                                    <h4 class="text-sm font-bold text-slate-200">{{ $student->name }}</h4>
+                                    <h4 class="text-sm font-bold text-slate-800">{{ $student->name }}</h4>
                                     <span class="text-xs font-mono text-slate-400">{{ $student->reg_no }}</span>
                                 </div>
                             </div>
 
                             <div class="flex items-center gap-4">
-                                <input type="text" id="open-title-{{ $student->reg_no }}" value="{{ $openLog ? $openLog->project_title : '' }}" placeholder="Project Title..." class="px-3 py-2 bg-slate-950 border border-slate-850 rounded-xl text-xs text-white focus:outline-none w-44">
+                                <input type="text" id="open-title-{{ $student->reg_no }}" value="{{ $openLog ? $openLog->project_title : '' }}" placeholder="Project Title..." class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-blue-500 w-44 shadow-2xs">
 
                                 <button onclick="openGradingModal('{{ $student->reg_no }}', 'table23')" class="px-4 py-2 bg-amber-600 hover:bg-amber-550 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-md shadow-amber-900/30 border border-amber-500">
                                     <i class="fa-solid fa-sliders"></i> Evaluate
@@ -1002,7 +959,7 @@
 
                                 <div class="text-right min-w-[70px]">
                                     <span class="text-[10px] uppercase font-bold text-slate-400 block">Score</span>
-                                    <span id="score-text-open-{{ $student->reg_no }}" class="font-mono text-xs font-bold text-slate-200">
+                                    <span id="score-text-open-{{ $student->reg_no }}" class="font-mono text-xs font-bold text-slate-800">
                                         {{ $openLog ? floatval($openLog->total_score_50) : '0.00' }} / 50
                                     </span>
                                 </div>
@@ -1012,7 +969,7 @@
                     @endforeach
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+                <div class="mt-6 pt-4 border-t border-slate-200 flex justify-end">
                     <button onclick="submitOpenEndedMarks()" class="px-6 py-3 bg-amber-600 hover:bg-amber-550 text-white font-bold text-xs rounded-xl shadow transition">
                         Save Open-Ended Marks
                     </button>
@@ -1020,15 +977,15 @@
             </div>
 
             <!-- TAB: Series QP & Outline -->
-            <div id="tab-series_qp" class="tab-content glass-panel p-6 hidden">
-                <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+            <div id="tab-series_qp" class="tab-content bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 hidden">
+                <div class="flex items-center justify-between pb-6 border-b border-slate-200">
                     <div>
-                        <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-clipboard-question text-purple-400"></i> Series Exam Question Paper Setup
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-question text-violet-600"></i> Series Exam Question Paper Setup
                         </h2>
                         <p class="text-xs text-slate-400 mt-1">Configure practical examination blueprints. Evaluate mapped outcomes separately.</p>
                     </div>
-                    <select id="series_qp_select" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500 font-bold" onchange="loadSeriesQpConfig(this.value)">
+                    <select id="series_qp_select" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-violet-500 font-bold shadow-xs" onchange="loadSeriesQpConfig(this.value)">
                         <option value="Series 1">Practical Series Exam 1</option>
                         <option value="Series 2">Practical Series Exam 2</option>
                     </select>
@@ -1039,18 +996,18 @@
                     <div class="space-y-4 md:col-span-1">
                         <div>
                             <label class="block text-[11px] font-black uppercase text-slate-500 tracking-wider mb-1.5">Max Marks</label>
-                            <input type="number" id="series_qp_max_marks" value="40" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white focus:outline-none w-full">
+                            <input type="number" id="series_qp_max_marks" value="40" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-blue-500 w-full shadow-2xs">
                         </div>
                         <div>
                             <label class="block text-[11px] font-black uppercase text-slate-500 tracking-wider mb-1.5">Duration (mins)</label>
-                            <input type="number" id="series_qp_duration" value="120" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white focus:outline-none w-full">
+                            <input type="number" id="series_qp_duration" value="120" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-blue-500 w-full shadow-2xs">
                         </div>
                         <div>
                             <label class="block text-[11px] font-black uppercase text-slate-500 tracking-wider mb-1.5">Target COs</label>
                             <div class="flex flex-wrap gap-3 mt-1" id="series_qp_co_checks">
                                 @foreach(['CO1', 'CO2', 'CO3', 'CO4'] as $coId)
                                 <label class="flex items-center gap-2 text-xs font-mono cursor-pointer select-none">
-                                    <input type="checkbox" value="{{ $coId }}" class="co-checkbox rounded border-slate-800 text-blue-600 focus:ring-0"> {{ $coId }}
+                                    <input type="checkbox" value="{{ $coId }}" class="co-checkbox rounded border-slate-300 text-blue-600 focus:ring-0"> {{ $coId }}
                                 </label>
                                 @endforeach
                             </div>
@@ -1059,11 +1016,11 @@
 
                     <div class="md:col-span-2">
                         <label class="block text-[11px] font-black uppercase text-slate-500 tracking-wider mb-1.5">Instructions & Question Outline (JSON / Instructions)</label>
-                        <textarea id="series_qp_outline" rows="8" placeholder="Enter practical experiment choices, setup specifications or instructions..." class="p-3 bg-slate-900 border border-slate-850 rounded-2xl text-xs text-white focus:outline-none w-full font-mono"></textarea>
+                        <textarea id="series_qp_outline" rows="8" placeholder="Enter practical experiment choices, setup specifications or instructions..." class="p-3 bg-white border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:border-blue-500 w-full font-mono shadow-2xs"></textarea>
                     </div>
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end gap-3">
+                <div class="mt-6 pt-4 border-t border-slate-200 flex justify-end gap-3">
                     <button onclick="saveSeriesQpOutline()" class="px-6 py-3 bg-purple-650 hover:bg-purple-600 text-white font-bold text-xs rounded-xl shadow-lg transition">
                         Save Question Blueprint
                     </button>
@@ -1071,15 +1028,15 @@
             </div>
 
             <!-- TAB: Series Marks Entry (Table 3.1) -->
-            <div id="tab-table31" class="tab-content glass-panel p-6 hidden">
-                <div class="flex items-center justify-between pb-6 border-b border-slate-800">
+            <div id="tab-table31" class="tab-content bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 hidden">
+                <div class="flex items-center justify-between pb-6 border-b border-slate-200">
                     <div>
-                        <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-signature text-purple-400"></i> Series Marks (CA)
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-signature text-violet-600"></i> Series Marks (CA)
                         </h2>
                         <p class="text-xs text-slate-400 mt-1">Practical examinations out of 40. Consolidated average represents 15 CIA marks.</p>
                     </div>
-                    <select id="series_no" onchange="switchSeriesExam(this.value)" class="px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white focus:outline-none focus:border-purple-500 font-bold">
+                    <select id="series_no" onchange="switchSeriesExam(this.value)" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-violet-500 font-bold shadow-xs">
                         <option value="Series 1">Series Exam 1</option>
                         <option value="Series 2">Series Exam 2</option>
                     </select>
@@ -1093,17 +1050,17 @@
                         $series1Log = $seriesExamLogs->get('Series 1') ? $seriesExamLogs->get('Series 1')->where('reg_no', $student->reg_no)->first() : null;
                         $series2Log = $seriesExamLogs->get('Series 2') ? $seriesExamLogs->get('Series 2')->where('reg_no', $student->reg_no)->first() : null;
                     @endphp
-                    <div class="student-row p-4 rounded-2xl bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-premium" 
+                    <div class="student-row p-4 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all" 
                          data-reg-no="{{ $student->reg_no }}" 
                          data-batch="{{ $batchVal }}">
 
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 font-black text-xs flex items-center justify-center border border-purple-500/20">
+                                <span class="w-8 h-8 rounded-lg bg-purple-500/10 text-violet-600 font-black text-xs flex items-center justify-center border border-purple-500/20">
                                     {{ $student->roll_no ?? ($index + 1) }}
                                 </span>
                                 <div>
-                                    <h4 class="text-sm font-bold text-slate-200">{{ $student->name }}</h4>
+                                    <h4 class="text-sm font-bold text-slate-800">{{ $student->name }}</h4>
                                     <span class="text-xs font-mono text-slate-400">{{ $student->reg_no }}</span>
                                 </div>
                             </div>
@@ -1115,7 +1072,7 @@
 
                                 <div class="text-right min-w-[70px]">
                                     <span class="text-[10px] uppercase font-bold text-slate-400 block">Score</span>
-                                    <span id="score-text-series-{{ $student->reg_no }}" class="font-mono text-xs font-bold text-slate-200"
+                                    <span id="score-text-series-{{ $student->reg_no }}" class="font-mono text-xs font-bold text-slate-800"
                                           data-s1="{{ $series1Log ? floatval($series1Log->total_score_40) : '0.00' }}"
                                           data-s2="{{ $series2Log ? floatval($series2Log->total_score_40) : '0.00' }}">
                                         {{ $series1Log ? floatval($series1Log->total_score_40) : '0.00' }} / 40
@@ -1127,7 +1084,7 @@
                     @endforeach
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+                <div class="mt-6 pt-4 border-t border-slate-200 flex justify-end">
                     <button onclick="submitSeriesMarks()" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow transition">
                         Save Series Marks
                     </button>
@@ -1135,9 +1092,9 @@
             </div>
 
             <!-- TAB: Surveys & Feedback -->
-            <div id="tab-surveys" class="tab-content glass-panel p-6 hidden">
-                <div class="pb-6 border-b border-slate-800">
-                    <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
+            <div id="tab-surveys" class="tab-content bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 hidden">
+                <div class="pb-6 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                         <i class="fa-solid fa-comment-medical text-slate-500"></i> Feedback & Surveys Module
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">Initiate and analyze mid-semester feedback and course exit surveys dynamically mapped to COs.</p>
@@ -1145,32 +1102,32 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     <!-- Mid-sem panel -->
-                    <div class="bg-slate-900/60 p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                         <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-hourglass-half text-amber-500"></i> Mid-Semester Survey</h3>
                         <p class="text-xs text-slate-400">Collects quick feedback on lab delivery, pace, and evaluation clarity.</p>
                         <div class="flex items-center gap-2 pt-2">
                             <button onclick="manageSurvey('mid', 'initiate')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition">Initiate</button>
-                            <button onclick="manageSurvey('mid', 'close')" class="px-4 py-2 bg-slate-850 hover:bg-slate-800 text-slate-350 text-xs font-bold rounded-xl transition">Close</button>
+                            <button onclick="manageSurvey('mid', 'close')" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl transition shadow-xs">Close</button>
                         </div>
                     </div>
 
                     <!-- Exit Survey panel -->
-                    <div class="bg-slate-900/60 p-6 rounded-2xl border border-slate-800 space-y-4">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
                         <h3 class="text-sm font-bold text-white flex items-center gap-2"><i class="fa-solid fa-circle-check text-emerald-500"></i> Course Exit Survey</h3>
                         <p class="text-xs text-slate-400">Assesses direct attainment level of the 4 course outcomes (COs) upon course completion.</p>
                         <div class="flex items-center gap-2 pt-2">
                             <button onclick="manageSurvey('exit', 'initiate')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition">Initiate</button>
-                            <button onclick="manageSurvey('exit', 'close')" class="px-4 py-2 bg-slate-850 hover:bg-slate-800 text-slate-355 text-xs font-bold rounded-xl transition">Close</button>
+                            <button onclick="manageSurvey('exit', 'close')" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl transition shadow-xs">Close</button>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- TAB: ESE Entry -->
-            <div id="tab-ese" class="tab-content glass-panel p-6 hidden">
-                <div class="pb-6 border-b border-slate-800">
-                    <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
-                        <i class="fa-solid fa-clipboard-check text-emerald-400"></i> End Semester Evaluation (ESE) Marks
+            <div id="tab-ese" class="tab-content bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 hidden">
+                <div class="pb-6 border-b border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-check text-emerald-600"></i> End Semester Evaluation (ESE) Marks
                     </h2>
                     <p class="text-xs text-slate-400 mt-1">Record the final external practical exam marks out of 40. Displays alongside internal totals.</p>
                 </div>
@@ -1182,31 +1139,31 @@
                         $batchVal = $savedBatch ?: ($index < ($students->count() / 2) ? 'Batch A' : 'Batch B');
                         $eseLog = $eseMarks->get($student->reg_no);
                     @endphp
-                    <div class="student-row p-4 rounded-2xl bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-premium" 
+                    <div class="student-row p-4 rounded-2xl bg-white border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all" 
                          data-reg-no="{{ $student->reg_no }}" 
                          data-batch="{{ $batchVal }}">
 
                         <div class="flex items-center justify-between gap-4">
                             <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 font-black text-xs flex items-center justify-center border border-emerald-500/20">
+                                <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 font-black text-xs flex items-center justify-center border border-emerald-200">
                                     {{ $student->roll_no ?? ($index + 1) }}
                                 </span>
                                 <div>
-                                    <h4 class="text-sm font-bold text-slate-200">{{ $student->name }}</h4>
+                                    <h4 class="text-sm font-bold text-slate-800">{{ $student->name }}</h4>
                                     <span class="text-xs font-mono text-slate-500">{{ $student->reg_no }}</span>
                                 </div>
                             </div>
 
                             <div class="flex items-center gap-3">
                                 <span class="text-[10px] uppercase font-bold text-slate-500 block">Marks (Max 40)</span>
-                                <input type="number" id="ese-mark-{{ $student->reg_no }}" value="{{ $eseLog ? floatval($eseLog->ese_score) : '0' }}" min="0" max="40" step="0.5" class="px-3 py-2 bg-slate-950 border border-slate-850 rounded-xl text-sm font-bold font-mono text-white text-center w-20 focus:outline-none focus:border-emerald-500" oninput="recalculateCIA('{{ $student->reg_no }}')">
+                                <input type="number" id="ese-mark-{{ $student->reg_no }}" value="{{ $eseLog ? floatval($eseLog->ese_score) : '0' }}" min="0" max="40" step="0.5" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold font-mono text-slate-800 text-center w-20 focus:outline-none focus:border-emerald-500 shadow-2xs" oninput="recalculateCIA('{{ $student->reg_no }}')">
                             </div>
                         </div>
                     </div>
                     @endforeach
                 </div>
 
-                <div class="mt-6 pt-4 border-t border-slate-800 flex justify-end">
+                <div class="mt-6 pt-4 border-t border-slate-200 flex justify-end">
                     <button onclick="submitEseMarks()" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow transition">
                         Save ESE Marks
                     </button>
@@ -1214,17 +1171,17 @@
             </div>
 
             <!-- TAB: Consolidated CIA Summary (100 Marks) -->
-            <div id="tab-summary" class="tab-content glass-panel p-6 hidden">
-                <div class="pb-6 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div id="tab-summary" class="tab-content bg-white border border-slate-200/80 rounded-2xl shadow-sm p-6 hidden">
+                <div class="pb-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h2 class="text-lg font-semibold text-slate-300 flex items-center gap-2">
-                            <i class="fa-solid fa-award text-emerald-400"></i> Lab CIA Consolidated Register
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fa-solid fa-award text-emerald-600"></i> Lab CIA Consolidated Register
                         </h2>
                         <p class="text-xs text-slate-400 mt-1">Continuous assessment summaries combined with external practical totals out of 100.</p>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <a href="/r26/classroom/practical/{{ $batchSubject->id }}/print/cia" target="_blank" class="px-4 py-2.5 bg-emerald-600/20 border border-emerald-500/30 hover:bg-emerald-600/35 text-emerald-400 text-xs rounded-xl font-bold transition flex items-center gap-1.5">
+                        <a href="/r26/classroom/practical/{{ $batchSubject->id }}/print/cia" target="_blank" class="px-4 py-2.5 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 text-xs rounded-xl font-bold transition flex items-center gap-1.5 shadow-xs">
                             <i class="fa-solid fa-print"></i> Print CIA Summary
                         </a>
                         <a href="/r26/classroom/practical/{{ $batchSubject->id }}/print/attainment" target="_blank" class="px-4 py-2.5 bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600/35 text-slate-500 text-xs rounded-xl font-bold transition flex items-center gap-1.5">
@@ -1234,9 +1191,9 @@
                 </div>
 
                 <div class="mt-6 overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-300 border-collapse">
+                    <table class="w-full text-left text-xs text-slate-700 border-collapse">
                         <thead>
-                            <tr class="bg-slate-900/80 text-slate-400 border-b border-slate-800">
+                            <tr class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
                                 <th class="p-3">Roll / Reg No</th>
                                 <th class="p-3">Student Name</th>
                                 <th class="p-3 text-center">Batch</th>
@@ -1245,7 +1202,7 @@
                                 <th class="p-3 text-center">Open Ended (10M)</th>
                                 <th class="p-3 text-center">Attendance (5M)</th>
                                 <th class="p-3 text-center font-bold text-white">CIA Total (60M)</th>
-                                <th class="p-3 text-center text-emerald-400 font-bold">ESE Marks (40M)</th>
+                                <th class="p-3 text-center text-emerald-600 font-bold">ESE Marks (40M)</th>
                                 <th class="p-3 text-center text-white font-black">Grand Total (100M)</th>
                             </tr>
                         </thead>
@@ -1256,24 +1213,24 @@
                                 $savedBatch = $labBatches->get($student->reg_no)->lab_batch ?? null;
                                 $batchVal = $savedBatch ?: ($index < ($students->count() / 2) ? 'Batch A' : 'Batch B');
                             @endphp
-                            <tr class="student-row hover:bg-slate-900/20 transition-premium" 
+                            <tr class="student-row hover:bg-slate-50/80 border-b border-slate-100 transition-colors" 
                                 data-reg-no="{{ $student->reg_no }}" 
                                 data-batch="{{ $batchVal }}">
                                 <td class="p-3 font-mono text-slate-500">{{ $student->reg_no }}</td>
                                 <td class="p-3 font-bold text-white">{{ $student->name }}</td>
                                 <td class="p-3 text-center">
-                                    <span class="student-batch-badge-{{ $student->reg_no }} px-2 py-0.5 rounded text-[10px] font-bold {{ $batchVal == 'Batch A' ? 'bg-indigo-500/10 text-indigo-400' : ($batchVal == 'Batch B' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-slate-800 text-slate-500') }}">
+                                    <span class="student-batch-badge-{{ $student->reg_no }} px-2 py-0.5 rounded text-[10px] font-bold {{ $batchVal == 'Batch A' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : ($batchVal == 'Batch B' ? 'bg-cyan-50 text-cyan-700 border border-cyan-200' : 'bg-slate-100 text-slate-600 border border-slate-200') }}">
                                         {{ $batchVal }}
                                     </span>
                                 </td>
 
                                 <td class="p-3 text-center font-mono text-slate-500" id="cia-lab-work-{{ $student->reg_no }}">{{ $score['scaled_lab_work_30'] ?? '0.00' }}</td>
-                                <td class="p-3 text-center font-mono text-purple-400" id="cia-series-{{ $student->reg_no }}">{{ $score['scaled_series_15'] ?? '0.00' }}</td>
+                                <td class="p-3 text-center font-mono text-violet-600" id="cia-series-{{ $student->reg_no }}">{{ $score['scaled_series_15'] ?? '0.00' }}</td>
                                 <td class="p-3 text-center font-mono text-amber-400" id="cia-open-{{ $student->reg_no }}">{{ $score['scaled_open_ended_10'] ?? '0.00' }}</td>
-                                <td class="p-3 text-center font-mono text-emerald-400">{{ $attendanceMarks[$student->reg_no]['mark'] ?? 5 }}</td>
+                                <td class="p-3 text-center font-mono text-emerald-600">{{ $attendanceMarks[$student->reg_no]['mark'] ?? 5 }}</td>
                                 <td class="p-3 text-center font-mono font-bold text-white" id="cia-total-{{ $student->reg_no }}">{{ $score['total_cia_60'] ?? '0.00' }}</td>
-                                <td class="p-3 text-center font-mono text-emerald-400 font-bold" id="cia-ese-{{ $student->reg_no }}">{{ $score['ese_score_40'] ?? '0.00' }}</td>
-                                <td class="p-3 text-center font-mono font-black text-sm text-emerald-400" id="cia-grand-{{ $student->reg_no }}">{{ $score['grand_total_100'] ?? '0.00' }}</td>
+                                <td class="p-3 text-center font-mono text-emerald-600 font-bold" id="cia-ese-{{ $student->reg_no }}">{{ $score['ese_score_40'] ?? '0.00' }}</td>
+                                <td class="p-3 text-center font-mono font-black text-sm text-emerald-600" id="cia-grand-{{ $student->reg_no }}">{{ $score['grand_total_100'] ?? '0.00' }}</td>
                             </tr>
                             @endforeach
                         </tbody>
@@ -1287,39 +1244,42 @@
 
     </div>
 
-    <!-- MOBILE TOUCH GRADINGS SLIDE-OVER MODAL -->
-    <div id="gradingModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex-col justify-end sm:justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
-            
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+    <!-- EVALUATION GRADING MODAL — CampusLynk Light Theme -->
+    <div id="gradingModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex-col justify-end sm:justify-center p-4">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b border-slate-100 px-5 py-4 flex-shrink-0">
                 <div>
-                    <h3 id="modalStudentName" class="font-black text-white text-base">Student Name</h3>
-                    <span id="modalStudentReg" class="text-xs font-mono text-slate-400">Reg No</span>
+                    <h3 id="modalStudentName" class="font-bold text-slate-900 text-base">Student Name</h3>
+                    <span id="modalStudentReg" class="text-xs font-mono text-slate-500">Reg No</span>
                 </div>
-                <button onclick="closeGradingModal()" class="w-8 h-8 rounded-full bg-slate-850 hover:bg-slate-800 text-slate-400 hover:text-white transition flex items-center justify-center">
-                    <i class="fa-solid fa-xmark"></i>
+                <button onclick="closeGradingModal()" class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-xl font-bold transition-all">
+                    &times;
                 </button>
             </div>
 
-            <div id="modalSlidersContainer" class="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+            <!-- Sliders -->
+            <div id="modalSlidersContainer" class="space-y-3 px-5 py-4 max-h-[55vh] overflow-y-auto">
                 <!-- Sliders populated dynamically -->
             </div>
 
-            <div class="flex items-center justify-between pt-4 border-t border-slate-800 gap-3">
-                <button onclick="navigateStudent(-1)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-chevron-left"></i> Prev
+            <!-- Footer -->
+            <div class="flex items-center justify-between px-5 py-4 border-t border-slate-100 flex-shrink-0">
+                <button onclick="navigateStudent(-1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    Prev
                 </button>
 
                 <div class="text-center">
-                    <span class="text-[10px] uppercase font-bold text-slate-400 block">Total</span>
-                    <span id="modalTotalScore" class="font-mono text-lg font-black text-emerald-400">0.00</span>
+                    <span class="text-xs uppercase font-bold text-slate-400 block">Total Score</span>
+                    <span id="modalTotalScore" class="font-mono text-lg font-black text-slate-900">0.00</span>
                 </div>
 
-                <button onclick="navigateStudent(1)" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5">
-                    Next <i class="fa-solid fa-chevron-right"></i>
+                <button onclick="navigateStudent(1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-all flex items-center gap-1.5 cursor-pointer">
+                    Next
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
             </div>
-
         </div>
     </div>
 
@@ -1615,8 +1575,8 @@
                     document.querySelectorAll(`.student-batch-badge-${regNo}`).forEach(badge => {
                         badge.innerText = displayVal;
                         badge.className = `student-batch-badge-${regNo} px-2 py-0.5 rounded text-[10px] font-bold ` + 
-                            (displayVal === 'Batch A' ? 'bg-indigo-500/10 text-indigo-400' : 
-                            (displayVal === 'Batch B' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-slate-800 text-slate-500'));
+                            (displayVal === 'Batch A' ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 
+                            (displayVal === 'Batch B' ? 'bg-cyan-50 text-cyan-700 border border-cyan-200' : 'bg-slate-100 text-slate-600 border border-slate-200'));
                     });
                     
                     // 4. Re-filter view
@@ -1631,6 +1591,47 @@
         filterLabBatch('All');
 
 
+        function togglePracticalSyllabusWorkspace() {
+            const ws = document.getElementById('practicalSyllabusWorkspace');
+            if (ws) ws.classList.toggle('hidden');
+        }
+
+        function handlePracticalDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropzone = document.getElementById('practicalSyllabusDropzone');
+            if (dropzone) dropzone.classList.add('border-blue-500', 'bg-blue-50/60');
+        }
+
+        function handlePracticalDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropzone = document.getElementById('practicalSyllabusDropzone');
+            if (dropzone) dropzone.classList.remove('border-blue-500', 'bg-blue-50/60');
+        }
+
+        function handlePracticalFileDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const dropzone = document.getElementById('practicalSyllabusDropzone');
+            if (dropzone) dropzone.classList.remove('border-blue-500', 'bg-blue-50/60');
+
+            const files = e.dataTransfer.files;
+            if (!files || files.length === 0) return;
+            const file = files[0];
+            if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+                alert('Please drop a valid PDF file.');
+                return;
+            }
+            const input = document.getElementById('syllabus_pdf_input');
+            if (input) {
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                uploadSyllabusPdf();
+            }
+        }
+
         // Syllabus Upload
         async function uploadSyllabusPdf() {
             const input = document.getElementById('syllabus_pdf_input');
@@ -1640,11 +1641,13 @@
             const status = document.getElementById('syllabus-upload-status');
 
             // Disable button, show spinner
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading & Parsing...';
-            btn.classList.add('opacity-70', 'cursor-not-allowed');
-            status.className = 'mt-4 p-3 rounded-xl text-sm font-semibold flex items-center gap-3 bg-blue-950/50 border border-blue-700/40 text-blue-300';
-            status.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading PDF and parsing COs, CO-PO matrix, and experiments. Please wait…';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Extracting Structure...';
+                btn.classList.add('opacity-70', 'cursor-not-allowed');
+            }
+            status.className = 'mt-3 p-3.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 bg-blue-50 border border-blue-200 text-blue-800';
+            status.innerHTML = '<svg class="w-4 h-4 animate-spin text-blue-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> <span>Uploading PDF and extracting Course Outcomes, CO-PO Matrix, and Lab Experiments list...</span>';
             status.classList.remove('hidden');
 
             const formData = new FormData();
@@ -1659,22 +1662,26 @@
                 });
                 const data = await res.json();
                 if (data.status === 'SUCCESS') {
-                    status.className = 'mt-4 p-3 rounded-xl text-sm font-semibold flex items-center gap-3 bg-emerald-950/50 border border-emerald-700/40 text-emerald-300';
-                    status.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${data.message} Reloading...`;
+                    status.className = 'mt-3 p-3.5 rounded-xl text-xs font-semibold flex items-center gap-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800';
+                    status.innerHTML = `<svg class="w-4 h-4 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> <span>${data.message || 'Syllabus parsed successfully.'} Reloading...</span>`;
                     setTimeout(() => window.location.reload(), 1200);
                 } else {
-                    status.className = 'mt-4 p-3 rounded-xl text-sm font-semibold flex items-center gap-3 bg-red-950/50 border border-red-700/40 text-red-300';
-                    status.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${data.message || 'Upload failed. Please try again.'}`;
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fa-solid fa-upload"></i> Upload Syllabus PDF';
-                    btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    status.className = 'mt-3 p-3.5 rounded-xl text-xs font-semibold flex items-center justify-between bg-rose-50 border border-rose-200 text-rose-800';
+                    status.innerHTML = `<span>${data.message || 'Upload failed. Please try again.'}</span> <button type="button" onclick="document.getElementById('syllabus_pdf_input').click()" class="px-2.5 py-1 bg-rose-100 text-rose-900 rounded font-bold">Retry</button>`;
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = '<svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> <span>Upload Syllabus PDF</span>';
+                        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                    }
                 }
             } catch(e) {
-                status.className = 'mt-4 p-3 rounded-xl text-sm font-semibold flex items-center gap-3 bg-red-950/50 border border-red-700/40 text-red-300';
-                status.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Network error: ${e.message}. Check your connection and retry.`;
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa-solid fa-upload"></i> Upload Syllabus PDF';
-                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                status.className = 'mt-3 p-3.5 rounded-xl text-xs font-semibold flex items-center justify-between bg-rose-50 border border-rose-200 text-rose-800';
+                status.innerHTML = `<span>Network error: ${e.message}.</span> <button type="button" onclick="document.getElementById('syllabus_pdf_input').click()" class="px-2.5 py-1 bg-rose-100 text-rose-900 rounded font-bold">Retry</button>`;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> <span>Upload Syllabus PDF</span>';
+                    btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                }
             }
         }
 
@@ -2004,15 +2011,15 @@
             rubrics.forEach(r => {
                 const val = stateScores[r.key] || 0;
                 const html = `
-                    <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-850">
-                        <div class="flex justify-between font-bold text-xs mb-1">
-                            <span class="text-slate-400">${r.label}</span>
-                            <span class="text-emerald-400 font-mono font-black text-sm" id="modal-val-${r.key}">${val}</span>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="flex justify-between font-bold text-xs mb-2">
+                            <span class="text-slate-700">${r.label}</span>
+                            <span class="text-emerald-700 font-mono font-black text-sm px-2 py-0.5 bg-emerald-50 rounded-md border border-emerald-200" id="modal-val-${r.key}">${val}</span>
                         </div>
                         <div class="flex items-center gap-3">
-                            <button onclick="stepSlider('${r.key}', -${r.step})" class="w-8 h-8 rounded-lg bg-slate-850 hover:bg-slate-800 border border-slate-800 text-white font-bold">-</button>
-                            <input type="range" id="slider-${r.key}" min="0" max="${r.max}" step="${r.step}" value="${val}" oninput="syncModalSlider('${regNo}', '${r.key}', '${type}')" class="flex-grow">
-                            <button onclick="stepSlider('${r.key}', ${r.step})" class="w-8 h-8 rounded-lg bg-slate-850 hover:bg-slate-800 border border-slate-800 text-white font-bold">+</button>
+                            <button onclick="stepSlider('${r.key}', -${r.step})" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-700 font-bold transition-colors">-</button>
+                            <input type="range" id="slider-${r.key}" min="0" max="${r.max}" step="${r.step}" value="${val}" oninput="syncModalSlider('${regNo}', '${r.key}', '${type}')" class="flex-grow accent-indigo-600">
+                            <button onclick="stepSlider('${r.key}', ${r.step})" class="w-8 h-8 rounded-lg bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-700 font-bold transition-colors">+</button>
                         </div>
                     </div>
                 `;

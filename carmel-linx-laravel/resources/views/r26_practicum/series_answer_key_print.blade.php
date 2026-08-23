@@ -21,6 +21,7 @@
         .marks-badge { background: #7c2d12; color: white; font-weight: bold; font-size: 11px; padding: 2px 7px; border-radius: 4px; float: right; }
         .bloom-chip { font-size: 10px; background: #fef3c7; color: #92400e; padding: 1px 5px; border-radius: 3px; }
     </style>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 </head>
 <body class="p-8 max-w-3xl mx-auto">
 @php

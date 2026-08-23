@@ -4,84 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Course File Checklog - {{ $batchSubject->subject_code }}</title>
+    <title>CampusLynk - Course File Checklog &middot; {{ $batchSubject->subject_code }}</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canonical Vite Asset Pipeline -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Google Icons & Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
 
     <style>
         body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #030712;
-            color: #f3f4f6;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #FAFAFB;
+            color: #0f172a;
         }
-        .glass-panel {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 1.25rem;
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Outfit', 'Poppins', sans-serif;
         }
     </style>
 </head>
-<body class="min-h-screen p-6">
+<body class="min-h-screen p-4 sm:p-6 bg-[#FAFAFB]">
 
-    <div class="max-w-6xl mx-auto space-y-6">
+    <div class="max-w-6xl mx-auto space-y-5">
 
-        <header class="glass-panel p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-                <span class="px-3 py-1 text-[11px] font-black tracking-wider rounded-md bg-violet-500/20 text-violet-400 border border-violet-500/30">
-                    COURSE PORTFOLIO COMPILATION (R2026)
-                </span>
-                <h1 class="text-2xl font-black text-white mt-1">{{ $batchSubject->subject_name }} ({{ $batchSubject->subject_code }})</h1>
-                <p class="text-xs text-slate-400 mt-1">Compile and index the 25 required files for academic auditing and NBA portfolio alignment.</p>
+        <!-- 1. HEADER -->
+        <header class="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                    <span class="px-2.5 py-0.5 text-xs font-bold font-mono tracking-wider rounded-md bg-violet-50 text-violet-700 border border-violet-200">
+                        COURSE PORTFOLIO COMPILATION (R2026)
+                    </span>
+                    <span class="px-2.5 py-0.5 text-xs font-bold rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                        Semester {{ $batchSubject->semester }}
+                    </span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-heading mt-1">
+                    {{ $batchSubject->subject_name }} <span class="text-slate-400 font-normal">({{ $batchSubject->subject_code }})</span>
+                </h1>
+                <p class="text-xs text-slate-500 font-medium">Compile and index the 25 required files for academic auditing and NBA portfolio alignment.</p>
             </div>
             
             <div class="flex items-center gap-3">
-                <button onclick="window.close()" class="px-4 py-2 bg-slate-900 border border-slate-800 text-slate-350 text-xs font-bold rounded-xl hover:border-slate-700 transition">
-                    Close Window
+                <button onclick="window.close()" class="px-4 py-2 bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-200 transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                    <span class="material-symbols-rounded text-base">close</span>
+                    <span>Close Window</span>
                 </button>
             </div>
         </header>
 
-        <main class="glass-panel p-6">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300 border-collapse">
+        <!-- 2. DOCUMENT CHECKLIST TABLE -->
+        <main class="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+            <div class="border-b border-slate-100 pb-3">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                    <span class="material-symbols-rounded text-violet-600 text-lg">playlist_add_check</span>
+                    <span>Practical Course Portfolio Catalog (25 Standard Documents)</span>
+                </h3>
+            </div>
+
+            <div class="overflow-x-auto border border-slate-200 rounded-xl bg-white">
+                <table class="w-full text-left text-xs text-slate-700 border-collapse">
                     <thead>
-                        <tr class="bg-slate-900/60 font-bold border-b border-slate-850 text-slate-400">
-                            <th class="p-3 w-16 text-center">Index</th>
-                            <th class="p-3 w-8 flex items-center justify-center">Status</th>
-                            <th class="p-3">Audit Document Title</th>
-                            <th class="p-3 w-48">Attachment Link</th>
-                            <th class="p-3 w-72">Remarks / Notes</th>
+                        <tr class="bg-slate-50 font-bold border-b border-slate-200 text-slate-600 uppercase tracking-wider">
+                            <th class="p-3.5 w-16 text-center">Index</th>
+                            <th class="p-3.5 w-16 text-center">Status</th>
+                            <th class="p-3.5">Audit Document Title</th>
+                            <th class="p-3.5 w-48">Attachment Link</th>
+                            <th class="p-3.5 w-72">Remarks / Notes</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-slate-100">
                         @foreach($documents as $doc)
-                        <tr class="border-b border-slate-850 hover:bg-slate-900/20 transition" data-doc-id="{{ $doc->id }}">
-                            <td class="p-3 font-mono text-center font-bold text-slate-500">{{ $doc->document_number }}</td>
-                            <td class="p-3 text-center">
-                                <input type="checkbox" {{ $doc->is_checked ? 'checked' : '' }} onchange="updateDocCheck('{{ $doc->id }}', this.checked)" class="w-4.5 h-4.5 rounded border-slate-800 bg-slate-950 text-violet-600 focus:ring-0 cursor-pointer">
+                        <tr class="hover:bg-slate-50/80 transition-colors" data-doc-id="{{ $doc->id }}">
+                            <td class="p-3.5 font-mono text-center font-bold text-slate-500">{{ sprintf('%02d', $doc->document_number) }}</td>
+                            <td class="p-3.5 text-center">
+                                <input type="checkbox" {{ $doc->is_checked ? 'checked' : '' }} onchange="updateDocCheck('{{ $doc->id }}', this.checked)" class="w-4.5 h-4.5 rounded border-slate-300 bg-white text-violet-600 focus:ring-0 cursor-pointer">
                             </td>
-                            <td class="p-3 font-bold text-slate-200">{{ $doc->document_name }}</td>
-                            <td class="p-2">
+                            <td class="p-3.5 font-bold text-slate-900">{{ $doc->document_name }}</td>
+                            <td class="p-3">
                                 <div class="flex items-center gap-2">
                                     @if($doc->data_payload)
-                                    <a href="/{{ $doc->data_payload }}" target="_blank" id="link-{{ $doc->id }}" class="text-violet-400 hover:text-violet-300 font-bold flex items-center gap-1">
-                                        <i class="fa-solid fa-file-arrow-down"></i> View File
+                                    <a href="/{{ $doc->data_payload }}" target="_blank" id="link-{{ $doc->id }}" class="text-violet-700 hover:text-violet-800 font-bold flex items-center gap-1 bg-violet-50 hover:bg-violet-100 px-2.5 py-1 rounded-md border border-violet-200 no-underline shadow-2xs">
+                                        <span class="material-symbols-rounded text-sm">download</span>
+                                        <span>View File</span>
                                     </a>
                                     @else
-                                    <span class="text-slate-550 italic text-[11px]" id="span-{{ $doc->id }}">No attachment</span>
+                                    <span class="text-slate-400 italic text-xs" id="span-{{ $doc->id }}">No attachment</span>
                                     @endif
                                     
                                     <input type="file" id="file-input-{{ $doc->id }}" class="hidden" onchange="uploadDocFile('{{ $doc->id }}')">
-                                    <button onclick="document.getElementById('file-input-{{ $doc->id }}').click()" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800">
-                                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <button onclick="document.getElementById('file-input-{{ $doc->id }}').click()" class="text-slate-500 hover:text-slate-900 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer" title="Upload attachment">
+                                        <span class="material-symbols-rounded text-base">upload_file</span>
                                     </button>
                                 </div>
                             </td>
-                            <td class="p-2">
-                                <input type="text" value="{{ $doc->remarks }}" placeholder="Write compliance note..." onchange="updateDocRemarks('{{ $doc->id }}', this.value)" class="px-3 py-1.5 bg-slate-950 border border-slate-850 rounded-xl text-xs text-white focus:outline-none w-full">
+                            <td class="p-3">
+                                <input type="text" value="{{ $doc->remarks }}" placeholder="Write compliance note..." onchange="updateDocRemarks('{{ $doc->id }}', this.value)" class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:border-violet-500 focus:outline-none w-full transition-colors shadow-2xs">
                             </td>
                         </tr>
                         @endforeach
@@ -143,12 +162,13 @@
                     const cell = row.cells[3];
                     cell.innerHTML = `
                         <div class="flex items-center gap-2">
-                            <a href="${data.attachment_url}" target="_blank" id="link-${docId}" class="text-violet-400 hover:text-violet-300 font-bold flex items-center gap-1">
-                                <i class="fa-solid fa-file-arrow-down"></i> View File
+                            <a href="${data.attachment_url}" target="_blank" id="link-${docId}" class="text-violet-700 hover:text-violet-800 font-bold flex items-center gap-1 bg-violet-50 hover:bg-violet-100 px-2.5 py-1 rounded-md border border-violet-200 no-underline shadow-2xs">
+                                <span class="material-symbols-rounded text-sm">download</span>
+                                <span>View File</span>
                             </a>
                             <input type="file" id="file-input-${docId}" class="hidden" onchange="uploadDocFile('${docId}')">
-                            <button onclick="document.getElementById('file-input-${docId}').click()" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800">
-                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <button onclick="document.getElementById('file-input-${docId}').click()" class="text-slate-500 hover:text-slate-900 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer" title="Upload attachment">
+                                <span class="material-symbols-rounded text-base">upload_file</span>
                             </button>
                         </div>
                     `;
