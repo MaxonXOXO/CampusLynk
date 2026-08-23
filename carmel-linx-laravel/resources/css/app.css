@@ -138,41 +138,57 @@
 }
 
 /* ==========================================================================
-   Collapsed Sidebar Master Styles
+   Collapsed Sidebar Master Styles (SSR & Anti-FOUC Pre-Paint)
    ========================================================================== */
-#sidebar.is-collapsed {
+#sidebar.is-collapsed,
+html.sidebar-is-collapsed #sidebar,
+html.sidebar-collapsed #sidebar {
   width: 76px !important;
 }
 
-#sidebar.is-collapsed .sidebar-label {
+#sidebar.is-collapsed .sidebar-label,
+html.sidebar-is-collapsed #sidebar .sidebar-label,
+html.sidebar-collapsed #sidebar .sidebar-label {
   display: none !important;
 }
 
-#sidebar.is-collapsed #sidebar-collapse-btn {
+#sidebar.is-collapsed #sidebar-collapse-btn,
+html.sidebar-is-collapsed #sidebar #sidebar-collapse-btn,
+html.sidebar-collapsed #sidebar #sidebar-collapse-btn {
   display: none !important;
 }
 
-#sidebar.is-collapsed .sidebar-logout-btn {
+#sidebar.is-collapsed .sidebar-logout-btn,
+html.sidebar-is-collapsed #sidebar .sidebar-logout-btn,
+html.sidebar-collapsed #sidebar .sidebar-logout-btn {
   display: none !important;
 }
 
-#sidebar.is-collapsed .sidebar-header {
+#sidebar.is-collapsed .sidebar-header,
+html.sidebar-is-collapsed #sidebar .sidebar-header,
+html.sidebar-collapsed #sidebar .sidebar-header {
   justify-content: center !important;
   padding-left: 0.5rem !important;
   padding-right: 0.5rem !important;
 }
 
-#sidebar.is-collapsed .sidebar-brand-wrapper {
+#sidebar.is-collapsed .sidebar-brand-wrapper,
+html.sidebar-is-collapsed #sidebar .sidebar-brand-wrapper,
+html.sidebar-collapsed #sidebar .sidebar-brand-wrapper {
   justify-content: center !important;
   width: 100% !important;
 }
 
-#sidebar.is-collapsed .sidebar-footer {
+#sidebar.is-collapsed .sidebar-footer,
+html.sidebar-is-collapsed #sidebar .sidebar-footer,
+html.sidebar-collapsed #sidebar .sidebar-footer {
   justify-content: center !important;
   padding: 0.5rem !important;
 }
 
-#sidebar.is-collapsed .sidebar-footer-inner {
+#sidebar.is-collapsed .sidebar-footer-inner,
+html.sidebar-is-collapsed #sidebar .sidebar-footer-inner,
+html.sidebar-collapsed #sidebar .sidebar-footer-inner {
   justify-content: center !important;
   padding: 0.375rem !important;
   background: transparent !important;
@@ -180,10 +196,22 @@
 }
 
 #sidebar.is-collapsed nav button,
-#sidebar.is-collapsed nav a {
+#sidebar.is-collapsed nav a,
+html.sidebar-is-collapsed #sidebar nav button,
+html.sidebar-is-collapsed #sidebar nav a,
+html.sidebar-collapsed #sidebar nav button,
+html.sidebar-collapsed #sidebar nav a {
   justify-content: center !important;
   padding-left: 0.5rem !important;
   padding-right: 0.5rem !important;
+}
+
+/* Suppress transitions on initial page load to eliminate layout animation FOUC */
+.sidebar-preload,
+.sidebar-preload *,
+html.sidebar-preload #sidebar,
+html.sidebar-preload #sidebar * {
+  transition: none !important;
 }
 
 /* ==========================================================================

@@ -28,12 +28,17 @@ export function initAiStatus() {
 }
 
 if (typeof window !== 'undefined') {
+  window.lucide = {
+    createIcons: (options) => createIcons({ icons, ...options }),
+    icons
+  };
+  window.initLucide = initLucide;
+  window.initAiStatus = initAiStatus;
+
   document.addEventListener('DOMContentLoaded', () => {
     initLucide();
     initAiStatus();
   });
-  window.initLucide = initLucide;
-  window.initAiStatus = initAiStatus;
 }
 
 // Modular Architecture Imports

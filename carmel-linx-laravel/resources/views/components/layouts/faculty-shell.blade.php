@@ -20,6 +20,20 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
     <link rel="icon" type="image/svg+xml" href="{{ asset('logo.svg') }}">
+    
+    <!-- Pre-Paint Synchronous Sidebar State Hydration (Anti-FOUC) -->
+    <script>
+        (function() {
+            try {
+                var isCollapsed = localStorage.getItem('campuslynk_sidebar_collapsed') === 'true' || 
+                                  document.cookie.indexOf('campuslynk_sidebar_collapsed=true') !== -1;
+                if (isCollapsed && window.innerWidth >= 1024) {
+                    document.documentElement.classList.add('sidebar-is-collapsed');
+                }
+            } catch(e) {}
+        })();
+    </script>
+
     <!-- Vite Asset Pipeline -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -32,7 +46,7 @@
 
     @stack('styles')
 </head>
-<body class="bg-[#FAFAFB] text-slate-900 min-h-screen font-sans antialiased">
+<body class="bg-[#FAFAFB] text-slate-900 min-h-screen font-sans antialiased sidebar-preload">
 
     <!-- Master Shell Container -->
     <div class="flex min-h-screen">
@@ -52,6 +66,12 @@
             </main>
         </div>
     </div>
+
+    <script>
+        requestAnimationFrame(function() {
+            document.body.classList.remove('sidebar-preload');
+        });
+    </script>
 
     @stack('scripts')
 </body>

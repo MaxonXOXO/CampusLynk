@@ -11,13 +11,14 @@
     $deskSubtitle = \App\Services\NavigationService::getDeskSubtitle($resolvedRole);
     $isStudent = \App\Services\NavigationService::resolveRoleKey($resolvedRole) === 'student';
     $isAdmin = in_array(\App\Services\NavigationService::resolveRoleKey($resolvedRole), ['admin', 'super_admin', 'principal']);
+    $isCollapsed = request()->cookie('campuslynk_sidebar_collapsed') === 'true';
 @endphp
 
 <!-- Sidebar Backdrop (Mobile Only) -->
 <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-40 lg:hidden hidden transition-opacity" onclick="toggleMobileSidebar()"></div>
 
 <!-- Master Sidebar Container: Deep Grayish Blue Tone (#0F172A) -->
-<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#0F172A] border-r border-slate-800 flex flex-col justify-between transition-all duration-300 ease-in-out shrink-0 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 -translate-x-full shadow-xl select-none">
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-50 {{ $isCollapsed ? 'is-collapsed' : '' }} w-64 bg-[#0F172A] border-r border-slate-800 flex flex-col justify-between transition-all duration-300 ease-in-out shrink-0 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 -translate-x-full shadow-xl select-none" aria-expanded="{{ $isCollapsed ? 'false' : 'true' }}">
     
     <div class="flex flex-col flex-1 min-h-0">
         <!-- Brand Header & Collapse Toggle -->
@@ -44,8 +45,9 @@
                 class="hidden lg:flex p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all" 
                 title="Collapse sidebar (Ctrl+B)"
                 aria-label="Collapse Sidebar"
+                aria-expanded="{{ $isCollapsed ? 'false' : 'true' }}"
             >
-                <i data-lucide="panel-left-close" class="w-4 h-4"></i>
+                <x-ui.icon name="panel-left-close" class="w-4 h-4" />
             </button>
 
             <!-- Mobile Close Button -->
@@ -55,7 +57,7 @@
                 class="lg:hidden p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg"
                 aria-label="Close sidebar"
             >
-                <i data-lucide="x" class="w-5 h-5"></i>
+                <x-ui.icon name="x" class="w-5 h-5" />
             </button>
         </div>
 
@@ -76,7 +78,7 @@
                         title="{{ $item['label'] }}"
                     >
                         <div class="w-5 h-5 flex items-center justify-center shrink-0">
-                            <i data-lucide="{{ $item['icon'] }}" class="w-4 h-4 {{ $isActive ? 'text-blue-400' : 'text-slate-400 group-hover:text-slate-200' }} transition-colors"></i>
+                            <x-ui.icon :name="$item['icon']" class="w-4 h-4 {{ $isActive ? 'text-blue-400' : 'text-slate-400 group-hover:text-slate-200' }} transition-colors" />
                         </div>
                         <span class="sidebar-label whitespace-nowrap overflow-hidden transition-all duration-300">{{ $item['label'] }}</span>
                     </button>
@@ -89,7 +91,7 @@
                         title="{{ $item['label'] }}"
                     >
                         <div class="w-5 h-5 flex items-center justify-center shrink-0">
-                            <i data-lucide="{{ $item['icon'] }}" class="w-4 h-4 {{ $isActive ? 'text-blue-400' : 'text-slate-400 group-hover:text-slate-200' }} transition-colors"></i>
+                            <x-ui.icon :name="$item['icon']" class="w-4 h-4 {{ $isActive ? 'text-blue-400' : 'text-slate-400 group-hover:text-slate-200' }} transition-colors" />
                         </div>
                         <span class="sidebar-label whitespace-nowrap overflow-hidden transition-all duration-300">{{ $item['label'] }}</span>
                     </a>
@@ -133,7 +135,7 @@
 
             <!-- Sign Out Button (Hidden in collapsed mode) -->
             <a href="{{ url('/logout') }}" onclick="return confirm('Are you sure you want to sign out of CampusLynk?')" class="sidebar-logout-btn p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-700/60 rounded-lg transition-colors shrink-0" title="Sign Out">
-                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <x-ui.icon name="log-out" class="w-4 h-4" />
             </a>
         </div>
     </div>
@@ -250,7 +252,14 @@
         if (!sidebar) return;
 
         sidebar.classList.add('is-collapsed');
-        localStorage.setItem('campuslynk_sidebar_collapsed', 'true');
+        document.documentElement.classList.add('sidebar-is-collapsed');
+        const collapseBtn = document.getElementById('sidebar-collapse-btn');
+        if (collapseBtn) collapseBtn.setAttribute('aria-expanded', 'false');
+
+        try {
+            localStorage.setItem('campuslynk_sidebar_collapsed', 'true');
+            document.cookie = "campuslynk_sidebar_collapsed=true; path=/; max-age=31536000; SameSite=Lax";
+        } catch(e) {}
         if (window.initLucide) window.initLucide();
     }
 
@@ -259,7 +268,14 @@
         if (!sidebar) return;
 
         sidebar.classList.remove('is-collapsed');
-        localStorage.setItem('campuslynk_sidebar_collapsed', 'false');
+        document.documentElement.classList.remove('sidebar-is-collapsed');
+        const collapseBtn = document.getElementById('sidebar-collapse-btn');
+        if (collapseBtn) collapseBtn.setAttribute('aria-expanded', 'true');
+
+        try {
+            localStorage.setItem('campuslynk_sidebar_collapsed', 'false');
+            document.cookie = "campuslynk_sidebar_collapsed=false; path=/; max-age=31536000; SameSite=Lax";
+        } catch(e) {}
         if (window.initLucide) window.initLucide();
     }
 
@@ -278,13 +294,24 @@
         }
     }
 
-    // Restore state
-    document.addEventListener('DOMContentLoaded', () => {
-        const savedState = localStorage.getItem('campuslynk_sidebar_collapsed');
-        if (savedState === 'true' && window.innerWidth >= 1024) {
-            collapseSidebar();
-        }
-    });
+    // Synchronize client-side state without animation layout shift
+    (function() {
+        try {
+            const savedState = localStorage.getItem('campuslynk_sidebar_collapsed');
+            const cookieState = document.cookie.indexOf('campuslynk_sidebar_collapsed=true') !== -1;
+            const isCollapsed = (savedState === 'true' || (savedState === null && cookieState)) && window.innerWidth >= 1024;
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                if (isCollapsed) {
+                    sidebar.classList.add('is-collapsed');
+                    document.documentElement.classList.add('sidebar-is-collapsed');
+                } else if (savedState === 'false') {
+                    sidebar.classList.remove('is-collapsed');
+                    document.documentElement.classList.remove('sidebar-is-collapsed');
+                }
+            }
+        } catch(e) {}
+    })();
 
     // Shortcut
     document.addEventListener('keydown', (e) => {

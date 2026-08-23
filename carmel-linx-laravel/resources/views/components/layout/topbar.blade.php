@@ -8,7 +8,7 @@
     <!-- Left: Mobile Toggle & Dynamic Title -->
     <div class="flex items-center gap-3 shrink-0 min-w-0">
         <button id="sidebar-toggle-btn" onclick="toggleMobileSidebar()" type="button" class="lg:hidden p-2 text-slate-500 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors" aria-label="Toggle Sidebar Navigation">
-            <i data-lucide="menu" class="w-5 h-5"></i>
+            <x-ui.icon name="menu" class="w-5 h-5" />
         </button>
         <div class="min-w-0">
             <h1 id="panelTitle" class="text-base sm:text-lg font-bold text-slate-900 leading-tight truncate">{{ $title ?? 'Works To Do' }}</h1>

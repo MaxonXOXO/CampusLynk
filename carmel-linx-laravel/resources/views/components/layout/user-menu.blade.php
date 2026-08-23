@@ -33,7 +33,7 @@
             <p class="text-[10px] text-slate-500 font-medium leading-tight truncate max-w-[120px]">{{ $userRole }}</p>
         </div>
 
-        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:block transition-transform duration-200" id="user-menu-chevron"></i>
+        <x-ui.icon name="chevron-down" class="w-3.5 h-3.5 text-slate-400 hidden sm:block transition-transform duration-200" id="user-menu-chevron" />
     </button>
 
     <!-- Floating Dropdown Menu -->
@@ -58,7 +58,7 @@
                 class="w-full text-left flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
                 role="menuitem"
             >
-                <i data-lucide="user-round" class="w-4 h-4 text-slate-500"></i>
+                <x-ui.icon name="user-round" class="w-4 h-4 text-slate-500" />
                 <span>My Profile</span>
             </button>
 
@@ -70,7 +70,7 @@
                     class="w-full text-left flex items-center gap-2.5 px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
                     role="menuitem"
                 >
-                    <i data-lucide="book-open" class="w-4 h-4 text-slate-500"></i>
+                    <x-ui.icon name="book-open" class="w-4 h-4 text-slate-500" />
                     <span>Mentoring Diary</span>
                 </button>
             @endif
@@ -84,7 +84,7 @@
                 class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
                 role="menuitem"
             >
-                <i data-lucide="log-out" class="w-4 h-4 text-rose-500"></i>
+                <x-ui.icon name="log-out" class="w-4 h-4 text-rose-500" />
                 <span>Sign Out</span>
             </a>
         </div>
