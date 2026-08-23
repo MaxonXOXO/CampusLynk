@@ -24,12 +24,6 @@ return [
             'onclick' => "handleAdminSidebarNav('directory')",
         ],
         [
-            'id' => 'my_leave',
-            'label' => 'My Leave & Attendance',
-            'icon' => 'calendar-check-2',
-            'url' => '/staff/my-leave',
-        ],
-        [
             'id' => 'backups',
             'label' => 'Drive Backups',
             'icon' => 'database',
