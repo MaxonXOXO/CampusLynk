@@ -34,7 +34,7 @@
 <div {{ $attributes->merge(['class' => 'border rounded-xl p-4 flex items-start justify-between text-sm transition-all ' . $current['box']]) }} role="alert">
     <div class="flex items-start gap-3">
         <div class="mt-0.5 shrink-0">
-            <i data-lucide="{{ $current['icon'] }}" class="w-4 h-4 {{ $current['iconColor'] }}"></i>
+            <x-ui.icon :name="$current['icon']" class="w-4 h-4 {{ $current['iconColor'] }}" />
         </div>
         <div>
             @if($title)
@@ -45,7 +45,7 @@
     </div>
     @if($dismissible)
         <button type="button" class="text-slate-400 hover:text-slate-600 ml-3 p-1 rounded-lg hover:bg-black/5 transition-colors" onclick="this.closest('[role=alert]').remove()" aria-label="Dismiss Alert">
-            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+            <x-ui.icon name="x" class="w-3.5 h-3.5" />
         </button>
     @endif
 </div>

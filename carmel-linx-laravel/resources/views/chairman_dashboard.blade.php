@@ -545,7 +545,7 @@
               <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2">
                 <h3 class="font-black text-slate-200 flex items-center gap-2 text-sm">
                   <span class="p-1 bg-emerald-500/10 text-emerald-400 rounded-lg flex items-center justify-center shrink-0">
-                    <span class="material-symbols-rounded text-sm">event_available</span>
+                    <x-ui.icon name="event_available" class="w-4 h-4" />
                   </span> College Event Scheduler
                 </h3>
                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm">Targeted Dispatch</span>
@@ -1606,7 +1606,7 @@
       .then(res => res.json())
       .then(data => {
         btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-rounded text-base">event_available</span> Schedule & Broadcast Event';
+        btn.innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><path d="M21 14V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><path d="M3 10h18"/><path d="m16 20 2 2 4-4"/></svg> Schedule & Broadcast Event';
         if (data.status === 'SUCCESS') {
           alert(data.message);
           closePrincipalScheduleEventModal();
@@ -1617,7 +1617,7 @@
       })
       .catch(err => {
         btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-rounded text-base">event_available</span> Schedule & Broadcast Event';
+        btn.innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><path d="M21 14V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8"/><path d="M3 10h18"/><path d="m16 20 2 2 4-4"/></svg> Schedule & Broadcast Event';
         alert('Failed to schedule event. Please try again.');
       });
     }
@@ -2013,7 +2013,7 @@
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-            <span class="material-symbols-rounded text-xl">event_available</span>
+            <x-ui.icon name="event_available" class="w-5 h-5" />
           </div>
           <div>
             <h3 class="font-extrabold text-slate-100 text-base">Schedule College Institutional Event</h3>
@@ -2021,7 +2021,7 @@
           </div>
         </div>
         <button onclick="closePrincipalScheduleEventModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
-          <span class="material-symbols-rounded text-lg">close</span>
+          <x-ui.icon name="x" class="w-4 h-4" />
         </button>
       </div>
 
@@ -2063,7 +2063,7 @@
 
         <div class="p-3.5 bg-slate-950/60 border border-slate-800 rounded-xl space-y-3">
           <span class="block text-slate-200 font-bold text-[11px] uppercase tracking-wider flex items-center gap-1.5">
-            <span class="material-symbols-rounded text-emerald-400 text-sm">groups</span> Target Scope &amp; Audience
+            <x-ui.icon name="users" class="w-4 h-4 text-emerald-400" /> Target Scope &amp; Audience
           </span>
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2156,7 +2156,7 @@
 
         <div>
           <label class="block text-slate-300 font-bold mb-1 flex items-center gap-1">
-            <span class="material-symbols-rounded text-emerald-400 text-sm">attach_file</span> Attach Flyer / Document <span class="text-slate-500 font-normal">(Optional PDF or Image)</span>
+            <x-ui.icon name="link" class="w-4 h-4 text-emerald-400" /> Attach Flyer / Document <span class="text-slate-500 font-normal">(Optional PDF or Image)</span>
           </label>
           <input type="file" id="peAttachment" name="attachment" accept="image/jpeg,image/png,image/webp,application/pdf" class="w-full text-slate-300 bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500/20 file:text-emerald-300 hover:file:bg-emerald-500/30">
         </div>
@@ -2164,7 +2164,7 @@
         <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
           <button type="button" onclick="closePrincipalScheduleEventModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition">Cancel</button>
           <button type="submit" id="peSubmitBtn" class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl transition flex items-center gap-1.5 shadow-lg">
-            <span class="material-symbols-rounded text-base">event_available</span> Schedule &amp; Broadcast Event
+            <x-ui.icon name="event_available" class="w-4 h-4" /> Schedule &amp; Broadcast Event
           </button>
         </div>
       </form>
@@ -2176,10 +2176,10 @@
     <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-4 shadow-2xl relative text-left">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <h3 class="font-extrabold text-slate-100 text-base flex items-center gap-2">
-          <span class="material-symbols-rounded text-emerald-400">event_available</span> Scheduled Events Audit Log
+          <x-ui.icon name="event_available" class="w-5 h-5 text-emerald-400" /> Scheduled Events Audit Log
         </h3>
         <button onclick="closePrincipalScheduleEventHistoryModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
-          <span class="material-symbols-rounded text-lg">close</span>
+          <x-ui.icon name="x" class="w-4 h-4" />
         </button>
       </div>
 

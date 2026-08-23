@@ -240,10 +240,10 @@
     <!-- Navigation Menus -->
     <nav class="flex-grow p-3 space-y-1">
       <button id="navDashboard" onclick="switchPanel('dashboard')" class="w-full text-left px-3.5 py-1.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-2.5 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-xs mobile-link">
-        <span class="material-symbols-rounded text-base">dashboard</span> Overview
+        <x-ui.icon name="dashboard" class="w-4 h-4" /> Overview
       </button>
       <button id="navDirectory" onclick="switchPanel('directory')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
-        <span class="material-symbols-rounded text-base">group</span> User Directory
+        <x-ui.icon name="group" class="w-4 h-4" /> User Directory
       </button>
 
       @php
@@ -254,24 +254,24 @@
 
       @if($isTutor)
       <a href="/dashboard/tutor" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-sky-400 hover:bg-sky-900/30 cursor-pointer no-underline block text-xs">
-        <span class="material-symbols-rounded text-base">admin_panel_settings</span> Tutor Console
+        <x-ui.icon name="lock" class="w-4 h-4" /> Tutor Console
       </a>
       @endif
 
       @if($isTutor || $isMentor)
       <a href="/dashboard/tutor" onclick="sessionStorage.setItem('openMentoring', 'true')" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-emerald-400 hover:bg-emerald-900/30 cursor-pointer no-underline block text-xs">
-        <span class="material-symbols-rounded text-base">diversity_3</span> My Mentoring
+        <x-ui.icon name="diversity_3" class="w-4 h-4" /> My Mentoring
       </a>
       @endif
       <a href="/staff/mobile?mode=mobile" class="w-full text-left px-3.5 py-1.5 rounded-xl font-bold flex items-center gap-2.5 transition-premium text-purple-400 hover:bg-purple-900/30 cursor-pointer no-underline block text-xs mobile-link">
-        <span class="material-symbols-rounded text-base">event_note</span> My Leave & Attendance Log
+        <x-ui.icon name="event_note" class="w-4 h-4" /> My Leave & Attendance Log
       </a>
     </nav>
 
     <!-- Logout -->
     <div class="p-4 border-t border-slate-800/80">
       <a href="{{ url('/logout') }}" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold text-[10px] flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-[10px] text-xs">
-        <span class="material-symbols-rounded text-[10px] text-base">logout</span> Sign Out
+        <x-ui.icon name="logout" class="w-4 h-4" /> Sign Out
       </a>
     </div>
   </aside>
@@ -294,7 +294,7 @@
       <!-- PANEL 1: OVERVIEW -->
       <div id="panelDashboard" class="space-y-6">
         <div class="bg-slate-950/40 border border-slate-800/60 p-8 rounded-2xl text-center shadow-sm max-w-2xl mx-auto">
-          <span class="material-symbols-rounded text-blue-400 block mb-3 text-5xl">verified_user</span>
+          <x-ui.icon name="verified_user" class="w-12 h-12 text-blue-400 block mx-auto mb-3" />
           <h3 class="font-black text-slate-200 text-lg">General Department Coordinator (Aided) Console Connected</h3>
           <p class="text-slate-400 text-[10px] mt-2 font-medium text-sm">
             Welcome! As the selected Aided General Department Coordinator, you have HOD-like coordinates over academic staff assigned to General Department Aided.

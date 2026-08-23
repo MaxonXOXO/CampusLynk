@@ -1,13 +1,34 @@
 <x-layouts.app-shell activeNav="my_leave">
-  <div class="space-y-6 max-w-7xl mx-auto pb-12">
+  @php
+    $sessionRole = session('userRole');
+    $isHod = ($sessionRole === 'HOD');
+    $isPrincipal = in_array($sessionRole, ['Principal', 'Executive']);
+    $isAdmin = in_array($sessionRole, ['Admin', 'Super_Admin', 'SuperAdmin']);
+    
+    $backUrl = '/dashboard/lecturer';
+    $backLabel = 'Faculty Platform';
+    
+    if ($isHod) {
+        $backUrl = '/dashboard/hod';
+        $backLabel = 'Department Console (HOD)';
+    } elseif ($isPrincipal) {
+        $backUrl = '/dashboard/principal';
+        $backLabel = 'Principal Desk';
+    } elseif ($isAdmin) {
+        $backUrl = '/dashboard/admin';
+        $backLabel = 'Admin Desk';
+    }
+  @endphp
+
+  <div class="space-y-6 w-full pb-12">
 
     <!-- Breadcrumb Navigation -->
     <div class="flex items-center gap-2 text-sm text-slate-500">
-      <a href="/dashboard/lecturer" class="hover:text-blue-600 font-medium transition-colors flex items-center gap-1.5 no-underline">
-        <i data-lucide="layout-dashboard" class="w-4 h-4 text-slate-400"></i>
-        <span>Faculty Platform</span>
+      <a href="{{ $backUrl }}" class="hover:text-blue-600 font-medium transition-colors flex items-center gap-1.5 no-underline">
+        <x-ui.icon name="dashboard" class="w-4 h-4 text-slate-400" />
+        <span>{{ $backLabel }}</span>
       </a>
-      <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-slate-300"></i>
+      <x-ui.icon name="chevron-right" class="w-3.5 h-3.5 text-slate-300" />
       <span class="text-slate-900 font-semibold">My Leave &amp; Attendance</span>
     </div>
 
@@ -15,7 +36,7 @@
     <div class="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-5">
       <div class="flex items-start sm:items-center gap-4">
         <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shrink-0">
-          <i data-lucide="calendar-check-2" class="w-6 h-6 text-blue-600"></i>
+          <x-ui.icon name="event_available" class="w-6 h-6 text-blue-600" />
         </div>
         <div>
           <div class="flex items-center gap-2.5 flex-wrap">
@@ -28,20 +49,10 @@
         </div>
       </div>
 
-      <!-- Staff Identity & Action Area -->
-      <div class="flex flex-wrap items-center gap-3 shrink-0">
-        <div class="hidden sm:flex items-center gap-3 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl">
-          <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shadow-2xs">
-            {{ strtoupper(substr($staff->name ?? session('userName', 'S'), 0, 2)) }}
-          </div>
-          <div>
-            <span class="block text-xs font-bold text-slate-800 leading-tight">{{ $staff->name ?? session('userName', 'Staff Member') }}</span>
-            <span class="block text-[11px] font-medium text-slate-500 font-mono">{{ $staff->designation ?? session('userRole', 'Lecturer') }}</span>
-          </div>
-        </div>
-
-        <button type="button" onclick="openApplyLeaveModal()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer">
-          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+      <!-- Action Area -->
+      <div class="flex items-center gap-3 shrink-0">
+        <button type="button" onclick="openApplyLeaveModal()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-sm rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer shrink-0">
+          <x-ui.icon name="add_circle" class="w-4 h-4 shrink-0" />
           <span>Apply Leave</span>
         </button>
       </div>
@@ -57,16 +68,16 @@
         <div>
           <div class="flex items-center justify-between pb-4 border-b border-slate-100">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
-                <i data-lucide="pie-chart" class="w-5 h-5 text-blue-600"></i>
+              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shrink-0">
+                <x-ui.icon name="pie_chart" class="w-5 h-5 text-blue-600" />
               </div>
               <div>
                 <h4 class="text-base font-bold text-slate-900">1. Leave Balance Summary</h4>
                 <p class="text-xs text-slate-500 mt-0.5">Annual entitlements and category balances (AY {{ date('Y') }}–{{ date('Y') + 1 }})</p>
               </div>
             </div>
-            <button type="button" onclick="loadLeaveBalances()" id="btnRefreshBalances" class="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-semibold rounded-xl border border-slate-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Refresh Leave Balances">
-              <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-500"></i>
+            <button type="button" onclick="loadLeaveBalances()" id="btnRefreshBalances" class="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs group shrink-0" title="Refresh Leave Balances">
+              <x-ui.icon name="sync" class="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-600 transition-transform group-hover:rotate-180 duration-500 shrink-0" />
               <span>Refresh</span>
             </button>
           </div>
@@ -100,11 +111,11 @@
 
             <!-- Compensatory Casual Leave (CCL) Card -->
             <div class="p-4 rounded-xl bg-slate-50/70 border border-slate-200/80 shadow-2xs flex flex-col justify-between space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                  <i data-lucide="clock-check" class="w-3.5 h-3.5 text-amber-600"></i> Compensatory (CCL)
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5 truncate">
+                  <i data-lucide="clock-check" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i> Compensatory (CCL)
                 </span>
-                <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200/60">Earned Duty</span>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200/60 whitespace-nowrap shrink-0">Earned Duty</span>
               </div>
               <div>
                 <div class="flex items-baseline justify-between">
@@ -122,11 +133,11 @@
 
             <!-- Duty Leave (DL) Card -->
             <div class="p-4 rounded-xl bg-slate-50/70 border border-slate-200/80 shadow-2xs flex flex-col justify-between space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                  <i data-lucide="briefcase" class="w-3.5 h-3.5 text-indigo-600"></i> Duty Leave (DL)
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5 truncate">
+                  <i data-lucide="briefcase" class="w-3.5 h-3.5 text-indigo-600 shrink-0"></i> Duty Leave (DL)
                 </span>
-                <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200/60">Official</span>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-200/60 whitespace-nowrap shrink-0">Official</span>
               </div>
               <div>
                 <div class="flex items-baseline justify-between">
@@ -144,11 +155,11 @@
 
             <!-- Medical Leave (ML) Card -->
             <div class="p-4 rounded-xl bg-slate-50/70 border border-slate-200/80 shadow-2xs flex flex-col justify-between space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                  <i data-lucide="heart-pulse" class="w-3.5 h-3.5 text-rose-600"></i> Medical Leave (ML)
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5 truncate">
+                  <i data-lucide="heart-pulse" class="w-3.5 h-3.5 text-rose-600 shrink-0"></i> Medical Leave (ML)
                 </span>
-                <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-800 border border-rose-200/60">Health</span>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-800 border border-rose-200/60 whitespace-nowrap shrink-0">Health</span>
               </div>
               <div>
                 <div class="flex items-baseline justify-between">
@@ -344,12 +355,12 @@
             </div>
 
             @if(!$isCompleted)
-              <a href="/sf-attendance/face-punch" target="_blank" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1.5 no-underline shrink-0">
-                <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-                <span>{{ $isPunchedIn ? 'Punch Evening OUT' : 'Punch Attendance' }}</span>
-              </a>
+              <div class="px-3.5 py-2 rounded-xl bg-blue-50/80 border border-blue-200/80 flex items-center gap-2 text-blue-900 text-xs shrink-0 shadow-2xs">
+                <i data-lucide="smartphone" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                <span class="font-medium">Login with phone to punch attendance</span>
+              </div>
             @else
-              <span class="text-xs font-semibold text-emerald-700 flex items-center gap-1">
+              <span class="text-xs font-semibold text-emerald-700 flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200/60">
                 <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i> All punches recorded
               </span>
             @endif
@@ -370,7 +381,7 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100 shrink-0">
-                <i data-lucide="file-text" class="w-5 h-5 text-amber-600"></i>
+                <x-ui.icon name="description" class="w-5 h-5 text-amber-600" />
               </div>
               <div>
                 <h4 class="text-base font-bold text-slate-900">3. Leave Application History</h4>
@@ -378,8 +389,8 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <button type="button" onclick="loadLeaveHistory()" id="btnRefreshHistory" class="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-semibold rounded-xl border border-slate-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Refresh History">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-500"></i>
+              <button type="button" onclick="loadLeaveHistory()" id="btnRefreshHistory" class="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs group shrink-0" title="Refresh History">
+                <x-ui.icon name="sync" class="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-600 transition-transform group-hover:rotate-180 duration-500 shrink-0" id="iconRefreshHistory" />
                 <span>Refresh History</span>
               </button>
             </div>
@@ -409,7 +420,7 @@
           <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100 shrink-0">
-                <i data-lucide="git-merge" class="w-5 h-5 text-purple-600"></i>
+                <x-ui.icon name="folder-open" class="w-5 h-5 text-purple-600" />
               </div>
               <div>
                 <h4 class="text-base font-bold text-slate-900">4. Multi-Stage Approval Status &amp; Progression</h4>
@@ -417,8 +428,8 @@
               </div>
             </div>
             <div class="flex items-center gap-2">
-              <button type="button" onclick="loadApprovalStatus()" id="btnRefreshApproval" class="px-3 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-600 text-xs font-semibold rounded-xl border border-slate-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Refresh Approval Progression">
-                <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-500"></i>
+              <button type="button" onclick="loadApprovalStatus()" id="btnRefreshApproval" class="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs group shrink-0" title="Refresh Approval Progression">
+                <x-ui.icon name="sync" class="w-3.5 h-3.5 text-slate-500 group-hover:text-purple-600 transition-transform group-hover:rotate-180 duration-500 shrink-0" id="iconRefreshApproval" />
                 <span>Refresh Status</span>
               </button>
             </div>
@@ -537,16 +548,17 @@
           </div>
 
           <!-- Add Substitute Inputs -->
-          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
             <div class="sm:col-span-5">
-              <input type="text" id="subClassroom" placeholder="Class / Period (e.g. CT-S5 P2)" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:border-blue-600 outline-none">
+              <input type="text" id="subClassroom" onkeydown="if(event.key==='Enter'){event.preventDefault();addSubstituteRow();}" placeholder="Class / Period (e.g. CT-S5 P2)" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition">
             </div>
             <div class="sm:col-span-5">
-              <input type="text" id="subStaffName" placeholder="Substitute Faculty Name" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:border-blue-600 outline-none">
+              <input type="text" id="subStaffName" onkeydown="if(event.key==='Enter'){event.preventDefault();addSubstituteRow();}" placeholder="Substitute Faculty Name" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition">
             </div>
             <div class="sm:col-span-2">
-              <button type="button" onclick="addSubstituteRow()" class="w-full px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs rounded-lg border border-blue-200 transition cursor-pointer">
-                + Add
+              <button type="button" id="btnAddSubstitute" onclick="addSubstituteRow()" class="w-full h-full min-h-[36px] px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-1 cursor-pointer">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                <span>Add</span>
               </button>
             </div>
           </div>
@@ -670,22 +682,33 @@
     function addSubstituteRow() {
       const clsInput = document.getElementById('subClassroom');
       const nameInput = document.getElementById('subStaffName');
-      const fromDate = document.getElementById('modalFromDate').value;
+      const fromDateInput = document.getElementById('modalFromDate');
 
-      const classroom = clsInput ? clsInput.value.trim() : '';
-      const substitute_name = nameInput ? nameInput.value.trim() : '';
+      let classroom = clsInput ? clsInput.value.trim() : '';
+      let substitute_name = nameInput ? nameInput.value.trim() : '';
+      const fromDate = fromDateInput ? fromDateInput.value : '';
 
-      if (!classroom || !substitute_name) return;
+      if (!substitute_name && !classroom) {
+        if (clsInput) clsInput.focus();
+        return;
+      }
+
+      if (!classroom && substitute_name) {
+        classroom = 'General Department Duty';
+      } else if (!substitute_name && classroom) {
+        substitute_name = 'Staff Handover';
+      }
 
       workArrangementsArray.push({
         classroom: classroom,
         substitute_name: substitute_name,
-        date: fromDate
+        date: fromDate || new Date().toISOString().split('T')[0]
       });
 
       if (clsInput) clsInput.value = '';
       if (nameInput) nameInput.value = '';
       renderSubstitutes();
+      if (window.lucide) window.lucide.createIcons();
     }
 
     function removeSubstituteRow(index) {
@@ -826,8 +849,7 @@
       
       if (refreshBtn) {
         refreshBtn.disabled = true;
-        refreshBtn.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Syncing...</span>';
-        if (window.lucide) window.lucide.createIcons();
+        refreshBtn.innerHTML = '<span class="material-symbols-rounded text-base text-blue-600 animate-spin shrink-0">sync</span><span>Syncing...</span>';
       }
 
       fetch('/api/staff/leave/my-history')
@@ -902,8 +924,7 @@
         .finally(() => {
           if (refreshBtn) {
             refreshBtn.disabled = false;
-            refreshBtn.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-500"></i><span>Refresh</span>';
-            if (window.lucide) window.lucide.createIcons();
+            refreshBtn.innerHTML = '<span class="material-symbols-rounded text-base text-slate-500 shrink-0">sync</span><span>Refresh</span>';
           }
         });
     }
@@ -918,8 +939,7 @@
 
       if (refreshBtn) {
         refreshBtn.disabled = true;
-        refreshBtn.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Loading...</span>';
-        if (window.lucide) window.lucide.createIcons();
+        refreshBtn.innerHTML = '<span class="material-symbols-rounded text-base text-blue-600 animate-spin shrink-0">sync</span><span>Loading...</span>';
       }
 
       fetch('/api/staff/leave/my-history')
@@ -986,7 +1006,7 @@
                   </td>
                   <td class="py-3.5 px-4 align-top text-right">
                     <a href="/staff/leave/${item.id}/pdf" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold shadow-2xs transition-all no-underline" title="View Formal A4 PDF Order">
-                      <i data-lucide="printer" class="w-3.5 h-3.5 text-slate-500"></i>
+                      <span class="material-symbols-rounded text-base text-slate-500">print</span>
                       <span>PDF</span>
                     </a>
                   </td>
@@ -1006,21 +1026,20 @@
             if (countBadge) countBadge.textContent = '0 Records';
             container.innerHTML = `
               <div class="py-10 text-center rounded-xl bg-slate-50/70 border border-slate-200/60 p-6 space-y-2">
-                <div class="w-10 h-10 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                  <i data-lucide="file-x-2" class="w-5 h-5"></i>
+                <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                  <span class="material-symbols-rounded text-2xl">description</span>
                 </div>
                 <h5 class="text-sm font-bold text-slate-800">No Leave Applications Found</h5>
                 <p class="text-xs text-slate-500 max-w-sm mx-auto">You have not submitted any formal leave requests yet this academic year.</p>
                 <div class="pt-2">
-                  <button type="button" onclick="openApplyLeaveModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-xs transition cursor-pointer">
-                    Apply for Leave
+                  <button type="button" onclick="openApplyLeaveModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs rounded-xl shadow-xs transition cursor-pointer">
+                    <span class="material-symbols-rounded text-base shrink-0">add_circle</span>
+                    <span>Apply for Leave</span>
                   </button>
                 </div>
               </div>
             `;
           }
-
-          if (window.lucide) window.lucide.createIcons();
         })
         .catch(err => {
           console.error('Error fetching leave history:', err);
@@ -1038,8 +1057,7 @@
         .finally(() => {
           if (refreshBtn) {
             refreshBtn.disabled = false;
-            refreshBtn.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-500"></i><span>Refresh History</span>';
-            if (window.lucide) window.lucide.createIcons();
+            refreshBtn.innerHTML = '<span class="material-symbols-rounded text-base text-slate-500 shrink-0">sync</span><span>Refresh History</span>';
           }
         });
     }
@@ -1055,8 +1073,7 @@
 
       if (refreshBtn) {
         refreshBtn.disabled = true;
-        refreshBtn.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Loading...</span>';
-        if (window.lucide) window.lucide.createIcons();
+        refreshBtn.innerHTML = '<span class="material-symbols-rounded text-base text-purple-600 animate-spin shrink-0">sync</span><span>Loading...</span>';
       }
 
       fetch('/api/staff/leave/my-history')
@@ -1118,21 +1135,20 @@
             if (streamNotice) streamNotice.textContent = 'Stream-Aware Routing';
             container.innerHTML = `
               <div class="py-10 text-center rounded-xl bg-slate-50/70 border border-slate-200/60 p-6 space-y-2">
-                <div class="w-10 h-10 mx-auto rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                  <i data-lucide="git-branch" class="w-5 h-5"></i>
+                <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                  <span class="material-symbols-rounded text-2xl">account_tree</span>
                 </div>
                 <h5 class="text-sm font-bold text-slate-800">No Leave Requests to Track</h5>
                 <p class="text-xs text-slate-500 max-w-sm mx-auto">When you submit a leave application, its real-time multi-stage approval workflow and audit notes will appear here.</p>
                 <div class="pt-2">
-                  <button type="button" onclick="openApplyLeaveModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-xs transition cursor-pointer">
-                    Apply for Leave
+                  <button type="button" onclick="openApplyLeaveModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold text-xs rounded-xl shadow-xs transition cursor-pointer">
+                    <span class="material-symbols-rounded text-base shrink-0">add_circle</span>
+                    <span>Apply for Leave</span>
                   </button>
                 </div>
               </div>
             `;
           }
-
-          if (window.lucide) window.lucide.createIcons();
         })
         .catch(err => {
           console.error('Error fetching approval status:', err);
@@ -1150,8 +1166,7 @@
         .finally(() => {
           if (refreshBtn) {
             refreshBtn.disabled = false;
-            refreshBtn.innerHTML = '<i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-slate-500"></i><span>Refresh Status</span>';
-            if (window.lucide) window.lucide.createIcons();
+            refreshBtn.innerHTML = '<span class="material-symbols-rounded text-base text-slate-500 shrink-0">sync</span><span>Refresh Status</span>';
           }
         });
     }
