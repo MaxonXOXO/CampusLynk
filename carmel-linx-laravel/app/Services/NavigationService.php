@@ -25,8 +25,8 @@ class NavigationService
 
         $items = self::resolveRoleItems($resolvedRole);
 
-        // Apply contextual dynamic roles (e.g. Faculty or Demonstrator who is also a Tutor or Mentor or HOD)
-        if ($resolvedRole === 'faculty' || $resolvedRole === 'demonstrator') {
+        // Apply contextual dynamic roles (e.g. Faculty, Demonstrator, or Trade Instructor who is also a Tutor or Mentor or HOD)
+        if ($resolvedRole === 'faculty' || $resolvedRole === 'demonstrator' || $resolvedRole === 'trade_instructor') {
             $userId = Session::get('userId');
             $sessionRole = Session::get('userRole');
             $isPrincipal = in_array($sessionRole, ['Principal', 'Executive']) || str_contains(strtolower($sessionRole ?? ''), 'principal');
@@ -65,7 +65,7 @@ class NavigationService
                     ]
                 ];
                 $items = self::insertItems($items, $returnItem);
-            } elseif (in_array($sessionRole, ['Demonstrator', 'Trade_Instructor', 'Workshop_Superintendent'])) {
+            } elseif ($sessionRole === 'Demonstrator') {
                 if ($resolvedRole === 'faculty') {
                     $returnItem = [
                         [
@@ -73,6 +73,19 @@ class NavigationService
                             'label' => 'Return to Demonstrator Console',
                             'icon' => 'arrow-left',
                             'url' => '/dashboard/demonstrator',
+                            'position' => 'before:my_batches',
+                        ]
+                    ];
+                    $items = self::insertItems($items, $returnItem);
+                }
+            } elseif (in_array($sessionRole, ['Trade_Instructor', 'Tradesman', 'Workshop_Instructor'])) {
+                if ($resolvedRole === 'faculty') {
+                    $returnItem = [
+                        [
+                            'id' => 'return_tradeinstructor',
+                            'label' => 'Return to Instructor Console',
+                            'icon' => 'arrow-left',
+                            'url' => '/dashboard/tradeinstructor',
                             'position' => 'before:my_batches',
                         ]
                     ];
@@ -107,8 +120,8 @@ class NavigationService
 
             if ($isTutor || $isMentor) {
                 $tutorItems = [];
-                if ($resolvedRole === 'demonstrator' || $sessionRole === 'Demonstrator') {
-                    // For Demonstrator, only inject Tutor Console (no separate My Mentoring)
+                if ($resolvedRole === 'demonstrator' || $sessionRole === 'Demonstrator' || $resolvedRole === 'trade_instructor' || in_array($sessionRole, ['Trade_Instructor', 'Tradesman', 'Workshop_Instructor'])) {
+                    // For Demonstrator/Trade Instructor, only inject Tutor Console (no separate My Mentoring)
                     $tutorItems[] = [
                         'id' => 'tutor_console',
                         'label' => 'Tutor Console',
@@ -142,7 +155,7 @@ class NavigationService
         // Apply contextual dynamic roles for Tutor workspace
         if ($resolvedRole === 'tutor') {
             $sessionRole = Session::get('userRole');
-            if ($sessionRole === 'Demonstrator' || in_array($sessionRole, ['Demonstrator', 'Trade_Instructor', 'Workshop_Superintendent'])) {
+            if ($sessionRole === 'Demonstrator') {
                 // Point my_batches to Demonstrator Lab Workspaces and profile to Demonstrator Profile
                 $items = array_map(function ($it) {
                     if (($it['id'] ?? '') === 'my_batches') {
@@ -152,6 +165,20 @@ class NavigationService
                     }
                     if (($it['id'] ?? '') === 'profile') {
                         $it['url'] = '/dashboard/demonstrator?panel=security';
+                        unset($it['onclick']);
+                    }
+                    return $it;
+                }, $items);
+            } elseif (in_array($sessionRole, ['Trade_Instructor', 'Tradesman', 'Workshop_Instructor'])) {
+                // Point my_batches to Workshop Tasks and profile to Instructor Profile
+                $items = array_map(function ($it) {
+                    if (($it['id'] ?? '') === 'my_batches') {
+                        $it['label'] = 'Workshop Tasks';
+                        $it['url'] = '/dashboard/tradeinstructor';
+                        unset($it['onclick']);
+                    }
+                    if (($it['id'] ?? '') === 'profile') {
+                        $it['url'] = '/dashboard/tradeinstructor?panel=security';
                         unset($it['onclick']);
                     }
                     return $it;
@@ -190,6 +217,9 @@ class NavigationService
         }
         if ($sessionRole === 'Demonstrator') {
             return 'Demonstrator Console';
+        }
+        if (in_array($sessionRole, ['Trade_Instructor', 'Tradesman', 'Workshop_Instructor'])) {
+            return 'Instructor Console';
         }
         
         $resolvedRole = self::resolveRoleKey($role ?? $sessionRole);

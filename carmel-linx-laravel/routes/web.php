@@ -72,7 +72,7 @@ Route::get('/', function () {
         if (in_array($role, ['Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF'])) return redirect('/dashboard/academic-coordinator');
         if (in_array($role, ['Lecturer', 'Physical_Instructor', 'Physical Instructor'])) return redirect('/dashboard/lecturer');
         if ($role === 'Demonstrator') return redirect('/dashboard/demonstrator');
-        if ($role === 'Trade_Instructor') return redirect('/dashboard/tradeinstructor');
+        if (in_array($role, ['Trade_Instructor', 'Tradesman', 'Workshop_Instructor'])) return redirect('/dashboard/tradeinstructor');
         if ($role === 'Workshop_Superintendent') return redirect('/dashboard/workshop');
         return redirect('/dashboard/lecturer');
     }
@@ -390,12 +390,32 @@ Route::middleware(['web'])->group(function () {
     });
 
     Route::get('/dashboard/tradeinstructor', function () {
-        if (Session::get('userRole') !== 'Trade_Instructor') return redirect('/');
+        if (!in_array(Session::get('userRole'), ['Trade_Instructor', 'Tradesman', 'Workshop_Instructor'])) return redirect('/');
         $ua = strtolower(request()->header('User-Agent', ''));
         if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
             return redirect('/staff/mobile');
         }
-        return noCacheView('trade_instructor_dashboard');
+
+        $userId = Session::get('userId');
+        $assignments = DB::table('subject_staff_assignments')
+            ->join('batch_subjects', 'subject_staff_assignments.batch_subject_id', '=', 'batch_subjects.id')
+            ->leftJoin('class_management', 'batch_subjects.classroom_id', '=', 'class_management.classroom_id')
+            ->leftJoin('r26_class_management', 'batch_subjects.classroom_id', '=', 'r26_class_management.classroom_id')
+            ->where('subject_staff_assignments.staff_mobile_no', $userId)
+            ->select(
+                'batch_subjects.id as subject_id',
+                'batch_subjects.subject_code',
+                'batch_subjects.subject_name',
+                'batch_subjects.subject_type',
+                'batch_subjects.semester',
+                'batch_subjects.classroom_id',
+                'batch_subjects.syllabus_revision_code',
+                DB::raw("COALESCE(class_management.branch, r26_class_management.branch) as branch"),
+                DB::raw("COALESCE(class_management.batch_year, r26_class_management.batch_year) as batch_year")
+            )
+            ->get();
+
+        return noCacheView('trade_instructor_dashboard', compact('assignments'));
     });
 
     Route::get('/staff/mobile', [MentoringController::class, 'showStaffMobileDashboard']);
