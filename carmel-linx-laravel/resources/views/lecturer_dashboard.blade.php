@@ -1147,7 +1147,7 @@
 
         const isGraduated = (b.current_semester || 1) > 6;
         const semBadge = isGraduated
-          ? `<span class="px-2.5 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-full font-bold text-xs flex items-center gap-1"><svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>Graduated</span>`
+          ? `<span class="px-2.5 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-full font-bold text-xs flex items-center gap-1"><svg class="w-3.5 h-3.5 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>Graduated</span>`
           : `<span class="px-2.5 py-0.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-full font-bold text-xs font-mono">S-${b.current_semester || 1}</span>`;
 
         let subjectsHtml = '';
@@ -1176,7 +1176,7 @@
                     </div>
                   </div>
                   <div class="w-7 h-7 rounded-lg bg-white group-hover:bg-blue-600 group-hover:text-white text-slate-400 border border-slate-200 group-hover:border-blue-600 flex items-center justify-center transition-all shrink-0 shadow-2xs">
-                    <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                   </div>
                 </div>
                 
@@ -1208,8 +1208,8 @@
               </div>
               <div class="flex flex-col items-end gap-1.5">
                 <div class="flex flex-wrap gap-1 justify-end">${rolesHtml}</div>
-                <span class="flex items-center gap-1 text-xs font-semibold text-slate-500">
-                  <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                <span class="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                  <svg class="w-3.5 h-3.5 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                   <span>${b.student_count || 0} students</span>
                 </span>
               </div>
@@ -1219,7 +1219,7 @@
           <div class="p-5 flex-1 flex flex-col min-h-0 bg-white space-y-3">
             <div class="flex items-center justify-between pb-1 shrink-0">
               <h5 class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                <svg class="w-4 h-4 text-blue-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 <span>Assigned Subjects</span>
               </h5>
               <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">${(b.subjects || []).length} Total</span>
@@ -2376,10 +2376,6 @@
         if (data.status === 'SUCCESS') alert("Marks successfully saved!");
         else alert(data.message || "Failed to save marks.");
       });
-    }
-
-    function updateProposedDate(lessonPlanId, dateValue) {
-        console.log("Updating lesson plan", lessonPlanId, "with date", dateValue);
     }
 
     function renderCourseStructure(cos, modules, textbooks, copo) {
