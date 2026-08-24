@@ -1125,7 +1125,7 @@
         grid.innerHTML = `
           <div class="col-span-full bg-white border border-slate-200 p-12 rounded-3xl text-center shadow-sm max-w-xl mx-auto space-y-3">
             <div class="w-14 h-14 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto">
-              <i data-lucide="graduation-cap" class="w-4 h-4 inline-block text-3xl"></i>
+              <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
             </div>
             <h4 class="font-bold text-slate-900 text-base">No batches found</h4>
             <p class="text-xs text-slate-500 max-w-sm mx-auto">You do not have any assigned classes or subjects under the <strong>${currentDashboardFilter === 'active' ? 'Active' : 'Archived'}</strong> filter.</p>
@@ -1147,7 +1147,7 @@
 
         const isGraduated = (b.current_semester || 1) > 6;
         const semBadge = isGraduated
-          ? `<span class="px-2.5 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-full font-bold text-xs flex items-center gap-1"><i data-lucide="graduation-cap" class="w-4 h-4 inline-block text-xs"></i>Graduated</span>`
+          ? `<span class="px-2.5 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-full font-bold text-xs flex items-center gap-1"><svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>Graduated</span>`
           : `<span class="px-2.5 py-0.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-full font-bold text-xs font-mono">S-${b.current_semester || 1}</span>`;
 
         let subjectsHtml = '';
@@ -1176,7 +1176,7 @@
                     </div>
                   </div>
                   <div class="w-7 h-7 rounded-lg bg-white group-hover:bg-blue-600 group-hover:text-white text-slate-400 border border-slate-200 group-hover:border-blue-600 flex items-center justify-center transition-all shrink-0 shadow-2xs">
-                    <i data-lucide="arrow-right" class="w-4 h-4 inline-block text-sm"></i>
+                    <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                   </div>
                 </div>
                 
@@ -1209,7 +1209,7 @@
               <div class="flex flex-col items-end gap-1.5">
                 <div class="flex flex-wrap gap-1 justify-end">${rolesHtml}</div>
                 <span class="flex items-center gap-1 text-xs font-semibold text-slate-500">
-                  <i data-lucide="users" class="w-4 h-4 inline-block text-sm text-slate-400"></i>
+                  <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                   <span>${b.student_count || 0} students</span>
                 </span>
               </div>
@@ -1219,7 +1219,7 @@
           <div class="p-5 flex-1 flex flex-col min-h-0 bg-white space-y-3">
             <div class="flex items-center justify-between pb-1 shrink-0">
               <h5 class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                <i data-lucide="book-open" class="w-4 h-4 inline-block text-sm text-blue-600"></i>
+                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 <span>Assigned Subjects</span>
               </h5>
               <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">${(b.subjects || []).length} Total</span>
@@ -1267,7 +1267,7 @@
       }
       currentSubjectId = subjectId;
       window.currentVirtualBatchId = batchId;
-      document.getElementById('vcTitle').innerHTML = `<i data-lucide="circle" class="w-4 h-4 inline-block text-blue-400 text-xs"></i> ${subjectName}`;
+      document.getElementById('vcTitle').innerHTML = `<svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> ${subjectName}`;
       let latText = '';
       if (batchId.includes('_LET')) {
         latText = ' <span class="bg-purple-900/60 border border-purple-500/50 text-purple-300 font-extrabold text-xs px-2.5 py-1 rounded-full shadow-inner ml-2">LATERAL ENTRY (LET)</span>';
@@ -1480,7 +1480,7 @@
 
           if (isSeminar) {
             document.getElementById('panelTitle').innerText = 'Virtual Seminar Room';
-            document.getElementById('vcTitle').innerHTML = `<i data-lucide="presentation" class="w-4 h-4 inline-block text-emerald-400 text-sm"></i> Virtual Seminar Room`;
+            document.getElementById('vcTitle').innerHTML = `<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></svg> Virtual Seminar Room`;
             if (tabSeminar) tabSeminar.classList.remove('hidden');
             if (tabLab) tabLab.classList.add('hidden');
             if (tabLabCoPo) tabLabCoPo.classList.add('hidden');
@@ -1492,7 +1492,7 @@
             toggleClassroomTab('seminar_evaluation');
           } else if (isPractical) {
             document.getElementById('panelTitle').innerText = 'Virtual Lab Workspace';
-            document.getElementById('vcTitle').innerHTML = `<i data-lucide="flask-conical" class="w-4 h-4 inline-block text-teal-400 text-sm"></i> Virtual Lab Workspace`;
+            document.getElementById('vcTitle').innerHTML = `<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31L4.75 20.46A1 1 0 0 0 5.64 22h12.72a1 1 0 0 0 .89-1.54L14 9.31V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg> Virtual Lab Workspace`;
             if (tabSeminar) tabSeminar.classList.add('hidden');
             if (tabLab) tabLab.classList.remove('hidden');
             if (tabLabCoPo) tabLabCoPo.classList.remove('hidden');
@@ -1513,7 +1513,7 @@
             toggleClassroomTab('lab_evaluation');
           } else {
             document.getElementById('panelTitle').innerText = 'Virtual Classroom';
-            document.getElementById('vcTitle').innerHTML = `<i data-lucide="circle" class="w-4 h-4 inline-block text-blue-400 text-xs"></i> Virtual Classroom`;
+            document.getElementById('vcTitle').innerHTML = `<svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Virtual Classroom`;
             if (tabSeminar) tabSeminar.classList.add('hidden');
             if (tabLab) tabLab.classList.add('hidden');
             if (tabLabCoPo) tabLabCoPo.classList.add('hidden');
@@ -1527,7 +1527,7 @@
 
           // Update vcTitle to include subject name for regular classrooms
           if (!isSeminar && !isPractical) {
-            document.getElementById('vcTitle').innerHTML = `<i data-lucide="circle" class="w-4 h-4 inline-block text-blue-400 text-xs"></i> ${currentSubjectName || 'Virtual Classroom'}`;
+            document.getElementById('vcTitle').innerHTML = `<svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> ${currentSubjectName || 'Virtual Classroom'}`;
           }
 
           if (data.data.syllabus_pdf_path) {
@@ -1546,7 +1546,7 @@
           document.getElementById('courseStructureContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
               <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                <i data-lucide="circle" class="w-4 h-4 inline-block text-xl text-slate-600"></i>
+                <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
               </div>
               <p class="text-sm font-bold text-slate-400">No syllabus loaded.</p>
               <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus PDF to automatically populate Course Outcomes, Modules, and Textbooks.</p>
@@ -1555,7 +1555,7 @@
           document.getElementById('coursePlannerContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
               <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                <i data-lucide="circle" class="w-4 h-4 inline-block text-xl text-slate-600"></i>
+                <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
               </div>
               <p class="text-sm font-bold text-slate-400">Planner not generated.</p>
               <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to automatically generate the lesson plan.</p>
@@ -1564,7 +1564,7 @@
           document.getElementById('formativeAssessmentContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
               <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                <i data-lucide="clipboard-check" class="w-4 h-4 inline-block text-xl text-slate-600"></i>
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
               </div>
               <p class="text-sm font-bold text-slate-400">Formative Assessment Inactive.</p>
               <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to activate formative assessment tasks and mark entry.</p>
@@ -1573,7 +1573,7 @@
           document.getElementById('summativeAssessmentContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
               <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                <i data-lucide="help-circle" class="w-4 h-4 inline-block text-xl text-slate-600"></i>
+                <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
               </div>
               <p class="text-sm font-bold text-slate-400">Summative Assessment Inactive.</p>
               <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to activate written test configuration and mark entry.</p>
@@ -1584,7 +1584,7 @@
               qbContent.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
                   <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                    <i data-lucide="database" class="w-4 h-4 inline-block text-xl text-slate-600"></i>
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
                   </div>
                   <p class="text-sm font-bold text-slate-400">Question Bank Inactive.</p>
                   <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to activate the question bank pooling.</p>
@@ -1599,7 +1599,7 @@
         document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-red-900/30 text-red-400 border border-red-500/30';
         document.getElementById('courseStructureContent').innerHTML = `
           <div class="flex flex-col items-center justify-center py-16 text-center h-full">
-            <i data-lucide="alert-circle" class="w-4 h-4 inline-block text-2xl text-red-500 mb-3"></i>
+            <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
             <p class="text-sm font-bold text-red-400">Failed to load course data</p>
             <p class="text-xs text-slate-500 mt-1.5 max-w-xs">${err.message}</p>
             <button onclick="loadCourseDetails(currentSubjectId)" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer transition-premium">
@@ -1649,18 +1649,18 @@
         let emptyColor = window.isCurrentSubjectPractical ? 'text-teal-400' : 'text-sky-400';
         let genBtn = window.isCurrentSubjectPractical
           ? `<button onclick="openGeneratePlannerModal()" class="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-teal-900/20">
-              <i data-lucide="sparkles" class="w-4 h-4 inline-block text-sm"></i> Auto-Generate (Lab)
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg> Auto-Generate (Lab)
              </button>`
           : `<button onclick="regenerateLessonPlan()" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-900/20">
-              <i data-lucide="sparkles" class="w-4 h-4 inline-block text-sm"></i> Generate Lesson Plan
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg> Generate Lesson Plan
              </button>`;
         let loadBtn = `<button onclick="loadLessonPlanTemplate()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-premium cursor-pointer border border-slate-700/50 flex items-center gap-1.5">
-              <i data-lucide="download" class="w-4 h-4 inline-block text-sm"></i> Load Template
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Load Template
             </button>`;
         container.innerHTML = `
           <div class="flex flex-col items-center justify-center py-16 text-center h-full">
             <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-              <i data-lucide="sparkles" class="w-4 h-4 inline-block text-xl ${emptyColor}"></i>
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
             </div>
             <p class="text-sm font-bold text-slate-400">No Lesson Plan Generated Yet</p>
             <p class="text-xs mt-1.5 max-w-xs text-slate-500 leading-relaxed mb-6">
@@ -1684,7 +1684,7 @@
       // Header buttons
       let practicalRegenBtn = window.isCurrentSubjectPractical
         ? `<button onclick="openGeneratePlannerModal()" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs">
-             <i data-lucide="flask-conical" class="w-4 h-4 inline-block text-xs"></i> Regenerate (Lab)
+             <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v7.31L4.75 20.46A1 1 0 0 0 5.64 22h12.72a1 1 0 0 0 .89-1.54L14 9.31V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></svg> Regenerate (Lab)
            </button>` : '';
 
       let html = `
@@ -1696,19 +1696,19 @@
           <div class="flex items-center gap-2 flex-wrap">
             ${practicalRegenBtn}
             <button onclick="regenerateLessonPlan()" id="btnRegenPlan" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Re-generate all lesson plans from stored syllabus data">
-              <i data-lucide="rotate-cw" class="w-4 h-4 inline-block text-xs"></i> Regenerate
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> Regenerate
             </button>
             <button onclick="saveLessonPlanChanges()" id="btnSavePlan" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs">
-              <i data-lucide="save" class="w-4 h-4 inline-block text-xs"></i> Save Changes
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> Save Changes
             </button>
             <button onclick="saveLessonPlanAsTemplate()" id="btnSavePlanTemplate" class="px-3 py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Save as reusable template for other batches with the same subject">
-              <i data-lucide="bookmark-plus" class="w-4 h-4 inline-block text-xs"></i> Save as Template
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/><line x1="12" x2="12" y1="7" y2="13"/><line x1="9" x2="15" y1="10" y2="10"/></svg> Save as Template
             </button>
             <button onclick="loadLessonPlanTemplate()" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Load previously saved template">
-              <i data-lucide="download" class="w-4 h-4 inline-block text-xs"></i> Load Template
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Load Template
             </button>
             <a href="/classroom/${currentSubjectId}/lesson-plan/print" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Print Lesson Plan (A4)">
-              <i data-lucide="printer" class="w-4 h-4 inline-block text-xs"></i> Print Plan
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg> Print Plan
             </a>
           </div>
         </div>
@@ -1786,7 +1786,7 @@
         </div>
 
         <div id="planSaveStatusBar" class="hidden mt-3 px-4 py-2.5 bg-amber-900/20 border border-amber-500/20 rounded-xl flex items-center gap-3 text-xs font-bold text-amber-400">
-          <i data-lucide="pencil" class="w-4 h-4 inline-block text-sm animate-pulse"></i>
+          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
           <span>You have unsaved changes.</span>
           <button onclick="saveLessonPlanChanges()" class="ml-auto px-3 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg cursor-pointer transition-premium">
             Save Now
@@ -1843,7 +1843,7 @@
         if (data) rows.push(data);
       });
       if (rows.length === 0) { alert('Nothing to save.'); return; }
-      if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 inline-block text-xs animate-spin"></i> Saving...'; }
+      if (btn) { btn.disabled = true; btn.innerHTML = '<svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Saving...'; }
 
       fetch(`/api/classroom/${currentSubjectId}/lesson-plans/bulk-update`, {
         method: 'POST',
@@ -1854,29 +1854,29 @@
           window._dirtyPlanRows.clear();
           const bar = document.getElementById('planSaveStatusBar');
           if (bar) { bar.classList.add('hidden'); bar.classList.remove('flex'); }
-          if (btn) btn.innerHTML = '<i data-lucide="check-circle-2" class="w-4 h-4 inline-block text-xs"></i> Saved!';
-          setTimeout(() => { if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-xs"></i> Save Changes'; } }, 2500);
+          if (btn) btn.innerHTML = '<svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Saved!';
+          setTimeout(() => { if (btn) { btn.disabled = false; btn.innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> Save Changes'; } }, 2500);
         } else {
           alert(d.message || 'Save failed.');
-          if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-xs"></i> Save Changes'; }
+          if (btn) { btn.disabled = false; btn.innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> Save Changes'; }
         }
       }).catch(e => {
         alert('Save failed: ' + e.message);
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-xs"></i> Save Changes'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> Save Changes'; }
       });
     }
 
     function regenerateLessonPlan() {
       if (!confirm('This will delete the current lesson plan and regenerate it from the stored syllabus data.\n\nAny manually entered dates and remarks will be lost.\n\nContinue?')) return;
       const btn = document.getElementById('btnRegenPlan');
-      if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 inline-block text-xs animate-spin"></i> Generating...'; }
+      if (btn) { btn.disabled = true; btn.innerHTML = '<svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Generating...'; }
 
       fetch(`/api/classroom/${currentSubjectId}/lesson-plans/regenerate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
         body: JSON.stringify({})
       }).then(r => r.json()).then(d => {
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="rotate-cw" class="w-4 h-4 inline-block text-xs"></i> Regenerate'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> Regenerate'; }
         if (d.status === 'SUCCESS') {
           renderCoursePlanner(d.data);
           toggleClassroomTab('planner');
@@ -1884,7 +1884,7 @@
           alert(d.message || 'Regeneration failed.');
         }
       }).catch(e => {
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="rotate-cw" class="w-4 h-4 inline-block text-xs"></i> Regenerate'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg> Regenerate'; }
         alert('Error: ' + e.message);
       });
     }
@@ -1937,13 +1937,13 @@
           </div>
           <div class="flex items-center gap-2">
             <button onclick="printAssignmentReport('${currentSubjectId}')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-2 shadow-lg shadow-blue-500/10 cursor-pointer">
-              <i data-lucide="printer" class="w-4 h-4 inline-block text-sm"></i> Print Assignment Report
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg> Print Assignment Report
             </button>
             <button onclick="generateAIQuestions('${currentSubjectId}')" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-2 shadow-lg shadow-blue-900/20 cursor-pointer">
-              <i data-lucide="bot" class="w-4 h-4 inline-block text-sm"></i> AI Generate Questions
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg> AI Generate Questions
             </button>
             <button onclick="generateAIQuestions('${currentSubjectId}', null, 'bank')" class="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-2 shadow-lg shadow-indigo-900/20 cursor-pointer">
-              <i data-lucide="database" class="w-4 h-4 inline-block text-sm"></i> Pull from Question Bank
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg> Pull from Question Bank
             </button>
           </div>
         </div>
@@ -1953,7 +1953,7 @@
         <div class="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-xs">
           <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
             <div class="font-bold text-sm text-slate-800 flex items-center gap-2 tracking-wide uppercase">
-              <i data-lucide="file-text" class="w-4 h-4 inline-block text-base text-emerald-600"></i> Enter Assignment Marks
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> Enter Assignment Marks
             </div>
             <button onclick="saveAssignmentMarks('${currentSubjectId}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer">
               Save Marks
@@ -2036,7 +2036,7 @@
       if (!questionsData || Object.keys(questionsData).length === 0) {
         container.innerHTML = `
           <div class="col-span-full flex flex-col items-center justify-center py-12 text-center bg-slate-50/60 border border-dashed border-slate-300 rounded-2xl shadow-2xs">
-            <i data-lucide="bot" class="w-4 h-4 inline-block text-5xl text-blue-500 mb-3"></i>
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
             <p class="font-bold text-slate-800 text-sm mb-1">No Assignment Questions Yet</p>
             <p class="text-xs text-slate-600 mb-4">Click <strong>AI Generate Questions</strong> above to generate questions for all Course Outcomes using Gemini AI.</p>
           </div>
@@ -2077,25 +2077,25 @@
         let disabledAttr = isLocked ? 'disabled' : '';
         let regenBtn = isLocked ? '' : `
                 <button onclick="generateAIQuestions('${subjectId}', '${co}', 'ai')" class="p-1.5 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Generate via AI (Gemini)">
-                  <i data-lucide="sparkles" class="w-4 h-4 inline-block text-sm block"></i>
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
                 </button>
                 <button onclick="generateAIQuestions('${subjectId}', '${co}', 'bank')" class="p-1.5 rounded-lg bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Pull from Question Bank Pool">
-                  <i data-lucide="database" class="w-4 h-4 inline-block text-sm block"></i>
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
                 </button>
         `;
         let editBtn = isLocked ? '' : `
                 <button onclick="openEditQuestionsModal('${subjectId}', '${co}')" class="p-1.5 rounded-lg bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Manually Edit Questions">
-                  <i data-lucide="pencil" class="w-4 h-4 inline-block text-sm block"></i>
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                 </button>
         `;
         let lockBtn = isLocked ? '' : `
                 <button onclick="toggleAssignmentLock('${subjectId}', '${co}')" class="p-1.5 rounded-lg bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Lock & Finalize">
-                  <i data-lucide="lock" class="w-4 h-4 inline-block text-sm block"></i>
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 </button>
         `;
         let printBtn = `
                 <button onclick="printAssignmentPaperAndRubrics('${subjectId}', '${co}')" class="p-1.5 rounded-lg bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Print Assignment & Rubrics">
-                  <i data-lucide="printer" class="w-4 h-4 inline-block text-sm block"></i>
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
                 </button>
         `;
 
@@ -2257,7 +2257,7 @@
         <div class="flex justify-between items-center">
           <span class="text-xs font-bold text-slate-700 uppercase tracking-wide">Question</span>
           <button type="button" onclick="this.closest('.question-field-row').remove(); updateEditQuestionsTotalMarks();" class="text-rose-500 hover:text-rose-700 cursor-pointer transition-colors">
-            <i data-lucide="trash-2" class="w-4 h-4 inline-block text-base"></i>
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
           </button>
         </div>
         <div>
@@ -2400,7 +2400,7 @@
         <div class="flex items-center justify-between gap-3 mb-5 p-4 bg-white border border-slate-200/80 rounded-2xl shadow-xs">
           <div class="flex items-center gap-2">
             <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-sm font-bold border border-blue-200/80">
-              <i data-lucide="library" class="w-4 h-4 inline-block text-base"></i>
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
             </span>
             <div>
               <h3 class="font-bold text-slate-900 text-sm">Course Structure &amp; Syllabus Elements</h3>
@@ -2440,7 +2440,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
               <div class="flex items-center gap-2">
                 <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-sm font-bold border border-blue-200/80">
-                  <i data-lucide="star" class="w-4 h-4 inline-block text-base"></i>
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 </span>
                 <h3 class="font-bold text-slate-900 text-sm">Course Outcomes (COs)</h3>
               </div>
@@ -2483,7 +2483,7 @@
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
               <div class="flex items-center gap-2">
                 <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-sm font-bold border border-indigo-200/80">
-                  <i data-lucide="grid" class="w-4 h-4 inline-block text-base"></i>
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
                 </span>
                 <div>
                   <h3 class="font-bold text-slate-900 text-sm">CO-PO Articulation Matrix</h3>
@@ -2533,7 +2533,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
               <div class="flex items-center gap-2">
                 <span class="w-7 h-7 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center text-sm font-bold border border-purple-200/80">
-                  <i data-lucide="book-marked" class="w-4 h-4 inline-block text-base"></i>
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 2v20"/><path d="M10 2v10l3-2.5 3 2.5V2"/></svg>
                 </span>
                 <h3 class="font-bold text-slate-900 text-sm">Course Modules / Units</h3>
               </div>
@@ -2560,7 +2560,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
               <div class="flex items-center gap-2">
                 <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center text-sm font-bold border border-amber-200/80">
-                  <i data-lucide="book-open" class="w-4 h-4 inline-block text-base"></i>
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
                 </span>
                 <h3 class="font-bold text-slate-900 text-sm">Textbooks &amp; References</h3>
               </div>
@@ -2596,7 +2596,7 @@
         <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs no-print mb-6">
           <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors" onclick="document.getElementById('manualMarksWrapper').classList.toggle('hidden'); const icon = document.getElementById('marksToggleIcon'); if (icon) icon.classList.toggle('rotate-180');">
             <div class="font-bold text-sm text-slate-800 flex items-center gap-2 tracking-wider uppercase">
-              <i data-lucide="file-edit" class="w-4 h-4 inline-block text-base text-emerald-600"></i> Enter Manual Marks
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Enter Manual Marks
               <svg id="marksToggleIcon" class="w-4 h-4 text-slate-500 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
             <div class="flex items-center gap-2">
@@ -2668,10 +2668,10 @@
                   <span class="text-sm font-bold text-emerald-700 uppercase tracking-widest">Generated Question Paper</span>
                   <div class="flex items-center gap-2">
                     <button onclick="printSummativePaper('${co.id}', ${testData.total_marks})" class="flex items-center gap-1.5 text-sm bg-blue-50 hover:bg-blue-600 border border-blue-200 hover:border-blue-600 px-3 py-1.5 rounded-lg text-blue-700 hover:text-white transition-premium cursor-pointer shadow-2xs">
-                      <i data-lucide="printer" class="w-4 h-4 inline-block text-base"></i> Print Q Paper
+                      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg> Print Q Paper
                     </button>
                     <button onclick="printAnswerKey('${co.id}', ${testData.total_marks})" class="flex items-center gap-1.5 text-sm bg-amber-50 hover:bg-amber-600 border border-amber-200 hover:border-amber-600 px-3 py-1.5 rounded-lg text-amber-700 hover:text-white transition-premium cursor-pointer shadow-2xs">
-                      <i data-lucide="clipboard-list" class="w-4 h-4 inline-block text-base"></i> Print Answer Key
+                      <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Print Answer Key
                     </button>
                   </div>
                 </div>
@@ -2698,7 +2698,7 @@
 
           let lockBtn = isLocked || !testData ? '' : `
             <button onclick="lockSummativeTest('${currentSubjectId}', '${co.id}')" class="p-1.5 rounded-lg bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Lock & Finalize">
-              <i data-lucide="lock" class="w-4 h-4 inline-block text-base block"></i>
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </button>
           `;
 
@@ -2710,7 +2710,7 @@
           
           let dateInputStr = `
             <div class="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
-              <span class="text-xs text-slate-600 font-bold uppercase flex items-center gap-1"><i data-lucide="calendar" class="w-4 h-4 inline-block text-sm"></i>Date</span>
+              <span class="text-xs text-slate-600 font-bold uppercase flex items-center gap-1"><svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>Date</span>
               <input type="date" id="summ_date_${co.id}" value="${dateStr}" ${disabledAttr} onchange="saveSummativeConfig('${currentSubjectId}', '${co.id}')" class="bg-white text-sm text-slate-800 font-mono outline-none w-[110px] px-2 py-0.5 rounded border border-slate-200 focus:border-blue-500 shadow-2xs">
             </div>
           `;
@@ -2791,7 +2791,7 @@
         <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs no-print mb-6">
           <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors" onclick="document.getElementById('onlineTestWrapper').classList.toggle('hidden'); const icon = document.getElementById('onlineTestIcon'); if (icon) icon.classList.toggle('rotate-180');">
             <div class="font-bold text-sm text-slate-800 flex items-center gap-2 tracking-wider uppercase">
-              <i data-lucide="monitor" class="w-4 h-4 inline-block text-base text-purple-600"></i> Online MCQ Tests Setup
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg> Online MCQ Tests Setup
               <svg id="onlineTestIcon" class="w-4 h-4 text-slate-500 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
           </div>
@@ -2848,7 +2848,7 @@
                   <input type="text" id="online_test_name" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none focus:border-purple-500 shadow-2xs" placeholder="e.g. Midterm Test 1">
                 </div>
                 <button onclick="publishOnlineTest('${currentSubjectId}')" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-premium flex items-center justify-center gap-2 shadow-xs cursor-pointer">
-                  <i data-lucide="rocket" class="w-4 h-4 inline-block text-sm"></i> Generate & Publish to Students
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg> Generate & Publish to Students
                 </button>
               </div>
               
@@ -3185,13 +3185,13 @@
                   </div>
                   <div class="grid grid-cols-2 gap-2 mt-2">
                       <button onclick="generateOnlineTestReport('${t.test_id}')" class="w-full py-1.5 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 flex items-center justify-center gap-1 text-xs font-semibold shadow-2xs transition-premium cursor-pointer" title="Download Results">
-                        <i data-lucide="download" class="w-4 h-4 inline-block text-sm"></i> Report
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Report
                       </button>
                       <button onclick="printOnlineTest('${t.test_id}')" class="w-full py-1.5 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 flex items-center justify-center gap-1 text-xs font-semibold shadow-2xs transition-premium cursor-pointer" title="Print Question Paper with Answers">
-                        <i data-lucide="printer" class="w-4 h-4 inline-block text-sm"></i> Print Q&A
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg> Print Q&A
                       </button>
                       <button onclick="deleteOnlineTest('${t.test_id}', '${subjectId}')" class="col-span-2 w-full py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg border border-rose-200 flex items-center justify-center gap-1 text-xs font-semibold shadow-2xs transition-premium cursor-pointer" title="Delete Test">
-                        <i data-lucide="trash-2" class="w-4 h-4 inline-block text-sm"></i> Delete
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg> Delete
                       </button>
                     </div>
                 </div>
@@ -5570,13 +5570,13 @@
         container.innerHTML = `
           <div class="text-center py-12 text-slate-400 space-y-4 max-w-md mx-auto">
             <div class="bg-white p-4 rounded-full border border-slate-200 shadow-2xs inline-block">
-              <i data-lucide="database" class="w-4 h-4 inline-block text-3xl text-slate-600 block"></i>
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
             </div>
             <p class="text-sm font-bold text-slate-700">No questions in this subject's pool.</p>
             <p class="text-sm text-slate-500">You can download the template CSV, fill it with questions, and upload it. Alternatively, seed the pool instantly with high-quality questions using AI.</p>
             <div class="pt-2">
               <button onclick="seedQuestionBankWithAi(currentSubjectId)" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer shadow-md flex items-center gap-1.5 mx-auto">
-                <i data-lucide="sparkles" class="w-4 h-4 inline-block text-base"></i> Seed Pool via AI
+                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg> Seed Pool via AI
               </button>
             </div>
           </div>
@@ -5613,7 +5613,7 @@
           <div class="border border-slate-200/80 rounded-xl overflow-hidden bg-white shadow-xs mb-6">
             <div class="bg-slate-50/70 p-4 flex justify-between items-center border-b border-slate-200">
               <div class="flex items-center gap-2">
-                <i data-lucide="star" class="w-4 h-4 inline-block text-blue-400 text-base"></i>
+                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 <span class="text-sm font-bold text-slate-900">${groupName}</span>
               </div>
               <span class="text-xs text-slate-600 font-bold bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">${qList.length} Questions</span>
@@ -5817,7 +5817,7 @@
             workspace.innerHTML = `
               <div class="bg-white border border-slate-200/80 rounded-2xl p-6 text-center max-w-xl mx-auto space-y-4">
                 <div class="h-12 w-12 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto mb-2 animate-pulse">
-                  <i data-lucide="message-square" class="w-4 h-4 inline-block text-2xl"></i>
+                  <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                 </div>
                 <h4 class="text-base font-bold text-slate-900">Initiate Mid-Semester Feedback Survey</h4>
                 <p class="text-sm text-slate-600 leading-relaxed">
@@ -5962,7 +5962,7 @@
                           Save Notes
                         </button>
                         <a href="/classroom/${subjectId}/survey/report" target="_blank" class="px-4 py-2 bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 shadow-2xs rounded-xl text-xs font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer">
-                          <i data-lucide="printer" class="w-4 h-4 inline-block text-sm"></i> Print Survey Report
+                          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg> Print Survey Report
                         </a>
                       </div>
                     </div>
@@ -6105,7 +6105,7 @@
             workspace.innerHTML = `
               <div class="bg-white border border-slate-200/80 rounded-2xl p-6 text-center max-w-xl mx-auto space-y-4">
                 <div class="h-12 w-12 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-700 font-bold flex items-center justify-center mx-auto mb-2 animate-pulse">
-                  <i data-lucide="clipboard-check" class="w-4 h-4 inline-block text-2xl"></i>
+                  <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
                 </div>
                 <h4 class="text-base font-bold text-slate-900">Initiate Course Exit Survey</h4>
                 <p class="text-sm text-slate-600 leading-relaxed">
@@ -6256,7 +6256,7 @@
 
                       <div class="flex justify-end items-center pt-6 border-t border-slate-200/80">
                         <a href="/classroom/${subjectId}/course-exit/report" target="_blank" class="px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer shadow-md shadow-teal-600/10">
-                          <i data-lucide="printer" class="w-4 h-4 inline-block text-base"></i> Print Course Exit Report
+                          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg> Print Course Exit Report
                         </a>
                       </div>
                     </div>
@@ -6725,14 +6725,14 @@
               card.innerHTML = `
                 <div class="flex items-center gap-3 min-w-0">
                   <div class="bg-amber-500/10 p-2 rounded-xl text-amber-400 group-hover:bg-amber-500 group-hover:text-black transition-premium">
-                    <i data-lucide="presentation" class="w-4 h-4 inline-block text-lg block"></i>
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></svg>
                   </div>
                   <div class="min-w-0">
                     <h5 class="text-xs font-black text-amber-300 group-hover:text-white transition-premium truncate">Seminar Day (${count})</h5>
                     <p class="text-[11px] text-slate-600 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
                   </div>
                 </div>
-                <i data-lucide="chevron-right" class="w-4 h-4 inline-block text-slate-600 group-hover:text-blue-400 text-sm transition-premium flex-shrink-0"></i>
+                <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
               `;
               container.appendChild(card);
             }
@@ -6747,14 +6747,14 @@
               cardMob.innerHTML = `
                 <div class="flex items-center gap-3 min-w-0">
                   <div class="bg-amber-500/10 p-2 rounded-xl text-amber-400 group-hover:bg-amber-500 group-hover:text-black transition-premium">
-                    <i data-lucide="smartphone" class="w-4 h-4 inline-block text-lg block"></i>
+                    <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
                   </div>
                   <div class="min-w-0">
                     <h5 class="text-xs font-black text-amber-300 group-hover:text-white transition-premium truncate">Active Seminar Day (${count})</h5>
                     <p class="text-[11px] text-slate-600 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
                   </div>
                 </div>
-                <i data-lucide="chevron-right" class="w-4 h-4 inline-block text-slate-600 group-hover:text-amber-400 text-sm transition-premium flex-shrink-0"></i>
+                <svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
               `;
               mobContainer.appendChild(cardMob);
             }
@@ -6824,10 +6824,10 @@
               <div class="text-[10px] text-slate-500">Guide: <span class="text-slate-800">${s.guide_name || '-'}</span></div>
               <div class="grid grid-cols-2 gap-2">
                 <button onclick="acceptMobileInvitation(${s.id})" class="py-2.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center justify-center gap-1">
-                  <i data-lucide="user-check" class="w-4 h-4 inline-block text-sm"></i> Accept
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Accept
                 </button>
                 <button onclick="openMobSemEvaluation('${s.reg_no}')" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-900 rounded-xl text-xs font-bold border border-slate-700 transition-premium cursor-pointer flex items-center justify-center gap-1">
-                  <i data-lucide="star" class="w-4 h-4 inline-block text-sm"></i> Evaluate
+                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Evaluate
                 </button>
               </div>
             `;
@@ -6850,7 +6850,7 @@
                 <div class="text-xs text-slate-600 mt-0.5 truncate">${s.topic || '-'}</div>
               </div>
               <button onclick="openMobSemEvaluation('${s.reg_no}')" class="shrink-0 px-4 py-2 bg-emerald-700/80 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1">
-                <i data-lucide="file-text" class="w-4 h-4 inline-block text-sm"></i> Evaluate
+                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> Evaluate
               </button>
             `;
             attendingList.appendChild(card);
@@ -6978,7 +6978,7 @@
 
       const btn = document.getElementById('mobSemSubmitBtn');
       btn.disabled = true;
-      btn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4 inline-block text-base animate-spin"></i> Saving...';
+      btn.innerHTML = '<svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Saving...';
 
       fetch(`/api/classroom/${seminar.batch_subject_id}/seminar/evaluate`, {
         method: 'POST',
@@ -6988,7 +6988,7 @@
       .then(res => res.json())
       .then(res => {
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-base"></i> Save';
+        btn.innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> Save';
         if (res.status === 'SUCCESS') {
           showMobileSemToast(`Evaluation saved! Avg score: ${res.average_score} / 75`, 'success');
           // Silently refresh the desktop seminar table so marks appear without page reload
@@ -7006,7 +7006,7 @@
       })
       .catch(() => {
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-base"></i> Save';
+        btn.innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> Save';
         showMobileSemToast('Network error. Please try again.', 'error');
       });
     }
@@ -7520,7 +7520,7 @@
           <td class="p-3 text-center font-mono font-bold text-blue-400 text-base">${boardMarks}</td>
           <td class="p-3 text-center">
             <button onclick="openStudentLabModal('${student.reg_no}')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-800 hover:text-white rounded-lg text-xs font-bold transition-premium cursor-pointer border border-slate-700/50 flex items-center gap-1 mx-auto">
-              <i data-lucide="pencil" class="w-4 h-4 inline-block text-xs"></i> Grade
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg> Grade
             </button>
           </td>
         `;
@@ -7895,7 +7895,7 @@
           document.getElementById('expEditId').value = '';
           document.getElementById('expFormNo').value = '';
           document.getElementById('expFormTitle').value = '';
-          document.getElementById('btnSaveExp').innerHTML = '<i data-lucide="plus" class="w-4 h-4 inline-block text-sm"></i> Add Experiment';
+          document.getElementById('btnSaveExp').innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg> Add Experiment';
 
           alert("Experiment successfully saved!");
           fetchPracticalEvaluations();
@@ -7912,7 +7912,7 @@
       document.getElementById('expFormNo').value = no;
       document.getElementById('expFormTitle').value = title;
       document.getElementById('expFormCo').value = co;
-      document.getElementById('btnSaveExp').innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-sm"></i> Update';
+      document.getElementById('btnSaveExp').innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> Update';
     }
 
     function deleteExperiment(id) {
@@ -8160,7 +8160,36 @@
         document.body.classList.remove('sidebar-preload');
       });
     });
-  </script>
+  
+  // Auto-initialize Lucide Icons on dynamic DOM insertion
+  if (typeof window !== "undefined") {
+    const autoLucideObserver = new MutationObserver((mutations) => {
+      let shouldReinit = false;
+      for (const mutation of mutations) {
+        if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType === 1 && (node.querySelector?.("[data-lucide]") || node.hasAttribute?.("data-lucide"))) {
+              shouldReinit = true;
+              break;
+            }
+          }
+        }
+        if (shouldReinit) break;
+      }
+      if (shouldReinit && window.lucide && typeof window.lucide.createIcons === "function") {
+        window.lucide.createIcons();
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      autoLucideObserver.observe(document.body, { childList: true, subtree: true });
+      if (window.lucide && typeof window.lucide.createIcons === "function") {
+        window.lucide.createIcons();
+      }
+    });
+  }
+
+</script>
 
   @include('partials.support_desk_overlay')
 </body>
