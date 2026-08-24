@@ -108,7 +108,6 @@
     {{-- 7. FILE EDIT / EDIT / WRITE / NOTE --}}
     @case('file-edit')
     @case('edit')
-    @case('pencil')
     @case('edit-3')
     @case('edit-note')
     @case('edit-square')
@@ -122,7 +121,6 @@
 
     {{-- 8. REFRESH / SYNC / RESTART --}}
     @case('refresh-cw')
-    @case('rotate-cw')
     @case('sync')
     @case('refresh')
     @case('restart-alt')
@@ -308,12 +306,9 @@
         </svg>
         @break
 
-    {{-- 24. SPARKLES / AI / MAGIC / BOT --}}
+    {{-- 24. SPARKLES / AI / MAGIC --}}
     @case('sparkles')
     @case('auto-awesome')
-    @case('bot')
-    @case('smart-toy')
-    @case('robot')
         <svg {{ $attributes->merge(['class' => $class]) }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
             <path d="M5 3v4"/>
@@ -516,7 +511,6 @@
     {{-- 43. TABLE / GRID --}}
     @case('table-2')
     @case('table')
-    @case('grid')
     @case('grid-on')
     @case('table-chart')
     @case('layout-grid')
@@ -703,13 +697,11 @@
         </svg>
         @break
 
-    {{-- 59. BOOK OPEN / SUBJECTS / MENTORING DIARY / LIBRARY --}}
+    {{-- 59. BOOK OPEN / SUBJECTS / MENTORING DIARY --}}
     @case('book-open')
     @case('book')
     @case('menu-book')
-    @case('library')
     @case('library-books')
-    @case('book-marked')
     @case('import-contacts')
     @case('auto-stories')
     @case('subjects')
@@ -871,14 +863,11 @@
         </svg>
         @break
 
-    {{-- 75. CPU / TECH / LAB / SCIENCE --}}
+    {{-- 75. CPU / TECH / LAB --}}
     @case('cpu')
     @case('precision-manufacturing')
     @case('biotech')
     @case('science')
-    @case('flask-conical')
-    @case('flask')
-    @case('lab')
     @case('handyman')
     @case('construction')
     @case('factory')
