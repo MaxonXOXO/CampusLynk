@@ -48,8 +48,8 @@
     }
   </style>
 
-  <!-- Global Alert Banner -->
-  <div id="globalAlert" class="hidden p-4 rounded-xl text-sm font-semibold transition-all border mb-6"></div>
+  <!-- Global Floating Toast Notification -->
+  <div id="globalAlert" class="fixed top-6 right-6 z-[9999] hidden max-w-md w-full transition-all duration-300 transform"></div>
 
   <div class="space-y-6">
 
@@ -1986,14 +1986,39 @@
 
     function showGlobalMessage(msg, isError = false) {
       const alert = document.getElementById('globalAlert');
+      if (!alert) return;
+      
+      const isSuccess = !isError;
+      alert.className = `fixed top-6 right-6 z-[9999] max-w-md w-full shadow-2xl rounded-2xl p-4 flex items-start gap-3.5 border backdrop-blur-md transition-all duration-300 transform translate-y-0 opacity-100 ${
+        isSuccess 
+          ? 'bg-white/95 border-emerald-200 shadow-emerald-950/10 text-slate-800 ring-1 ring-emerald-500/10' 
+          : 'bg-white/95 border-rose-200 shadow-rose-950/10 text-slate-800 ring-1 ring-rose-500/10'
+      }`;
+
+      alert.innerHTML = `
+        <div class="w-9 h-9 rounded-xl ${isSuccess ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-rose-500 shadow-rose-500/20'} text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+          ${isSuccess 
+            ? '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>'
+            : '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>'
+          }
+        </div>
+        <div class="flex-1 min-w-0 pt-0.5">
+          <h5 class="text-sm font-bold ${isSuccess ? 'text-slate-900' : 'text-rose-950'} leading-tight">
+            ${isSuccess ? 'Success' : 'Notice / Error'}
+          </h5>
+          <p class="text-sm font-medium text-slate-600 mt-0.5 leading-relaxed">${msg}</p>
+        </div>
+        <button type="button" onclick="document.getElementById('globalAlert').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition cursor-pointer" title="Dismiss">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      `;
+
       alert.classList.remove('hidden');
-      if (isError) {
-        alert.className = "p-4 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border-red-900 block shadow-sm";
-      } else {
-        alert.className = "p-4 rounded-xl text-sm font-bold bg-green-950/40 text-green-400 border-green-900 block shadow-sm";
-      }
-      alert.innerText = msg;
-      setTimeout(() => alert.classList.add('hidden'), 5000);
+
+      if (window._globalAlertTimeout) clearTimeout(window._globalAlertTimeout);
+      window._globalAlertTimeout = setTimeout(() => {
+        alert.classList.add('hidden');
+      }, 5000);
     }
 
     function loadUsers() {
@@ -2503,6 +2528,201 @@
       } else {
         url = '/register/staff';
         formData.append('mobileNo', document.getElementById('directRegStaffMobile').value);
+      tbody.innerHTML = `<tr><td colspan="6" class="p-12 text-center text-slate-500 font-medium text-sm"><div class="w-4 h-4 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-2"></div>Querying department audit logs...</td></tr>`;
+
+      fetch('/api/audit-logs?branch={{ $activeBranch }}')
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            tbody.innerHTML = "";
+            if (data.logs.length === 0) {
+              tbody.innerHTML = `
+                <tr>
+                  <td colspan="6" class="p-12 text-center text-slate-500 font-medium text-sm">
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                      <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                    </div>
+                    <p class="font-semibold text-slate-800">No department audit logs found</p>
+                    <p class="text-xs text-slate-400 mt-0.5">No administrative activity records exist for this branch yet.</p>
+                  </td>
+                </tr>
+              `;
+              if (window.initLucide) window.initLucide();
+              return;
+            }
+            data.logs.forEach(log => {
+              const tr = document.createElement('tr');
+              tr.className = "border-b border-slate-100 hover:bg-slate-50/70 transition-colors";
+              
+              const date = new Date(log.created_at).toLocaleString();
+              tr.innerHTML = `
+                <td class="p-3.5 text-slate-500 font-mono text-xs whitespace-nowrap">${date}</td>
+                <td class="p-3.5 font-medium">
+                  <span class="font-semibold text-slate-900 text-sm block">${log.performed_by_name || 'System'}</span>
+                  <span class="text-xs text-slate-500 font-mono">${log.performed_by || ''}</span>
+                </td>
+                <td class="p-3.5 font-medium">
+                  <span class="font-semibold text-slate-900 text-sm block">${log.target_name || '—'}</span>
+                  <span class="text-xs text-blue-600 font-mono">${log.target_id || ''}</span>
+                </td>
+                <td class="p-3.5"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">${log.action}</span></td>
+                <td class="p-3.5 font-mono text-slate-500 text-xs">${log.ip_address || '—'}</td>
+                <td class="p-3.5 text-slate-600 text-sm leading-relaxed">${log.details || '—'}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+            if (window.initLucide) window.initLucide();
+          } else {
+            tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-600 font-semibold text-sm">Error loading audit logs.</td></tr>`;
+          }
+        })
+        .catch(() => {
+          tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-rose-600 font-semibold text-sm">Request failed.</td></tr>`;
+        });
+    }
+
+    function viewUserAudit(userId, userName) {
+      document.getElementById('auditProfileName').innerText = userName;
+      document.getElementById('auditProfileId').innerText = userId;
+      
+      const tbody = document.getElementById('modalAuditTableBody');
+      tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500">Retrieving profile logs...</td></tr>`;
+
+      const modal = document.getElementById('auditModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      fetch(`/api/audit-logs?targetId=${userId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'SUCCESS') {
+            tbody.innerHTML = "";
+            if (data.logs.length === 0) {
+              tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-slate-500">No profile history events found.</td></tr>`;
+              return;
+            }
+            data.logs.forEach(log => {
+              const tr = document.createElement('tr');
+              tr.className = "border-b border-slate-800/40 text-sm";
+              const date = new Date(log.created_at).toLocaleString();
+              tr.innerHTML = `
+                <td class="p-3 text-slate-400 font-mono">${date}</td>
+                <td class="p-3 font-semibold text-slate-300">${log.performed_by_name || 'System'}</td>
+                <td class="p-3"><span class="px-1.5 py-0.5 rounded text-sm font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
+                <td class="p-3 text-slate-300">${log.details || ''}</td>
+              `;
+              tbody.appendChild(tr);
+            });
+          } else {
+            tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-red-400 font-bold">Error loading.</td></tr>`;
+          }
+        })
+        .catch(() => {
+          tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-red-400 font-bold">Failed.</td></tr>`;
+        });
+    }
+
+    function closeAuditModal() {
+      const modal = document.getElementById('auditModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmDeleteUser(userId, userType, userName) {
+      if (confirm(`Are you absolutely sure you want to permanently delete the profile of ${userName} (${userId})? This action will remove all database credentials.`)) {
+        const indicator = document.getElementById('loadingIndicator');
+        indicator.classList.remove('hidden');
+
+        fetch('/api/admin/user/delete', {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({ targetId: userId, userType })
+        })
+        .then(res => res.json())
+        .then(data => {
+          indicator.classList.add('hidden');
+          if (data.status === 'SUCCESS') {
+            showGlobalMessage('Profile deleted successfully.');
+            loadUsers();
+          } else {
+            showGlobalMessage(data.message, true);
+          }
+        })
+        .catch(() => {
+          indicator.classList.add('hidden');
+          showGlobalMessage('Failed to delete profile.', true);
+        });
+      }
+    }
+
+    function openRegisterModal() {
+      document.getElementById('directRegisterForm').reset();
+      document.getElementById('directRegAlert').classList.add('hidden');
+      toggleDirectRegisterFields('student');
+      
+      const modal = document.getElementById('registerModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeRegisterModal() {
+      const modal = document.getElementById('registerModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function toggleDirectRegisterFields(type) {
+      const sFields = document.getElementById('directStudentFields');
+      const fFields = document.getElementById('directStaffFields');
+      if (type === 'student') {
+        sFields.classList.remove('hidden');
+        fFields.classList.add('hidden');
+      } else {
+        fFields.classList.remove('hidden');
+        sFields.classList.add('hidden');
+      }
+    }
+
+    function handleAdmTypeChange() {
+      const admType = document.getElementById('directRegAdmType').value;
+      const regNoInput = document.getElementById('directRegStudentId');
+      if (admType === 'LET') {
+        if (!regNoInput.value.startsWith('L')) {
+          regNoInput.value = 'L' + regNoInput.value;
+        }
+        document.getElementById('directRegStudentSem').value = 'S3';
+      } else {
+        if (regNoInput.value.startsWith('L')) {
+          regNoInput.value = regNoInput.value.substring(1);
+        }
+        document.getElementById('directRegStudentSem').value = 'S1';
+      }
+    }
+
+    function handleDirectRegister(e) {
+      e.preventDefault();
+      const alert = document.getElementById('directRegAlert');
+      const spinner = document.getElementById('directRegSpinner');
+      
+      alert.classList.add('hidden');
+      spinner.classList.remove('hidden');
+
+      const type = document.getElementById('regType').value;
+      const formData = new FormData();
+      formData.append('name', document.getElementById('directRegName').value);
+      formData.append('email', document.getElementById('directRegEmail').value);
+      formData.append('password', document.getElementById('directRegPassword').value);
+
+      let url = '/register/student';
+      if (type === 'student') {
+        formData.append('regNo', document.getElementById('directRegStudentId').value);
+        formData.append('admNo', document.getElementById('directRegStudentAdm').value);
+        formData.append('branch', document.getElementById('directRegStudentBranch').value);
+        formData.append('admissionYear', document.getElementById('directRegStudentYear').value);
+        formData.append('admissionType', document.getElementById('directRegAdmType').value);
+      } else {
+        url = '/register/staff';
+        formData.append('mobileNo', document.getElementById('directRegStaffMobile').value);
         formData.append('branch', document.getElementById('directRegStaffBranch').value);
         formData.append('designation', document.getElementById('directRegStaffDesig').value);
       }
@@ -2518,7 +2738,7 @@
       .then(data => {
         spinner.classList.add('hidden');
         if (data.status === 'SUCCESS') {
-          alert.className = "p-3 rounded-xl text-sm font-bold bg-green-950/40 text-green-400 border border-green-900/60 block";
+          alert.className = "p-3 rounded-xl text-sm font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 block";
           alert.innerText = "User registered successfully.";
           alert.classList.remove('hidden');
           setTimeout(() => {
@@ -2526,14 +2746,14 @@
             loadUsers();
           }, 1500);
         } else {
-          alert.className = "p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
+          alert.className = "p-3 rounded-xl text-sm font-semibold bg-rose-50 text-rose-800 border border-rose-200 block";
           alert.innerText = data.message;
           alert.classList.remove('hidden');
         }
       })
       .catch(() => {
         spinner.classList.add('hidden');
-        alert.className = "p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
+        alert.className = "p-3 rounded-xl text-sm font-semibold bg-rose-50 text-rose-800 border border-rose-200 block";
         alert.innerText = "Request failed.";
         alert.classList.remove('hidden');
       });
@@ -2572,13 +2792,7 @@
     }
 
     function showBatchMessage(msg, isError = false) {
-      const el = document.getElementById('batchGlobalAlert');
-      el.className = isError
-        ? 'p-4 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block'
-        : 'p-4 rounded-xl text-sm font-bold bg-green-950/40 text-green-400 border border-green-900 block';
-      el.innerText = msg;
-      el.classList.remove('hidden');
-      setTimeout(() => el.classList.add('hidden'), 5000);
+      showGlobalMessage(msg, isError);
     }
 
     let currentBatchFilter = 'active';
@@ -2789,7 +3003,7 @@
       const year = document.getElementById('batchAdmYear').value;
 
       if (!year) {
-        alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
+        alertEl.className = 'p-3 rounded-xl text-sm font-semibold bg-rose-50 text-rose-800 border border-rose-200 block';
         alertEl.innerText = 'Please enter an admission year.';
         alertEl.classList.remove('hidden');
         return;
@@ -2822,7 +3036,7 @@
       .then(data => {
         spinner.classList.add('hidden');
         if (data.status === 'SUCCESS') {
-          alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-green-950/40 text-green-400 border border-green-900 block';
+          alertEl.className = 'p-3 rounded-xl text-sm font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 block';
           alertEl.innerText = data.message;
           alertEl.classList.remove('hidden');
           setTimeout(() => {
@@ -2830,14 +3044,14 @@
             loadBatches();
           }, 1800);
         } else {
-          alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
+          alertEl.className = 'p-3 rounded-xl text-sm font-semibold bg-rose-50 text-rose-800 border border-rose-200 block';
           alertEl.innerText = data.message;
           alertEl.classList.remove('hidden');
         }
       })
       .catch(() => {
         spinner.classList.add('hidden');
-        alertEl.className = 'p-3 rounded-xl text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
+        alertEl.className = 'p-3 rounded-xl text-sm font-semibold bg-rose-50 text-rose-800 border border-rose-200 block';
         alertEl.innerText = 'Request failed.';
         alertEl.classList.remove('hidden');
       });
@@ -2852,12 +3066,12 @@
 
       // Show current tutor/mentor
       document.getElementById('tutorCurrentDisplay').innerHTML = batch.tutor_name
-        ? `<span class="font-bold text-sky-300">${batch.tutor_name}</span> <span class="text-slate-600 text-sm">(${batch.tutor_mobile_no})</span>`
-        : '<span class="italic text-slate-600">Not assigned yet</span>';
+        ? `<span class="font-bold text-sky-700">${batch.tutor_name}</span> <span class="text-slate-600 text-sm">(${batch.tutor_mobile_no})</span>`
+        : '<span class="italic text-slate-500">Not assigned yet</span>';
 
       document.getElementById('mentorCurrentDisplay').innerHTML = batch.mentor_name
-        ? `<span class="font-bold text-emerald-300">${batch.mentor_name}</span> <span class="text-slate-600 text-sm">(${batch.mentor_mobile_no})</span>`
-        : '<span class="italic text-slate-600">Not assigned yet</span>';
+        ? `<span class="font-bold text-emerald-700">${batch.mentor_name}</span> <span class="text-slate-600 text-sm">(${batch.mentor_mobile_no})</span>`
+        : '<span class="italic text-slate-500">Not assigned yet</span>';
 
       // Clear alerts
       document.getElementById('assignTutorAlert').classList.add('hidden');
@@ -3397,7 +3611,7 @@
           </div>
         </td>
       `;
-    }    function printTimetable() {
+    }    function printTimetable() {
       if (!activeBatchId) return;
 
       const sem = document.getElementById('modalSubjectSemester') ? document.getElementById('modalSubjectSemester').value : 1;
@@ -3640,305 +3854,6 @@
             }
           </style>
           <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-</head>
-        <body>
-          <div class="max-w-6xl mx-auto space-y-6">
-            
-            <!-- Centered Header Section -->
-            <div class="border-b pb-4 text-center relative header-border">
-              <h1 class="text-lg font-bold meta-lbl uppercase tracking-widest text-slate-400">Carmel Polytechnic College</h1>
-              <h2 class="text-2xl font-black text-white mt-1">Weekly Class Timetable</h2>
-              
-              <div class="flex justify-center gap-12 mt-4 text-sm meta-lbl">
-                <div>Department: <strong class="meta-val">${fullDept}</strong></div>
-                <div>Batch: <strong class="meta-val">${activeBatchId}</strong></div>
-                <div>Semester: <strong class="meta-val">Semester ${sem}</strong></div>
-                <div>Assessment Year: <strong class="meta-val">${currentYear}</strong></div>
-              </div>
-
-              <div class="no-print absolute top-0 right-0 flex gap-2">
-                <button onclick="window.print()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-sm shadow transition duration-200">
-                  Print Timetable
-                </button>
-                <button onclick="window.close()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg font-bold text-sm shadow transition duration-200">
-                  Close Preview
-                </button>
-              </div>
-            </div>
-            
-            <!-- Timetable Grid -->
-            <table class="w-full text-left border">
-              <thead>
-                <tr class="text-slate-400 font-bold border-b header-border">
-                  <th class="p-3 text-center w-24">Day</th>
-                  <th class="p-3 text-center">Period 1<br><span class="text-xs font-normal meta-lbl">09:00 - 10:00</span></th>
-                  <th class="p-3 text-center">Period 2<br><span class="text-xs font-normal meta-lbl">10:00 - 11:00</span></th>
-                  <th class="p-3 text-center">Period 3<br><span class="text-xs font-normal meta-lbl">11:10 - 12:10</span></th>
-                  <th class="p-3 text-center w-16">Lunch</th>
-                  <th class="p-3 text-center">Period 4<br><span class="text-xs font-normal meta-lbl">01:00 - 02:00</span></th>
-                  <th class="p-3 text-center">Period 5<br><span class="text-xs font-normal meta-lbl">02:00 - 03:00</span></th>
-                  <th class="p-3 text-center">Period 6<br><span class="text-xs font-normal meta-lbl">03:00 - 04:00</span></th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rowsHtml}
-              </tbody>
-            </table>
-            
-            <!-- Subject Legend / Abbreviations -->
-            <div class="mt-6 p-4 rounded-xl border legend-box">
-              <h3 class="text-sm font-bold legend-title mb-2 uppercase tracking-wider text-center">Subject Legend & Abbreviations</h3>
-              <div class="space-y-1">
-                ${legendHtml}
-              </div>
-            </div>
-            
-          </div>
-        </body>
-        </html>
-      `);
-      printWindow.document.close();
-    }
-
-    function updateTimetableStaffDropdown(subjectSelect) {
-      const subjectCode = subjectSelect.value;
-      const cell = subjectSelect.closest('td');
-      const staffSelect = cell.querySelector('.select-staff');
-      if (!staffSelect) return;
-
-      staffSelect.innerHTML = `<option value="">-- No Staff --</option>`;
-      if (!subjectCode) return;
-
-      const matchedSub = currentAllocatedSubjects.find(s => s.subject_code === subjectCode);
-      if (matchedSub && matchedSub.staff) {
-        matchedSub.staff.forEach(st => {
-          const opt = document.createElement('option');
-          opt.value = st.name;
-          opt.textContent = st.name;
-          staffSelect.appendChild(opt);
-        });
-      }
-    }
-
-    function toggleTimetableEdit(isEdit) {
-      const displayArea = document.getElementById('timetableDisplayArea');
-      const editArea = document.getElementById('timetableEditArea');
-      const btnEdit = document.getElementById('btnEditTimetable');
-      const btnCancel = document.getElementById('btnCancelTimetable');
-      const btnSave = document.getElementById('btnSaveTimetable');
-
-      if (isEdit) {
-        if (displayArea) displayArea.classList.add('hidden');
-        if (editArea) editArea.classList.remove('hidden');
-        if (btnEdit) btnEdit.classList.add('hidden');
-        if (btnCancel) btnCancel.classList.remove('hidden');
-        if (btnSave) btnSave.classList.remove('hidden');
-      } else {
-        if (displayArea) displayArea.classList.remove('hidden');
-        if (editArea) editArea.classList.add('hidden');
-        if (btnEdit) btnEdit.classList.remove('hidden');
-        if (btnCancel) btnCancel.classList.add('hidden');
-        if (btnSave) btnSave.classList.add('hidden');
-      }
-    }
-
-    function submitTimetable() {
-      if (!activeBatchId) return;
-
-      const payload = {};
-      const days = ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5'];
-      
-      days.forEach(day => {
-        payload[day] = {};
-      });
-
-      const editArea = document.getElementById('timetableEditBody');
-      if (!editArea) return;
-
-      const subjectSelects = editArea.querySelectorAll('.select-subject');
-      subjectSelects.forEach(sel => {
-        const day = sel.getAttribute('data-day');
-        const hour = sel.getAttribute('data-hour');
-        const subject = sel.value;
-        
-        const cell = sel.closest('td');
-        const staffSel = cell.querySelector('.select-staff');
-        const staff = staffSel ? staffSel.value : '';
-
-        if (day && hour) {
-          payload[day][hour] = { subject, staff };
-        }
-      });
-
-      fetch(`/api/hod/batches/${encodeURIComponent(activeBatchId)}/timetable`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(payload)
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          alert('Timetable saved successfully!');
-          loadTimetable();
-        } else {
-          alert('Error: ' + data.message);
-        }
-      })
-      .catch(err => {
-        alert('Network Error: ' + err.message);
-      });
-    }
-
-    function loadModalSubjects() {
-      if (!activeBatchId) return;
-      const sem = document.getElementById('modalSubjectSemester').value;
-      const tbody = document.getElementById('modalSubjectsTableBody');
-      tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-500">Loading subjects...</td></tr>`;
-
-      fetch(`/api/hod/batches/${encodeURIComponent(activeBatchId)}/subjects?semester=${sem}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'SUCCESS') {
-            allCollegeStaffCache = data.all_staff || [];
-            tbody.innerHTML = '';
-            if (data.subjects.length === 0) {
-              tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-500">No subjects allocated for this semester yet.</td></tr>`;
-              return;
-            }
-
-            data.subjects.forEach(subj => {
-              let staffList = subj.staff.map(s => `<span class="block text-sm text-slate-400"><span class="font-bold text-slate-300">${s.name}</span> (${s.branch})</span>`).join('');
-              if (subj.staff.length === 0) staffList = `<span class="text-red-400 text-sm font-bold">Unassigned</span>`;
-              
-              let courseFileBadge = subj.course_file_status === 'Submitted' 
-                ? '<span class="px-2 py-0.5 rounded text-sm font-bold bg-green-500/10 text-green-400 border border-green-500/20">Submitted</span>'
-                : '<span class="px-2 py-0.5 rounded text-sm font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>';
-
-              const currentStaffIds = subj.staff.map(s => s.mobile_no).join(',');
-
-              const tr = document.createElement('tr');
-              tr.className = 'border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium cursor-help';
-              tr.innerHTML = `
-                <td class="p-4 font-mono text-slate-300 font-bold">${subj.subject_code}</td>
-                <td class="p-4 font-mono text-slate-500 text-sm">${subj.syllabus_revision_code || '2021'}</td>
-                <td class="p-4 font-bold text-slate-200">${subj.subject_name}</td>
-                <td class="p-4 text-slate-400 text-sm">${subj.subject_type}</td>
-                <td class="p-4">${staffList}</td>
-                <td class="p-4">${courseFileBadge}</td>
-                <td class="p-4 text-right space-x-1.5">
-                  <button onclick="openAssignStaffModalFromModal(event, this, ${subj.id}, '${currentStaffIds}')" data-subject-name="${subj.subject_name.replace(/"/g, '&quot;')}" class="px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded-lg text-sm font-bold transition-premium border border-blue-500/20 cursor-pointer">Assign Staff</button>
-                  <button onclick="deleteSubject(${subj.id})" class="px-2.5 py-1.5 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded-lg text-sm font-bold transition-premium cursor-pointer" title="Delete Subject">
-                    Delete
-                  </button>
-                </td>
-              `;
-              
-              // Progress popup event listeners
-              tr.addEventListener('mouseenter', (e) => {
-                showSubjectProgressPopup(subj, e);
-              });
-              tr.addEventListener('mousemove', (e) => {
-                positionSubjectProgressPopup(e);
-              });
-              tr.addEventListener('mouseleave', () => {
-                hideSubjectProgressPopup();
-              });
-              tr.addEventListener('click', (e) => {
-                e.stopPropagation();
-                showSubjectProgressPopup(subj, e, true);
-              });
-              tbody.appendChild(tr);
-            });
-          } else {
-            tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-400">Failed to load subjects.</td></tr>`;
-          }
-        })
-        .catch(() => {
-          tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-red-400">Error fetching subjects.</td></tr>`;
-        });
-    }
-
-    function openSubjectModalFromDetail() {
-      const sem = document.getElementById('modalSubjectSemester').value;
-      
-      document.getElementById('subjectForm').reset();
-      document.getElementById('subjectAlert').classList.add('hidden');
-
-      document.getElementById('modalFormSubjectBatch').value = activeBatchId;
-      document.getElementById('displaySubjectBatch').innerText = activeBatchId;
-      document.getElementById('modalFormSubjectSemester').value = sem;
-      document.getElementById('displaySubjectSemester').innerText = 'Semester ' + sem;
-      
-      const modal = document.getElementById('subjectModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function submitAssignTutor() {
-      const spinner = document.getElementById('assignTutorSpinner');
-      const alertEl = document.getElementById('assignTutorAlert');
-      const mobile = document.getElementById('detailTutorSelect').value;
-
-      spinner.classList.remove('hidden');
-      alertEl.classList.add('hidden');
-
-      fetch('/api/hod/batches/assign-tutor', {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({ classroom_id: activeBatchId, tutor_mobile_no: mobile })
-      })
-      .then(r => r.json())
-      .then(data => {
-        spinner.classList.add('hidden');
-        if (data.status === 'SUCCESS') {
-          alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-green-950/40 text-green-400 border border-green-900 block';
-          alertEl.innerText = data.message;
-          alertEl.classList.remove('hidden');
-          document.getElementById('tutorCurrentDisplay').innerHTML = data.tutor_name 
-            ? `<span class="font-bold text-sky-300">${data.tutor_name}</span>`
-            : '<span class="italic text-slate-600">Not assigned</span>';
-          loadBatches();
-        } else {
-          alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
-          alertEl.innerText = data.message;
-          alertEl.classList.remove('hidden');
-        }
-      })
-      .catch(() => {
-        spinner.classList.add('hidden');
-        alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
-        alertEl.innerText = 'Request failed.';
-        alertEl.classList.remove('hidden');
-      });
-    }
-
-    function submitAssignMentor() {
-      const spinner = document.getElementById('assignMentorSpinner');
-      const alertEl = document.getElementById('assignMentorAlert');
-      const mobile = document.getElementById('detailMentorSelect').value;
-
-      spinner.classList.remove('hidden');
-      alertEl.classList.add('hidden');
-
-      fetch('/api/hod/batches/assign-mentor', {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({ classroom_id: activeBatchId, mentor_mobile_no: mobile })
-      })
-      .then(r => r.json())
-      .then(data => {
-        spinner.classList.add('hidden');
-        if (data.status === 'SUCCESS') {
-          alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-green-950/40 text-green-400 border border-green-900 block';
-          alertEl.innerText = data.message;
-          alertEl.classList.remove('hidden');
-          document.getElementById('mentorCurrentDisplay').innerHTML = data.mentor_name
-            ? `<span class="font-bold text-emerald-300">${data.mentor_name}</span>`
-            : '<span class="italic text-slate-600">Not assigned</span>';
-          loadBatches();
-        } else {
-          alertEl.className = 'p-2 rounded-lg text-sm font-bold bg-red-950/40 text-red-400 border border-red-900 block';
-          alertEl.innerText = data.message;
           alertEl.classList.remove('hidden');
         }
       })
