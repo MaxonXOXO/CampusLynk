@@ -475,8 +475,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/admin/user/reset-password', [DataController::class, 'resetUserPassword'])->middleware(['role:admin,super_admin,principal,hod,tutor']);
     Route::post('/api/admin/user/update-staff/{mobileNo}', [DataController::class, 'updateStaffProfileDirect'])->middleware(['role:admin,super_admin,principal']);
     Route::post('/api/admin/user/change-role', [DataController::class, 'changeUserRole'])->middleware(['role:super_admin,principal']);
-    Route::post('/api/admin/user/delete', [DataController::class, 'deleteUser'])->middleware(['role:admin,super_admin,principal']);
-    Route::get('/api/audit-logs', [DataController::class, 'getAuditLogs'])->middleware(['role:admin,super_admin,principal,hod']);
+    Route::get('/api/audit-logs', [DataController::class, 'getAuditLogs'])->middleware(['role:admin,super_admin,principal,hod,tutor,lecturer']);
 
     // Live Remote Support Desk (Beta) Endpoints
     Route::post('/api/support/request', [SupportDeskController::class, 'requestAssist']);
@@ -2400,8 +2399,8 @@ Route::middleware(['web'])->group(function () {
         $targetId = $request->query('targetId');
         $branch = $request->query('branch');
 
-        // Only enforce branch filtering automatically if caller is HOD, or if explicitly requested in query param
-        if ($role === 'HOD' && empty($branch)) {
+        // Only enforce branch filtering automatically if caller is HOD, Tutor, or Lecturer, or if explicitly requested in query param
+        if (in_array($role, ['HOD', 'Tutor', 'Lecturer']) && empty($branch)) {
             $branch = Session::get('userBranch');
         }
 
@@ -2437,7 +2436,7 @@ Route::middleware(['web'])->group(function () {
         }
         $logs = $query->orderBy('created_at', 'desc')->limit(100)->get();
         return response()->json(['status' => 'SUCCESS', 'logs' => $logs]);
-    })->middleware(['role:admin,super_admin,principal,hod']);
+    })->middleware(['role:admin,super_admin,principal,hod,tutor,lecturer']);
 
     Route::get('/api/admin/settings', [\App\Http\Controllers\SystemSettingController::class, 'getSettings'])->middleware(['role:admin,super_admin,principal']);
     Route::post('/api/admin/settings', [\App\Http\Controllers\SystemSettingController::class, 'saveSettings'])->middleware(['role:admin,super_admin,principal']);

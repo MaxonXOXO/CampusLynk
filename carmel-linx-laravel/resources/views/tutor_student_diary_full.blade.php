@@ -3,667 +3,432 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carmel Linx - Mentor View: Student Diary</title>
+  <title>CampusLynk - Mentor View: Student Diary</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- Modern Typography (Poppins) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+  <!-- Pre-Paint Synchronous Sidebar State Hydration (Anti-FOUC) -->
+  <script>
+    (function() {
+      try {
+        var isCollapsed = localStorage.getItem('campuslynk_sidebar_collapsed') === 'true' || 
+                          document.cookie.indexOf('campuslynk_sidebar_collapsed=true') !== -1;
+        if (isCollapsed && window.innerWidth >= 1024) {
+          document.documentElement.classList.add('sidebar-is-collapsed');
+        }
+      } catch(e) {}
+    })();
+  </script>
+
+  <!-- Vite Assets -->
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+
   <style>
-    @media (max-width: 1440px) {
-      html, body {
-        font-size: 13px !important;
-      }
-      .p-6 {
-        padding: 1rem !important;
-      }
-      .p-8 {
-        padding: 1.25rem !important;
-      }
-      .gap-6 {
-        gap: 1rem !important;
-      }
-      .gap-8 {
-        gap: 1.25rem !important;
-      }
-      .table-responsive {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      .text-nowrap {
-        white-space: nowrap !important;
-      }
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
-    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
-    .font-extrabold, .font-black {
-      font-weight: 700 !important;
-    }
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    input, select, textarea {
-      font-size: 0.875rem !important; /* 14px (text-sm) minimum */
-    }
-    nav.space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
-      margin-top: 0.25rem !important;
-    }
-    nav.space-y-1\.5 a, nav.space-y-1\.5 button {
-      padding-top: 0.5rem !important;
-      padding-bottom: 0.5rem !important;
-    }
-    .transition-premium { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-    .scrollbar-hidden::-webkit-scrollbar { display: none; }
-    .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .fade-up { animation: fadeUp 0.4s ease both; }
-    
-    /* Premium scrollbar styles */
-    ::-webkit-scrollbar {
+    .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.3);
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
     }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(147, 51, 234, 0.4);
-      border-radius: 9999px;
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(147, 51, 234, 0.6);
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 h-screen flex flex-col md:flex-row overflow-hidden">
-    <script> window.TARGET_REG_NO = "{{ $studentRegNo }}"; </script>
-@php
-  $isLet = session('userAdmissionType') === 'LET';
-  $activityGoal = $isLet ? 40 : 60;
-  $userRole = session('userRole', 'Lecturer');
-  $dashboardUrl = match($userRole) {
-      'Super_Admin' => '/dashboard/superadmin',
-      'Principal'   => '/dashboard/principal',
-      'HOD'         => '/dashboard/hod',
-      'Admin'       => '/dashboard/admin',
-      default       => '/dashboard/tutor',
-  };
-@endphp
-  <!-- Mentor/Staff Sidebar -->
-  <aside class="w-full md:w-64 bg-slate-950 flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl overflow-y-auto">
-    <!-- Branding -->
-    <div class="p-5 border-b border-slate-800/60 flex items-center gap-3">
-      <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-black rounded-xl w-10 h-10 flex items-center justify-center shadow-lg shadow-indigo-500/20 text-lg">CL</div>
-      <div>
-        <h2 class="font-black tracking-tight leading-tight text-white" style="font-size: 1.15rem; font-weight: 900; letter-spacing: -0.3px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Carmel Linx</h2>
-        <span class="text-indigo-400 font-bold uppercase tracking-wider text-[10px]">Mentor Panel</span>
-      </div>
-    </div>
+<body class="bg-[#FAFAFB] text-slate-900 min-h-screen font-sans antialiased sidebar-preload">
+  <script> window.TARGET_REG_NO = "{{ $studentRegNo }}"; </script>
 
-    <!-- Mentor Profile Card -->
-    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40">
-      <div class="flex items-center gap-3">
-        @if(session('userPhoto'))
-          <img src="{{ session('userPhoto') }}" class="w-11 h-11 rounded-full border border-indigo-700 object-cover shadow-inner">
-        @else
-          <div class="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center font-black shadow text-sm">
-            {{ strtoupper(substr(session('userName','M'), 0, 2)) }}
-          </div>
-        @endif
-        <div class="overflow-hidden">
-          <span class="font-bold text-xs block truncate text-slate-200">{{ session('userName') }}</span>
-          <span class="text-xs font-bold text-indigo-400 block font-mono">{{ session('userId') }}</span>
-          <span class="text-xs text-slate-500 font-semibold">{{ session('userRole') }}</span>
-        </div>
-      </div>
-    </div>
+  @php
+    $isLet = session('userAdmissionType') === 'LET';
+    $activityGoal = $isLet ? 40 : 60;
+    $userRole = session('userRole', 'Tutor');
+    $dashboardUrl = match($userRole) {
+        'Super_Admin', 'SuperAdmin' => '/dashboard/superadmin',
+        'Principal'   => '/dashboard/principal',
+        'HOD'         => '/dashboard/hod',
+        'Admin'       => '/dashboard/admin',
+        default       => '/dashboard/tutor',
+    };
+  @endphp
 
-    <!-- Student Info Card -->
-    <div class="p-4 bg-indigo-950/30 border-b border-indigo-900/40 flex items-center gap-3">
-      <div id="sidebarStudentPhotoContainer" class="flex-shrink-0">
-        <div class="w-12 h-12 rounded-full bg-indigo-800 flex items-center justify-center font-black text-lg text-white" id="sidebarStudentPhotoPlaceholder">
-          {{ strtoupper(substr($studentRegNo, 0, 2)) }}
-        </div>
-        <img id="sidebarStudentPhoto" class="w-12 h-12 rounded-full border border-indigo-700 object-cover shadow-inner hidden">
-      </div>
-      <div class="overflow-hidden">
-        <p class="text-[9px] font-black uppercase tracking-widest text-indigo-400 mb-0.5">Viewing Diary For</p>
-        <p class="font-black text-white text-sm truncate" id="sidebarStudentName">Loading...</p>
-        <p class="text-xs font-bold text-indigo-300 font-mono">{{ $studentRegNo }}</p>
-      </div>
-    </div>
+  <!-- Master Application Shell -->
+  <div class="flex min-h-screen bg-[#FAFAFB]">
 
-    <!-- Nav back to lecturer dashboard -->
-    <nav class="flex-grow p-4 space-y-1.5">
-      <a href="{{ $dashboardUrl }}" onclick="if(window.opener){ window.close(); return false; }" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-sm">
-        <span class="material-symbols-rounded text-lg">arrow_back</span> Back to Dashboard
-      </a>
-      <div class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-indigo-500/10 text-indigo-400 border-l-2 border-indigo-500">
-        <span class="material-symbols-rounded text-lg">menu_book</span> Student Diary
-      </div>
-    </nav>
+    <!-- Global Sidebar Navigation Component -->
+    <x-layout.sidebar role="tutor" active="tutor_console" />
 
-    <!-- Logout -->
-    <div class="p-4 border-t border-slate-800/80">
-      <a href="{{ url('/logout') }}" class="w-full py-3 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
-        <span class="material-symbols-rounded text-base">logout</span> Sign Out
-      </a>
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="flex-grow flex flex-col overflow-hidden">
-
-    <!-- Top Header -->
-    <header class="bg-slate-950/40 border-b border-slate-800/80 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 z-10 shadow-lg">
-        <div>
-          <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Student Mentoring Diary</h1>
-          <p class="font-bold text-slate-400 mt-0.5" id="panelSubtitle">Viewing full mentoring record for <span id="headerStudentName" class="text-indigo-300">{{ $studentRegNo }}</span></p>
-        </div>
-        <div class="flex items-center gap-3 flex-wrap w-full sm:w-auto justify-between sm:justify-end">
-          <div class="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-2 font-black uppercase tracking-wider text-slate-400 flex gap-4 text-xs">
-            <span>Branch: <strong class="text-slate-200" id="topHeaderBranch">{{ session('userBranch', '-') }}</strong></span>
-            <span>Batch: <strong class="text-slate-200" id="topHeaderBatch">{{ session('classroomId', '-') }}</strong></span>
-            <span id="headerSemesterText" class="hidden">Sem: <strong class="text-slate-200" id="headerSemValue">-</strong></span>
-          </div>
-          <!-- Mobile Only Save Button near Branch & Batch title -->
-          <button onclick="saveStudentMentoringData()" class="md:hidden px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg text-xs flex-shrink-0">
-            <span class="material-symbols-rounded text-base">save</span>
-            <span>Save</span>
-          </button>
-        </div>
-      </header>
-
-    
-<!-- Mentoring Diary Panel -->
-<div class="flex-grow overflow-y-auto p-6 md:p-8">
-<div id="panelMentoring" class="fade-up space-y-6">
-  
-  <div class="flex items-center justify-between bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl">
-    <div>
-      <h3 class="font-black text-slate-200 flex items-center gap-2 text-lg">
-        <span class="material-symbols-rounded text-indigo-400">menu_book</span> <span id="diaryStudentNameHeader">Student</span>'s Mentoring Diary
-      </h3>
-      <p class="text-slate-400 mt-1 text-[10px] text-xs">Full mentoring record. You can add Meeting Logs, Incidents, and approve Leave from the sidebar or tabs below.</p>
-    </div>
-    <div class="flex gap-2">
-      <button onclick="downloadMentoringPdf()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-[10px] text-xs">
-        <span class="material-symbols-rounded text-sm">download</span> Download PDF
-      </button>
-      <button onclick="saveStudentMentoringData()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-[10px] text-xs">
-        <span class="material-symbols-rounded text-sm">save</span> Save Changes
-      </button>
-    </div>
-  </div>
-
-  <!-- Student Quick Info Header Card -->
-  <div class="bg-gradient-to-r from-slate-950/60 to-indigo-950/20 border border-slate-800/80 p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-5 shadow-xl fade-up">
-    <div class="flex-shrink-0">
-      <div id="diaryStudentPhotoContainer">
-        <!-- Dynamic photo populated via JS -->
-        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center font-black text-2xl text-white shadow-lg border border-indigo-500/30" id="diaryStudentPhotoPlaceholder">
-          {{ strtoupper(substr($studentRegNo, 0, 2)) }}
-        </div>
-        <img id="diaryStudentPhoto" class="w-20 h-20 rounded-2xl border-2 border-indigo-500/40 object-cover shadow-2xl hidden">
-      </div>
-    </div>
-    <div class="text-center sm:text-left flex-grow space-y-1">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-center sm:justify-start gap-2">
-        <h2 class="font-black text-white text-xl tracking-tight" id="diaryHeaderStudentName">
-          Loading...
-        </h2>
-        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 self-center">
-          Active Student
-        </span>
-      </div>
-      <div class="flex flex-wrap justify-center sm:justify-start items-center gap-x-4 gap-y-1 text-sm text-slate-400 font-semibold">
-        <span class="flex items-center gap-1.5"><span class="material-symbols-rounded text-base text-indigo-400">badge</span> Reg No: <strong class="text-slate-200 font-mono">{{ $studentRegNo }}</strong></span>
-        <span class="hidden sm:inline text-slate-600">&bull;</span>
-        <span class="flex items-center gap-1.5"><span class="material-symbols-rounded text-base text-indigo-400">school</span> Branch: <strong class="text-slate-200" id="diaryHeaderStudentBranch">-</strong></span>
-        <span class="hidden sm:inline text-slate-600">&bull;</span>
-        <span class="flex items-center gap-1.5"><span class="material-symbols-rounded text-base text-indigo-400">meeting_room</span> Batch: <strong class="text-slate-200" id="diaryHeaderStudentBatch">-</strong></span>
-      </div>
-    </div>
-    <!-- Mobile Save Button placed on Quick Info Card near Branch & Batch -->
-    <div class="md:hidden w-full flex justify-center pt-2">
-      <button onclick="saveStudentMentoringData()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center justify-center gap-2 shadow-lg text-sm">
-        <span class="material-symbols-rounded text-base">save</span> Save Changes
-      </button>
-    </div>
-  </div>
-
-  <div class="flex flex-col lg:flex-row gap-6">
-    <!-- Left Navigation Tabs -->
-    <div class="w-full lg:w-48 flex-shrink-0">
-      <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl overflow-hidden sticky top-24">
-        <button onclick="switchStudentMentoringTab('smdProfile')" id="tabBtn_smdProfile" class="w-full text-left px-4 py-3 font-bold border-b border-slate-800/60 transition-premium smd-tab bg-slate-800/80 text-blue-400 text-sm">
-          Personal Info
-        </button>
-        <button onclick="switchStudentMentoringTab('smdFamily')" id="tabBtn_smdFamily" class="w-full text-left px-4 py-3 font-bold border-b border-slate-800/60 transition-premium smd-tab text-slate-400 hover:bg-slate-900/50 text-sm">
-          Family Details
-        </button>
-        <button onclick="switchStudentMentoringTab('smdEducation')" id="tabBtn_smdEducation" class="w-full text-left px-4 py-3 font-bold border-b border-slate-800/60 transition-premium smd-tab text-slate-400 hover:bg-slate-900/50 text-sm">
-          Prior Education
-        </button>
-        <button onclick="switchStudentMentoringTab('smdAcademic')" id="tabBtn_smdAcademic" class="w-full text-left px-4 py-3 font-bold border-b border-slate-800/60 transition-premium smd-tab text-slate-400 hover:bg-slate-900/50 text-sm">
-          Academic Progress
-        </button>
-        <button onclick="switchStudentMentoringTab('smdBoard')" id="tabBtn_smdBoard" class="w-full text-left px-4 py-3 font-bold border-b border-slate-800/60 transition-premium smd-tab text-slate-400 hover:bg-slate-900/50 text-sm">
-          Board Exams
-        </button>        <button onclick="switchStudentMentoringTab('smdExtra')" id="tabBtn_smdExtra" class="w-full text-left px-4 py-3 font-bold border-b border-slate-800/60 transition-premium smd-tab text-slate-400 hover:bg-slate-900/50 text-sm">
-          Extracurricular
-        </button>
-        <button onclick="switchStudentMentoringTab('smdLeave')" id="tabBtn_smdLeave" class="w-full text-left px-4 py-3 font-bold border-b border-slate-800/60 transition-premium smd-tab text-slate-400 hover:bg-slate-900/50 text-sm">
-          Leave Records
-        </button>
-        <button onclick="switchStudentMentoringTab('smdDiscipline')" id="tabBtn_smdDiscipline" class="w-full text-left px-4 py-3 font-bold border-b border-slate-800/60 transition-premium smd-tab text-slate-400 hover:bg-slate-900/50 text-sm">
-          Disciplinary Actions
-        </button>
-        <button onclick="switchStudentMentoringTab('smdMeetings')" id="tabBtn_smdMeetings" class="w-full text-left px-4 py-3 font-bold transition-premium smd-tab text-slate-400 hover:bg-slate-900/50 text-sm">
-          Mentor Meetings
-        </button>
-      </div>
-    </div>
-
-    <!-- Tab Content -->
-    <div class="flex-grow bg-slate-950/30 border border-slate-800/40 rounded-2xl p-6 min-h-[400px]">
+    <!-- Main Viewport Container -->
+    <div class="flex-1 flex flex-col min-w-0 bg-[#FAFAFB]">
       
-      <!-- Personal Info Tab -->
-      <div id="smdProfile" class="smd-content-pane space-y-4">
-        <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Additional Personal Info</h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Annual Income</label>
-            <input type="text" id="smd_annual_income" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. ?2,00,000">
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Residential Status</label>
-            <select id="smd_residential_status" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
-              <option value="Day Scholar">Day Scholar</option>
-              <option value="Hosteller">Hosteller</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Scholarships (if any)</label>
-            <input type="text" id="smd_scholarships" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. E-Grantz">
-          </div>
-          <div class="flex items-center gap-2 mt-6">
-            <input type="checkbox" id="smd_fee_waiver" class="rounded bg-slate-900 border-slate-700 text-blue-500 focus:ring-blue-500 focus:ring-2">
-            <label class="text-slate-300 font-bold text-[10px] text-xs">Fee Waiver Student</label>
-          </div>
-        </div>
+      <!-- Global Topbar Header Component -->
+      <x-layout.topbar title="Student Mentoring Diary" subtitle="Full academic, attendance, and mentoring lifecycle record." />
 
-        <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 mt-8 text-sm">Guardian Details</h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Guardian Name</label>
-            <input type="text" id="smd_guardian_name" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Relationship</label>
-            <input type="text" id="smd_guardian_relationship" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Mobile No</label>
-            <input type="text" id="smd_guardian_mobile" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Permanent Address</label>
-            <textarea id="smd_guardian_address" rows="3" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 resize-none text-[11px]"></textarea>
-          </div>
-        </div>
-      
-        <!-- Extended Profile Info -->
-        <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 mt-8 text-sm">Extended Profile Details</h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Gender</label>
-            <select id="mdGender" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
-              <option value="">Select</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Religion</label>
-            <input type="text" id="mdReligion" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. Hindu">
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Caste</label>
-            <input type="text" id="mdCaste" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. General">
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Special Category / Reservation</label>
-            <input type="text" id="mdReservation" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. EWS">
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Quota</label>
-            <select id="mdQuota" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
-              <option value="">None</option>
-              <option value="NCC">NCC</option>
-              <option value="ITI">ITI</option>
-              <option value="VHSE">VHSE</option>
-              <option value="THSLC">THSLC</option>
-              <option value="Armed Force">Armed Force</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Physically Disabled?</label>
-            <select id="mdIsDisabled" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
-              <option value="0">No</option>
-              <option value="1">Yes</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Disability Category</label>
-            <input type="text" id="mdDisabilityCat" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="If yes, specify">
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Guardian Occupation</label>
-            <input type="text" id="mdGuardianOcc" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Monthly Family Income</label>
-            <input type="text" id="mdFamilyIncome" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="e.g. 50000">
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Vehicle Pass Holder?</label>
-            <select id="mdVehiclePass" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]">
-              <option value="0">No</option>
-              <option value="1">Yes</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-[10px]">Vehicle Pass ID</label>
-            <input type="text" id="mdVehiclePassId" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 text-[11px]" placeholder="If yes, specify">
-          </div>
-          <div class="col-span-1 md:col-span-2 lg:col-span-2">
-            <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1 text-sm">Communication Address</label>
-            <textarea id="mdCommAddress" rows="3" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-2 text-slate-200 outline-none focus:border-blue-500 resize-none text-sm min-h-[80px]"></textarea>
-          </div>
-        </div>
-      </div>
+      <!-- Scrollable Main Workspace -->
+      <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
-      <!-- Family Details Tab -->
-      <div id="smdFamily" class="smd-content-pane hidden space-y-4">
-        <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Family Members</h4>
-        <div class="overflow-x-auto rounded-xl border border-slate-800/60">
-          <table class="w-full text-left border-collapse text-[10px] text-xs">
-            <thead>
-              <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800/60">
-                <th class="p-3">Name</th>
-                <th class="p-3">Relationship</th>
-                <th class="p-3">Education</th>
-                <th class="p-3">Occupation</th>
-                <th class="p-3">Contact</th>
-                <th class="p-3"></th>
-              </tr>
-            </thead>
-            <tbody id="smdFamilyList">
-              <!-- JS rendered -->
-            </tbody>
-          </table>
-        </div>
-        <button onclick="addFamilyRow()" class="mt-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded font-bold cursor-pointer">+ Add Family Member</button>
-      </div>
+        <!-- Top Status Alert Banner -->
+        <div id="globalAlert" class="hidden p-4 rounded-xl font-semibold border text-sm transition-all"></div>
 
-      <!-- Prior Education Tab -->
-      <div id="smdEducation" class="smd-content-pane hidden space-y-4">
-        <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Educational Background</h4>
-        <div class="overflow-x-auto rounded-xl border border-slate-800/60">
-          <table class="w-full text-left border-collapse text-[10px] text-xs">
-            <thead>
-              <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800/60">
-                <th class="p-3">Course/Standard</th>
-                <th class="p-3">Institution</th>
-                <th class="p-3">Year</th>
-                <th class="p-3">Total % / Grade</th>
-                <th class="p-3"></th>
-              </tr>
-            </thead>
-            <tbody id="smdEducationList">
-              <!-- JS rendered -->
-            </tbody>
-          </table>
-        </div>
-        <button onclick="addEducationRow()" class="mt-2 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded font-bold cursor-pointer">+ Add Education Record</button>
-      </div>
-
-      <!-- Academic Progress Tab -->
-      <div id="smdAcademic" class="smd-content-pane hidden space-y-4">
-        <h4 class="font-bold text-white border-b border-slate-800/60 pb-2 mb-4 text-sm">Internal Progress Report</h4>
-        <p class="text-slate-400 mb-4 text-[10px] text-xs">These marks are generated automatically from your classroom assessments.</p>
-        <div id="smdAcademicReport" class="space-y-6">
-          <!-- JS rendered academic tables (CO tests, assignments) -->
-        </div>
-      </div>
-
-      <!-- Board Exams Tab -->
-      <div id="smdBoard" class="smd-content-pane hidden space-y-4">
-        <div class="flex justify-between items-center border-b border-slate-800/60 pb-2 mb-4">
-          <h4 class="text-[10px] font-bold text-white">Board Exam Results</h4>
-          <div class="flex items-center gap-2">
-            <label class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Select Semester:</label>
-            <select id="smdBoardSemSelect" class="bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-[10px] text-white font-bold outline-none focus:border-blue-500" onchange="renderStudentBoardExams()">
-              <option value="">-- Choose --</option>
-              <option value="1">Semester 1</option>
-              <option value="2">Semester 2</option>
-              <option value="3">Semester 3</option>
-              <option value="4">Semester 4</option>
-              <option value="5">Semester 5</option>
-              <option value="6">Semester 6</option>
-            </select>
-          </div>
-        </div>
-        <div class="overflow-x-auto rounded-xl border border-slate-800/60">
-          <table class="w-full text-left text-xs border-collapse min-w-[700px]">
-            <thead>
-              <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800/60 uppercase tracking-wider text-xs font-bold">
-                <th class="p-3 w-28">Sub Code</th>
-                <th class="p-3">Subject Name</th>
-                <th class="p-3 w-36">Exam Month/Yr</th>
-                <th class="p-3 w-20">Grade</th>
-                <th class="p-3 w-24">Passed</th>
-                <th class="p-3 w-24">Chances</th>
-              </tr>
-            </thead>
-            <tbody id="smdSubjectBoardList">
-              <tr><td colspan="6" class="p-6 text-center text-slate-500">Select a semester to view subjects.</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="flex justify-end mt-4">
-          <button onclick="saveStudentMentoringData()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg text-sm">
-            <span class="material-symbols-rounded text-sm">save</span> Save Board Exam Results
-          </button>
-        </div>
-      </div>
-
-      <!-- Extracurricular Tab -->
-      <div id="smdExtra" class="smd-content-pane hidden space-y-4">
-        <div class="flex justify-between items-end border-b border-slate-800 pb-3">
-            <h4 class="text-xs font-bold text-white">Extracurricular Achievements</h4>
-            <button onclick="openStudentActivityModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1"><span class="material-symbols-rounded text-xs">add</span> Add Activity</button>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div class="md:col-span-2 space-y-3">
-              <h3 class="text-xs font-black text-slate-200">Activity Points Tracker</h3>
-              <div class="relative w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800/60 shadow-inner">
-                <div id="studentActivityProgressBar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-amber-500 to-orange-400 transition-all duration-1000 ease-out" style="width: 0%"></div>
+        <!-- Student Profile & Action Header Card -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div class="flex items-center gap-4">
+              <div id="sidebarStudentPhotoContainer" class="shrink-0">
+                <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-700 font-bold text-lg flex items-center justify-center border border-blue-200 shadow-xs" id="sidebarStudentPhotoPlaceholder">
+                  {{ strtoupper(substr($studentRegNo, 0, 2)) }}
+                </div>
+                <img id="sidebarStudentPhoto" class="w-14 h-14 rounded-2xl border border-slate-200 object-cover shadow-xs hidden">
               </div>
-              <div class="flex justify-between text-xs font-bold text-slate-500">
-                <span>0</span>
-                <span>Goal: 100</span>
+              <div>
+                <div class="flex items-center gap-2.5 flex-wrap">
+                  <h2 class="text-lg font-bold text-slate-900" id="sidebarStudentName">Loading Student Record...</h2>
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Active Student</span>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-slate-500 font-medium mt-1 flex-wrap">
+                  <span>Reg No: <strong class="text-blue-600 font-mono font-semibold">{{ $studentRegNo }}</strong></span>
+                  <span>•</span>
+                  <span>Branch: <strong id="headerStudentBranch" class="text-slate-800">Loading...</strong></span>
+                  <span>•</span>
+                  <span>Batch: <strong id="headerStudentBatch" class="text-slate-800">Loading...</strong></span>
+                </div>
               </div>
             </div>
-            
-            <div class="bg-slate-950/40 rounded-xl p-3 border border-slate-800/60 flex flex-col justify-between">
-              <div class="text-right">
-                <span class="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">Verified Total</span>
-                <span class="text-base font-black text-amber-400" id="studentTotalActivityPoints">0</span>
-              </div>
-              <div class="mt-2 border-t border-slate-800/40 pt-2" id="studentActivitySplitList">
-                <div class="text-xs text-slate-500 py-1">Loading...</div>
-              </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <a href="{{ $dashboardUrl }}" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-semibold text-xs transition-all flex items-center gap-1.5 shadow-2xs no-underline">
+                <x-ui.icon name="arrow_back" class="w-4 h-4" />
+                <span>Back to Dashboard</span>
+              </a>
+              <button type="button" onclick="downloadMentoringPdf()" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-semibold text-xs transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                <x-ui.icon name="print" class="w-4 h-4 text-slate-500" />
+                <span>Download PDF</span>
+              </button>
+              <button type="button" onclick="saveStudentMentoringData()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-xs transition-all cursor-pointer flex items-center gap-1.5 shadow-xs">
+                <x-ui.icon name="save" class="w-4 h-4" />
+                <span>Save Changes</span>
+              </button>
             </div>
+          </div>
         </div>
 
-        <div class="overflow-x-auto rounded-xl border border-slate-800/60">
-          <table class="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr class="bg-slate-900/40 text-slate-400 border-b border-slate-800/60">
-                <th class="p-3">Sem</th>
-                <th class="p-3 w-1/3">Activity Name</th>
-                <th class="p-3">Level / Segment</th>
-                <th class="p-3">Pts Claimed</th>
-                <th class="p-3">Status</th>
-                <th class="p-3 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody id="smdExtraList">
-              <!-- JS rendered -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      
-      <!-- Leave Records Tab (Tutor/Mentor: Approval View) -->
-      <div id="smdLeave" class="smd-content-pane hidden space-y-4">
-        <div class="flex justify-between items-center border-b border-slate-800/60 pb-2 mb-4">
-            <div>
-              <h4 class="font-bold text-white text-sm">Leave Records</h4>
-              <p class="text-xs text-slate-500 mt-0.5">Students apply for leave from their own portal. Approve or reject requests here.</p>
-            </div>
-        </div>
-        <div class="overflow-x-auto bg-slate-900/50 border border-slate-700 rounded-xl">
-          <table class="w-full text-left text-[11px]">
-            <thead class="bg-slate-800/80 text-slate-400 font-black uppercase">
-              <tr>
-                <th class="p-3">Semester</th>
-                <th class="p-3">Date / Duration</th>
-                <th class="p-3">Days</th>
-                <th class="p-3">Reason</th>
-                <th class="p-3">Status</th>
-                <th class="p-3 text-right">Approve / Reject</th>
-              </tr>
-            </thead>
-            <tbody id="smdLeavesTable" class="text-slate-300">
-              <tr><td colspan="6" class="p-6 text-center text-slate-500">No leave records found for this student.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Disciplinary Actions Tab (Tutor/Mentor only) -->
-      <div id="smdDiscipline" class="smd-content-pane hidden space-y-4">
-        <div class="flex justify-between items-center border-b border-slate-800/60 pb-2 mb-4">
-            <div>
-              <h4 class="font-bold text-red-400 text-sm">Disciplinary Actions</h4>
-              <p class="text-xs text-slate-500 mt-0.5">Only Tutors and Mentors can record disciplinary incidents.</p>
-            </div>
-            <button onclick="openDiscModal()" class="px-3 py-1.5 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white border border-red-500/30 rounded-lg font-bold transition-premium cursor-pointer flex items-center gap-1 text-[10px] text-xs">
-              <span class="material-symbols-rounded text-sm">gavel</span> Record Incident
+        <!-- 2-Column Mentoring Workspace Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          
+          <!-- Left Navigation Tab Strip (lg:col-span-1) -->
+          <div class="lg:col-span-1 bg-white border border-slate-200/80 rounded-2xl p-3 shadow-xs space-y-1 self-start">
+            <button type="button" onclick="switchStudentMentoringTab('smdProfile')" id="tabBtn_smdProfile" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs flex items-center gap-2.5">
+              <x-ui.icon name="user" class="w-4 h-4" />
+              <span>Personal Info</span>
             </button>
-        </div>
-        <div class="overflow-x-auto bg-slate-900/50 border border-slate-700 rounded-xl">
-          <table class="w-full text-left text-[11px]">
-            <thead class="bg-slate-800/80 text-slate-400 font-black uppercase">
-              <tr>
-                <th class="p-3">Date</th>
-                <th class="p-3">Description</th>
-                <th class="p-3">Action Taken</th>
-                <th class="p-3 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="smdDisciplineTable" class="text-slate-300">
-              <tr><td colspan="4" class="p-6 text-center text-slate-500">Clean disciplinary record.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Mentor Meetings Tab (Tutor/Mentor: Add Session Logs) -->
-      <div id="smdMeetings" class="smd-content-pane hidden space-y-4">
-        <div class="flex justify-between items-center border-b border-slate-800/60 pb-3 mb-4">
-          <div>
-            <h4 class="font-bold text-emerald-400 text-sm">Mentor Meeting Logs</h4>
-            <p class="text-xs text-slate-500 mt-0.5">Record mentoring session notes, discussion points, and action items.</p>
+            <button type="button" onclick="switchStudentMentoringTab('smdFamily')" id="tabBtn_smdFamily" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5">
+              <x-ui.icon name="users" class="w-4 h-4" />
+              <span>Family Details</span>
+            </button>
+            <button type="button" onclick="switchStudentMentoringTab('smdEducation')" id="tabBtn_smdEducation" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5">
+              <x-ui.icon name="book_open" class="w-4 h-4" />
+              <span>Prior Education</span>
+            </button>
+            <button type="button" onclick="switchStudentMentoringTab('smdAcademic')" id="tabBtn_smdAcademic" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5">
+              <x-ui.icon name="school" class="w-4 h-4" />
+              <span>Academic Progress</span>
+            </button>
+            <button type="button" onclick="switchStudentMentoringTab('smdBoard')" id="tabBtn_smdBoard" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5">
+              <x-ui.icon name="award" class="w-4 h-4" />
+              <span>Board Exams</span>
+            </button>
+            <button type="button" onclick="switchStudentMentoringTab('smdExtra')" id="tabBtn_smdExtra" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5">
+              <x-ui.icon name="sparkles" class="w-4 h-4" />
+              <span>Extracurricular</span>
+            </button>
+            <button type="button" onclick="switchStudentMentoringTab('smdLeave')" id="tabBtn_smdLeave" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5">
+              <x-ui.icon name="calendar" class="w-4 h-4" />
+              <span>Leave Records</span>
+            </button>
+            <button type="button" onclick="switchStudentMentoringTab('smdDiscipline')" id="tabBtn_smdDiscipline" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5">
+              <x-ui.icon name="gavel" class="w-4 h-4" />
+              <span>Disciplinary Actions</span>
+            </button>
+            <button type="button" onclick="switchStudentMentoringTab('smdMeetings')" id="tabBtn_smdMeetings" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5">
+              <x-ui.icon name="message" class="w-4 h-4" />
+              <span>Mentor Meetings</span>
+            </button>
           </div>
-          <button onclick="openSessionModal()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold transition-premium cursor-pointer flex items-center gap-1 text-[10px] text-xs">
-            <span class="material-symbols-rounded text-sm">add</span> Record Session
-          </button>
-        </div>
-        <div id="smdMeetingsList" class="space-y-4">
-          <!-- JS rendered meetings -->
-          <div class="text-center py-8 text-slate-500 text-sm">No meeting logs yet. Click "Record Session" to add the first one.</div>
-        </div>
-      </div>
 
+          <!-- Right Content Viewport (lg:col-span-3) -->
+          <div class="lg:col-span-3 space-y-6">
+
+            <!-- TAB 1: Personal Info -->
+            <div id="tab_smdProfile" class="smd-content-pane bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-6">
+              <div class="border-b border-slate-100 pb-3">
+                <h4 class="font-bold text-slate-900 text-sm">Personal &amp; Guardian Details</h4>
+                <p class="text-xs text-slate-500 mt-0.5">Contact details, annual family income, and residential status.</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-slate-600 font-semibold mb-1 text-xs">Annual Income</label>
+                  <input type="text" id="smdAnnualIncome" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400" placeholder="e.g. ₹2,00,000">
+                </div>
+                <div>
+                  <label class="block text-slate-600 font-semibold mb-1 text-xs">Residential Status</label>
+                  <select id="smdResidentialStatus" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all cursor-pointer">
+                    <option value="Day Scholar">Day Scholar</option>
+                    <option value="Hostel">Hostel</option>
+                    <option value="Paying Guest">Paying Guest</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-slate-600 font-semibold mb-1 text-xs">Scholarships / Concessions</label>
+                  <input type="text" id="smdScholarships" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400" placeholder="e.g. E-Grantz">
+                </div>
+                <div class="flex items-center gap-2 pt-6">
+                  <input type="checkbox" id="smdFeeWaiver" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                  <label for="smdFeeWaiver" class="text-xs font-semibold text-slate-700 cursor-pointer">Tuition Fee Waiver Student</label>
+                </div>
+              </div>
+
+              <div class="border-t border-slate-100 pt-5 space-y-4">
+                <h5 class="font-bold text-xs text-slate-900 uppercase tracking-wider">Guardian Information</h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1 text-xs">Guardian Name</label>
+                    <input type="text" id="smdGuardianName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400">
+                  </div>
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1 text-xs">Relationship</label>
+                    <input type="text" id="smdGuardianRelation" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400">
+                  </div>
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1 text-xs">Mobile Number</label>
+                    <input type="text" id="smdGuardianMobile" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400">
+                  </div>
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1 text-xs">Permanent Address</label>
+                    <textarea id="smdPermanentAddress" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400"></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: Family Details -->
+            <div id="tab_smdFamily" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+              <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm">Family Members</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">Parents, siblings, and dependents.</p>
+                </div>
+                <button type="button" onclick="addFamilyRow()" class="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                  <x-ui.icon name="plus" class="w-4 h-4 text-blue-600" />
+                  <span>Add Member</span>
+                </button>
+              </div>
+              <div class="overflow-x-auto border border-slate-200/80 rounded-xl">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                      <th class="p-3 pl-4">Name</th>
+                      <th class="p-3">Relationship</th>
+                      <th class="p-3">Age</th>
+                      <th class="p-3">Occupation</th>
+                      <th class="p-3 pr-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="familyTableBody" class="divide-y divide-slate-100 text-slate-800">
+                    <tr><td colspan="5" class="p-4 text-center text-slate-500">Loading family records...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 3: Prior Education -->
+            <div id="tab_smdEducation" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+              <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm">Prior Education History</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">SSLC, Plus Two, VHSE, or previous qualifications.</p>
+                </div>
+                <button type="button" onclick="addEducationRow()" class="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                  <x-ui.icon name="plus" class="w-4 h-4 text-blue-600" />
+                  <span>Add Record</span>
+                </button>
+              </div>
+              <div class="overflow-x-auto border border-slate-200/80 rounded-xl">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                      <th class="p-3 pl-4">Course</th>
+                      <th class="p-3">Institution</th>
+                      <th class="p-3">Year</th>
+                      <th class="p-3">Percentage / CGPA</th>
+                      <th class="p-3 pr-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="educationTableBody" class="divide-y divide-slate-100 text-slate-800">
+                    <tr><td colspan="5" class="p-4 text-center text-slate-500">Loading education records...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 4: Academic Progress -->
+            <div id="tab_smdAcademic" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+              <div class="border-b border-slate-100 pb-3">
+                <h4 class="font-bold text-slate-900 text-sm">Academic Progression</h4>
+                <p class="text-xs text-slate-500 mt-0.5">Internal exam marks, attendance percentages, and credit progression across semesters.</p>
+              </div>
+              <div id="academicProgressContainer" class="space-y-4">
+                <p class="p-6 text-center text-slate-500 text-xs font-medium">Loading progression logs...</p>
+              </div>
+            </div>
+
+            <!-- TAB 5: Board Exams -->
+            <div id="tab_smdBoard" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+              <div class="border-b border-slate-100 pb-3">
+                <h4 class="font-bold text-slate-900 text-sm">SBTE Board Examination Results</h4>
+                <p class="text-xs text-slate-500 mt-0.5">Official board marks, semester GPA, and backlog tracking.</p>
+              </div>
+              <div id="boardExamResultsContainer" class="space-y-4">
+                <p class="p-6 text-center text-slate-500 text-xs font-medium">Loading board examination records...</p>
+              </div>
+            </div>
+
+            <!-- TAB 6: Extracurricular -->
+            <div id="tab_smdExtra" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+              <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm">Extracurricular Activity Claims</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">Points achieved towards diploma requirement (Goal: {{ $activityGoal }} pts).</p>
+                </div>
+                <button type="button" onclick="openStudentActivityModal()" class="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                  <x-ui.icon name="plus" class="w-4 h-4 text-blue-600" />
+                  <span>Log Activity</span>
+                </button>
+              </div>
+              <div class="overflow-x-auto border border-slate-200/80 rounded-xl">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                      <th class="p-3 pl-4">Activity</th>
+                      <th class="p-3">Level</th>
+                      <th class="p-3">Points</th>
+                      <th class="p-3">Status</th>
+                      <th class="p-3 pr-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="studentActivityTableBody" class="divide-y divide-slate-100 text-slate-800">
+                    <tr><td colspan="5" class="p-4 text-center text-slate-500">Loading activity records...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 7: Leave Records -->
+            <div id="tab_smdLeave" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+              <div class="border-b border-slate-100 pb-3">
+                <h4 class="font-bold text-slate-900 text-sm">Leave History</h4>
+                <p class="text-xs text-slate-500 mt-0.5">Approved and taken leaves during the academic semester.</p>
+              </div>
+              <div class="overflow-x-auto border border-slate-200/80 rounded-xl">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                      <th class="p-3 pl-4">Dates</th>
+                      <th class="p-3">Days</th>
+                      <th class="p-3">Reason</th>
+                      <th class="p-3 pr-4">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="studentLeaveTableBody" class="divide-y divide-slate-100 text-slate-800">
+                    <tr><td colspan="4" class="p-4 text-center text-slate-500">Loading leave records...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 8: Disciplinary Actions -->
+            <div id="tab_smdDiscipline" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+              <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm">Disciplinary Incidents</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">Recorded institutional warnings and actions.</p>
+                </div>
+                <button type="button" onclick="openDiscModal()" class="px-3.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                  <x-ui.icon name="warning" class="w-4 h-4 text-rose-600" />
+                  <span>Record Incident</span>
+                </button>
+              </div>
+              <div class="overflow-x-auto border border-slate-200/80 rounded-xl">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                      <th class="p-3 pl-4">Date</th>
+                      <th class="p-3">Incident</th>
+                      <th class="p-3">Action Taken</th>
+                      <th class="p-3 pr-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="studentDiscTableBody" class="divide-y divide-slate-100 text-slate-800">
+                    <tr><td colspan="4" class="p-4 text-center text-slate-500">No disciplinary incidents recorded.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TAB 9: Mentor Meetings -->
+            <div id="tab_smdMeetings" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+              <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm">Mentoring Sessions &amp; Follow-ups</h4>
+                  <p class="text-xs text-slate-500 mt-0.5">Notes from 1-on-1 counseling meetings.</p>
+                </div>
+                <button type="button" onclick="openSessionModal()" class="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                  <x-ui.icon name="plus" class="w-4 h-4 text-emerald-600" />
+                  <span>Log Meeting</span>
+                </button>
+              </div>
+              <div class="overflow-x-auto border border-slate-200/80 rounded-xl">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                      <th class="p-3 pl-4">Date</th>
+                      <th class="p-3">Discussion / Issues</th>
+                      <th class="p-3">Action Recommended</th>
+                      <th class="p-3 pr-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="studentSessionTableBody" class="divide-y divide-slate-100 text-slate-800">
+                    <tr><td colspan="4" class="p-4 text-center text-slate-500">Loading meeting records...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </main>
     </div>
   </div>
-</div>
 
-
-  <!-- STUDENT ACTIVITY MODAL -->
-  <div id="addStudentActivityModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
-      <div class="flex justify-between items-center mb-6">
-        <h3 class="text-xs font-black text-white" id="studentActivityModalTitle">Add Activity</h3>
-        <button onclick="closeStudentActivityModal()" class="text-slate-400 hover:text-white"><span class="material-symbols-rounded">close</span></button>
-      </div>
-      <form id="studentActivityForm" onsubmit="saveStudentActivity(event)">
-        <input type="hidden" id="studentActivityId">
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-bold text-slate-400 mb-1">Semester</label>
-            <select id="studentActivitySemester" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500">
-              <option value="1">Semester 1</option>
-              <option value="2">Semester 2</option>
-              <option value="3">Semester 3</option>
-              <option value="4">Semester 4</option>
-              <option value="5">Semester 5</option>
-              <option value="6">Semester 6</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-slate-400 mb-1">Segment</label>
-            <select id="studentActivitySegment" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
-              <option value="NCC">NCC</option>
-              <option value="NSS">NSS</option>
-              <option value="Sports & Games">Sports & Games</option>
-              <option value="Cultural Activities">Cultural Activities</option>
-              <option value="Professional Self Initiatives">Prof. Self Initiatives</option>
-              <option value="Entrepreneurship and Innovation">Entrepreneurship & Innovation</option>
-              <option value="Leadership & Management">Leadership & Management</option>
-              <option value="Disaster Management">Disaster Management</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Activity Name</label>
-            <input type="text" id="studentActivityName" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Level (e.g. State, College)</label>
-            <input type="text" id="studentActivityLevel" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-400 mb-1">Points Claimed</label>
-            <input type="number" id="studentActivityPtsClaimed" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-indigo-500">
-          </div>
-          <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-xs">Submit Activity for Verification</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-</div>
-</main>
-
+  <!-- JAVASCRIPT LOGIC -->
   <script>
+
     function switchPanel(panelId, title) {
       const panels = ['exams', 'marks', 'profile', 'mentoring', 'activity'];
       
@@ -675,7 +440,7 @@
           if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
         } else {
           if (el) el.classList.add('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
+          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-600 hover:bg-slate-100 hover:text-white cursor-pointer";
         }
       });
 
@@ -777,9 +542,9 @@
 
         let qHtml = '';
         if (t.questions && t.questions.length > 0) {
-          qHtml = `<div class="mt-4 pt-4 border-t border-slate-800 hidden" id="taskQ_${index}">
-            <h4 class="text-xs uppercase font-black text-slate-400 mb-2">Assignment Questions</h4>
-            <ul class="space-y-2 text-xs text-slate-300 font-medium list-disc pl-4">
+          qHtml = `<div class="mt-4 pt-4 border-t border-slate-200 hidden" id="taskQ_${index}">
+            <h4 class="text-xs uppercase font-black text-slate-600 mb-2">Assignment Questions</h4>
+            <ul class="space-y-2 text-xs text-slate-700 font-medium list-disc pl-4">
               ${t.questions.map(q => `<li>${q}</li>`).join('')}
             </ul>
           </div>`;
@@ -791,33 +556,33 @@
         }
 
         html += `
-          <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl overflow-hidden mb-1">
+          <div class="bg-white/80 border border-slate-200/60 rounded-xl overflow-hidden mb-1">
             <!-- Collapsible Header -->
             <div onclick="document.getElementById('co_task_${index}').classList.toggle('hidden'); this.querySelector('.arrow-icon').innerText = document.getElementById('co_task_${index}').classList.contains('hidden') ? 'expand_more' : 'expand_less';" 
-                 class="px-4 py-3.5 bg-slate-950/40 hover:bg-slate-950/70 border-b border-slate-800/60 flex justify-between items-center cursor-pointer transition-premium">
+                 class="px-4 py-3.5 bg-slate-50/40 hover:bg-slate-50/70 border-b border-slate-200 flex justify-between items-center cursor-pointer transition-premium">
               <div class="flex items-center gap-3">
-                <span class="material-symbols-rounded text-blue-400 text-xs">${icon}</span>
+                <span class="text-blue-600 text-xs font-bold">●</span>
                 <div>
-                  <h4 class="font-bold text-xs text-slate-200 uppercase">${t.type} - ${t.co_tag}</h4>
+                  <h4 class="font-bold text-xs text-slate-800 uppercase">${t.type} - ${t.co_tag}</h4>
                   <p class="text-xs font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject}</p>
                 </div>
               </div>
-              <span class="material-symbols-rounded text-slate-500 text-xs arrow-icon">expand_more</span>
+              <span class="text-slate-400 text-xs arrow-icon">▼</span>
             </div>
             <!-- Collapsible Content -->
-            <div id="co_task_${index}" class="hidden p-4 bg-slate-950/10 border-t border-slate-800/40">
+            <div id="co_task_${index}" class="hidden p-4 bg-slate-50/10 border-t border-slate-100">
               <div class="flex items-center gap-2 mb-3">
                   <span class="px-2 py-0.5 rounded text-xs font-black uppercase tracking-widest ${stCol}">${t.status}</span>
               </div>
-              <div class="grid grid-cols-2 gap-4 mb-4 text-xs text-slate-400 font-semibold">
+              <div class="grid grid-cols-2 gap-4 mb-4 text-xs text-slate-600 font-semibold">
                 <div class="space-y-1">
-                  <div>Start Date: <span class="text-slate-200 font-bold">${t.start ? new Date(t.start).toLocaleDateString() : '-'}</span></div>
+                  <div>Start Date: <span class="text-slate-800 font-bold">${t.start ? new Date(t.start).toLocaleDateString() : '-'}</span></div>
                 </div>
                 <div class="space-y-1">
-                  <div>Deadline: <span class="text-slate-200 font-bold font-mono">${t.deadline ? new Date(t.deadline).toLocaleDateString() : '-'}</span></div>
+                  <div>Deadline: <span class="text-slate-800 font-bold font-mono">${t.deadline ? new Date(t.deadline).toLocaleDateString() : '-'}</span></div>
                 </div>
               </div>
-              ${qHtml ? `<button onclick="document.getElementById('taskQ_${index}').classList.toggle('hidden')" class="w-full mt-2 py-2 text-xs font-bold text-blue-400 hover:text-blue-300 bg-blue-500/5 rounded-xl transition-premium flex justify-center items-center gap-1"><span class="material-symbols-rounded text-xs">visibility</span> View Questions</button>` : ''}
+              ${qHtml ? `<button onclick="document.getElementById('taskQ_${index}').classList.toggle('hidden')" class="w-full mt-2 py-2 text-xs font-bold text-blue-400 hover:text-blue-300 bg-blue-500/5 rounded-xl transition-premium flex justify-center items-center gap-1">👁 View Questions</button>` : ''}
               ${qHtml}
               ${actionBtn}
             </div>
@@ -893,7 +658,7 @@
         const isCurrent = s.is_current === true;
         const cls = isActive 
           ? 'bg-blue-600/20 text-blue-400 border-blue-500/20' 
-          : 'bg-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800 border-transparent';
+          : 'bg-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 border-transparent';
         const badge = isCurrent ? `<span class="ml-1 text-[8px] bg-teal-500/20 text-teal-400 px-1 py-0.5 rounded font-black">NOW</span>` : '';
         html += `
           <button onclick="renderGodTable(${s.semester})" id="btnSemTab_${s.semester}" class="sem-tab px-4 py-2 rounded-lg text-xs font-black transition-premium border ${cls}">
@@ -907,7 +672,7 @@
     function renderGodTable(semId) {
       currentActiveSem = semId;
       document.querySelectorAll('.sem-tab').forEach(btn => {
-        btn.className = 'sem-tab px-4 py-2 rounded-lg text-xs font-black transition-premium border bg-transparent text-slate-500 hover:text-slate-300 hover:bg-slate-800 border-transparent';
+        btn.className = 'sem-tab px-4 py-2 rounded-lg text-xs font-black transition-premium border bg-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 border-transparent';
       });
       const actBtn = document.getElementById(`btnSemTab_${semId}`);
       if(actBtn) actBtn.className = 'sem-tab px-4 py-2 rounded-lg text-xs font-black transition-premium border bg-blue-600/20 text-blue-400 border-blue-500/20';
@@ -915,36 +680,36 @@
       const container = document.getElementById('academicReportContent');
       const semData = academicData.semesters.find(s => s.semester == semId);
       if (!semData || !semData.subjects || semData.subjects.length === 0) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-500 font-bold text-xs border border-slate-800/50 rounded-2xl bg-slate-900/30">No academic data available for Semester ${semId}.</div>`;
+        container.innerHTML = `<div class="py-12 text-center text-slate-500 font-bold text-xs border border-slate-200/50 rounded-2xl bg-white/30">No academic data available for Semester ${semId}.</div>`;
         return;
       }
 
       let rows = '';
       semData.subjects.forEach(sub => {
-        const trClass = "border-b border-slate-800/50 hover:bg-slate-900/30 transition-premium";
+        const trClass = "border-b border-slate-200/50 hover:bg-white/30 transition-premium";
         rows += `
           <tr class="${trClass}">
             <td class="p-4 whitespace-nowrap">
-              <div class="font-black text-slate-200 text-xs">${sub.subject_code}</div>
+              <div class="font-black text-slate-800 text-xs">${sub.subject_code}</div>
               <div class="text-xs text-slate-500 font-bold truncate max-w-[150px]" title="${sub.subject_name}">${sub.subject_name}</div>
             </td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300">${sub.CO1 !== null ? sub.CO1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO2 !== null ? sub.CO2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300">${sub.CO3 !== null ? sub.CO3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-300 bg-slate-950/20">${sub.CO4 !== null ? sub.CO4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400 border-l border-slate-800">${sub.Assg1 !== null ? sub.Assg1 : '-'}</td>
+            <td class="p-4 text-center text-xs font-mono font-bold text-slate-700">${sub.CO1 !== null ? sub.CO1 : '-'}</td>
+            <td class="p-4 text-center text-xs font-mono font-bold text-slate-700 bg-slate-50/20">${sub.CO2 !== null ? sub.CO2 : '-'}</td>
+            <td class="p-4 text-center text-xs font-mono font-bold text-slate-700">${sub.CO3 !== null ? sub.CO3 : '-'}</td>
+            <td class="p-4 text-center text-xs font-mono font-bold text-slate-700 bg-slate-50/20">${sub.CO4 !== null ? sub.CO4 : '-'}</td>
+            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400 border-l border-slate-200">${sub.Assg1 !== null ? sub.Assg1 : '-'}</td>
             <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg2 !== null ? sub.Assg2 : '-'}</td>
             <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg3 !== null ? sub.Assg3 : '-'}</td>
             <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg4 !== null ? sub.Assg4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400 border-l border-slate-800">${sub.WT1 !== null ? sub.WT1 : '-'}</td>
+            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400 border-l border-slate-200">${sub.WT1 !== null ? sub.WT1 : '-'}</td>
             <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT2 !== null ? sub.WT2 : '-'}</td>
             <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT3 !== null ? sub.WT3 : '-'}</td>
             <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT4 !== null ? sub.WT4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400 border-l border-slate-800">${sub.OT1 !== null ? sub.OT1 : '-'}</td>
+            <td class="p-4 text-center text-xs font-mono font-black text-purple-400 border-l border-slate-200">${sub.OT1 !== null ? sub.OT1 : '-'}</td>
             <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT2 !== null ? sub.OT2 : '-'}</td>
             <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT3 !== null ? sub.OT3 : '-'}</td>
             <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT4 !== null ? sub.OT4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-black border-l border-slate-800 ${sub.attendance_percentage < 75 ? 'text-rose-400' : 'text-slate-300'}">
+            <td class="p-4 text-center text-xs font-black border-l border-slate-200 ${sub.attendance_percentage < 75 ? 'text-rose-400' : 'text-slate-700'}">
               ${sub.attendance_percentage}%
             </td>
           </tr>
@@ -954,37 +719,37 @@
       container.innerHTML = `
         <div class="flex justify-between items-center mb-4">
           <div class="flex gap-4">
-            <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
-              <span class="material-symbols-rounded text-slate-400 text-xs">stars</span>
-              <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">SGPA:</span>
+            <div class="bg-white border border-slate-200 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
+              <span class="text-amber-500 text-xs">★</span>
+              <span class="text-xs text-slate-600 font-bold uppercase tracking-widest">SGPA:</span>
               <span class="text-xs font-black text-white">${semData.sgpa || '-'}</span>
             </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
-              <span class="material-symbols-rounded text-slate-400 text-xs">local_activity</span>
-              <span class="text-xs text-slate-400 font-bold uppercase tracking-widest">Points:</span>
+            <div class="bg-white border border-slate-200 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
+              <span class="text-blue-500 text-xs">🎫</span>
+              <span class="text-xs text-slate-600 font-bold uppercase tracking-widest">Points:</span>
               <span class="text-xs font-black text-white">${semData.activity_points || '-'}</span>
             </div>
           </div>
         </div>
 
-        <div class="bg-slate-950/40 border border-slate-800/60 rounded-2xl overflow-x-auto shadow-2xl">
+        <div class="bg-slate-50/40 border border-slate-200 rounded-2xl overflow-x-auto shadow-2xl">
           <table class="w-full text-left border-collapse min-w-[1200px]">
             <thead>
-              <tr class="bg-slate-900/80 border-b border-slate-800 text-xs uppercase tracking-wider font-black text-slate-400">
+              <tr class="bg-white/80 border-b border-slate-200 text-xs uppercase tracking-wider font-black text-slate-600">
                 <th class="p-4 font-black">Subject</th>
                 <th class="p-4 text-center" colspan="4">Sum COs</th>
-                <th class="p-4 text-center border-l border-slate-800 text-blue-400" colspan="4">Assignments</th>
-                <th class="p-4 text-center border-l border-slate-800 text-emerald-400" colspan="4">Written Tests</th>
-                <th class="p-4 text-center border-l border-slate-800 text-purple-400" colspan="4">Online Tests</th>
-                <th class="p-4 text-center border-l border-slate-800">Attend.</th>
+                <th class="p-4 text-center border-l border-slate-200 text-blue-400" colspan="4">Assignments</th>
+                <th class="p-4 text-center border-l border-slate-200 text-emerald-400" colspan="4">Written Tests</th>
+                <th class="p-4 text-center border-l border-slate-200 text-purple-400" colspan="4">Online Tests</th>
+                <th class="p-4 text-center border-l border-slate-200">Attend.</th>
               </tr>
-              <tr class="bg-slate-900/40 border-b border-slate-800/50 text-xs uppercase font-bold text-slate-500">
+              <tr class="bg-white/40 border-b border-slate-200/50 text-xs uppercase font-bold text-slate-500">
                 <th class="p-2"></th>
-                <th class="p-2 text-center w-10 border-l border-slate-800/50">C1</th><th class="p-2 text-center w-10 bg-slate-950/20">C2</th><th class="p-2 text-center w-10">C3</th><th class="p-2 text-center w-10 bg-slate-950/20">C4</th>
-                <th class="p-2 text-center w-10 border-l border-slate-800">A1</th><th class="p-2 text-center w-10">A2</th><th class="p-2 text-center w-10">A3</th><th class="p-2 text-center w-10">A4</th>
-                <th class="p-2 text-center w-10 border-l border-slate-800">W1</th><th class="p-2 text-center w-10">W2</th><th class="p-2 text-center w-10">W3</th><th class="p-2 text-center w-10">W4</th>
-                <th class="p-2 text-center w-10 border-l border-slate-800">O1</th><th class="p-2 text-center w-10">O2</th><th class="p-2 text-center w-10">O3</th><th class="p-2 text-center w-10">O4</th>
-                <th class="p-2 text-center w-16 border-l border-slate-800">%</th>
+                <th class="p-2 text-center w-10 border-l border-slate-200/50">C1</th><th class="p-2 text-center w-10 bg-slate-50/20">C2</th><th class="p-2 text-center w-10">C3</th><th class="p-2 text-center w-10 bg-slate-50/20">C4</th>
+                <th class="p-2 text-center w-10 border-l border-slate-200">A1</th><th class="p-2 text-center w-10">A2</th><th class="p-2 text-center w-10">A3</th><th class="p-2 text-center w-10">A4</th>
+                <th class="p-2 text-center w-10 border-l border-slate-200">W1</th><th class="p-2 text-center w-10">W2</th><th class="p-2 text-center w-10">W3</th><th class="p-2 text-center w-10">W4</th>
+                <th class="p-2 text-center w-10 border-l border-slate-200">O1</th><th class="p-2 text-center w-10">O2</th><th class="p-2 text-center w-10">O3</th><th class="p-2 text-center w-10">O4</th>
+                <th class="p-2 text-center w-16 border-l border-slate-200">%</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/30">
@@ -1091,11 +856,11 @@
               if (t.can_take) {
                 actionHtml = `<button onclick="startOnlineTest('${t.test_id}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded font-bold text-xs transition-premium">Start Test</button>`;
               } else if (t.status_message && t.status_message.startsWith('Starts')) {
-                actionHtml = `<button disabled class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-xs text-center border border-slate-700/50 mb-2 cursor-not-allowed flex items-center justify-center gap-2"><span class="material-symbols-rounded text-xs">lock</span> ${t.status_message}</button>`;
+                actionHtml = `<button disabled class="w-full py-2 bg-slate-100 text-slate-700/40 text-slate-600 rounded font-bold text-xs text-center border border-slate-200/50 mb-2 cursor-not-allowed flex items-center justify-center gap-2">🔒 ${t.status_message}</button>`;
               } else if (t.my_attempts > 0) {
                 actionHtml = `<div class="w-full py-2 bg-emerald-900/40 text-emerald-400 rounded font-bold text-xs text-center border border-emerald-800/50 mb-2">Best Score: ${t.best_score || 0}</div>`;
               } else {
-                actionHtml = `<div class="w-full py-2 bg-slate-800/40 text-slate-400 rounded font-bold text-xs text-center border border-slate-700/50 mb-2">${t.status_message || 'Expired'}</div>`;
+                actionHtml = `<div class="w-full py-2 bg-slate-100 text-slate-700/40 text-slate-600 rounded font-bold text-xs text-center border border-slate-200/50 mb-2">${t.status_message || 'Expired'}</div>`;
               }
 
               let hasEnded = false;
@@ -1107,33 +872,33 @@
                 actionHtml += `<button onclick="viewAnswerKey('${t.test_id}')" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold text-xs transition-premium">View Answer Key</button>`;
               } else if (t.my_attempts > 0 && !t.can_take) {
                 let formattedEndTime = new Date(t.end_time).toLocaleString();
-                actionHtml += `<div class="text-xs text-center text-slate-400 font-semibold mt-1 bg-slate-950/30 p-1.5 rounded border border-slate-800/50">Answer key unlocks after test ends: <br/>${formattedEndTime}</div>`;
+                actionHtml += `<div class="text-xs text-center text-slate-600 font-semibold mt-1 bg-slate-50/30 p-1.5 rounded border border-slate-200/50">Answer key unlocks after test ends: <br/>${formattedEndTime}</div>`;
               }
 
               html += `
-                <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl overflow-hidden mb-1">
+                <div class="bg-white/80 border border-slate-200/60 rounded-xl overflow-hidden mb-1">
                   <!-- Collapsible Header -->
                   <div onclick="document.getElementById('co_exam_${t.test_id}').classList.toggle('hidden'); this.querySelector('.arrow-icon').innerText = document.getElementById('co_exam_${t.test_id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';" 
-                       class="px-4 py-3.5 bg-slate-950/40 hover:bg-slate-950/70 border-b border-slate-800/60 flex justify-between items-center cursor-pointer transition-premium">
+                       class="px-4 py-3.5 bg-slate-50/40 hover:bg-slate-50/70 border-b border-slate-200 flex justify-between items-center cursor-pointer transition-premium">
                     <div class="flex items-center gap-3">
-                      <span class="material-symbols-rounded text-purple-400 text-xs">quiz</span>
+                      <span class="text-purple-600 text-xs">📝</span>
                       <div>
-                        <h4 class="font-bold text-xs text-slate-200">${t.test_name}</h4>
+                        <h4 class="font-bold text-xs text-slate-800">${t.test_name}</h4>
                         <p class="text-xs font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject_name || t.subject_code}</p>
                       </div>
                     </div>
-                    <span class="material-symbols-rounded text-slate-500 text-xs arrow-icon">expand_more</span>
+                    <span class="text-slate-400 text-xs arrow-icon">▼</span>
                   </div>
                   <!-- Collapsible Content -->
-                  <div id="co_exam_${t.test_id}" class="hidden p-4 bg-slate-950/10 border-t border-slate-800/40">
-                    <div class="grid grid-cols-2 gap-4 mb-4 text-slate-400 font-semibold">
+                  <div id="co_exam_${t.test_id}" class="hidden p-4 bg-slate-50/10 border-t border-slate-100">
+                    <div class="grid grid-cols-2 gap-4 mb-4 text-slate-600 font-semibold">
                       <div class="space-y-1">
-                        <div>Duration: <span class="text-slate-200 font-bold">${t.duration} Mins</span></div>
-                        <div>Total Questions: <span class="text-slate-200 font-bold">${t.mcq_count} MCQs</span></div>
+                        <div>Duration: <span class="text-slate-800 font-bold">${t.duration} Mins</span></div>
+                        <div>Total Questions: <span class="text-slate-800 font-bold">${t.mcq_count} MCQs</span></div>
                       </div>
                       <div class="space-y-1">
-                        <div>Attempts: <span class="text-slate-200 font-bold">${t.my_attempts}/${t.max_attempts}</span></div>
-                        <div>Deadline: <span class="text-slate-200 font-bold font-mono">${t.end_time ? new Date(t.end_time).toLocaleString() : 'No Limit'}</span></div>
+                        <div>Attempts: <span class="text-slate-800 font-bold">${t.my_attempts}/${t.max_attempts}</span></div>
+                        <div>Deadline: <span class="text-slate-800 font-bold font-mono">${t.end_time ? new Date(t.end_time).toLocaleString() : 'No Limit'}</span></div>
                       </div>
                     </div>
                     <div class="mt-3">
@@ -1146,7 +911,7 @@
             container.innerHTML = html;
             container.className = "flex flex-col gap-1 mt-4 mb-6";
           } else {
-            container.innerHTML = `<div class="col-span-full p-4 bg-slate-900/60 border border-slate-800/60 rounded-xl text-center text-xs text-slate-500">No active tests available right now.</div>`;
+            container.innerHTML = `<div class="col-span-full p-4 bg-white/60 border border-slate-200 rounded-xl text-center text-xs text-slate-500">No active tests available right now.</div>`;
             container.className = "mt-4 mb-6";
           }
 
@@ -1180,17 +945,17 @@
         let optionsHtml = '';
         q.options.forEach((opt, oIdx) => {
           optionsHtml += `
-            <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-700/50 bg-slate-900/50 cursor-pointer hover:border-purple-500/50 hover:bg-slate-800 transition-premium">
-              <input type="radio" name="q_${idx}" value="${opt}" class="w-4 h-4 text-purple-500 bg-slate-950 border-slate-600 focus:ring-purple-600">
-              <span class="text-xs text-slate-300">${opt}</span>
+            <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200/50 bg-white/50 cursor-pointer hover:border-purple-500/50 hover:bg-slate-100 transition-premium">
+              <input type="radio" name="q_${idx}" value="${opt}" class="w-4 h-4 text-purple-500 bg-slate-50 border-slate-600 focus:ring-purple-600">
+              <span class="text-xs text-slate-700">${opt}</span>
             </label>
           `;
         });
         html += `
-          <div class="question-container bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-lg">
+          <div class="question-container bg-slate-50 border border-slate-200 rounded-xl p-6 shadow-lg">
              <div class="flex items-start gap-4 mb-4">
                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center font-black text-xs border border-purple-500/20">${idx+1}</span>
-               <h4 class="text-xs font-bold text-slate-100 mt-1">${q.q}</h4>
+               <h4 class="text-xs font-bold text-slate-900 mt-1">${q.q}</h4>
              </div>
              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-12">
                ${optionsHtml}
@@ -1284,7 +1049,7 @@
               let optionsHtml = '';
               q.options.forEach((opt, oIdx) => {
                 let badgeHtml = '';
-                let borderClass = 'border-slate-700/50 bg-slate-900/50';
+                let borderClass = 'border-slate-200/50 bg-white/50';
                 
                 // Color code options
                 if (opt === q.correct_ans) {
@@ -1297,23 +1062,23 @@
 
                 optionsHtml += `
                   <div class="flex items-center gap-3 p-3 rounded-lg border ${borderClass} transition-premium">
-                    <span class="text-xs text-slate-300">${opt}</span>
+                    <span class="text-xs text-slate-700">${opt}</span>
                     ${badgeHtml}
                   </div>
                 `;
               });
 
               let correctBadge = q.is_correct 
-                ? '<span class="bg-green-500/10 text-green-400 text-xs font-bold px-2.5 py-1 rounded-full border border-green-500/20 flex items-center gap-1"><span class="material-symbols-rounded text-xs">check_circle</span> Correct</span>'
-                : `<span class="bg-red-500/10 text-red-400 text-xs font-bold px-2.5 py-1 rounded-full border border-red-500/20 flex items-center gap-1"><span class="material-symbols-rounded text-xs">cancel</span> Incorrect</span>`;
+                ? '<span class="bg-green-500/10 text-green-400 text-xs font-bold px-2.5 py-1 rounded-full border border-green-500/20 flex items-center gap-1">✓ Correct</span>'
+                : `<span class="bg-red-500/10 text-red-400 text-xs font-bold px-2.5 py-1 rounded-full border border-red-500/20 flex items-center gap-1">✕ Incorrect</span>`;
 
               html += `
-                <div class="bg-slate-950 border border-slate-800 rounded-xl p-6 shadow-lg">
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 shadow-lg">
                    <div class="flex items-start justify-between gap-4 mb-4">
                      <div class="flex items-start gap-4">
-                       <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center font-black text-xs border border-slate-700/20">${idx+1}</span>
+                       <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 text-slate-700 text-slate-600 flex items-center justify-center font-black text-xs border border-slate-200/20">${idx+1}</span>
                        <div>
-                         <h4 class="text-xs font-bold text-slate-100 mt-1">${q.q}</h4>
+                         <h4 class="text-xs font-bold text-slate-900 mt-1">${q.q}</h4>
                          <span class="text-xs text-slate-500 font-mono">CO Tag: ${q.co}</span>
                        </div>
                      </div>
@@ -1369,7 +1134,7 @@
               for (const [segment, pts] of Object.entries(data.split)) {
                 splitHtml += `
                   <div class="flex justify-between items-center py-1">
-                    <span class="text-xs text-slate-300">${segment}</span>
+                    <span class="text-xs text-slate-700">${segment}</span>
                     <span class="text-xs font-bold text-emerald-400">${pts}</span>
                   </div>
                 `;
@@ -1400,15 +1165,15 @@
                 }
                 
                 html += `
-                  <tr class="hover:bg-slate-900/50 transition-colors border-b border-slate-800/40">
-                    <td class="p-3 text-xs text-slate-400">${dateStr}</td>
-                    <td class="p-3 text-xs font-bold text-slate-300">${c.activity_segment}</td>
-                    <td class="p-3 text-xs text-slate-300">${c.activity_name}</td>
-                    <td class="p-3 text-xs text-slate-400">${c.level}</td>
+                  <tr class="hover:bg-white/50 transition-colors border-b border-slate-100">
+                    <td class="p-3 text-xs text-slate-600">${dateStr}</td>
+                    <td class="p-3 text-xs font-bold text-slate-700">${c.activity_segment}</td>
+                    <td class="p-3 text-xs text-slate-700">${c.activity_name}</td>
+                    <td class="p-3 text-xs text-slate-600">${c.level}</td>
                     <td class="p-3">
-                      ${c.document_reference ? `<a href="${c.document_reference}" target="_blank" class="text-blue-400 hover:text-blue-300 text-xs underline flex items-center gap-1"><span class="material-symbols-rounded text-[12px]">link</span> View</a>` : '<span class="text-xs text-slate-600">None</span>'}
+                      ${c.document_reference ? `<a href="${c.document_reference}" target="_blank" class="text-blue-400 hover:text-blue-300 text-xs underline flex items-center gap-1">🔗 View</a>` : '<span class="text-xs text-slate-600">None</span>'}
                     </td>
-                    <td class="p-3 text-center text-xs font-bold text-slate-300">${c.points_claimed}</td>
+                    <td class="p-3 text-center text-xs font-bold text-slate-700">${c.points_claimed}</td>
                     <td class="p-3 text-center text-xs font-bold ${c.status === 'Verified' ? 'text-emerald-400' : 'text-slate-500'}">${c.status === 'Verified' ? c.points_awarded : '--'}</td>
                     <td class="p-3 text-right max-w-[120px]">
                       <span class="px-2 py-0.5 rounded border text-xs font-bold uppercase tracking-wider ${statusClass} inline-block">${c.status}</span>
@@ -1446,213 +1211,9 @@
         }
       });
     }
+  
   </script>
 
-  <!-- LIVE TEST ENGINE MODAL (Hidden by default) -->
-  <div id="testEngineModal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col">
-    <!-- Top Bar -->
-    <div class="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 shrink-0">
-      <div class="flex items-center gap-3">
-        <span class="material-symbols-rounded text-purple-500 text-base">devices</span>
-        <div>
-          <h3 id="liveTestName" class="font-bold text-xs text-white leading-tight">Test Name</h3>
-          <span class="text-xs text-slate-400 font-mono" id="liveTestReg">{{ session('userId') }}</span>
-        </div>
-      </div>
-      <div class="flex items-center gap-4">
-        <div class="bg-slate-950 border border-slate-800 px-4 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold shadow-inner">
-          <span class="material-symbols-rounded text-red-400 text-xs">timer</span>
-          <span id="liveTimer" class="text-red-400 font-mono tracking-widest">00:00:00</span>
-        </div>
-        <button onclick="submitTest()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-1.5 rounded-full font-bold text-xs transition-premium shadow-lg shadow-purple-600/20">Submit Final</button>
-      </div>
-    </div>
-
-    <!-- Question Area -->
-    <div class="flex-grow overflow-y-auto p-6 md:p-12" id="testQuestionsContainer">
-       <!-- Render questions here -->
-    </div>
-  </div>
-
-  <!-- TEST RESULT MODAL (Hidden by default) -->
-  <div id="testResultModal" class="hidden fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-slate-950 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center transform scale-95 transition-premium" id="resultModalBox">
-      <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/10 text-emerald-400 mb-4 border border-emerald-500/20">
-        <span class="material-symbols-rounded text-xl">verified</span>
-      </div>
-      <h2 class="text-base font-black text-white mb-1">Test Completed!</h2>
-      <p class="text-xs text-slate-400 mb-6">Your responses have been saved securely.</p>
-      
-      <div class="grid grid-cols-2 gap-4 mb-8">
-        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
-          <span class="text-xs uppercase font-black tracking-wider text-slate-500 block mb-1">Total Score</span>
-          <span class="text-base font-black text-emerald-400" id="resultScore">0/0</span>
-        </div>
-        <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-4">
-          <span class="text-xs uppercase font-black tracking-wider text-slate-500 block mb-1">Percentage</span>
-          <span class="text-base font-black text-blue-400" id="resultPercent">0%</span>
-        </div>
-      </div>
-
-      <button onclick="closeResultModal()" class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold text-xs transition-premium">Return to Dashboard</button>
-    </div>
-  </div>
-
-  <!-- ANSWER KEY VIEW MODAL (Hidden by default) -->
-  <div id="answerKeyModal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col">
-    <!-- Top Bar -->
-    <div class="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6 shrink-0">
-      <div class="flex items-center gap-3">
-        <span class="material-symbols-rounded text-blue-400 text-base">menu_book</span>
-        <div>
-          <h3 id="answerKeyTestName" class="font-bold text-xs text-white leading-tight">Answer Key Review</h3>
-          <span class="text-xs text-slate-400 font-mono block" id="answerKeyScoreInfo">Score: â</span>
-        </div>
-      </div>
-      <button onclick="closeAnswerKeyModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-1.5 rounded-full font-bold text-xs transition-premium">Close</button>
-    </div>
-
-    <!-- Content Area -->
-    <div class="flex-grow overflow-y-auto p-6 md:p-12 animate-fade-in" id="answerKeyQuestionsContainer">
-       <!-- Render questions, student answers, and correct answers here -->
-    </div>
-  </div>
-
-  
-    <!-- Mentor Meeting Modal -->
-    <div id="addSessionModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
-        <div class="p-6 border-b border-slate-800 flex justify-between items-center">
-          <h3 class="font-black text-white text-lg" id="sessionModalTitle">Record Mentoring Session</h3>
-          <button onclick="closeSessionModal()" class="text-slate-400 hover:text-white"><span class="material-symbols-rounded">close</span></button>
-        </div>
-        <form id="sessionForm" onsubmit="saveMentoringSession(event)">
-          <input type="hidden" id="sessionId">
-          <div class="p-6 space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Semester</label>
-                <input type="number" id="sessionSem" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
-              </div>
-              <div>
-                <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Date</label>
-                <input type="date" id="sessionDate" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
-              </div>
-            </div>
-            <div>
-              <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Discussion Points</label>
-              <textarea id="sessionDiscussion" required rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 resize-none text-sm"></textarea>
-            </div>
-            <div>
-              <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Action Items (Optional)</label>
-              <textarea id="sessionAction" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 resize-none text-sm"></textarea>
-            </div>
-          </div>
-          <div class="p-6 border-t border-slate-800 flex justify-end gap-3 bg-slate-900/50">
-            <button type="button" onclick="closeSessionModal()" class="px-4 py-2 text-slate-400 font-bold hover:text-white transition-colors text-[10px] text-xs">Cancel</button>
-            <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-lg transition-colors text-[10px] text-xs">Save Session</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-  @include('student_mentoring_scripts')
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof loadStudentMentoringDiary === 'function') {
-        loadStudentMentoringDiary();
-    }
-});
-</script>
-
-    <!-- Add Leave Modal -->
-    <div id="addLeaveModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="font-black text-white text-lg" id="leaveModalTitle">Add Leave Record</h3>
-          <button onclick="closeLeaveModal()" class="text-slate-400 hover:text-white"><span class="material-symbols-rounded">close</span></button>
-        </div>
-        <form id="leaveForm" onsubmit="saveLeave(event)">
-          <input type="hidden" id="leaveId">
-          <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Semester</label>
-                <input type="number" id="leaveSem" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
-              </div>
-              <div>
-                  <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">From Date</label>
-                  <input type="date" id="leaveDateFrom" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
-                </div>
-              </div>
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">To Date (Optional)</label>
-                  <input type="date" id="leaveDateTo" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
-                </div>
-                <div>
-                  <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">No. of Days</label>
-                  <input type="number" step="0.5" id="leaveDays" placeholder="e.g. 1, 0.5" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
-              </div>
-            </div>
-            <div>
-              <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Reason</label>
-              <input type="text" id="leaveReason" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
-            </div>
-            <div>
-              <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Status</label>
-              <select id="leaveStatus" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-indigo-500 text-sm">
-                <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-            </div>
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="leaveParent" class="rounded bg-slate-950 border-slate-800 text-indigo-500">
-              <label class="font-bold text-slate-400 text-[10px] text-xs">Parent/Guardian Informed?</label>
-            </div>
-          </div>
-          <div class="mt-6 flex justify-end gap-3">
-            <button type="button" onclick="closeLeaveModal()" class="px-4 py-2 text-slate-400 font-bold hover:text-white transition-colors text-[10px] text-xs">Cancel</button>
-            <button type="submit" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-premium text-[10px] text-xs shadow-lg">Save Record</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Add Disciplinary Action Modal -->
-    <div id="addDiscModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[70] hidden items-center justify-center p-4">
-      <div class="bg-slate-900 border border-red-900/30 rounded-2xl w-full max-w-md p-6 shadow-2xl">
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="font-black text-red-400 text-lg" id="discModalTitle">Record Incident</h3>
-          <button onclick="closeDiscModal()" class="text-slate-400 hover:text-white"><span class="material-symbols-rounded">close</span></button>
-        </div>
-        <form id="discForm" onsubmit="saveDisc(event)">
-          <input type="hidden" id="discId">
-          <div class="space-y-4">
-            <div>
-              <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Date of Incident</label>
-              <input type="date" id="discDate" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-red-500 text-sm">
-            </div>
-            <div>
-              <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Description of Incident</label>
-              <textarea id="discDesc" required rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-red-500 resize-none text-sm"></textarea>
-            </div>
-            <div>
-              <label class="block font-bold text-slate-400 mb-1 text-[10px] text-xs">Action Taken / Resolution</label>
-              <input type="text" id="discAction" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:border-red-500 text-sm">
-            </div>
-          </div>
-          <div class="mt-6 flex justify-end gap-3">
-            <button type="button" onclick="closeDiscModal()" class="px-4 py-2 text-slate-400 font-bold hover:text-white transition-colors text-[10px] text-xs">Cancel</button>
-            <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold transition-premium text-[10px] text-xs shadow-lg">Save Record</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
+  @include('partials.support_desk_overlay')
 </body>
 </html>
-

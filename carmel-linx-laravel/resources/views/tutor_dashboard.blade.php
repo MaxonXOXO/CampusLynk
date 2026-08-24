@@ -43,6 +43,7 @@
       background: #cbd5e1;
       border-radius: 4px;
     }
+    .tutor-tab-btn { cursor: pointer !important; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
       background: #94a3b8;
     }
