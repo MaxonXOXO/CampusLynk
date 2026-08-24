@@ -49,8 +49,8 @@
     <!-- Master Shell Container -->
     <div class="flex min-h-screen">
 
-        <!-- Global Sidebar Navigation Component (Faculty Workspace items) -->
-        <x-layout.sidebar role="faculty" :active="$activeNav" />
+        <!-- Global Sidebar Navigation Component -->
+        <x-layout.sidebar :active="$activeNav" />
 
         <!-- Main Viewport Container -->
         <div class="flex-1 flex flex-col min-w-0">

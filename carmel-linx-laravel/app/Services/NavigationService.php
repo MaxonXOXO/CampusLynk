@@ -107,7 +107,8 @@ class NavigationService
 
             if ($isTutor || $isMentor) {
                 $tutorItems = [];
-                if ($isTutor) {
+                if ($resolvedRole === 'demonstrator' || $sessionRole === 'Demonstrator') {
+                    // For Demonstrator, only inject Tutor Console (no separate My Mentoring)
                     $tutorItems[] = [
                         'id' => 'tutor_console',
                         'label' => 'Tutor Console',
@@ -115,15 +116,25 @@ class NavigationService
                         'url' => '/dashboard/tutor',
                         'position' => 'after:my_batches',
                     ];
+                } else {
+                    if ($isTutor) {
+                        $tutorItems[] = [
+                            'id' => 'tutor_console',
+                            'label' => 'Tutor Console',
+                            'icon' => 'user-check',
+                            'url' => '/dashboard/tutor',
+                            'position' => 'after:my_batches',
+                        ];
+                    }
+                    $tutorItems[] = [
+                        'id' => 'my_mentoring',
+                        'label' => 'My Mentoring',
+                        'icon' => 'heart-handshake',
+                        'url' => '/dashboard/tutor',
+                        'onclick' => "sessionStorage.setItem('openMentoring', 'true'); window.location.href='/dashboard/tutor';",
+                        'position' => 'after:tutor_console',
+                    ];
                 }
-                $tutorItems[] = [
-                    'id' => 'my_mentoring',
-                    'label' => 'My Mentoring',
-                    'icon' => 'heart-handshake',
-                    'url' => '/dashboard/tutor',
-                    'onclick' => "sessionStorage.setItem('openMentoring', 'true'); window.location.href='/dashboard/tutor';",
-                    'position' => 'after:tutor_console',
-                ];
                 $items = self::insertItems($items, $tutorItems);
             }
         }
