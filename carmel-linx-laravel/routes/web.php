@@ -1704,7 +1704,7 @@ Route::middleware(['web'])->group(function () {
     });
 
     Route::get('/staff/professional-activities', function () {
-        $mobileNo = Session::get('userId');
+        $mobileNo = Session::get('userId') ?? Session::get('userMobileNo');
         if (!$mobileNo) return redirect('/');
 
         $academicYear = request('academic_year', date('Y') . '-' . (date('Y') + 1));
@@ -1714,7 +1714,7 @@ Route::middleware(['web'])->group(function () {
             ->where('academic_year', $academicYear)
             ->get()
             ->map(function ($row) {
-                $row->details = json_decode($row->details, true);
+                $row->details = is_string($row->details) ? json_decode($row->details, true) : $row->details;
                 return $row;
             });
 
@@ -1725,7 +1725,7 @@ Route::middleware(['web'])->group(function () {
     });
 
     Route::post('/staff/professional-activities/save', function (Illuminate\Http\Request $request) {
-        $mobileNo = Session::get('userId');
+        $mobileNo = Session::get('userId') ?? Session::get('userMobileNo');
         if (!$mobileNo) return response()->json(['error' => 'Unauthorized'], 403);
 
         $request->validate([
@@ -1743,17 +1743,25 @@ Route::middleware(['web'])->group(function () {
             'updated_at' => now()
         ]);
 
+        if ($request->ajax() || $request->wantsJson() || $request->isJson()) {
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Activity added successfully.']);
+        }
+
         return back()->with('success', 'Activity added successfully.');
     });
 
-    Route::post('/staff/professional-activities/delete/{id}', function ($id) {
-        $mobileNo = Session::get('userId');
+    Route::post('/staff/professional-activities/delete/{id}', function ($id, Illuminate\Http\Request $request) {
+        $mobileNo = Session::get('userId') ?? Session::get('userMobileNo');
         if (!$mobileNo) return response()->json(['error' => 'Unauthorized'], 403);
 
         DB::table('staff_professional_activities')
             ->where('id', $id)
             ->where('lecturer_mobile_no', $mobileNo)
             ->delete();
+
+        if ($request->ajax() || $request->wantsJson() || $request->isJson()) {
+            return response()->json(['status' => 'SUCCESS', 'message' => 'Activity deleted successfully.']);
+        }
 
         return back()->with('success', 'Activity deleted successfully.');
     });
@@ -1909,12 +1917,23 @@ Route::middleware(['web'])->group(function () {
         $academicYear = $request->query('academic_year', date('Y') . '-' . (date('Y') + 1));
         $department = $request->query('department');
         $activityType = $request->query('activity_type');
+        $staffMobileNo = $request->query('staff_mobile_no');
+        $onlyMine = $request->query('only_mine');
 
         $query = DB::table('staff_professional_activities')
             ->where('academic_year', $academicYear);
             
         if (!empty($activityType)) {
             $query->where('activity_type', $activityType);
+        }
+
+        if (!empty($staffMobileNo)) {
+            $query->where('lecturer_mobile_no', $staffMobileNo);
+        } elseif ($onlyMine) {
+            $myMobile = Session::get('userId') ?? Session::get('userMobileNo');
+            if ($myMobile) {
+                $query->where('lecturer_mobile_no', $myMobile);
+            }
         }
 
         $records = $query->orderByDesc('id')->get()->map(function($row) {

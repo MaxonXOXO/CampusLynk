@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CampusLynk - Academic &amp; Professional Activities</title>
+  <title>CampusLynk - Faculty Professional Activities</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
   <!-- Modern Typography (Poppins) -->
@@ -67,212 +67,138 @@
     <div class="flex-1 flex flex-col min-w-0 bg-[#FAFAFB]">
       
       <!-- Global Topbar Header Component -->
-      <x-layout.topbar title="Academic & Professional Activities" subtitle="Record professional trainings, publications, guided projects, and syllabus gaps." />
+      <x-layout.topbar title="Faculty Professional Activities" subtitle="FDPs, research publications, guided projects, and curriculum enhancements." />
 
       <!-- Scrollable Main Workspace -->
       <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
         
-        <!-- Header & Academic Year Filter Card -->
-        <div class="bg-white border border-slate-200/80 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
+        <!-- Header & Academic Year Filter Card (Exact Principal Dashboard UI Sequence) -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white border border-slate-200 p-5 rounded-2xl gap-3 shadow-xs">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200/80 shrink-0">
-              <x-ui.icon name="award" class="w-5 h-5 text-blue-600" />
+            <div class="w-10 h-10 rounded-xl bg-purple-50 text-indigo-600 flex items-center justify-center shrink-0 border border-purple-200/80">
+              <x-ui.icon name="school" class="w-5 h-5 text-indigo-600" />
             </div>
             <div>
-              <h3 class="text-base sm:text-lg font-bold text-slate-900">Faculty Portfolio &amp; Activity Log</h3>
-              <p class="text-sm text-slate-500 mt-0.5">Continuous professional development, research, and curricular activities.</p>
+              <h3 class="text-base sm:text-lg font-bold text-slate-900">Faculty Academic &amp; Professional Activities</h3>
+              <p class="text-xs sm:text-sm text-slate-500 mt-0.5">FDP certifications, publications, guided projects, industrial trainings, and syllabus gap records.</p>
             </div>
           </div>
+          
+          <div class="flex items-center gap-2.5 w-full sm:w-auto self-stretch sm:self-auto justify-end">
+            <select id="profActAyFilter" onchange="loadProfActivities()" class="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-800 outline-none focus:border-blue-500 shadow-2xs cursor-pointer">
+              @php
+                $sYear = 2020;
+                $eYear = date('Y') + 3;
+                $currentAy = date('Y') . '-' . (date('Y') + 1);
+              @endphp
+              @for($y = $eYear; $y >= $sYear; $y--)
+                @php $yr = $y . '-' . ($y + 1); @endphp
+                <option value="{{ $yr }}" {{ $yr === $currentAy ? 'selected' : '' }}>AY {{ $yr }}</option>
+              @endfor
+            </select>
 
-          <!-- Academic Year Filter -->
-          <form method="GET" action="/staff/professional-activities" class="flex items-center gap-2.5 self-stretch sm:self-auto">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider hidden sm:inline">Academic Year:</label>
-            <div class="relative flex-1 sm:flex-none">
-              <select name="academic_year" onchange="this.form.submit()" class="w-full sm:w-auto bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 outline-none text-sm font-semibold cursor-pointer focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs transition-colors">
-                @php
-                  $sYear = 2015;
-                  $eYear = date('Y') + 10;
-                @endphp
-                @for($y = $sYear; $y <= $eYear; $y++)
-                  @php $yr = $y . '-' . ($y + 1); @endphp
-                  <option value="{{ $yr }}" {{ $yr === $academicYear ? 'selected' : '' }}>Academic Year {{ $yr }}</option>
-                @endfor
-              </select>
-            </div>
-          </form>
+            <button onclick="loadProfActivities()" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition cursor-pointer border border-slate-200 shadow-2xs" title="Refresh">
+              <x-ui.icon name="sync" class="w-4 h-4 text-slate-700" />
+            </button>
+          </div>
         </div>
 
-        <!-- Flash Message -->
-        @if(session('success'))
-          <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-sm font-semibold flex items-center justify-between gap-3 shadow-xs">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                <x-ui.icon name="check_circle" class="w-4 h-4" />
-              </div>
-              <span>{{ session('success') }}</span>
-            </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-800 p-1 rounded-lg text-sm font-bold cursor-pointer">✕</button>
-          </div>
-        @endif
-
-        <!-- Main Workspace Grid -->
+        <!-- Main Workspace Grid (5 Col Form / 7 Col Registry) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
-          <!-- Left Panel: Add New Record Form (5 Columns on Desktop) -->
-          <div class="lg:col-span-5 bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xs">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3.5">
-              <h4 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <x-ui.icon name="add_circle" class="w-4 h-4 text-blue-600" />
-                <span>Add Activity Record</span>
+          <!-- Left Column: Record New Faculty Activity Form (5 cols) -->
+          <div class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <x-ui.icon name="add_circle" class="w-4 h-4 text-emerald-600" />
+                <span>Record New Faculty Activity</span>
               </h4>
-              <span class="text-xs font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-lg">AY {{ $academicYear }}</span>
+              <span class="text-xs text-slate-400 font-mono font-bold" id="profActAyLabel">AY {{ $currentAy }}</span>
             </div>
-            
-            <form method="POST" action="/staff/professional-activities/save" class="space-y-4">
-              @csrf
-              <div class="grid grid-cols-2 gap-3">
+
+            <form id="profActivityForm" onsubmit="submitProfActivity(event)" class="space-y-3.5">
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Activity Category</label>
+                <select id="profActType" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-2xs cursor-pointer">
+                  <option value="fdp_attended">Faculty Development Program (FDP) / Training</option>
+                  <option value="workshop_attended">Technical Workshop / Hands-on BootCamp</option>
+                  <option value="course_attended">Online Certification / MOOC / NPTEL Course</option>
+                  <option value="project_guided">Student Major / Minor Project Guided</option>
+                  <option value="seminar_guided">Student Technical Seminar Guided</option>
+                  <option value="publication">Journal / Conference Research Publication</option>
+                  <option value="book_published">Authored Book / Book Chapter</option>
+                  <option value="gap_in_syllabus">Curriculum Gap / Industrial Bridge Topic</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Activity Title / Topic</label>
+                <input type="text" id="profActTitle" required placeholder="e.g. Advanced Embedded IoT Systems FDP" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-2xs font-medium">
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Start Year</label>
-                  <input type="number" id="ayStartYear" oninput="updateAcademicYearValue()" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 outline-none text-sm font-semibold focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs" min="2010" max="2100" value="{{ explode('-', $academicYear)[0] }}">
+                  <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Organizing Body</label>
+                  <input type="text" id="profActOrganizer" required placeholder="e.g. DTE / NITTTR" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-2xs font-medium">
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">AY Reference</label>
-                  <input type="text" name="academic_year" id="ayFullText" readonly class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-slate-600 outline-none text-sm font-mono font-bold shadow-2xs" value="{{ $academicYear }}">
+                  <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Duration / Days</label>
+                  <input type="text" id="profActDuration" required placeholder="e.g. 5 Days / 40 Hrs" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-2xs font-medium">
+                </div>
+                <div>
+                  <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Start Date</label>
+                  <input type="date" id="profActStartDate" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-2xs font-medium">
                 </div>
               </div>
 
               <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Activity Category</label>
-                <select name="activity_type" id="activityTypeSelector" onchange="toggleFormFields(this.value)" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 outline-none text-sm font-semibold cursor-pointer focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs">
-                  <option value="fdp_attended">Faculty Development Programme (FDP)</option>
-                  <option value="workshop_attended">Workshop Attended</option>
-                  <option value="course_attended">Course / MOOC / NPTEL Certification</option>
-                  <option value="gap_in_syllabus">Curricular Gap Identified in Syllabus</option>
-                  <option value="project_guided">Student Project Guided</option>
-                  <option value="seminar_guided">Seminar Guided</option>
-                  <option value="publication">Research Paper / Journal Publication</option>
-                  <option value="book_published">Book Published (with ISBN)</option>
-                </select>
+                <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Description / Key Learnings</label>
+                <textarea id="profActDesc" rows="2" placeholder="Brief summary of the program coverage and implementation in curriculum..." class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 shadow-2xs resize-none font-medium"></textarea>
               </div>
 
-              <!-- Dynamic Fields Container -->
-              <div id="dynamicFieldsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-                <!-- Rendered via JS -->
-              </div>
+              <div id="profActAlert" class="hidden p-3 rounded-xl font-semibold border text-xs"></div>
 
-              <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition text-sm cursor-pointer shadow-xs flex items-center justify-center gap-2 mt-2">
-                <x-ui.icon name="save" class="w-4 h-4" />
-                <span>Save Record</span>
+              <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm">
+                <x-ui.icon name="check" class="w-4 h-4 text-white" />
+                <span>Save Activity Record</span>
               </button>
             </form>
           </div>
 
-          <!-- Right Panel: Recorded Entries (7 Columns on Desktop) -->
-          <div class="lg:col-span-7 bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 space-y-5 shadow-xs min-h-[460px] flex flex-col">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3.5">
-              <h4 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                <x-ui.icon name="list_alt" class="w-4 h-4 text-slate-600" />
-                <span>Recorded Entries for {{ $academicYear }}</span>
-              </h4>
-              <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">{{ count($activities) }} entries</span>
-            </div>
+          <!-- Right Column: Stats & Registry (7 cols) -->
+          <div class="lg:col-span-7 space-y-4">
             
-            @if($activities->isEmpty())
-              <div class="p-12 text-center text-slate-500 text-sm font-medium space-y-3 flex-1 flex flex-col items-center justify-center">
-                <div class="w-12 h-12 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-center text-slate-400">
-                  <x-ui.icon name="assignment_turned_in" class="w-6 h-6" />
-                </div>
-                <div>
-                  <p class="font-bold text-slate-800">No professional records found.</p>
-                  <p class="text-xs text-slate-400 mt-1 max-w-sm">Use the form on the left to record your FDPs, publications, courses, or guided projects for AY {{ $academicYear }}.</p>
-                </div>
+            <!-- 3 Stat KPI Cards -->
+            <div class="grid grid-cols-3 gap-3">
+              <div class="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs text-center">
+                <span class="text-xs text-slate-500 font-semibold block">Total Recorded</span>
+                <span id="profActTotalCount" class="text-xl font-bold text-slate-900 block mt-0.5">0</span>
               </div>
-            @else
-              <div class="max-h-[calc(100vh-280px)] overflow-y-auto pr-1.5 space-y-3 custom-scrollbar flex-1">
-                @foreach($activities as $act)
-                  <div class="p-4 bg-slate-50/70 border border-slate-200/80 rounded-xl hover:border-slate-300 hover:bg-white transition-all flex items-start justify-between gap-3 shadow-2xs group">
-                    <div class="space-y-2 min-w-0 flex-1">
-                      <div class="flex items-center gap-2">
-                        @php
-                          $badgeStyle = match($act->activity_type) {
-                            'fdp_attended' => 'bg-blue-50 text-blue-700 border-blue-200',
-                            'workshop_attended' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
-                            'course_attended' => 'bg-teal-50 text-teal-700 border-teal-200',
-                            'gap_in_syllabus' => 'bg-amber-50 text-amber-700 border-amber-200',
-                            'project_guided', 'seminar_guided' => 'bg-purple-50 text-purple-700 border-purple-200',
-                            'publication', 'book_published' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                            default => 'bg-slate-100 text-slate-700 border-slate-200'
-                          };
-                        @endphp
-                        <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold uppercase tracking-wider border {{ $badgeStyle }}">
-                          {{ str_replace('_', ' ', $act->activity_type) }}
-                        </span>
-                      </div>
-                      
-                      <!-- FDP / Workshop details -->
-                      @if(in_array($act->activity_type, ['fdp_attended', 'workshop_attended', 'course_attended']))
-                        <h5 class="text-sm font-bold text-slate-900 leading-snug break-words">{{ $act->details['title'] ?? 'Untitled Training' }}</h5>
-                        <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 font-medium">
-                          <span><strong>Duration:</strong> {{ $act->details['duration'] ?? '-' }}</span>
-                          <span>•</span>
-                          <span><strong>Venue:</strong> {{ $act->details['venue'] ?? '-' }}</span>
-                          @if(!empty($act->details['date']))
-                            <span>•</span>
-                            <span><strong>Date:</strong> {{ $act->details['date'] }}</span>
-                          @endif
-                        </div>
-                      @endif
-
-                      <!-- Syllabus gaps details -->
-                      @if($act->activity_type === 'gap_in_syllabus')
-                        <h5 class="text-sm font-bold text-slate-900 leading-snug break-words">{{ $act->details['subject'] ?? 'Subject' }}</h5>
-                        <p class="text-xs text-slate-700 leading-relaxed"><strong>Identified Gap:</strong> {{ $act->details['gap_details'] ?? '-' }}</p>
-                        <p class="text-xs text-slate-500 leading-relaxed"><strong>Action Taken:</strong> {{ $act->details['action_taken'] ?? '-' }}</p>
-                      @endif
-
-                      <!-- Project/Seminar Guided -->
-                      @if(in_array($act->activity_type, ['project_guided', 'seminar_guided']))
-                        <h5 class="text-sm font-bold text-slate-900 leading-snug break-words">{{ $act->details['title'] ?? 'Title' }}</h5>
-                        <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 font-medium">
-                          <span><strong>Students:</strong> {{ $act->details['students'] ?? '-' }}</span>
-                          @if(!empty($act->details['batch']))
-                            <span>•</span>
-                            <span><strong>Batch:</strong> {{ $act->details['batch'] }}</span>
-                          @endif
-                        </div>
-                      @endif
-
-                      <!-- Publication / Book -->
-                      @if($act->activity_type === 'publication')
-                        <h5 class="text-sm font-bold text-slate-900 leading-snug break-words">{{ $act->details['title'] ?? 'Paper Title' }}</h5>
-                        <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 font-medium">
-                          <span><strong>Journal:</strong> {{ $act->details['journal'] ?? '-' }}</span>
-                          <span>•</span>
-                          <span><strong>Year:</strong> {{ $act->details['year'] ?? '-' }}</span>
-                        </div>
-                      @endif
-                      @if($act->activity_type === 'book_published')
-                        <h5 class="text-sm font-bold text-slate-900 leading-snug break-words">{{ $act->details['title'] ?? 'Book Title' }}</h5>
-                        <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 font-medium">
-                          <span><strong>Publisher:</strong> {{ $act->details['publisher'] ?? '-' }}</span>
-                          <span>•</span>
-                          <span><strong>ISBN:</strong> {{ $act->details['isbn'] ?? '-' }}</span>
-                          <span>•</span>
-                          <span><strong>Year:</strong> {{ $act->details['year'] ?? '-' }}</span>
-                        </div>
-                      @endif
-                    </div>
-                    
-                    <form method="POST" action="/staff/professional-activities/delete/{{ $act->id }}" class="shrink-0">
-                      @csrf
-                      <button type="submit" onclick="return confirm('Delete this record?')" class="p-2 bg-white hover:bg-rose-50 text-slate-400 hover:text-rose-600 border border-slate-200 hover:border-rose-200 rounded-xl transition text-xs font-bold cursor-pointer flex items-center gap-1 shadow-2xs" title="Delete record">
-                        <x-ui.icon name="delete" class="w-4 h-4" />
-                      </button>
-                    </form>
-                  </div>
-                @endforeach
+              <div class="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs text-center">
+                <span class="text-xs text-slate-500 font-semibold block">FDPs &amp; Workshops</span>
+                <span id="profActFdpCount" class="text-xl font-bold text-indigo-600 block mt-0.5">0</span>
               </div>
-            @endif
+              <div class="bg-white border border-slate-200 p-3.5 rounded-2xl shadow-xs text-center">
+                <span class="text-xs text-slate-500 font-semibold block">Publications</span>
+                <span id="profActPubCount" class="text-xl font-bold text-emerald-600 block mt-0.5">0</span>
+              </div>
+            </div>
+
+            <!-- Verified Activities Registry Card -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                  <x-ui.icon name="format_list_bulleted" class="w-4 h-4 text-blue-600" />
+                  <span>Verified Activities Registry</span>
+                </h4>
+                <span id="profActRegistryCount" class="text-xs text-slate-500 font-medium">0 records</span>
+              </div>
+
+              <div id="profActListContainer" class="space-y-3 max-h-[520px] overflow-y-auto custom-scrollbar">
+                <div class="p-8 text-center text-slate-400 text-sm">Loading activity records...</div>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -282,105 +208,137 @@
   </div>
 
   <script>
-    const schemas = {
-      fdp_attended: [
-        { label: 'Title of FDP', name: 'title', type: 'text', placeholder: 'e.g. Advanced Laravel Framework', fullWidth: true },
-        { label: 'Duration (days)', name: 'duration', type: 'number', placeholder: 'e.g. 5' },
-        { label: 'Date From', name: 'date', type: 'text', placeholder: 'YYYY-MM-DD' },
-        { label: 'Venue / Institution', name: 'venue', type: 'text', placeholder: 'e.g. Carmel Polytechnic College', fullWidth: true }
-      ],
-      workshop_attended: [
-        { label: 'Title of Workshop', name: 'title', type: 'text', placeholder: 'e.g. IoT Systems & Embedded Networks', fullWidth: true },
-        { label: 'Duration (days)', name: 'duration', type: 'number', placeholder: 'e.g. 2' },
-        { label: 'Date From', name: 'date', type: 'text', placeholder: 'YYYY-MM-DD' },
-        { label: 'Venue / Institution', name: 'venue', type: 'text', placeholder: 'e.g. Govt Polytechnic College', fullWidth: true }
-      ],
-      course_attended: [
-        { label: 'Course Title', name: 'title', type: 'text', placeholder: 'e.g. NPTEL Data Structures & Algorithms', fullWidth: true },
-        { label: 'Duration', name: 'duration', type: 'text', placeholder: 'e.g. 8 weeks' },
-        { label: 'Platform / Inst.', name: 'venue', type: 'text', placeholder: 'e.g. NPTEL / SWAYAM / Coursera' }
-      ],
-      gap_in_syllabus: [
-        { label: 'Subject Name & Code', name: 'subject', type: 'text', placeholder: 'e.g. Computer Networks (CN-302)', fullWidth: true },
-        { label: 'Identified Curricular Gap Details', name: 'gap_details', type: 'textarea', placeholder: 'Identify topics where syllabus falls short of industrial standards', fullWidth: true },
-        { label: 'Action Taken / Bridge Plan', name: 'action_taken', type: 'text', placeholder: 'e.g. Conducted a 3-hour guest lecture on IPv6', fullWidth: true }
-      ],
-      project_guided: [
-        { label: 'Project Title', name: 'title', type: 'text', placeholder: 'e.g. Smart Autonomous Attendance System', fullWidth: true },
-        { label: 'Batch / Year', name: 'batch', type: 'text', placeholder: 'e.g. 2023-2026 Batch' },
-        { label: 'Student Names', name: 'students', type: 'text', placeholder: 'e.g. Arjun, Vishnu, Rahul' }
-      ],
-      seminar_guided: [
-        { label: 'Seminar Topic', name: 'title', type: 'text', placeholder: 'e.g. Introduction to Quantum Cryptography', fullWidth: true },
-        { label: 'Student Name', name: 'students', type: 'text', placeholder: 'e.g. Anjali Nair' },
-        { label: 'Date Presented', name: 'date', type: 'text', placeholder: 'YYYY-MM-DD' }
-      ],
-      publication: [
-        { label: 'Paper / Journal Title', name: 'title', type: 'text', placeholder: 'e.g. AI-driven Automated Grading Engines', fullWidth: true },
-        { label: 'Journal / Conference Name', name: 'journal', type: 'text', placeholder: 'e.g. IEEE Int. Journal of Engineering' },
-        { label: 'Year', name: 'year', type: 'number', placeholder: 'e.g. 2026' }
-      ],
-      book_published: [
-        { label: 'Book Title', name: 'title', type: 'text', placeholder: 'e.g. Basic Electronics & Microcontrollers', fullWidth: true },
-        { label: 'Publisher', name: 'publisher', type: 'text', placeholder: 'e.g. Pearson India' },
-        { label: 'ISBN Number', name: 'isbn', type: 'text', placeholder: 'e.g. 978-3-16-148410-0' },
-        { label: 'Year', name: 'year', type: 'number', placeholder: 'e.g. 2025' }
-      ]
-    };
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
 
-    function toggleFormFields(type) {
-      const container = document.getElementById('dynamicFieldsContainer');
-      if (!container) return;
-      container.innerHTML = '';
-      
-      const fields = schemas[type] || [];
-      fields.forEach(f => {
-        const div = document.createElement('div');
-        div.className = f.fullWidth ? 'col-span-1 sm:col-span-2 space-y-1.5' : 'space-y-1.5';
-        
-        const label = document.createElement('label');
-        label.className = 'block text-xs font-bold text-slate-700 uppercase tracking-wider';
-        label.innerText = f.label;
-        div.appendChild(label);
-        
-        if (f.type === 'textarea') {
-          const textarea = document.createElement('textarea');
-          textarea.name = `details[${f.name}]`;
-          textarea.placeholder = f.placeholder;
-          textarea.rows = 2;
-          textarea.className = 'w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs resize-y';
-          textarea.required = true;
-          div.appendChild(textarea);
-        } else {
-          const input = document.createElement('input');
-          input.type = f.type;
-          input.name = `details[${f.name}]`;
-          input.placeholder = f.placeholder;
-          input.className = 'w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 text-sm font-medium outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs';
-          input.required = true;
-          div.appendChild(input);
+    // 1. PROFESSIONAL ACTIVITIES LOADER (Filtered to staff member's records)
+    async function loadProfActivities() {
+      const ay = document.getElementById('profActAyFilter')?.value || '{{ $currentAy }}';
+      const container = document.getElementById('profActListContainer');
+      const ayLabel = document.getElementById('profActAyLabel');
+      if (ayLabel) ayLabel.innerText = ay;
+
+      if (container) container.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm">Loading activity records...</div>`;
+
+      try {
+        const query = new URLSearchParams({ academic_year: ay, only_mine: '1' }).toString();
+        const res = await fetch(`/api/staff/professional-activities/fetch?${query}`);
+        const data = await res.json();
+
+        if (data.status === 'SUCCESS' && data.records) {
+          document.getElementById('profActTotalCount').innerText = data.records.length;
+          const fdpCount = data.records.filter(r => r.activity_type?.includes('fdp') || r.activity_type?.includes('workshop')).length;
+          const pubCount = data.records.filter(r => r.activity_type?.includes('publication') || r.activity_type?.includes('book')).length;
+          document.getElementById('profActFdpCount').innerText = fdpCount;
+          document.getElementById('profActPubCount').innerText = pubCount;
+          document.getElementById('profActRegistryCount').innerText = `${data.records.length} records in AY ${ay}`;
+
+          if (data.records.length > 0) {
+            container.innerHTML = data.records.map(r => {
+              const details = r.details || {};
+              const badgeStyle = getCategoryBadgeStyle(r.activity_type);
+              return `
+                <div class="p-4 bg-slate-50/70 border border-slate-200 rounded-2xl flex items-start justify-between gap-4 hover:border-blue-300 hover:bg-white transition-all shadow-2xs">
+                  <div class="space-y-1 min-w-0 flex-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold uppercase tracking-wider border ${badgeStyle}">${(r.activity_type || 'Activity').replace(/_/g, ' ')}</span>
+                      <span class="px-2 py-0.5 bg-slate-200 text-slate-700 rounded-md text-xs font-semibold">${r.department || '{{ Session::get("userBranch", "General") }}'}</span>
+                      <span class="text-xs text-slate-500 font-medium">• ${r.staff_name || '{{ Session::get("userName", "Faculty") }}'}</span>
+                    </div>
+                    <h5 class="font-bold text-slate-900 text-sm leading-snug pt-0.5">${details.title || details.topic || 'Professional Activity'}</h5>
+                    <p class="text-xs text-slate-600 leading-relaxed">${details.description || details.organizer || 'Organized program / workshop'}</p>
+                    <div class="text-xs text-slate-500 flex items-center gap-3 pt-1 flex-wrap font-medium">
+                      ${details.start_date ? `<span class="font-semibold text-blue-700">📅 Start Date: <strong>${details.start_date}</strong></span><span>•</span>` : ''}
+                      <span><strong>Duration:</strong> ${details.duration || '-'}</span>
+                      <span>•</span>
+                      <span><strong>Organizer:</strong> ${details.organizer || '-'}</span>
+                    </div>
+                  </div>
+                  <button onclick="deleteProfActivity(${r.id})" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer shrink-0 border border-transparent hover:border-rose-200 shadow-2xs" title="Delete record">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
+              `;
+            }).join('');
+          } else {
+            container.innerHTML = `<div class="p-8 text-center text-slate-400 text-sm">No professional activity records found for AY ${ay}.</div>`;
+          }
         }
-        
-        container.appendChild(div);
-      });
-    }
-
-    function updateAcademicYearValue() {
-      const startYearInput = document.getElementById('ayStartYear');
-      const fullTextInput = document.getElementById('ayFullText');
-      if (!startYearInput || !fullTextInput) return;
-      const startYear = parseInt(startYearInput.value);
-      if (!isNaN(startYear) && startYear >= 2010 && startYear <= 2100) {
-        fullTextInput.value = `${startYear}-${startYear + 1}`;
+      } catch (err) {
+        if (container) container.innerHTML = `<div class="p-8 text-center text-rose-500 text-sm">Failed to load professional activities.</div>`;
       }
     }
 
-    // Initialize default fields on page load
+    function getCategoryBadgeStyle(type) {
+      if (!type) return 'bg-slate-100 text-slate-700 border-slate-200';
+      if (type.includes('fdp')) return 'bg-blue-50 text-blue-700 border-blue-200';
+      if (type.includes('workshop')) return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+      if (type.includes('course')) return 'bg-teal-50 text-teal-700 border-teal-200';
+      if (type.includes('publication') || type.includes('book')) return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      if (type.includes('gap')) return 'bg-amber-50 text-amber-700 border-amber-200';
+      if (type.includes('project') || type.includes('seminar')) return 'bg-purple-50 text-purple-700 border-purple-200';
+      return 'bg-slate-100 text-slate-700 border-slate-200';
+    }
+
+    // 2. SUBMIT PROFESSIONAL ACTIVITY
+    async function submitProfActivity(e) {
+      e.preventDefault();
+      const alertEl = document.getElementById('profActAlert');
+      const ay = document.getElementById('profActAyFilter')?.value || '{{ $currentAy }}';
+      const type = document.getElementById('profActType').value;
+      const title = document.getElementById('profActTitle').value;
+      const organizer = document.getElementById('profActOrganizer').value;
+      const duration = document.getElementById('profActDuration').value;
+      const startDate = document.getElementById('profActStartDate')?.value || '';
+      const description = document.getElementById('profActDesc').value;
+
+      try {
+        const res = await fetch('/staff/professional-activities/save', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json', 
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken 
+          },
+          body: JSON.stringify({
+            academic_year: ay,
+            activity_type: type,
+            details: { title, organizer, duration, start_date: startDate, description }
+          })
+        });
+
+        alertEl.classList.remove('hidden');
+        alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-emerald-50 text-emerald-700 border-emerald-200';
+        alertEl.innerText = 'Professional activity recorded successfully!';
+        document.getElementById('profActivityForm').reset();
+        loadProfActivities();
+        setTimeout(() => alertEl.classList.add('hidden'), 3500);
+      } catch (err) {
+        alertEl.classList.remove('hidden');
+        alertEl.className = 'p-3 rounded-xl font-semibold border text-xs bg-rose-50 text-rose-700 border-rose-200';
+        alertEl.innerText = 'Error saving activity record.';
+      }
+    }
+
+    // 3. DELETE PROFESSIONAL ACTIVITY
+    async function deleteProfActivity(id) {
+      if (!confirm('Are you sure you want to delete this activity record?')) return;
+      try {
+        await fetch(`/staff/professional-activities/delete/${id}`, {
+          method: 'POST',
+          headers: { 
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken 
+          }
+        });
+        loadProfActivities();
+      } catch (err) {
+        alert('Failed to delete activity.');
+      }
+    }
+
+    // Initialize on page load
     document.addEventListener('DOMContentLoaded', () => {
-      const selector = document.getElementById('activityTypeSelector');
-      if (selector) {
-        toggleFormFields(selector.value);
-      }
+      loadProfActivities();
     });
   </script>
 </body>
