@@ -212,11 +212,15 @@
             expandSidebar();
         } else {
             @if($isStudent)
-                window.location.href = '/student/dashboard';
+                window.location.href = '/dashboard/student';
             @elseif($isAdmin)
                 window.location.href = '/dashboard/principal';
-            @else
+            @elseif(session('userRole') === 'HOD')
                 window.location.href = '/dashboard/hod';
+            @elseif(in_array(session('userRole'), ['Demonstrator', 'Trade_Instructor', 'Workshop_Superintendent']))
+                window.location.href = '/dashboard/demonstrator';
+            @else
+                window.location.href = '/dashboard/lecturer';
             @endif
         }
     }
@@ -226,14 +230,22 @@
         if (sidebar && sidebar.classList.contains('is-collapsed')) {
             expandSidebar();
         }
-        if (typeof handleHodSidebarNav === 'function' && window.location.pathname.includes('/dashboard/hod')) {
+        if (typeof switchPanel === 'function') {
+            switchPanel('security');
+        } else if (typeof handleHodSidebarNav === 'function' && window.location.pathname.includes('/dashboard/hod')) {
             handleHodSidebarNav('profile');
         } else if (typeof openExecutiveProfileModal === 'function') {
             openExecutiveProfileModal();
         } else if (typeof handleStudentSidebarNav === 'function') {
             handleStudentSidebarNav('profile');
         } else {
-            window.location.href = '/dashboard/hod?panel=profile';
+            @if(session('userRole') === 'HOD')
+                window.location.href = '/dashboard/hod?panel=profile';
+            @elseif($isAdmin)
+                window.location.href = '/dashboard/principal?tab=profile';
+            @else
+                window.location.href = '/dashboard/lecturer?panel=security';
+            @endif
         }
     }
 

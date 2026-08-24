@@ -22,15 +22,6 @@
 
   <div class="space-y-6 w-full pb-12">
 
-    <!-- Breadcrumb Navigation -->
-    <div class="flex items-center gap-2 text-sm text-slate-500">
-      <a href="{{ $backUrl }}" class="hover:text-blue-600 font-medium transition-colors flex items-center gap-1.5 no-underline">
-        <x-ui.icon name="dashboard" class="w-4 h-4 text-slate-400" />
-        <span>{{ $backLabel }}</span>
-      </a>
-      <x-ui.icon name="chevron-right" class="w-3.5 h-3.5 text-slate-300" />
-      <span class="text-slate-900 font-semibold">My Leave &amp; Attendance</span>
-    </div>
 
     <!-- Workspace Header & Hero Card -->
     <div class="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-5">

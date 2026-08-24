@@ -46,7 +46,7 @@ return [
             'label' => 'My Profile',
             'icon' => 'user-round',
             'url' => '#',
-            'onclick' => "if (typeof switchPanel === 'function') switchPanel('security');",
+            'onclick' => "if (typeof switchPanel === 'function') { switchPanel('security'); } else { window.location.href='/dashboard/lecturer?panel=security'; }",
         ],
     ],
 ];
