@@ -787,7 +787,7 @@
 
       <!-- PANEL 2: SECURITY LOG / MY PROFILE -->
       <div id="panelSecurity" class="hidden space-y-6 animate-fade-in">
-        @include('partials.staff_profile_panel')
+        @include('partials.staff_profile_panel', ['hideAuditLog' => true])
       </div>
 
       <!-- PANEL: MOBILE SEMINAR EVALUATION WORKSPACE -->
@@ -1039,7 +1039,11 @@
       const subjectId = urlParams.get('subject_id');
       const subjectName = urlParams.get('subject_name');
       const classroomId = urlParams.get('classroom_id');
-      if (subjectId) {
+      const panelParam = urlParams.get('panel') || urlParams.get('tab');
+
+      if (panelParam === 'security' || panelParam === 'profile') {
+        switchPanel('security');
+      } else if (subjectId) {
         openClassroom(classroomId, subjectId, subjectName);
       } else {
         loadLecturerBatches();
@@ -1064,9 +1068,19 @@
         }
       });
 
+      const navMap = {
+        'dashboard': 'my_batches',
+        'security': 'profile',
+        'classroom': 'my_batches',
+        'mobileSeminar': 'my_batches'
+      };
+      if (typeof window.selectSidebarNav === 'function') {
+        window.selectSidebarNav(navMap[panelId] || panelId);
+      }
+
       const titles = {
         'dashboard': 'My Batches',
-        'security': 'My Profile Security Log',
+        'security': 'My Profile',
         'classroom': 'Virtual Classroom',
         'mobileSeminar': 'Seminar Evaluation'
       };
