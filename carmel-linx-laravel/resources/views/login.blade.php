@@ -39,31 +39,48 @@
     <main class="flex-1 flex items-center justify-center p-4 sm:p-8 lg:p-12">
         <div class="w-full max-w-5xl bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[580px]">
             
-            <!-- Left Info Panel (Clean, Minimal Branding with Logo & AMS Software Name Only) -->
-            <div class="lg:col-span-5 bg-slate-900 text-white p-8 lg:p-12 flex flex-col justify-between relative">
+            <!-- Left Info Panel (Ferrofluid Video Background) -->
+            <div class="lg:col-span-5 text-white relative overflow-hidden flex flex-col justify-between min-h-[360px]">
                 
-                <!-- Top Minimal Badge -->
-                <div class="flex items-center justify-between">
-                    <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700/80">
-                        <i data-lucide="shield" class="w-3.5 h-3.5 text-blue-400"></i>
-                        Institutional AMS
-                    </span>
-                    <span class="text-xs font-semibold text-slate-400">v2.0</span>
+                <!-- Video Background -->
+                <video 
+                    autoplay 
+                    loop 
+                    muted 
+                    playsinline
+                    class="absolute inset-0 w-full h-full object-cover"
+                    poster=""
+                >
+                    <source src="{{ asset('ferrofluid.webm') }}" type="video/webm">
+                </video>
+
+                <!-- Subtle Dark Overlay -->
+                <div class="absolute inset-0 bg-black/35"></div>
+
+                <!-- CampusLynk GIF Overlay (screen blend removes blacks) -->
+                <div class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
+                    <img src="{{ asset('campuslynk.gif') }}" alt="CampusLynk" class="w-[70%] max-w-[280px] object-contain drop-shadow-2xl" style="mix-blend-mode: screen;" />
                 </div>
 
-                <!-- Center Logo & Software Name -->
-                <div class="my-auto py-8 text-center sm:text-left space-y-4">
-                    <img src="{{ asset('logo.svg') }}" alt="CampusLynk Logo" class="w-16 h-16 object-contain rounded-2xl bg-white/10 p-2 border border-white/15 shadow-sm inline-block" />
-                    <div>
-                        <h1 class="text-3xl font-bold tracking-tight text-white leading-tight">CampusLynk</h1>
-                        <p class="text-xs text-blue-400 font-semibold uppercase tracking-wider mt-1">Academic Management Suite</p>
+                <!-- Top Badge & Bottom Tagline (above everything) -->
+                <div class="relative z-20 p-8 lg:p-12 flex flex-col justify-between h-full">
+                    <!-- Top Minimal Badge -->
+                    <div class="flex items-center justify-between">
+                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-white/10 backdrop-blur-md text-white/90 border border-white/20">
+                            <i data-lucide="shield" class="w-3.5 h-3.5 text-blue-300"></i>
+                            Institutional AMS
+                        </span>
+                        <span class="text-xs font-semibold text-white/60">v2.0</span>
                     </div>
-                </div>
 
-                <!-- Footer Tagline -->
-                <div class="pt-6 border-t border-slate-800/80 text-xs text-slate-400 flex items-center justify-between">
-                    <span>CampusLynk AMS</span>
-                    <span>Connect. Manage. Empower.</span>
+                    <!-- Spacer -->
+                    <div></div>
+
+                    <!-- Footer Tagline -->
+                    <div class="pt-6 border-t border-white/15 text-xs text-white/50 flex items-center justify-between">
+                        <span>CampusLynk AMS</span>
+                        <span>Connect. Manage. Empower.</span>
+                    </div>
                 </div>
             </div>
 
