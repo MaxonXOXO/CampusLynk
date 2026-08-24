@@ -54,7 +54,8 @@
   <script> window.TARGET_REG_NO = "{{ $studentRegNo }}"; </script>
 
   @php
-    $isLet = session('userAdmissionType') === 'LET';
+    $student = $student ?? \App\Models\Student::where('reg_no', strtoupper($studentRegNo))->first();
+    $isLet = ($student->admission_type ?? '') === 'LET' || session('userAdmissionType') === 'LET';
     $activityGoal = $isLet ? 40 : 60;
     $userRole = session('userRole', 'Tutor');
     $dashboardUrl = match($userRole) {
@@ -64,6 +65,10 @@
         'Admin'       => '/dashboard/admin',
         default       => '/dashboard/tutor',
     };
+    $studentName = $student->name ?? 'Student Record';
+    $studentBranch = $student->branch ?? 'N/A';
+    $studentBatch = $student && $student->admission_year ? ('Batch ' . $student->admission_year . ' (' . ($student->semester ?? 'S1') . ')') : 'N/A';
+    $initials = strtoupper(substr($studentName, 0, 2));
   @endphp
 
   <!-- Master Application Shell -->
@@ -84,138 +89,149 @@
         <!-- Top Status Alert Banner -->
         <div id="globalAlert" class="hidden p-4 rounded-xl font-semibold border text-sm transition-all"></div>
 
-        <!-- Mentoring Main Card (Exact match to Student Dashboard Mentoring Module) -->
-        <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-6">
-          
-          <!-- Mentoring Header Banner with Student Info -->
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+        <!-- Student Profile & Action Header Card -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div class="flex items-center gap-4">
-              <div id="sidebarStudentPhotoContainer" class="shrink-0">
-                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 font-bold text-base flex items-center justify-center border border-blue-200 shadow-xs" id="sidebarStudentPhotoPlaceholder">
-                  {{ strtoupper(substr($studentRegNo, 0, 2)) }}
+              <div class="shrink-0">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 font-bold text-base flex items-center justify-center border border-blue-200 shadow-xs">
+                  {{ $initials }}
                 </div>
-                <img id="sidebarStudentPhoto" class="w-12 h-12 rounded-2xl border border-slate-200 object-cover shadow-xs hidden">
               </div>
               <div>
                 <div class="flex items-center gap-2.5 flex-wrap">
-                  <h2 class="text-base font-bold text-slate-900" id="sidebarStudentName">Loading Student Record...</h2>
+                  <h2 class="text-base font-bold text-slate-900">{{ $studentName }}</h2>
                   <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Active Student</span>
                 </div>
-                <p class="text-xs text-slate-500 mt-0.5">
-                  Reg No: <strong class="text-blue-600 font-mono font-semibold">{{ $studentRegNo }}</strong> •
-                  Branch: <strong id="headerStudentBranch" class="text-slate-800">Loading...</strong> •
-                  Batch: <strong id="headerStudentBatch" class="text-slate-800">Loading...</strong>
-                </p>
+                <div class="flex items-center gap-3 text-xs text-slate-500 font-medium mt-1 flex-wrap">
+                  <span>Reg No: <strong class="text-blue-600 font-mono font-semibold">{{ $studentRegNo }}</strong></span>
+                  <span>•</span>
+                  <span>Branch: <strong class="text-slate-800 font-semibold">{{ $studentBranch }}</strong></span>
+                  <span>•</span>
+                  <span>Batch: <strong class="text-slate-800 font-semibold">{{ $studentBatch }}</strong></span>
+                </div>
               </div>
             </div>
 
-            <!-- Action Buttons -->
+            <!-- Action Controls -->
             <div class="flex items-center gap-2.5 flex-wrap">
-              <a href="{{ $dashboardUrl }}" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shadow-2xs no-underline">
+              <a href="{{ $dashboardUrl }}" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-semibold text-xs transition-all flex items-center gap-1.5 shadow-2xs no-underline">
                 <x-ui.icon name="arrow_back" class="w-4 h-4 text-slate-500" />
                 <span>Back to Dashboard</span>
               </a>
-              <button type="button" onclick="downloadMentoringPdf()" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
+              <button type="button" onclick="downloadMentoringPdf()" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-semibold text-xs transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
                 <x-ui.icon name="print" class="w-4 h-4 text-slate-500" />
-                <span>Export PDF</span>
+                <span>Download PDF</span>
               </button>
-              <button type="button" onclick="saveStudentMentoringData()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 shadow-xs">
+              <button type="button" onclick="saveStudentMentoringData()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-xs transition-all cursor-pointer flex items-center gap-1.5 shadow-xs">
                 <x-ui.icon name="save" class="w-4 h-4" />
                 <span>Save Changes</span>
               </button>
             </div>
           </div>
+        </div>
 
-          <!-- Mentoring Horizontal Sub-Tabs (Exact Twin of Student Dashboard) -->
-          <div class="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-1.5 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/60" id="smdSubTabs">
-            <button type="button" onclick="switchStudentMentoringTab('smdProfile')" id="tabBtn_smdProfile" class="smd-tab py-2 px-2 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-xs transition-all text-center cursor-pointer">
-              Personal
+        <!-- 2-Column Mentoring Workspace Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          
+          <!-- Left Navigation Tab Strip (lg:col-span-1) -->
+          <div class="lg:col-span-1 bg-white border border-slate-200/80 rounded-2xl p-3 shadow-xs space-y-1 self-start">
+            <button type="button" onclick="switchStudentMentoringTab('smdProfile')" id="tabBtn_smdProfile" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs flex items-center gap-2.5 cursor-pointer">
+              <x-ui.icon name="user" class="w-4 h-4" />
+              <span>Personal Info</span>
             </button>
-            <button type="button" onclick="switchStudentMentoringTab('smdFamily')" id="tabBtn_smdFamily" class="smd-tab py-2 px-2 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center cursor-pointer">
-              Family
+            <button type="button" onclick="switchStudentMentoringTab('smdFamily')" id="tabBtn_smdFamily" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
+              <x-ui.icon name="users" class="w-4 h-4" />
+              <span>Family Details</span>
             </button>
-            <button type="button" onclick="switchStudentMentoringTab('smdEducation')" id="tabBtn_smdEducation" class="smd-tab py-2 px-2 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center cursor-pointer">
-              Education
+            <button type="button" onclick="switchStudentMentoringTab('smdEducation')" id="tabBtn_smdEducation" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
+              <x-ui.icon name="book_open" class="w-4 h-4" />
+              <span>Prior Education</span>
             </button>
-            <button type="button" onclick="switchStudentMentoringTab('smdAcademic')" id="tabBtn_smdAcademic" class="smd-tab py-2 px-2 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center cursor-pointer">
-              Academics
+            <button type="button" onclick="switchStudentMentoringTab('smdAcademic')" id="tabBtn_smdAcademic" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
+              <x-ui.icon name="school" class="w-4 h-4" />
+              <span>Academic Progress</span>
             </button>
-            <button type="button" onclick="switchStudentMentoringTab('smdBoard')" id="tabBtn_smdBoard" class="smd-tab py-2 px-2 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center cursor-pointer">
-              Board Exams
+            <button type="button" onclick="switchStudentMentoringTab('smdBoard')" id="tabBtn_smdBoard" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
+              <x-ui.icon name="award" class="w-4 h-4" />
+              <span>Board Exams</span>
             </button>
-            <button type="button" onclick="switchStudentMentoringTab('smdExtra')" id="tabBtn_smdExtra" class="smd-tab py-2 px-2 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center cursor-pointer">
-              Activities
+            <button type="button" onclick="switchStudentMentoringTab('smdExtra')" id="tabBtn_smdExtra" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
+              <x-ui.icon name="sparkles" class="w-4 h-4" />
+              <span>Extracurricular</span>
             </button>
-            <button type="button" onclick="switchStudentMentoringTab('smdLeave')" id="tabBtn_smdLeave" class="smd-tab py-2 px-2 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center cursor-pointer">
-              Leaves
+            <button type="button" onclick="switchStudentMentoringTab('smdLeave')" id="tabBtn_smdLeave" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
+              <x-ui.icon name="calendar" class="w-4 h-4" />
+              <span>Leave Records</span>
             </button>
-            <button type="button" onclick="switchStudentMentoringTab('smdDiscipline')" id="tabBtn_smdDiscipline" class="smd-tab py-2 px-2 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center cursor-pointer">
-              Discipline
+            <button type="button" onclick="switchStudentMentoringTab('smdDiscipline')" id="tabBtn_smdDiscipline" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
+              <x-ui.icon name="gavel" class="w-4 h-4" />
+              <span>Disciplinary Actions</span>
             </button>
-            <button type="button" onclick="switchStudentMentoringTab('smdMeetings')" id="tabBtn_smdMeetings" class="smd-tab py-2 px-2 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center cursor-pointer">
-              Meetings
+            <button type="button" onclick="switchStudentMentoringTab('smdMeetings')" id="tabBtn_smdMeetings" class="w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
+              <x-ui.icon name="message" class="w-4 h-4" />
+              <span>Mentor Meetings</span>
             </button>
           </div>
 
-          <!-- Mentoring Content Panes -->
-          <div class="pt-2">
+          <!-- Right Content Viewport (lg:col-span-3) -->
+          <div class="lg:col-span-3 space-y-6">
 
             <!-- TAB 1: Personal Info -->
-            <div id="tab_smdProfile" class="smd-content-pane space-y-6">
-              <div>
-                <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">Socio-Economic &amp; Residential Profile</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
-                  <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Annual Family Income</label>
-                    <input type="text" id="smdAnnualIncome" placeholder="e.g. ₹2,50,000" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none shadow-2xs">
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Residential Status</label>
-                    <select id="smdResidentialStatus" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none shadow-2xs cursor-pointer">
-                      <option value="Day Scholar">Day Scholar</option>
-                      <option value="Hostel">Hostel</option>
-                      <option value="Paying Guest">Paying Guest</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Scholarships Received</label>
-                    <input type="text" id="smdScholarships" placeholder="e.g. E-Grantz / NSP" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none shadow-2xs">
-                  </div>
-                  <div>
-                    <span class="block text-xs font-semibold text-slate-700 mb-1">Special Category</span>
-                    <label for="smdFeeWaiver" class="flex items-center gap-2.5 min-h-[44px] px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors select-none shadow-2xs">
-                      <input type="checkbox" id="smdFeeWaiver" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-                      <span class="text-xs font-medium text-slate-800">Tuition Fee Waiver Student</span>
-                    </label>
-                  </div>
+            <div id="tab_smdProfile" class="smd-content-pane bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-6">
+              <div class="border-b border-slate-100 pb-3">
+                <h4 class="font-bold text-slate-900 text-sm">Personal &amp; Guardian Details</h4>
+                <p class="text-xs text-slate-500 mt-0.5">Contact details, annual family income, and residential status.</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-slate-600 font-semibold mb-1 text-xs">Annual Income</label>
+                  <input type="text" id="smdAnnualIncome" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400" placeholder="e.g. ₹2,00,000">
+                </div>
+                <div>
+                  <label class="block text-slate-600 font-semibold mb-1 text-xs">Residential Status</label>
+                  <select id="smdResidentialStatus" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all cursor-pointer">
+                    <option value="Day Scholar">Day Scholar</option>
+                    <option value="Hostel">Hostel</option>
+                    <option value="Paying Guest">Paying Guest</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-slate-600 font-semibold mb-1 text-xs">Scholarships / Concessions</label>
+                  <input type="text" id="smdScholarships" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400" placeholder="e.g. E-Grantz">
+                </div>
+                <div class="flex items-center gap-2 pt-6">
+                  <input type="checkbox" id="smdFeeWaiver" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                  <label for="smdFeeWaiver" class="text-xs font-semibold text-slate-700 cursor-pointer">Tuition Fee Waiver Student</label>
                 </div>
               </div>
 
-              <div class="border-t border-slate-100 pt-5">
-                <h3 class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-3">Guardian Information</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+              <div class="border-t border-slate-100 pt-5 space-y-4">
+                <h5 class="font-bold text-xs text-slate-900 uppercase tracking-wider">Guardian Information</h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Guardian Name</label>
-                    <input type="text" id="smdGuardianName" placeholder="Full name" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none shadow-2xs">
+                    <label class="block text-slate-600 font-semibold mb-1 text-xs">Guardian Name</label>
+                    <input type="text" id="smdGuardianName" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400">
                   </div>
                   <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Relationship</label>
-                    <input type="text" id="smdGuardianRelation" placeholder="e.g. Father, Mother" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none shadow-2xs">
+                    <label class="block text-slate-600 font-semibold mb-1 text-xs">Relationship</label>
+                    <input type="text" id="smdGuardianRelation" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400">
                   </div>
                   <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Mobile Number</label>
-                    <input type="text" id="smdGuardianMobile" placeholder="10-digit mobile" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none shadow-2xs">
+                    <label class="block text-slate-600 font-semibold mb-1 text-xs">Mobile Number</label>
+                    <input type="text" id="smdGuardianMobile" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400">
                   </div>
                   <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Permanent Address</label>
-                    <textarea id="smdPermanentAddress" rows="1" placeholder="Address with PIN" class="w-full min-h-[44px] px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none shadow-2xs"></textarea>
+                    <label class="block text-slate-600 font-semibold mb-1 text-xs">Permanent Address</label>
+                    <textarea id="smdPermanentAddress" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400"></textarea>
                   </div>
                 </div>
               </div>
             </div>
 
             <!-- TAB 2: Family Details -->
-            <div id="tab_smdFamily" class="smd-content-pane hidden space-y-4">
+            <div id="tab_smdFamily" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
               <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <div>
                   <h4 class="font-bold text-slate-900 text-sm">Family Members</h4>
@@ -245,7 +261,7 @@
             </div>
 
             <!-- TAB 3: Prior Education -->
-            <div id="tab_smdEducation" class="smd-content-pane hidden space-y-4">
+            <div id="tab_smdEducation" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
               <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <div>
                   <h4 class="font-bold text-slate-900 text-sm">Prior Education History</h4>
@@ -275,7 +291,7 @@
             </div>
 
             <!-- TAB 4: Academic Progress -->
-            <div id="tab_smdAcademic" class="smd-content-pane hidden space-y-4">
+            <div id="tab_smdAcademic" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
               <div class="border-b border-slate-100 pb-3">
                 <h4 class="font-bold text-slate-900 text-sm">Academic Progression</h4>
                 <p class="text-xs text-slate-500 mt-0.5">Internal exam marks, attendance percentages, and credit progression across semesters.</p>
@@ -286,7 +302,7 @@
             </div>
 
             <!-- TAB 5: Board Exams -->
-            <div id="tab_smdBoard" class="smd-content-pane hidden space-y-4">
+            <div id="tab_smdBoard" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
               <div class="border-b border-slate-100 pb-3">
                 <h4 class="font-bold text-slate-900 text-sm">SBTE Board Examination Results</h4>
                 <p class="text-xs text-slate-500 mt-0.5">Official board marks, semester GPA, and backlog tracking.</p>
@@ -297,7 +313,7 @@
             </div>
 
             <!-- TAB 6: Extracurricular -->
-            <div id="tab_smdExtra" class="smd-content-pane hidden space-y-4">
+            <div id="tab_smdExtra" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
               <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <div>
                   <h4 class="font-bold text-slate-900 text-sm">Extracurricular Activity Claims</h4>
@@ -327,7 +343,7 @@
             </div>
 
             <!-- TAB 7: Leave Records -->
-            <div id="tab_smdLeave" class="smd-content-pane hidden space-y-4">
+            <div id="tab_smdLeave" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
               <div class="border-b border-slate-100 pb-3">
                 <h4 class="font-bold text-slate-900 text-sm">Leave History</h4>
                 <p class="text-xs text-slate-500 mt-0.5">Approved and taken leaves during the academic semester.</p>
@@ -350,7 +366,7 @@
             </div>
 
             <!-- TAB 8: Disciplinary Actions -->
-            <div id="tab_smdDiscipline" class="smd-content-pane hidden space-y-4">
+            <div id="tab_smdDiscipline" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
               <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <div>
                   <h4 class="font-bold text-slate-900 text-sm">Disciplinary Incidents</h4>
@@ -379,7 +395,7 @@
             </div>
 
             <!-- TAB 9: Mentor Meetings -->
-            <div id="tab_smdMeetings" class="smd-content-pane hidden space-y-4">
+            <div id="tab_smdMeetings" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
               <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <div>
                   <h4 class="font-bold text-slate-900 text-sm">Mentoring Sessions &amp; Follow-ups</h4>
@@ -419,7 +435,7 @@
     function switchStudentMentoringTab(tabId) {
       document.querySelectorAll('.smd-content-pane').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.smd-tab').forEach(el => {
-        el.className = 'smd-tab py-2 px-2 text-xs font-medium rounded-xl text-slate-600 hover:text-slate-900 transition-all text-center cursor-pointer';
+        el.className = 'w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer';
       });
 
       const pane = document.getElementById('tab_' + tabId) || document.getElementById(tabId);
@@ -427,7 +443,7 @@
 
       const btn = document.getElementById('tabBtn_' + tabId);
       if (btn) {
-        btn.className = 'smd-tab py-2 px-2 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-xs transition-all text-center cursor-pointer';
+        btn.className = 'w-full text-left px-4 py-2.5 rounded-xl font-semibold text-xs smd-tab transition-all bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs flex items-center gap-2.5 cursor-pointer';
       }
     }
 

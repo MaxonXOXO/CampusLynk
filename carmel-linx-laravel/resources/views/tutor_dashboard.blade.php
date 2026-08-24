@@ -849,9 +849,16 @@
         .catch(() => indicator.classList.add('hidden'));
     }
 
-    function renderUsersGrid(users) {
+    let currentRosterLimit = 25;
+    let allRosterUsers = [];
+
+    function renderUsersGrid(users, limit = 25) {
+      allRosterUsers = users;
+      currentRosterLimit = limit;
       const tbody = document.getElementById('usersTableBody');
       tbody.innerHTML = "";
+
+      const displayedUsers = users.slice(0, currentRosterLimit);
 
       if (users.length === 0) {
         tbody.innerHTML = `
@@ -864,7 +871,7 @@
         return;
       }
 
-      users.forEach(user => {
+      displayedUsers.forEach(user => {
         const tr = document.createElement('tr');
         tr.className = "border-b border-slate-100 hover:bg-slate-50/80 transition-all whitespace-nowrap";
 
@@ -953,6 +960,21 @@
         `;
         tbody.appendChild(tr);
       });
+
+      if (allRosterUsers.length > currentRosterLimit) {
+        const loadMoreTr = document.createElement('tr');
+        loadMoreTr.id = "rosterLoadMoreRow";
+        loadMoreTr.className = "bg-slate-50/50 border-b border-slate-100";
+        loadMoreTr.innerHTML = `
+          <td colspan="9" class="p-3 text-center">
+            <button type="button" onclick="renderUsersGrid(allRosterUsers, currentRosterLimit + 25)" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 shadow-2xs transition-all cursor-pointer inline-flex items-center gap-1.5">
+              <span>Show More Students</span>
+              <span class="text-slate-400 font-normal">(${currentRosterLimit} of ${allRosterUsers.length})</span>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(loadMoreTr);
+      }
     }
 
     function changeStatus(userId, userType, newStatus) {
@@ -1667,7 +1689,7 @@
               </td>
               <td class="p-3.5 pr-4 text-right whitespace-nowrap space-x-1.5">
                 <a href="sms:${s.guardian_mobile || s.phone || ''}?body=${encodeURIComponent('Carmel Poly: View your ward (' + s.name + ') live attendance & status portal: ' + window.location.origin + '/parent/dashboard/' + s.reg_no)}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold border border-slate-200 transition-all no-underline shadow-2xs cursor-pointer" title="Send SMS Link to Parent">
-                  <span>📱</span><span>SMS Portal</span>
+                  <svg class="w-3.5 h-3.5 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg><span>SMS Portal</span>
                 </a>
                 <a href="/tutor/mentoring-diary/${s.reg_no}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all no-underline shadow-xs cursor-pointer">
                   <span>View Diary</span>

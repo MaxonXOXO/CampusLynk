@@ -715,6 +715,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/mentoring/assign-batch', [MentoringController::class, 'assignBatch']);
     Route::post('/api/mentoring/assign-mentor2', [MentoringController::class, 'assignMentor2']);
     Route::get('/api/mentoring/diary/{regNo}', [MentoringController::class, 'getStudentDiary']);
+    Route::get('/api/mentoring/full-diary/{regNo}', [MentoringController::class, 'getFullStudentDiary']);
     Route::post('/api/mentoring/diary/add', [MentoringController::class, 'addDiaryEntry']);
     Route::post('/api/mentoring/diary/approve', [MentoringController::class, 'approveDiaryEntry']);
     Route::post('/api/mentoring/diary/delete', [MentoringController::class, 'deleteDiaryEntry']);
