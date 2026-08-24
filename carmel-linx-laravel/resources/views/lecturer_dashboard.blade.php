@@ -332,25 +332,37 @@
       <div id="panelClassroom" class="hidden space-y-5">
         
         <!-- Header Card -->
-        <div class="bg-white border border-slate-200/80 p-5 rounded-2xl flex items-center justify-between shadow-xs">
-          <div>
-            @if(session('userRole') === 'Demonstrator')
-              <a href="/dashboard/demonstrator" class="text-xs font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wider flex items-center gap-1.5 transition mb-2 cursor-pointer no-underline inline-flex">
-                <x-ui.icon name="science" class="w-4 h-4 text-blue-600" /> Back to Console
-              </a>
-            @else
-              <button onclick="switchPanel('dashboard')" class="text-xs font-bold text-slate-600 hover:text-slate-900 uppercase tracking-wider flex items-center gap-1.5 transition mb-1 cursor-pointer">
-                <x-ui.icon name="science" class="w-4 h-4" /> Back to Dashboard
-              </button>
-            @endif
-            <h3 id="vcTitle" class="text-lg font-bold text-slate-900 flex items-center gap-2 mt-1">
-              <x-ui.icon name="science" class="w-5 h-5 text-blue-600" /> Virtual Classroom
-            </h3>
-            <p id="vcSubtitle" class="text-xs sm:text-sm text-slate-500 mt-0.5 font-mono">Loading...</p>
+        <div class="bg-white border border-slate-200/80 p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+          <div class="flex items-center gap-3.5">
+            <button onclick="switchPanel('dashboard')" class="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-blue-600 border border-slate-200 flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-2xs group" title="Back to Dashboard">
+              <x-ui.icon name="arrow_back" class="w-5 h-5 text-slate-600 group-hover:text-blue-600" />
+            </button>
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200/80 shrink-0">
+              <x-ui.icon name="book" class="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                @if(session('userRole') === 'Demonstrator')
+                  <a href="/dashboard/demonstrator" class="text-xs font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wider flex items-center gap-1 transition no-underline">
+                    Back to Console
+                  </a>
+                @else
+                  <button onclick="switchPanel('dashboard')" class="text-xs font-bold text-slate-500 hover:text-blue-600 uppercase tracking-wider flex items-center gap-1 transition cursor-pointer">
+                    Dashboard
+                  </button>
+                @endif
+                <span class="text-xs text-slate-300">•</span>
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Virtual Classroom</span>
+              </div>
+              <h3 id="vcTitle" class="text-lg font-bold text-slate-900 mt-0.5">Virtual Classroom</h3>
+              <p id="vcSubtitle" class="text-xs sm:text-sm text-slate-500 font-mono">Loading...</p>
+            </div>
           </div>
-          <button id="vcViewStudentsBtn" onclick="showVcStudentsList()" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs border border-slate-200">
-            <x-ui.icon name="groups" class="w-4 h-4 text-blue-600" /> View Students
-          </button>
+          <div class="flex items-center gap-3">
+            <button id="vcViewStudentsBtn" onclick="showVcStudentsList()" class="px-4 py-2 bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs border border-slate-200 hover:border-blue-300">
+              <x-ui.icon name="groups" class="w-4 h-4 text-blue-600" /> View Students
+            </button>
+          </div>
         </div>
 
         <!-- Top Banner: Course File Actions -->
@@ -408,10 +420,10 @@
          <!-- Toggle Buttons Navigation Strip -->
          <div class="bg-white border border-slate-200/80 p-2 rounded-2xl flex flex-wrap items-center gap-2 mb-4 shadow-xs">
              <button onclick="toggleClassroomTab('structure')" id="tabStructure" class="classroom-tab-btn flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs cursor-pointer">
-               <x-ui.icon name="science" class="w-4 h-4" /> Course Structure
+               <x-ui.icon name="account_tree" class="w-4 h-4" /> Course Structure
              </button>
              <button onclick="toggleClassroomTab('planner')" id="tabPlanner" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <x-ui.icon name="science" class="w-4 h-4" /> Lesson Planner
+               <x-ui.icon name="calendar_month" class="w-4 h-4" /> Lesson Planner
              </button>
              <button onclick="toggleClassroomTab('assessment')" id="tabAssessment" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
                <x-ui.icon name="assignment_turned_in" class="w-4 h-4" /> Formative Assessment
@@ -420,16 +432,16 @@
                <x-ui.icon name="school" class="w-4 h-4" /> Summative Assessment
              </button>
              <button onclick="toggleClassroomTab('reports')" id="tabReports" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <x-ui.icon name="science" class="w-4 h-4" /> Reports
+               <x-ui.icon name="assessment" class="w-4 h-4" /> Reports
              </button>
              <button onclick="toggleClassroomTab('qbank')" id="tabQBank" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
                <x-ui.icon name="database" class="w-4 h-4" /> Question Bank
              </button>
              <button onclick="toggleClassroomTab('survey')" id="tabSurvey" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <x-ui.icon name="grade" class="w-4 h-4" /> Mid-Sem Survey
+               <x-ui.icon name="rate_review" class="w-4 h-4" /> Mid-Sem Survey
              </button>
              <button onclick="toggleClassroomTab('exit_survey')" id="tabExitSurvey" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <x-ui.icon name="assignment_turned_in" class="w-4 h-4" /> Course Exit Survey
+               <x-ui.icon name="check_circle" class="w-4 h-4" /> Course Exit Survey
              </button>
              <button onclick="toggleClassroomTab('seminar_evaluation')" id="tabSeminar" class="hidden classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
                <x-ui.icon name="co_present" class="w-4 h-4" /> Seminar Evaluation
@@ -1267,7 +1279,7 @@
       }
       currentSubjectId = subjectId;
       window.currentVirtualBatchId = batchId;
-      document.getElementById('vcTitle').innerHTML = `<svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> ${subjectName}`;
+      document.getElementById('vcTitle').innerText = subjectName || 'Virtual Classroom';
       let latText = '';
       if (batchId.includes('_LET')) {
         latText = ' <span class="bg-purple-900/60 border border-purple-500/50 text-purple-300 font-extrabold text-xs px-2.5 py-1 rounded-full shadow-inner ml-2">LATERAL ENTRY (LET)</span>';

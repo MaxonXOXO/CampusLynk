@@ -24,6 +24,8 @@
     @case('calendar-days')
     @case('calendar')
     @case('calendar-month')
+    @case('planner')
+    @case('lesson-planner')
     @case('calendar-today')
     @case('event-note')
     @case('today')
@@ -521,6 +523,9 @@
 
     {{-- 44. MESSAGE / FORUM / SUPPORT --}}
     @case('message-square')
+    @case('rate-review')
+    @case('survey')
+    @case('feedback')
     @case('forum')
     @case('headset-mic')
         <svg {{ $attributes->merge(['class' => $class]) }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -718,6 +723,10 @@
     @case('bar-chart')
     @case('bar-chart-4-bars')
     @case('report-centre')
+    @case('reports')
+    @case('assessment')
+    @case('analytics')
+    @case('equalizer')
     @case('marks')
     @case('trending-up')
     @case('trending-down')
@@ -863,11 +872,9 @@
         </svg>
         @break
 
-    {{-- 75. CPU / TECH / LAB --}}
+        {{-- 75. CPU / MICROCONTROLLER / CHIP --}}
     @case('cpu')
     @case('precision-manufacturing')
-    @case('biotech')
-    @case('science')
     @case('handyman')
     @case('construction')
     @case('factory')
@@ -882,6 +889,35 @@
             <path d="M20 9h2"/>
             <path d="M9 2v2"/>
             <path d="M9 20v2"/>
+        </svg>
+        @break
+
+    {{-- 75B. SCIENCE / LAB / FLASK / PRACTICAL --}}
+    @case('science')
+    @case('flask')
+    @case('flask-conical')
+    @case('lab')
+    @case('biotech')
+        <svg {{ $attributes->merge(['class' => $class]) }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M10 2v7.31L4.69 18.2A2 2 0 0 0 6.4 21h11.2a2 2 0 0 0 1.71-2.8L14 9.31V2"/>
+            <path d="M8.5 2h7"/>
+            <path d="M14 9.3 8.5 18"/>
+        </svg>
+        @break
+
+    {{-- 75C. ACCOUNT TREE / COURSE STRUCTURE / HIERARCHY / LAYERS --}}
+    @case('account-tree')
+    @case('structure')
+    @case('course-structure')
+    @case('git-fork')
+    @case('layers')
+    @case('workflow')
+        <svg {{ $attributes->merge(['class' => $class]) }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="18" r="3"/>
+            <circle cx="6" cy="6" r="3"/>
+            <circle cx="18" cy="6" r="3"/>
+            <path d="M18 9v1a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9"/>
+            <path d="M12 12v3"/>
         </svg>
         @break
 
