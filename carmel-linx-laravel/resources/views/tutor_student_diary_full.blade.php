@@ -87,7 +87,7 @@
       <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
         <!-- Top Status Alert Banner -->
-        <div id="globalAlert" class="hidden p-4 rounded-xl font-semibold border text-sm transition-all"></div>
+        <div id="globalAlert" class="hidden p-4 rounded-xl font-semibold border text-sm transition-all shadow-2xs"></div>
 
         <!-- Student Profile & Action Header Card -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
@@ -254,7 +254,7 @@
                     </tr>
                   </thead>
                   <tbody id="familyTableBody" class="divide-y divide-slate-100 text-slate-800">
-                    <tr><td colspan="5" class="p-4 text-center text-slate-500">Loading family records...</td></tr>
+                    <tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">No family members registered.</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -284,7 +284,7 @@
                     </tr>
                   </thead>
                   <tbody id="educationTableBody" class="divide-y divide-slate-100 text-slate-800">
-                    <tr><td colspan="5" class="p-4 text-center text-slate-500">Loading education records...</td></tr>
+                    <tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">No prior education records found.</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -294,7 +294,7 @@
             <div id="tab_smdAcademic" class="smd-content-pane hidden bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
               <div class="border-b border-slate-100 pb-3">
                 <h4 class="font-bold text-slate-900 text-sm">Academic Progression</h4>
-                <p class="text-xs text-slate-500 mt-0.5">Internal exam marks, attendance percentages, and credit progression across semesters.</p>
+                <p class="text-xs text-slate-500 mt-0.5">Internal exam marks, assignments, and credit progression across semesters.</p>
               </div>
               <div id="academicProgressContainer" class="space-y-4">
                 <p class="p-6 text-center text-slate-500 text-xs font-medium">Loading progression logs...</p>
@@ -336,7 +336,7 @@
                     </tr>
                   </thead>
                   <tbody id="studentActivityTableBody" class="divide-y divide-slate-100 text-slate-800">
-                    <tr><td colspan="5" class="p-4 text-center text-slate-500">Loading activity records...</td></tr>
+                    <tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">No extracurricular activities logged.</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -359,7 +359,7 @@
                     </tr>
                   </thead>
                   <tbody id="studentLeaveTableBody" class="divide-y divide-slate-100 text-slate-800">
-                    <tr><td colspan="4" class="p-4 text-center text-slate-500">Loading leave records...</td></tr>
+                    <tr><td colspan="4" class="p-6 text-center text-slate-500 font-medium">No leave records recorded.</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -388,7 +388,7 @@
                     </tr>
                   </thead>
                   <tbody id="studentDiscTableBody" class="divide-y divide-slate-100 text-slate-800">
-                    <tr><td colspan="4" class="p-4 text-center text-slate-500">No disciplinary incidents recorded.</td></tr>
+                    <tr><td colspan="4" class="p-6 text-center text-slate-500 font-medium">No disciplinary incidents recorded.</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -417,7 +417,7 @@
                     </tr>
                   </thead>
                   <tbody id="studentSessionTableBody" class="divide-y divide-slate-100 text-slate-800">
-                    <tr><td colspan="4" class="p-4 text-center text-slate-500">Loading meeting records...</td></tr>
+                    <tr><td colspan="4" class="p-6 text-center text-slate-500 font-medium">No mentoring sessions recorded.</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -430,8 +430,73 @@
     </div>
   </div>
 
+  <!-- Session Modal -->
+  <div id="sessionModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 w-full max-w-md shadow-xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-bold text-slate-900">Log Mentoring Meeting</h3>
+        <button type="button" onclick="closeSessionModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Session Date</label>
+          <input type="date" id="sessDate" value="{{ date('Y-m-d') }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Discussion Notes / Challenges</label>
+          <textarea id="sessNotes" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600" placeholder="Student academic focus, attendance, personal concerns..."></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Action Plan / Follow-up Advice</label>
+          <textarea id="sessAction" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600" placeholder="Recommended steps, remedial sessions..."></textarea>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <button type="button" onclick="closeSessionModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">Cancel</button>
+        <button type="button" onclick="saveSessionLog()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold">Save Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Disciplinary Modal -->
+  <div id="discModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 w-full max-w-md shadow-xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-bold text-slate-900">Record Disciplinary Incident</h3>
+        <button type="button" onclick="closeDiscModal()" class="text-slate-400 hover:text-slate-600 cursor-pointer">✕</button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Incident Date</label>
+          <input type="date" id="discDate" value="{{ date('Y-m-d') }}" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Incident Description</label>
+          <textarea id="discNotes" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600" placeholder="Description of infraction or misconduct..."></textarea>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Action Taken / Resolution</label>
+          <input type="text" id="discAction" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-sm text-slate-900 outline-none focus:bg-white focus:border-blue-600" placeholder="e.g. Warning issued, Parent notified">
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <button type="button" onclick="closeDiscModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold">Cancel</button>
+        <button type="button" onclick="saveDisciplinaryAction()" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold">Record Action</button>
+      </div>
+    </div>
+  </div>
+
   <!-- JAVASCRIPT LOGIC -->
   <script>
+    let diaryData = null;
+
+    function getHeaders() {
+      return {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      };
+    }
+
     function switchStudentMentoringTab(tabId) {
       document.querySelectorAll('.smd-content-pane').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.smd-tab').forEach(el => {
@@ -447,789 +512,432 @@
       }
     }
 
-    function switchPanel(panelId, title) {
-      const panels = ['exams', 'marks', 'profile', 'mentoring', 'activity'];
-      
-      panels.forEach(id => {
-        const el = document.getElementById('panel' + id.charAt(0).toUpperCase() + id.slice(1));
-        const nav = document.getElementById('nav' + id.charAt(0).toUpperCase() + id.slice(1));
-        if (id === panelId) {
-          if (el) { el.classList.remove('hidden'); el.classList.add('fade-up'); }
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
-        } else {
-          if (el) el.classList.add('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-600 hover:bg-slate-100 hover:text-white cursor-pointer";
-        }
-      });
-
-      const titles = { exams: 'Works To Do', marks: 'Academic Stats', profile: 'My Profile', mentoring: 'Mentoring Diary', activity: 'Activity Points' };
-      const subtitles = { 
-        exams: 'Manage your pending assignments and active tests.', 
-        marks: 'Your semester-wise academic progress.', 
-        profile: 'Your personal and academic details.',
-        mentoring: 'Mentoring sessions and student data.',
-        activity: 'Track and claim your extracurricular points.'
-      };
-      document.getElementById('panelTitle').innerText = titles[panelId];
-      document.getElementById('panelSubtitle').innerText = subtitles[panelId];
-
-      if (panelId === 'mentoring') {
-        if (!mentoringLoaded) loadMentoringDiary();
-      } else if (panelId === 'activity') {
-        loadActivityPoints();
-      }
+    function showGlobalAlert(msg, isError = false) {
+      const alert = document.getElementById('globalAlert');
+      alert.classList.remove('hidden');
+      alert.className = isError 
+        ? "p-4 rounded-xl font-semibold border text-xs bg-rose-50 text-rose-700 border-rose-200 block shadow-2xs"
+        : "p-4 rounded-xl font-semibold border text-xs bg-emerald-50 text-emerald-700 border-emerald-200 block shadow-2xs";
+      alert.innerText = msg;
+      setTimeout(() => alert.classList.add('hidden'), 4000);
     }
 
-      document.addEventListener('DOMContentLoaded', () => {
-        loadStudentTests();
-        if (!academicReportLoaded) loadAcademicReport();
-      });
-
-    let academicReportLoaded = false;
-    let mentoringLoaded = false;
-    let academicData = null;
-    let currentActiveSem = 1;
-    let cgpaChartInstance = null;
-    
-    let currentTaskStats = {
-       assignments_active: 0,
-       assignments_submitted: 0,
-       written_tests_active: 0,
-       written_tests_submitted: 0,
-       online_tests_active: 0,
-       online_tests_submitted: 0
-    };
-
-    function updateStatsHeader(acStats, tStats) {
-       if (acStats) {
-          currentTaskStats.assignments_active = acStats.assignments_active || 0;
-          currentTaskStats.assignments_submitted = acStats.assignments_submitted || 0;
-          currentTaskStats.written_tests_active = acStats.written_tests_active || 0;
-          currentTaskStats.written_tests_submitted = acStats.written_tests_submitted || 0;
-       }
-       if (tStats) {
-          currentTaskStats.online_tests_active = tStats.online_tests_active || 0;
-          currentTaskStats.online_tests_submitted = tStats.online_tests_submitted || 0;
-       }
-       document.getElementById('statActiveTests').innerText = currentTaskStats.online_tests_active;
-       document.getElementById('statActiveAssign').innerText = currentTaskStats.assignments_active;
-       document.getElementById('statWrittenTests').innerText = currentTaskStats.written_tests_active;
-       document.getElementById('statTestsDone').innerText = currentTaskStats.online_tests_submitted;
-       document.getElementById('statAssignDone').innerText = currentTaskStats.assignments_submitted;
-       document.getElementById('statWrittenTestsDone').innerText = currentTaskStats.written_tests_submitted;
-       document.getElementById('statPendingTotal').innerText = currentTaskStats.online_tests_active + currentTaskStats.assignments_active + currentTaskStats.written_tests_active;
-    }
-
-    function loadAcademicReport() {
-      fetch('/api/student/academic-report')
+    function loadFullStudentDiary() {
+      fetch(`/api/mentoring/full-diary/${window.TARGET_REG_NO}`)
         .then(res => res.json())
-        .then(data => {
-          if (data.status === 'SUCCESS') {
-            academicReportLoaded = true;
-            academicData = data;
-            const overall = data.overall || {};
-            document.getElementById('overallCgpa').innerText = overall.cgpa || '0';
-            document.getElementById('overallActivityPoints').innerText = overall.activity_points || '0';
-            if (overall.current_semester) {
-              document.getElementById('headerSemesterText').classList.remove('hidden');
-              document.getElementById('headerSemValue').innerText = overall.current_semester;
-            }
-            currentActiveSem = data.overall.current_semester || 1;
-
-            if (data.stats) updateStatsHeader(data.stats, null);
-            renderActiveTasks(data.active_tasks || []);
-            renderCgpaChart(data.semesters);
-            renderSemesterTabs(data.semesters);
-            renderGodTable(currentActiveSem);
+        .then(res => {
+          if (res.status === 'SUCCESS' && res.data) {
+            diaryData = res.data;
+            hydrateDiaryFields(res.data);
           }
+        })
+        .catch(err => {
+          console.error("Diary load error:", err);
         });
     }
 
-    function renderActiveTasks(tasks) {
-      const container = document.getElementById('studentActiveTasksContainer');
-      if (!tasks || tasks.length === 0) {
-        container.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500 font-bold text-xs">No active assignments or tests at the moment.</div>`;
-        return;
-      }
+    function hydrateDiaryFields(d) {
+      const p = d.profile || d.extended_profile || {};
       
-      let html = '';
-      tasks.forEach((t, index) => {
-        const isExp = t.status === 'Expired' || t.status === 'Completed';
-        const stCol = isExp ? 'text-rose-400 bg-rose-500/10 border-rose-500/20' : 'text-teal-400 bg-teal-500/10 border-teal-500/20';
-        const icon = t.type === 'Assignment' ? 'assignment' : 'edit_document';
+      // 1. Personal & Guardian
+      document.getElementById('smdAnnualIncome').value = p.annual_income || '';
+      document.getElementById('smdResidentialStatus').value = p.residential_status || 'Day Scholar';
+      document.getElementById('smdScholarships').value = p.scholarships || '';
+      document.getElementById('smdFeeWaiver').checked = p.is_fee_waiver == 1;
+      document.getElementById('smdGuardianName').value = p.guardian_name || '';
+      document.getElementById('smdGuardianRelation').value = p.guardian_relationship || '';
+      document.getElementById('smdGuardianMobile').value = p.guardian_mobile || '';
+      document.getElementById('smdPermanentAddress').value = p.guardian_address || '';
 
-        let qHtml = '';
-        if (t.questions && t.questions.length > 0) {
-          qHtml = `<div class="mt-4 pt-4 border-t border-slate-200 hidden" id="taskQ_${index}">
-            <h4 class="text-xs uppercase font-black text-slate-600 mb-2">Assignment Questions</h4>
-            <ul class="space-y-2 text-xs text-slate-700 font-medium list-disc pl-4">
-              ${t.questions.map(q => `<li>${q}</li>`).join('')}
-            </ul>
-          </div>`;
-        }
-
-        let actionBtn = '';
-        if (t.type === 'Assignment' && !isExp) {
-          actionBtn = `<button onclick="markManualTaskSubmitted('${t.subject_code}', '${t.co_tag}', 'Assignment')" class="mt-3 w-full py-2 bg-blue-600/80 hover:bg-blue-500 text-white rounded font-bold text-xs transition-premium">Mark as Submitted</button>`;
-        }
-
-        html += `
-          <div class="bg-white/80 border border-slate-200/60 rounded-xl overflow-hidden mb-1">
-            <!-- Collapsible Header -->
-            <div onclick="document.getElementById('co_task_${index}').classList.toggle('hidden'); this.querySelector('.arrow-icon').innerText = document.getElementById('co_task_${index}').classList.contains('hidden') ? 'expand_more' : 'expand_less';" 
-                 class="px-4 py-3.5 bg-slate-50/40 hover:bg-slate-50/70 border-b border-slate-200 flex justify-between items-center cursor-pointer transition-premium">
-              <div class="flex items-center gap-3">
-                <span class="text-blue-600 text-xs font-bold">●</span>
-                <div>
-                  <h4 class="font-bold text-xs text-slate-800 uppercase">${t.type} - ${t.co_tag}</h4>
-                  <p class="text-xs font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject}</p>
-                </div>
-              </div>
-              <span class="text-slate-400 text-xs arrow-icon">▼</span>
-            </div>
-            <!-- Collapsible Content -->
-            <div id="co_task_${index}" class="hidden p-4 bg-slate-50/10 border-t border-slate-100">
-              <div class="flex items-center gap-2 mb-3">
-                  <span class="px-2 py-0.5 rounded text-xs font-black uppercase tracking-widest ${stCol}">${t.status}</span>
-              </div>
-              <div class="grid grid-cols-2 gap-4 mb-4 text-xs text-slate-600 font-semibold">
-                <div class="space-y-1">
-                  <div>Start Date: <span class="text-slate-800 font-bold">${t.start ? new Date(t.start).toLocaleDateString() : '-'}</span></div>
-                </div>
-                <div class="space-y-1">
-                  <div>Deadline: <span class="text-slate-800 font-bold font-mono">${t.deadline ? new Date(t.deadline).toLocaleDateString() : '-'}</span></div>
-                </div>
-              </div>
-              ${qHtml ? `<button onclick="document.getElementById('taskQ_${index}').classList.toggle('hidden')" class="w-full mt-2 py-2 text-xs font-bold text-blue-400 hover:text-blue-300 bg-blue-500/5 rounded-xl transition-premium flex justify-center items-center gap-1">👁 View Questions</button>` : ''}
-              ${qHtml}
-              ${actionBtn}
-            </div>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-      container.className = "flex flex-col gap-1 mt-4 mb-6";
-    }
-
-    function markManualTaskSubmitted(subjectCode, coTag, category) {
-      if (!confirm("Are you sure you want to mark this task as submitted?")) return;
-      fetch('/api/student/tasks/submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-          body: JSON.stringify({ subject_code: subjectCode, co_tag: coTag, category: category, status: 'Submitted' })
-      })
-      .then(res => res.json())
-      .then(data => {
-          if (data.status === 'SUCCESS') {
-              alert(data.message);
-              loadAcademicReport(); // reload tasks
-          } else {
-              alert(data.message || "Failed to submit.");
-          }
-      });
-    }
-
-    function renderCgpaChart(semesters) {
-      const ctx = document.getElementById('cgpaChart').getContext('2d');
-      if (cgpaChartInstance) cgpaChartInstance.destroy();
-
-      const labels = semesters.map(s => `S${s.semester}`);
-      const data = semesters.map(s => s.sgpa || 0);
-
-      cgpaChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'SGPA',
-            data: data,
-            borderColor: '#3b82f6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)',
-            borderWidth: 2,
-            pointBackgroundColor: '#fff',
-            pointRadius: 4,
-            fill: true,
-            tension: 0.4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
-            y: { 
-              grid: { color: 'rgba(30,41,59,0.5)' }, 
-              ticks: { color: '#64748b', font: { size: 10 } },
-              min: 0, max: 10
-            }
-          }
-        }
-      });
-    }
-
-    function renderSemesterTabs(semesters) {
-      const container = document.getElementById('semesterTabsContainer');
-      let html = '';
-      semesters.forEach(s => {
-        const isActive = s.semester === currentActiveSem;
-        const isCurrent = s.is_current === true;
-        const cls = isActive 
-          ? 'bg-blue-600/20 text-blue-400 border-blue-500/20' 
-          : 'bg-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 border-transparent';
-        const badge = isCurrent ? `<span class="ml-1 text-[8px] bg-teal-500/20 text-teal-400 px-1 py-0.5 rounded font-black">NOW</span>` : '';
-        html += `
-          <button onclick="renderGodTable(${s.semester})" id="btnSemTab_${s.semester}" class="sem-tab px-4 py-2 rounded-lg text-xs font-black transition-premium border ${cls}">
-            Semester ${s.semester}${badge}
-          </button>
-        `;
-      });
-      container.innerHTML = html;
-    }
-
-    function renderGodTable(semId) {
-      currentActiveSem = semId;
-      document.querySelectorAll('.sem-tab').forEach(btn => {
-        btn.className = 'sem-tab px-4 py-2 rounded-lg text-xs font-black transition-premium border bg-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-100 border-transparent';
-      });
-      const actBtn = document.getElementById(`btnSemTab_${semId}`);
-      if(actBtn) actBtn.className = 'sem-tab px-4 py-2 rounded-lg text-xs font-black transition-premium border bg-blue-600/20 text-blue-400 border-blue-500/20';
-
-      const container = document.getElementById('academicReportContent');
-      const semData = academicData.semesters.find(s => s.semester == semId);
-      if (!semData || !semData.subjects || semData.subjects.length === 0) {
-        container.innerHTML = `<div class="py-12 text-center text-slate-500 font-bold text-xs border border-slate-200/50 rounded-2xl bg-white/30">No academic data available for Semester ${semId}.</div>`;
-        return;
-      }
-
-      let rows = '';
-      semData.subjects.forEach(sub => {
-        const trClass = "border-b border-slate-200/50 hover:bg-white/30 transition-premium";
-        rows += `
-          <tr class="${trClass}">
-            <td class="p-4 whitespace-nowrap">
-              <div class="font-black text-slate-800 text-xs">${sub.subject_code}</div>
-              <div class="text-xs text-slate-500 font-bold truncate max-w-[150px]" title="${sub.subject_name}">${sub.subject_name}</div>
-            </td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-700">${sub.CO1 !== null ? sub.CO1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-700 bg-slate-50/20">${sub.CO2 !== null ? sub.CO2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-700">${sub.CO3 !== null ? sub.CO3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-slate-700 bg-slate-50/20">${sub.CO4 !== null ? sub.CO4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400 border-l border-slate-200">${sub.Assg1 !== null ? sub.Assg1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg2 !== null ? sub.Assg2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg3 !== null ? sub.Assg3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-bold text-blue-400">${sub.Assg4 !== null ? sub.Assg4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400 border-l border-slate-200">${sub.WT1 !== null ? sub.WT1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT2 !== null ? sub.WT2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT3 !== null ? sub.WT3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-emerald-400">${sub.WT4 !== null ? sub.WT4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400 border-l border-slate-200">${sub.OT1 !== null ? sub.OT1 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT2 !== null ? sub.OT2 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT3 !== null ? sub.OT3 : '-'}</td>
-            <td class="p-4 text-center text-xs font-mono font-black text-purple-400">${sub.OT4 !== null ? sub.OT4 : '-'}</td>
-            <td class="p-4 text-center text-xs font-black border-l border-slate-200 ${sub.attendance_percentage < 75 ? 'text-rose-400' : 'text-slate-700'}">
-              ${sub.attendance_percentage}%
-            </td>
+      // 2. Family Details
+      const fBody = document.getElementById('familyTableBody');
+      if (d.family && d.family.length > 0) {
+        fBody.innerHTML = d.family.map((f, idx) => `
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all family-row">
+            <td class="p-3 pl-4 font-semibold text-slate-900 text-xs"><input type="text" value="${f.name || ''}" class="w-full bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 fam-name"></td>
+            <td class="p-3 text-slate-700 text-xs"><input type="text" value="${f.relationship || ''}" class="w-full bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 fam-rel"></td>
+            <td class="p-3 text-slate-700 text-xs"><input type="number" value="${f.age || ''}" class="w-16 bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 fam-age"></td>
+            <td class="p-3 text-slate-700 text-xs"><input type="text" value="${f.occupation || ''}" class="w-full bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 fam-occ"></td>
+            <td class="p-3 pr-4 text-right"><button type="button" onclick="this.closest('tr').remove()" class="text-rose-600 hover:text-rose-700 text-xs font-semibold cursor-pointer">Remove</button></td>
           </tr>
-        `;
-      });
+        `).join('');
+      } else {
+        fBody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">No family members registered.</td></tr>';
+      }
 
-      container.innerHTML = `
-        <div class="flex justify-between items-center mb-4">
-          <div class="flex gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
-              <span class="text-amber-500 text-xs">★</span>
-              <span class="text-xs text-slate-600 font-bold uppercase tracking-widest">SGPA:</span>
-              <span class="text-xs font-black text-white">${semData.sgpa || '-'}</span>
+      // 3. Education
+      const eBody = document.getElementById('educationTableBody');
+      if (d.education && d.education.length > 0) {
+        eBody.innerHTML = d.education.map((e, idx) => `
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all edu-row">
+            <td class="p-3 pl-4 font-semibold text-slate-900 text-xs"><input type="text" value="${e.course || ''}" class="w-full bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 edu-course"></td>
+            <td class="p-3 text-slate-700 text-xs"><input type="text" value="${e.institution || ''}" class="w-full bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 edu-inst"></td>
+            <td class="p-3 text-slate-700 text-xs"><input type="number" value="${e.year_of_passing || ''}" class="w-20 bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 edu-year"></td>
+            <td class="p-3 text-slate-700 text-xs"><input type="text" value="${e.percentage || ''}" class="w-24 bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 edu-pct"></td>
+            <td class="p-3 pr-4 text-right"><button type="button" onclick="this.closest('tr').remove()" class="text-rose-600 hover:text-rose-700 text-xs font-semibold cursor-pointer">Remove</button></td>
+          </tr>
+        `).join('');
+      } else {
+        eBody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">No prior education records found.</td></tr>';
+      }
+
+      // 4. Academic Progress
+      const acadCont = document.getElementById('academicProgressContainer');
+      if (d.academics && Object.keys(d.academics).length > 0) {
+        let aHtml = '';
+        for (const [sem, subjects] of Object.entries(d.academics)) {
+          aHtml += `
+            <div class="border border-slate-200/80 rounded-xl overflow-hidden mb-4 shadow-2xs">
+              <div class="bg-slate-50 px-4 py-2.5 border-b border-slate-200 flex justify-between items-center">
+                <span class="font-bold text-slate-900 text-xs">Semester ${sem} Progress</span>
+                <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">${subjects.length} Subjects</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr class="bg-white border-b border-slate-100 text-slate-600 font-semibold uppercase tracking-wider">
+                      <th class="p-3 pl-4">Subject</th>
+                      <th class="p-3 text-center">Type</th>
+                      <th class="p-3 text-center">Tests (CO1-CO4)</th>
+                      <th class="p-3 text-center">Assignments</th>
+                      <th class="p-3 pr-4 text-center">Internal Mark</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 text-slate-800">
+                    ${subjects.map(s => `
+                      <tr class="hover:bg-slate-50/50">
+                        <td class="p-3 pl-4"><span class="font-semibold text-slate-900 block">${s.subject_name}</span><span class="font-mono text-slate-500 text-xs">${s.subject_code}</span></td>
+                        <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700">${s.type}</span></td>
+                        <td class="p-3 text-center font-mono text-xs">${Object.values(s.tests || {}).join(' | ')}</td>
+                        <td class="p-3 text-center font-mono text-xs">${Object.values(s.assignments || {}).join(' | ')}</td>
+                        <td class="p-3 pr-4 text-center font-bold text-blue-600 text-xs">${s.internal_mark || '--'}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div class="bg-white border border-slate-200 rounded-xl px-4 py-2 flex items-center gap-2 shadow-inner">
-              <span class="text-blue-500 text-xs">🎫</span>
-              <span class="text-xs text-slate-600 font-bold uppercase tracking-widest">Points:</span>
-              <span class="text-xs font-black text-white">${semData.activity_points || '-'}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-slate-50/40 border border-slate-200 rounded-2xl overflow-x-auto shadow-2xl">
-          <table class="w-full text-left border-collapse min-w-[1200px]">
-            <thead>
-              <tr class="bg-white/80 border-b border-slate-200 text-xs uppercase tracking-wider font-black text-slate-600">
-                <th class="p-4 font-black">Subject</th>
-                <th class="p-4 text-center" colspan="4">Sum COs</th>
-                <th class="p-4 text-center border-l border-slate-200 text-blue-400" colspan="4">Assignments</th>
-                <th class="p-4 text-center border-l border-slate-200 text-emerald-400" colspan="4">Written Tests</th>
-                <th class="p-4 text-center border-l border-slate-200 text-purple-400" colspan="4">Online Tests</th>
-                <th class="p-4 text-center border-l border-slate-200">Attend.</th>
-              </tr>
-              <tr class="bg-white/40 border-b border-slate-200/50 text-xs uppercase font-bold text-slate-500">
-                <th class="p-2"></th>
-                <th class="p-2 text-center w-10 border-l border-slate-200/50">C1</th><th class="p-2 text-center w-10 bg-slate-50/20">C2</th><th class="p-2 text-center w-10">C3</th><th class="p-2 text-center w-10 bg-slate-50/20">C4</th>
-                <th class="p-2 text-center w-10 border-l border-slate-200">A1</th><th class="p-2 text-center w-10">A2</th><th class="p-2 text-center w-10">A3</th><th class="p-2 text-center w-10">A4</th>
-                <th class="p-2 text-center w-10 border-l border-slate-200">W1</th><th class="p-2 text-center w-10">W2</th><th class="p-2 text-center w-10">W3</th><th class="p-2 text-center w-10">W4</th>
-                <th class="p-2 text-center w-10 border-l border-slate-200">O1</th><th class="p-2 text-center w-10">O2</th><th class="p-2 text-center w-10">O3</th><th class="p-2 text-center w-10">O4</th>
-                <th class="p-2 text-center w-16 border-l border-slate-200">%</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-800/30">
-              ${rows}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function updateSbteRegNo() {
-      const val = document.getElementById('sbteRegNoInput').value.trim();
-      const alertEl = document.getElementById('sbteAlert');
-      if (!val) {
-        alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block';
-        alertEl.innerText = 'Please enter your SBTE Register Number.';
-        return;
-      }
-      fetch('/api/student/update-sbte-reg', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({ sbteRegNo: val })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-green-950/40 text-green-400 border border-green-900/60 block';
-          alertEl.innerText = 'SBTE Register Number saved! Reload the page to see it confirmed.';
-        } else {
-          alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block';
-          alertEl.innerText = data.message || 'Failed to save. Please try again.';
-        }
-      })
-      .catch(() => {
-        alertEl.className = 'p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block';
-        alertEl.innerText = 'Network error. Please try again.';
-      });
-    }
-
-    function changePassword() {
-      const oldPwd = document.getElementById('oldPwd').value.trim();
-      const newPwd = document.getElementById('newPwd').value.trim();
-      const alert = document.getElementById('pwdAlert');
-      if (!oldPwd || !newPwd) {
-        alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
-        alert.innerText = "Please fill in both fields.";
-        return;
-      }
-      if (newPwd.length < 6) {
-        alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
-        alert.innerText = "New password must be at least 6 characters.";
-        return;
-      }
-      fetch('/api/student/change-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({ oldPassword: oldPwd, newPassword: newPwd })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          alert.className = "p-3 rounded-xl text-xs font-bold bg-green-950/40 text-green-400 border border-green-900/60 block";
-          alert.innerText = "Password updated successfully.";
-          document.getElementById('oldPwd').value = '';
-          document.getElementById('newPwd').value = '';
-        } else {
-          alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
-          alert.innerText = data.message || 'Password change failed.';
-        }
-      })
-      .catch(() => {
-        alert.className = "p-3 rounded-xl text-xs font-bold bg-red-950/40 text-red-400 border border-red-900/60 block";
-        alert.innerText = 'Request failed. Please try again.';
-      });
-    }
-
-    // Init stub stats and load tests
-    document.addEventListener('DOMContentLoaded', () => {
-      loadStudentTests();
-      loadAcademicReport();
-    });
-
-    // TEST ENGINE LOGIC
-    let currentTestId = null;
-    let timerInterval = null;
-    let endTimeMs = null;
-
-    function loadStudentTests() {
-      fetch('/api/student/online-tests')
-        .then(res => res.json())
-        .then(data => {
-          let container = document.getElementById('studentActiveTestsList');
-          if (!container) return;
-          if (data.status === 'SUCCESS' && data.tests && data.tests.length > 0) {
-            let html = '';
-            data.tests.forEach(t => {
-              let actionHtml = '';
-              if (t.can_take) {
-                actionHtml = `<button onclick="startOnlineTest('${t.test_id}')" class="w-full py-2 bg-purple-600/80 hover:bg-purple-500 text-white rounded font-bold text-xs transition-premium">Start Test</button>`;
-              } else if (t.status_message && t.status_message.startsWith('Starts')) {
-                actionHtml = `<button disabled class="w-full py-2 bg-slate-100 text-slate-700/40 text-slate-600 rounded font-bold text-xs text-center border border-slate-200/50 mb-2 cursor-not-allowed flex items-center justify-center gap-2">🔒 ${t.status_message}</button>`;
-              } else if (t.my_attempts > 0) {
-                actionHtml = `<div class="w-full py-2 bg-emerald-900/40 text-emerald-400 rounded font-bold text-xs text-center border border-emerald-800/50 mb-2">Best Score: ${t.best_score || 0}</div>`;
-              } else {
-                actionHtml = `<div class="w-full py-2 bg-slate-100 text-slate-700/40 text-slate-600 rounded font-bold text-xs text-center border border-slate-200/50 mb-2">${t.status_message || 'Expired'}</div>`;
-              }
-
-              let hasEnded = false;
-              if (t.end_time) {
-                let et = new Date(t.end_time.replace(' ', 'T'));
-                hasEnded = (new Date() >= et);
-              }
-              if (hasEnded && t.my_attempts > 0) {
-                actionHtml += `<button onclick="viewAnswerKey('${t.test_id}')" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold text-xs transition-premium">View Answer Key</button>`;
-              } else if (t.my_attempts > 0 && !t.can_take) {
-                let formattedEndTime = new Date(t.end_time).toLocaleString();
-                actionHtml += `<div class="text-xs text-center text-slate-600 font-semibold mt-1 bg-slate-50/30 p-1.5 rounded border border-slate-200/50">Answer key unlocks after test ends: <br/>${formattedEndTime}</div>`;
-              }
-
-              html += `
-                <div class="bg-white/80 border border-slate-200/60 rounded-xl overflow-hidden mb-1">
-                  <!-- Collapsible Header -->
-                  <div onclick="document.getElementById('co_exam_${t.test_id}').classList.toggle('hidden'); this.querySelector('.arrow-icon').innerText = document.getElementById('co_exam_${t.test_id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';" 
-                       class="px-4 py-3.5 bg-slate-50/40 hover:bg-slate-50/70 border-b border-slate-200 flex justify-between items-center cursor-pointer transition-premium">
-                    <div class="flex items-center gap-3">
-                      <span class="text-purple-600 text-xs">📝</span>
-                      <div>
-                        <h4 class="font-bold text-xs text-slate-800">${t.test_name}</h4>
-                        <p class="text-xs font-black text-purple-400 uppercase tracking-wider mt-0.5">${t.subject_code} - ${t.subject_name || t.subject_code}</p>
-                      </div>
-                    </div>
-                    <span class="text-slate-400 text-xs arrow-icon">▼</span>
-                  </div>
-                  <!-- Collapsible Content -->
-                  <div id="co_exam_${t.test_id}" class="hidden p-4 bg-slate-50/10 border-t border-slate-100">
-                    <div class="grid grid-cols-2 gap-4 mb-4 text-slate-600 font-semibold">
-                      <div class="space-y-1">
-                        <div>Duration: <span class="text-slate-800 font-bold">${t.duration} Mins</span></div>
-                        <div>Total Questions: <span class="text-slate-800 font-bold">${t.mcq_count} MCQs</span></div>
-                      </div>
-                      <div class="space-y-1">
-                        <div>Attempts: <span class="text-slate-800 font-bold">${t.my_attempts}/${t.max_attempts}</span></div>
-                        <div>Deadline: <span class="text-slate-800 font-bold font-mono">${t.end_time ? new Date(t.end_time).toLocaleString() : 'No Limit'}</span></div>
-                      </div>
-                    </div>
-                    <div class="mt-3">
-                      ${actionHtml}
-                    </div>
-                  </div>
-                </div>
-              `;
-            });
-            container.innerHTML = html;
-            container.className = "flex flex-col gap-1 mt-4 mb-6";
-          } else {
-            container.innerHTML = `<div class="col-span-full p-4 bg-white/60 border border-slate-200 rounded-xl text-center text-xs text-slate-500">No active tests available right now.</div>`;
-            container.className = "mt-4 mb-6";
-          }
-
-          if (data.stats) updateStatsHeader(null, data.stats);
-        });
-    }
-
-    function startOnlineTest(testId) {
-      if(!confirm("Are you sure you want to start this test? The timer will begin immediately.")) return;
-      
-      fetch(`/api/student/online-tests/${testId}/start`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'SUCCESS') {
-          currentTestId = testId;
-          renderTestEngine(data.questions, data.duration);
-        } else {
-          alert(data.message || "Could not start test.");
-        }
-      });
-    }
-
-    function renderTestEngine(questions, durationMins) {
-      document.getElementById('testEngineModal').classList.remove('hidden');
-
-      let html = '<div class="max-w-3xl mx-auto space-y-6 pb-20">';
-      questions.forEach((q, idx) => {
-        let optionsHtml = '';
-        q.options.forEach((opt, oIdx) => {
-          optionsHtml += `
-            <label class="flex items-center gap-3 p-3 rounded-lg border border-slate-200/50 bg-white/50 cursor-pointer hover:border-purple-500/50 hover:bg-slate-100 transition-premium">
-              <input type="radio" name="q_${idx}" value="${opt}" class="w-4 h-4 text-purple-500 bg-slate-50 border-slate-600 focus:ring-purple-600">
-              <span class="text-xs text-slate-700">${opt}</span>
-            </label>
           `;
-        });
-        html += `
-          <div class="question-container bg-slate-50 border border-slate-200 rounded-xl p-6 shadow-lg">
-             <div class="flex items-start gap-4 mb-4">
-               <span class="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500/10 text-purple-400 flex items-center justify-center font-black text-xs border border-purple-500/20">${idx+1}</span>
-               <h4 class="text-xs font-bold text-slate-900 mt-1">${q.q}</h4>
-             </div>
-             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-12">
-               ${optionsHtml}
-             </div>
+        }
+        acadCont.innerHTML = aHtml;
+      } else {
+        acadCont.innerHTML = '<p class="p-6 text-center text-slate-500 text-xs font-medium">No progression logs recorded yet.</p>';
+      }
+
+      // 5. Board Exams
+      const boardCont = document.getElementById('boardExamResultsContainer');
+      if (d.board && d.board.length > 0) {
+        boardCont.innerHTML = `
+          <div class="overflow-x-auto border border-slate-200/80 rounded-xl">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                  <th class="p-3 pl-4">Semester</th>
+                  <th class="p-3">GPA / Result</th>
+                  <th class="p-3">Backlogs</th>
+                  <th class="p-3 pr-4">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-slate-800">
+                ${d.board.map(b => `
+                  <tr>
+                    <td class="p-3 pl-4 font-bold text-slate-900">Semester ${b.semester}</td>
+                    <td class="p-3 font-semibold text-blue-600">${b.gpa || b.result || '--'}</td>
+                    <td class="p-3">${b.backlogs || 0}</td>
+                    <td class="p-3 pr-4"><span class="px-2 py-0.5 rounded-full text-xs font-semibold ${b.status === 'Passed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">${b.status || 'Appeared'}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
           </div>
         `;
-      });
-      html += '</div>';
-      document.getElementById('testQuestionsContainer').innerHTML = html;
-
-      // Start Timer
-      endTimeMs = Date.now() + (durationMins * 60 * 1000);
-      timerInterval = setInterval(updateTimer, 1000);
-      updateTimer();
-    }
-
-    function updateTimer() {
-      let now = Date.now();
-      let diff = endTimeMs - now;
-      if (diff <= 0) {
-        clearInterval(timerInterval);
-        document.getElementById('liveTimer').innerText = "00:00:00";
-        alert("Time is up! Auto-submitting your test.");
-        submitTest();
-        return;
+      } else {
+        boardCont.innerHTML = '<p class="p-6 text-center text-slate-500 text-xs font-medium">No board examination records found.</p>';
       }
-      
-      let h = Math.floor(diff / (1000 * 60 * 60));
-      let m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      let s = Math.floor((diff % (1000 * 60)) / 1000);
-      
-      document.getElementById('liveTimer').innerText = 
-        (h < 10 ? '0'+h : h) + ':' + 
-        (m < 10 ? '0'+m : m) + ':' + 
-        (s < 10 ? '0'+s : s);
+
+      // 6. Extracurricular
+      const actBody = document.getElementById('studentActivityTableBody');
+      if (d.extracurricular && d.extracurricular.length > 0) {
+        actBody.innerHTML = d.extracurricular.map(a => `
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all">
+            <td class="p-3 pl-4 font-semibold text-slate-900 text-xs">${a.activity_name || a.category}</td>
+            <td class="p-3 text-slate-700 text-xs">${a.level || 'Institutional'}</td>
+            <td class="p-3 font-bold text-blue-600 text-xs">${a.points_claimed || a.points || 0} pts</td>
+            <td class="p-3"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${a.status === 'Approved' || a.status === 'Verified' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">${a.status || 'Pending'}</span></td>
+            <td class="p-3 pr-4 text-right text-xs font-medium text-slate-500">${a.created_at ? new Date(a.created_at).toLocaleDateString() : '-'}</td>
+          </tr>
+        `).join('');
+      } else {
+        actBody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">No extracurricular activities logged.</td></tr>';
+      }
+
+      // 7. Leaves
+      const lBody = document.getElementById('studentLeaveTableBody');
+      if (d.leaves && d.leaves.length > 0) {
+        lBody.innerHTML = d.leaves.map(l => `
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all">
+            <td class="p-3 pl-4 font-semibold text-slate-900 text-xs">${l.leave_date || (l.from_date + ' to ' + l.to_date)}</td>
+            <td class="p-3 font-semibold text-slate-700 text-xs">${l.no_of_days || 1} day(s)</td>
+            <td class="p-3 text-slate-700 text-xs">${l.reason || 'Medical / Personal'}</td>
+            <td class="p-3 pr-4"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${l.status === 'Approved' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">${l.status || 'Approved'}</span></td>
+          </tr>
+        `).join('');
+      } else {
+        lBody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-500 font-medium">No leave records recorded.</td></tr>';
+      }
+
+      // 8. Disciplinary
+      const discBody = document.getElementById('studentDiscTableBody');
+      if (d.disciplinary && d.disciplinary.length > 0) {
+        discBody.innerHTML = d.disciplinary.map(dc => `
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all">
+            <td class="p-3 pl-4 font-mono text-slate-500 text-xs">${dc.date}</td>
+            <td class="p-3 font-semibold text-slate-900 text-xs">${dc.incident_description || dc.notes}</td>
+            <td class="p-3 text-slate-700 text-xs">${dc.action_taken || 'Warning'}</td>
+            <td class="p-3 pr-4 text-right"><button type="button" onclick="deleteDisciplinaryAction('${dc.id}')" class="text-rose-600 hover:text-rose-700 text-xs font-semibold cursor-pointer">Delete</button></td>
+          </tr>
+        `).join('');
+      } else {
+        discBody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-500 font-medium">No disciplinary incidents recorded.</td></tr>';
+      }
+
+      // 9. Meetings
+      const sessBody = document.getElementById('studentSessionTableBody');
+      if (d.meetings && d.meetings.length > 0) {
+        sessBody.innerHTML = d.meetings.map(m => `
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all">
+            <td class="p-3 pl-4 font-mono text-slate-500 text-xs">${m.date}</td>
+            <td class="p-3 text-slate-900 text-xs font-medium leading-relaxed">${m.discussion_notes}</td>
+            <td class="p-3 text-slate-700 text-xs leading-relaxed">${m.action_taken || '-'}</td>
+            <td class="p-3 pr-4 text-right"><button type="button" onclick="deleteSessionLog('${m.diary_id}')" class="text-rose-600 hover:text-rose-700 text-xs font-semibold cursor-pointer">Delete</button></td>
+          </tr>
+        `).join('');
+      } else {
+        sessBody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-500 font-medium">No mentoring sessions recorded.</td></tr>';
+      }
     }
 
-    function cancelTest() {
-      if(!confirm("Are you sure? Your progress will be lost.")) return;
-      document.getElementById('testEngineModal').classList.add('hidden');
+    function addFamilyRow() {
+      const tbody = document.getElementById('familyTableBody');
+      if (tbody.innerText.includes('No family members')) tbody.innerHTML = '';
+      const tr = document.createElement('tr');
+      tr.className = "border-b border-slate-100 hover:bg-slate-50/80 transition-all family-row";
+      tr.innerHTML = `
+        <td class="p-3 pl-4 font-semibold text-slate-900 text-xs"><input type="text" placeholder="Full name" class="w-full bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 fam-name"></td>
+        <td class="p-3 text-slate-700 text-xs"><input type="text" placeholder="Relationship" class="w-full bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 fam-rel"></td>
+        <td class="p-3 text-slate-700 text-xs"><input type="number" placeholder="Age" class="w-16 bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 fam-age"></td>
+        <td class="p-3 text-slate-700 text-xs"><input type="text" placeholder="Occupation" class="w-full bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 fam-occ"></td>
+        <td class="p-3 pr-4 text-right"><button type="button" onclick="this.closest('tr').remove()" class="text-rose-600 hover:text-rose-700 text-xs font-semibold cursor-pointer">Remove</button></td>
+      `;
+      tbody.appendChild(tr);
     }
 
-    function submitTest() {
-      if(!currentTestId) return;
-      document.getElementById('testEngineModal').classList.add('hidden');
-      
-      const formContainers = document.getElementById('testQuestionsContainer').querySelectorAll('.question-container');
-      let answers = {};
-      formContainers.forEach((container, idx) => {
-        let checked = container.querySelector(`input[name="q_${idx}"]:checked`);
-        answers[idx] = checked ? checked.value : null;
+    function addEducationRow() {
+      const tbody = document.getElementById('educationTableBody');
+      if (tbody.innerText.includes('No prior education')) tbody.innerHTML = '';
+      const tr = document.createElement('tr');
+      tr.className = "border-b border-slate-100 hover:bg-slate-50/80 transition-all edu-row";
+      tr.innerHTML = `
+        <td class="p-3 pl-4 font-semibold text-slate-900 text-xs"><input type="text" placeholder="e.g. SSLC / Plus Two" class="w-full bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 edu-course"></td>
+        <td class="p-3 text-slate-700 text-xs"><input type="text" placeholder="School / Board" class="w-full bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 edu-inst"></td>
+        <td class="p-3 text-slate-700 text-xs"><input type="number" placeholder="Passing Year" class="w-20 bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 edu-year"></td>
+        <td class="p-3 text-slate-700 text-xs"><input type="text" placeholder="Percentage / CGPA" class="w-24 bg-transparent outline-none border-b border-dashed border-slate-300 focus:border-blue-600 edu-pct"></td>
+        <td class="p-3 pr-4 text-right"><button type="button" onclick="this.closest('tr').remove()" class="text-rose-600 hover:text-rose-700 text-xs font-semibold cursor-pointer">Remove</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+    function saveStudentMentoringData() {
+      const profile = {
+        annual_income: document.getElementById('smdAnnualIncome').value,
+        residential_status: document.getElementById('smdResidentialStatus').value,
+        scholarships: document.getElementById('smdScholarships').value,
+        is_fee_waiver: document.getElementById('smdFeeWaiver').checked ? 1 : 0,
+        guardian_name: document.getElementById('smdGuardianName').value,
+        guardian_relationship: document.getElementById('smdGuardianRelation').value,
+        guardian_mobile: document.getElementById('smdGuardianMobile').value,
+        guardian_address: document.getElementById('smdPermanentAddress').value
+      };
+
+      const family = [];
+      document.querySelectorAll('.family-row').forEach(row => {
+        const name = row.querySelector('.fam-name').value.trim();
+        if (name) {
+          family.push({
+            name: name,
+            relationship: row.querySelector('.fam-rel').value.trim(),
+            age: row.querySelector('.fam-age').value.trim(),
+            occupation: row.querySelector('.fam-occ').value.trim()
+          });
+        }
       });
 
-      fetch(`/api/student/online-tests/${currentTestId}/submit`, {
+      const education = [];
+      document.querySelectorAll('.edu-row').forEach(row => {
+        const course = row.querySelector('.edu-course').value.trim();
+        if (course) {
+          education.push({
+            course: course,
+            institution: row.querySelector('.edu-inst').value.trim(),
+            year_of_passing: row.querySelector('.edu-year').value.trim(),
+            percentage: row.querySelector('.edu-pct').value.trim()
+          });
+        }
+      });
+
+      fetch('/api/student/mentoring/save-all', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-        body: JSON.stringify({ answers })
+        headers: getHeaders(),
+        body: JSON.stringify({
+          reg_no: window.TARGET_REG_NO,
+          profile: profile,
+          family: family,
+          education: education
+        })
       })
       .then(res => res.json())
       .then(data => {
         if (data.status === 'SUCCESS') {
-          // Hide engine, show result modal
-          document.getElementById('testEngineModal').classList.add('hidden');
-          document.getElementById('testResultModal').classList.remove('hidden');
-          setTimeout(() => document.getElementById('resultModalBox').classList.remove('scale-95'), 50);
-
-          document.getElementById('resultScore').innerText = `${data.summary.score}/${data.summary.total}`;
-          document.getElementById('resultPercent').innerText = `${data.summary.percentage}%`;
+          showGlobalAlert("Student mentoring diary saved successfully.");
+          loadFullStudentDiary();
         } else {
-          alert(data.message || "Submission failed.");
+          showGlobalAlert(data.message || "Failed to save mentoring data.", true);
         }
-      });
+      })
+      .catch(() => showGlobalAlert("Network error saving diary.", true));
     }
 
-      function closeResultModal() {
-        document.getElementById('testResultModal').classList.add('hidden');
-        loadStudentTests(); // refresh the list
-        loadAcademicReport(); // refresh academic stats so new marks show up
+    function openSessionModal() {
+      const modal = document.getElementById('sessionModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeSessionModal() {
+      const modal = document.getElementById('sessionModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.getElementById('sessNotes').value = '';
+      document.getElementById('sessAction').value = '';
+    }
+
+    function saveSessionLog() {
+      const date = document.getElementById('sessDate').value;
+      const notes = document.getElementById('sessNotes').value.trim();
+      const action = document.getElementById('sessAction').value.trim();
+
+      if (!notes) {
+        alert("Please enter discussion notes.");
+        return;
       }
 
-    function viewAnswerKey(testId) {
-      fetch(`/api/student/online-tests/${testId}/answer-key`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'SUCCESS') {
-            document.getElementById('answerKeyTestName').innerText = data.test_name;
-            document.getElementById('answerKeyScoreInfo').innerText = `Best Score: ${data.score}/${data.total} (${data.percentage}%)`;
-            
-            let html = '<div class="max-w-3xl mx-auto space-y-6 pb-20">';
-            data.details.forEach((q, idx) => {
-              let optionsHtml = '';
-              q.options.forEach((opt, oIdx) => {
-                let badgeHtml = '';
-                let borderClass = 'border-slate-200/50 bg-white/50';
-                
-                // Color code options
-                if (opt === q.correct_ans) {
-                  borderClass = 'border-green-500/50 bg-green-950/20';
-                  badgeHtml = '<span class="text-xs bg-green-500/20 text-green-400 font-bold px-2 py-0.5 rounded ml-auto">Correct Answer</span>';
-                } else if (opt === q.student_ans) {
-                  borderClass = 'border-red-500/50 bg-red-950/20';
-                  badgeHtml = '<span class="text-xs bg-red-500/20 text-red-400 font-bold px-2 py-0.5 rounded ml-auto">Your Answer</span>';
-                }
-
-                optionsHtml += `
-                  <div class="flex items-center gap-3 p-3 rounded-lg border ${borderClass} transition-premium">
-                    <span class="text-xs text-slate-700">${opt}</span>
-                    ${badgeHtml}
-                  </div>
-                `;
-              });
-
-              let correctBadge = q.is_correct 
-                ? '<span class="bg-green-500/10 text-green-400 text-xs font-bold px-2.5 py-1 rounded-full border border-green-500/20 flex items-center gap-1">✓ Correct</span>'
-                : `<span class="bg-red-500/10 text-red-400 text-xs font-bold px-2.5 py-1 rounded-full border border-red-500/20 flex items-center gap-1">✕ Incorrect</span>`;
-
-              html += `
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 shadow-lg">
-                   <div class="flex items-start justify-between gap-4 mb-4">
-                     <div class="flex items-start gap-4">
-                       <span class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 text-slate-700 text-slate-600 flex items-center justify-center font-black text-xs border border-slate-200/20">${idx+1}</span>
-                       <div>
-                         <h4 class="text-xs font-bold text-slate-900 mt-1">${q.q}</h4>
-                         <span class="text-xs text-slate-500 font-mono">CO Tag: ${q.co}</span>
-                       </div>
-                     </div>
-                     ${correctBadge}
-                   </div>
-                   <div class="grid grid-cols-1 gap-3 pl-12">
-                     ${optionsHtml}
-                   </div>
-                </div>
-              `;
-            });
-            html += '</div>';
-            
-            document.getElementById('answerKeyQuestionsContainer').innerHTML = html;
-            document.getElementById('answerKeyModal').classList.remove('hidden');
-          } else {
-            alert(data.message || "Could not retrieve answer key.");
-          }
-        });
-    }
-
-    function closeAnswerKeyModal() {
-      document.getElementById('answerKeyModal').classList.add('hidden');
-    }
-
-    function loadActivityPoints() {
-      fetch('/api/student/activity-points')
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'SUCCESS') {
-            document.getElementById('overallActivityPoints').innerText = data.total_points || 0;
-            document.getElementById('verifiedActivityTotal').innerText = data.total_points || 0;
-            
-            // Progress Bar
-            let pts = data.total_points || 0;
-            let goal = {{ $activityGoal }};
-            let percent = Math.min(100, Math.round((pts / goal) * 100));
-            
-            const pBar = document.getElementById('activityProgressBar');
-            pBar.style.width = percent + '%';
-            
-            if (percent >= 100) {
-              pBar.className = "absolute top-0 left-0 h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-1000 ease-out";
-            } else if (percent >= 50) {
-              pBar.className = "absolute top-0 left-0 h-full bg-gradient-to-r from-amber-500 to-orange-400 transition-all duration-1000 ease-out";
-            } else {
-              pBar.className = "absolute top-0 left-0 h-full bg-gradient-to-r from-red-500 to-rose-400 transition-all duration-1000 ease-out";
-            }
-
-            // Split
-            let splitHtml = '';
-            if (data.split && Object.keys(data.split).length > 0) {
-              for (const [segment, pts] of Object.entries(data.split)) {
-                splitHtml += `
-                  <div class="flex justify-between items-center py-1">
-                    <span class="text-xs text-slate-700">${segment}</span>
-                    <span class="text-xs font-bold text-emerald-400">${pts}</span>
-                  </div>
-                `;
-              }
-            } else {
-              splitHtml = '<div class="text-xs text-slate-500 py-1">No verified points yet.</div>';
-            }
-            document.getElementById('activitySplitList').innerHTML = splitHtml;
-
-            // Claims Table
-            const tbody = document.getElementById('activityClaimsTableBody');
-            if (data.claims && data.claims.length > 0) {
-              let html = '';
-              data.claims.forEach(c => {
-                let statusClass = 'text-amber-400 bg-amber-500/10 border-amber-500/20';
-                if (c.status === 'Verified') statusClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
-                if (c.status === 'Rejected') statusClass = 'text-rose-400 bg-rose-500/10 border-rose-500/20';
-                
-                let dateStr = c.created_at ? new Date(c.created_at).toLocaleDateString() : 'N/A';
-                let verifiedDateStr = c.verified_at ? new Date(c.verified_at).toLocaleDateString() : '';
-                
-                let noteHtml = '';
-                if (c.status === 'Rejected' && c.rejection_note) {
-                  noteHtml = `<div class="mt-1 text-xs text-rose-400/80 leading-tight">Reason: ${c.rejection_note}</div>`;
-                }
-                if (c.status !== 'Pending' && verifiedDateStr) {
-                  noteHtml += `<div class="mt-0.5 text-xs text-slate-500">On: ${verifiedDateStr}</div>`;
-                }
-                
-                html += `
-                  <tr class="hover:bg-white/50 transition-colors border-b border-slate-100">
-                    <td class="p-3 text-xs text-slate-600">${dateStr}</td>
-                    <td class="p-3 text-xs font-bold text-slate-700">${c.activity_segment}</td>
-                    <td class="p-3 text-xs text-slate-700">${c.activity_name}</td>
-                    <td class="p-3 text-xs text-slate-600">${c.level}</td>
-                    <td class="p-3">
-                      ${c.document_reference ? `<a href="${c.document_reference}" target="_blank" class="text-blue-400 hover:text-blue-300 text-xs underline flex items-center gap-1">🔗 View</a>` : '<span class="text-xs text-slate-600">None</span>'}
-                    </td>
-                    <td class="p-3 text-center text-xs font-bold text-slate-700">${c.points_claimed}</td>
-                    <td class="p-3 text-center text-xs font-bold ${c.status === 'Verified' ? 'text-emerald-400' : 'text-slate-500'}">${c.status === 'Verified' ? c.points_awarded : '--'}</td>
-                    <td class="p-3 text-right max-w-[120px]">
-                      <span class="px-2 py-0.5 rounded border text-xs font-bold uppercase tracking-wider ${statusClass} inline-block">${c.status}</span>
-                      ${noteHtml}
-                    </td>
-                  </tr>
-                `;
-              });
-              tbody.innerHTML = html;
-            } else {
-              tbody.innerHTML = `<tr><td colspan="8" class="p-6 text-center text-slate-500 text-xs">No activity claims submitted yet.</td></tr>`;
-            }
-          }
-        });
-    }
-
-    function submitActivityClaim(e) {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-
-      fetch('/api/student/activity-points', {
+      fetch('/api/mentoring/diary/add', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-        body: JSON.stringify(data)
+        headers: getHeaders(),
+        body: JSON.stringify({
+          reg_no: window.TARGET_REG_NO,
+          date: date,
+          discussion_notes: notes,
+          action_taken: action,
+          category: 'Academic'
+        })
       })
       .then(res => res.json())
-      .then(resData => {
-        if (resData.status === 'SUCCESS') {
-          form.reset();
-          loadActivityPoints();
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          closeSessionModal();
+          showGlobalAlert("Mentoring meeting logged successfully.");
+          loadFullStudentDiary();
         } else {
-          alert(resData.message || 'Failed to submit claim.');
+          alert(data.message || "Failed to log meeting.");
+        }
+      })
+      .catch(() => alert("Network error logging meeting."));
+    }
+
+    function deleteSessionLog(diaryId) {
+      if (!confirm("Are you sure you want to delete this meeting log?")) return;
+      fetch('/api/mentoring/diary/delete', {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ diary_id: diaryId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          showGlobalAlert("Meeting log deleted.");
+          loadFullStudentDiary();
         }
       });
     }
-  
+
+    function openDiscModal() {
+      const modal = document.getElementById('discModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDiscModal() {
+      const modal = document.getElementById('discModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.getElementById('discNotes').value = '';
+      document.getElementById('discAction').value = '';
+    }
+
+    function saveDisciplinaryAction() {
+      const date = document.getElementById('discDate').value;
+      const notes = document.getElementById('discNotes').value.trim();
+      const action = document.getElementById('discAction').value.trim();
+
+      if (!notes) {
+        alert("Please enter incident notes.");
+        return;
+      }
+
+      fetch('/api/mentoring/disciplinary/save', {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          reg_no: window.TARGET_REG_NO,
+          date: date,
+          incident_description: notes,
+          action_taken: action
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          closeDiscModal();
+          showGlobalAlert("Disciplinary incident recorded.");
+          loadFullStudentDiary();
+        }
+      });
+    }
+
+    function deleteDisciplinaryAction(discId) {
+      if (!confirm("Delete this disciplinary record?")) return;
+      fetch('/api/mentoring/disciplinary/delete', {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ id: discId })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'SUCCESS') {
+          showGlobalAlert("Disciplinary record deleted.");
+          loadFullStudentDiary();
+        }
+      });
+    }
+
+    function downloadMentoringPdf() {
+      window.open(`/diary/${window.TARGET_REG_NO}/print`, '_blank');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadFullStudentDiary();
+    });
   </script>
 
   @include('partials.support_desk_overlay')
