@@ -25,8 +25,8 @@ class NavigationService
 
         $items = self::resolveRoleItems($resolvedRole);
 
-        // Apply contextual dynamic roles (e.g. Faculty who is also a Tutor or Mentor or HOD)
-        if ($resolvedRole === 'faculty') {
+        // Apply contextual dynamic roles (e.g. Faculty or Demonstrator who is also a Tutor or Mentor or HOD)
+        if ($resolvedRole === 'faculty' || $resolvedRole === 'demonstrator') {
             $userId = Session::get('userId');
             $sessionRole = Session::get('userRole');
             $isPrincipal = in_array($sessionRole, ['Principal', 'Executive']) || str_contains(strtolower($sessionRole ?? ''), 'principal');
@@ -65,7 +65,7 @@ class NavigationService
                     ]
                 ];
                 $items = self::insertItems($items, $returnItem);
-            } elseif (in_array($sessionRole, ['Demonstrator', 'Trade_Instructor', 'Workshop_Superintendent'])) {
+            } elseif (in_array($sessionRole, ['Trade_Instructor', 'Workshop_Superintendent'])) {
                 $returnItem = [
                     [
                         'id' => 'return_demonstrator',
@@ -78,7 +78,7 @@ class NavigationService
                 $items = self::insertItems($items, $returnItem);
             }
 
-            if ($isPrincipal || $isAdminUser || $sessionRole === 'HOD' || in_array($sessionRole, ['Demonstrator', 'Trade_Instructor', 'Workshop_Superintendent'])) {
+            if ($isPrincipal || $isAdminUser || $sessionRole === 'HOD' || in_array($sessionRole, ['Trade_Instructor', 'Workshop_Superintendent'])) {
                 // Remove redundant items that already exist in the executive main dashboard sidebar
                 $items = array_values(array_filter($items, function ($it) {
                     return !in_array($it['id'], ['prof_activities', 'profile']);
@@ -154,6 +154,9 @@ class NavigationService
         }
         if ($sessionRole === 'Tutor') {
             return 'Tutor Desk';
+        }
+        if ($sessionRole === 'Demonstrator') {
+            return 'Demonstrator Console';
         }
         
         $resolvedRole = self::resolveRoleKey($role ?? $sessionRole);

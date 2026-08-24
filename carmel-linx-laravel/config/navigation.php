@@ -18,6 +18,7 @@ return [
         'admin'       => require __DIR__ . '/navigation/admin.php',
         'super_admin' => require __DIR__ . '/navigation/super_admin.php',
         'student'     => require __DIR__ . '/navigation/student.php',
+        'demonstrator'=> require __DIR__ . '/navigation/demonstrator.php',
     ],
 
     /*
@@ -27,7 +28,7 @@ return [
     */
     'aliases' => [
         'lecturer'                          => 'faculty',
-        'demonstrator'                      => 'faculty',
+        'demonstrator'                      => 'demonstrator',
         'physical_instructor'               => 'faculty',
         'physical instructor'               => 'faculty',
         'trade_instructor'                  => 'faculty',
