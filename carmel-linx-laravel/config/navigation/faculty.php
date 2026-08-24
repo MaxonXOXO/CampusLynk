@@ -10,6 +10,7 @@ return [
             'label' => 'My Batches',
             'icon' => 'presentation',
             'url' => '/dashboard/lecturer',
+            'onclick' => "handleFacultySidebarNav('dashboard')",
         ],
         [
             'id' => 'my_leave',
@@ -45,8 +46,8 @@ return [
             'id' => 'profile',
             'label' => 'My Profile',
             'icon' => 'user-round',
-            'url' => '#',
-            'onclick' => "if (typeof switchPanel === 'function') { switchPanel('security'); } else { window.location.href='/dashboard/lecturer?panel=security'; }",
+            'url' => '/dashboard/lecturer?panel=security',
+            'onclick' => "handleFacultySidebarNav('security')",
         ],
     ],
 ];

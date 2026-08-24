@@ -186,6 +186,30 @@
             window.location.href = '/dashboard/hod?panel=' + id;
         }
     }
+
+    // Universal Faculty / Lecturer Navigation Handler
+    function handleFacultySidebarNav(id) {
+        if (typeof window.switchPanel === 'function') {
+            window.switchPanel(id);
+            try {
+                const url = new URL(window.location);
+                url.searchParams.set('panel', id);
+                url.searchParams.delete('tab');
+                window.history.replaceState({}, '', url);
+            } catch (e) {}
+        } else if (typeof switchPanel === 'function') {
+            switchPanel(id);
+            try {
+                const url = new URL(window.location);
+                url.searchParams.set('panel', id);
+                url.searchParams.delete('tab');
+                window.history.replaceState({}, '', url);
+            } catch (e) {}
+        } else {
+            window.location.href = '/dashboard/lecturer?panel=' + id;
+        }
+    }
+    window.handleFacultySidebarNav = handleFacultySidebarNav;
     window.handleHodSidebarNav = handleHodSidebarNav;
     window.selectSidebarNav = selectSidebarNav;
 

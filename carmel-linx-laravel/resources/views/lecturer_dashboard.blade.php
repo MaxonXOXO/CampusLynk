@@ -282,23 +282,28 @@
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
+  @php
+    $initialPanel = request('panel', request('tab', 'dashboard'));
+    $isSecurityPanel = in_array($initialPanel, ['security', 'profile']);
+  @endphp
+
   <!-- Master Application Shell -->
   <div class="flex min-h-screen bg-[#FAFAFB]">
 
     <!-- Global Sidebar Navigation Component -->
-    <x-layout.sidebar role="faculty" active="my_batches" />
+    <x-layout.sidebar role="faculty" :active="$isSecurityPanel ? 'profile' : 'my_batches'" />
 
     <!-- Main Viewport Container -->
     <div class="flex-1 flex flex-col min-w-0 bg-[#FAFAFB]">
       
       <!-- Global Topbar Header Component -->
-      <x-layout.topbar title="My Batches" subtitle="Assigned classes and teaching workload." />
+      <x-layout.topbar :title="$isSecurityPanel ? 'My Profile' : 'My Batches'" subtitle="Assigned classes and teaching workload." />
 
       <!-- Scrollable Main Workspace -->
       <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
       
       <!-- PANEL 1: DASHBOARD (BATCH CARDS) -->
-      <div id="panelDashboard" class="space-y-6">
+      <div id="panelDashboard" class="{{ $isSecurityPanel ? 'hidden' : '' }} space-y-6">
         
         <!-- Seminar Presentations Today dynamic notifications section -->
         <div id="seminarNotificationsContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -786,7 +791,7 @@
       </div>
 
       <!-- PANEL 2: SECURITY LOG / MY PROFILE -->
-      <div id="panelSecurity" class="hidden space-y-6 animate-fade-in">
+      <div id="panelSecurity" class="{{ $isSecurityPanel ? '' : 'hidden' }} space-y-6 animate-fade-in">
         @include('partials.staff_profile_panel', ['hideAuditLog' => true])
       </div>
 
@@ -1027,7 +1032,7 @@
       }
     }
 
-    let activePanel = 'dashboard';
+    let activePanel = "{{ $isSecurityPanel ? 'security' : 'dashboard' }}";
 
     document.addEventListener("DOMContentLoaded", () => {
       if (sessionStorage.getItem('openClassroomFromHOD') === 'true') {
@@ -1039,13 +1044,10 @@
       const subjectId = urlParams.get('subject_id');
       const subjectName = urlParams.get('subject_name');
       const classroomId = urlParams.get('classroom_id');
-      const panelParam = urlParams.get('panel') || urlParams.get('tab');
 
-      if (panelParam === 'security' || panelParam === 'profile') {
-        switchPanel('security');
-      } else if (subjectId) {
+      if (subjectId) {
         openClassroom(classroomId, subjectId, subjectName);
-      } else {
+      } else if (activePanel === 'dashboard') {
         loadLecturerBatches();
       }
       if (activePanel === 'security') loadSecurityLogs();
