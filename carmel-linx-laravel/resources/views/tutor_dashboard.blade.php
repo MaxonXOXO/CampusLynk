@@ -1298,7 +1298,7 @@
               if (c.status === 'Pending') {
                 actionsHtml = `
                   <div class="flex items-center justify-center gap-2">
-                    <input type="number" id="award_${c.id}" min="0" max="${c.points_claimed}" value="${c.points_claimed}" class="w-16 bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-white">
+                    <input type="number" id="award_${c.id}" min="0" max="${c.points_claimed}" value="${c.points_claimed}" class="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs text-slate-900 font-semibold focus:bg-white focus:border-blue-600 outline-none">
                     <button onclick="verifyClaim('${c.id}', 'Verified')" class="px-2 py-1 bg-teal-600 hover:bg-teal-500 rounded text-white text-xs font-bold">Approve</button>
                     <button onclick="verifyClaim('${c.id}', 'Rejected')" class="px-2 py-1 bg-red-950 text-red-400 border border-red-900 rounded text-xs font-bold">Reject</button>
                   </div>

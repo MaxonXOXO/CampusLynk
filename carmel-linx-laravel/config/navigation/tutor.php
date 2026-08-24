@@ -12,13 +12,5 @@ return [
             'url' => '/dashboard/tutor',
             'position' => 'after:my_batches',
         ],
-        [
-            'id' => 'my_mentoring',
-            'label' => 'My Mentoring',
-            'icon' => 'heart-handshake',
-            'url' => '/dashboard/tutor',
-            'onclick' => "sessionStorage.setItem('openMentoring', 'true'); window.location.href='/dashboard/tutor';",
-            'position' => 'after:tutor_console',
-        ],
     ],
 ];
