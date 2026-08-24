@@ -63,6 +63,7 @@
         'Principal'   => '/dashboard/principal',
         'HOD'         => '/dashboard/hod',
         'Admin'       => '/dashboard/admin',
+        'Demonstrator'=> '/dashboard/demonstrator',
         default       => '/dashboard/tutor',
     };
     $studentName = $student->name ?? 'Student Record';

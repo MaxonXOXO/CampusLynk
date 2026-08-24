@@ -65,17 +65,19 @@ class NavigationService
                     ]
                 ];
                 $items = self::insertItems($items, $returnItem);
-            } elseif (in_array($sessionRole, ['Trade_Instructor', 'Workshop_Superintendent'])) {
-                $returnItem = [
-                    [
-                        'id' => 'return_demonstrator',
-                        'label' => 'Return to Console',
-                        'icon' => 'arrow-left',
-                        'url' => '/dashboard/demonstrator',
-                        'position' => 'before:my_batches',
-                    ]
-                ];
-                $items = self::insertItems($items, $returnItem);
+            } elseif (in_array($sessionRole, ['Demonstrator', 'Trade_Instructor', 'Workshop_Superintendent'])) {
+                if ($resolvedRole === 'faculty') {
+                    $returnItem = [
+                        [
+                            'id' => 'return_demonstrator',
+                            'label' => 'Return to Demonstrator Console',
+                            'icon' => 'arrow-left',
+                            'url' => '/dashboard/demonstrator',
+                            'position' => 'before:my_batches',
+                        ]
+                    ];
+                    $items = self::insertItems($items, $returnItem);
+                }
             }
 
             if ($isPrincipal || $isAdminUser || $sessionRole === 'HOD' || in_array($sessionRole, ['Trade_Instructor', 'Workshop_Superintendent'])) {
@@ -123,6 +125,22 @@ class NavigationService
                     'position' => 'after:tutor_console',
                 ];
                 $items = self::insertItems($items, $tutorItems);
+            }
+        }
+
+        // Apply contextual dynamic roles for Tutor workspace
+        if ($resolvedRole === 'tutor') {
+            $sessionRole = Session::get('userRole');
+            if ($sessionRole === 'Demonstrator' || in_array($sessionRole, ['Demonstrator', 'Trade_Instructor', 'Workshop_Superintendent'])) {
+                // Point my_batches to Demonstrator Lab Workspaces for dual-role Demonstrator in Tutor Console
+                $items = array_map(function ($it) {
+                    if (($it['id'] ?? '') === 'my_batches') {
+                        $it['label'] = 'Lab Workspaces';
+                        $it['url'] = '/dashboard/demonstrator';
+                        unset($it['onclick']);
+                    }
+                    return $it;
+                }, $items);
             }
         }
 
