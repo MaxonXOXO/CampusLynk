@@ -749,7 +749,9 @@
       };
     }
 
-    function switchPanel(panelId) {
+    const loadedPanels = {};
+
+    function switchPanel(panelId, forceRefresh = false) {
       activePanel = panelId;
       
       const panels = ['roster', 'rollNumbers', 'audit', 'profile', 'mentoring', 'activity', 'leaveApproval'];
@@ -759,31 +761,47 @@
         
         if (id === panelId) {
           if (el) el.classList.remove('hidden');
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold text-sm flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500";
+          if (nav) {
+            nav.className = "tutor-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs cursor-pointer";
+          }
         } else {
-          if (nav) nav.className = "w-full text-left px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer";
           if (el) el.classList.add('hidden');
+          if (nav) {
+            nav.className = "tutor-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent cursor-pointer";
+          }
         }
       });
 
       const titles = {
         'roster': 'Supervised Class Roster',
-        'rollNumbers': 'Student Roll Numbers',
+        'rollNumbers': 'Assign Class Roll Numbers',
         'audit': 'Classroom Audit Trail',
         'profile': 'My Tutor Profile',
-        'mentoring': 'Mentoring Batches',
+        'mentoring': 'Mentoring Batches & Splitter',
         'activity': 'Activity Points Verification',
         'leaveApproval': 'Leave Approval & Mentorship Reports'
       };
-      document.getElementById('panelTitle').innerText = titles[panelId];
+      
+      const titleEl = document.getElementById('panelTitle') || document.querySelector('.topbar-title') || document.querySelector('header h1');
+      if (titleEl) titleEl.innerText = titles[panelId] || 'Tutor Console';
 
-      if (panelId === 'roster') loadUsers();
-      if (panelId === 'rollNumbers') loadTutorStudents();
-      if (panelId === 'audit') loadAuditTrail();
-      if (panelId === 'profile') loadSelfSecurityLogs();
-      if (panelId === 'mentoring') initMentoringPanel();
-      if (panelId === 'activity') loadActivityClaims();
-      if (panelId === 'leaveApproval') loadClassroomLeaves();
+      try {
+        const url = new URL(window.location);
+        url.searchParams.set('panel', panelId);
+        url.searchParams.delete('tab');
+        window.history.replaceState({}, '', url);
+      } catch(e) {}
+
+      if (!loadedPanels[panelId] || forceRefresh) {
+        loadedPanels[panelId] = true;
+        if (panelId === 'roster') loadUsers();
+        if (panelId === 'rollNumbers') loadTutorStudents();
+        if (panelId === 'audit') loadAuditTrail();
+        if (panelId === 'profile') loadSelfSecurityLogs();
+        if (panelId === 'mentoring') initMentoringPanel();
+        if (panelId === 'activity') loadActivityClaims();
+        if (panelId === 'leaveApproval') loadClassroomLeaves();
+      }
     }
 
     function showGlobalMessage(msg, isError = false) {
@@ -842,82 +860,87 @@
 
       users.forEach(user => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium whitespace-nowrap";
+        tr.className = "border-b border-slate-100 hover:bg-slate-50/80 transition-all whitespace-nowrap";
 
-        let statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending</span>`;
+        let statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">Pending</span>`;
         if (user.status === 'Approved') {
-          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-500/10 text-green-400 border border-green-500/20">Approved</span>`;
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Approved</span>`;
         } else if (user.status === 'Suspended') {
-          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20">Suspended</span>`;
+          statusBadge = `<span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">Suspended</span>`;
         }
 
         let toggleButton = '';
         if (user.status === 'Pending') {
           toggleButton = `
-            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-green-600 hover:bg-green-700 rounded text-xs font-bold text-white transition-premium cursor-pointer">
+            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-xs font-semibold text-white transition-all cursor-pointer shadow-2xs">
               Approve
             </button>
           `;
         } else if (user.status === 'Approved') {
           toggleButton = `
-            <button onclick="changeStatus('${user.id}', '${user.type}', 'Suspended')" class="px-2 py-1 bg-red-950 hover:bg-red-900 border border-red-800 rounded text-xs font-bold text-red-300 transition-premium cursor-pointer">
+            <button onclick="changeStatus('${user.id}', '${user.type}', 'Suspended')" class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg text-xs font-semibold text-amber-700 transition-all cursor-pointer">
               Suspend
             </button>
           `;
         } else if (user.status === 'Suspended') {
           toggleButton = `
-            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs font-bold text-white transition-premium cursor-pointer">
+            <button onclick="changeStatus('${user.id}', '${user.type}', 'Approved')" class="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-xs font-semibold text-emerald-700 transition-all cursor-pointer">
               Activate
             </button>
           `;
         }
 
+        const initials = user.name ? user.name.split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() : 'ST';
+        const avatarHtml = user.photo_url 
+          ? `<img src="${user.photo_url}" class="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-2xs shrink-0">` 
+          : `<div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 font-bold text-xs flex items-center justify-center border border-blue-200 shadow-2xs shrink-0">${initials}</div>`;
+
         tr.innerHTML = `
-          <td class="p-3 pl-5 flex items-center gap-3">
-            <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-2xs">
+          <td class="p-3.5 pl-5 flex items-center gap-3">
+            ${avatarHtml}
             <div>
-              <span class="font-bold text-slate-100 block text-sm">${user.name}</span>
-              <span class="text-sm text-slate-500 block">${user.email}</span>
+              <span class="font-bold text-slate-900 block text-sm">${user.name}</span>
+              <span class="text-xs text-slate-500 block font-normal">${user.email || 'No email provided'}</span>
             </div>
           </td>
-          <td class="p-2.5 font-mono font-bold text-slate-300 text-sm">${user.id}</td>
-          <td class="p-2.5">
-            <button onclick="editSbteRegNo('${user.id}', '${user.sbte_reg_no || ''}')" class="text-blue-400 hover:text-blue-300 underline font-mono cursor-pointer font-bold text-sm" title="Click to Edit SBTE No">
+          <td class="p-3.5 font-mono font-semibold text-slate-600 text-xs">${user.id}</td>
+          <td class="p-3.5">
+            <button onclick="editSbteRegNo('${user.id}', '${user.sbte_reg_no || ''}')" class="text-blue-600 hover:text-blue-700 font-semibold font-mono text-xs hover:underline cursor-pointer" title="Click to Edit SBTE No">
               ${user.sbte_reg_no || '[Add SBTE No]'}
             </button>
           </td>
-          <td class="p-2.5"><span class="font-bold font-mono text-sm bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700">${user.branch}</span></td>
-          <td class="p-2.5">
+          <td class="p-3.5"><span class="font-bold font-mono text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">${user.branch}</span></td>
+          <td class="p-3.5">
             ${user.type === 'student' ? `
-              <button onclick="editStudentSemester('${user.id}', '${user.semester || 'S1'}')" class="text-indigo-400 hover:text-indigo-300 underline font-bold text-sm cursor-pointer" title="Click to Edit Semester">
+              <button onclick="editStudentSemester('${user.id}', '${user.semester || 'S1'}')" class="text-blue-600 hover:text-blue-700 font-semibold text-xs hover:underline cursor-pointer" title="Click to Edit Semester">
                 ${user.semester || 'S1'}
               </button>
-            ` : '<span class="text-slate-500 font-bold text-sm">N/A</span>'}
+            ` : '<span class="text-slate-500 font-medium text-xs">N/A</span>'}
           </td>
-          <td class="p-2.5 text-sm">${user.role}</td>
-          <td class="p-2.5 text-sm">${statusBadge}</td>
-          <td class="p-2.5">
+          <td class="p-3.5 text-xs text-slate-600 font-medium">${user.role}</td>
+          <td class="p-3.5 text-xs">${statusBadge}</td>
+          <td class="p-3.5">
             ${user.type === 'student' ? `
-              <select onchange="updateAcademicStatusDirectly('${user.id}', this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-sm outline-none focus:border-blue-500 font-bold cursor-pointer ${
-                user.academic_status === 'Active' ? 'text-green-400 border-green-500/20' :
-                user.academic_status === 'Discontinued' ? 'text-amber-400 border-amber-500/20' :
-                'text-red-400 border-red-500/20'
+              <select onchange="updateAcademicStatusDirectly('${user.id}', this.value)" class="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1 text-xs font-semibold outline-none focus:border-blue-600 focus:bg-white cursor-pointer ${
+                user.academic_status === 'Active' ? 'text-emerald-700 font-semibold' :
+                user.academic_status === 'Discontinued' ? 'text-amber-700 font-semibold' :
+                'text-rose-700 font-semibold'
               }">
                 <option value="Active" ${user.academic_status === 'Active' ? 'selected' : ''}>Active</option>
                 <option value="Discontinued" ${user.academic_status === 'Discontinued' ? 'selected' : ''}>Discontinued</option>
                 <option value="TC Issued" ${user.academic_status === 'TC Issued' ? 'selected' : ''}>TC Issued</option>
               </select>
-            ` : '<span class="text-slate-500 font-bold text-sm">N/A</span>'}
+            ` : '<span class="text-slate-500 font-medium text-xs">N/A</span>'}
           </td>
-          <td class="p-2.5 text-right space-x-1 text-sm">
+          <td class="p-3.5 pr-5 text-right space-x-1.5 text-xs">
             ${toggleButton}
-            <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-sm font-bold transition-premium cursor-pointer">
+            <button onclick="triggerPasswordReset('${user.id}', '${user.type}', '${user.name}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold transition-all cursor-pointer">
               Reset Pwd
             </button>
-            <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2 py-1 bg-slate-800 hover:bg-blue-900 border border-slate-800 text-slate-300 rounded text-sm font-bold transition-premium cursor-pointer" title="View Audit Trail">
+            <button onclick="viewUserAudit('${user.id}', '${user.name}')" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-semibold transition-all cursor-pointer" title="View Audit Trail">
               Audit
             </button>
-            <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2 py-1 bg-red-950/40 hover:bg-red-900 border border-red-900/60 text-red-400 rounded text-sm font-bold transition-premium cursor-pointer" title="Delete Student">
+            <button onclick="confirmDeleteUser('${user.id}', '${user.type}', '${user.name}')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-semibold transition-all cursor-pointer" title="Delete Student">
               Delete
             </button>
           </td>
@@ -1114,12 +1137,12 @@
               
               const date = new Date(log.created_at).toLocaleString();
               tr.innerHTML = `
-                <td class="p-4 text-slate-400 font-mono">${date}</td>
-                <td class="p-4 font-bold text-slate-300">${log.performed_by_name || 'System'}<br><span class="text-xs text-slate-500 font-mono">${log.performed_by || ''}</span></td>
+                <td class="p-3.5 pl-4 text-slate-500 font-mono text-xs">${date}</td>
+                <td class="p-3.5 font-bold text-slate-900 text-xs">${log.performed_by_name || 'System'}<br><span class="text-xs text-slate-500 font-mono">${log.performed_by || ''}</span></td>
                 <td class="p-4 font-bold text-white">${log.target_name}<br><span class="text-xs text-blue-400 font-mono">${log.target_id}</span></td>
                 <td class="p-4"><span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
-                <td class="p-4 font-mono text-slate-400">${log.ip_address || '-'}</td>
-                <td class="p-4 text-slate-300 font-sans leading-relaxed">${log.details || ''}</td>
+                <td class="p-3.5 font-mono text-slate-500 text-xs">${log.ip_address || '-'}</td>
+                <td class="p-3.5 pr-4 text-slate-700 font-sans text-xs leading-relaxed">${log.details || ''}</td>
               `;
               tbody.appendChild(tr);
             });
@@ -1157,10 +1180,10 @@
               tr.className = "border-b border-slate-800/40 text-xs";
               const date = new Date(log.created_at).toLocaleString();
               tr.innerHTML = `
-                <td class="p-3 text-slate-400 font-mono">${date}</td>
-                <td class="p-3 font-semibold text-slate-300">${log.performed_by_name || 'System'}</td>
+                <td class="p-3 text-slate-500 font-mono text-xs">${date}</td>
+                <td class="p-3 font-semibold text-slate-900 text-xs">${log.performed_by_name || 'System'}</td>
                 <td class="p-3"><span class="px-1.5 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
-                <td class="p-3 text-slate-300">${log.details || ''}</td>
+                <td class="p-3 text-slate-700 text-xs">${log.details || ''}</td>
               `;
               tbody.appendChild(tr);
             });
@@ -1225,9 +1248,9 @@
               tr.className = "border-b border-slate-800 text-xs";
               const date = new Date(log.created_at).toLocaleString();
               tr.innerHTML = `
-                <td class="p-3 text-slate-400 font-mono">${date}</td>
+                <td class="p-3 text-slate-500 font-mono text-xs">${date}</td>
                 <td class="p-3"><span class="px-1.5 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
-                <td class="p-3 text-slate-300">${log.details || ''}</td>
+                <td class="p-3 text-slate-700 text-xs">${log.details || ''}</td>
               `;
               tbody.appendChild(tr);
             });
@@ -1293,7 +1316,7 @@
               let actionsHtml = '';
               let submittedDate = c.created_at ? new Date(c.created_at) : null;
               let submittedHtml = submittedDate 
-                ? `<span class="block text-xs font-bold text-slate-300">${submittedDate.toLocaleDateString()}</span><span class="block text-xs text-slate-500">${submittedDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>`
+                ? `<span class="block text-xs font-bold text-slate-900">${submittedDate.toLocaleDateString()}</span><span class="block text-xs text-slate-500">${submittedDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>`
                 : `<span class="text-xs text-slate-500">N/A</span>`;
 
               if (c.status === 'Pending') {
@@ -1312,7 +1335,7 @@
                 }
                 actionsHtml = `
                   <div class="flex flex-col items-center">
-                    <span class="font-bold ${c.status === 'Verified' ? 'text-teal-400' : 'text-red-400'}">${c.status} (${c.points_awarded} pts)</span>
+                    <span class="font-bold ${c.status === 'Verified' ? 'text-emerald-600' : 'text-red-400'}">${c.status} (${c.points_awarded} pts)</span>
                     ${verifiedDateStr ? `<span class="text-xs text-slate-500 mt-0.5">On: ${verifiedDateStr}</span>` : ''}
                     ${noteHtml}
                   </div>
@@ -1323,16 +1346,16 @@
                 <tr class="hover:bg-slate-900/50 transition-premium">
                   <td class="p-3">${submittedHtml}</td>
                   <td class="p-3">
-                    <span class="font-bold text-slate-300 block text-xs">${c.student.name}</span>
+                    <span class="font-bold text-slate-900 block text-xs">${c.student.name}</span>
                     <span class="text-xs text-slate-500 font-mono">${c.reg_no}</span>
                   </td>
-                  <td class="p-3 text-xs font-bold text-slate-400">${c.activity_segment}</td>
+                  <td class="p-3 text-xs font-semibold text-slate-600">${c.activity_segment}</td>
                   <td class="p-3">
-                    <span class="block text-xs text-slate-300">${c.activity_name}</span>
+                    <span class="block text-xs text-slate-700">${c.activity_name}</span>
                     <span class="block text-xs text-slate-500">${c.level}</span>
                   </td>
                   <td class="p-3 text-xs text-slate-500 whitespace-normal min-w-[150px]">${c.document_reference || 'N/A'}</td>
-                  <td class="p-3 text-center text-xs font-bold text-slate-300">${c.points_claimed}</td>
+                  <td class="p-3 text-center text-xs font-bold text-slate-900">${c.points_claimed}</td>
                   <td class="p-3 text-center">${actionsHtml}</td>
                 </tr>
               `;
@@ -1623,23 +1646,25 @@
           let batchColor = s.batch_label === 'A' ? 'sky' : (s.batch_label === 'B' ? 'emerald' : 'amber');
           
           myList.innerHTML += `
-            <tr class="border-b border-slate-100 hover:bg-slate-50/80">
-              <td class="p-3 font-bold text-slate-900">${s.name}</td>
-              <td class="p-3 font-mono text-slate-400">${s.reg_no}</td>
-              <td class="p-3">
-                <span class="px-2 py-0.5 rounded text-xs font-bold bg-${batchColor}-500/10 text-${batchColor}-400 border border-${batchColor}-500/20">
+            <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all">
+              <td class="p-3.5 pl-4 font-bold text-slate-900 text-sm">${s.name}</td>
+              <td class="p-3.5 font-mono text-slate-600 font-semibold text-xs">${s.reg_no}</td>
+              <td class="p-3.5">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s.batch_label === 'A' ? 'bg-sky-50 text-sky-700 border-sky-200' : (s.batch_label === 'B' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200')}">
                   ${batchName}
                 </span>
               </td>
-              <td class="p-3 font-bold text-slate-300">
-                ${s.diary_count || 0} entries
+              <td class="p-3.5">
+                <span class="text-xs font-semibold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                  ${s.diary_count || 0} entries
+                </span>
               </td>
-              <td class="p-3 text-right whitespace-nowrap">
-                <a href="sms:${s.guardian_mobile || s.phone || ''}?body=${encodeURIComponent('Carmel Poly: View your ward (' + s.name + ') live attendance & status portal: ' + window.location.origin + '/parent/dashboard/' + s.reg_no)}" class="inline-block px-2.5 py-1 bg-cyan-700 hover:bg-cyan-600 text-white rounded text-xs font-bold transition-premium cursor-pointer shadow-md no-underline me-1" title="Send SMS Link to Parent">
-                  📱 SMS Portal
+              <td class="p-3.5 pr-4 text-right whitespace-nowrap space-x-1.5">
+                <a href="sms:${s.guardian_mobile || s.phone || ''}?body=${encodeURIComponent('Carmel Poly: View your ward (' + s.name + ') live attendance & status portal: ' + window.location.origin + '/parent/dashboard/' + s.reg_no)}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold border border-slate-200 transition-all no-underline shadow-2xs cursor-pointer" title="Send SMS Link to Parent">
+                  <span>📱</span><span>SMS Portal</span>
                 </a>
-                <a href="/tutor/mentoring-diary/${s.reg_no}" class="inline-block px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-premium cursor-pointer shadow-md no-underline">
-                  View Diary
+                <a href="/tutor/mentoring-diary/${s.reg_no}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold transition-all no-underline shadow-xs cursor-pointer">
+                  <span>View Diary</span>
                 </a>
               </td>
             </tr>
@@ -1738,9 +1763,9 @@
             tbody.innerHTML += `
               <tr class="border-b border-slate-100 hover:bg-slate-50/80">
                 <td class="p-3 font-bold text-slate-900">${lv.student_name} <span class="text-[10px] text-slate-500 font-mono block">${lv.reg_no}</span></td>
-                <td class="p-3 text-slate-300 font-bold">${lv.semester}</td>
-                <td class="p-3 text-slate-300">${lv.leave_date}</td>
-                <td class="p-3 text-slate-300 font-bold">${lv.no_of_days} day(s) ${parentInformed}</td>
+                <td class="p-3 text-slate-900 font-semibold">${lv.semester}</td>
+                <td class="p-3 text-slate-700 text-xs">${lv.leave_date}</td>
+                <td class="p-3 text-slate-900 font-semibold">${lv.no_of_days} day(s) ${parentInformed}</td>
                 <td class="p-3 max-w-[150px] truncate" title="${lv.reason || ''}">${lv.reason || '-'}</td>
                 <td class="p-3 font-bold ${statColor}">${lv.status}</td>
                 <td class="p-3 text-right whitespace-nowrap">${actionHtml}</td>
@@ -1814,25 +1839,25 @@
 
     function loadTutorStudents() {
       const list = document.getElementById('tutorRollNumberList');
-      list.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">Loading students...</td></tr>';
+      list.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">Loading students...</td></tr>';
       fetch('/api/tutor/attendance/students')
         .then(res => res.json())
         .then(data => {
           if (data.status === 'SUCCESS') {
             let html = '';
             if (data.students.length === 0) {
-              list.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400">No students in your classroom.</td></tr>';
+              list.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">No students in your classroom.</td></tr>';
               return;
             }
             data.students.forEach((s, idx) => {
               html += `
-                <tr class="border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium student-roll-row" data-reg="${s.reg_no}">
-                  <td class="p-4 text-center font-bold text-slate-500 text-sm">${idx+1}</td>
-                  <td class="p-4 font-mono font-bold text-slate-300 text-sm">${s.reg_no}</td>
-                  <td class="p-4 font-mono font-bold text-teal-400 text-sm">${s.sbte_reg_no || '-'}</td>
-                  <td class="p-4 font-bold text-white text-sm">${s.name}</td>
-                  <td class="p-2 text-center">
-                    <input type="number" class="w-24 bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-center font-bold text-white roll-no-input text-sm" value="${s.roll_no || ''}" min="1" placeholder="-">
+                <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition-all student-roll-row" data-reg="${s.reg_no}">
+                  <td class="p-3.5 pl-5 text-center font-bold text-slate-500 text-xs">${idx+1}</td>
+                  <td class="p-3.5 font-mono font-semibold text-slate-600 text-xs">${s.reg_no}</td>
+                  <td class="p-3.5 font-mono font-semibold text-blue-600 text-xs">${s.sbte_reg_no || '-'}</td>
+                  <td class="p-3.5 font-bold text-slate-900 text-sm">${s.name}</td>
+                  <td class="p-2.5 pr-5 text-center">
+                    <input type="number" class="w-24 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-center font-bold text-slate-900 focus:bg-white focus:border-blue-600 focus:ring-1 focus:ring-blue-600 roll-no-input text-sm outline-none transition-all shadow-2xs" value="${s.roll_no || ''}" min="1" placeholder="-">
                   </td>
                 </tr>
               `;
