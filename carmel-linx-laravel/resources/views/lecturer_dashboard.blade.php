@@ -24,9 +24,6 @@
     })();
   </script>
 
-  <!-- Google Icons -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
-
   <!-- Vite Assets -->
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -62,23 +59,23 @@
         justify-content: center !important;
         padding-top: 0.625rem !important;
         padding-bottom: 0.625rem !important;
-        padding-left: 0.25rem !important;
-        padding-right: 0.25rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
       }
       .mobile-sem-btn span:first-child {
-        font-size: 10px !important;
+        font-size: 12px !important;
         margin-bottom: 0.125rem !important;
       }
       .mobile-sem-btn span:last-child {
-        font-size: 12px !important;
+        font-size: 14px !important;
       }
       #mobileSeminarNotificationsContainer h4,
       #seminarNotificationsContainer h4 {
-        font-size: 15px !important;
+        font-size: 16px !important;
       }
       #mobileSeminarNotificationsContainer p,
       #seminarNotificationsContainer p {
-        font-size: 13px !important;
+        font-size: 14px !important;
       }
     }
 
@@ -120,12 +117,12 @@
     
     #panelClassroom #vcViewStudentsBtn,
     #panelClassroom #vcViewStudentsBtn span {
-      font-size: 13px !important;
-      font-weight: 700 !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
     }
 
     #panelClassroom .classroom-tab-btn {
-      font-size: 13.5px !important;
+      font-size: 14px !important;
       font-weight: 600 !important;
       padding: 0.5rem 0.875rem !important;
       border-radius: 0.75rem !important;
@@ -134,7 +131,7 @@
 
     #panelClassroom h4, 
     #panelClassroom h5 {
-      font-size: 15px !important;
+      font-size: 16px !important;
       font-weight: 700 !important;
     }
 
@@ -143,51 +140,51 @@
     #manualMarksWrapper table td,
     #manualMarksWrapper input,
     #manualMarksWrapper span {
-      font-size: 13px !important;
+      font-size: 14px !important;
     }
     
     #manualMarksWrapper table td {
       padding: 12px 10px !important;
     }
 
-    /* Flatpickr date picker calendar visibility in dark background */
+    /* Flatpickr date picker light theme styling */
     .flatpickr-calendar {
-      background: #0f172a !important;
-      border: 1px solid #334155 !important;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
-      color: #f1f5f9 !important;
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1rem !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+      color: #0f172a !important;
     }
     .flatpickr-calendar .flatpickr-months .flatpickr-month,
     .flatpickr-calendar .flatpickr-weekdays,
     .flatpickr-calendar .flatpickr-weekday,
     .flatpickr-calendar .flatpickr-days .flatpickr-day {
-      color: #f1f5f9 !important;
+      color: #0f172a !important;
     }
     .flatpickr-calendar .flatpickr-days .flatpickr-day:hover,
     .flatpickr-calendar .flatpickr-days .flatpickr-day.prevMonthDay:hover,
     .flatpickr-calendar .flatpickr-days .flatpickr-day.nextMonthDay:hover {
-      background: #1e293b !important;
-      color: #38bdf8 !important;
+      background: #f1f5f9 !important;
+      color: #2563eb !important;
     }
     .flatpickr-calendar .flatpickr-days .flatpickr-day.selected {
       background: #2563eb !important;
-      color: white !important;
+      color: #ffffff !important;
     }
     .flatpickr-calendar .flatpickr-current-month span.cur-month,
     .flatpickr-calendar .numInputWrapper span,
     .flatpickr-calendar input.numInput {
-      color: #f1f5f9 !important;
+      color: #0f172a !important;
+      font-weight: 600 !important;
     }
     .flatpickr-calendar .flatpickr-months .flatpickr-prev-month, 
     .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
-      color: #38bdf8 !important;
-      fill: #38bdf8 !important;
+      color: #2563eb !important;
+      fill: #2563eb !important;
     }
 
     /* Mobile styles for Virtual Classroom assessment mark entry */
     @media (max-width: 767px) {
-
-      /* Assessment Mark Entry Fields Font Enlargement & App-like Layout */
       .co-mark, .summ-mark,
       #manualMarksWrapper input,
       #markEntryTbody input,
@@ -195,9 +192,10 @@
         font-size: 16px !important;
         padding: 0.6rem !important;
         min-height: 44px !important;
-        background-color: #0f172a !important;
-        border-color: #334155 !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
         border-radius: 0.5rem !important;
+        color: #0f172a !important;
       }
 
       /* Transform assignment mark entry tables into list cards on mobile view */
@@ -216,15 +214,15 @@
       
       #markEntryTbody tr,
       #manualMarksWrapper table tr {
-        background: rgba(15, 23, 42, 0.6) !important;
-        border: 1px solid rgba(51, 65, 85, 0.6) !important;
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
         border-radius: 1rem !important;
         padding: 1.25rem !important;
         margin-bottom: 1.25rem !important;
         display: flex !important;
         flex-direction: column !important;
         gap: 0.65rem !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05) !important;
       }
       
       #markEntryTbody td,
@@ -239,27 +237,24 @@
         font-size: 14px !important;
       }
       
-      /* Assignment marks details helper labels */
-      #markEntryTbody td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #94a3b8; }
-      #markEntryTbody td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #94a3b8; }
-      #markEntryTbody td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #94a3b8; }
-      #markEntryTbody td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #94a3b8; }
-      #markEntryTbody td:nth-child(5)::before { content: "CO1 (10): "; font-weight: bold; color: #38bdf8; }
-      #markEntryTbody td:nth-child(6)::before { content: "CO2 (10): "; font-weight: bold; color: #38bdf8; }
-      #markEntryTbody td:nth-child(7)::before { content: "CO3 (10): "; font-weight: bold; color: #38bdf8; }
-      #markEntryTbody td:nth-child(8)::before { content: "CO4 (10): "; font-weight: bold; color: #38bdf8; }
+      #markEntryTbody td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(5)::before { content: "CO1 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(6)::before { content: "CO2 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(7)::before { content: "CO3 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(8)::before { content: "CO4 (10): "; font-weight: bold; color: #2563eb; }
       
-      /* Summative marks details helper labels */
-      #manualMarksWrapper td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #94a3b8; }
-      #manualMarksWrapper td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #94a3b8; }
-      #manualMarksWrapper td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #94a3b8; }
-      #manualMarksWrapper td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #94a3b8; }
-      #manualMarksWrapper td:nth-child(5)::before { content: "CO1: "; font-weight: bold; color: #38bdf8; }
-      #manualMarksWrapper td:nth-child(6)::before { content: "CO2: "; font-weight: bold; color: #38bdf8; }
-      #manualMarksWrapper td:nth-child(7)::before { content: "CO3: "; font-weight: bold; color: #38bdf8; }
-      #manualMarksWrapper td:nth-child(8)::before { content: "CO4: "; font-weight: bold; color: #38bdf8; }
+      #manualMarksWrapper td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(5)::before { content: "CO1: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(6)::before { content: "CO2: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(7)::before { content: "CO3: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(8)::before { content: "CO4: "; font-weight: bold; color: #2563eb; }
       
-      /* Make inputs larger in card layout and right-aligned */
       #markEntryTbody td div.relative,
       #manualMarksWrapper td div.relative {
         width: 5.5rem !important;
@@ -272,14 +267,13 @@
         text-align: center !important;
       }
 
-      /* Enlarge Seminar Day notification card texts in mobile view */
       #mobileSeminarNotificationsContainer h5,
       #seminarNotificationsContainer h5 {
         font-size: 15px !important;
       }
       #mobileSeminarNotificationsContainer p,
       #seminarNotificationsContainer p {
-        font-size: 13px !important;
+        font-size: 14px !important;
       }
     }
   </style>
@@ -342,20 +336,20 @@
           <div>
             @if(session('userRole') === 'Demonstrator')
               <a href="/dashboard/demonstrator" class="text-xs font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wider flex items-center gap-1.5 transition mb-2 cursor-pointer no-underline inline-flex">
-                <span class="material-symbols-rounded text-base text-blue-600">arrow_back</span> Back to Console
+                <x-ui.icon name="science" class="w-4 h-4 text-blue-600" /> Back to Console
               </a>
             @else
               <button onclick="switchPanel('dashboard')" class="text-xs font-bold text-slate-600 hover:text-slate-900 uppercase tracking-wider flex items-center gap-1.5 transition mb-1 cursor-pointer">
-                <span class="material-symbols-rounded text-sm">arrow_back</span> Back to Dashboard
+                <x-ui.icon name="science" class="w-4 h-4" /> Back to Dashboard
               </button>
             @endif
             <h3 id="vcTitle" class="text-lg font-bold text-slate-900 flex items-center gap-2 mt-1">
-              <span class="material-symbols-rounded text-blue-600 text-xl">meeting_room</span> Virtual Classroom
+              <x-ui.icon name="science" class="w-5 h-5 text-blue-600" /> Virtual Classroom
             </h3>
             <p id="vcSubtitle" class="text-xs sm:text-sm text-slate-500 mt-0.5 font-mono">Loading...</p>
           </div>
           <button id="vcViewStudentsBtn" onclick="showVcStudentsList()" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs border border-slate-200">
-            <span class="material-symbols-rounded text-sm text-blue-600">groups</span> View Students
+            <x-ui.icon name="groups" class="w-4 h-4 text-blue-600" /> View Students
           </button>
         </div>
 
@@ -414,34 +408,34 @@
          <!-- Toggle Buttons Navigation Strip -->
          <div class="bg-white border border-slate-200/80 p-2 rounded-2xl flex flex-wrap items-center gap-2 mb-4 shadow-xs">
              <button onclick="toggleClassroomTab('structure')" id="tabStructure" class="classroom-tab-btn flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs cursor-pointer">
-               <span class="material-symbols-rounded text-base">account_tree</span> Course Structure
+               <x-ui.icon name="science" class="w-4 h-4" /> Course Structure
              </button>
              <button onclick="toggleClassroomTab('planner')" id="tabPlanner" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <span class="material-symbols-rounded text-base">calendar_month</span> Lesson Planner
+               <x-ui.icon name="science" class="w-4 h-4" /> Lesson Planner
              </button>
              <button onclick="toggleClassroomTab('assessment')" id="tabAssessment" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <span class="material-symbols-rounded text-base">assignment_turned_in</span> Formative Assessment
+               <x-ui.icon name="assignment_turned_in" class="w-4 h-4" /> Formative Assessment
              </button>
              <button onclick="toggleClassroomTab('summative')" id="tabSummative" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <span class="material-symbols-rounded text-base">school</span> Summative Assessment
+               <x-ui.icon name="school" class="w-4 h-4" /> Summative Assessment
              </button>
              <button onclick="toggleClassroomTab('reports')" id="tabReports" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <span class="material-symbols-rounded text-base">assessment</span> Reports
+               <x-ui.icon name="science" class="w-4 h-4" /> Reports
              </button>
              <button onclick="toggleClassroomTab('qbank')" id="tabQBank" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <span class="material-symbols-rounded text-base">database</span> Question Bank
+               <x-ui.icon name="database" class="w-4 h-4" /> Question Bank
              </button>
              <button onclick="toggleClassroomTab('survey')" id="tabSurvey" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <span class="material-symbols-rounded text-base">rate_review</span> Mid-Sem Survey
+               <x-ui.icon name="grade" class="w-4 h-4" /> Mid-Sem Survey
              </button>
              <button onclick="toggleClassroomTab('exit_survey')" id="tabExitSurvey" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <span class="material-symbols-rounded text-base">assignment_turned_in</span> Course Exit Survey
+               <x-ui.icon name="assignment_turned_in" class="w-4 h-4" /> Course Exit Survey
              </button>
              <button onclick="toggleClassroomTab('seminar_evaluation')" id="tabSeminar" class="hidden classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <span class="material-symbols-rounded text-base">co_present</span> Seminar Evaluation
+               <x-ui.icon name="co_present" class="w-4 h-4" /> Seminar Evaluation
              </button>
              <button onclick="toggleClassroomTab('lab_evaluation')" id="tabLab" class="hidden classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
-               <span class="material-symbols-rounded text-base">science</span> Lab Evaluation
+               <x-ui.icon name="science" class="w-4 h-4" /> Lab Evaluation
              </button>
          </div>
 
@@ -450,7 +444,7 @@
             <div id="courseStructureContent" class="space-y-6 flex-grow overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
                 <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                  <span class="material-symbols-rounded text-xl text-slate-600">inventory_2</span>
+                  <x-ui.icon name="science" class="w-5 h-5 text-slate-600" />
                 </div>
                 <p class="text-sm font-bold text-slate-700">No syllabus loaded.</p>
                 <p class="text-sm mt-1.5 max-w-xs text-slate-400 leading-relaxed">Upload a syllabus PDF to automatically populate Course Outcomes, Modules, and Textbooks.</p>
@@ -460,7 +454,7 @@
             <div id="coursePlannerContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
                 <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                  <span class="material-symbols-rounded text-xl text-slate-600">event_note</span>
+                  <x-ui.icon name="science" class="w-5 h-5 text-slate-600" />
                 </div>
                 <p class="text-sm font-bold text-slate-700">Planner not generated.</p>
                 <p class="text-sm mt-1.5 max-w-xs text-slate-400 leading-relaxed">Upload a syllabus to automatically generate the lesson plan.</p>
@@ -470,7 +464,7 @@
             <div id="formativeAssessmentContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
                 <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                  <span class="material-symbols-rounded text-xl text-slate-600">quiz</span>
+                  <x-ui.icon name="quiz" class="w-5 h-5 text-slate-600" />
                 </div>
                 <p class="text-sm font-bold text-slate-700">No students or COs available.</p>
                 <p class="text-sm mt-1.5 max-w-xs text-slate-400 leading-relaxed">Upload a syllabus to activate formative assessment tasks.</p>
@@ -480,7 +474,7 @@
             <div id="summativeAssessmentContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10">
               <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
                 <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                  <span class="material-symbols-rounded text-xl text-slate-600">school</span>
+                  <x-ui.icon name="school" class="w-5 h-5 text-slate-600" />
                 </div>
                 <p class="text-sm font-bold text-slate-700">Loading summative assessments...</p>
               </div>
@@ -513,10 +507,10 @@
                 </div>
                 <div class="flex items-center gap-3 flex-wrap">
                   <button onclick="downloadExcelTemplate()" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 shadow-xs cursor-pointer">
-                    <span class="material-symbols-rounded text-base">download</span> Download Excel Template
+                    <x-ui.icon name="download" class="w-4 h-4" /> Download Excel Template
                   </button>
                   <button onclick="document.getElementById('qbankFileInput').click()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-xs">
-                    <span class="material-symbols-rounded text-base">upload_file</span> Upload Filled Excel
+                    <x-ui.icon name="science" class="w-4 h-4" /> Upload Filled Excel
                   </button>
                   <input type="file" id="qbankFileInput" class="hidden" accept=".xlsx,.xls,.csv" onchange="handleQBankUpload(this)">
                 </div>
@@ -570,15 +564,15 @@
             <div id="seminarEvaluationContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
               <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
                 <div>
-                  <h4 class="text-sm font-black text-slate-200">Seminar Evaluation (Revision 2021)</h4>
+                  <h4 class="text-sm font-bold text-slate-900">Seminar Evaluation (Revision 2021)</h4>
                   <p class="text-sm text-slate-400 mt-1">Grade student seminars based on CIA criteria. Multiple assessors' scores will be averaged to formulate the final mark.</p>
                 </div>
                 <div class="flex items-center gap-2">
-                  <button onclick="fetchSeminarEvaluations()" title="Sync latest evaluations" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-md border border-slate-700/60">
-                    <span class="material-symbols-rounded text-base">refresh</span> Refresh
+                  <button onclick="fetchSeminarEvaluations()" title="Sync latest evaluations" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-700 hover:text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-md border border-slate-700/60">
+                    <x-ui.icon name="refresh" class="w-4 h-4" /> Refresh
                   </button>
                   <a id="printSeminarReportBtn" href="#" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer shadow-md">
-                    <span class="material-symbols-rounded text-base">print</span> Print Seminar Report
+                    <x-ui.icon name="print" class="w-4 h-4" /> Print Seminar Report
                   </a>
                 </div>
               </div>
@@ -588,7 +582,7 @@
                 <div class="overflow-x-auto">
                   <table class="w-full text-left border-collapse">
                     <thead>
-                      <tr class="border-b border-slate-800 text-slate-300 font-bold uppercase tracking-wider text-xs bg-white">
+                      <tr class="border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-xs bg-white">
                         <th class="p-3">Roll No</th>
                         <th class="p-3">Student Name</th>
                         <th class="p-3">Topic</th>
@@ -605,7 +599,7 @@
                         <th class="p-3 text-center">Action</th>
                       </tr>
                     </thead>
-                    <tbody id="seminarEvaluationsTableBody" class="divide-y divide-slate-800/50">
+                    <tbody id="seminarEvaluationsTableBody" class="divide-y divide-slate-100">
                       <tr>
                         <td colspan="14" class="p-8 text-center text-slate-400 font-bold text-sm">Loading evaluations...</td>
                       </tr>
@@ -617,28 +611,28 @@
 
             <!-- Lab Evaluation Workspace (Revision 2021) -->
             <div id="labEvaluationContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
-              <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 border-b border-slate-800/80 pb-5">
+              <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 border-b border-slate-200 pb-5">
                 <div class="max-w-xl shrink-0">
-                  <h4 class="text-base font-black text-white tracking-wide">Practical / Lab Evaluation Register</h4>
+                  <h4 class="text-base font-bold text-slate-900 tracking-wide">Practical / Lab Evaluation Register</h4>
                   <p class="text-sm text-slate-400 mt-1.5 leading-relaxed">Grade day-to-day experiments (37.5), model tests (15),<br>micro-projects (7.5), and board exam marks (50).</p>
                 </div>
                 <div class="flex items-center gap-3 w-full lg:w-auto overflow-x-auto whitespace-nowrap pb-1 lg:pb-0 scrollbar-none">
-                  <div class="flex items-center gap-2.5 bg-slate-900 border border-slate-800 px-3.5 py-2 rounded-xl shadow-sm focus-within:border-blue-500/50 transition-all shrink-0">
+                  <div class="flex items-center gap-2.5 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-2xs focus-within:border-blue-500 transition-all shrink-0">
                     <span class="text-sm font-bold text-slate-400 uppercase tracking-wider">Batch Filter:</span>
-                    <select id="labBatchFilterSelect" onchange="filterLabGridByBatch()" class="bg-transparent border-0 text-white font-bold text-sm outline-none cursor-pointer">
-                      <option value="combined" class="bg-slate-950">Combined (Full Class)</option>
-                      <option value="1" class="bg-slate-950">Lab Batch 1 (First 50%)</option>
-                      <option value="2" class="bg-slate-950">Lab Batch 2 (Second 50%)</option>
+                    <select id="labBatchFilterSelect" onchange="filterLabGridByBatch()" class="bg-transparent border-0 text-slate-800 font-bold text-sm outline-none cursor-pointer">
+                      <option value="combined" class="bg-white text-slate-800">Combined (Full Class)</option>
+                      <option value="1" class="bg-white text-slate-800">Lab Batch 1 (First 50%)</option>
+                      <option value="2" class="bg-white text-slate-800">Lab Batch 2 (Second 50%)</option>
                     </select>
                   </div>
-                  <button onclick="openManageExperimentsModal()" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-200 rounded-xl text-sm font-bold transition-premium flex items-center gap-2 cursor-pointer shadow-md shrink-0">
-                    <span class="material-symbols-rounded text-base text-teal-400">settings</span> Manage Experiments
+                  <button onclick="openManageExperimentsModal()" class="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 rounded-xl text-sm font-bold transition-premium flex items-center gap-2 cursor-pointer shadow-md shrink-0">
+                    <x-ui.icon name="science" class="w-4 h-4 text-teal-400" /> Manage Experiments
                   </button>
-                  <button onclick="openManageTestsModal()" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-slate-200 rounded-xl text-sm font-bold transition-premium flex items-center gap-2 cursor-pointer shadow-md shrink-0">
-                    <span class="material-symbols-rounded text-base text-blue-400">assignment_turned_in</span> Configure Tests
+                  <button onclick="openManageTestsModal()" class="px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 text-slate-700 rounded-xl text-sm font-bold transition-premium flex items-center gap-2 cursor-pointer shadow-md shrink-0">
+                    <x-ui.icon name="assignment_turned_in" class="w-4 h-4 text-blue-400" /> Configure Tests
                   </button>
                   <a id="printLabReportBtn" href="#" target="_blank" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-lg shadow-blue-500/15 shrink-0">
-                    <span class="material-symbols-rounded text-base">print</span> Print Register
+                    <x-ui.icon name="print" class="w-4 h-4" /> Print Register
                   </a>
                 </div>
               </div>
@@ -646,73 +640,73 @@
               <!-- Lab Statistics Widgets -->
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 <!-- Card 1: Avg Internal Mark -->
-                <div class="bg-gradient-to-br from-slate-900/90 to-teal-950/20 border border-teal-500/15 hover:border-teal-500/40 p-5 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col justify-between">
+                <div class="bg-white border border-teal-200/80 hover:border-teal-300 p-5 rounded-2xl shadow-xs transition-all duration-300 group flex flex-col justify-between">
                   <div class="flex justify-between items-start">
                     <span class="text-sm font-bold text-teal-400 uppercase tracking-wider">Avg Internal Mark</span>
-                    <span class="material-symbols-rounded text-teal-450 bg-teal-500/10 p-2 rounded-xl text-xl">analytics</span>
+                    <x-ui.icon name="science" class="w-5 h-5 text-teal-450 bg-teal-500/10 p-2 rounded-xl" />
                   </div>
-                  <div class="text-2xl font-black text-slate-100 mt-4 tracking-tight" id="statLabAvgInternal">0.00 / 75</div>
+                  <div class="text-2xl font-black text-slate-900 mt-4 tracking-tight" id="statLabAvgInternal">0.00 / 75</div>
                 </div>
 
                 <!-- Card 2: Avg Board Exam Mark -->
-                <div class="bg-gradient-to-br from-slate-900/90 to-blue-950/20 border border-blue-500/15 hover:border-blue-500/40 p-5 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col justify-between">
+                <div class="bg-white border border-blue-200/80 hover:border-blue-300 p-5 rounded-2xl shadow-xs transition-all duration-300 group flex flex-col justify-between">
                   <div class="flex justify-between items-start">
                     <span class="text-sm font-bold text-blue-400 uppercase tracking-wider">Avg Board Exam Mark</span>
-                    <span class="material-symbols-rounded text-blue-450 bg-blue-500/10 p-2 rounded-xl text-xl">school</span>
+                    <x-ui.icon name="school" class="w-5 h-5 text-blue-450 bg-blue-500/10 p-2 rounded-xl" />
                   </div>
-                  <div class="text-2xl font-black text-slate-100 mt-4 tracking-tight" id="statLabAvgBoard">0.00 / 50</div>
+                  <div class="text-2xl font-black text-slate-900 mt-4 tracking-tight" id="statLabAvgBoard">0.00 / 50</div>
                 </div>
 
                 <!-- Card 3: Pass Percentage -->
-                <div class="bg-gradient-to-br from-slate-900/90 to-emerald-950/20 border border-emerald-500/15 hover:border-emerald-500/40 p-5 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col justify-between">
+                <div class="bg-white border border-emerald-200/80 hover:border-emerald-300 p-5 rounded-2xl shadow-xs transition-all duration-300 group flex flex-col justify-between">
                   <div class="flex justify-between items-start">
                     <span class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Pass Percentage</span>
-                    <span class="material-symbols-rounded text-emerald-450 bg-emerald-500/10 p-2 rounded-xl text-xl">trending_up</span>
+                    <x-ui.icon name="science" class="w-5 h-5 text-emerald-450 bg-emerald-500/10 p-2 rounded-xl" />
                   </div>
-                  <div class="text-2xl font-black text-slate-100 mt-4 tracking-tight" id="statLabPassPercent">0%</div>
+                  <div class="text-2xl font-black text-slate-900 mt-4 tracking-tight" id="statLabPassPercent">0%</div>
                 </div>
 
                 <!-- Card 4: Total Experiments -->
-                <div class="bg-gradient-to-br from-slate-900/90 to-purple-950/20 border border-purple-500/15 hover:border-purple-500/40 p-5 rounded-2xl shadow-lg transition-all duration-300 group flex flex-col justify-between">
+                <div class="bg-white border border-purple-200/80 hover:border-purple-300 p-5 rounded-2xl shadow-xs transition-all duration-300 group flex flex-col justify-between">
                   <div class="flex justify-between items-start">
                     <span class="text-sm font-bold text-purple-400 uppercase tracking-wider">Total Experiments</span>
-                    <span class="material-symbols-rounded text-purple-450 bg-purple-500/10 p-2 rounded-xl text-xl">biotech</span>
+                    <x-ui.icon name="science" class="w-5 h-5 text-purple-450 bg-purple-500/10 p-2 rounded-xl" />
                   </div>
-                  <div class="text-2xl font-black text-slate-100 mt-4 tracking-tight" id="statLabTotalExps">0</div>
+                  <div class="text-2xl font-black text-slate-900 mt-4 tracking-tight" id="statLabTotalExps">0</div>
                 </div>
               </div>
 
               <!-- Practical Sub-Reports Quick Access -->
-              <div id="practicalReportsActions" class="hidden flex-wrap gap-3.5 p-5 bg-gradient-to-r from-slate-950/45 to-slate-900/20 border border-slate-800/80 rounded-2xl items-center shadow-md">
-                <span class="text-sm font-black text-slate-350 uppercase tracking-wider mr-2 flex items-center gap-2">
-                  <span class="material-symbols-rounded text-base text-blue-400">description</span>
+              <div id="practicalReportsActions" class="hidden flex-wrap gap-3.5 p-5 bg-slate-50 border border-slate-200 rounded-2xl items-center shadow-xs">
+                <span class="text-sm font-black text-slate-700 uppercase tracking-wider mr-2 flex items-center gap-2">
+                  <x-ui.icon name="science" class="w-4 h-4 text-blue-400" />
                   Practical Reports (A4 Landscape):
                 </span>
                 <div class="flex flex-wrap gap-2.5">
-                  <a id="pRepBtnRegister" target="_blank" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
-                    <span class="material-symbols-rounded text-sm text-teal-400">grid_on</span> Consolidated Register
+                  <a id="pRepBtnRegister" target="_blank" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-2xs">
+                    <x-ui.icon name="grid_on" class="w-4 h-4 text-teal-400" /> Consolidated Register
                   </a>
-                  <a id="pRepBtnAttendance" target="_blank" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
-                    <span class="material-symbols-rounded text-sm text-emerald-400">playlist_add_check</span> Attendance Log
+                  <a id="pRepBtnAttendance" target="_blank" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-2xs">
+                    <x-ui.icon name="science" class="w-4 h-4 text-emerald-400" /> Attendance Log
                   </a>
-                  <a id="pRepBtnExperiments" target="_blank" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
-                    <span class="material-symbols-rounded text-sm text-amber-400">list_alt</span> Experiments List
+                  <a id="pRepBtnExperiments" target="_blank" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-2xs">
+                    <x-ui.icon name="science" class="w-4 h-4 text-amber-400" /> Experiments List
                   </a>
-                  <a id="pRepBtnPlanner" target="_blank" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
-                    <span class="material-symbols-rounded text-sm text-purple-400">calendar_today</span> Lesson Planner
+                  <a id="pRepBtnPlanner" target="_blank" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-2xs">
+                    <x-ui.icon name="calendar_today" class="w-4 h-4 text-purple-400" /> Lesson Planner
                   </a>
-                  <a id="pRepBtnProjects" target="_blank" class="px-4 py-2.5 bg-slate-50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-200 hover:text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-sm">
-                    <span class="material-symbols-rounded text-sm text-rose-400">assignment</span> Open-Ended Projects
+                  <a id="pRepBtnProjects" target="_blank" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-premium no-underline flex items-center gap-2 cursor-pointer shadow-2xs">
+                    <x-ui.icon name="assignment" class="w-4 h-4 text-rose-400" /> Open-Ended Projects
                   </a>
                 </div>
               </div>
 
               <!-- Lab Evaluation Student Grid -->
-              <div class="bg-slate-950/50 border border-slate-800/60 rounded-2xl overflow-hidden shadow-xl">
+              <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
                 <div class="overflow-x-auto">
                   <table class="w-full text-left border-collapse min-w-[1100px]">
                     <thead>
-                      <tr class="border-b border-slate-800/80 text-slate-350 font-bold uppercase tracking-wider text-sm bg-slate-50">
+                      <tr class="border-b border-slate-200 text-slate-700 font-bold uppercase tracking-wider text-sm bg-slate-50">
                         <th class="p-4 w-20 text-center">Roll No</th>
                         <th class="p-4">Student Name</th>
                         <th class="p-4 text-center">Graded Exps</th>
@@ -727,7 +721,7 @@
                         <th class="p-4 text-center">Action</th>
                       </tr>
                     </thead>
-                    <tbody id="labEvaluationsTableBody" class="divide-y divide-slate-800/50">
+                    <tbody id="labEvaluationsTableBody" class="divide-y divide-slate-100">
                       <tr>
                         <td colspan="12" class="p-8 text-center text-slate-400 font-bold text-sm">Loading students...</td>
                       </tr>
@@ -741,11 +735,11 @@
             <div id="labCoPoMappingContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
               <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
                 <div>
-                  <h4 class="text-sm font-black text-slate-200">CO-PO &amp; CO-PSO Mapping Articulation Matrix</h4>
+                  <h4 class="text-sm font-bold text-slate-900">CO-PO &amp; CO-PSO Mapping Articulation Matrix</h4>
                   <p class="text-sm text-slate-400 mt-1">Map each Course Outcome (CO1 - CO4) to Program Outcomes (PO1 - PO11) and Program Specific Outcomes (PSO1 - PSO3) on a scale of 1 to 3.</p>
                 </div>
                 <button onclick="saveCoPoMappingMatrix()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-md">
-                  <span class="material-symbols-rounded text-base">save</span> Save Matrix
+                  <x-ui.icon name="save" class="w-4 h-4" /> Save Matrix
                 </button>
               </div>
 
@@ -753,7 +747,7 @@
                 <div class="overflow-x-auto">
                   <table class="w-full text-left border-collapse min-w-[900px] text-xs">
                     <thead>
-                      <tr class="bg-white border-b border-slate-800 text-slate-300 font-bold uppercase">
+                      <tr class="bg-white border-b border-slate-200 text-slate-700 font-bold uppercase">
                         <th class="p-3 w-16">CO</th>
                         <th class="p-3">Course Outcome Statement</th>
                         <!-- POs -->
@@ -798,11 +792,11 @@
         <!-- Header — NO Sign Out here, sidebar already has it -->
         <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-700/60">
           <button onclick="switchPanel('dashboard')" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-premium cursor-pointer shrink-0">
-            <span class="material-symbols-rounded text-slate-200 text-lg">arrow_back</span>
+            <x-ui.icon name="science" class="w-5 h-5 text-slate-200" />
           </button>
           <div>
             <h3 class="text-lg font-black text-white flex items-center gap-2 leading-tight">
-              <span class="material-symbols-rounded text-blue-400 text-xl">co_present</span> Virtual Seminar Room
+              <x-ui.icon name="co_present" class="w-5 h-5 text-blue-400" /> Virtual Seminar Room
             </h3>
             <p class="text-sm text-slate-400 mt-0.5">Evaluate student seminar presentations for today.</p>
           </div>
@@ -822,7 +816,7 @@
           <!-- Pending Invitations -->
           <div class="bg-white border border-amber-600/30 rounded-2xl overflow-hidden shadow-lg">
             <div class="px-5 py-4 border-b border-amber-600/20 flex items-center gap-3 bg-amber-950/20">
-              <span class="material-symbols-rounded text-amber-400 text-xl">mark_email_unread</span>
+              <x-ui.icon name="science" class="w-5 h-5 text-amber-400" />
               <h4 class="text-base font-black text-amber-200">Pending Invitations</h4>
             </div>
             <div id="mobilePendingInvitationsList" class="p-4 space-y-3">
@@ -833,7 +827,7 @@
           <!-- Accepted / Start Evaluation -->
           <div class="bg-white border border-emerald-700/30 rounded-2xl overflow-hidden shadow-lg">
             <div class="px-5 py-4 border-b border-emerald-700/20 flex items-center gap-3 bg-emerald-950/20">
-              <span class="material-symbols-rounded text-emerald-400 text-xl">how_to_reg</span>
+              <x-ui.icon name="how_to_reg" class="w-5 h-5 text-emerald-400" />
               <h4 class="text-base font-black text-emerald-200">Attending Seminars</h4>
             </div>
             <div class="p-4 space-y-3">
@@ -853,7 +847,7 @@
             <div class="flex items-start justify-between gap-3">
               <div class="flex-1 min-w-0">
                 <div id="mobSemStudentName" class="text-xl font-black text-white leading-tight">-</div>
-                <div class="text-sm text-slate-300 mt-1">SBTE Reg: <span id="mobSemSbteRegV2" class="font-mono text-blue-300 font-bold">-</span></div>
+                <div class="text-sm text-slate-700 mt-1">SBTE Reg: <span id="mobSemSbteRegV2" class="font-mono text-blue-300 font-bold">-</span></div>
                 <div class="mt-3 bg-blue-950/60 border border-blue-800/40 rounded-xl px-4 py-3">
                   <div class="text-xs text-blue-400 uppercase tracking-wider font-bold mb-1">Seminar Topic</div>
                   <div id="mobSemTopicV2" class="text-base font-bold text-white leading-snug">-</div>
@@ -981,12 +975,12 @@
               </div>
               <button type="submit" id="mobSemSubmitBtn"
                 class="px-6 py-4 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-xl font-black text-base shadow-lg shadow-blue-500/30 transition-premium cursor-pointer flex items-center gap-2">
-                <span class="material-symbols-rounded text-lg">save</span> Save
+                <x-ui.icon name="save" class="w-5 h-5" /> Save
               </button>
             </div>
 
-            <button type="button" onclick="backToSeminarList()" class="w-full py-3.5 text-slate-300 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer hover:text-white transition-premium border border-slate-700/50 rounded-xl hover:bg-slate-800/50">
-              <span class="material-symbols-rounded text-base">arrow_back</span> Back to Seminar List
+            <button type="button" onclick="backToSeminarList()" class="w-full py-3.5 text-slate-700 text-sm font-bold flex items-center justify-center gap-2 cursor-pointer hover:text-white transition-premium border border-slate-700/50 rounded-xl hover:bg-slate-800/50">
+              <x-ui.icon name="science" class="w-4 h-4" /> Back to Seminar List
             </button>
 
           </form>
@@ -1131,7 +1125,7 @@
         grid.innerHTML = `
           <div class="col-span-full bg-white border border-slate-200 p-12 rounded-3xl text-center shadow-sm max-w-xl mx-auto space-y-3">
             <div class="w-14 h-14 bg-slate-100 text-slate-400 rounded-2xl flex items-center justify-center mx-auto">
-              <span class="material-symbols-rounded text-3xl">school</span>
+              <i data-lucide="graduation-cap" class="w-4 h-4 inline-block text-3xl"></i>
             </div>
             <h4 class="font-bold text-slate-900 text-base">No batches found</h4>
             <p class="text-xs text-slate-500 max-w-sm mx-auto">You do not have any assigned classes or subjects under the <strong>${currentDashboardFilter === 'active' ? 'Active' : 'Archived'}</strong> filter.</p>
@@ -1153,7 +1147,7 @@
 
         const isGraduated = (b.current_semester || 1) > 6;
         const semBadge = isGraduated
-          ? `<span class="px-2.5 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-full font-bold text-xs flex items-center gap-1"><span class="material-symbols-rounded text-xs">school</span>Graduated</span>`
+          ? `<span class="px-2.5 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-full font-bold text-xs flex items-center gap-1"><i data-lucide="graduation-cap" class="w-4 h-4 inline-block text-xs"></i>Graduated</span>`
           : `<span class="px-2.5 py-0.5 bg-blue-50 border border-blue-200 text-blue-700 rounded-full font-bold text-xs font-mono">S-${b.current_semester || 1}</span>`;
 
         let subjectsHtml = '';
@@ -1182,7 +1176,7 @@
                     </div>
                   </div>
                   <div class="w-7 h-7 rounded-lg bg-white group-hover:bg-blue-600 group-hover:text-white text-slate-400 border border-slate-200 group-hover:border-blue-600 flex items-center justify-center transition-all shrink-0 shadow-2xs">
-                    <span class="material-symbols-rounded text-sm">arrow_forward</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4 inline-block text-sm"></i>
                   </div>
                 </div>
                 
@@ -1215,7 +1209,7 @@
               <div class="flex flex-col items-end gap-1.5">
                 <div class="flex flex-wrap gap-1 justify-end">${rolesHtml}</div>
                 <span class="flex items-center gap-1 text-xs font-semibold text-slate-500">
-                  <span class="material-symbols-rounded text-sm text-slate-400">group</span>
+                  <i data-lucide="users" class="w-4 h-4 inline-block text-sm text-slate-400"></i>
                   <span>${b.student_count || 0} students</span>
                 </span>
               </div>
@@ -1225,7 +1219,7 @@
           <div class="p-5 flex-1 flex flex-col min-h-0 bg-white space-y-3">
             <div class="flex items-center justify-between pb-1 shrink-0">
               <h5 class="text-xs font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
-                <span class="material-symbols-rounded text-sm text-blue-600">book</span>
+                <i data-lucide="book-open" class="w-4 h-4 inline-block text-sm text-blue-600"></i>
                 <span>Assigned Subjects</span>
               </h5>
               <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">${(b.subjects || []).length} Total</span>
@@ -1273,7 +1267,7 @@
       }
       currentSubjectId = subjectId;
       window.currentVirtualBatchId = batchId;
-      document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> ${subjectName}`;
+      document.getElementById('vcTitle').innerHTML = `<i data-lucide="circle" class="w-4 h-4 inline-block text-blue-400 text-xs"></i> ${subjectName}`;
       let latText = '';
       if (batchId.includes('_LET')) {
         latText = ' <span class="bg-purple-900/60 border border-purple-500/50 text-purple-300 font-extrabold text-xs px-2.5 py-1 rounded-full shadow-inner ml-2">LATERAL ENTRY (LET)</span>';
@@ -1486,7 +1480,7 @@
 
           if (isSeminar) {
             document.getElementById('panelTitle').innerText = 'Virtual Seminar Room';
-            document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-emerald-400 text-sm">co_present</span> Virtual Seminar Room`;
+            document.getElementById('vcTitle').innerHTML = `<i data-lucide="presentation" class="w-4 h-4 inline-block text-emerald-400 text-sm"></i> Virtual Seminar Room`;
             if (tabSeminar) tabSeminar.classList.remove('hidden');
             if (tabLab) tabLab.classList.add('hidden');
             if (tabLabCoPo) tabLabCoPo.classList.add('hidden');
@@ -1498,7 +1492,7 @@
             toggleClassroomTab('seminar_evaluation');
           } else if (isPractical) {
             document.getElementById('panelTitle').innerText = 'Virtual Lab Workspace';
-            document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-teal-400 text-sm">science</span> Virtual Lab Workspace`;
+            document.getElementById('vcTitle').innerHTML = `<i data-lucide="flask-conical" class="w-4 h-4 inline-block text-teal-400 text-sm"></i> Virtual Lab Workspace`;
             if (tabSeminar) tabSeminar.classList.add('hidden');
             if (tabLab) tabLab.classList.remove('hidden');
             if (tabLabCoPo) tabLabCoPo.classList.remove('hidden');
@@ -1519,7 +1513,7 @@
             toggleClassroomTab('lab_evaluation');
           } else {
             document.getElementById('panelTitle').innerText = 'Virtual Classroom';
-            document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> Virtual Classroom`;
+            document.getElementById('vcTitle').innerHTML = `<i data-lucide="circle" class="w-4 h-4 inline-block text-blue-400 text-xs"></i> Virtual Classroom`;
             if (tabSeminar) tabSeminar.classList.add('hidden');
             if (tabLab) tabLab.classList.add('hidden');
             if (tabLabCoPo) tabLabCoPo.classList.add('hidden');
@@ -1533,7 +1527,7 @@
 
           // Update vcTitle to include subject name for regular classrooms
           if (!isSeminar && !isPractical) {
-            document.getElementById('vcTitle').innerHTML = `<span class="material-symbols-rounded text-blue-400 text-xs">meeting_room</span> ${currentSubjectName || 'Virtual Classroom'}`;
+            document.getElementById('vcTitle').innerHTML = `<i data-lucide="circle" class="w-4 h-4 inline-block text-blue-400 text-xs"></i> ${currentSubjectName || 'Virtual Classroom'}`;
           }
 
           if (data.data.syllabus_pdf_path) {
@@ -1552,7 +1546,7 @@
           document.getElementById('courseStructureContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
               <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                <span class="material-symbols-rounded text-xl text-slate-600">inventory_2</span>
+                <i data-lucide="circle" class="w-4 h-4 inline-block text-xl text-slate-600"></i>
               </div>
               <p class="text-sm font-bold text-slate-400">No syllabus loaded.</p>
               <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus PDF to automatically populate Course Outcomes, Modules, and Textbooks.</p>
@@ -1561,7 +1555,7 @@
           document.getElementById('coursePlannerContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
               <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                <span class="material-symbols-rounded text-xl text-slate-600">event_note</span>
+                <i data-lucide="circle" class="w-4 h-4 inline-block text-xl text-slate-600"></i>
               </div>
               <p class="text-sm font-bold text-slate-400">Planner not generated.</p>
               <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to automatically generate the lesson plan.</p>
@@ -1570,7 +1564,7 @@
           document.getElementById('formativeAssessmentContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
               <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                <span class="material-symbols-rounded text-xl text-slate-600">assignment_turned_in</span>
+                <i data-lucide="clipboard-check" class="w-4 h-4 inline-block text-xl text-slate-600"></i>
               </div>
               <p class="text-sm font-bold text-slate-400">Formative Assessment Inactive.</p>
               <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to activate formative assessment tasks and mark entry.</p>
@@ -1579,7 +1573,7 @@
           document.getElementById('summativeAssessmentContent').innerHTML = `
             <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
               <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                <span class="material-symbols-rounded text-xl text-slate-600">quiz</span>
+                <i data-lucide="help-circle" class="w-4 h-4 inline-block text-xl text-slate-600"></i>
               </div>
               <p class="text-sm font-bold text-slate-400">Summative Assessment Inactive.</p>
               <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to activate written test configuration and mark entry.</p>
@@ -1590,7 +1584,7 @@
               qbContent.innerHTML = `
                 <div class="flex flex-col items-center justify-center py-16 text-center text-slate-500 h-full">
                   <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-                    <span class="material-symbols-rounded text-xl text-slate-600">database</span>
+                    <i data-lucide="database" class="w-4 h-4 inline-block text-xl text-slate-600"></i>
                   </div>
                   <p class="text-sm font-bold text-slate-400">Question Bank Inactive.</p>
                   <p class="text-sm mt-1.5 max-w-xs text-slate-500 leading-relaxed">Upload a syllabus to activate the question bank pooling.</p>
@@ -1605,7 +1599,7 @@
         document.getElementById('parseStatusBadge').className = 'text-xs font-bold px-2.5 py-1 rounded-md bg-red-900/30 text-red-400 border border-red-500/30';
         document.getElementById('courseStructureContent').innerHTML = `
           <div class="flex flex-col items-center justify-center py-16 text-center h-full">
-            <span class="material-symbols-rounded text-2xl text-red-500 mb-3">error</span>
+            <i data-lucide="alert-circle" class="w-4 h-4 inline-block text-2xl text-red-500 mb-3"></i>
             <p class="text-sm font-bold text-red-400">Failed to load course data</p>
             <p class="text-xs text-slate-500 mt-1.5 max-w-xs">${err.message}</p>
             <button onclick="loadCourseDetails(currentSubjectId)" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl cursor-pointer transition-premium">
@@ -1655,18 +1649,18 @@
         let emptyColor = window.isCurrentSubjectPractical ? 'text-teal-400' : 'text-sky-400';
         let genBtn = window.isCurrentSubjectPractical
           ? `<button onclick="openGeneratePlannerModal()" class="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-500 hover:from-teal-500 hover:to-emerald-400 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-teal-900/20">
-              <span class="material-symbols-rounded text-sm">auto_awesome</span> Auto-Generate (Lab)
+              <i data-lucide="sparkles" class="w-4 h-4 inline-block text-sm"></i> Auto-Generate (Lab)
              </button>`
           : `<button onclick="regenerateLessonPlan()" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-lg shadow-blue-900/20">
-              <span class="material-symbols-rounded text-sm">auto_awesome</span> Generate Lesson Plan
+              <i data-lucide="sparkles" class="w-4 h-4 inline-block text-sm"></i> Generate Lesson Plan
              </button>`;
         let loadBtn = `<button onclick="loadLessonPlanTemplate()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-premium cursor-pointer border border-slate-700/50 flex items-center gap-1.5">
-              <span class="material-symbols-rounded text-sm">download</span> Load Template
+              <i data-lucide="download" class="w-4 h-4 inline-block text-sm"></i> Load Template
             </button>`;
         container.innerHTML = `
           <div class="flex flex-col items-center justify-center py-16 text-center h-full">
             <div class="bg-slate-50 p-4 rounded-full mb-4 border border-slate-200">
-              <span class="material-symbols-rounded text-xl ${emptyColor}">${emptyIcon}</span>
+              <i data-lucide="sparkles" class="w-4 h-4 inline-block text-xl ${emptyColor}"></i>
             </div>
             <p class="text-sm font-bold text-slate-400">No Lesson Plan Generated Yet</p>
             <p class="text-xs mt-1.5 max-w-xs text-slate-500 leading-relaxed mb-6">
@@ -1690,7 +1684,7 @@
       // Header buttons
       let practicalRegenBtn = window.isCurrentSubjectPractical
         ? `<button onclick="openGeneratePlannerModal()" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs">
-             <span class="material-symbols-rounded text-xs">science</span> Regenerate (Lab)
+             <i data-lucide="flask-conical" class="w-4 h-4 inline-block text-xs"></i> Regenerate (Lab)
            </button>` : '';
 
       let html = `
@@ -1702,19 +1696,19 @@
           <div class="flex items-center gap-2 flex-wrap">
             ${practicalRegenBtn}
             <button onclick="regenerateLessonPlan()" id="btnRegenPlan" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Re-generate all lesson plans from stored syllabus data">
-              <span class="material-symbols-rounded text-xs">refresh</span> Regenerate
+              <i data-lucide="rotate-cw" class="w-4 h-4 inline-block text-xs"></i> Regenerate
             </button>
             <button onclick="saveLessonPlanChanges()" id="btnSavePlan" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs">
-              <span class="material-symbols-rounded text-xs">save</span> Save Changes
+              <i data-lucide="save" class="w-4 h-4 inline-block text-xs"></i> Save Changes
             </button>
             <button onclick="saveLessonPlanAsTemplate()" id="btnSavePlanTemplate" class="px-3 py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Save as reusable template for other batches with the same subject">
-              <span class="material-symbols-rounded text-xs">bookmark_add</span> Save as Template
+              <i data-lucide="bookmark-plus" class="w-4 h-4 inline-block text-xs"></i> Save as Template
             </button>
             <button onclick="loadLessonPlanTemplate()" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Load previously saved template">
-              <span class="material-symbols-rounded text-xs">download</span> Load Template
+              <i data-lucide="download" class="w-4 h-4 inline-block text-xs"></i> Load Template
             </button>
             <a href="/classroom/${currentSubjectId}/lesson-plan/print" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Print Lesson Plan (A4)">
-              <span class="material-symbols-rounded text-xs">print</span> Print Plan
+              <i data-lucide="printer" class="w-4 h-4 inline-block text-xs"></i> Print Plan
             </a>
           </div>
         </div>
@@ -1792,7 +1786,7 @@
         </div>
 
         <div id="planSaveStatusBar" class="hidden mt-3 px-4 py-2.5 bg-amber-900/20 border border-amber-500/20 rounded-xl flex items-center gap-3 text-xs font-bold text-amber-400">
-          <span class="material-symbols-rounded text-sm animate-pulse">edit</span>
+          <i data-lucide="pencil" class="w-4 h-4 inline-block text-sm animate-pulse"></i>
           <span>You have unsaved changes.</span>
           <button onclick="saveLessonPlanChanges()" class="ml-auto px-3 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg cursor-pointer transition-premium">
             Save Now
@@ -1849,7 +1843,7 @@
         if (data) rows.push(data);
       });
       if (rows.length === 0) { alert('Nothing to save.'); return; }
-      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-rounded text-xs animate-spin">progress_activity</span> Saving...'; }
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 inline-block text-xs animate-spin"></i> Saving...'; }
 
       fetch(`/api/classroom/${currentSubjectId}/lesson-plans/bulk-update`, {
         method: 'POST',
@@ -1860,29 +1854,29 @@
           window._dirtyPlanRows.clear();
           const bar = document.getElementById('planSaveStatusBar');
           if (bar) { bar.classList.add('hidden'); bar.classList.remove('flex'); }
-          if (btn) btn.innerHTML = '<span class="material-symbols-rounded text-xs">check_circle</span> Saved!';
-          setTimeout(() => { if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded text-xs">save</span> Save Changes'; } }, 2500);
+          if (btn) btn.innerHTML = '<i data-lucide="check-circle-2" class="w-4 h-4 inline-block text-xs"></i> Saved!';
+          setTimeout(() => { if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-xs"></i> Save Changes'; } }, 2500);
         } else {
           alert(d.message || 'Save failed.');
-          if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded text-xs">save</span> Save Changes'; }
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-xs"></i> Save Changes'; }
         }
       }).catch(e => {
         alert('Save failed: ' + e.message);
-        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded text-xs">save</span> Save Changes'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-xs"></i> Save Changes'; }
       });
     }
 
     function regenerateLessonPlan() {
       if (!confirm('This will delete the current lesson plan and regenerate it from the stored syllabus data.\n\nAny manually entered dates and remarks will be lost.\n\nContinue?')) return;
       const btn = document.getElementById('btnRegenPlan');
-      if (btn) { btn.disabled = true; btn.innerHTML = '<span class="material-symbols-rounded text-xs animate-spin">progress_activity</span> Generating...'; }
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 inline-block text-xs animate-spin"></i> Generating...'; }
 
       fetch(`/api/classroom/${currentSubjectId}/lesson-plans/regenerate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
         body: JSON.stringify({})
       }).then(r => r.json()).then(d => {
-        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded text-xs">refresh</span> Regenerate'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="rotate-cw" class="w-4 h-4 inline-block text-xs"></i> Regenerate'; }
         if (d.status === 'SUCCESS') {
           renderCoursePlanner(d.data);
           toggleClassroomTab('planner');
@@ -1890,7 +1884,7 @@
           alert(d.message || 'Regeneration failed.');
         }
       }).catch(e => {
-        if (btn) { btn.disabled = false; btn.innerHTML = '<span class="material-symbols-rounded text-xs">refresh</span> Regenerate'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="rotate-cw" class="w-4 h-4 inline-block text-xs"></i> Regenerate'; }
         alert('Error: ' + e.message);
       });
     }
@@ -1943,13 +1937,13 @@
           </div>
           <div class="flex items-center gap-2">
             <button onclick="printAssignmentReport('${currentSubjectId}')" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-2 shadow-lg shadow-blue-500/10 cursor-pointer">
-              <span class="material-symbols-rounded text-sm">print</span> Print Assignment Report
+              <i data-lucide="printer" class="w-4 h-4 inline-block text-sm"></i> Print Assignment Report
             </button>
             <button onclick="generateAIQuestions('${currentSubjectId}')" class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-sky-500 hover:from-blue-500 hover:to-sky-400 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-2 shadow-lg shadow-blue-900/20 cursor-pointer">
-              <span class="material-symbols-rounded text-sm">smart_toy</span> AI Generate Questions
+              <i data-lucide="bot" class="w-4 h-4 inline-block text-sm"></i> AI Generate Questions
             </button>
             <button onclick="generateAIQuestions('${currentSubjectId}', null, 'bank')" class="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-500 hover:from-indigo-500 hover:to-violet-400 text-white rounded-xl text-sm font-bold transition-premium flex items-center gap-2 shadow-lg shadow-indigo-900/20 cursor-pointer">
-              <span class="material-symbols-rounded text-sm">database</span> Pull from Question Bank
+              <i data-lucide="database" class="w-4 h-4 inline-block text-sm"></i> Pull from Question Bank
             </button>
           </div>
         </div>
@@ -1959,7 +1953,7 @@
         <div class="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-xs">
           <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
             <div class="font-bold text-sm text-slate-800 flex items-center gap-2 tracking-wide uppercase">
-              <span class="material-symbols-rounded text-base text-emerald-600">edit_note</span> Enter Assignment Marks
+              <i data-lucide="file-text" class="w-4 h-4 inline-block text-base text-emerald-600"></i> Enter Assignment Marks
             </div>
             <button onclick="saveAssignmentMarks('${currentSubjectId}')" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer">
               Save Marks
@@ -2042,7 +2036,7 @@
       if (!questionsData || Object.keys(questionsData).length === 0) {
         container.innerHTML = `
           <div class="col-span-full flex flex-col items-center justify-center py-12 text-center bg-slate-50/60 border border-dashed border-slate-300 rounded-2xl shadow-2xs">
-            <span class="material-symbols-rounded text-5xl text-blue-500 mb-3">smart_toy</span>
+            <i data-lucide="bot" class="w-4 h-4 inline-block text-5xl text-blue-500 mb-3"></i>
             <p class="font-bold text-slate-800 text-sm mb-1">No Assignment Questions Yet</p>
             <p class="text-xs text-slate-600 mb-4">Click <strong>AI Generate Questions</strong> above to generate questions for all Course Outcomes using Gemini AI.</p>
           </div>
@@ -2079,29 +2073,29 @@
         if (typeof schedule === 'string') schedule = { start: '', due: schedule, locked: false }; // Legacy fallback
         
         let isLocked = schedule.locked;
-        let lockStr = isLocked ? `<span class="material-symbols-rounded text-[10px] text-amber-500 ml-1" title="Locked">lock</span>` : '';
+        let lockStr = isLocked ? `<svg class="w-3.5 h-3.5 inline text-amber-500 ml-1" title="Locked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>` : '';
         let disabledAttr = isLocked ? 'disabled' : '';
         let regenBtn = isLocked ? '' : `
                 <button onclick="generateAIQuestions('${subjectId}', '${co}', 'ai')" class="p-1.5 rounded-lg bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Generate via AI (Gemini)">
-                  <span class="material-symbols-rounded text-sm block">auto_awesome</span>
+                  <i data-lucide="sparkles" class="w-4 h-4 inline-block text-sm block"></i>
                 </button>
                 <button onclick="generateAIQuestions('${subjectId}', '${co}', 'bank')" class="p-1.5 rounded-lg bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Pull from Question Bank Pool">
-                  <span class="material-symbols-rounded text-sm block">database</span>
+                  <i data-lucide="database" class="w-4 h-4 inline-block text-sm block"></i>
                 </button>
         `;
         let editBtn = isLocked ? '' : `
                 <button onclick="openEditQuestionsModal('${subjectId}', '${co}')" class="p-1.5 rounded-lg bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Manually Edit Questions">
-                  <span class="material-symbols-rounded text-sm block">edit</span>
+                  <i data-lucide="pencil" class="w-4 h-4 inline-block text-sm block"></i>
                 </button>
         `;
         let lockBtn = isLocked ? '' : `
                 <button onclick="toggleAssignmentLock('${subjectId}', '${co}')" class="p-1.5 rounded-lg bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Lock & Finalize">
-                  <span class="material-symbols-rounded text-sm block">lock</span>
+                  <i data-lucide="lock" class="w-4 h-4 inline-block text-sm block"></i>
                 </button>
         `;
         let printBtn = `
                 <button onclick="printAssignmentPaperAndRubrics('${subjectId}', '${co}')" class="p-1.5 rounded-lg bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Print Assignment & Rubrics">
-                  <span class="material-symbols-rounded text-sm block">print</span>
+                  <i data-lucide="printer" class="w-4 h-4 inline-block text-sm block"></i>
                 </button>
         `;
 
@@ -2263,7 +2257,7 @@
         <div class="flex justify-between items-center">
           <span class="text-xs font-bold text-slate-700 uppercase tracking-wide">Question</span>
           <button type="button" onclick="this.closest('.question-field-row').remove(); updateEditQuestionsTotalMarks();" class="text-rose-500 hover:text-rose-700 cursor-pointer transition-colors">
-            <span class="material-symbols-rounded text-base">delete</span>
+            <i data-lucide="trash-2" class="w-4 h-4 inline-block text-base"></i>
           </button>
         </div>
         <div>
@@ -2406,7 +2400,7 @@
         <div class="flex items-center justify-between gap-3 mb-5 p-4 bg-white border border-slate-200/80 rounded-2xl shadow-xs">
           <div class="flex items-center gap-2">
             <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-sm font-bold border border-blue-200/80">
-              <span class="material-symbols-rounded text-base">library_books</span>
+              <i data-lucide="library" class="w-4 h-4 inline-block text-base"></i>
             </span>
             <div>
               <h3 class="font-bold text-slate-900 text-sm">Course Structure &amp; Syllabus Elements</h3>
@@ -2446,7 +2440,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
               <div class="flex items-center gap-2">
                 <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-sm font-bold border border-blue-200/80">
-                  <span class="material-symbols-rounded text-base">stars</span>
+                  <i data-lucide="star" class="w-4 h-4 inline-block text-base"></i>
                 </span>
                 <h3 class="font-bold text-slate-900 text-sm">Course Outcomes (COs)</h3>
               </div>
@@ -2489,7 +2483,7 @@
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
               <div class="flex items-center gap-2">
                 <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-sm font-bold border border-indigo-200/80">
-                  <span class="material-symbols-rounded text-base">grid_on</span>
+                  <i data-lucide="grid" class="w-4 h-4 inline-block text-base"></i>
                 </span>
                 <div>
                   <h3 class="font-bold text-slate-900 text-sm">CO-PO Articulation Matrix</h3>
@@ -2539,7 +2533,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
               <div class="flex items-center gap-2">
                 <span class="w-7 h-7 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center text-sm font-bold border border-purple-200/80">
-                  <span class="material-symbols-rounded text-base">collections_bookmark</span>
+                  <i data-lucide="book-marked" class="w-4 h-4 inline-block text-base"></i>
                 </span>
                 <h3 class="font-bold text-slate-900 text-sm">Course Modules / Units</h3>
               </div>
@@ -2566,7 +2560,7 @@
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
               <div class="flex items-center gap-2">
                 <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center text-sm font-bold border border-amber-200/80">
-                  <span class="material-symbols-rounded text-base">menu_book</span>
+                  <i data-lucide="book-open" class="w-4 h-4 inline-block text-base"></i>
                 </span>
                 <h3 class="font-bold text-slate-900 text-sm">Textbooks &amp; References</h3>
               </div>
@@ -2600,10 +2594,10 @@
       // Build the marks entry table FIRST so it's at the top
       let marksEntryHtml = `
         <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs no-print mb-6">
-          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors" onclick="document.getElementById('manualMarksWrapper').classList.toggle('hidden'); document.getElementById('marksToggleIcon').innerText = document.getElementById('manualMarksWrapper').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
+          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors" onclick="document.getElementById('manualMarksWrapper').classList.toggle('hidden'); const icon = document.getElementById('marksToggleIcon'); if (icon) icon.classList.toggle('rotate-180');">
             <div class="font-bold text-sm text-slate-800 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-base text-emerald-600">edit_document</span> Enter Manual Marks
-              <span id="marksToggleIcon" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
+              <i data-lucide="file-edit" class="w-4 h-4 inline-block text-base text-emerald-600"></i> Enter Manual Marks
+              <svg id="marksToggleIcon" class="w-4 h-4 text-slate-500 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
             <div class="flex items-center gap-2">
               <button onclick="event.stopPropagation(); printSummativeReport('${currentSubjectId}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer shadow-xs">
@@ -2674,10 +2668,10 @@
                   <span class="text-sm font-bold text-emerald-700 uppercase tracking-widest">Generated Question Paper</span>
                   <div class="flex items-center gap-2">
                     <button onclick="printSummativePaper('${co.id}', ${testData.total_marks})" class="flex items-center gap-1.5 text-sm bg-blue-50 hover:bg-blue-600 border border-blue-200 hover:border-blue-600 px-3 py-1.5 rounded-lg text-blue-700 hover:text-white transition-premium cursor-pointer shadow-2xs">
-                      <span class="material-symbols-rounded text-base">print</span> Print Q Paper
+                      <i data-lucide="printer" class="w-4 h-4 inline-block text-base"></i> Print Q Paper
                     </button>
                     <button onclick="printAnswerKey('${co.id}', ${testData.total_marks})" class="flex items-center gap-1.5 text-sm bg-amber-50 hover:bg-amber-600 border border-amber-200 hover:border-amber-600 px-3 py-1.5 rounded-lg text-amber-700 hover:text-white transition-premium cursor-pointer shadow-2xs">
-                      <span class="material-symbols-rounded text-base">assignment</span> Print Answer Key
+                      <i data-lucide="clipboard-list" class="w-4 h-4 inline-block text-base"></i> Print Answer Key
                     </button>
                   </div>
                 </div>
@@ -2692,7 +2686,7 @@
 
           let isLocked = testData && testData.is_locked ? true : false;
           let disabledAttr = isLocked ? 'disabled' : '';
-          let lockStr = isLocked ? `<span class="material-symbols-rounded text-sm text-amber-500 ml-1" title="Locked">lock</span>` : '';
+          let lockStr = isLocked ? `<svg class="w-3.5 h-3.5 inline text-amber-500 ml-1" title="Locked" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>` : '';
           let dateStr = testData && testData.date_of_exam ? testData.date_of_exam : '';
 
           let qA = tempSummativePatterns[co.id] ? tempSummativePatterns[co.id].qA : (testData?.part_a?.q_count || '');
@@ -2704,7 +2698,7 @@
 
           let lockBtn = isLocked || !testData ? '' : `
             <button onclick="lockSummativeTest('${currentSubjectId}', '${co.id}')" class="p-1.5 rounded-lg bg-white hover:bg-amber-50 text-slate-700 hover:text-amber-700 border border-slate-200 shadow-2xs transition-all cursor-pointer" title="Lock & Finalize">
-              <span class="material-symbols-rounded text-base block">lock</span>
+              <i data-lucide="lock" class="w-4 h-4 inline-block text-base block"></i>
             </button>
           `;
 
@@ -2716,16 +2710,16 @@
           
           let dateInputStr = `
             <div class="flex items-center gap-1.5 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
-              <span class="text-xs text-slate-600 font-bold uppercase flex items-center gap-1"><span class="material-symbols-rounded text-sm">calendar_today</span>Date</span>
+              <span class="text-xs text-slate-600 font-bold uppercase flex items-center gap-1"><i data-lucide="calendar" class="w-4 h-4 inline-block text-sm"></i>Date</span>
               <input type="date" id="summ_date_${co.id}" value="${dateStr}" ${disabledAttr} onchange="saveSummativeConfig('${currentSubjectId}', '${co.id}')" class="bg-white text-sm text-slate-800 font-mono outline-none w-[110px] px-2 py-0.5 rounded border border-slate-200 focus:border-blue-500 shadow-2xs">
             </div>
           `;
 
           html += `
             <div id="summ_card_${co.id}" class="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs relative ${isLocked ? 'ring-1 ring-amber-500/30' : ''}">
-              <div class="flex items-center justify-between mb-4 border-b border-slate-200 pb-3 cursor-pointer hover:opacity-80 transition-premium" onclick="document.getElementById('co_body_${co.id}').classList.toggle('hidden'); document.getElementById('co_icon_${co.id}').innerText = document.getElementById('co_body_${co.id}').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
+              <div class="flex items-center justify-between mb-4 border-b border-slate-200 pb-3 cursor-pointer hover:opacity-80 transition-premium" onclick="document.getElementById('co_body_${co.id}').classList.toggle('hidden'); const icon = document.getElementById('co_icon_' + co.id); if (icon) icon.classList.toggle('rotate-180');">
                 <h5 class="text-sm font-bold text-slate-900 flex items-center gap-1">
-                  <span id="co_icon_${co.id}" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
+                  <svg id="co_icon_${co.id}" class="w-4 h-4 text-slate-500 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                   ${co.id} Written Test ${lockStr}
                 </h5>
                 <div class="flex items-center gap-2" onclick="event.stopPropagation()">
@@ -2795,10 +2789,10 @@
       // Online MCQ Test Setup (Collapsible)
       let onlineTestHtml = `
         <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs no-print mb-6">
-          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors" onclick="document.getElementById('onlineTestWrapper').classList.toggle('hidden'); document.getElementById('onlineTestIcon').innerText = document.getElementById('onlineTestWrapper').classList.contains('hidden') ? 'expand_more' : 'expand_less';">
+          <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer hover:bg-slate-100 transition-colors" onclick="document.getElementById('onlineTestWrapper').classList.toggle('hidden'); const icon = document.getElementById('onlineTestIcon'); if (icon) icon.classList.toggle('rotate-180');">
             <div class="font-bold text-sm text-slate-800 flex items-center gap-2 tracking-wider uppercase">
-              <span class="material-symbols-rounded text-base text-purple-600">devices</span> Online MCQ Tests Setup
-              <span id="onlineTestIcon" class="material-symbols-rounded text-sm text-slate-500">expand_more</span>
+              <i data-lucide="monitor" class="w-4 h-4 inline-block text-base text-purple-600"></i> Online MCQ Tests Setup
+              <svg id="onlineTestIcon" class="w-4 h-4 text-slate-500 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
           </div>
           <div id="onlineTestWrapper" class="hidden p-5">
@@ -2854,7 +2848,7 @@
                   <input type="text" id="online_test_name" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none focus:border-purple-500 shadow-2xs" placeholder="e.g. Midterm Test 1">
                 </div>
                 <button onclick="publishOnlineTest('${currentSubjectId}')" class="w-full py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-premium flex items-center justify-center gap-2 shadow-xs cursor-pointer">
-                  <span class="material-symbols-rounded text-sm">rocket_launch</span> Generate & Publish to Students
+                  <i data-lucide="rocket" class="w-4 h-4 inline-block text-sm"></i> Generate & Publish to Students
                 </button>
               </div>
               
@@ -3191,13 +3185,13 @@
                   </div>
                   <div class="grid grid-cols-2 gap-2 mt-2">
                       <button onclick="generateOnlineTestReport('${t.test_id}')" class="w-full py-1.5 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 flex items-center justify-center gap-1 text-xs font-semibold shadow-2xs transition-premium cursor-pointer" title="Download Results">
-                        <span class="material-symbols-rounded text-sm">download</span> Report
+                        <i data-lucide="download" class="w-4 h-4 inline-block text-sm"></i> Report
                       </button>
                       <button onclick="printOnlineTest('${t.test_id}')" class="w-full py-1.5 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 flex items-center justify-center gap-1 text-xs font-semibold shadow-2xs transition-premium cursor-pointer" title="Print Question Paper with Answers">
-                        <span class="material-symbols-rounded text-sm">print</span> Print Q&A
+                        <i data-lucide="printer" class="w-4 h-4 inline-block text-sm"></i> Print Q&A
                       </button>
                       <button onclick="deleteOnlineTest('${t.test_id}', '${subjectId}')" class="col-span-2 w-full py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg border border-rose-200 flex items-center justify-center gap-1 text-xs font-semibold shadow-2xs transition-premium cursor-pointer" title="Delete Test">
-                        <span class="material-symbols-rounded text-sm">delete</span> Delete
+                        <i data-lucide="trash-2" class="w-4 h-4 inline-block text-sm"></i> Delete
                       </button>
                     </div>
                 </div>
@@ -3286,13 +3280,248 @@
             <head>
               <title>${test.test_name} - Report</title>
               <style>
-                body { font-family: system-ui, -apple-system, sans-serif; padding: 40px; color: #111; }
-                h2 { text-align: center; margin-bottom: 5px; text-transform: uppercase; border-bottom: 2px solid #000; padding-bottom: 10px; display: inline-block; }
-                .meta { text-align: center; font-size: 14px; color: #555; margin-bottom: 30px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-                th { background: #f0f0f0; padding: 10px 8px; border: 1px solid #ddd; text-align: left; }
-                .center { text-align: center; }
-              </style>
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .scrollbar-hidden::-webkit-scrollbar { display: none; }
+    .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .transition-premium {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+    @media (max-width: 640px) {
+      .mobile-sem-btn {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding-top: 0.625rem !important;
+        padding-bottom: 0.625rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+      }
+      .mobile-sem-btn span:first-child {
+        font-size: 12px !important;
+        margin-bottom: 0.125rem !important;
+      }
+      .mobile-sem-btn span:last-child {
+        font-size: 14px !important;
+      }
+      #mobileSeminarNotificationsContainer h4,
+      #seminarNotificationsContainer h4 {
+        font-size: 16px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 14px !important;
+      }
+    }
+
+    /* CampusLynk Modern Virtual Classroom Panel Styles */
+    #panelClassroom {
+      background-color: #FAFAFB !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1.5rem !important;
+      padding: 1.5rem !important;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05) !important;
+    }
+
+    #panelClassroom, 
+    #panelClassroom button,
+    #panelClassroom select,
+    #panelClassroom input,
+    #panelClassroom table,
+    #panelClassroom th,
+    #panelClassroom td,
+    #panelClassroom div,
+    #panelClassroom p,
+    #panelClassroom h3,
+    #panelClassroom h4,
+    #panelClassroom h5,
+    #panelClassroom span {
+      font-size: 14px;
+    }
+    
+    #panelClassroom h3#vcTitle,
+    #panelClassroom h3#vcTitle span {
+      font-size: 18px !important;
+      font-weight: 700 !important;
+    }
+    
+    #panelClassroom #vcSubtitle,
+    #panelClassroom #vcSubtitle span {
+      font-size: 14px !important;
+    }
+    
+    #panelClassroom #vcViewStudentsBtn,
+    #panelClassroom #vcViewStudentsBtn span {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+    }
+
+    #panelClassroom .classroom-tab-btn {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      padding: 0.5rem 0.875rem !important;
+      border-radius: 0.75rem !important;
+      transition: all 0.15s ease !important;
+    }
+
+    #panelClassroom h4, 
+    #panelClassroom h5 {
+      font-size: 16px !important;
+      font-weight: 700 !important;
+    }
+
+    /* Manual mark entry table title, names, and internal grid data font sizes */
+    #manualMarksWrapper table th,
+    #manualMarksWrapper table td,
+    #manualMarksWrapper input,
+    #manualMarksWrapper span {
+      font-size: 14px !important;
+    }
+    
+    #manualMarksWrapper table td {
+      padding: 12px 10px !important;
+    }
+
+    /* Flatpickr date picker light theme styling */
+    .flatpickr-calendar {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1rem !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+      color: #0f172a !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-month,
+    .flatpickr-calendar .flatpickr-weekdays,
+    .flatpickr-calendar .flatpickr-weekday,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day {
+      color: #0f172a !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.prevMonthDay:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.nextMonthDay:hover {
+      background: #f1f5f9 !important;
+      color: #2563eb !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.selected {
+      background: #2563eb !important;
+      color: #ffffff !important;
+    }
+    .flatpickr-calendar .flatpickr-current-month span.cur-month,
+    .flatpickr-calendar .numInputWrapper span,
+    .flatpickr-calendar input.numInput {
+      color: #0f172a !important;
+      font-weight: 600 !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-prev-month, 
+    .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+      color: #2563eb !important;
+      fill: #2563eb !important;
+    }
+
+    /* Mobile styles for Virtual Classroom assessment mark entry */
+    @media (max-width: 767px) {
+      .co-mark, .summ-mark,
+      #manualMarksWrapper input,
+      #markEntryTbody input,
+      #summativeMarkEntryTbody input {
+        font-size: 16px !important;
+        padding: 0.6rem !important;
+        min-height: 44px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 0.5rem !important;
+        color: #0f172a !important;
+      }
+
+      /* Transform assignment mark entry tables into list cards on mobile view */
+      #markEntryTbody,
+      #markEntryTbody tr,
+      #markEntryTbody td,
+      #manualMarksWrapper tbody,
+      #manualMarksWrapper tr,
+      #manualMarksWrapper td {
+        display: block !important;
+      }
+      
+      #panelClassroom table thead {
+        display: none !important;
+      }
+      
+      #markEntryTbody tr,
+      #manualMarksWrapper table tr {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 1rem !important;
+        padding: 1.25rem !important;
+        margin-bottom: 1.25rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.65rem !important;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05) !important;
+      }
+      
+      #markEntryTbody td,
+      #manualMarksWrapper td {
+        padding: 0.35rem 0 !important;
+        border: none !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        text-align: left !important;
+        font-size: 14px !important;
+      }
+      
+      #markEntryTbody td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(5)::before { content: "CO1 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(6)::before { content: "CO2 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(7)::before { content: "CO3 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(8)::before { content: "CO4 (10): "; font-weight: bold; color: #2563eb; }
+      
+      #manualMarksWrapper td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(5)::before { content: "CO1: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(6)::before { content: "CO2: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(7)::before { content: "CO3: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(8)::before { content: "CO4: "; font-weight: bold; color: #2563eb; }
+      
+      #markEntryTbody td div.relative,
+      #manualMarksWrapper td div.relative {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+      }
+      #markEntryTbody td input,
+      #manualMarksWrapper td input {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+        text-align: center !important;
+      }
+
+      #mobileSeminarNotificationsContainer h5,
+      #seminarNotificationsContainer h5 {
+        font-size: 15px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 14px !important;
+      }
+    }
+  </style>
             </head>
             <body>
               <div style="text-align: center;">
@@ -3683,25 +3912,247 @@
   <meta charset="UTF-8">
   <title>Question Paper - ${coTag}</title>
   <style>
-    @page { size: A4 portrait; margin: 1cm 1.2cm; }
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Times New Roman', Times, serif;
-      font-size: 12px;
-      color: #000;
-      background: #fff;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
-    h2, h3, h4, p { margin: 0; padding: 0; }
-    .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px; }
-    .college-name { font-size: 18px; font-weight: bold; letter-spacing: 0.5px; }
-    .dept-name { font-size: 13px; font-weight: bold; text-transform: uppercase; margin-top: 2px; }
-    .subject-info { font-size: 11px; margin-top: 3px; color: #222; }
-    .exam-title { font-size: 13px; margin-top: 4px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid #888; border-bottom: 1px solid #888; padding: 2px 0; display: inline-block; }
-    .meta-row { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; }
-    table { width: 100%; border-collapse: collapse; }
-    td { padding: 4px; vertical-align: top; line-height: 1.4; }
+    .scrollbar-hidden::-webkit-scrollbar { display: none; }
+    .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .transition-premium {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+    @media (max-width: 640px) {
+      .mobile-sem-btn {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding-top: 0.625rem !important;
+        padding-bottom: 0.625rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+      }
+      .mobile-sem-btn span:first-child {
+        font-size: 12px !important;
+        margin-bottom: 0.125rem !important;
+      }
+      .mobile-sem-btn span:last-child {
+        font-size: 14px !important;
+      }
+      #mobileSeminarNotificationsContainer h4,
+      #seminarNotificationsContainer h4 {
+        font-size: 16px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 14px !important;
+      }
+    }
+
+    /* CampusLynk Modern Virtual Classroom Panel Styles */
+    #panelClassroom {
+      background-color: #FAFAFB !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1.5rem !important;
+      padding: 1.5rem !important;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05) !important;
+    }
+
+    #panelClassroom, 
+    #panelClassroom button,
+    #panelClassroom select,
+    #panelClassroom input,
+    #panelClassroom table,
+    #panelClassroom th,
+    #panelClassroom td,
+    #panelClassroom div,
+    #panelClassroom p,
+    #panelClassroom h3,
+    #panelClassroom h4,
+    #panelClassroom h5,
+    #panelClassroom span {
+      font-size: 14px;
+    }
+    
+    #panelClassroom h3#vcTitle,
+    #panelClassroom h3#vcTitle span {
+      font-size: 18px !important;
+      font-weight: 700 !important;
+    }
+    
+    #panelClassroom #vcSubtitle,
+    #panelClassroom #vcSubtitle span {
+      font-size: 14px !important;
+    }
+    
+    #panelClassroom #vcViewStudentsBtn,
+    #panelClassroom #vcViewStudentsBtn span {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+    }
+
+    #panelClassroom .classroom-tab-btn {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      padding: 0.5rem 0.875rem !important;
+      border-radius: 0.75rem !important;
+      transition: all 0.15s ease !important;
+    }
+
+    #panelClassroom h4, 
+    #panelClassroom h5 {
+      font-size: 16px !important;
+      font-weight: 700 !important;
+    }
+
+    /* Manual mark entry table title, names, and internal grid data font sizes */
+    #manualMarksWrapper table th,
+    #manualMarksWrapper table td,
+    #manualMarksWrapper input,
+    #manualMarksWrapper span {
+      font-size: 14px !important;
+    }
+    
+    #manualMarksWrapper table td {
+      padding: 12px 10px !important;
+    }
+
+    /* Flatpickr date picker light theme styling */
+    .flatpickr-calendar {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1rem !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+      color: #0f172a !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-month,
+    .flatpickr-calendar .flatpickr-weekdays,
+    .flatpickr-calendar .flatpickr-weekday,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day {
+      color: #0f172a !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.prevMonthDay:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.nextMonthDay:hover {
+      background: #f1f5f9 !important;
+      color: #2563eb !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.selected {
+      background: #2563eb !important;
+      color: #ffffff !important;
+    }
+    .flatpickr-calendar .flatpickr-current-month span.cur-month,
+    .flatpickr-calendar .numInputWrapper span,
+    .flatpickr-calendar input.numInput {
+      color: #0f172a !important;
+      font-weight: 600 !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-prev-month, 
+    .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+      color: #2563eb !important;
+      fill: #2563eb !important;
+    }
+
+    /* Mobile styles for Virtual Classroom assessment mark entry */
+    @media (max-width: 767px) {
+      .co-mark, .summ-mark,
+      #manualMarksWrapper input,
+      #markEntryTbody input,
+      #summativeMarkEntryTbody input {
+        font-size: 16px !important;
+        padding: 0.6rem !important;
+        min-height: 44px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 0.5rem !important;
+        color: #0f172a !important;
+      }
+
+      /* Transform assignment mark entry tables into list cards on mobile view */
+      #markEntryTbody,
+      #markEntryTbody tr,
+      #markEntryTbody td,
+      #manualMarksWrapper tbody,
+      #manualMarksWrapper tr,
+      #manualMarksWrapper td {
+        display: block !important;
+      }
+      
+      #panelClassroom table thead {
+        display: none !important;
+      }
+      
+      #markEntryTbody tr,
+      #manualMarksWrapper table tr {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 1rem !important;
+        padding: 1.25rem !important;
+        margin-bottom: 1.25rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.65rem !important;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05) !important;
+      }
+      
+      #markEntryTbody td,
+      #manualMarksWrapper td {
+        padding: 0.35rem 0 !important;
+        border: none !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        text-align: left !important;
+        font-size: 14px !important;
+      }
+      
+      #markEntryTbody td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(5)::before { content: "CO1 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(6)::before { content: "CO2 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(7)::before { content: "CO3 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(8)::before { content: "CO4 (10): "; font-weight: bold; color: #2563eb; }
+      
+      #manualMarksWrapper td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(5)::before { content: "CO1: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(6)::before { content: "CO2: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(7)::before { content: "CO3: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(8)::before { content: "CO4: "; font-weight: bold; color: #2563eb; }
+      
+      #markEntryTbody td div.relative,
+      #manualMarksWrapper td div.relative {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+      }
+      #markEntryTbody td input,
+      #manualMarksWrapper td input {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+        text-align: center !important;
+      }
+
+      #mobileSeminarNotificationsContainer h5,
+      #seminarNotificationsContainer h5 {
+        font-size: 15px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 14px !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -3838,25 +4289,247 @@
   <meta charset="UTF-8">
   <title>Answer Key - ${coTag}</title>
   <style>
-    @page { size: A4 portrait; margin: 1.5cm 2cm; }
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Times New Roman', Times, serif;
-      font-size: 13px;
-      color: #000;
-      background: #fff;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
-    h2, h3, h4, p { margin: 0; padding: 0; }
-    .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px; }
-    .college-name { font-size: 21px; font-weight: bold; letter-spacing: 1px; }
-    .dept-name { font-size: 14px; font-weight: bold; text-transform: uppercase; margin-top: 3px; }
-    .subject-info { font-size: 12px; margin-top: 4px; color: #222; }
-    .exam-title { font-size: 14px; margin-top: 6px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #888; border-bottom: 1px solid #888; padding: 4px 0; display: inline-block; background-color: #f0f0f0; }
-    .meta-row { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; }
-    table { width: 100%; border-collapse: collapse; }
-    td { padding: 5px 3px; vertical-align: top; line-height: 1.5; }
+    .scrollbar-hidden::-webkit-scrollbar { display: none; }
+    .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .transition-premium {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+    @media (max-width: 640px) {
+      .mobile-sem-btn {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding-top: 0.625rem !important;
+        padding-bottom: 0.625rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+      }
+      .mobile-sem-btn span:first-child {
+        font-size: 12px !important;
+        margin-bottom: 0.125rem !important;
+      }
+      .mobile-sem-btn span:last-child {
+        font-size: 14px !important;
+      }
+      #mobileSeminarNotificationsContainer h4,
+      #seminarNotificationsContainer h4 {
+        font-size: 16px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 14px !important;
+      }
+    }
+
+    /* CampusLynk Modern Virtual Classroom Panel Styles */
+    #panelClassroom {
+      background-color: #FAFAFB !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1.5rem !important;
+      padding: 1.5rem !important;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05) !important;
+    }
+
+    #panelClassroom, 
+    #panelClassroom button,
+    #panelClassroom select,
+    #panelClassroom input,
+    #panelClassroom table,
+    #panelClassroom th,
+    #panelClassroom td,
+    #panelClassroom div,
+    #panelClassroom p,
+    #panelClassroom h3,
+    #panelClassroom h4,
+    #panelClassroom h5,
+    #panelClassroom span {
+      font-size: 14px;
+    }
+    
+    #panelClassroom h3#vcTitle,
+    #panelClassroom h3#vcTitle span {
+      font-size: 18px !important;
+      font-weight: 700 !important;
+    }
+    
+    #panelClassroom #vcSubtitle,
+    #panelClassroom #vcSubtitle span {
+      font-size: 14px !important;
+    }
+    
+    #panelClassroom #vcViewStudentsBtn,
+    #panelClassroom #vcViewStudentsBtn span {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+    }
+
+    #panelClassroom .classroom-tab-btn {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      padding: 0.5rem 0.875rem !important;
+      border-radius: 0.75rem !important;
+      transition: all 0.15s ease !important;
+    }
+
+    #panelClassroom h4, 
+    #panelClassroom h5 {
+      font-size: 16px !important;
+      font-weight: 700 !important;
+    }
+
+    /* Manual mark entry table title, names, and internal grid data font sizes */
+    #manualMarksWrapper table th,
+    #manualMarksWrapper table td,
+    #manualMarksWrapper input,
+    #manualMarksWrapper span {
+      font-size: 14px !important;
+    }
+    
+    #manualMarksWrapper table td {
+      padding: 12px 10px !important;
+    }
+
+    /* Flatpickr date picker light theme styling */
+    .flatpickr-calendar {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1rem !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+      color: #0f172a !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-month,
+    .flatpickr-calendar .flatpickr-weekdays,
+    .flatpickr-calendar .flatpickr-weekday,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day {
+      color: #0f172a !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.prevMonthDay:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.nextMonthDay:hover {
+      background: #f1f5f9 !important;
+      color: #2563eb !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.selected {
+      background: #2563eb !important;
+      color: #ffffff !important;
+    }
+    .flatpickr-calendar .flatpickr-current-month span.cur-month,
+    .flatpickr-calendar .numInputWrapper span,
+    .flatpickr-calendar input.numInput {
+      color: #0f172a !important;
+      font-weight: 600 !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-prev-month, 
+    .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+      color: #2563eb !important;
+      fill: #2563eb !important;
+    }
+
+    /* Mobile styles for Virtual Classroom assessment mark entry */
+    @media (max-width: 767px) {
+      .co-mark, .summ-mark,
+      #manualMarksWrapper input,
+      #markEntryTbody input,
+      #summativeMarkEntryTbody input {
+        font-size: 16px !important;
+        padding: 0.6rem !important;
+        min-height: 44px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 0.5rem !important;
+        color: #0f172a !important;
+      }
+
+      /* Transform assignment mark entry tables into list cards on mobile view */
+      #markEntryTbody,
+      #markEntryTbody tr,
+      #markEntryTbody td,
+      #manualMarksWrapper tbody,
+      #manualMarksWrapper tr,
+      #manualMarksWrapper td {
+        display: block !important;
+      }
+      
+      #panelClassroom table thead {
+        display: none !important;
+      }
+      
+      #markEntryTbody tr,
+      #manualMarksWrapper table tr {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 1rem !important;
+        padding: 1.25rem !important;
+        margin-bottom: 1.25rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.65rem !important;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05) !important;
+      }
+      
+      #markEntryTbody td,
+      #manualMarksWrapper td {
+        padding: 0.35rem 0 !important;
+        border: none !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        text-align: left !important;
+        font-size: 14px !important;
+      }
+      
+      #markEntryTbody td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(5)::before { content: "CO1 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(6)::before { content: "CO2 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(7)::before { content: "CO3 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(8)::before { content: "CO4 (10): "; font-weight: bold; color: #2563eb; }
+      
+      #manualMarksWrapper td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(5)::before { content: "CO1: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(6)::before { content: "CO2: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(7)::before { content: "CO3: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(8)::before { content: "CO4: "; font-weight: bold; color: #2563eb; }
+      
+      #markEntryTbody td div.relative,
+      #manualMarksWrapper td div.relative {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+      }
+      #markEntryTbody td input,
+      #manualMarksWrapper td input {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+        text-align: center !important;
+      }
+
+      #mobileSeminarNotificationsContainer h5,
+      #seminarNotificationsContainer h5 {
+        font-size: 15px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 14px !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -3951,7 +4624,7 @@
             }
             data.logs.forEach(log => {
               const tr = document.createElement('tr');
-              tr.className = "border-b border-slate-800/40 text-[10px] hover:bg-slate-900/20";
+              tr.className = "border-b border-slate-100 text-sm hover:bg-slate-50/70";
               const date = new Date(log.created_at).toLocaleString();
               tr.innerHTML = `
                 <td class="p-4 text-slate-400 font-mono">${date}</td>
@@ -4012,27 +4685,247 @@
   <meta charset="UTF-8">
   <title>Online MCQ Test - ${testName}</title>
   <style>
-    @page { size: A4 portrait; margin: 1.5cm 2cm; }
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Times New Roman', Times, serif;
-      font-size: 13px;
-      color: #000;
-      background: #fff;
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
-    h2, h3, h4, p { margin: 0; padding: 0; }
-    .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px; }
-    .college-name { font-size: 21px; font-weight: bold; letter-spacing: 1px; }
-    .dept-name { font-size: 14px; font-weight: bold; text-transform: uppercase; margin-top: 3px; }
-    .subject-info { font-size: 12px; margin-top: 4px; color: #222; }
-    .exam-title { font-size: 14px; margin-top: 6px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; border-top: 1px solid #888; border-bottom: 1px solid #888; padding: 4px 0; display: inline-block; background-color: #f0f0f0; }
-    .meta-row { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; }
-    .q-block { margin-bottom: 15px; page-break-inside: avoid; }
-    .q-text { font-weight: bold; margin-bottom: 5px; }
-    .options { list-style-type: lower-alpha; margin: 0; padding-left: 20px; }
-    .options li { margin-bottom: 3px; }
+    .scrollbar-hidden::-webkit-scrollbar { display: none; }
+    .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .transition-premium {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+    @media (max-width: 640px) {
+      .mobile-sem-btn {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding-top: 0.625rem !important;
+        padding-bottom: 0.625rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+      }
+      .mobile-sem-btn span:first-child {
+        font-size: 12px !important;
+        margin-bottom: 0.125rem !important;
+      }
+      .mobile-sem-btn span:last-child {
+        font-size: 14px !important;
+      }
+      #mobileSeminarNotificationsContainer h4,
+      #seminarNotificationsContainer h4 {
+        font-size: 16px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 14px !important;
+      }
+    }
+
+    /* CampusLynk Modern Virtual Classroom Panel Styles */
+    #panelClassroom {
+      background-color: #FAFAFB !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1.5rem !important;
+      padding: 1.5rem !important;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05) !important;
+    }
+
+    #panelClassroom, 
+    #panelClassroom button,
+    #panelClassroom select,
+    #panelClassroom input,
+    #panelClassroom table,
+    #panelClassroom th,
+    #panelClassroom td,
+    #panelClassroom div,
+    #panelClassroom p,
+    #panelClassroom h3,
+    #panelClassroom h4,
+    #panelClassroom h5,
+    #panelClassroom span {
+      font-size: 14px;
+    }
+    
+    #panelClassroom h3#vcTitle,
+    #panelClassroom h3#vcTitle span {
+      font-size: 18px !important;
+      font-weight: 700 !important;
+    }
+    
+    #panelClassroom #vcSubtitle,
+    #panelClassroom #vcSubtitle span {
+      font-size: 14px !important;
+    }
+    
+    #panelClassroom #vcViewStudentsBtn,
+    #panelClassroom #vcViewStudentsBtn span {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+    }
+
+    #panelClassroom .classroom-tab-btn {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      padding: 0.5rem 0.875rem !important;
+      border-radius: 0.75rem !important;
+      transition: all 0.15s ease !important;
+    }
+
+    #panelClassroom h4, 
+    #panelClassroom h5 {
+      font-size: 16px !important;
+      font-weight: 700 !important;
+    }
+
+    /* Manual mark entry table title, names, and internal grid data font sizes */
+    #manualMarksWrapper table th,
+    #manualMarksWrapper table td,
+    #manualMarksWrapper input,
+    #manualMarksWrapper span {
+      font-size: 14px !important;
+    }
+    
+    #manualMarksWrapper table td {
+      padding: 12px 10px !important;
+    }
+
+    /* Flatpickr date picker light theme styling */
+    .flatpickr-calendar {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1rem !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+      color: #0f172a !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-month,
+    .flatpickr-calendar .flatpickr-weekdays,
+    .flatpickr-calendar .flatpickr-weekday,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day {
+      color: #0f172a !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.prevMonthDay:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.nextMonthDay:hover {
+      background: #f1f5f9 !important;
+      color: #2563eb !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.selected {
+      background: #2563eb !important;
+      color: #ffffff !important;
+    }
+    .flatpickr-calendar .flatpickr-current-month span.cur-month,
+    .flatpickr-calendar .numInputWrapper span,
+    .flatpickr-calendar input.numInput {
+      color: #0f172a !important;
+      font-weight: 600 !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-prev-month, 
+    .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+      color: #2563eb !important;
+      fill: #2563eb !important;
+    }
+
+    /* Mobile styles for Virtual Classroom assessment mark entry */
+    @media (max-width: 767px) {
+      .co-mark, .summ-mark,
+      #manualMarksWrapper input,
+      #markEntryTbody input,
+      #summativeMarkEntryTbody input {
+        font-size: 16px !important;
+        padding: 0.6rem !important;
+        min-height: 44px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 0.5rem !important;
+        color: #0f172a !important;
+      }
+
+      /* Transform assignment mark entry tables into list cards on mobile view */
+      #markEntryTbody,
+      #markEntryTbody tr,
+      #markEntryTbody td,
+      #manualMarksWrapper tbody,
+      #manualMarksWrapper tr,
+      #manualMarksWrapper td {
+        display: block !important;
+      }
+      
+      #panelClassroom table thead {
+        display: none !important;
+      }
+      
+      #markEntryTbody tr,
+      #manualMarksWrapper table tr {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 1rem !important;
+        padding: 1.25rem !important;
+        margin-bottom: 1.25rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.65rem !important;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05) !important;
+      }
+      
+      #markEntryTbody td,
+      #manualMarksWrapper td {
+        padding: 0.35rem 0 !important;
+        border: none !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        text-align: left !important;
+        font-size: 14px !important;
+      }
+      
+      #markEntryTbody td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(5)::before { content: "CO1 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(6)::before { content: "CO2 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(7)::before { content: "CO3 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(8)::before { content: "CO4 (10): "; font-weight: bold; color: #2563eb; }
+      
+      #manualMarksWrapper td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(5)::before { content: "CO1: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(6)::before { content: "CO2: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(7)::before { content: "CO3: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(8)::before { content: "CO4: "; font-weight: bold; color: #2563eb; }
+      
+      #markEntryTbody td div.relative,
+      #manualMarksWrapper td div.relative {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+      }
+      #markEntryTbody td input,
+      #manualMarksWrapper td input {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+        text-align: center !important;
+      }
+
+      #mobileSeminarNotificationsContainer h5,
+      #seminarNotificationsContainer h5 {
+        font-size: 15px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 14px !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -4143,24 +5036,248 @@
             <head>
               <title>Classroom Students List</title>
               <style>
-                @page { size: A4 portrait; margin: 1.5cm; }
-                body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 13px; color: #333; padding: 0; margin: 0; }
-                .header-container { text-align: center; border-bottom: 2px solid #333; padding-bottom: 12px; margin-bottom: 20px; }
-                .college-name { font-size: 18px; font-weight: 800; text-transform: uppercase; margin: 0; letter-spacing: 0.5px; }
-                .dept-name { font-size: 13px; font-weight: 600; text-transform: uppercase; margin: 4px 0 0; color: #555; }
-                .doc-title { font-size: 15px; font-weight: 700; text-transform: uppercase; margin: 12px 0 4px; letter-spacing: 1px; text-decoration: underline; }
-                
-                .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; font-size: 12px; }
-                .meta-item { line-height: 1.4; }
-                .meta-label { font-weight: bold; color: #555; }
-                
-                table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-                th, td { border: 1px solid #666; padding: 8px 10px; text-align: left; }
-                th { background-color: #f1f5f9; font-weight: bold; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
-                .text-center { text-align: center; }
-                .font-mono { font-family: monospace; }
-                tr:nth-child(even) { background-color: #f8fafc; }
-              </style>
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .scrollbar-hidden::-webkit-scrollbar { display: none; }
+    .scrollbar-hidden { -ms-overflow-style: none; scrollbar-width: none; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .transition-premium {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+    }
+    @media (max-width: 640px) {
+      .mobile-sem-btn {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding-top: 0.625rem !important;
+        padding-bottom: 0.625rem !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+      }
+      .mobile-sem-btn span:first-child {
+        font-size: 12px !important;
+        margin-bottom: 0.125rem !important;
+      }
+      .mobile-sem-btn span:last-child {
+        font-size: 14px !important;
+      }
+      #mobileSeminarNotificationsContainer h4,
+      #seminarNotificationsContainer h4 {
+        font-size: 16px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 14px !important;
+      }
+    }
+
+    /* CampusLynk Modern Virtual Classroom Panel Styles */
+    #panelClassroom {
+      background-color: #FAFAFB !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1.5rem !important;
+      padding: 1.5rem !important;
+      box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.05) !important;
+    }
+
+    #panelClassroom, 
+    #panelClassroom button,
+    #panelClassroom select,
+    #panelClassroom input,
+    #panelClassroom table,
+    #panelClassroom th,
+    #panelClassroom td,
+    #panelClassroom div,
+    #panelClassroom p,
+    #panelClassroom h3,
+    #panelClassroom h4,
+    #panelClassroom h5,
+    #panelClassroom span {
+      font-size: 14px;
+    }
+    
+    #panelClassroom h3#vcTitle,
+    #panelClassroom h3#vcTitle span {
+      font-size: 18px !important;
+      font-weight: 700 !important;
+    }
+    
+    #panelClassroom #vcSubtitle,
+    #panelClassroom #vcSubtitle span {
+      font-size: 14px !important;
+    }
+    
+    #panelClassroom #vcViewStudentsBtn,
+    #panelClassroom #vcViewStudentsBtn span {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+    }
+
+    #panelClassroom .classroom-tab-btn {
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      padding: 0.5rem 0.875rem !important;
+      border-radius: 0.75rem !important;
+      transition: all 0.15s ease !important;
+    }
+
+    #panelClassroom h4, 
+    #panelClassroom h5 {
+      font-size: 16px !important;
+      font-weight: 700 !important;
+    }
+
+    /* Manual mark entry table title, names, and internal grid data font sizes */
+    #manualMarksWrapper table th,
+    #manualMarksWrapper table td,
+    #manualMarksWrapper input,
+    #manualMarksWrapper span {
+      font-size: 14px !important;
+    }
+    
+    #manualMarksWrapper table td {
+      padding: 12px 10px !important;
+    }
+
+    /* Flatpickr date picker light theme styling */
+    .flatpickr-calendar {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 1rem !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+      color: #0f172a !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-month,
+    .flatpickr-calendar .flatpickr-weekdays,
+    .flatpickr-calendar .flatpickr-weekday,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day {
+      color: #0f172a !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.prevMonthDay:hover,
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.nextMonthDay:hover {
+      background: #f1f5f9 !important;
+      color: #2563eb !important;
+    }
+    .flatpickr-calendar .flatpickr-days .flatpickr-day.selected {
+      background: #2563eb !important;
+      color: #ffffff !important;
+    }
+    .flatpickr-calendar .flatpickr-current-month span.cur-month,
+    .flatpickr-calendar .numInputWrapper span,
+    .flatpickr-calendar input.numInput {
+      color: #0f172a !important;
+      font-weight: 600 !important;
+    }
+    .flatpickr-calendar .flatpickr-months .flatpickr-prev-month, 
+    .flatpickr-calendar .flatpickr-months .flatpickr-next-month {
+      color: #2563eb !important;
+      fill: #2563eb !important;
+    }
+
+    /* Mobile styles for Virtual Classroom assessment mark entry */
+    @media (max-width: 767px) {
+      .co-mark, .summ-mark,
+      #manualMarksWrapper input,
+      #markEntryTbody input,
+      #summativeMarkEntryTbody input {
+        font-size: 16px !important;
+        padding: 0.6rem !important;
+        min-height: 44px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 0.5rem !important;
+        color: #0f172a !important;
+      }
+
+      /* Transform assignment mark entry tables into list cards on mobile view */
+      #markEntryTbody,
+      #markEntryTbody tr,
+      #markEntryTbody td,
+      #manualMarksWrapper tbody,
+      #manualMarksWrapper tr,
+      #manualMarksWrapper td {
+        display: block !important;
+      }
+      
+      #panelClassroom table thead {
+        display: none !important;
+      }
+      
+      #markEntryTbody tr,
+      #manualMarksWrapper table tr {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 1rem !important;
+        padding: 1.25rem !important;
+        margin-bottom: 1.25rem !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.65rem !important;
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05) !important;
+      }
+      
+      #markEntryTbody td,
+      #manualMarksWrapper td {
+        padding: 0.35rem 0 !important;
+        border: none !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        width: 100% !important;
+        text-align: left !important;
+        font-size: 14px !important;
+      }
+      
+      #markEntryTbody td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #markEntryTbody td:nth-child(5)::before { content: "CO1 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(6)::before { content: "CO2 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(7)::before { content: "CO3 (10): "; font-weight: bold; color: #2563eb; }
+      #markEntryTbody td:nth-child(8)::before { content: "CO4 (10): "; font-weight: bold; color: #2563eb; }
+      
+      #manualMarksWrapper td:nth-child(1)::before { content: "S.No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(2)::before { content: "Student Name: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(3)::before { content: "Admission No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(4)::before { content: "SBTE Reg No: "; font-weight: bold; color: #64748b; }
+      #manualMarksWrapper td:nth-child(5)::before { content: "CO1: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(6)::before { content: "CO2: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(7)::before { content: "CO3: "; font-weight: bold; color: #2563eb; }
+      #manualMarksWrapper td:nth-child(8)::before { content: "CO4: "; font-weight: bold; color: #2563eb; }
+      
+      #markEntryTbody td div.relative,
+      #manualMarksWrapper td div.relative {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+      }
+      #markEntryTbody td input,
+      #manualMarksWrapper td input {
+        width: 5.5rem !important;
+        margin: 0 0 0 auto !important;
+        text-align: center !important;
+      }
+
+      #mobileSeminarNotificationsContainer h5,
+      #seminarNotificationsContainer h5 {
+        font-size: 15px !important;
+      }
+      #mobileSeminarNotificationsContainer p,
+      #seminarNotificationsContainer p {
+        font-size: 14px !important;
+      }
+    }
+  </style>
             </head>
               <body>
                 <div class="header-container">
@@ -4452,14 +5569,14 @@
       if (!questions || questions.length === 0) {
         container.innerHTML = `
           <div class="text-center py-12 text-slate-400 space-y-4 max-w-md mx-auto">
-            <div class="bg-white p-4 rounded-full border border-slate-800/60 inline-block">
-              <span class="material-symbols-rounded text-3xl text-slate-600 block">database</span>
+            <div class="bg-white p-4 rounded-full border border-slate-200 shadow-2xs inline-block">
+              <i data-lucide="database" class="w-4 h-4 inline-block text-3xl text-slate-600 block"></i>
             </div>
             <p class="text-sm font-bold text-slate-700">No questions in this subject's pool.</p>
             <p class="text-sm text-slate-500">You can download the template CSV, fill it with questions, and upload it. Alternatively, seed the pool instantly with high-quality questions using AI.</p>
             <div class="pt-2">
               <button onclick="seedQuestionBankWithAi(currentSubjectId)" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-bold transition-premium cursor-pointer shadow-md flex items-center gap-1.5 mx-auto">
-                <span class="material-symbols-rounded text-base">auto_awesome</span> Seed Pool via AI
+                <i data-lucide="sparkles" class="w-4 h-4 inline-block text-base"></i> Seed Pool via AI
               </button>
             </div>
           </div>
@@ -4496,7 +5613,7 @@
           <div class="border border-slate-200/80 rounded-xl overflow-hidden bg-white shadow-xs mb-6">
             <div class="bg-slate-50/70 p-4 flex justify-between items-center border-b border-slate-200">
               <div class="flex items-center gap-2">
-                <span class="material-symbols-rounded text-blue-400 text-base">grade</span>
+                <i data-lucide="star" class="w-4 h-4 inline-block text-blue-400 text-base"></i>
                 <span class="text-sm font-bold text-slate-900">${groupName}</span>
               </div>
               <span class="text-xs text-slate-600 font-bold bg-white border border-slate-200 px-2.5 py-1 rounded-lg shadow-2xs">${qList.length} Questions</span>
@@ -4556,7 +5673,7 @@
       const options = typeof optionsStr === 'string' ? JSON_decode_safe(optionsStr) : optionsStr;
       if (!options || options.length === 0) return '';
       const labels = ['A', 'B', 'C', 'D'];
-      let optHtml = '<div class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-[11px] text-slate-400 font-normal pl-2 border-l border-slate-800">';
+      let optHtml = '<div class="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-slate-500 font-medium pl-2 border-l border-slate-200">';
       options.forEach((opt, idx) => {
         if (!opt) return;
         const isCorrect = correctAns === labels[idx] || correctAns === opt;
@@ -4700,7 +5817,7 @@
             workspace.innerHTML = `
               <div class="bg-white border border-slate-200/80 rounded-2xl p-6 text-center max-w-xl mx-auto space-y-4">
                 <div class="h-12 w-12 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center mx-auto mb-2 animate-pulse">
-                  <span class="material-symbols-rounded text-2xl">forum</span>
+                  <i data-lucide="message-square" class="w-4 h-4 inline-block text-2xl"></i>
                 </div>
                 <h4 class="text-base font-bold text-slate-900">Initiate Mid-Semester Feedback Survey</h4>
                 <p class="text-sm text-slate-600 leading-relaxed">
@@ -4845,7 +5962,7 @@
                           Save Notes
                         </button>
                         <a href="/classroom/${subjectId}/survey/report" target="_blank" class="px-4 py-2 bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-700 shadow-2xs rounded-xl text-xs font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer">
-                          <span class="material-symbols-rounded text-sm">print</span> Print Survey Report
+                          <i data-lucide="printer" class="w-4 h-4 inline-block text-sm"></i> Print Survey Report
                         </a>
                       </div>
                     </div>
@@ -4988,7 +6105,7 @@
             workspace.innerHTML = `
               <div class="bg-white border border-slate-200/80 rounded-2xl p-6 text-center max-w-xl mx-auto space-y-4">
                 <div class="h-12 w-12 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-700 font-bold flex items-center justify-center mx-auto mb-2 animate-pulse">
-                  <span class="material-symbols-rounded text-2xl">assignment_turned_in</span>
+                  <i data-lucide="clipboard-check" class="w-4 h-4 inline-block text-2xl"></i>
                 </div>
                 <h4 class="text-base font-bold text-slate-900">Initiate Course Exit Survey</h4>
                 <p class="text-sm text-slate-600 leading-relaxed">
@@ -5139,7 +6256,7 @@
 
                       <div class="flex justify-end items-center pt-6 border-t border-slate-200/80">
                         <a href="/classroom/${subjectId}/course-exit/report" target="_blank" class="px-5 py-3 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-sm font-bold transition-premium no-underline flex items-center gap-1.5 cursor-pointer shadow-md shadow-teal-600/10">
-                          <span class="material-symbols-rounded text-base">print</span> Print Course Exit Report
+                          <i data-lucide="printer" class="w-4 h-4 inline-block text-base"></i> Print Course Exit Report
                         </a>
                       </div>
                     </div>
@@ -5198,12 +6315,12 @@
     <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
       <div>
         <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-600 text-lg">edit</span> Manually Edit Questions (<span id="editQuestionsCoBadge" class="text-blue-700 font-mono font-bold"></span>)
+          <x-ui.icon name="edit" class="w-5 h-5 text-blue-600" /> Manually Edit Questions (<span id="editQuestionsCoBadge" class="text-blue-700 font-mono font-bold"></span>)
         </h3>
         <p class="text-xs text-slate-600 mt-0.5">Define one or more descriptive questions for this Course Outcome. Total marks must equal exactly 20.</p>
       </div>
       <button onclick="closeEditQuestionsModal()" class="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer">
-        <span class="material-symbols-rounded text-xl">close</span>
+        <x-ui.icon name="close" class="w-5 h-5" />
       </button>
     </div>
     
@@ -5213,7 +6330,7 @@
       </div>
       
       <button type="button" onclick="addManualQuestionField()" class="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 rounded-xl text-xs font-bold transition-premium flex items-center justify-center gap-1.5 shadow-2xs cursor-pointer">
-        <span class="material-symbols-rounded text-base text-blue-600">add_circle</span> Add Question
+        <x-ui.icon name="science" class="w-4 h-4 text-blue-600" /> Add Question
       </button>
     </div>
     
@@ -5224,7 +6341,7 @@
       <div class="flex gap-2">
         <button type="button" onclick="closeEditQuestionsModal()" class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold shadow-2xs transition-premium cursor-pointer">Cancel</button>
         <button type="button" onclick="saveManualQuestions()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium shadow-xs cursor-pointer flex items-center gap-1.5">
-          <span class="material-symbols-rounded text-sm">save</span> Save Questions
+          <x-ui.icon name="save" class="w-4 h-4" /> Save Questions
         </button>
       </div>
     </div>
@@ -5236,15 +6353,15 @@
   <div class="bg-white border border-slate-200/80 w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]">
     <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
       <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2 flex-wrap">
-        <span class="material-symbols-rounded text-blue-600 text-2xl flex-shrink-0">groups</span> Enrolled Students
+        <x-ui.icon name="groups" class="w-6 h-6 text-blue-600 flex-shrink-0" /> Enrolled Students
         <span id="vcModalBatchBadge" class="text-xs font-mono font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-md ml-2 flex-shrink-0"></span>
       </h3>
       <div class="flex items-center gap-3">
         <button onclick="printVcStudentsList()" class="text-xs font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-2xs transition-premium cursor-pointer">
-          <span class="material-symbols-rounded text-base text-slate-600">print</span> Print List
+          <x-ui.icon name="print" class="w-4 h-4 text-slate-600" /> Print List
         </button>
         <button onclick="closeVcStudentsList()" class="text-slate-400 hover:text-slate-700 transition-colors ml-2 cursor-pointer">
-          <span class="material-symbols-rounded text-xl">close</span>
+          <x-ui.icon name="close" class="w-5 h-5" />
         </button>
       </div>
     </div>
@@ -5260,7 +6377,7 @@
     <div class="p-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
       <h3 class="text-base font-bold text-slate-900">Evaluate Seminar Presentation</h3>
       <button onclick="closeSeminarEvaluationModal()" class="text-slate-400 hover:text-slate-700 transition-colors cursor-pointer">
-        <span class="material-symbols-rounded">close</span>
+        <x-ui.icon name="close" class="w-4 h-4" />
       </button>
     </div>
     <form id="seminarEvaluationForm" onsubmit="submitSeminarEvaluation(event)" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto">
@@ -5407,7 +6524,7 @@
       activeSeminarData.forEach(student => {
         const me = student.my_evaluation;
         const row = document.createElement('tr');
-        row.className = 'border-b border-slate-200/40 hover:bg-slate-900/20 text-xs font-semibold text-slate-800';
+        row.className = 'border-b border-slate-100 hover:bg-slate-50/70 text-sm font-semibold text-slate-800';
         
         row.innerHTML = `
           <td class="p-3 font-mono">${student.roll_no || '-'}</td>
@@ -5531,17 +6648,38 @@
 
     function showMobileSemToast(msg, type = 'success') {
       const toast = document.getElementById('mobileSemToast');
-      toast.className = `mb-4 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2 ${
-        type === 'success'
-          ? 'bg-emerald-950/80 border border-emerald-600/40 text-emerald-300'
-          : type === 'warning'
-            ? 'bg-amber-950/80 border border-amber-600/40 text-amber-300'
-            : 'bg-red-950/80 border border-red-600/40 text-red-300'
+      if (!toast) return;
+      
+      const isSuccess = (type === 'success');
+      const isWarning = (type === 'warning');
+      
+      toast.className = `mb-4 px-4 py-3.5 rounded-2xl text-sm font-semibold flex items-center justify-between gap-3 shadow-md transition-all border ${
+        isSuccess 
+          ? 'bg-white/95 border-emerald-200 text-slate-900 shadow-emerald-950/10 ring-1 ring-emerald-500/10' 
+          : isWarning
+            ? 'bg-white/95 border-amber-200 text-slate-900 shadow-amber-950/10 ring-1 ring-amber-500/10'
+            : 'bg-white/95 border-rose-200 text-slate-900 shadow-rose-950/10 ring-1 ring-rose-500/10'
       }`;
-      const icon = type === 'success' ? 'check_circle' : type === 'warning' ? 'warning' : 'error';
-      toast.innerHTML = `<span class="material-symbols-rounded text-base">${icon}</span> ${msg}`;
+      
+      const badgeClass = isSuccess ? 'bg-emerald-50 text-emerald-600 border border-emerald-200/80' : isWarning ? 'bg-amber-50 text-amber-600 border border-amber-200/80' : 'bg-rose-50 text-rose-600 border border-rose-200/80';
+      const iconSvg = isSuccess 
+        ? '<svg class="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+        : isWarning
+          ? '<svg class="w-4 h-4 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+          : '<svg class="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+
+      toast.innerHTML = `
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${badgeClass}">
+            ${iconSvg}
+          </div>
+          <span class="text-slate-900 font-semibold text-sm leading-snug">${msg}</span>
+        </div>
+        <button type="button" onclick="this.closest(\'#mobileSemToast\').classList.add(\'hidden\')" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer text-sm font-bold shrink-0">✕</button>
+      `;
+      
       toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 4000);
+      setTimeout(() => toast.classList.add('hidden'), 5000);
     }
 
     function checkTodaySeminars() {
@@ -5587,14 +6725,14 @@
               card.innerHTML = `
                 <div class="flex items-center gap-3 min-w-0">
                   <div class="bg-amber-500/10 p-2 rounded-xl text-amber-400 group-hover:bg-amber-500 group-hover:text-black transition-premium">
-                    <span class="material-symbols-rounded text-lg block">co_present</span>
+                    <i data-lucide="presentation" class="w-4 h-4 inline-block text-lg block"></i>
                   </div>
                   <div class="min-w-0">
                     <h5 class="text-xs font-black text-amber-300 group-hover:text-white transition-premium truncate">Seminar Day (${count})</h5>
                     <p class="text-[11px] text-slate-600 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
                   </div>
                 </div>
-                <span class="material-symbols-rounded text-slate-600 group-hover:text-blue-400 text-sm transition-premium flex-shrink-0">arrow_forward_ios</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 inline-block text-slate-600 group-hover:text-blue-400 text-sm transition-premium flex-shrink-0"></i>
               `;
               container.appendChild(card);
             }
@@ -5609,14 +6747,14 @@
               cardMob.innerHTML = `
                 <div class="flex items-center gap-3 min-w-0">
                   <div class="bg-amber-500/10 p-2 rounded-xl text-amber-400 group-hover:bg-amber-500 group-hover:text-black transition-premium">
-                    <span class="material-symbols-rounded text-lg block">phone_android</span>
+                    <i data-lucide="smartphone" class="w-4 h-4 inline-block text-lg block"></i>
                   </div>
                   <div class="min-w-0">
                     <h5 class="text-xs font-black text-amber-300 group-hover:text-white transition-premium truncate">Active Seminar Day (${count})</h5>
                     <p class="text-[11px] text-slate-600 mt-0.5 truncate">${cid} · ${first.subject_name || 'Seminar'}</p>
                   </div>
                 </div>
-                <span class="material-symbols-rounded text-slate-600 group-hover:text-amber-400 text-sm transition-premium flex-shrink-0">arrow_forward_ios</span>
+                <i data-lucide="chevron-right" class="w-4 h-4 inline-block text-slate-600 group-hover:text-amber-400 text-sm transition-premium flex-shrink-0"></i>
               `;
               mobContainer.appendChild(cardMob);
             }
@@ -5686,10 +6824,10 @@
               <div class="text-[10px] text-slate-500">Guide: <span class="text-slate-800">${s.guide_name || '-'}</span></div>
               <div class="grid grid-cols-2 gap-2">
                 <button onclick="acceptMobileInvitation(${s.id})" class="py-2.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center justify-center gap-1">
-                  <span class="material-symbols-rounded text-sm">how_to_reg</span> Accept
+                  <i data-lucide="user-check" class="w-4 h-4 inline-block text-sm"></i> Accept
                 </button>
                 <button onclick="openMobSemEvaluation('${s.reg_no}')" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-900 rounded-xl text-xs font-bold border border-slate-700 transition-premium cursor-pointer flex items-center justify-center gap-1">
-                  <span class="material-symbols-rounded text-sm">rate_review</span> Evaluate
+                  <i data-lucide="star" class="w-4 h-4 inline-block text-sm"></i> Evaluate
                 </button>
               </div>
             `;
@@ -5712,7 +6850,7 @@
                 <div class="text-xs text-slate-600 mt-0.5 truncate">${s.topic || '-'}</div>
               </div>
               <button onclick="openMobSemEvaluation('${s.reg_no}')" class="shrink-0 px-4 py-2 bg-emerald-700/80 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1">
-                <span class="material-symbols-rounded text-sm">edit_note</span> Evaluate
+                <i data-lucide="file-text" class="w-4 h-4 inline-block text-sm"></i> Evaluate
               </button>
             `;
             attendingList.appendChild(card);
@@ -5840,7 +6978,7 @@
 
       const btn = document.getElementById('mobSemSubmitBtn');
       btn.disabled = true;
-      btn.innerHTML = '<span class="material-symbols-rounded text-base animate-spin">sync</span> Saving...';
+      btn.innerHTML = '<i data-lucide="refresh-cw" class="w-4 h-4 inline-block text-base animate-spin"></i> Saving...';
 
       fetch(`/api/classroom/${seminar.batch_subject_id}/seminar/evaluate`, {
         method: 'POST',
@@ -5850,7 +6988,7 @@
       .then(res => res.json())
       .then(res => {
         btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Save';
+        btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-base"></i> Save';
         if (res.status === 'SUCCESS') {
           showMobileSemToast(`Evaluation saved! Avg score: ${res.average_score} / 75`, 'success');
           // Silently refresh the desktop seminar table so marks appear without page reload
@@ -5868,7 +7006,7 @@
       })
       .catch(() => {
         btn.disabled = false;
-        btn.innerHTML = '<span class="material-symbols-rounded text-base">save</span> Save';
+        btn.innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-base"></i> Save';
         showMobileSemToast('Network error. Please try again.', 'error');
       });
     }
@@ -5882,61 +7020,61 @@
     // ==========================================
     const dynamicLabModalsHtml = `
       <!-- Student Lab Modal -->
-      <div id="studentLabModal" class="fixed inset-0 bg-slate-100/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
-        <div class="bg-slate-900 border border-slate-200 rounded-2xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-          <div class="px-6 py-4 bg-slate-100/60 border-b border-slate-200 flex justify-between items-center">
+      <div id="studentLabModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden justify-center items-center p-4">
+        <div class="bg-white border border-slate-200/80 rounded-2xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+          <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
             <div>
-              <h3 id="labModalStudentName" class="text-base font-black text-white">Student Evaluation</h3>
-              <p id="labModalStudentReg" class="text-xs font-bold text-slate-500 font-mono"></p>
+              <h3 id="labModalStudentName" class="text-base font-bold text-slate-900">Student Evaluation</h3>
+              <p id="labModalStudentReg" class="text-xs font-semibold text-slate-500 font-mono"></p>
             </div>
-            <button onclick="closeStudentLabModal()" class="text-slate-600 hover:text-white transition-premium cursor-pointer">
-              <span class="material-symbols-rounded">close</span>
+            <button onclick="closeStudentLabModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer text-sm font-bold">
+              ✕
             </button>
           </div>
-          <div class="px-6 py-2 bg-slate-900 border-b border-slate-200/50 flex gap-4 text-xs font-bold">
-            <button onclick="switchLabModalTab('exp')" id="labTabBtn_exp" class="py-2 border-b-2 border-blue-500 text-blue-400 px-1 transition-premium">Experiments (37.5)</button>
-            <button onclick="switchLabModalTab('test')" id="labTabBtn_test" class="py-2 border-b-2 border-transparent text-slate-600 px-1 transition-premium">Model Tests (15)</button>
-            <button onclick="switchLabModalTab('project')" id="labTabBtn_project" class="py-2 border-b-2 border-transparent text-slate-600 px-1 transition-premium">Micro-Project &amp; Attendance (22.5)</button>
-            <button onclick="switchLabModalTab('board')" id="labTabBtn_board" class="py-2 border-b-2 border-transparent text-slate-600 px-1 transition-premium font-black text-blue-400">Board Exam (50)</button>
+          <div class="px-6 py-2.5 bg-white border-b border-slate-200 flex gap-4 text-xs font-bold">
+            <button onclick="switchLabModalTab(\'exp\')" id="labTabBtn_exp" class="py-2 border-b-2 border-blue-600 text-blue-600 px-1 transition-premium font-semibold">Experiments (37.5)</button>
+            <button onclick="switchLabModalTab(\'test\')" id="labTabBtn_test" class="py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 px-1 transition-premium font-semibold">Model Tests (15)</button>
+            <button onclick="switchLabModalTab(\'project\')" id="labTabBtn_project" class="py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 px-1 transition-premium font-semibold">Micro-Project &amp; Attendance (22.5)</button>
+            <button onclick="switchLabModalTab(\'board\')" id="labTabBtn_board" class="py-2 border-b-2 border-transparent text-slate-500 hover:text-slate-800 px-1 transition-premium font-bold text-blue-600">Board Exam (50)</button>
           </div>
           
           <div class="flex-grow overflow-y-auto p-6 space-y-6">
             <!-- TAB: EXPERIMENTS -->
             <div id="labModalTab_exp" class="space-y-5">
-              <div class="bg-slate-100/30 border border-slate-200/40 p-5 rounded-xl space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/50 pb-4">
+              <div class="bg-slate-50/70 border border-slate-200/80 p-5 rounded-2xl space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
                   <div class="space-y-1">
-                    <label class="block text-sm font-black text-slate-900 uppercase tracking-wider">Select Lab Experiment</label>
-                    <p class="text-xs text-slate-450 font-bold">Choose an experiment to grade or view scores.</p>
+                    <label class="block text-sm font-bold text-slate-900 uppercase tracking-wider">Select Lab Experiment</label>
+                    <p class="text-xs text-slate-500 font-medium">Choose an experiment to grade or view scores.</p>
                   </div>
-                  <select id="labModalExpSelect" onchange="changeActiveExperiment()" class="bg-slate-100 border border-slate-200 text-slate-900 rounded-xl px-4 py-2.5 text-sm font-bold focus:border-blue-500 outline-none w-full sm:w-80 shadow-inner">
+                  <select id="labModalExpSelect" onchange="changeActiveExperiment()" class="bg-white border border-slate-200 text-slate-900 rounded-xl px-4 py-2.5 text-sm font-bold focus:border-blue-500 outline-none w-full sm:w-80 shadow-2xs">
                     <!-- Dynamic experiment options -->
                   </select>
                 </div>
 
                 <!-- Common sliders for the selected experiment -->
                 <div id="activeExperimentContainer" class="hidden space-y-4">
-                  <div class="flex justify-between items-center bg-white px-4 py-3 rounded-lg border border-slate-100/50">
-                    <span class="text-sm font-black text-slate-900" id="activeExpTitle">Experiment Details</span>
-                    <span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 rounded-lg text-xs font-bold uppercase" id="activeExpCo">CO Map</span>
+                  <div class="flex justify-between items-center bg-white px-4 py-3 rounded-xl border border-slate-200 shadow-2xs">
+                    <span class="text-sm font-bold text-slate-900" id="activeExpTitle">Experiment Details</span>
+                    <span class="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-xs font-bold uppercase font-mono" id="activeExpCo">CO Map</span>
                   </div>
                   
                   <!-- Responsive horizontal grid for Desktop, stacks nicely on Mobile -->
                   <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     
                     <!-- Prereq -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-100/50 space-y-3 flex flex-col justify-between">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-3 flex flex-col justify-between">
                       <div class="flex justify-between items-center text-sm font-bold">
-                        <span class="text-slate-900 whitespace-nowrap">Prerequisites</span>
+                        <span class="text-slate-800 whitespace-nowrap">Prerequisites</span>
                         <input type="number" step="0.1" min="0" max="7.5" id="active_exp_prerequisite" 
-                          oninput="syncSlider('active_exp_prerequisite','active_exp_prerequisite_slider',7.5); updateTempExpMark('prerequisite', this.value)"
-                          class="w-14 bg-slate-955 border border-slate-200 rounded-lg py-1 text-center font-normal text-slate-900 text-sm focus:border-blue-500 outline-none">
+                          oninput="syncSlider(\'active_exp_prerequisite\',\'active_exp_prerequisite_slider\',7.5); updateTempExpMark(\'prerequisite\', this.value)"
+                          class="w-14 bg-slate-50 border border-slate-200 rounded-lg py-1 text-center font-bold text-slate-900 text-sm focus:border-blue-500 outline-none">
                       </div>
                       <div class="space-y-1">
                         <input type="range" id="active_exp_prerequisite_slider" min="0" max="7.5" step="0.1" value="0"
-                          oninput="document.getElementById('active_exp_prerequisite').value = this.value; updateTempExpMark('prerequisite', this.value)"
-                          class="w-full h-2 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
-                        <div class="flex justify-between text-[11px] text-slate-500 font-bold">
+                          oninput="document.getElementById(\'active_exp_prerequisite\').value = this.value; updateTempExpMark(\'prerequisite\', this.value)"
+                          class="w-full h-2 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-400 font-semibold">
                           <span>0</span>
                           <span>Max 7.5</span>
                         </div>
@@ -5944,18 +7082,18 @@
                     </div>
 
                     <!-- Work Done -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-100/50 space-y-3 flex flex-col justify-between">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-3 flex flex-col justify-between">
                       <div class="flex justify-between items-center text-sm font-bold">
-                        <span class="text-slate-900 whitespace-nowrap">Work Done</span>
+                        <span class="text-slate-800 whitespace-nowrap">Work Done</span>
                         <input type="number" step="0.1" min="0" max="10" id="active_exp_execution" 
-                          oninput="syncSlider('active_exp_execution','active_exp_execution_slider',10); updateTempExpMark('execution', this.value)"
-                          class="w-14 bg-slate-955 border border-slate-200 rounded-lg py-1 text-center font-normal text-slate-900 text-sm focus:border-blue-500 outline-none">
+                          oninput="syncSlider(\'active_exp_execution\',\'active_exp_execution_slider\',10); updateTempExpMark(\'execution\', this.value)"
+                          class="w-14 bg-slate-50 border border-slate-200 rounded-lg py-1 text-center font-bold text-slate-900 text-sm focus:border-blue-500 outline-none">
                       </div>
                       <div class="space-y-1">
                         <input type="range" id="active_exp_execution_slider" min="0" max="10" step="0.1" value="0"
-                          oninput="document.getElementById('active_exp_execution').value = this.value; updateTempExpMark('execution', this.value)"
-                          class="w-full h-2 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
-                        <div class="flex justify-between text-[11px] text-slate-500 font-bold">
+                          oninput="document.getElementById(\'active_exp_execution\').value = this.value; updateTempExpMark(\'execution\', this.value)"
+                          class="w-full h-2 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-400 font-semibold">
                           <span>0</span>
                           <span>Max 10</span>
                         </div>
@@ -5963,18 +7101,18 @@
                     </div>
 
                     <!-- Result -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-100/50 space-y-3 flex flex-col justify-between">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-3 flex flex-col justify-between">
                       <div class="flex justify-between items-center text-sm font-bold">
-                        <span class="text-slate-900 whitespace-nowrap">Result</span>
+                        <span class="text-slate-800 whitespace-nowrap">Result</span>
                         <input type="number" step="0.1" min="0" max="5" id="active_exp_output" 
-                          oninput="syncSlider('active_exp_output','active_exp_output_slider',5); updateTempExpMark('output', this.value)"
-                          class="w-14 bg-slate-955 border border-slate-200 rounded-lg py-1 text-center font-normal text-slate-900 text-sm focus:border-blue-500 outline-none">
+                          oninput="syncSlider(\'active_exp_output\',\'active_exp_output_slider\',5); updateTempExpMark(\'output\', this.value)"
+                          class="w-14 bg-slate-50 border border-slate-200 rounded-lg py-1 text-center font-bold text-slate-900 text-sm focus:border-blue-500 outline-none">
                       </div>
                       <div class="space-y-1">
                         <input type="range" id="active_exp_output_slider" min="0" max="5" step="0.1" value="0"
-                          oninput="document.getElementById('active_exp_output').value = this.value; updateTempExpMark('output', this.value)"
-                          class="w-full h-2 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
-                        <div class="flex justify-between text-[11px] text-slate-500 font-bold">
+                          oninput="document.getElementById(\'active_exp_output\').value = this.value; updateTempExpMark(\'output\', this.value)"
+                          class="w-full h-2 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-400 font-semibold">
                           <span>0</span>
                           <span>Max 5</span>
                         </div>
@@ -5982,18 +7120,18 @@
                     </div>
 
                     <!-- Rough Record -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-100/50 space-y-3 flex flex-col justify-between">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-3 flex flex-col justify-between">
                       <div class="flex justify-between items-center text-sm font-bold">
-                        <span class="text-slate-900 whitespace-nowrap">Rough Record</span>
+                        <span class="text-slate-800 whitespace-nowrap">Rough Record</span>
                         <input type="number" step="0.1" min="0" max="7.5" id="active_exp_rough_record" 
-                          oninput="syncSlider('active_exp_rough_record','active_exp_rough_record_slider',7.5); updateTempExpMark('rough_record', this.value)"
-                          class="w-14 bg-slate-955 border border-slate-200 rounded-lg py-1 text-center font-normal text-slate-900 text-sm focus:border-blue-500 outline-none">
+                          oninput="syncSlider(\'active_exp_rough_record\',\'active_exp_rough_record_slider\',7.5); updateTempExpMark(\'rough_record\', this.value)"
+                          class="w-14 bg-slate-50 border border-slate-200 rounded-lg py-1 text-center font-bold text-slate-900 text-sm focus:border-blue-500 outline-none">
                       </div>
                       <div class="space-y-1">
                         <input type="range" id="active_exp_rough_record_slider" min="0" max="7.5" step="0.1" value="0"
-                          oninput="document.getElementById('active_exp_rough_record').value = this.value; updateTempExpMark('rough_record', this.value)"
-                          class="w-full h-2 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
-                        <div class="flex justify-between text-[11px] text-slate-500 font-bold">
+                          oninput="document.getElementById(\'active_exp_rough_record\').value = this.value; updateTempExpMark(\'rough_record\', this.value)"
+                          class="w-full h-2 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-400 font-semibold">
                           <span>0</span>
                           <span>Max 7.5</span>
                         </div>
@@ -6001,18 +7139,18 @@
                     </div>
 
                     <!-- Fair Record -->
-                    <div class="bg-white p-4 rounded-xl border border-slate-100/50 space-y-3 flex flex-col justify-between">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-3 flex flex-col justify-between">
                       <div class="flex justify-between items-center text-sm font-bold">
-                        <span class="text-slate-900 whitespace-nowrap">Fair Record</span>
+                        <span class="text-slate-800 whitespace-nowrap">Fair Record</span>
                         <input type="number" step="0.1" min="0" max="7.5" id="active_exp_fair_record" 
-                          oninput="syncSlider('active_exp_fair_record','active_exp_fair_record_slider',7.5); updateTempExpMark('fair_record', this.value)"
-                          class="w-14 bg-slate-955 border border-slate-200 rounded-lg py-1 text-center font-normal text-slate-900 text-sm focus:border-blue-500 outline-none">
+                          oninput="syncSlider(\'active_exp_fair_record\',\'active_exp_fair_record_slider\',7.5); updateTempExpMark(\'fair_record\', this.value)"
+                          class="w-14 bg-slate-50 border border-slate-200 rounded-lg py-1 text-center font-bold text-slate-900 text-sm focus:border-blue-500 outline-none">
                       </div>
                       <div class="space-y-1">
                         <input type="range" id="active_exp_fair_record_slider" min="0" max="7.5" step="0.1" value="0"
-                          oninput="document.getElementById('active_exp_fair_record').value = this.value; updateTempExpMark('fair_record', this.value)"
-                          class="w-full h-2 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
-                        <div class="flex justify-between text-[11px] text-slate-500 font-bold">
+                          oninput="document.getElementById(\'active_exp_fair_record\').value = this.value; updateTempExpMark(\'fair_record\', this.value)"
+                          class="w-full h-2 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
+                        <div class="flex justify-between text-xs text-slate-400 font-semibold">
                           <span>0</span>
                           <span>Max 7.5</span>
                         </div>
@@ -6022,7 +7160,7 @@
                   </div>
                 </div>
 
-                <div id="noActiveExperimentMsg" class="p-4 text-center text-slate-500 font-bold text-sm">
+                <div id="noActiveExperimentMsg" class="p-4 text-center text-slate-500 font-medium text-sm">
                   Please select an experiment from the dropdown above to view or modify grades.
                 </div>
               </div>
@@ -6032,48 +7170,48 @@
             <div id="labModalTab_test" class="space-y-4 hidden">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Test 1 -->
-                <div class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4">
-                  <div class="border-b border-slate-200 pb-2 flex justify-between items-center">
-                    <h4 class="text-xs font-black text-slate-350 uppercase tracking-widest">Model Test 1 (CO1 &amp; CO2)</h4>
-                    <span class="text-xs font-bold text-blue-400" id="labModalT1Sum">0.0 / 15</span>
+                <div class="bg-slate-50/70 border border-slate-200/80 p-5 rounded-2xl space-y-4">
+                  <div class="border-b border-slate-200 pb-2.5 flex justify-between items-center">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Model Test 1 (CO1 &amp; CO2)</h4>
+                    <span class="text-xs font-bold text-blue-600 font-mono" id="labModalT1Sum">0.0 / 15</span>
                   </div>
                   <div class="space-y-4">
-                    <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
-                      <div class="flex justify-between items-center text-xs font-bold">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-2">
+                      <div class="flex justify-between items-center text-sm font-bold">
                         <span class="text-slate-800">CO1 Score (Max 7.5)</span>
-                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t1_co1" oninput="syncSlider('labScore_t1_co1','labScore_t1_co1_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
+                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t1_co1" oninput="syncSlider(\'labScore_t1_co1\',\'labScore_t1_co1_slider\',7.5); calcLabModalScores()" class="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-sm font-bold text-slate-900 text-center focus:border-blue-500 outline-none">
                       </div>
-                      <input type="range" id="labScore_t1_co1_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById('labScore_t1_co1').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
+                      <input type="range" id="labScore_t1_co1_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById(\'labScore_t1_co1\').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
                     </div>
-                    <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
-                      <div class="flex justify-between items-center text-xs font-bold">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-2">
+                      <div class="flex justify-between items-center text-sm font-bold">
                         <span class="text-slate-800">CO2 Score (Max 7.5)</span>
-                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t1_co2" oninput="syncSlider('labScore_t1_co2','labScore_t1_co2_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
+                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t1_co2" oninput="syncSlider(\'labScore_t1_co2\',\'labScore_t1_co2_slider\',7.5); calcLabModalScores()" class="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-sm font-bold text-slate-900 text-center focus:border-blue-500 outline-none">
                       </div>
-                      <input type="range" id="labScore_t1_co2_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById('labScore_t1_co2').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
+                      <input type="range" id="labScore_t1_co2_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById(\'labScore_t1_co2\').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
                     </div>
                   </div>
                 </div>
                 <!-- Test 2 -->
-                <div class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4">
-                  <div class="border-b border-slate-200 pb-2 flex justify-between items-center">
-                    <h4 class="text-xs font-black text-slate-350 uppercase tracking-widest">Model Test 2 (CO3 &amp; CO4)</h4>
-                    <span class="text-xs font-bold text-blue-400" id="labModalT2Sum">0.0 / 15</span>
+                <div class="bg-slate-50/70 border border-slate-200/80 p-5 rounded-2xl space-y-4">
+                  <div class="border-b border-slate-200 pb-2.5 flex justify-between items-center">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Model Test 2 (CO3 &amp; CO4)</h4>
+                    <span class="text-xs font-bold text-blue-600 font-mono" id="labModalT2Sum">0.0 / 15</span>
                   </div>
                   <div class="space-y-4">
-                    <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
-                      <div class="flex justify-between items-center text-xs font-bold">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-2">
+                      <div class="flex justify-between items-center text-sm font-bold">
                         <span class="text-slate-800">CO3 Score (Max 7.5)</span>
-                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t2_co3" oninput="syncSlider('labScore_t2_co3','labScore_t2_co3_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
+                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t2_co3" oninput="syncSlider(\'labScore_t2_co3\',\'labScore_t2_co3_slider\',7.5); calcLabModalScores()" class="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-sm font-bold text-slate-900 text-center focus:border-blue-500 outline-none">
                       </div>
-                      <input type="range" id="labScore_t2_co3_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById('labScore_t2_co3').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
+                      <input type="range" id="labScore_t2_co3_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById(\'labScore_t2_co3\').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
                     </div>
-                    <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
-                      <div class="flex justify-between items-center text-xs font-bold">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-2">
+                      <div class="flex justify-between items-center text-sm font-bold">
                         <span class="text-slate-800">CO4 Score (Max 7.5)</span>
-                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t2_co4" oninput="syncSlider('labScore_t2_co4','labScore_t2_co4_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
+                        <input type="number" step="0.1" min="0" max="7.5" id="labScore_t2_co4" oninput="syncSlider(\'labScore_t2_co4\',\'labScore_t2_co4_slider\',7.5); calcLabModalScores()" class="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-sm font-bold text-slate-900 text-center focus:border-blue-500 outline-none">
                       </div>
-                      <input type="range" id="labScore_t2_co4_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById('labScore_t2_co4').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
+                      <input type="range" id="labScore_t2_co4_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById(\'labScore_t2_co4\').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
                     </div>
                   </div>
                 </div>
@@ -6083,34 +7221,34 @@
             <!-- TAB: PROJECT & ATTENDANCE -->
             <div id="labModalTab_project" class="space-y-4 hidden">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4 flex flex-col justify-between">
+                <div class="bg-slate-50/70 border border-slate-200/80 p-5 rounded-2xl space-y-4 flex flex-col justify-between">
                   <div>
-                    <h4 class="text-xs font-black text-slate-350 border-b border-slate-200 pb-2 uppercase tracking-widest mb-3">Open-Ended Project / Micro-Project</h4>
-                    <label class="text-[10px] font-bold text-slate-600 uppercase block mb-1">Project Topic Description</label>
-                    <input type="text" id="labScore_projectTopic" placeholder="Enter assigned micro-project topic..." class="w-full bg-slate-100 border border-slate-100 rounded-lg px-3 py-2 text-base font-normal text-slate-900 focus:border-blue-500 outline-none mb-4">
+                    <h4 class="text-xs font-bold text-slate-700 border-b border-slate-200 pb-2 uppercase tracking-wider mb-3">Open-Ended Project / Micro-Project</h4>
+                    <label class="text-xs font-bold text-slate-600 uppercase block mb-1.5">Project Topic Description</label>
+                    <input type="text" id="labScore_projectTopic" placeholder="Enter assigned micro-project topic..." class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-medium text-slate-900 focus:border-blue-500 outline-none mb-4 shadow-2xs">
                   </div>
-                  <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
-                    <div class="flex justify-between items-center text-xs font-bold">
+                  <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-2">
+                    <div class="flex justify-between items-center text-sm font-bold">
                       <span class="text-slate-800">Project Mark (Max 7.5)</span>
-                      <input type="number" step="0.1" min="0" max="7.5" id="labScore_projectMark" oninput="syncSlider('labScore_projectMark','labScore_projectMark_slider',7.5); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
+                      <input type="number" step="0.1" min="0" max="7.5" id="labScore_projectMark" oninput="syncSlider(\'labScore_projectMark\',\'labScore_projectMark_slider\',7.5); calcLabModalScores()" class="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-sm font-bold text-slate-900 text-center focus:border-blue-500 outline-none">
                     </div>
-                    <input type="range" id="labScore_projectMark_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById('labScore_projectMark').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
+                    <input type="range" id="labScore_projectMark_slider" min="0" max="7.5" step="0.1" value="0" oninput="document.getElementById(\'labScore_projectMark\').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
                   </div>
                 </div>
-                <div class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4 flex flex-col justify-between">
+                <div class="bg-slate-50/70 border border-slate-200/80 p-5 rounded-2xl space-y-4 flex flex-col justify-between">
                   <div>
-                    <h4 class="text-xs font-black text-slate-350 border-b border-slate-200 pb-2 uppercase tracking-widest mb-3">Attendance Scoring</h4>
+                    <h4 class="text-xs font-bold text-slate-700 border-b border-slate-200 pb-2 uppercase tracking-wider mb-3">Attendance Scoring</h4>
                     <div class="flex justify-between items-center mb-3">
-                      <span class="text-xs text-slate-600 font-bold">Class Attendance Percentage:</span>
-                      <span class="text-xs font-black text-white font-mono" id="labModalStudentAttPct">0%</span>
+                      <span class="text-xs text-slate-600 font-semibold">Class Attendance Percentage:</span>
+                      <span class="text-sm font-bold text-slate-900 font-mono" id="labModalStudentAttPct">0%</span>
                     </div>
                   </div>
-                  <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
-                    <div class="flex justify-between items-center text-xs font-bold">
+                  <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-2">
+                    <div class="flex justify-between items-center text-sm font-bold">
                       <span class="text-slate-800">Attendance Mark (Max 15)</span>
-                      <input type="number" step="0.1" min="0" max="15" id="labScore_attendanceMark" oninput="syncSlider('labScore_attendanceMark','labScore_attendanceMark_slider',15); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none">
+                      <input type="number" step="0.1" min="0" max="15" id="labScore_attendanceMark" oninput="syncSlider(\'labScore_attendanceMark\',\'labScore_attendanceMark_slider\',15); calcLabModalScores()" class="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-sm font-bold text-slate-900 text-center focus:border-blue-500 outline-none">
                     </div>
-                    <input type="range" id="labScore_attendanceMark_slider" min="0" max="15" step="0.1" value="0" oninput="document.getElementById('labScore_attendanceMark').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
+                    <input type="range" id="labScore_attendanceMark_slider" min="0" max="15" step="0.1" value="0" oninput="document.getElementById(\'labScore_attendanceMark\').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
                   </div>
                 </div>
               </div>
@@ -6118,62 +7256,62 @@
 
             <!-- TAB: BOARD EXAM -->
             <div id="labModalTab_board" class="space-y-4 hidden">
-              <div class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4 max-w-md mx-auto">
-                <h4 class="text-xs font-black text-slate-350 border-b border-slate-200 pb-2 uppercase tracking-widest">External Board Examination</h4>
-                <div class="bg-white p-3 rounded-lg border border-slate-100/50 space-y-2">
-                  <div class="flex justify-between items-center text-xs font-bold">
+              <div class="bg-slate-50/70 border border-slate-200/80 p-5 rounded-2xl space-y-4 max-w-md mx-auto">
+                <h4 class="text-xs font-bold text-slate-700 border-b border-slate-200 pb-2 uppercase tracking-wider">External Board Examination</h4>
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs space-y-2">
+                  <div class="flex justify-between items-center text-sm font-bold">
                     <span class="text-slate-800">Board Exam Mark (Max 50)</span>
-                    <input type="number" step="0.5" min="0" max="50" id="labScore_boardExam" oninput="syncSlider('labScore_boardExam','labScore_boardExam_slider',50); calcLabModalScores()" class="w-16 bg-slate-100 border border-slate-200 rounded px-2 py-1 text-base font-normal text-slate-900 text-center focus:border-blue-500 outline-none" placeholder="0.0">
+                    <input type="number" step="0.5" min="0" max="50" id="labScore_boardExam" oninput="syncSlider(\'labScore_boardExam\',\'labScore_boardExam_slider\',50); calcLabModalScores()" class="w-16 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-sm font-bold text-slate-900 text-center focus:border-blue-500 outline-none" placeholder="0.0">
                   </div>
-                  <input type="range" id="labScore_boardExam_slider" min="0" max="50" step="0.5" value="0" oninput="document.getElementById('labScore_boardExam').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-500 bg-slate-800 cursor-pointer">
+                  <input type="range" id="labScore_boardExam_slider" min="0" max="50" step="0.5" value="0" oninput="document.getElementById(\'labScore_boardExam\').value = this.value; calcLabModalScores()" class="w-full h-1.5 rounded-full accent-blue-600 bg-slate-200 cursor-pointer">
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Bottom bar -->
-          <div class="px-6 py-4 bg-slate-100/60 border-t border-slate-200 flex justify-between items-center">
-            <div class="text-xs text-slate-600 font-bold flex gap-4">
-              <div>Lab Work Avg: <span class="text-slate-900 font-mono" id="labModalLabelExp">0.0</span></div>
-              <div>Model Test: <span class="text-slate-900 font-mono" id="labModalLabelTest">0.0</span></div>
-              <div>Internal CA: <span class="text-teal-700 font-bold font-black font-mono text-sm" id="labModalLabelInternals">0.0 / 75</span></div>
+          <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-between items-center">
+            <div class="text-xs text-slate-600 font-semibold flex gap-4">
+              <div>Lab Work Avg: <span class="text-slate-900 font-mono font-bold" id="labModalLabelExp">0.0</span></div>
+              <div>Model Test: <span class="text-slate-900 font-mono font-bold" id="labModalLabelTest">0.0</span></div>
+              <div>Internal CA: <span class="text-emerald-700 font-bold font-mono text-sm" id="labModalLabelInternals">0.0 / 75</span></div>
             </div>
-            <button onclick="saveStudentLabEvaluation()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-lg shadow-blue-500/10">
-              <span class="material-symbols-rounded text-sm">save</span> Save Evaluation
+            <button onclick="saveStudentLabEvaluation()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-xs">
+              Save Evaluation
             </button>
           </div>
         </div>
       </div>
 
       <!-- Manage Experiments Modal -->
-      <div id="manageExperimentsModal" class="fixed inset-0 bg-slate-100/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
-        <div class="bg-slate-900 border border-slate-200 rounded-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
-          <div class="px-6 py-4 bg-slate-100/60 border-b border-slate-200 flex justify-between items-center">
+      <div id="manageExperimentsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden justify-center items-center p-4">
+        <div class="bg-white border border-slate-200/80 rounded-2xl w-full max-w-5xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+          <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
             <div>
-              <h3 class="text-base font-black text-white">Experiments List</h3>
-              <p class="text-xs text-slate-600 mt-0.5">Setup the experiments syllabus for day-to-day continuous evaluation.</p>
+              <h3 class="text-base font-bold text-slate-900">Experiments List</h3>
+              <p class="text-xs text-slate-500 mt-0.5 font-medium">Setup the experiments syllabus for day-to-day continuous evaluation.</p>
             </div>
-            <button onclick="closeManageExperimentsModal()" class="text-slate-600 hover:text-white transition-premium cursor-pointer">
-              <span class="material-symbols-rounded">close</span>
+            <button onclick="closeManageExperimentsModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer text-sm font-bold">
+              ✕
             </button>
           </div>
 
           <div class="p-6 overflow-y-auto space-y-6 flex-grow">
             <!-- Add Experiment Form -->
-            <form onsubmit="savePracticalExperiment(event)" class="bg-slate-100/30 border border-slate-200/40 p-4 rounded-xl space-y-4">
+            <form onsubmit="savePracticalExperiment(event)" class="bg-slate-50/70 border border-slate-200/80 p-5 rounded-2xl space-y-4">
               <input type="hidden" id="expEditId">
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="md:col-span-1">
-                  <label class="text-xs font-bold text-slate-600 uppercase block mb-1.5">Exp No.</label>
-                  <input type="text" id="expFormNo" required placeholder="e.g. 1, 2A" class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-base font-normal text-slate-900 focus:border-blue-500 outline-none">
+                  <label class="text-xs font-bold text-slate-700 uppercase block mb-1.5">Exp No.</label>
+                  <input type="text" id="expFormNo" required placeholder="e.g. 1, 2A" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-semibold text-slate-900 focus:border-blue-500 outline-none shadow-2xs">
                 </div>
                 <div class="md:col-span-2">
-                  <label class="text-xs font-bold text-slate-600 uppercase block mb-1.5">Experiment Title / Objective</label>
-                  <textarea id="expFormTitle" required placeholder="Enter experiment objective / detailed description..." rows="2" class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-1.5 text-lg font-normal text-slate-900 focus:border-blue-500 outline-none resize-y"></textarea>
+                  <label class="text-xs font-bold text-slate-700 uppercase block mb-1.5">Experiment Title / Objective</label>
+                  <textarea id="expFormTitle" required placeholder="Enter experiment objective / detailed description..." rows="2" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-medium text-slate-900 focus:border-blue-500 outline-none resize-y shadow-2xs"></textarea>
                 </div>
                 <div class="md:col-span-1">
-                  <label class="text-xs font-bold text-slate-600 uppercase block mb-1.5">Map CO</label>
-                  <select id="expFormCo" class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-base font-normal text-slate-900 focus:border-blue-500 outline-none cursor-pointer">
+                  <label class="text-xs font-bold text-slate-700 uppercase block mb-1.5">Map CO</label>
+                  <select id="expFormCo" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none cursor-pointer shadow-2xs">
                     <option value="CO1">CO1</option>
                     <option value="CO2">CO2</option>
                     <option value="CO3">CO3</option>
@@ -6182,27 +7320,27 @@
                 </div>
               </div>
               <div class="flex justify-between items-center pt-2">
-                <button type="button" id="btnImportDatabank" onclick="importFromDatabank()" class="hidden px-3.5 py-2 bg-amber-600/10 hover:bg-amber-600 border border-amber-500/20 hover:border-amber-500 text-amber-400 hover:text-white rounded-xl text-xs font-bold transition-premium flex items-center gap-1 cursor-pointer">
-                  <span class="material-symbols-rounded text-sm">database</span> Import from Databank
+                <button type="button" id="btnImportDatabank" onclick="importFromDatabank()" class="hidden px-3.5 py-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-700 rounded-xl text-xs font-bold transition-premium flex items-center gap-1 cursor-pointer">
+                  Import from Databank
                 </button>
-                <button type="submit" id="btnSaveExp" class="px-5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-premium flex items-center gap-1.5 cursor-pointer ml-auto">
-                  <span class="material-symbols-rounded text-sm">add</span> Add Experiment
+                <button type="submit" id="btnSaveExp" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium flex items-center gap-1.5 cursor-pointer ml-auto shadow-xs">
+                  Add Experiment
                 </button>
               </div>
             </form>
 
             <!-- Experiments List Table -->
-            <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-100/20">
-              <table class="w-full text-left border-collapse text-xs">
+            <div class="border border-slate-200/80 rounded-2xl overflow-hidden bg-white shadow-xs">
+              <table class="w-full text-left border-collapse text-sm">
                 <thead>
-                  <tr class="bg-slate-900 border-b border-slate-200 text-slate-600 font-bold uppercase">
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold uppercase text-xs">
                     <th class="p-3 w-16 text-center">No.</th>
                     <th class="p-3">Title / Objective</th>
                     <th class="p-3 w-20 text-center">CO</th>
                     <th class="p-3 w-28 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody id="manageExpsTableBody" class="divide-y divide-slate-850">
+                <tbody id="manageExpsTableBody" class="divide-y divide-slate-100">
                   <tr>
                     <td colspan="4" class="p-6 text-center text-slate-500">No experiments set up yet.</td>
                   </tr>
@@ -6214,23 +7352,23 @@
       </div>
 
       <!-- Manage Tests Modal -->
-      <div id="manageTestsModal" class="fixed inset-0 bg-slate-100/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
-        <div class="bg-slate-900 border border-slate-200 rounded-2xl w-full max-w-xl md:max-w-4xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
-          <div class="px-6 py-4 bg-slate-100/60 border-b border-slate-200 flex justify-between items-center">
+      <div id="manageTestsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden justify-center items-center p-4">
+        <div class="bg-white border border-slate-200/80 rounded-2xl w-full max-w-xl md:max-w-4xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+          <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
             <div>
-              <h3 class="text-base font-black text-white">Configure Model Tests Questions</h3>
-              <p class="text-xs text-slate-600 mt-0.5">Design the question paper scheme for Test 1 and Test 2.</p>
+              <h3 class="text-base font-bold text-slate-900">Configure Model Tests Questions</h3>
+              <p class="text-xs text-slate-500 mt-0.5 font-medium">Design the question paper scheme for Test 1 and Test 2.</p>
             </div>
-            <button onclick="closeManageTestsModal()" class="text-slate-600 hover:text-white transition-premium cursor-pointer">
-              <span class="material-symbols-rounded">close</span>
+            <button onclick="closeManageTestsModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer text-sm font-bold">
+              ✕
             </button>
           </div>
 
           <form onsubmit="savePracticalTestQuestions(event)" class="flex-grow flex flex-col overflow-hidden">
             <div class="p-6 overflow-y-auto space-y-5 flex-grow">
               <div>
-                <label class="text-[10px] font-bold text-slate-600 uppercase block mb-1">Select Model Test</label>
-                <select id="designTestName" onchange="renderTestQuestionsFields()" class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none cursor-pointer">
+                <label class="text-xs font-bold text-slate-700 uppercase block mb-1.5">Select Model Test</label>
+                <select id="designTestName" onchange="renderTestQuestionsFields()" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none cursor-pointer shadow-2xs">
                   <option value="Test 1">Model Test 1 (CO1 &amp; CO2)</option>
                   <option value="Test 2">Model Test 2 (CO3 &amp; CO4)</option>
                 </select>
@@ -6240,9 +7378,9 @@
                 <!-- Inputs generated dynamically -->
               </div>
             </div>
-            <div class="px-6 py-4 bg-slate-100/60 border-t border-slate-200 flex justify-end">
-              <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-md">
-                <span class="material-symbols-rounded text-sm">save</span> Save Test Config
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+              <button type="submit" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer flex items-center gap-1.5 shadow-xs">
+                Save Test Config
               </button>
             </div>
           </form>
@@ -6250,29 +7388,29 @@
       </div>
 
       <!-- Generate Lesson Planner Modal -->
-      <div id="generatePlannerModal" class="fixed inset-0 bg-slate-100/80 backdrop-blur-sm z-50 hidden justify-center items-center p-4">
-        <div class="bg-slate-900 border border-slate-200 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-          <div class="px-6 py-4 bg-slate-100/60 border-b border-slate-200 flex justify-between items-center">
-            <h3 class="text-base font-black text-white">Generate Practical Lesson Plan</h3>
-            <button onclick="closeGeneratePlannerModal()" class="text-slate-600 hover:text-white transition-premium cursor-pointer">
-              <span class="material-symbols-rounded">close</span>
+      <div id="generatePlannerModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden justify-center items-center p-4">
+        <div class="bg-white border border-slate-200/80 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+          <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+            <h3 class="text-base font-bold text-slate-900">Generate Practical Lesson Plan</h3>
+            <button onclick="closeGeneratePlannerModal()" class="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer text-sm font-bold">
+              ✕
             </button>
           </div>
           <form onsubmit="generatePlannerFromExperiments(event)" class="p-6 space-y-4">
             <div>
-              <label class="text-[10px] font-bold text-slate-600 uppercase block mb-1">Lab Batch Session Mode</label>
-              <select id="genPlannerBatchMode" class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none cursor-pointer">
+              <label class="text-xs font-bold text-slate-700 uppercase block mb-1.5">Lab Batch Session Mode</label>
+              <select id="genPlannerBatchMode" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none cursor-pointer shadow-2xs">
                 <option value="combined">Combined / Full Class (1 entry per experiment)</option>
                 <option value="separate">Split Batches / Batch 1 &amp; 2 (2 entries per experiment)</option>
               </select>
             </div>
             <div>
-              <label class="text-[10px] font-bold text-slate-600 uppercase block mb-1">Allocated Hours per Session</label>
-              <input type="number" id="genPlannerHours" value="3" min="1" max="10" required class="w-full bg-slate-900 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-white focus:border-blue-500 outline-none">
+              <label class="text-xs font-bold text-slate-700 uppercase block mb-1.5">Allocated Hours per Session</label>
+              <input type="number" id="genPlannerHours" value="3" min="1" max="10" required class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-bold text-slate-900 focus:border-blue-500 outline-none shadow-2xs">
             </div>
-            <div class="pt-2 flex justify-end gap-2">
-              <button type="button" onclick="closeGeneratePlannerModal()" class="px-4 py-2 bg-slate-850 hover:bg-slate-800 text-slate-600 hover:text-slate-350 rounded-xl text-xs font-bold transition-premium cursor-pointer">Cancel</button>
-              <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer">Generate</button>
+            <div class="pt-2 flex justify-end gap-2.5">
+              <button type="button" onclick="closeGeneratePlannerModal()" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-semibold transition-premium cursor-pointer shadow-2xs">Cancel</button>
+              <button type="submit" class="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer shadow-xs">Generate</button>
             </div>
           </form>
         </div>
@@ -6340,7 +7478,7 @@
 
       labStudentsData.forEach(student => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-slate-200/40 text-base hover:bg-slate-900/20";
+        tr.className = "border-b border-slate-100 text-sm hover:bg-slate-50/70";
         tr.setAttribute('data-reg', student.reg_no);
         
         // Count graded experiments for this student
@@ -6382,7 +7520,7 @@
           <td class="p-3 text-center font-mono font-bold text-blue-400 text-base">${boardMarks}</td>
           <td class="p-3 text-center">
             <button onclick="openStudentLabModal('${student.reg_no}')" class="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-800 hover:text-white rounded-lg text-xs font-bold transition-premium cursor-pointer border border-slate-700/50 flex items-center gap-1 mx-auto">
-              <span class="material-symbols-rounded text-xs">edit</span> Grade
+              <i data-lucide="pencil" class="w-4 h-4 inline-block text-xs"></i> Grade
             </button>
           </td>
         `;
@@ -6724,7 +7862,7 @@
 
       labExperimentsData.forEach(exp => {
         const tr = document.createElement('tr');
-        tr.className = "border-b border-slate-800/40 hover:bg-slate-900/10";
+        tr.className = "border-b border-slate-100 hover:bg-slate-50/70";
         tr.innerHTML = `
           <td class="p-3 text-center font-bold text-slate-455 font-mono">${exp.experiment_no}</td>
           <td class="p-3 text-slate-200 font-medium text-sm whitespace-pre-wrap leading-relaxed">${exp.title}</td>
@@ -6757,7 +7895,7 @@
           document.getElementById('expEditId').value = '';
           document.getElementById('expFormNo').value = '';
           document.getElementById('expFormTitle').value = '';
-          document.getElementById('btnSaveExp').innerHTML = '<span class="material-symbols-rounded text-sm">add</span> Add Experiment';
+          document.getElementById('btnSaveExp').innerHTML = '<i data-lucide="plus" class="w-4 h-4 inline-block text-sm"></i> Add Experiment';
 
           alert("Experiment successfully saved!");
           fetchPracticalEvaluations();
@@ -6774,7 +7912,7 @@
       document.getElementById('expFormNo').value = no;
       document.getElementById('expFormTitle').value = title;
       document.getElementById('expFormCo').value = co;
-      document.getElementById('btnSaveExp').innerHTML = '<span class="material-symbols-rounded text-sm">save</span> Update';
+      document.getElementById('btnSaveExp').innerHTML = '<i data-lucide="save" class="w-4 h-4 inline-block text-sm"></i> Update';
     }
 
     function deleteExperiment(id) {
@@ -6837,7 +7975,7 @@
       cos.forEach(co => {
         const coQ = existingQ[co] || ['', ''];
         const card = document.createElement('div');
-        card.className = "bg-slate-950/40 border border-slate-800 p-4 rounded-xl space-y-3";
+        card.className = "bg-white border border-slate-200 p-5 rounded-2xl space-y-3 shadow-2xs";
         card.innerHTML = `
           <h4 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
             <span class="px-2.5 py-0.5 bg-blue-500/10 text-blue-400 rounded text-xs">${co}</span> Questions (Choice of 1 out of 2)
@@ -6845,11 +7983,11 @@
           <div class="space-y-3">
             <div>
               <label class="text-xs font-bold text-slate-400 uppercase block mb-1">Option A (7.5 Marks)</label>
-              <textarea name="q_${co}_0" placeholder="Enter question description..." required rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-normal text-lg outline-none focus:border-blue-500 resize-y">${coQ[0] || ''}</textarea>
+              <textarea name="q_${co}_0" placeholder="Enter question description..." required rows="2" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 font-medium text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs resize-y">${coQ[0] || ''}</textarea>
             </div>
             <div>
               <label class="text-xs font-bold text-slate-400 uppercase block mb-1">Option B (7.5 Marks)</label>
-              <textarea name="q_${co}_1" placeholder="Enter question description..." required rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-slate-200 font-normal text-lg outline-none focus:border-blue-500 resize-y">${coQ[1] || ''}</textarea>
+              <textarea name="q_${co}_1" placeholder="Enter question description..." required rows="2" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 font-medium text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs resize-y">${coQ[1] || ''}</textarea>
             </div>
           </div>
         `;
@@ -6947,7 +8085,7 @@
 
           ['CO1', 'CO2', 'CO3', 'CO4'].forEach(co => {
             const tr = document.createElement('tr');
-            tr.className = "border-b border-slate-800/40 hover:bg-slate-900/10 text-slate-300 font-medium";
+            tr.className = "border-b border-slate-100 hover:bg-slate-50/70 text-slate-700 font-medium";
             
             let cells = `<td class="p-3 font-bold text-blue-400 whitespace-nowrap">${co}</td>`;
             cells += `<td class="p-3 text-slate-350 leading-relaxed font-bold text-xs">${descriptions[co]}</td>`;
@@ -6955,13 +8093,13 @@
             // PO1 to PO11 inputs
             for (let i = 1; i <= 11; i++) {
               const val = matrix[co] && matrix[co]['PO' + i] ? matrix[co]['PO' + i] : '';
-              cells += `<td class="p-1"><input type="number" min="1" max="3" value="${val}" class="w-10 bg-slate-900 border border-slate-800 rounded px-1.5 py-1 text-center font-bold text-emerald-450 focus:border-blue-500 outline-none text-xs" data-co="${co}" data-target="PO${i}"></td>`;
+              cells += `<td class="p-1"><input type="number" min="1" max="3" value="${val}" class="w-10 bg-white border border-slate-200 rounded-lg px-1.5 py-1 text-center font-bold text-emerald-700 focus:border-blue-500 outline-none text-sm shadow-2xs" data-co="${co}" data-target="PO${i}"></td>`;
             }
 
             // PSO1 to PSO3 inputs
             for (let i = 1; i <= 3; i++) {
               const val = matrix[co] && matrix[co]['PSO' + i] ? matrix[co]['PSO' + i] : '';
-              cells += `<td class="p-1"><input type="number" min="1" max="3" value="${val}" class="w-10 bg-slate-900 border border-slate-800 rounded px-1.5 py-1 text-center font-bold text-blue-405 focus:border-blue-500 outline-none text-xs" data-co="${co}" data-target="PSO${i}"></td>`;
+              cells += `<td class="p-1"><input type="number" min="1" max="3" value="${val}" class="w-10 bg-white border border-slate-200 rounded-lg px-1.5 py-1 text-center font-bold text-blue-700 focus:border-blue-500 outline-none text-sm shadow-2xs" data-co="${co}" data-target="PSO${i}"></td>`;
             }
 
             tr.innerHTML = cells;

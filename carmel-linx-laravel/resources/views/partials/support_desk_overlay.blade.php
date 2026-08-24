@@ -15,7 +15,7 @@
     <div class="flex items-center gap-3">
       <span class="text-[11px] text-rose-200 hidden md:inline">Protected P2P WebRTC Connection</span>
       <button onclick="stopStaffScreenShare()" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs rounded-lg shadow-lg border border-red-400 transition-premium cursor-pointer flex items-center gap-1">
-        <span class="material-symbols-rounded text-sm">stop_circle</span> End Support Session
+        <x-ui.icon name="stop_circle" class="w-4 h-4" /> End Support Session
       </button>
     </div>
   </div>
@@ -35,12 +35,12 @@
   <div id="staffSupportRequestModal" class="hidden fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 md:p-6">
     <div class="bg-slate-900 border-2 border-slate-700/90 rounded-3xl max-w-2xl w-full p-8 shadow-[0_20px_60px_rgba(0,0,0,0.8)] space-y-6 relative">
       <button onclick="closeStaffSupportModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 transition-premium cursor-pointer">
-        <span class="material-symbols-rounded text-xl">close</span>
+        <x-ui.icon name="close" class="w-5 h-5" />
       </button>
       
       <div class="flex items-center gap-4">
         <div class="w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
-          <span class="material-symbols-rounded text-3xl">desktop_windows</span>
+          <x-ui.icon name="devices" class="w-7 h-7" />
         </div>
         <div>
           <h3 class="text-2xl font-black text-white leading-tight tracking-tight">Live Remote Support (Beta)</h3>
@@ -50,15 +50,15 @@
 
       <div class="p-5 bg-slate-950/80 border border-slate-800/90 rounded-2xl space-y-3.5 text-sm text-slate-200">
         <div class="flex items-start gap-3">
-          <span class="material-symbols-rounded text-emerald-400 text-xl shrink-0 mt-0.5">verified_user</span>
+          <x-ui.icon name="check_circle" class="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
           <span class="leading-relaxed"><strong>Explicit User Permission:</strong> Your screen will ONLY be visible after you click <em class="text-amber-300 font-bold">Share Screen</em> in your browser prompt.</span>
         </div>
         <div class="flex items-start gap-3">
-          <span class="material-symbols-rounded text-blue-400 text-xl shrink-0 mt-0.5">lock</span>
+          <x-ui.icon name="lock" class="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
           <span class="leading-relaxed"><strong>Secure P2P Encryption:</strong> Direct browser-to-browser WebRTC encrypted connection. No video recording or files stored.</span>
         </div>
         <div class="flex items-start gap-3">
-          <span class="material-symbols-rounded text-rose-400 text-xl shrink-0 mt-0.5">touch_app</span>
+          <x-ui.icon name="touch_app" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
           <span class="leading-relaxed"><strong>Interactive Guidance:</strong> Dhanush.A can place a glowing laser pointer on your screen to show you exactly where to click.</span>
         </div>
       </div>
@@ -72,7 +72,7 @@
           Cancel
         </button>
         <button id="btnStartSupportShare" onclick="initiateStaffSupportShare()" class="w-1/2 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-2xl text-sm transition-premium cursor-pointer shadow-xl shadow-blue-600/30 flex items-center justify-center gap-2">
-          <span class="material-symbols-rounded text-lg">screen_share</span> Request Assist
+          <x-ui.icon name="devices" class="w-5 h-5" /> Request Assist
         </button>
       </div>
     </div>
