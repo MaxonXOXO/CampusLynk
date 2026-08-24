@@ -342,7 +342,7 @@ Route::middleware(['web'])->group(function () {
 
     Route::get('/dashboard/lecturer', function () {
         $role = Session::get('userRole');
-        if (!in_array($role, ['HOD', 'Lecturer', 'Demonstrator', 'Physical_Instructor', 'Physical Instructor', 'Principal', 'Super_Admin', 'Chairman', 'Admin'])) return redirect('/');
+        if (!in_array($role, ['HOD', 'Lecturer', 'Demonstrator', 'Trade_Instructor', 'Tradesman', 'Workshop_Instructor', 'Physical_Instructor', 'Physical Instructor', 'Principal', 'Super_Admin', 'Chairman', 'Admin'])) return redirect('/');
         $ua = strtolower(request()->header('User-Agent', ''));
         if ((str_contains($ua, 'mobile') || str_contains($ua, 'android') || str_contains($ua, 'iphone')) && request()->query('mode') !== 'desktop') {
             return redirect('/staff/mobile');
