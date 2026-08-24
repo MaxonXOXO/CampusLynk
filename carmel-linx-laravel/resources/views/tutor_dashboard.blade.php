@@ -152,8 +152,8 @@
               <div>
                 <label class="block text-slate-600 font-semibold mb-1.5 text-xs">Search Student</label>
                 <div class="relative">
-                  <input type="text" id="filterSearch" oninput="loadUsers()" class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3.5 py-2.5 text-slate-900 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400" placeholder="Name, Register No, Mobile...">
-                  <div class="absolute left-3 top-3 text-slate-400">
+                  <input type="text" id="filterSearch" oninput="debouncedLoadUsers()" class="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-3.5 py-2.5 text-slate-900 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400" placeholder="Name, Register No, Mobile...">
+                  <div class="absolute left-3.5 top-3 text-slate-400 pointer-events-none">
                     <x-ui.icon name="search" class="w-4 h-4" />
                   </div>
                 </div>
@@ -823,6 +823,12 @@
       icon.classList.toggle('rotate-180');
     }
 
+    let userSearchTimer = null;
+    function debouncedLoadUsers() {
+      clearTimeout(userSearchTimer);
+      userSearchTimer = setTimeout(loadUsers, 250);
+    }
+
     function loadUsers() {
       const indicator = document.getElementById('loadingIndicator');
       indicator.classList.remove('hidden');
@@ -1133,14 +1139,14 @@
             }
             data.logs.forEach(log => {
               const tr = document.createElement('tr');
-              tr.className = "border-b border-slate-800/40 hover:bg-slate-900/30 transition-premium";
+              tr.className = "border-b border-slate-100 hover:bg-slate-50/80 transition-all";
               
               const date = new Date(log.created_at).toLocaleString();
               tr.innerHTML = `
                 <td class="p-3.5 pl-4 text-slate-500 font-mono text-xs">${date}</td>
                 <td class="p-3.5 font-bold text-slate-900 text-xs">${log.performed_by_name || 'System'}<br><span class="text-xs text-slate-500 font-mono">${log.performed_by || ''}</span></td>
-                <td class="p-4 font-bold text-white">${log.target_name}<br><span class="text-xs text-blue-400 font-mono">${log.target_id}</span></td>
-                <td class="p-4"><span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">${log.action}</span></td>
+                <td class="p-3.5 font-bold text-slate-900 text-xs">${log.target_name || '-'}<br><span class="text-xs text-blue-600 font-mono">${log.target_id || ''}</span></td>
+                <td class="p-3.5"><span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">${log.action}</span></td>
                 <td class="p-3.5 font-mono text-slate-500 text-xs">${log.ip_address || '-'}</td>
                 <td class="p-3.5 pr-4 text-slate-700 font-sans text-xs leading-relaxed">${log.details || ''}</td>
               `;
