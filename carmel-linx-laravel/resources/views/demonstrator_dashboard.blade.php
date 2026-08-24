@@ -248,6 +248,25 @@
       }
     }
 
+    // Attach click listeners for instant tab switching when on dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+      const navBatches = document.getElementById('nav-link-my_batches') || document.getElementById('nav-btn-my_batches');
+      if (navBatches) {
+        navBatches.addEventListener('click', (e) => {
+          e.preventDefault();
+          handleDemonstratorSidebarNav('dashboard');
+        });
+      }
+
+      const navProfile = document.getElementById('nav-link-profile') || document.getElementById('nav-btn-profile');
+      if (navProfile) {
+        navProfile.addEventListener('click', (e) => {
+          e.preventDefault();
+          handleDemonstratorSidebarNav('security');
+        });
+      }
+    });
+
     // Support popstate (browser back / forward button)
     window.addEventListener('popstate', () => {
       const urlParams = new URLSearchParams(window.location.search);

@@ -10,7 +10,6 @@ return [
             'label' => 'My Batches',
             'icon' => 'presentation',
             'url' => '/dashboard/lecturer',
-            'onclick' => "handleFacultySidebarNav('dashboard')",
         ],
         [
             'id' => 'my_leave',
@@ -47,7 +46,6 @@ return [
             'label' => 'My Profile',
             'icon' => 'user-round',
             'url' => '/dashboard/lecturer?panel=security',
-            'onclick' => "handleFacultySidebarNav('security')",
         ],
     ],
 ];

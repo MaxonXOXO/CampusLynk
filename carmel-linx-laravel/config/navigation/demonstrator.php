@@ -10,7 +10,6 @@ return [
             'label' => 'Lab Workspaces',
             'icon' => 'presentation',
             'url' => '/dashboard/demonstrator',
-            'onclick' => "handleDemonstratorSidebarNav('dashboard')",
         ],
         [
             'id' => 'my_leave',
@@ -47,7 +46,6 @@ return [
             'label' => 'My Profile',
             'icon' => 'user-round',
             'url' => '/dashboard/demonstrator?panel=security',
-            'onclick' => "handleDemonstratorSidebarNav('security')",
         ],
     ],
 ];

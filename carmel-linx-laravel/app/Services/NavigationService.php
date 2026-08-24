@@ -143,11 +143,15 @@ class NavigationService
         if ($resolvedRole === 'tutor') {
             $sessionRole = Session::get('userRole');
             if ($sessionRole === 'Demonstrator' || in_array($sessionRole, ['Demonstrator', 'Trade_Instructor', 'Workshop_Superintendent'])) {
-                // Point my_batches to Demonstrator Lab Workspaces for dual-role Demonstrator in Tutor Console
+                // Point my_batches to Demonstrator Lab Workspaces and profile to Demonstrator Profile
                 $items = array_map(function ($it) {
                     if (($it['id'] ?? '') === 'my_batches') {
                         $it['label'] = 'Lab Workspaces';
                         $it['url'] = '/dashboard/demonstrator';
+                        unset($it['onclick']);
+                    }
+                    if (($it['id'] ?? '') === 'profile') {
+                        $it['url'] = '/dashboard/demonstrator?panel=security';
                         unset($it['onclick']);
                     }
                     return $it;
