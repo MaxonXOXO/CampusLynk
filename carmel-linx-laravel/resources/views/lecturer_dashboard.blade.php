@@ -334,34 +334,27 @@
         <!-- Header Card -->
         <div class="bg-white border border-slate-200/80 p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
           <div class="flex items-center gap-3.5">
-            <button onclick="switchPanel('dashboard')" class="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 hover:text-blue-600 border border-slate-200 flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-2xs group" title="Back to Dashboard">
-              <x-ui.icon name="arrow_back" class="w-5 h-5 text-slate-600 group-hover:text-blue-600" />
-            </button>
             <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200/80 shrink-0">
               <x-ui.icon name="book" class="w-5 h-5 text-blue-600" />
             </div>
             <div>
-              <div class="flex items-center gap-2">
-                @if(session('userRole') === 'Demonstrator')
-                  <a href="/dashboard/demonstrator" class="text-xs font-bold text-blue-600 hover:text-blue-700 uppercase tracking-wider flex items-center gap-1 transition no-underline">
-                    Back to Console
-                  </a>
-                @else
-                  <button onclick="switchPanel('dashboard')" class="text-xs font-bold text-slate-500 hover:text-blue-600 uppercase tracking-wider flex items-center gap-1 transition cursor-pointer">
-                    Dashboard
-                  </button>
-                @endif
-                <span class="text-xs text-slate-300">•</span>
-                <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">Virtual Classroom</span>
-              </div>
-              <h3 id="vcTitle" class="text-lg font-bold text-slate-900 mt-0.5">Virtual Classroom</h3>
-              <p id="vcSubtitle" class="text-xs sm:text-sm text-slate-500 font-mono">Loading...</p>
+              <h3 id="vcTitle" class="text-lg font-bold text-slate-900 leading-snug">Virtual Classroom</h3>
+              <p id="vcSubtitle" class="text-xs sm:text-sm text-slate-500 font-mono mt-0.5">Loading...</p>
             </div>
           </div>
-          <div class="flex items-center gap-3">
-            <button id="vcViewStudentsBtn" onclick="showVcStudentsList()" class="px-4 py-2 bg-slate-50 hover:bg-blue-50 text-slate-700 hover:text-blue-700 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs border border-slate-200 hover:border-blue-300">
+          <div class="flex items-center gap-2.5">
+            <button id="vcViewStudentsBtn" onclick="showVcStudentsList()" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs border border-slate-200">
               <x-ui.icon name="groups" class="w-4 h-4 text-blue-600" /> View Students
             </button>
+            @if(session('userRole') === 'Demonstrator')
+              <a href="/dashboard/demonstrator" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs border border-slate-200 no-underline">
+                <x-ui.icon name="arrow_back" class="w-4 h-4 text-slate-600" /> Back to Console
+              </a>
+            @else
+              <button onclick="switchPanel('dashboard')" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 shadow-2xs border border-slate-200">
+                <x-ui.icon name="arrow_back" class="w-4 h-4 text-slate-600" /> Back to Dashboard
+              </button>
+            @endif
           </div>
         </div>
 
