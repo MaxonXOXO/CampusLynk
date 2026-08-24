@@ -177,9 +177,39 @@ class StaffLeaveController extends Controller
         $userRole = Session::get('userRole');
         $actorName = Session::get('userName', 'Approver');
 
-        if (!$mobileNo) {
-            return response()->json(['status' => 'ERROR', 'message' => 'Not authenticated.'], 401);
+        // Normalize action / decision input
+        $rawAction = $request->input('action', $request->input('decision', 'Approved'));
+        $action = 'Approved';
+        if (in_array(strtolower($rawAction), ['reject', 'rejected'])) {
+            $action = 'Rejected';
         }
+
+        // Normalize stage input
+        $rawStage = $request->input('stage');
+        if (empty($rawStage)) {
+            if ($userRole === 'HOD') {
+                $rawStage = 'HOD';
+            } elseif (in_array($userRole, ['Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF'])) {
+                $rawStage = 'Coordinator';
+            } else {
+                $rawStage = 'Principal';
+            }
+        } elseif (in_array($rawStage, ['Admin', 'Super_Admin', 'SuperAdmin', 'Chairman'])) {
+            $rawStage = 'Principal';
+        }
+
+        // Resolve approver name if not in session
+        if (empty($actorName) || $actorName === 'Approver') {
+            $staffProfile = \Illuminate\Support\Facades\DB::table('staff_profiles')->where('mobile_no', $mobileNo)->first();
+            if ($staffProfile && !empty($staffProfile->name)) {
+                $actorName = $staffProfile->name;
+            }
+        }
+
+        $request->merge([
+            'action' => $action,
+            'stage'  => $rawStage,
+        ]);
 
         $request->validate([
             'leave_id'  => 'required|exists:staff_leave_requests,id',
