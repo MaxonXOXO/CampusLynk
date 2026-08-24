@@ -6,7 +6,7 @@
     <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-950/80 rounded-t-3xl">
       <div class="flex items-center gap-4">
         <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white p-2 rounded-xl shadow-lg">
-          <span class="material-symbols-rounded text-2xl">menu_book</span>
+          <x-ui.icon name="book-open" class="w-6 h-6" />
         </div>
         <div>
           <h2 class="font-black text-white tracking-tight flex items-center gap-2 text-xl">
@@ -21,13 +21,13 @@
       </div>
       <div class="flex items-center gap-3">
         <button id="fmdVerifyBtn" onclick="verifyStudentData()" class="px-4 py-2 bg-green-600/20 text-green-400 hover:bg-green-600 hover:text-white border border-green-500/30 rounded-xl font-bold transition-premium flex items-center gap-2 cursor-pointer text-[10px] text-xs">
-          <span class="material-symbols-rounded text-sm">verified</span> Verify Data
+          <x-ui.icon name="verified" class="w-4 h-4" /> Verify Data
         </button>
         <button onclick="downloadMentorPdf()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-premium flex items-center gap-2 cursor-pointer border border-slate-700 text-[10px] text-xs">
-          <span class="material-symbols-rounded text-sm">print</span> Print Diary PDF
+          <x-ui.icon name="print" class="w-4 h-4" /> Print Diary PDF
         </button>
         <button onclick="closeFullMentoringDiaryModal()" class="text-slate-400 hover:text-white transition-premium cursor-pointer p-2 bg-slate-800/50 rounded-full hover:bg-slate-700">
-          <span class="material-symbols-rounded">close</span>
+          <x-ui.icon name="close" class="w-4 h-4" />
         </button>
       </div>
     </div>
@@ -38,28 +38,28 @@
       <!-- Sidebar Navigation (7 Tabs) -->
       <div class="w-64 bg-slate-950/50 border-r border-slate-800 p-4 flex flex-col gap-2 overflow-y-auto scrollbar-hidden shrink-0">
         <button onclick="switchDiaryTab('tab-profile')" id="btn-tab-profile" class="diary-tab-btn w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-premium bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 text-[10px] text-xs">
-          <span class="material-symbols-rounded text-lg">person</span> Personal & Family
+          <x-ui.icon name="user" class="w-4 h-4" /> Personal & Family
         </button>
         <button onclick="switchDiaryTab('tab-education')" id="btn-tab-education" class="diary-tab-btn w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 text-[10px] text-xs">
-          <span class="material-symbols-rounded text-lg">history_edu</span> Prior Education
+          <x-ui.icon name="book-open" class="w-4 h-4" /> Prior Education
         </button>
         <button onclick="switchDiaryTab('tab-academic')" id="btn-tab-academic" class="diary-tab-btn w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 text-[10px] text-xs">
-          <span class="material-symbols-rounded text-lg">school</span> Academic Progress
+          <x-ui.icon name="school" class="w-4 h-4" /> Academic Progress
         </button>
         <button onclick="switchDiaryTab('tab-board')" id="btn-tab-board" class="diary-tab-btn w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 text-[10px] text-xs">
-          <span class="material-symbols-rounded text-lg">workspace_premium</span> Board Exams
+          <x-ui.icon name="award" class="w-4 h-4" /> Board Exams
         </button>
         <button onclick="switchDiaryTab('tab-extracurricular')" id="btn-tab-extracurricular" class="diary-tab-btn w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 text-[10px] text-xs">
-          <span class="material-symbols-rounded text-lg">emoji_events</span> Extra-Curricular
+          <x-ui.icon name="award" class="w-4 h-4" /> Extra-Curricular
         </button>
         <button onclick="switchDiaryTab('tab-meetings')" id="btn-tab-meetings" class="diary-tab-btn w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 text-[10px] text-xs">
-          <span class="material-symbols-rounded text-lg">forum</span> Mentor Meetings
+          <x-ui.icon name="message" class="w-4 h-4" /> Mentor Meetings
         </button>
         <button onclick="switchDiaryTab('tab-leaves')" id="btn-tab-leaves" class="diary-tab-btn w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 text-[10px] text-xs">
-          <span class="material-symbols-rounded text-lg">event_busy</span> Leave Record
+          <x-ui.icon name="calendar" class="w-4 h-4" /> Leave Record
         </button>
         <button onclick="switchDiaryTab('tab-discipline')" id="btn-tab-discipline" class="diary-tab-btn w-full text-left px-4 py-3 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 text-[10px] text-xs">
-          <span class="material-symbols-rounded text-lg">gavel</span> Disciplinary Actions
+          <x-ui.icon name="gavel" class="w-4 h-4" /> Disciplinary Actions
         </button>
       </div>
 
@@ -267,7 +267,7 @@
               <h3 class="font-black text-slate-200 text-lg">Extra-Curricular Activities</h3>
               <p class="text-slate-500 uppercase tracking-widest mt-1">Page 7 of physical diary</p>
             </div>
-            <button onclick="openActivityModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-premium cursor-pointer flex items-center gap-1 text-[10px] text-xs"><span class="material-symbols-rounded text-sm">add</span> Add Activity</button>
+            <button onclick="openActivityModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-premium cursor-pointer flex items-center gap-1 text-[10px] text-xs"><x-ui.icon name="plus" class="w-4 h-4" /> Add Activity</button>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -322,7 +322,7 @@
               <p class="text-slate-500 uppercase tracking-widest mt-1">Page 10 of physical diary</p>
             </div>
             <button onclick="toggleDiaryAddForm()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 shadow-lg shadow-indigo-500/20 text-[10px] text-xs">
-              <span class="material-symbols-rounded text-sm">edit_square</span> Log New Meeting
+              <x-ui.icon name="edit" class="w-4 h-4" /> Log New Meeting
             </button>
           </div>
 
@@ -381,7 +381,7 @@
               <p class="text-slate-500 uppercase tracking-widest mt-1">Page 13 of physical diary</p>
             </div>
             <button onclick="openLeaveModal()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold transition-premium cursor-pointer flex items-center gap-1 text-[10px] text-xs">
-              <span class="material-symbols-rounded text-sm">add</span> Log Leave
+              <x-ui.icon name="plus" class="w-4 h-4" /> Log Leave
             </button>
           </div>
 
@@ -435,7 +435,7 @@
               <p class="text-slate-500 uppercase tracking-widest mt-1">Page 16 of physical diary</p>
             </div>
             <button onclick="openDiscModal()" class="px-3 py-1.5 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white border border-red-500/30 rounded-lg font-bold transition-premium cursor-pointer flex items-center gap-1 text-[10px] text-xs">
-              <span class="material-symbols-rounded text-sm">warning</span> Record Incident
+              <x-ui.icon name="warning" class="w-4 h-4" /> Record Incident
             </button>
           </div>
           <div class="bg-red-950/10 border border-red-900/30 rounded-2xl overflow-hidden">
@@ -698,11 +698,11 @@
     // Profile Tab
         if (data.student) {
       if (data.student.profile_verified_at) {
-        document.getElementById('fmdVerifyBtn').innerHTML = '<span class="material-symbols-rounded text-sm">cancel</span> Unverify Data';
+        document.getElementById('fmdVerifyBtn').innerHTML = ' Unverify Data';
         document.getElementById('fmdVerifyBtn').className = "px-4 py-2 bg-red-600/20 text-red-400 hover:bg-red-600 hover:text-white border border-red-500/30 rounded-xl text-xs font-bold transition-premium flex items-center gap-2 cursor-pointer";
         document.getElementById('fmdVerifyBtn').dataset.action = "unverify";
       } else {
-        document.getElementById('fmdVerifyBtn').innerHTML = '<span class="material-symbols-rounded text-sm">verified</span> Verify Data';
+        document.getElementById('fmdVerifyBtn').innerHTML = '<x-ui.icon name="verified" class="w-4 h-4" /> Verify Data';
         document.getElementById('fmdVerifyBtn').className = "px-4 py-2 bg-green-600/20 text-green-400 hover:bg-green-600 hover:text-white border border-green-500/30 rounded-xl text-xs font-bold transition-premium flex items-center gap-2 cursor-pointer";
         document.getElementById('fmdVerifyBtn').dataset.action = "verify";
       }
@@ -858,7 +858,7 @@
           <td class="p-3 text-indigo-400 font-bold">${ex.points_awarded}</td>
           <td class="p-3">${ex.status}</td>
           <td class="p-3 text-right">
-            <button onclick='editActivity(${JSON.stringify(ex).replace(/'/g, "&apos;")})' class="text-indigo-400 hover:text-indigo-300 transition-colors"><span class="material-symbols-rounded text-sm">edit</span></button>
+            <button onclick='editActivity(${JSON.stringify(ex).replace(/'/g, "&apos;")})' class="text-indigo-400 hover:text-indigo-300 transition-colors">✎</button>
           </td>
         </tr>
       `).join('');
@@ -876,7 +876,7 @@
           <td class="p-3 text-center">${l.parent_informed ? 'Yes' : 'No'}</td>
           <td class="p-3 text-right">${l.status}</td>
           <td class="p-3 text-right">
-            <button onclick='editLeave(${JSON.stringify(l).replace(/'/g, "&apos;")})' class="text-indigo-400 hover:text-indigo-300 transition-colors"><span class="material-symbols-rounded text-sm">edit</span></button>
+            <button onclick='editLeave(${JSON.stringify(l).replace(/'/g, "&apos;")})' class="text-indigo-400 hover:text-indigo-300 transition-colors">✎</button>
           </td>
         </tr>
       `).join('');
@@ -893,7 +893,7 @@
           <td class="p-3 text-white">${d.description}</td>
           <td class="p-3">${d.action_taken || '--'}</td>
           <td class="p-3 text-right">
-            <button onclick='editDisc(${JSON.stringify(d).replace(/'/g, "&apos;")})' class="text-indigo-400 hover:text-indigo-300 transition-colors"><span class="material-symbols-rounded text-sm">edit</span></button>
+            <button onclick='editDisc(${JSON.stringify(d).replace(/'/g, "&apos;")})' class="text-indigo-400 hover:text-indigo-300 transition-colors">✎</button>
           </td>
         </tr>
       `).join('');
@@ -1007,7 +1007,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-6">
         <h3 class="font-black text-white text-lg" id="activityModalTitle">Add Activity</h3>
-        <button onclick="closeActivityModal()" class="text-slate-400 hover:text-white"><span class="material-symbols-rounded">close</span></button>
+        <button onclick="closeActivityModal()" class="text-slate-400 hover:text-white"><x-ui.icon name="close" class="w-4 h-4" /></button>
       </div>
       <form id="activityForm" onsubmit="saveActivity(event)">
         <input type="hidden" id="activityId">
@@ -1062,7 +1062,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-6">
         <h3 class="font-black text-white text-lg" id="leaveModalTitle">Add Leave Record</h3>
-        <button onclick="closeLeaveModal()" class="text-slate-400 hover:text-white"><span class="material-symbols-rounded">close</span></button>
+        <button onclick="closeLeaveModal()" class="text-slate-400 hover:text-white"><x-ui.icon name="close" class="w-4 h-4" /></button>
       </div>
       <form id="leaveForm" onsubmit="saveLeave(event)">
         <input type="hidden" id="leaveId">
@@ -1110,7 +1110,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl">
       <div class="flex justify-between items-center mb-6">
         <h3 class="font-black text-white text-lg" id="discModalTitle">Add Disciplinary Action</h3>
-        <button onclick="closeDiscModal()" class="text-slate-400 hover:text-white"><span class="material-symbols-rounded">close</span></button>
+        <button onclick="closeDiscModal()" class="text-slate-400 hover:text-white"><x-ui.icon name="close" class="w-4 h-4" /></button>
       </div>
       <form id="discForm" onsubmit="saveDisciplinary(event)">
         <input type="hidden" id="discId">
@@ -1148,7 +1148,7 @@
     #fullMentoringDiaryModal p {
       font-size: 14px !important;
     }
-    #fullMentoringDiaryModal span:not(.material-symbols-rounded) {
+    #fullMentoringDiaryModal span {
       font-size: 14px !important;
     }
   </style>

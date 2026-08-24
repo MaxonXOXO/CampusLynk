@@ -770,6 +770,7 @@
 
     {{-- 64. RECEIPT / AUDIT TRAIL --}}
     @case('receipt')
+    @case('receipt-long')
     @case('audit')
         <svg {{ $attributes->merge(['class' => $class]) }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/>
@@ -809,6 +810,7 @@
 
     {{-- 68. SMARTPHONE / DEVICES --}}
     @case('smartphone')
+    @case('phone')
     @case('phone-android')
     @case('devices')
         <svg {{ $attributes->merge(['class' => $class]) }} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1040,6 +1042,7 @@
 
     {{-- 85. LIST / VIEW LIST / FORMAT LIST --}}
     @case('list')
+    @case('list-ordered')
     @case('view-list')
     @case('format-list-bulleted')
     @case('format-list-numbered')

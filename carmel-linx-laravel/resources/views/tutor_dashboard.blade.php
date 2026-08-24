@@ -3,745 +3,615 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carmel Linx - Tutor Dashboard</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- Google Icons -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <title>CampusLynk - Tutor Desk</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
+  <!-- Modern Typography (Poppins) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   
+  <!-- Pre-Paint Synchronous Sidebar State Hydration (Anti-FOUC) -->
+  <script>
+    (function() {
+      try {
+        var isCollapsed = localStorage.getItem('campuslynk_sidebar_collapsed') === 'true' || 
+                          document.cookie.indexOf('campuslynk_sidebar_collapsed=true') !== -1;
+        if (isCollapsed && window.innerWidth >= 1024) {
+          document.documentElement.classList.add('sidebar-is-collapsed');
+        }
+      } catch(e) {}
+    })();
+  </script>
+
+  <!-- Vite Assets -->
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+
   <style>
-    @media (max-width: 1440px) {
-      html, body {
-        font-size: 13px !important;
-      }
-      .p-6 {
-        padding: 1rem !important;
-      }
-      .p-8 {
-        padding: 1.25rem !important;
-      }
-      .gap-6 {
-        gap: 1rem !important;
-      }
-      .gap-8 {
-        gap: 1.25rem !important;
-      }
-      .table-responsive {
-        width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      .text-nowrap {
-        white-space: nowrap !important;
-      }
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
-    html {
-      font-size: 90%;
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
     }
-    /* Universal typography fix to avoid screen text spreading/bleeding on super bold weights */
-    .font-extrabold, .font-black {
-      font-weight: 700 !important;
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
     }
-    input, select, textarea {
-      font-size: 0.875rem !important; /* 14px (text-sm) minimum */
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
     }
-    .text-lg {
-      font-size: 1.05rem !important;
-    }
-    .text-base {
-      font-size: 0.875rem !important;
-    }
-    nav.space-y-1\.5 > :not([hidden]) ~ :not([hidden]) {
-      margin-top: 0.125rem !important;
-    }
-    nav.space-y-1\.5 a, nav.space-y-1\.5 button {
-      padding-top: 0.375rem !important;
-      padding-bottom: 0.375rem !important;
-    }
-    .transition-premium {
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .scrollbar-hidden {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-
-    /* Compact Sidebar Navigation Sizing Standard (Enforcing Principal Desk Density) */
-    @media (min-width: 768px) {
-      aside nav {
-        padding: 0.75rem !important;
-      }
-      aside nav > :not([hidden]) ~ :not([hidden]) {
-        margin-top: 0.125rem !important;
-      }
-      aside nav a, aside nav button {
-        padding-top: 0.375rem !important;
-        padding-bottom: 0.375rem !important;
-        padding-left: 0.875rem !important;
-        padding-right: 0.875rem !important;
-        font-size: 11px !important;
-        gap: 0.625rem !important;
-      }
-      aside nav span.material-symbols-rounded {
-        font-size: 16px !important;
-      }
-    }
-
-    /* MOBILE-SPECIFIC SIDEBAR & CARD FIXES (MD breakpoint is 768px) */
-    @media (max-width: 767px) {
-      html, body {
-        font-size: 15px !important;
-      }
-      p, span, a, button, input, select, textarea, td, th {
-        font-size: 14px !important;
-      }
-      h1, .text-2xl {
-        font-size: 20px !important;
-      }
-      h2, .text-xl {
-        font-size: 18px !important;
-      }
-      h3, .text-lg {
-        font-size: 16px !important;
-      }
-
-      /* Sidebar changes: multi-row horizontal block on mobile */
-      aside {
-        width: 100% !important;
-        position: relative !important;
-        border-right: none !important;
-        border-bottom: 1px solid #1e293b !important;
-        flex-direction: column !important; /* Stack rows vertically */
-        align-items: stretch !important;
-        padding: 0.75rem 1rem 0.5rem !important;
-        gap: 0.75rem !important;
-      }
-      
-      /* Make sidebar brand logo header container visible inline on Row 1 */
-      aside > div.border-b {
-        display: flex !important;
-        border-bottom: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-      }
-
-      aside > div.border-b img {
-        width: 2.25rem !important;
-        height: 2.25rem !important;
-      }
-
-      aside > div.border-b h2 {
-        font-size: 18px !important;
-        font-weight: 900 !important;
-      }
-
-      aside > div.border-b span {
-        display: none !important; /* Hide subtitle to keep Row 1 clean */
-      }
-      
-      /* Make logout block sit inline on Row 1 (far right) with extra top offset spacing */
-      aside > div.border-t {
-        border-top: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        display: block !important;
-        width: auto !important;
-        position: absolute !important;
-        right: 1rem !important;
-        top: 0.85rem !important;
-      }
-      
-      aside > div.border-t a {
-        padding: 0.4rem 0.65rem !important;
-        border-radius: 0.5rem !important;
-        font-size: 13px !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.25rem !important;
-        white-space: nowrap !important;
-        background-color: rgba(239, 68, 68, 0.18) !important;
-        color: #f87171 !important;
-        border: 1px solid rgba(239, 68, 68, 0.4) !important;
-      }
-
-      /* Convert vertical nav list to an inline horizontal row on Row 2 with a dark gradient */
-      aside nav {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: center !important;
-        gap: 0.5rem !important;
-        width: 100% !important;
-        padding: 0.4rem 0.5rem !important;
-        margin: 0 !important;
-        justify-content: space-between !important;
-        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
-        border: 1px solid rgba(51, 65, 85, 0.4) !important;
-        border-radius: 0.75rem !important;
-      }
-      
-      /* Reset standard padding on links/buttons for inline fit */
-      aside nav a, aside nav button {
-        padding: 0.4rem 0.65rem !important;
-        margin: 0 !important;
-        border-radius: 0.5rem !important;
-        font-size: 13px !important; /* compact font to fit */
-        display: flex !important;
-        align-items: center !important;
-        gap: 0.25rem !important;
-        white-space: nowrap !important;
-        width: auto !important;
-        border-left: none !important; /* Remove custom vertical border indicators */
-      }
-      
-      /* Hide all links in mobile navigation except those explicitly marked as mobile-link */
-      aside nav > :not(.mobile-link) {
-        display: none !important;
-      }
-      
-      /* Active profile avatar banner is too large on mobile - hide */
-      #sidebarAvatarContainer, aside > div:nth-child(2) {
-        display: none !important;
-      }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+<body class="bg-[#FAFAFB] text-slate-900 min-h-screen font-sans antialiased sidebar-preload">
 
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <!-- Sidebar Navigation -->
-  <aside class="w-full md:w-64 bg-slate-950 text-white flex-shrink-0 flex flex-col border-r border-slate-800/80 z-20 shadow-xl md:sticky md:top-0 md:h-screen">
-    <div class="p-6 border-b border-slate-800/60 flex items-center gap-3">
-      <img src="{{ asset('logo.svg') }}" class="w-10 h-10 rounded-xl object-contain shadow-lg p-0.5 bg-white/10">
-      <div>
-        <h2 class="font-black tracking-tight leading-tight text-white" style="font-size: 1.15rem; font-weight: 900; letter-spacing: -0.3px; background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Carmel Linx</h2>
-        <span class="text-slate-400 font-bold uppercase tracking-wider">Tutor Panel</span>
-      </div>
-    </div>
+  @php
+    $initialPanel = request('panel', request('tab', 'roster'));
+    $activeTab = in_array($initialPanel, ['mentoring', 'rollNumbers', 'leaveApproval', 'activity', 'audit', 'profile', 'security']) ? $initialPanel : 'roster';
+    if ($activeTab === 'security') $activeTab = 'profile';
 
-    <!-- Active Profile Info -->
-    <div class="p-4 bg-slate-900/40 border-b border-slate-800/40 flex items-center gap-3" id="sidebarAvatarContainer">
-      <img src="{{ session('userPhoto') ?: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100' }}" class="w-11 h-11 rounded-full border border-slate-700 object-cover shadow-inner">
-      <div class="overflow-hidden">
-        <span class="font-bold block truncate text-slate-200 text-[10px] text-xs">{{ session('userName') }}</span>
-        <span class="font-bold text-green-400 block uppercase tracking-wider">{{ session('userBranch') }} Tutor</span>
-      </div>
-    </div>
+    $tabTitles = [
+      'roster' => 'Supervised Class Roster',
+      'rollNumbers' => 'Assign Class Roll Numbers',
+      'mentoring' => 'Mentoring Batches & Splitter',
+      'leaveApproval' => 'Leave Approval & Reports',
+      'activity' => 'Activity Points Verification',
+      'audit' => 'Classroom Audit Trail',
+      'profile' => 'My Profile & Security Settings',
+    ];
+    $currentTitle = $tabTitles[$activeTab] ?? 'Supervised Class Roster';
+  @endphp
 
-    <!-- Navigation Menus -->
-    <nav class="flex-grow p-4 space-y-1.5">
-      <button id="navRoster" onclick="switchPanel('roster')" class="w-full text-left px-4 py-2.5 rounded-r-xl rounded-l-none font-bold flex items-center gap-3 transition-premium bg-blue-500/10 text-blue-400 border-l-2 border-blue-500 text-xs mobile-link">
-        <span class="material-symbols-rounded text-lg">group</span> Supervised Class Roster
-      </button>
-      <button id="navRollNumbers" onclick="switchPanel('rollNumbers')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
-        <span class="material-symbols-rounded text-lg">format_list_numbered</span> Student Roll Numbers
-      </button>
+  <!-- Master Application Shell -->
+  <div class="flex min-h-screen bg-[#FAFAFB]">
 
-      <button id="navMentoring" onclick="switchPanel('mentoring')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs mobile-link">
-        <span class="material-symbols-rounded text-lg">diversity_3</span> Mentoring Batches
-      </button>
-      <button id="navLeaveApproval" onclick="switchPanel('leaveApproval')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
-        <span class="material-symbols-rounded text-lg">approval</span> Leave Approval & Reports
-      </button>
-      <button id="navActivity" onclick="switchPanel('activity')" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer text-xs">
-        <span class="material-symbols-rounded text-lg">verified</span> Activity Points
-      </button>
+    <!-- Global Sidebar Navigation Component -->
+    <x-layout.sidebar role="tutor" :active="$activeTab === 'mentoring' ? 'my_mentoring' : 'tutor_console'" />
 
-      <a href="/staff/attendance-log" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs mobile-link">
-         <span class="material-symbols-rounded text-lg">co_present</span> Class Attendance Log
-      </a>
-
-      <a href="/staff/mobile?mode=mobile" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block text-xs mobile-link">
-         <span class="material-symbols-rounded text-lg">event_note</span> My Leave & Attendance Log
-      </a>
-
-      @php
-        $role = session('userRole');
-        $backLink = '/dashboard/lecturer';
-        if ($role === 'HOD') $backLink = '/dashboard/hod';
-        if ($role === 'Demonstrator') $backLink = '/dashboard/demonstrator';
-        if ($role === 'Trade_Instructor') $backLink = '/dashboard/tradeinstructor';
-        if ($role === 'Workshop_Superintendent') $backLink = '/dashboard/workshop';
-        if ($role === 'Gen_Dept_Coordinator_Aided') $backLink = '/dashboard/general-coordinator-aided';
-        if ($role === 'Gen_Dept_Coordinator_Self_Finance') $backLink = '/dashboard/general-coordinator-sf';
-      @endphp
-      <a href="{{ $backLink }}" class="w-full text-left px-4 py-2.5 rounded-xl font-bold flex items-center gap-3 transition-premium text-slate-400 hover:bg-slate-800/60 hover:text-white cursor-pointer no-underline block mt-4 border border-slate-800 text-xs mobile-link">
-        <span class="material-symbols-rounded text-lg">arrow_back</span> Back to Staff Console
-      </a>
-    </nav>
-
-    <!-- Logout -->
-    <div class="p-4 border-t border-slate-800/80 space-y-2.5">
-      <a href="{{ url('/logout') }}" class="w-full py-2.5 bg-slate-800 hover:bg-red-950 hover:text-red-300 rounded-xl font-bold flex items-center justify-center gap-2 cursor-pointer no-underline text-center text-slate-300 transition-premium text-sm">
-        <span class="material-symbols-rounded text-base">logout</span> Sign Out
-      </a>
-
-      <!-- Support Badge -->
-      <div onclick="openStaffSupportModal()" class="p-2 bg-slate-950/60 hover:bg-slate-900 border border-slate-800/80 rounded-xl text-center select-none cursor-pointer transition-premium" title="Click to Request Remote Support Assist">
-        <div class="flex items-center justify-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-          <span class="material-symbols-rounded text-xs text-blue-400">headset_mic</span> Live Assist
-        </div>
-        <div class="text-[11px] font-black text-slate-200 mt-0.5">Dhanush.A</div>
-        <div class="text-[9px] text-slate-400 font-medium">Dept. of Electronics</div>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Main Workspace -->
-  <main class="flex-grow flex flex-col overflow-hidden relative min-h-screen">
-    
-    <!-- Top Header -->
-    <header class="h-16 border-b border-slate-800/60 bg-slate-900/60 backdrop-blur-md flex items-center justify-between px-6 md:px-8 z-30 sticky top-0">
-      <h1 id="panelTitle" class="font-extrabold text-slate-100 tracking-tight text-lg">Supervised Class Roster</h1>
-      <div id="loadingIndicator" class="hidden items-center gap-2 text-slate-400 text-[10px] text-xs">
-        <div class="w-4 h-4 border-2 border-slate-600 border-t-blue-500 rounded-full animate-spin"></div>
-        <span>Syncing...</span>
-      </div>
-    </header>
-
-    <!-- Panel Container -->
-    <div class="flex-grow overflow-y-auto p-6 md:p-8 space-y-6">
+    <!-- Main Viewport Container -->
+    <div class="flex-1 flex flex-col min-w-0 bg-[#FAFAFB]">
       
-      <!-- Alert Banner -->
-      <div id="globalAlert" class="hidden p-4 rounded-xl font-bold transition-premium border text-[10px] text-xs"></div>
+      <!-- Global Topbar Header Component -->
+      <x-layout.topbar :title="$currentTitle" subtitle="Supervised student directory, mentoring batches & class management." />
 
-      <!-- PANEL 1: ROSTER -->
-      <div id="panelRoster" class="space-y-6">
-        
-        <!-- Directory Header -->
-        <div onclick="toggleRoster()" class="flex justify-between items-center bg-slate-950/30 hover:bg-slate-900/60 border border-slate-800/40 p-4 rounded-2xl cursor-pointer transition-premium">
-          <div class="flex items-center gap-3">
-            <span id="rosterIcon" class="material-symbols-rounded text-blue-400 transition-transform duration-300" style="transform: rotate(180deg);">expand_less</span>
-            <div>
-              <h3 id="supervisedClassroomTitle" class="font-black text-slate-200 text-lg">Supervised Classroom Directory</h3>
-              <p class="text-slate-400 mt-0.5 text-sm">Manage and review lifecycle states of students in your assigned classroom.</p>
-            </div>
-          </div>
+      <!-- Scrollable Main Workspace -->
+      <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+        <!-- Top Status Alert Banner -->
+        <div id="globalAlert" class="hidden p-4 rounded-xl font-semibold border text-sm transition-all"></div>
+
+        <!-- Syncing Loading Indicator -->
+        <div id="loadingIndicator" class="hidden items-center gap-2 text-slate-500 text-xs py-1.5 px-3.5 bg-blue-50 border border-blue-200 rounded-xl w-fit">
+          <div class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <span class="font-medium text-blue-700">Syncing classroom data...</span>
         </div>
 
-        <div id="rosterContent" class="space-y-6 transition-all duration-300 origin-top" style="max-height: 0px; opacity: 0; overflow: hidden;">
-          <!-- Filters Console -->
-          <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Search input -->
-            <div>
-              <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Search Student</label>
-              <input type="text" id="filterSearch" oninput="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm" placeholder="Name, Register No, Mobile...">
+        <!-- Tutor Primary Navigation Tabs -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-2 shadow-xs flex items-center gap-1.5 overflow-x-auto custom-scrollbar">
+          <button type="button" id="navRoster" onclick="switchPanel('roster')" class="tutor-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap {{ $activeTab === 'roster' ? 'bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }}">
+            <x-ui.icon name="users" class="w-4 h-4" />
+            <span>Class Roster</span>
+          </button>
+          
+          <button type="button" id="navRollNumbers" onclick="switchPanel('rollNumbers')" class="tutor-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap {{ $activeTab === 'rollNumbers' ? 'bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }}">
+            <x-ui.icon name="format_list_numbered" class="w-4 h-4" />
+            <span>Roll Numbers</span>
+          </button>
+
+          <button type="button" id="navMentoring" onclick="switchPanel('mentoring')" class="tutor-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap {{ $activeTab === 'mentoring' ? 'bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }}">
+            <x-ui.icon name="heart-handshake" class="w-4 h-4" />
+            <span>Mentoring Batches</span>
+          </button>
+
+          <button type="button" id="navLeaveApproval" onclick="switchPanel('leaveApproval')" class="tutor-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap {{ $activeTab === 'leaveApproval' ? 'bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }}">
+            <x-ui.icon name="approval" class="w-4 h-4" />
+            <span>Leave Approvals</span>
+          </button>
+
+          <button type="button" id="navActivity" onclick="switchPanel('activity')" class="tutor-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap {{ $activeTab === 'activity' ? 'bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }}">
+            <x-ui.icon name="verified" class="w-4 h-4" />
+            <span>Activity Points</span>
+          </button>
+
+          <button type="button" id="navAudit" onclick="switchPanel('audit')" class="tutor-tab-btn flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap {{ $activeTab === 'audit' ? 'bg-blue-50 text-blue-700 border border-blue-200/80 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }}">
+            <x-ui.icon name="receipt_long" class="w-4 h-4" />
+            <span>Audit Trail</span>
+          </button>
+        </div>
+
+        <h1 id="panelTitle" class="sr-only">{{ $currentTitle }}</h1>
+
+        <!-- PANEL 1: ROSTER -->
+        <div id="panelRoster" class="{{ $activeTab === 'roster' ? '' : 'hidden' }} space-y-6">
+          
+          <!-- Directory Header & Filter Card -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-5">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5">
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shrink-0">
+                  <x-ui.icon name="users" class="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 id="supervisedClassroomTitle" class="font-bold text-slate-900 text-base sm:text-lg">Supervised Classroom Directory</h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Manage and review lifecycle states of students in your assigned classroom.</p>
+                </div>
+              </div>
             </div>
-            <!-- Status select -->
-            <div>
-              <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Account Status</label>
-              <select id="filterStatus" onchange="loadUsers()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 outline-none text-sm">
-                <option value="">All Statuses</option>
-                <option value="Approved">Approved</option>
-                <option value="Pending">Pending</option>
-                <option value="Suspended">Suspended</option>
-              </select>
-            </div>
-            <!-- Print Report Selector & Button -->
-            <div>
-              <label class="block text-slate-400 font-bold uppercase tracking-wider mb-1.5 text-xs">Class Register Report</label>
-              <div class="flex gap-2">
-                <select id="printSemesterSelect" class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white focus:border-blue-500 outline-none text-sm">
-                  <option value="S1">S1</option>
-                  <option value="S2">S2</option>
-                  <option value="S3" selected>S3</option>
-                  <option value="S4">S4</option>
-                  <option value="S5">S5</option>
-                  <option value="S6">S6</option>
+
+            <!-- Filters Console -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+              <!-- Search input -->
+              <div>
+                <label class="block text-slate-600 font-semibold mb-1.5 text-xs">Search Student</label>
+                <div class="relative">
+                  <input type="text" id="filterSearch" oninput="loadUsers()" class="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-3.5 py-2.5 text-slate-900 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400" placeholder="Name, Register No, Mobile...">
+                  <div class="absolute left-3 top-3 text-slate-400">
+                    <x-ui.icon name="search" class="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Status select -->
+              <div>
+                <label class="block text-slate-600 font-semibold mb-1.5 text-xs">Account Status</label>
+                <select id="filterStatus" onchange="loadUsers()" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all cursor-pointer">
+                  <option value="">All Statuses</option>
+                  <option value="Approved">Approved</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Suspended">Suspended</option>
                 </select>
-                <button onclick="printClassRegister()" class="px-4 py-2 bg-indigo-650 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center gap-1.5 transition-premium cursor-pointer shadow-md">
-                  <span class="material-symbols-rounded text-base">print</span> Print
-                </button>
+              </div>
+
+              <!-- Print Report Selector & Button -->
+              <div>
+                <label class="block text-slate-600 font-semibold mb-1.5 text-xs">Class Register Report</label>
+                <div class="flex gap-2">
+                  <select id="printSemesterSelect" class="flex-1 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all cursor-pointer">
+                    <option value="S1">S1</option>
+                    <option value="S2">S2</option>
+                    <option value="S3" selected>S3</option>
+                    <option value="S4">S4</option>
+                    <option value="S5">S5</option>
+                    <option value="S6">S6</option>
+                  </select>
+                  <button type="button" onclick="printClassRegister()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm flex items-center gap-1.5 transition-all cursor-pointer shadow-xs shrink-0">
+                    <x-ui.icon name="print" class="w-4 h-4" />
+                    <span>Print</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
-        <!-- Users Table Grid -->
-        <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
-          <div class="overflow-x-auto overflow-y-auto max-h-[500px] scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
-            <table class="w-full text-left border-collapse relative text-sm">
-              <thead class="sticky top-0 z-10 shadow-md">
-                <tr class="bg-slate-900 border-b border-slate-800/60 text-slate-400 font-bold text-xs uppercase whitespace-nowrap">
-                  <th class="p-3">name</th>
-                  <th class="p-3">Reg No</th>
-                  <th class="p-3">SBTE REG No./ click to edit</th>
-                  <th class="p-3">branch</th>
-                  <th class="p-3">sem</th>
-                  <th class="p-3">role</th>
-                  <th class="p-3">status</th>
-                  <th class="p-3">enrolled status</th>
-                  <th class="p-3 text-right">actions</th>
-                </tr>
-              </thead>
-              <tbody id="usersTableBody">
-                <tr><td colspan="9" class="p-8 text-center text-slate-500 font-medium font-sans">No classroom students found.</td></tr>
-                <!-- User rows render dynamically via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-        </div> <!-- End rosterContent -->
-      </div>
-
-      <!-- PANEL: STUDENT ROLL NUMBERS -->
-      <div id="panelRollNumbers" class="hidden space-y-6">
-        <div class="bg-slate-950 border border-slate-800/80 rounded-2xl p-6 shadow-lg">
-          <div class="flex justify-between items-center mb-6">
-            <div>
-              <h3 class="font-black text-white text-lg">Assign Class Roll Numbers</h3>
-              <p class="text-xs text-slate-400">Set the serial roll numbers for students in your supervised classroom.</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <button onclick="autoFillRollNumbers()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700/60 rounded-xl font-bold text-sm flex items-center gap-1.5 transition-premium cursor-pointer">
-                <span class="material-symbols-rounded text-sm">auto_awesome</span> Auto-Fill (A-Z)
-              </button>
-              <button onclick="saveRollNumbers()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center gap-2 cursor-pointer transition-premium">
-                <span class="material-symbols-rounded text-sm">save</span> Save Roll Numbers
-              </button>
-            </div>
-          </div>
-          <div class="overflow-x-auto border border-slate-800/60 rounded-xl bg-slate-900/20">
-            <table class="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr class="bg-slate-950/40 text-slate-400 border-b border-slate-850 uppercase tracking-wider text-xs font-black">
-                  <th class="p-4 w-16 text-center">No.</th>
-                  <th class="p-4 w-40">Reg No</th>
-                  <th class="p-4 w-48">SBTE Exam No</th>
-                  <th class="p-4">Student Name</th>
-                  <th class="p-4 w-32 text-center">Roll Number</th>
-                </tr>
-              </thead>
-              <tbody id="tutorRollNumberList">
-                <!-- Loaded dynamically -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- PANEL 2: AUDIT TRAIL -->
-      <div id="panelAudit" class="hidden space-y-6">
-        <!-- Audit Logs Controls -->
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h3 class="font-black text-slate-200 text-sm">Classroom Audit Trail</h3>
-            <p class="text-slate-400 mt-1 text-[10px] text-xs">Lifecycle events, password resets, and approval actions involving students in your classroom.</p>
-          </div>
-          <button onclick="loadAuditTrail()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-premium cursor-pointer flex items-center gap-2">
-            <span class="material-symbols-rounded text-sm">sync</span> Refresh Log
-          </button>
-        </div>
-
-        <!-- Audit Table -->
-        <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl overflow-hidden">
-          <div class="overflow-x-auto scrollbar-hidden">
-            <table class="w-full text-left border-collapse text-[10px] text-xs">
-              <thead>
-                <tr class="bg-slate-900/60 border-b border-slate-800/60 text-slate-400 font-bold">
-                  <th class="p-4">Timestamp</th>
-                  <th class="p-4">Actor</th>
-                  <th class="p-4">Target Student (ID)</th>
-                  <th class="p-4">Action</th>
-                  <th class="p-4">IP Address</th>
-                  <th class="p-4">Details</th>
-                </tr>
-              </thead>
-              <tbody id="auditTableBody">
-                <!-- Audit logs render dynamically -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- PANEL 3: MY PROFILE -->
-      <div id="panelProfile" class="hidden space-y-6">
-        @include('partials.staff_profile_panel')
-      </div>
-
-      <!-- PANEL 4: MENTORING BATCHES -->
-      <div id="panelMentoring" class="hidden space-y-6">
-        <!-- Dashboard Header -->
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h3 class="font-black text-slate-200 text-sm">Mentoring Batches & Splitter</h3>
-            <p class="text-slate-400 mt-1 text-[10px] text-xs">Split students between yourself and the second mentor.</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <select id="mentorClassroomSelect" onchange="loadMentoringData()" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white outline-none text-[10px] text-xs">
-              <option value="">Loading classrooms...</option>
-            </select>
-            <button onclick="loadMentoringData()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold transition-premium cursor-pointer flex items-center gap-2">
-              <span class="material-symbols-rounded text-sm">sync</span> Refresh
-            </button>
-            <button onclick="generateBacklogReport()" class="px-4 py-2 bg-blue-900/50 hover:bg-blue-800/70 text-blue-300 border border-blue-800/50 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-2">
-              <span class="material-symbols-rounded text-sm">summarize</span> Backlog Report
-            </button>
-          </div>
-        </div>
-
-        <!-- Collapsible Batch Assignment Panel -->
-        <div class="bg-slate-950/20 border border-slate-800/40 rounded-2xl overflow-hidden mb-6">
-          <div onclick="toggleBatchAssignment()" class="p-4 bg-slate-900/40 flex justify-between items-center cursor-pointer hover:bg-slate-900/60 transition-premium">
-            <div class="flex items-center gap-2">
-              <span id="batchAssignIcon" class="material-symbols-rounded text-indigo-400 transition-transform duration-300">expand_more</span>
-              <h4 class="font-black text-xs text-slate-200 uppercase tracking-wider">Batch Assignment & Mentorship Splitter Settings</h4>
-            </div>
-            <span class="text-[10px] text-slate-500 font-medium">Click to configure Batch A & B assignments / unassigned students</span>
-          </div>
-          <div id="batchAssignmentContent" class="hidden p-6 border-t border-slate-800/40">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <!-- Unassigned Students -->
-              <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl flex flex-col overflow-hidden">
-                <div class="p-4 border-b border-slate-800/60 bg-slate-900/40 flex justify-between items-center">
-                  <div>
-                    <h4 class="font-black text-xs text-slate-200 flex items-center gap-2"><span class="material-symbols-rounded text-amber-400 text-xs">person_off</span> Unassigned Students</h4>
-                    <p class="text-xs text-slate-500">Students without a mentor.</p>
-                  </div>
-                  <span id="unassignedCountBadge" class="bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded font-bold text-xs">0</span>
-                </div>
-                <div class="flex-grow max-h-[300px] overflow-y-auto scrollbar-hidden">
-                  <table class="w-full text-left text-xs">
-                    <tbody id="unassignedList">
-                      <tr><td class="p-4 text-center text-slate-500">Select a classroom to view.</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <!-- Mentors Split View -->
-              <div class="space-y-6">
-                <!-- Mentor A (Tutor) -->
-                <div class="bg-slate-950/30 border border-sky-900/40 rounded-2xl flex flex-col overflow-hidden">
-                  <div class="p-4 border-b border-sky-900/60 bg-sky-950/20 flex justify-between items-center">
-                    <div>
-                      <h4 class="font-black text-xs text-sky-400 flex items-center gap-2"><span class="material-symbols-rounded text-xs">person_pin</span> Batch A (Tutor)</h4>
-                      <p id="mentorAInfo" class="text-xs text-slate-400">Loading...</p>
-                    </div>
-                    <span id="batchACountBadge" class="bg-sky-500/20 text-sky-400 px-2 py-0.5 rounded font-bold text-xs">0</span>
-                  </div>
-                  <div class="flex-grow max-h-[180px] overflow-y-auto scrollbar-hidden">
-                    <table class="w-full text-left text-xs">
-                      <tbody id="batchAList"></tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <!-- Mentor B -->
-                <div class="bg-slate-950/30 border border-emerald-900/40 rounded-2xl flex flex-col overflow-hidden">
-                  <div class="p-4 border-b border-emerald-900/60 bg-emerald-950/20 flex justify-between items-center">
-                    <div>
-                      <h4 class="font-black text-xs text-emerald-400 flex items-center gap-2"><span class="material-symbols-rounded text-xs">supervisor_account</span> Batch B (Mentor)</h4>
-                      <p id="mentorBInfo" class="text-xs text-slate-400">Loading...</p>
-                    </div>
-                    <span id="batchBCountBadge" class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded font-bold text-xs">0</span>
-                  </div>
-                  <div class="flex-grow max-h-[180px] overflow-y-auto scrollbar-hidden">
-                    <table class="w-full text-left text-xs">
-                      <tbody id="batchBList"></tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mentoring Caseload -->
-        <div class="bg-slate-950/30 border border-slate-800/40 p-6 rounded-2xl space-y-4">
-          <div class="flex items-center gap-3 border-b border-slate-800/60 pb-3 justify-between">
-            <div class="flex items-center gap-3">
-              <span class="material-symbols-rounded text-indigo-400 text-base">school</span>
-              <h3 class="text-sm font-black text-slate-200">Mentoring Caseload (Data View)</h3>
-            </div>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="bg-cyan-500/10 text-cyan-400 text-xs px-2.5 py-1 rounded-full font-bold border border-cyan-500/20">📱 Mobile Parent Portal SMS Enabled</span>
-              <p class="text-xs text-slate-400">Tutors see the full class; Mentors see only their batch.</p>
-            </div>
-          </div>
-          <div class="overflow-x-auto scrollbar-hidden">
-            <table class="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr class="bg-slate-900/60 border-b border-slate-800 text-slate-400 font-bold">
-                  <th class="p-3">Student</th>
-                  <th class="p-3">Reg No</th>
-                  <th class="p-3">Batch Assigned</th>
-                  <th class="p-3">Diary Logs</th>
-                  <th class="p-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="myMentoringStudentsList">
-                <tr><td colspan="5" class="p-4 text-center text-slate-500">Select a classroom to view.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- PANEL: ACTIVITY POINTS VERIFICATION -->
-      <div id="panelActivity" class="hidden space-y-6">
-        
-        <!-- Activity Header -->
-        <div onclick="toggleActivity()" class="flex justify-between items-center bg-slate-950/30 hover:bg-slate-900/60 border border-slate-800/40 p-5 rounded-2xl cursor-pointer transition-premium">
-          <div class="flex items-center gap-3">
-            <span id="activityIcon" class="material-symbols-rounded text-blue-400 transition-transform duration-300" style="transform: rotate(180deg);">expand_less</span>
-            <div>
-              <h3 class="text-sm font-black text-slate-200">Activity Points Verification</h3>
-              <p class="text-sm text-slate-400 mt-0.5">Review and verify extracurricular claims submitted by students in your batch.</p>
-            </div>
-          </div>
-          <button onclick="event.stopPropagation(); loadActivityClaims()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-sm font-bold transition-premium flex items-center gap-1">
-            <span class="material-symbols-rounded text-xs">refresh</span> Refresh
-          </button>
-        </div>
-
-        <div id="activityContent" class="space-y-6 transition-all duration-300 origin-top" style="max-height: 0px; opacity: 0; overflow: hidden;">
-          <div class="overflow-x-auto rounded-xl border border-slate-800/40">
-            <table class="w-full text-left text-sm border-collapse whitespace-nowrap">
-              <thead>
-                <tr class="bg-slate-900 border-b border-slate-800/60 text-slate-400 font-bold uppercase tracking-wider text-sm">
-                  <th class="p-3">Submitted On</th>
-                  <th class="p-3">Student</th>
-                  <th class="p-3">Segment</th>
-                  <th class="p-3">Activity & Level</th>
-                  <th class="p-3">Evidence</th>
-                  <th class="p-3 text-center">Claimed</th>
-                  <th class="p-3 text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody id="tutorActivityTableBody" class="divide-y divide-slate-800/40">
-                <!-- Claims loaded here -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- PANEL: LEAVE APPROVAL & REPORTS -->
-      <div id="panelLeaveApproval" class="hidden space-y-6">
-        <!-- Header -->
-        <div class="bg-slate-950/40 border border-slate-800/60 p-5 rounded-2xl flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h3 class="font-black text-slate-200 text-sm">Leave Approval & Student Reports</h3>
-            <p class="text-slate-400 mt-1 text-[10px] text-xs">Review leave applications from students and view classroom reports.</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <select id="leaveClassroomSelect" onchange="loadClassroomLeaves()" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white outline-none text-sm font-bold md:text-base cursor-pointer">
-              <option value="">Loading classrooms...</option>
-            </select>
-            <button onclick="loadClassroomLeaves()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-premium cursor-pointer flex items-center gap-2 text-sm">
-              <span class="material-symbols-rounded text-sm">sync</span> Refresh
-            </button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-          <!-- Leave Table (col-span-2) -->
-          <div class="xl:col-span-2 bg-slate-950/30 border border-slate-800/40 rounded-2xl p-6 space-y-4">
-            <h4 class="font-black text-xs text-indigo-400 uppercase tracking-wider flex items-center gap-2"><span class="material-symbols-rounded text-sm">approval</span> Pending & Recent Leaves</h4>
-            <div class="overflow-x-auto scrollbar-hidden">
-              <table class="w-full text-left text-xs border-collapse whitespace-nowrap">
-                <thead>
-                  <tr class="bg-slate-900/60 border-b border-slate-800 text-slate-400 font-bold">
-                    <th class="p-3">Student</th>
-                    <th class="p-3">Semester</th>
-                    <th class="p-3">Date</th>
-                    <th class="p-3">Days</th>
-                    <th class="p-3">Reason</th>
-                    <th class="p-3">Status</th>
-                    <th class="p-3 text-right">Actions</th>
+          <!-- Users Table Grid -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+            <div class="overflow-x-auto max-h-[560px] custom-scrollbar">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead class="sticky top-0 z-10">
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">
+                    <th class="p-3.5 pl-5">Student</th>
+                    <th class="p-3.5">Reg No</th>
+                    <th class="p-3.5">SBTE Reg No / Edit</th>
+                    <th class="p-3.5">Branch</th>
+                    <th class="p-3.5">Sem</th>
+                    <th class="p-3.5">Role</th>
+                    <th class="p-3.5">Account Status</th>
+                    <th class="p-3.5">Enrolled Status</th>
+                    <th class="p-3.5 pr-5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody id="classroomLeavesTableBody" class="divide-y divide-slate-800/40 text-slate-300">
-                  <tr><td colspan="7" class="p-4 text-center text-slate-500">Select a classroom to load leaves.</td></tr>
+                <tbody id="usersTableBody" class="divide-y divide-slate-100">
+                  <tr><td colspan="9" class="p-8 text-center text-slate-500 font-medium">Loading classroom students...</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          <!-- Mentorship Reports Card -->
-          <div class="bg-slate-950/30 border border-slate-800/40 rounded-2xl p-6 space-y-4 flex flex-col justify-between">
-            <div>
-              <h4 class="font-black text-xs text-emerald-400 uppercase tracking-wider flex items-center gap-2"><span class="material-symbols-rounded text-sm">summarize</span> Classroom Reports</h4>
-              <p class="text-slate-400 text-xs mt-1">Generate summary reports of student records for parents or administration.</p>
-              <div class="space-y-4 mt-6">
-                <div>
-                  <label class="block text-slate-400 font-bold mb-1.5 text-[10px] text-xs">Select Student</label>
-                  <select id="reportStudentSelect" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-white text-xs outline-none focus:border-emerald-500">
-                    <option value="">Select student...</option>
-                  </select>
-                </div>
+        </div> <!-- End panelRoster -->
+
+        <!-- PANEL: STUDENT ROLL NUMBERS -->
+        <div id="panelRollNumbers" class="{{ $activeTab === 'rollNumbers' ? '' : 'hidden' }} space-y-6">
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-5">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base sm:text-lg">Assign Class Roll Numbers</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Set the serial roll numbers for students in your supervised classroom.</p>
+              </div>
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <button type="button" onclick="autoFillRollNumbers()" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer shadow-2xs">
+                  <x-ui.icon name="auto_awesome" class="w-4 h-4 text-amber-500" />
+                  <span>Auto-Fill (A-Z)</span>
+                </button>
+                <button type="button" onclick="saveRollNumbers()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm flex items-center gap-2 cursor-pointer transition-all shadow-xs">
+                  <x-ui.icon name="save" class="w-4 h-4" />
+                  <span>Save Roll Numbers</span>
+                </button>
               </div>
             </div>
-            <div class="space-y-2 mt-6">
-              <button onclick="printStudentFullDiary()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-premium cursor-pointer text-xs flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/10">
-                <span class="material-symbols-rounded text-base">print</span> Print Student Diary Report
-              </button>
-              <button onclick="printStudentLeaveReport()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition-premium cursor-pointer text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/10">
-                <span class="material-symbols-rounded text-base">summarize</span> Print Student Leave Report
-              </button>
-              <button onclick="printCondonationReport()" class="w-full py-2.5 bg-rose-950/40 hover:bg-rose-900 border border-rose-900/40 text-rose-300 rounded-xl font-bold transition-premium cursor-pointer text-xs flex items-center justify-center gap-2">
-                <span class="material-symbols-rounded text-base">gavel</span> Print Condonation & Shortage Report
-              </button>
+            
+            <div class="overflow-x-auto border border-slate-200/80 rounded-xl bg-white">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase tracking-wider text-xs font-semibold">
+                    <th class="p-3.5 pl-5 w-16 text-center">No.</th>
+                    <th class="p-3.5 w-40">Reg No</th>
+                    <th class="p-3.5 w-48">SBTE Exam No</th>
+                    <th class="p-3.5">Student Name</th>
+                    <th class="p-3.5 pr-5 w-36 text-center">Roll Number</th>
+                  </tr>
+                </thead>
+                <tbody id="tutorRollNumberList" class="divide-y divide-slate-100">
+                  <tr><td colspan="5" class="p-8 text-center text-slate-500 font-medium">Loading roll numbers...</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-      </div>
 
+        <!-- PANEL: AUDIT TRAIL -->
+        <div id="panelAudit" class="{{ $activeTab === 'audit' ? '' : 'hidden' }} space-y-6">
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-5">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base sm:text-lg">Classroom Audit Trail</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Lifecycle events, password resets, and approval actions involving students in your classroom.</p>
+              </div>
+              <button type="button" onclick="loadAuditTrail()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-all cursor-pointer flex items-center gap-2 shadow-xs">
+                <x-ui.icon name="sync" class="w-4 h-4" />
+                <span>Refresh Log</span>
+              </button>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar border border-slate-200/80 rounded-xl">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                    <th class="p-3.5 pl-4">Timestamp</th>
+                    <th class="p-3.5">Actor</th>
+                    <th class="p-3.5">Target Student (ID)</th>
+                    <th class="p-3.5">Action</th>
+                    <th class="p-3.5">IP Address</th>
+                    <th class="p-3.5 pr-4">Details</th>
+                  </tr>
+                </thead>
+                <tbody id="auditTableBody" class="divide-y divide-slate-100">
+                  <tr><td colspan="6" class="p-6 text-center text-slate-500 font-medium">Querying classroom audit logs...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL: MY PROFILE -->
+        <div id="panelProfile" class="{{ $activeTab === 'profile' ? '' : 'hidden' }} space-y-6">
+          @include('partials.staff_profile_panel', ['hideAuditLog' => true])
+        </div>
+
+        <!-- PANEL: MENTORING BATCHES -->
+        <div id="panelMentoring" class="{{ $activeTab === 'mentoring' ? '' : 'hidden' }} space-y-6">
+          <!-- Header Controls -->
+          <div class="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-xs flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base sm:text-lg">Mentoring Batches &amp; Splitter</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Split students between yourself and the second mentor.</p>
+            </div>
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <select id="mentorClassroomSelect" onchange="loadMentoringData()" class="bg-white border border-slate-200 rounded-xl px-3.5 py-2 text-slate-900 text-sm font-medium focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all cursor-pointer">
+                <option value="">Loading classrooms...</option>
+              </select>
+              <button type="button" onclick="loadMentoringData()" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-semibold text-sm transition-all cursor-pointer flex items-center gap-1.5 shadow-2xs">
+                <x-ui.icon name="sync" class="w-4 h-4 text-slate-500" />
+                <span>Refresh</span>
+              </button>
+              <button type="button" onclick="generateBacklogReport()" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200/80 rounded-xl text-sm font-semibold transition-all cursor-pointer flex items-center gap-2 shadow-2xs">
+                <x-ui.icon name="summarize" class="w-4 h-4 text-blue-600" />
+                <span>Backlog Report</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Collapsible Batch Assignment Panel -->
+          <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+            <div onclick="toggleBatchAssignment()" class="p-4 bg-slate-50/60 border-b border-slate-200/80 flex justify-between items-center cursor-pointer hover:bg-slate-100/70 transition-colors">
+              <div class="flex items-center gap-2.5">
+                <span id="batchAssignIcon" class="transition-transform duration-300">
+                  <x-ui.icon name="chevron-down" class="w-4 h-4 text-blue-600" />
+                </span>
+                <h4 class="font-bold text-xs text-slate-900 uppercase tracking-wider">Batch Assignment &amp; Mentorship Splitter Settings</h4>
+              </div>
+              <span class="text-xs text-slate-500 font-medium hidden sm:inline">Click to configure Batch A &amp; B assignments / unassigned students</span>
+            </div>
+            
+            <div id="batchAssignmentContent" class="hidden p-6 border-t border-slate-100">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Unassigned Students -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl shadow-2xs flex flex-col overflow-hidden">
+                  <div class="p-4 border-b border-slate-100 bg-amber-50/40 flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                      <x-ui.icon name="person_off" class="w-4 h-4 text-amber-600" />
+                      <div>
+                        <h4 class="font-bold text-xs text-slate-900 uppercase">Unassigned Students</h4>
+                        <p class="text-xs text-slate-500">Students without a mentor.</p>
+                      </div>
+                    </div>
+                    <span id="unassignedCountBadge" class="bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-bold text-xs">0</span>
+                  </div>
+                  <div class="flex-grow max-h-[300px] overflow-y-auto custom-scrollbar">
+                    <table class="w-full text-left text-xs">
+                      <tbody id="unassignedList" class="divide-y divide-slate-100">
+                        <tr><td class="p-4 text-center text-slate-500">Select a classroom to view.</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Mentors Split View -->
+                <div class="space-y-6">
+                  <!-- Mentor A (Tutor) -->
+                  <div class="bg-white border border-slate-200/80 rounded-2xl shadow-2xs flex flex-col overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 bg-sky-50/40 flex justify-between items-center">
+                      <div class="flex items-center gap-2">
+                        <x-ui.icon name="person_pin" class="w-4 h-4 text-sky-600" />
+                        <div>
+                          <h4 class="font-bold text-xs text-sky-900 uppercase">Batch A (Tutor)</h4>
+                          <p id="mentorAInfo" class="text-xs text-slate-500">Loading...</p>
+                        </div>
+                      </div>
+                      <span id="batchACountBadge" class="bg-sky-100 text-sky-800 border border-sky-200 px-2 py-0.5 rounded-full font-bold text-xs">0</span>
+                    </div>
+                    <div class="flex-grow max-h-[180px] overflow-y-auto custom-scrollbar">
+                      <table class="w-full text-left text-xs">
+                        <tbody id="batchAList" class="divide-y divide-slate-100"></tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <!-- Mentor B -->
+                  <div class="bg-white border border-slate-200/80 rounded-2xl shadow-2xs flex flex-col overflow-hidden">
+                    <div class="p-4 border-b border-slate-100 bg-emerald-50/40 flex justify-between items-center">
+                      <div class="flex items-center gap-2">
+                        <x-ui.icon name="supervisor_account" class="w-4 h-4 text-emerald-600" />
+                        <div>
+                          <h4 class="font-bold text-xs text-emerald-900 uppercase">Batch B (Mentor)</h4>
+                          <p id="mentorBInfo" class="text-xs text-slate-500">Loading...</p>
+                        </div>
+                      </div>
+                      <span id="batchBCountBadge" class="bg-emerald-100 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded-full font-bold text-xs">0</span>
+                    </div>
+                    <div class="flex-grow max-h-[180px] overflow-y-auto custom-scrollbar">
+                      <table class="w-full text-left text-xs">
+                        <tbody id="batchBList" class="divide-y divide-slate-100"></tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mentoring Caseload Data View -->
+          <div class="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-xs space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+                  <x-ui.icon name="school" class="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 class="text-base font-bold text-slate-900">Mentoring Caseload (Data View)</h3>
+                  <p class="text-xs text-slate-500">Tutors see the full class; Mentors see only their assigned batch.</p>
+                </div>
+              </div>
+              <div>
+                <span class="bg-blue-50 text-blue-700 text-xs px-3 py-1 rounded-full font-semibold border border-blue-200">📱 Mobile Parent Portal SMS Enabled</span>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto custom-scrollbar">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs uppercase tracking-wider">
+                    <th class="p-3.5 pl-4">Student</th>
+                    <th class="p-3.5">Reg No</th>
+                    <th class="p-3.5">Batch Assigned</th>
+                    <th class="p-3.5">Diary Logs</th>
+                    <th class="p-3.5 pr-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="myMentoringStudentsList" class="divide-y divide-slate-100">
+                  <tr><td colspan="5" class="p-6 text-center text-slate-500 font-medium">Select a classroom to view caseload.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL: ACTIVITY POINTS VERIFICATION -->
+        <div id="panelActivity" class="{{ $activeTab === 'activity' ? '' : 'hidden' }} space-y-6">
+          <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-5">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-5">
+              <div class="flex items-center gap-3.5">
+                <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shrink-0">
+                  <x-ui.icon name="verified" class="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 class="font-bold text-slate-900 text-base sm:text-lg">Activity Points Verification</h3>
+                  <p class="text-xs text-slate-500 mt-0.5">Review and verify extracurricular claims submitted by students in your batch.</p>
+                </div>
+              </div>
+              <button type="button" onclick="loadActivityClaims()" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                <x-ui.icon name="refresh" class="w-4 h-4 text-slate-500" />
+                <span>Refresh Claims</span>
+              </button>
+            </div>
+
+            <div id="activityContent" class="overflow-x-auto rounded-xl border border-slate-200/80">
+              <table class="w-full text-left text-sm border-collapse whitespace-nowrap">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-xs">
+                    <th class="p-3.5 pl-4">Submitted On</th>
+                    <th class="p-3.5">Student</th>
+                    <th class="p-3.5">Segment</th>
+                    <th class="p-3.5">Activity &amp; Level</th>
+                    <th class="p-3.5">Evidence</th>
+                    <th class="p-3.5 text-center">Claimed</th>
+                    <th class="p-3.5 pr-4 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="tutorActivityTableBody" class="divide-y divide-slate-100">
+                  <tr><td colspan="7" class="p-6 text-center text-slate-500 font-medium">Loading claims...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANEL: LEAVE APPROVAL & REPORTS -->
+        <div id="panelLeaveApproval" class="{{ $activeTab === 'leaveApproval' ? '' : 'hidden' }} space-y-6">
+          <!-- Header -->
+          <div class="bg-white border border-slate-200/80 p-6 rounded-2xl shadow-xs flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 class="font-bold text-slate-900 text-base sm:text-lg">Leave Approval &amp; Student Reports</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Review leave applications from students and view classroom reports.</p>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <select id="leaveClassroomSelect" onchange="loadClassroomLeaves()" class="bg-white border border-slate-200 rounded-xl px-4 py-2 text-slate-900 text-sm font-semibold focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all cursor-pointer">
+                <option value="">Loading classrooms...</option>
+              </select>
+              <button type="button" onclick="loadClassroomLeaves()" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-semibold text-sm transition-all cursor-pointer flex items-center gap-2 shadow-2xs">
+                <x-ui.icon name="sync" class="w-4 h-4 text-slate-500" />
+                <span>Refresh</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            <!-- Leave Table (col-span-2) -->
+            <div class="xl:col-span-2 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+              <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                <x-ui.icon name="approval" class="w-4 h-4 text-blue-600" />
+                <h4 class="font-bold text-xs text-slate-900 uppercase tracking-wider">Pending &amp; Recent Leaves</h4>
+              </div>
+              <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left text-xs border-collapse whitespace-nowrap">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+                      <th class="p-3 pl-4">Student</th>
+                      <th class="p-3">Semester</th>
+                      <th class="p-3">Date</th>
+                      <th class="p-3">Days</th>
+                      <th class="p-3">Reason</th>
+                      <th class="p-3">Status</th>
+                      <th class="p-3 pr-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="classroomLeavesTableBody" class="divide-y divide-slate-100 text-slate-700">
+                    <tr><td colspan="7" class="p-6 text-center text-slate-500 font-medium">Select a classroom to load leaves.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Mentorship Reports Card -->
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-5 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <x-ui.icon name="summarize" class="w-4 h-4 text-emerald-600" />
+                  <h4 class="font-bold text-xs text-slate-900 uppercase tracking-wider">Classroom Reports</h4>
+                </div>
+                <p class="text-slate-500 text-xs mt-2">Generate summary reports of student records for parents or administration.</p>
+                <div class="space-y-4 mt-5">
+                  <div>
+                    <label class="block text-slate-600 font-semibold mb-1.5 text-xs">Select Student</label>
+                    <select id="reportStudentSelect" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-900 text-sm outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 cursor-pointer">
+                      <option value="">Select student...</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-2.5 pt-2">
+                <button type="button" onclick="printStudentFullDiary()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold transition-all cursor-pointer text-xs flex items-center justify-center gap-2 shadow-xs">
+                  <x-ui.icon name="print" class="w-4 h-4" />
+                  <span>Print Student Diary Report</span>
+                </button>
+                <button type="button" onclick="printStudentLeaveReport()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold transition-all cursor-pointer text-xs flex items-center justify-center gap-2 shadow-xs">
+                  <x-ui.icon name="summarize" class="w-4 h-4" />
+                  <span>Print Student Leave Report</span>
+                </button>
+                <button type="button" onclick="printCondonationReport()" class="w-full py-2.5 bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 rounded-xl font-semibold transition-all cursor-pointer text-xs flex items-center justify-center gap-2 shadow-2xs">
+                  <x-ui.icon name="gavel" class="w-4 h-4 text-rose-600" />
+                  <span>Print Condonation &amp; Shortage Report</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
     </div>
-  </main>
+  </div>
 
   @include('mentoring_diary_modal')
 
   <!-- BACKLOG REPORT MODAL -->
-  <div id="backlogReportModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-4xl p-6 shadow-2xl space-y-4 my-8 relative">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3 sticky top-0 bg-slate-900 z-10 pt-2">
+  <div id="backlogReportModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4 transition-all overflow-y-auto">
+    <div class="bg-white border border-slate-200/80 rounded-2xl w-full max-w-4xl p-6 shadow-2xl space-y-5 my-8 relative">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-4 sticky top-0 bg-white z-10">
         <div>
-          <h2 class="text-lg font-black text-white">Backlog Report</h2>
-          <p class="text-xs text-slate-400 mt-0.5">Students with and without backlogs over the 3-year diploma.</p>
+          <h2 class="text-lg font-bold text-slate-900">Backlog Report</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Students with and without backlogs over the 3-year diploma.</p>
         </div>
-        <button onclick="document.getElementById('backlogReportModal').classList.add('hidden')" class="text-slate-400 hover:text-white transition-premium cursor-pointer">
-          <span class="material-symbols-rounded">close</span>
+        <button type="button" onclick="document.getElementById('backlogReportModal').classList.add('hidden')" class="p-1 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer rounded-lg hover:bg-slate-100">
+          <x-ui.icon name="close" class="w-5 h-5" />
         </button>
       </div>
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Without Backlog -->
-        <div class="bg-slate-950/40 rounded-xl border border-emerald-900/40 overflow-hidden flex flex-col h-[500px]">
-          <div class="bg-emerald-950/40 p-3 border-b border-emerald-900/40 flex justify-between items-center sticky top-0">
-            <h3 class="text-xs font-bold text-emerald-400 flex items-center gap-2"><span class="material-symbols-rounded text-sm">check_circle</span> Completed Without Backlog</h3>
-            <span id="noBacklogCount" class="bg-emerald-900/50 text-emerald-300 px-2 py-0.5 rounded text-xs font-bold">0</span>
+        <div class="bg-white rounded-xl border border-emerald-200 overflow-hidden flex flex-col h-[480px]">
+          <div class="bg-emerald-50 p-3.5 border-b border-emerald-100 flex justify-between items-center sticky top-0">
+            <h3 class="text-xs font-bold text-emerald-800 flex items-center gap-2">
+              <x-ui.icon name="check_circle" class="w-4 h-4 text-emerald-600" />
+              <span>Completed Without Backlog</span>
+            </h3>
+            <span id="noBacklogCount" class="bg-emerald-600 text-white px-2 py-0.5 rounded-full text-xs font-bold">0</span>
           </div>
-          <div class="overflow-y-auto flex-grow p-2">
+          <div class="overflow-y-auto flex-grow p-2 custom-scrollbar">
             <table class="w-full text-left text-xs">
-              <tbody id="noBacklogList" class="divide-y divide-slate-800/40">
-                <tr><td class="p-4 text-center text-slate-500">Generating report...</td></tr>
+              <tbody id="noBacklogList" class="divide-y divide-slate-100">
+                <tr><td class="p-4 text-center text-slate-500 font-medium">Generating report...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
         <!-- With Backlog -->
-        <div class="bg-slate-950/40 rounded-xl border border-rose-900/40 overflow-hidden flex flex-col h-[500px]">
-          <div class="bg-rose-950/40 p-3 border-b border-rose-900/40 flex justify-between items-center sticky top-0">
-            <h3 class="text-xs font-bold text-rose-400 flex items-center gap-2"><span class="material-symbols-rounded text-sm">warning</span> With Backlog</h3>
-            <span id="withBacklogCount" class="bg-rose-900/50 text-rose-300 px-2 py-0.5 rounded text-xs font-bold">0</span>
+        <div class="bg-white rounded-xl border border-rose-200 overflow-hidden flex flex-col h-[480px]">
+          <div class="bg-rose-50 p-3.5 border-b border-rose-100 flex justify-between items-center sticky top-0">
+            <h3 class="text-xs font-bold text-rose-800 flex items-center gap-2">
+              <x-ui.icon name="warning" class="w-4 h-4 text-rose-600" />
+              <span>With Backlog</span>
+            </h3>
+            <span id="withBacklogCount" class="bg-rose-600 text-white px-2 py-0.5 rounded-full text-xs font-bold">0</span>
           </div>
-          <div class="overflow-y-auto flex-grow p-2">
+          <div class="overflow-y-auto flex-grow p-2 custom-scrollbar">
             <table class="w-full text-left text-xs">
-              <tbody id="withBacklogList" class="divide-y divide-slate-800/40">
-                <tr><td class="p-4 text-center text-slate-500">Generating report...</td></tr>
+              <tbody id="withBacklogList" class="divide-y divide-slate-100">
+                <tr><td class="p-4 text-center text-slate-500 font-medium">Generating report...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
       
-      <div class="flex justify-end pt-4 border-t border-slate-800">
-        <button onclick="document.getElementById('backlogReportModal').classList.add('hidden')" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition-premium cursor-pointer">
+      <div class="flex justify-end pt-3 border-t border-slate-100">
+        <button type="button" onclick="document.getElementById('backlogReportModal').classList.add('hidden')" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-all cursor-pointer">
           Close Report
         </button>
       </div>
@@ -749,76 +619,83 @@
   </div>
 
   <!-- PASSWORD RESET MODAL -->
-  <div id="passwordModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-xs">lock_reset</span> Password Reset
+  <div id="passwordModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200/80 rounded-2xl w-full max-w-sm p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+          <x-ui.icon name="lock_reset" class="w-4 h-4 text-blue-600" />
+          <span>Password Reset</span>
         </h3>
-        <button onclick="closePasswordModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
+        <button type="button" onclick="closePasswordModal()" class="p-1 text-slate-400 hover:text-slate-600 cursor-pointer rounded-lg hover:bg-slate-100">
+          <x-ui.icon name="close" class="w-4 h-4" />
+        </button>
       </div>
 
       <div class="space-y-3">
-        <p class="text-xs text-slate-400">
-          Set a new password for <span id="pwdResetName" class="font-bold text-slate-200"></span> (<span id="pwdResetId" class="text-blue-400 font-mono"></span>).
+        <p class="text-xs text-slate-500">
+          Set a new password for <span id="pwdResetName" class="font-bold text-slate-800"></span> (<span id="pwdResetId" class="text-blue-600 font-mono font-semibold"></span>).
         </p>
         <div>
-          <label class="block text-xs text-slate-400 font-bold uppercase tracking-wider mb-1.5">New Password</label>
-          <input type="text" id="newPasswordInput" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Minimum 4 characters">
+          <label class="block text-xs text-slate-600 font-semibold mb-1.5 uppercase tracking-wider">New Password</label>
+          <input type="text" id="newPasswordInput" class="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 transition-all placeholder:text-slate-400" placeholder="Minimum 4 characters">
         </div>
       </div>
 
-      <div id="pwdAlert" class="hidden p-3 rounded-xl text-xs font-bold border"></div>
+      <div id="pwdAlert" class="hidden p-3 rounded-xl text-xs font-semibold border"></div>
 
       <div class="flex gap-3 pt-2">
-        <button onclick="closePasswordModal()" class="flex-1 py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-xs text-slate-300 transition-premium cursor-pointer">Cancel</button>
-        <button onclick="submitPasswordReset()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs transition-premium cursor-pointer">Save Changes</button>
+        <button type="button" onclick="closePasswordModal()" class="flex-1 py-2.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl font-semibold text-xs transition-all cursor-pointer">Cancel</button>
+        <button type="button" onclick="submitPasswordReset()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-xs transition-all cursor-pointer shadow-xs">Save Changes</button>
       </div>
     </div>
   </div>
 
   <!-- AUDIT LOG MODAL FOR SINGLE STUDENT -->
-  <div id="auditModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4 transition-premium">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl p-6 shadow-2xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-        <h3 class="font-black text-slate-200 text-sm flex items-center gap-2">
-          <span class="material-symbols-rounded text-blue-400 text-xs">receipt_long</span> Profile Audit Trail
+  <div id="auditModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4 transition-all">
+    <div class="bg-white border border-slate-200/80 rounded-2xl w-full max-w-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+          <x-ui.icon name="receipt_long" class="w-4 h-4 text-blue-600" />
+          <span>Profile Audit Trail</span>
         </h3>
-        <button onclick="closeAuditModal()" class="text-slate-400 hover:text-white cursor-pointer"><span class="material-symbols-rounded text-xs">close</span></button>
+        <button type="button" onclick="closeAuditModal()" class="p-1 text-slate-400 hover:text-slate-600 cursor-pointer rounded-lg hover:bg-slate-100">
+          <x-ui.icon name="close" class="w-4 h-4" />
+        </button>
       </div>
 
       <div class="space-y-3">
-        <p class="text-xs text-slate-400">
-          History log for <span id="auditProfileName" class="font-bold text-slate-200"></span> (<span id="auditProfileId" class="text-blue-400 font-mono"></span>).
+        <p class="text-xs text-slate-500">
+          History log for <span id="auditProfileName" class="font-bold text-slate-800"></span> (<span id="auditProfileId" class="text-blue-600 font-mono font-semibold"></span>).
         </p>
 
-        <div class="max-h-[300px] overflow-y-auto scrollbar-hidden border border-slate-800/60 rounded-xl">
+        <div class="max-h-[300px] overflow-y-auto custom-scrollbar border border-slate-200 rounded-xl">
           <table class="w-full text-left text-xs border-collapse">
             <thead>
-              <tr class="bg-slate-955/80 border-b border-slate-800 text-slate-400 font-bold">
+              <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
                 <th class="p-3">Time</th>
                 <th class="p-3">Actor</th>
                 <th class="p-3">Action</th>
                 <th class="p-3">Details</th>
               </tr>
             </thead>
-            <tbody id="modalAuditTableBody">
-              <!-- Rendered via JS -->
+            <tbody id="modalAuditTableBody" class="divide-y divide-slate-100">
+              <tr><td colspan="4" class="p-4 text-center text-slate-500">Loading audit history...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div class="flex pt-2">
-        <button onclick="closeAuditModal()" class="w-full py-2.5 border border-slate-800 hover:bg-slate-800 rounded-xl font-bold text-xs text-slate-300 transition-premium cursor-pointer">Close Window</button>
+      <div class="flex justify-end pt-2 border-t border-slate-100">
+        <button type="button" onclick="closeAuditModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer">
+          Close
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- REGISTER MODAL -->
-
   <!-- JAVASCRIPT LOGIC -->
   <script>
+
     let activePanel = "roster";
     let selectedUserForReset = null;
 
@@ -995,8 +872,8 @@
         }
 
         tr.innerHTML = `
-          <td class="p-2.5 flex items-center gap-3">
-            <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-8 h-8 rounded-full object-cover border border-slate-800 shadow">
+          <td class="p-3 pl-5 flex items-center gap-3">
+            <img src="${user.photo_url || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=80'}" class="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-2xs">
             <div>
               <span class="font-bold text-slate-100 block text-sm">${user.name}</span>
               <span class="text-sm text-slate-500 block">${user.email}</span>
@@ -1692,8 +1569,8 @@
       if (data.unassigned.length === 0) unassignedList.innerHTML = '<tr><td class="p-4 text-center text-slate-500">No unassigned students.</td></tr>';
       data.unassigned.forEach(s => {
         unassignedList.innerHTML += `
-          <tr class="border-b border-slate-800/40 hover:bg-slate-800/40">
-            <td class="p-3 font-bold text-slate-200">${s.name}</td>
+          <tr class="border-b border-slate-100 hover:bg-slate-50/80">
+            <td class="p-3 font-bold text-slate-900">${s.name}</td>
             <td class="p-3 font-mono text-slate-500">${s.reg_no}</td>
             <td class="p-3 text-right whitespace-nowrap">${getActionButtons(s.reg_no, null)}</td>
           </tr>
@@ -1705,8 +1582,8 @@
       if (data.batch_a.length === 0) batchAList.innerHTML = '<tr><td class="p-4 text-center text-slate-500">Empty batch.</td></tr>';
       data.batch_a.forEach(s => {
         batchAList.innerHTML += `
-          <tr class="border-b border-sky-900/40 hover:bg-sky-900/20">
-            <td class="p-3 font-bold text-sky-100">${s.name}</td>
+          <tr class="border-b border-sky-100 hover:bg-sky-50/60">
+            <td class="p-3 font-bold text-sky-900">${s.name}</td>
             <td class="p-3 font-mono text-sky-500">${s.reg_no}</td>
             <td class="p-3 text-right whitespace-nowrap">${getActionButtons(s.reg_no, 'A')}</td>
           </tr>
@@ -1718,8 +1595,8 @@
       if (data.batch_b.length === 0) batchBList.innerHTML = '<tr><td class="p-4 text-center text-slate-500">Empty batch.</td></tr>';
       data.batch_b.forEach(s => {
         batchBList.innerHTML += `
-          <tr class="border-b border-emerald-900/40 hover:bg-emerald-900/20">
-            <td class="p-3 font-bold text-emerald-100">${s.name}</td>
+          <tr class="border-b border-emerald-100 hover:bg-emerald-50/60">
+            <td class="p-3 font-bold text-emerald-900">${s.name}</td>
             <td class="p-3 font-mono text-emerald-500">${s.reg_no}</td>
             <td class="p-3 text-right whitespace-nowrap">${getActionButtons(s.reg_no, 'B')}</td>
           </tr>
@@ -1745,8 +1622,8 @@
           let batchColor = s.batch_label === 'A' ? 'sky' : (s.batch_label === 'B' ? 'emerald' : 'amber');
           
           myList.innerHTML += `
-            <tr class="border-b border-slate-800/40 hover:bg-slate-800/20">
-              <td class="p-3 font-bold text-slate-200">${s.name}</td>
+            <tr class="border-b border-slate-100 hover:bg-slate-50/80">
+              <td class="p-3 font-bold text-slate-900">${s.name}</td>
               <td class="p-3 font-mono text-slate-400">${s.reg_no}</td>
               <td class="p-3">
                 <span class="px-2 py-0.5 rounded text-xs font-bold bg-${batchColor}-500/10 text-${batchColor}-400 border border-${batchColor}-500/20">
@@ -1858,8 +1735,8 @@
             }
 
             tbody.innerHTML += `
-              <tr class="border-b border-slate-800/40 hover:bg-slate-900/50">
-                <td class="p-3 font-bold text-slate-200">${lv.student_name} <span class="text-[10px] text-slate-500 font-mono block">${lv.reg_no}</span></td>
+              <tr class="border-b border-slate-100 hover:bg-slate-50/80">
+                <td class="p-3 font-bold text-slate-900">${lv.student_name} <span class="text-[10px] text-slate-500 font-mono block">${lv.reg_no}</span></td>
                 <td class="p-3 text-slate-300 font-bold">${lv.semester}</td>
                 <td class="p-3 text-slate-300">${lv.leave_date}</td>
                 <td class="p-3 text-slate-300 font-bold">${lv.no_of_days} day(s) ${parentInformed}</td>
@@ -2346,6 +2223,7 @@
           alert('Error preparing print preview.');
         });
     }
+  
   </script>
 
   @include('partials.support_desk_overlay')
