@@ -2549,6 +2549,19 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/student/profile/update-self', [\App\Http\Controllers\DataController::class, 'updateSelfStudentProfile']);
     Route::post('/api/student/update-email', [\App\Http\Controllers\DataController::class, 'updateStudentEmail']);
     Route::get('/api/flash-notices/active', [\App\Http\Controllers\ExecutiveFlashNoticeController::class, 'getActiveNotices']);
+
+    // Revision 2021 Virtual Major Project Classroom (Regulation Clauses 11.2.5 & 11.3.4)
+    Route::get('/r21/classroom/project/{subjectId}', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'show']);
+    Route::post('/r21/classroom/project/{subjectId}/syllabus', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'uploadSyllabus']);
+    Route::post('/r21/classroom/project/{subjectId}/save-groups', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'saveGroups']);
+    Route::post('/r21/classroom/project/{subjectId}/save-evaluation', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'saveEvaluation']);
+    Route::get('/r21/classroom/project/{subjectId}/ese-marks', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'getEseMarks']);
+    Route::post('/r21/classroom/project/{subjectId}/ese-marks/bulk-update', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'bulkUpdateEseMarks']);
+    Route::get('/r21/classroom/project/{subjectId}/attainment-summary', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'getAttainmentSummary']);
+    Route::post('/r21/classroom/project/{subjectId}/examiners', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'saveExaminers']);
+    Route::post('/r21/classroom/project/{subjectId}/group-ese', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'saveGroupEse']);
+    Route::post('/r21/classroom/project/{subjectId}/group-cia', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'saveGroupCia']);
+    Route::get('/r21/classroom/project/{subjectId}/report/print', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'printReport']);
 });
 
 // CampusLynk Modern V2 UI Preview Routes (Reference Implementation)
