@@ -263,7 +263,21 @@ class R21VirtualClassroomDrawingController extends Controller
             ->select('name', 'designation', 'mobile_no')
             ->first();
 
-        // If view exists, render it; otherwise if JSON is requested or during headless testing, return json
+        // If client requested JSON (API / test assertion), return JSON response
+        if (request()->wantsJson() || request()->ajax()) {
+            return response()->json([
+                'status' => 'SUCCESS',
+                'batchSubject' => $batchSubject,
+                'drawingCourseFile' => $drawingCourseFile,
+                'studentResults' => $studentResults,
+                'formativeMax' => $formativeMax,
+                'summativeMax' => $summativeMax,
+                'attMax' => $attMax,
+                'ciaMax' => $ciaMax,
+            ]);
+        }
+
+        // Render modern workspace view
         if (view()->exists('r21_drawing.virtual_classroom_drawing')) {
             return view('r21_drawing.virtual_classroom_drawing', compact(
                 'batchSubject',
