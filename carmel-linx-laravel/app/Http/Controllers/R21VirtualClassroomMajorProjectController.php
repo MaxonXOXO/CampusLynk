@@ -220,6 +220,27 @@ class R21VirtualClassroomMajorProjectController extends Controller
             'exam_date' => date('Y-m-d')
         ];
 
+        if (request()->wantsJson()) {
+            return response()->json([
+                'status' => 'SUCCESS',
+                'data' => compact(
+                    'batchSubject',
+                    'classroom',
+                    'courseFile',
+                    'studentResults',
+                    'guides',
+                    'projectGroups',
+                    'totalStudents',
+                    'evaluatedCount',
+                    'pendingCount',
+                    'passedCount',
+                    'avgCia',
+                    'avgEse',
+                    'examiners'
+                )
+            ]);
+        }
+
         if (view()->exists('r21_project.virtual_classroom_project')) {
             return view('r21_project.virtual_classroom_project', compact(
                 'batchSubject',
