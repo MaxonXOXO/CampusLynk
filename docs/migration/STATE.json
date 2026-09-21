@@ -24,7 +24,7 @@
         "name": "migration-alpha",
         "base": "main",
         "base_commit": "efefd640076c33e84adcb18a6e787f42bed108d8",
-        "current_commit": "c1f8b5768cf30a2f1de9e45fcfa5d38a0f283c7a",
+        "current_commit": "60016d52a22237eb5db3b9ff5f223126ec89d6e8",
         "status": "active"
     },
     "current_execution": {
@@ -981,10 +981,10 @@
                 "M3.1",
                 "M3.3"
             ],
-            "state": "VERIFIED",
+            "state": "COMPLETED",
             "started_at": "2026-09-21T22:30:00Z",
             "completed_at": "2026-09-21T23:25:00Z",
-            "checkpoint_commit": null,
+            "checkpoint_commit": "60016d52a22237eb5db3b9ff5f223126ec89d6e8",
             "verification_summary": {
                 "status": "PASS",
                 "level_1": "19 passed, 83 assertions across 4 feature test classes",
