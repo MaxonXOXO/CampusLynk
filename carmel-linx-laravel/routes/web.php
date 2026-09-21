@@ -2570,6 +2570,17 @@ Route::middleware(['web'])->group(function () {
     Route::post('/r21/classroom/seminar/{subjectId}/schedule', [\App\Http\Controllers\R21VirtualClassroomSeminarController::class, 'updateSeminarSchedule']);
     Route::get('/r21/classroom/seminar/{subjectId}/print', [\App\Http\Controllers\R21VirtualClassroomSeminarController::class, 'printReport']);
     Route::get('/r21/classroom/seminar/{subjectId}/attainment-summary', [\App\Http\Controllers\R21VirtualClassroomSeminarController::class, 'getAttainmentSummary']);
+
+    // Revision 2021 Virtual Drawing Hall (Regulation Clause 11.2.3)
+    Route::get('/r21/classroom/drawing/{subjectId}', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'show']);
+    Route::post('/r21/classroom/drawing/{subjectId}/syllabus', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'uploadSyllabus']);
+    Route::post('/r21/classroom/drawing/{subjectId}/sheets/save', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'saveSheetMarks']);
+    Route::post('/r21/classroom/drawing/{subjectId}/tests/save', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'saveSeriesTestMarks']);
+    Route::post('/r21/classroom/drawing/{subjectId}/attendance/save', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'saveAttendanceMarks']);
+    Route::get('/r21/classroom/drawing/{subjectId}/print/sheets', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'printFormativeRegister']);
+    Route::get('/r21/classroom/drawing/{subjectId}/print/tests', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'printSummativeRegister']);
+    Route::get('/r21/classroom/drawing/{subjectId}/print/cia', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'printConsolidatedCia']);
+    Route::get('/r21/classroom/drawing/{subjectId}/print/lesson-plan', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'printLessonPlan']);
 });
 
 // CampusLynk Modern V2 UI Preview Routes (Reference Implementation)
