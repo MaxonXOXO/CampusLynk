@@ -1,0 +1,29 @@
+{
+  "system": {
+    "name": "CampusLynk Autonomous Migration System",
+    "version": "0.1.0",
+    "phase": "bootstrap"
+  },
+  "repositories": {
+    "legacy": {
+      "name": "academic-platform",
+      "owner": "MaxonXOXO"
+    },
+    "target": {
+      "name": "CampusLynk",
+      "owner": "MaxonXOXO"
+    }
+  },
+  "branch": {
+    "name": "migration-alpha",
+    "base": "main",
+    "status": "active"
+  },
+  "migration": {
+    "current_phase": 0,
+    "current_unit": null,
+    "status": "bootstrap"
+  },
+  "features": {},
+  "history": []
+}
