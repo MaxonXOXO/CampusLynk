@@ -1,0 +1,233 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CampusLynk Migration State Schema",
+  "description": "Validation schema for the persistent Migration Control Plane STATE.json",
+  "type": "object",
+  "required": [
+    "system",
+    "repositories",
+    "branch",
+    "current_execution",
+    "features",
+    "units",
+    "dependencies",
+    "history",
+    "escalations",
+    "metrics"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "system": {
+      "type": "object",
+      "required": ["name", "version", "phase"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "phase": { "type": "string" },
+        "updated_at": { "type": "string" }
+      }
+    },
+    "repositories": {
+      "type": "object",
+      "required": ["legacy", "target"],
+      "properties": {
+        "legacy": {
+          "type": "object",
+          "required": ["name", "owner", "role"],
+          "properties": {
+            "name": { "type": "string" },
+            "owner": { "type": "string" },
+            "path": { "type": "string" },
+            "reference_commit": { "type": "string" },
+            "role": { "type": "string", "enum": ["read_only_reference"] }
+          }
+        },
+        "target": {
+          "type": "object",
+          "required": ["name", "owner", "role"],
+          "properties": {
+            "name": { "type": "string" },
+            "owner": { "type": "string" },
+            "path": { "type": "string" },
+            "role": { "type": "string", "enum": ["implementation_target"] }
+          }
+        }
+      }
+    },
+    "branch": {
+      "type": "object",
+      "required": ["name", "base", "base_commit", "status"],
+      "properties": {
+        "name": { "type": "string" },
+        "base": { "type": "string" },
+        "base_commit": { "type": "string" },
+        "current_commit": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "paused", "merged"] }
+      }
+    },
+    "current_execution": {
+      "type": "object",
+      "required": ["feature", "unit", "state", "agent"],
+      "properties": {
+        "feature": { "type": ["string", "null"] },
+        "unit": { "type": ["string", "null"] },
+        "state": {
+          "type": "string",
+          "enum": [
+            "IDLE",
+            "ANALYZING",
+            "IMPLEMENTING",
+            "VERIFYING",
+            "REPAIRING",
+            "CHECKPOINTING"
+          ]
+        },
+        "agent": {
+          "type": ["string", "null"],
+          "enum": ["Scanner", "Architect", "Implementer", "Verifier", "Supervisor", null]
+        },
+        "started_at": { "type": ["string", "null"] }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["id", "title", "priority", "status", "units"],
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "priority": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+          "status": {
+            "type": "string",
+            "enum": ["NOT_STARTED", "IN_PROGRESS", "COMPLETED", "BLOCKED", "DEFERRED", "CANCELLED"]
+          },
+          "units": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      }
+    },
+    "units": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "id",
+          "feature",
+          "title",
+          "state",
+          "priority",
+          "dependencies",
+          "attempts",
+          "max_attempts",
+          "failure_history"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "feature": { "type": "string" },
+          "title": { "type": "string" },
+          "state": {
+            "type": "string",
+            "enum": [
+              "NOT_STARTED",
+              "ANALYZING",
+              "ANALYZED",
+              "BLOCKED",
+              "READY",
+              "IMPLEMENTING",
+              "IMPLEMENTED",
+              "VERIFYING",
+              "VERIFIED",
+              "FAILED",
+              "REPAIRING",
+              "ESCALATED",
+              "CHECKPOINTED",
+              "COMPLETED",
+              "DEFERRED",
+              "CANCELLED"
+            ]
+          },
+          "priority": { "type": "string", "enum": ["critical", "high", "medium", "low"] },
+          "dependencies": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "attempts": { "type": "integer", "minimum": 0 },
+          "max_attempts": { "type": "integer", "minimum": 1 },
+          "created_at": { "type": "string" },
+          "updated_at": { "type": ["string", "null"] },
+          "completed_at": { "type": ["string", "null"] },
+          "implementation_commit": { "type": ["string", "null"] },
+          "verification_commit": { "type": ["string", "null"] },
+          "failure_history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["attempt", "timestamp", "error", "diagnostic"],
+              "properties": {
+                "attempt": { "type": "integer" },
+                "timestamp": { "type": "string" },
+                "error": { "type": "string" },
+                "diagnostic": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["timestamp", "unit", "from", "to", "actor", "evidence"],
+        "properties": {
+          "timestamp": { "type": "string" },
+          "unit": { "type": ["string", "null"] },
+          "from": { "type": ["string", "null"] },
+          "to": { "type": "string" },
+          "actor": { "type": "string" },
+          "evidence": { "type": "object" }
+        }
+      }
+    },
+    "escalations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "unit", "reason", "evidence", "attempts", "recommended_action", "status", "created_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "unit": { "type": "string" },
+          "reason": { "type": "string" },
+          "evidence": { "type": "object" },
+          "attempts": { "type": "integer" },
+          "recommended_action": { "type": "string" },
+          "status": { "type": "string", "enum": ["RAISED", "ACKNOWLEDGED", "RESOLVED", "REJECTED"] },
+          "created_at": { "type": "string" },
+          "resolved_at": { "type": ["string", "null"] },
+          "resolution_notes": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["units_total", "units_completed", "units_failed", "units_blocked", "total_attempts"],
+      "properties": {
+        "units_total": { "type": "integer", "minimum": 0 },
+        "units_completed": { "type": "integer", "minimum": 0 },
+        "units_failed": { "type": "integer", "minimum": 0 },
+        "units_blocked": { "type": "integer", "minimum": 0 },
+        "total_attempts": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}
