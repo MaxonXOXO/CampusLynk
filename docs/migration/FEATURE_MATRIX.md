@@ -1,7 +1,7 @@
 # Migration Feature Matrix & Inventory
 
 > **Source of Truth:** September 21, 2026 Audit Report (`audit_report.md` / `implementation_plan.md`)  
-> **Status:** Inventory Baseline (Zero features migrated yet)
+> **Status:** Active Migration — Units M1.1, M2.1, M2.2, M2.3 COMPLETED  
 
 ---
 
@@ -9,7 +9,8 @@
 
 | Feature | Legacy Status | CampusLynk Status | Priority | Dependencies | Migration State | Feature Flag | Notes |
 | :--- | :--- | :--- | :---: | :--- | :---: | :---: | :--- |
-| **R21 Major Project** | Fully implemented (`R21VirtualClassroomMajorProjectController`, 2,611-line view, 1,025-line print report, 2 models) | Missing | 🔴 Critical | DB tables `r21_major_project_*`, `workspace-layout` | Backlog | `FEATURE_R21_PROJECT` | Handles guide allocation, CIA/ESE grading, external examiners, consolidated mark registers. |
+| **Database Schema & Core Models** | Legacy DB schema & models | Implemented & Verified (`AuditLog` parity + 6 unit tests) | 🔴 Critical | None | Done (`06f68cc6`) | None (Core DB) | Unit M1.1 completed. Commit `06f68cc61082081c4e598bfe6a61d6b1b6222f0d`. |
+| **R21 Major Project** | Fully implemented (`R21VirtualClassroomMajorProjectController`, 2,611-line view, 1,025-line print report, 2 models) | Fully Implemented & Verified (`M2.1`, `M2.2`, `M2.3` completed) | 🔴 Critical | DB tables `r21_major_project_*`, `workspace-layout`, `report-layout` | Done | `FEATURE_R21_PROJECT` | Units M2.1, M2.2, and M2.3 completed (models, migration, AttainmentService, controller, routes, workspace layout, 11 workspace partials, 8 modular print partials, 6 modals, 37 passing tests). |
 | **R21 Seminar** | Fully implemented (`R21VirtualClassroomSeminarController`, 2,171-line view, 680-line print report) | Missing | 🔴 Critical | DB schema, `workspace-layout` | Backlog | `FEATURE_R21_SEMINAR` | Handles S5/S6 presentation scheduling, rubrics, and CIA marksheet exports. |
 | **R21 Drawing** | Fully implemented (`R21VirtualClassroomDrawingController`, 1,436-line view, 4 print templates, 4 models) | Missing | 🔴 Critical | DB tables `r21_drawing_*`, `workspace-layout` | Backlog | `FEATURE_R21_DRAWING` | Formative sheet evaluations, series tests, attendance, and syllabus parser. |
 | **R26 Basic Science Practicum** | Fully implemented (`virtual_classroom_basic_science_practicum.blade.php`, 7,398 lines) | Missing | 🔴 Critical | `R26VirtualClassroomPracticumController`, `workspace-layout` | Backlog | `FEATURE_R26_PRACTICUM` | 40M CIA / 60M ESE breakdown cards, Table 2.2 and Table 3.1 fullscreen evaluator modals, inline autosave. Must decompose monolithic view. |

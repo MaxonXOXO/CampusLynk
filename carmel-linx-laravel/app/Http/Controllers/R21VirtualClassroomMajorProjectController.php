@@ -1532,6 +1532,13 @@ class R21VirtualClassroomMajorProjectController extends Controller
             'currentYear' => date('Y')
         ];
 
+        if (request()->wantsJson()) {
+            return response()->json([
+                'status' => 'SUCCESS',
+                'data' => $viewData
+            ]);
+        }
+
         if (view()->exists('r21_project.project_report_print')) {
             return view('r21_project.project_report_print', $viewData);
         }

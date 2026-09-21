@@ -3,6 +3,7 @@
 > **Context:** CampusLynk Autonomous Migration System  
 > **Status:** Active Protocol  
 > **Version:** 0.2.0  
+> **Mandatory Context:** Every supervisor evaluation must include `STATE.json`, `FEATURE_MATRIX.md`, `MIGRATION_UNIT_SPEC.md`, `DEPENDENCY_GRAPH.md`, `CHECKPOINT_PROTOCOL.md`, `AI_MIGRATION_RULES.md`, and `DESIGN_SYSTEM.md`. Every migration decision must consider existing global components and design language to prevent duplication.
 
 This document defines the deterministic decision rules executed by the **Supervisor** to orchestrate migration units without human oversight, except where escalation is mandatory.
 
@@ -95,6 +96,14 @@ If any file outside the whitelist is changed, the unit transitions immediately t
 If any agent suggests executing `migrate:fresh`, `db:wipe`, `DROP TABLE`, or `TRUNCATE`:
 $$\text{Action} = \text{DESTRUCTIVE} \implies \text{state} \leftarrow \text{ESCALATED}$$
 Execution is halted immediately, and human intervention is required.
+
+### Rule 5: Mandatory Design System & Component Reuse
+Every architectural decision, implementation specification, and task review executed by the Supervisor/Architect must strictly enforce the reuse of existing CampusLynk global components (`<x-ui.*>`) and Master Shell layouts (`<x-layouts.*>`) as defined in `DESIGN_SYSTEM.md`.
+$$\text{IF } \text{Plan} \text{ duplicates existing components or introduces raw HTML/CSS without using } <x-ui.*> \lor <x-layouts.*> \implies \text{Decision} \leftarrow \text{REVISION\_REQUIRED}$$
+- **Master Shells:** Workspaces must mount inside `<x-layouts.workspace-layout>`; staff dashboards inside `<x-layouts.app-shell>` or `<x-layouts.faculty-shell>`; print views inside `<x-layouts.report-layout>`.
+- **UI Components:** Buttons must use `<x-ui.button>`, cards `<x-ui.card>`, modals `<x-ui.modal>`, tables `<x-ui.table>`, badges `<x-ui.badge>`, tabs `<x-ui.tabs>`, alerts `<x-ui.alert>`, inputs `<x-ui.input>`, selects `<x-ui.select>`, icons `<x-ui.icon>`.
+- **Anti-Duplication:** Creating ad-hoc button classes, custom modal dialog backdrops, or raw table markup when global components exist is strictly prohibited.
+- **Decomposition:** Monolithic legacy views (>500 lines) must be decomposed into modular Blade partials and components.
 
 ---
 
