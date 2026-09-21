@@ -1,0 +1,8 @@
+@include('hod.scripts-part1')
+@include('hod.scripts-part2')
+@include('hod.scripts-part3')
+@include('hod.scripts-part4')
+@include('hod.scripts-part5')
+@include('hod.scripts-part6')
+@include('hod.scripts-part7')
+@include('hod.scripts-part8')

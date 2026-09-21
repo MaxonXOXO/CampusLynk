@@ -1,0 +1,75 @@
+{
+    "dry_run_mode": true,
+    "notice": "This document is a simulation. docs/migration/STATE.json was NOT mutated.",
+    "steps_simulated": 5,
+    "simulated_execution_order": [
+        {
+            "step": 1,
+            "unit_id": "M1.1",
+            "feature": "database_schema",
+            "title": "Database Schema Migrations and Eloquent Models Parity",
+            "priority": "critical",
+            "dependencies": [],
+            "hypothetical_transition": {
+                "from": "NOT_STARTED",
+                "to": "COMPLETED"
+            }
+        },
+        {
+            "step": 2,
+            "unit_id": "M2.1",
+            "feature": "r21_major_project",
+            "title": "R21 Major Project Backend Controller and Evaluation Endpoints",
+            "priority": "critical",
+            "dependencies": [
+                "M1.1"
+            ],
+            "hypothetical_transition": {
+                "from": "NOT_STARTED",
+                "to": "COMPLETED"
+            }
+        },
+        {
+            "step": 3,
+            "unit_id": "M2.2",
+            "feature": "r21_major_project",
+            "title": "R21 Major Project Frontend Workspace Layout & UI Modernization",
+            "priority": "critical",
+            "dependencies": [
+                "M2.1"
+            ],
+            "hypothetical_transition": {
+                "from": "NOT_STARTED",
+                "to": "COMPLETED"
+            }
+        },
+        {
+            "step": 4,
+            "unit_id": "M2.3",
+            "feature": "r21_major_project",
+            "title": "R21 Major Project Consolidated Print Report",
+            "priority": "critical",
+            "dependencies": [
+                "M2.2"
+            ],
+            "hypothetical_transition": {
+                "from": "NOT_STARTED",
+                "to": "COMPLETED"
+            }
+        },
+        {
+            "step": 5,
+            "unit_id": "M2.4",
+            "feature": "r21_seminar",
+            "title": "R21 Seminar Controller and Presentation Rubrics Backend",
+            "priority": "critical",
+            "dependencies": [
+                "M1.1"
+            ],
+            "hypothetical_transition": {
+                "from": "NOT_STARTED",
+                "to": "COMPLETED"
+            }
+        }
+    ]
+}

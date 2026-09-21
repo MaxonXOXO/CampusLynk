@@ -1,0 +1,33 @@
+{
+    "unit_id": "M1.1",
+    "simulation_status": "SIMULATED",
+    "status": "NOT_EXECUTED",
+    "required_tests": [
+        "tests/Unit/MigrationSchemaParityTest.php"
+    ],
+    "required_commands": [
+        "php artisan test --filter=MigrationSchemaParityTest"
+    ],
+    "schema_checks": [
+        "Verify table existence: program_attainments",
+        "Verify table existence: r21_drawing_attendance_evaluations",
+        "Verify table existence: r21_drawing_course_files",
+        "Verify table existence: r21_drawing_series_tests",
+        "Verify table existence: r21_drawing_sheet_evaluations",
+        "Verify table existence: r21_major_project_course_files",
+        "Verify table existence: r21_major_project_evaluations",
+        "Verify table existence: push_subscriptions",
+        "Verify table existence: staff_birthday_wishes"
+    ],
+    "route_checks": [],
+    "authorization_checks": [],
+    "UI_checks": [],
+    "regression_checks": [
+        "Confirm existing 106 migrations are unmodified",
+        "Confirm existing 80 models are unmodified"
+    ],
+    "legacy_parity_checks": [
+        "Verify model casts and relationship methods match legacy behavior"
+    ],
+    "evidence": "NOT APPLICABLE (dry run mode - no execution)"
+}

@@ -368,23 +368,25 @@ Route::middleware(['web'])->group(function () {
         }
         
         $userId = Session::get('userId');
-        $assignments = DB::table('subject_staff_assignments')
-            ->join('batch_subjects', 'subject_staff_assignments.batch_subject_id', '=', 'batch_subjects.id')
-            ->leftJoin('class_management', 'batch_subjects.classroom_id', '=', 'class_management.classroom_id')
-            ->leftJoin('r26_class_management', 'batch_subjects.classroom_id', '=', 'r26_class_management.classroom_id')
-            ->where('subject_staff_assignments.staff_mobile_no', $userId)
-            ->select(
-                'batch_subjects.id as subject_id',
-                'batch_subjects.subject_code',
-                'batch_subjects.subject_name',
-                'batch_subjects.subject_type',
-                'batch_subjects.semester',
-                'batch_subjects.classroom_id',
-                'batch_subjects.syllabus_revision_code',
-                DB::raw("COALESCE(class_management.branch, r26_class_management.branch) as branch"),
-                DB::raw("COALESCE(class_management.batch_year, r26_class_management.batch_year) as batch_year")
-            )
-            ->get();
+        $assignments = \Illuminate\Support\Facades\Schema::hasTable('subject_staff_assignments')
+            ? DB::table('subject_staff_assignments')
+                ->join('batch_subjects', 'subject_staff_assignments.batch_subject_id', '=', 'batch_subjects.id')
+                ->leftJoin('class_management', 'batch_subjects.classroom_id', '=', 'class_management.classroom_id')
+                ->leftJoin('r26_class_management', 'batch_subjects.classroom_id', '=', 'r26_class_management.classroom_id')
+                ->where('subject_staff_assignments.staff_mobile_no', $userId)
+                ->select(
+                    'batch_subjects.id as subject_id',
+                    'batch_subjects.subject_code',
+                    'batch_subjects.subject_name',
+                    'batch_subjects.subject_type',
+                    'batch_subjects.semester',
+                    'batch_subjects.classroom_id',
+                    'batch_subjects.syllabus_revision_code',
+                    DB::raw("COALESCE(class_management.branch, r26_class_management.branch) as branch"),
+                    DB::raw("COALESCE(class_management.batch_year, r26_class_management.batch_year) as batch_year")
+                )
+                ->get()
+            : collect();
 
         return noCacheView('demonstrator_dashboard', compact('assignments'));
     });
@@ -397,23 +399,25 @@ Route::middleware(['web'])->group(function () {
         }
 
         $userId = Session::get('userId');
-        $assignments = DB::table('subject_staff_assignments')
-            ->join('batch_subjects', 'subject_staff_assignments.batch_subject_id', '=', 'batch_subjects.id')
-            ->leftJoin('class_management', 'batch_subjects.classroom_id', '=', 'class_management.classroom_id')
-            ->leftJoin('r26_class_management', 'batch_subjects.classroom_id', '=', 'r26_class_management.classroom_id')
-            ->where('subject_staff_assignments.staff_mobile_no', $userId)
-            ->select(
-                'batch_subjects.id as subject_id',
-                'batch_subjects.subject_code',
-                'batch_subjects.subject_name',
-                'batch_subjects.subject_type',
-                'batch_subjects.semester',
-                'batch_subjects.classroom_id',
-                'batch_subjects.syllabus_revision_code',
-                DB::raw("COALESCE(class_management.branch, r26_class_management.branch) as branch"),
-                DB::raw("COALESCE(class_management.batch_year, r26_class_management.batch_year) as batch_year")
-            )
-            ->get();
+        $assignments = \Illuminate\Support\Facades\Schema::hasTable('subject_staff_assignments')
+            ? DB::table('subject_staff_assignments')
+                ->join('batch_subjects', 'subject_staff_assignments.batch_subject_id', '=', 'batch_subjects.id')
+                ->leftJoin('class_management', 'batch_subjects.classroom_id', '=', 'class_management.classroom_id')
+                ->leftJoin('r26_class_management', 'batch_subjects.classroom_id', '=', 'r26_class_management.classroom_id')
+                ->where('subject_staff_assignments.staff_mobile_no', $userId)
+                ->select(
+                    'batch_subjects.id as subject_id',
+                    'batch_subjects.subject_code',
+                    'batch_subjects.subject_name',
+                    'batch_subjects.subject_type',
+                    'batch_subjects.semester',
+                    'batch_subjects.classroom_id',
+                    'batch_subjects.syllabus_revision_code',
+                    DB::raw("COALESCE(class_management.branch, r26_class_management.branch) as branch"),
+                    DB::raw("COALESCE(class_management.batch_year, r26_class_management.batch_year) as batch_year")
+                )
+                ->get()
+            : collect();
 
         return noCacheView('trade_instructor_dashboard', compact('assignments'));
     });

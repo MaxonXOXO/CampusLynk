@@ -13,3 +13,5 @@ carmel-linx-laravel/storage/framework/cache/*
 !carmel-linx-laravel/storage/framework/cache/.gitkeep
 scratch/
 .system_generated/
+.phpunit.result.cache
+carmel-linx-laravel/.phpunit.result.cache

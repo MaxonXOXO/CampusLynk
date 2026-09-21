@@ -1,0 +1,81 @@
+{
+    "unit_id": "M1.1",
+    "simulation_status": "SIMULATED",
+    "objective": "Synchronize 10 schema migrations and create 8 Eloquent models to achieve baseline schema parity.",
+    "legacy_references": {
+        "migrations": [
+            "database/migrations/2026_08_22_000001_add_suspension_fields_to_principal_scheduled_events_table.php",
+            "database/migrations/2026_08_24_000001_add_dob_to_staff_profiles_table.php",
+            "database/migrations/2026_08_24_000002_create_staff_birthday_wishes_table.php",
+            "database/migrations/2026_08_24_030000_add_remember_token_and_create_push_subscriptions.php",
+            "database/migrations/2026_09_07_140000_add_evaluation_date_to_practical_experiment_marks.php",
+            "database/migrations/2026_09_09_191438_add_lab_batch_config_to_batch_subjects.php",
+            "database/migrations/2026_09_10_000001_create_r21_drawing_tables.php",
+            "database/migrations/2026_09_10_232359_create_program_attainments_table.php",
+            "database/migrations/2026_09_12_000001_create_r21_major_project_tables.php",
+            "database/migrations/2026_09_19_030500_add_attainment_settings_to_course_files_table.php"
+        ],
+        "models": [
+            "app/Models/ProgramAttainment.php",
+            "app/Models/PushSubscription.php",
+            "app/Models/R21DrawingAttendanceEvaluation.php",
+            "app/Models/R21DrawingCourseFile.php",
+            "app/Models/R21DrawingSeriesTest.php",
+            "app/Models/R21DrawingSheetEvaluation.php",
+            "app/Models/R21MajorProjectCourseFile.php",
+            "app/Models/R21MajorProjectEvaluation.php"
+        ]
+    },
+    "target_references": [
+        "app/Models/User.php",
+        "app/Models/Classroom.php",
+        "database/migrations"
+    ],
+    "dependencies": [],
+    "allowed_files": {
+        "created": [
+            "database/migrations/2026_08_22_000001_add_suspension_fields_to_principal_scheduled_events_table.php",
+            "database/migrations/2026_08_24_000001_add_dob_to_staff_profiles_table.php",
+            "database/migrations/2026_08_24_000002_create_staff_birthday_wishes_table.php",
+            "database/migrations/2026_08_24_030000_add_remember_token_and_create_push_subscriptions.php",
+            "database/migrations/2026_09_07_140000_add_evaluation_date_to_practical_experiment_marks.php",
+            "database/migrations/2026_09_09_191438_add_lab_batch_config_to_batch_subjects.php",
+            "database/migrations/2026_09_10_000001_create_r21_drawing_tables.php",
+            "database/migrations/2026_09_10_232359_create_program_attainments_table.php",
+            "database/migrations/2026_09_12_000001_create_r21_major_project_tables.php",
+            "database/migrations/2026_09_19_030500_add_attainment_settings_to_course_files_table.php",
+            "app/Models/ProgramAttainment.php",
+            "app/Models/PushSubscription.php",
+            "app/Models/R21DrawingAttendanceEvaluation.php",
+            "app/Models/R21DrawingCourseFile.php",
+            "app/Models/R21DrawingSeriesTest.php",
+            "app/Models/R21DrawingSheetEvaluation.php",
+            "app/Models/R21MajorProjectCourseFile.php",
+            "app/Models/R21MajorProjectEvaluation.php",
+            "tests/Unit/MigrationSchemaParityTest.php"
+        ],
+        "modified": []
+    },
+    "forbidden_files": [
+        "app/Http/Controllers/*",
+        "resources/views/*",
+        "routes/*",
+        "config/*"
+    ],
+    "implementation_strategy": "Copy 10 historical migration files verbatim from legacy into database/migrations/ ensuring timestamp alignment. Synthesize 8 clean Eloquent models with guarded attributes and explicit foreign key relationships.",
+    "acceptance_criteria": [
+        "All 10 migration files exist in database/migrations/ with matching table definitions.",
+        "All 8 Eloquent models exist under app/Models/ with correct $fillable/$guarded and relations.",
+        "Zero modifications to existing 106 migrations.",
+        "Unit test MigrationSchemaParityTest passes."
+    ],
+    "verification_strategy": "Execute automated unit test verifying class existence, table binding, and relationship definitions.",
+    "rollback_strategy": "Remove created migration and model files; working tree remains clean.",
+    "classifications": {
+        "schema_existence": "KNOWN (verified in carmel_linx_db and legacy repo)",
+        "model_relationships": "KNOWN (extracted from legacy Eloquent declarations)",
+        "controller_coupling": "KNOWN (controllers decoupled in Phase 1)"
+    },
+    "confidence": 0.98,
+    "unresolved_questions": []
+}

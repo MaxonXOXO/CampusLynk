@@ -1,0 +1,86 @@
+{
+    "timestamp": "2026-09-21T16:35:43Z",
+    "status": "VALIDATED",
+    "detail": "Exchange completed and verified",
+    "request": {
+        "protocol_version": "1.0",
+        "message_id": "msg_req_20260921_163510_1a00f450",
+        "run_id": "run_20260921_01",
+        "timestamp": "2026-09-21T16:35:10Z",
+        "sender": "orchestrator",
+        "recipient": "architect",
+        "message_type": "ARCHITECTURE_REVIEW",
+        "unit_id": "M2.7",
+        "stage": "NOT_STARTED",
+        "payload": {
+            "unit_title": "R21 Drawing Hall Workspace View and 4 Print Templates (M2.7)",
+            "objective": "Evaluate next unit in dependency graph (M2.7) following M2.6 checkpoint completion and issue initial TASK_DISPATCH with strict design-system (<x-layouts.workspace-layout>, <x-layouts.report-layout>) and sub-500-line decomposition constraints.",
+            "explicit_request": "Unit M2.6 is COMPLETED and checkpointed (commit 1bd25cef, control-plane commit 504c30f1). Role dashboards feature (M9.1-M9.4) is registered. Please issue the formal TASK_DISPATCH for M2.7 (read-only analysis).",
+            "context": {
+                "dependencies": [
+                    "M2.6"
+                ],
+                "allowed_files": [
+                    "docs/migration/STATE.json",
+                    "docs/migration/FEATURE_MATRIX.md"
+                ]
+            }
+        }
+    },
+    "response": {
+        "protocol_version": "1.0",
+        "message_id": "msg_resp_20260921_184500_001",
+        "in_reply_to": "msg_req_20260921_163510_1a00f450",
+        "run_id": "run_20260921_01",
+        "unit_id": "M2.7",
+        "timestamp": "2026-09-21T18:45:00Z",
+        "sender": "architect",
+        "recipient": "orchestrator",
+        "decision": "TASK_DISPATCH",
+        "payload": {
+            "reason": "M2.6 is checkpointed and its dependency is satisfied. M2.7 is the next critical unit and is authorized to enter read-only analysis. The analysis must establish legacy Drawing Hall workspace and four statutory print-template parity, identify reusable CampusLynk shells/components, map decomposition boundaries, and surface risks before any implementation is authorized.",
+            "state_transition": {
+                "target_state": "ANALYZING",
+                "authorized": true
+            },
+            "task_dispatch": {
+                "task_id": "M2.7-ANALYZE-001",
+                "unit_id": "M2.7",
+                "objective": "Perform a read-only forensic analysis of the R21 Drawing Hall workspace and its four statutory print outputs, determine the complete functional and visual migration scope, and recommend the first concrete implementation slice.",
+                "instructions": [
+                    "Inspect the legacy R21 Drawing Hall workspace view and all four statutory print views/templates.",
+                    "Inspect the existing M2.6 Drawing Hall controller, routes, models, and relevant target-side data structures to establish backend/view contracts.",
+                    "Map every workspace section, tab, modal, action, table, form, script/AJAX workflow, and print/report section required for parity.",
+                    "Identify all legacy views exceeding 500 lines and propose modular Blade decomposition boundaries so every resulting Blade file remains below 500 lines.",
+                    "Confirm that the Drawing Hall workspace will mount exclusively inside <x-layouts.workspace-layout>.",
+                    "Confirm that all four statutory print outputs will mount exclusively inside <x-layouts.report-layout>.",
+                    "Inventory applicable existing <x-ui.*> components and map legacy UI elements to them, including cards, buttons, modals, tables, badges, tabs, inputs, selects, alerts, and icons where applicable.",
+                    "Identify any legacy duplicated shell, CSS, modal, table, button, icon, or JavaScript infrastructure that must NOT be carried into CampusLynk.",
+                    "Do not modify application files, Blade views, routes, controllers, models, migrations, tests, database state, or control-plane state.",
+                    "Do not implement any part of M2.7.",
+                    "Return a TASK_REPORT only, including recommended implementation slicing and any risks or ambiguities."
+                ],
+                "constraints": [
+                    "READ-ONLY ANALYSIS ONLY.",
+                    "DO NOT modify any repository files.",
+                    "DO NOT modify STATE.json or FEATURE_MATRIX.md.",
+                    "DO NOT modify application code, Blade views, routes, controllers, models, migrations, or tests.",
+                    "DO NOT execute database migrations or alter database state.",
+                    "Virtual classroom/studio scope must use <x-layouts.workspace-layout>.",
+                    "All four statutory print views must use <x-layouts.report-layout>.",
+                    "Reuse existing <x-ui.*> components; no ad-hoc UI infrastructure may be proposed where an existing component applies.",
+                    "All final Blade partials must remain strictly below 500 lines.",
+                    "Legacy monolithic views must be decomposed rather than copied wholesale."
+                ],
+                "expected_report": "TASK_REPORT containing: legacy Drawing Hall workspace and four print files discovered; line counts and functional inventory; M2.6 backend/view contract mapping; workspace tabs/modals/actions/forms/tables/scripts; four statutory print-mode structures and shared sections; target shell/component mapping; proposed modular Blade decomposition with estimated file boundaries and line counts; duplicated legacy infrastructure identified for elimination; route/data dependencies; parity risks and ambiguities; recommended first implementation slice and subsequent slices.",
+                "stop_conditions": [
+                    "Stop after completing the read-only forensic analysis.",
+                    "Do not make repository modifications.",
+                    "Do not implement or refactor any application code.",
+                    "Do not change migration state or checkpoint state.",
+                    "Return TASK_REPORT only."
+                ]
+            }
+        }
+    }
+}

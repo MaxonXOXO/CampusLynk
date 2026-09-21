@@ -1,0 +1,49 @@
+{
+    "unit_id": "M1.1",
+    "simulation_status": "SIMULATED",
+    "legacy_inspection": "read_only_inspected",
+    "legacy_sources": {
+        "migrations": [
+            "database/migrations/2026_08_22_000001_add_suspension_fields_to_principal_scheduled_events_table.php",
+            "database/migrations/2026_08_24_000001_add_dob_to_staff_profiles_table.php",
+            "database/migrations/2026_08_24_000002_create_staff_birthday_wishes_table.php",
+            "database/migrations/2026_08_24_030000_add_remember_token_and_create_push_subscriptions.php",
+            "database/migrations/2026_09_07_140000_add_evaluation_date_to_practical_experiment_marks.php",
+            "database/migrations/2026_09_09_191438_add_lab_batch_config_to_batch_subjects.php",
+            "database/migrations/2026_09_10_000001_create_r21_drawing_tables.php",
+            "database/migrations/2026_09_10_232359_create_program_attainments_table.php",
+            "database/migrations/2026_09_12_000001_create_r21_major_project_tables.php",
+            "database/migrations/2026_09_19_030500_add_attainment_settings_to_course_files_table.php"
+        ],
+        "models": [
+            "app/Models/ProgramAttainment.php",
+            "app/Models/PushSubscription.php",
+            "app/Models/R21DrawingAttendanceEvaluation.php",
+            "app/Models/R21DrawingCourseFile.php",
+            "app/Models/R21DrawingSeriesTest.php",
+            "app/Models/R21DrawingSheetEvaluation.php",
+            "app/Models/R21MajorProjectCourseFile.php",
+            "app/Models/R21MajorProjectEvaluation.php"
+        ]
+    },
+    "target_sources": {
+        "existing_migrations_count": 106,
+        "existing_models_count": 80
+    },
+    "missing_functionality": {
+        "migrations_to_sync": 10,
+        "models_to_create": 8
+    },
+    "existing_functionality": {
+        "database_tables_in_carmel_linx_db": 116,
+        "table_schema_presence": "Tables already physically exist in active MariaDB carmel_linx_db"
+    },
+    "shared_dependencies": [
+        "User.php",
+        "Classroom.php",
+        "BatchSubject.php"
+    ],
+    "potential_conflicts": "None. Migrations declare tables that already match the production schema dump.",
+    "architecture_differences": "Target repository requires clean PSR-12 models without legacy inline debugging helpers.",
+    "unknowns": []
+}

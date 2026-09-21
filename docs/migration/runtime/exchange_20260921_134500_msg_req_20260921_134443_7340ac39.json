@@ -1,0 +1,64 @@
+{
+    "timestamp": "2026-09-21T13:45:00Z",
+    "status": "CORRELATION_ERROR",
+    "detail": "Decision 'TASK_DISPATCH' is not permitted for message_type 'ARCHITECTURE_REVIEW'",
+    "request": {
+        "protocol_version": "1.0",
+        "message_id": "msg_req_20260921_134443_7340ac39",
+        "run_id": "run_20260921_shadow01",
+        "timestamp": "2026-09-21T13:44:43Z",
+        "sender": "orchestrator",
+        "recipient": "architect",
+        "message_type": "ARCHITECTURE_REVIEW",
+        "unit_id": "M1.1",
+        "stage": "ANALYZING",
+        "payload": {
+            "unit_title": "Audit Logging Infrastructure",
+            "objective": "Request initial shadow task assignment from Architect for M1.1.",
+            "explicit_request": "Please issue the formal TASK_DISPATCH for unit M1.1 with task_id 'SHADOW-M1.1-001'. Instruct the worker to inspect the existing M1.1 migration scope without modifying any files, and return a TASK_REPORT. Respond with a valid RESPONSE_SCHEMA JSON block wrapped in ```json ... ```.",
+            "context": {
+                "dependencies": [],
+                "allowed_files": []
+            }
+        }
+    },
+    "response": {
+        "protocol_version": "1.0",
+        "message_id": "msg_resp_20260921_184500_002",
+        "in_reply_to": "msg_req_20260921_134443_7340ac39",
+        "run_id": "run_20260921_shadow01",
+        "unit_id": "M1.1",
+        "timestamp": "2026-09-21T18:45:00Z",
+        "sender": "architect",
+        "recipient": "orchestrator",
+        "decision": "TASK_DISPATCH",
+        "payload": {
+            "reason": "M1.1 requires a read-only discovery pass before implementation. The worker must establish the current audit logging scope, identify the relevant legacy and target architecture, and report the first concrete implementation task without making repository or database changes.",
+            "state_transition": {
+                "target_state": "ANALYZING",
+                "authorized": true
+            },
+            "task_dispatch": {
+                "task_id": "SHADOW-M1.1-001",
+                "unit_id": "M1.1",
+                "objective": "Inspect the existing M1.1 migration scope and determine what the first concrete implementation task should be.",
+                "instructions": [
+                    "Inspect the existing migration control-plane information.",
+                    "Inspect the relevant target/legacy context necessary to understand M1.1.",
+                    "Do NOT modify any application files, migrations, models, or database.",
+                    "Return a TASK_REPORT only."
+                ],
+                "constraints": [
+                    "DO NOT modify any application files.",
+                    "DO NOT modify database schema.",
+                    "DO NOT execute migrations."
+                ],
+                "expected_report": "What M1.1 currently requires, first concrete implementation task, relevant files discovered, relevant legacy/target differences, risks or ambiguities, recommended next action.",
+                "stop_conditions": [
+                    "Do not make any repository modifications.",
+                    "Stop after producing the report."
+                ]
+            }
+        }
+    }
+}

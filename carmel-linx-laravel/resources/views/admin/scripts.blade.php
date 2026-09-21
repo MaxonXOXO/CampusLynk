@@ -1,0 +1,5 @@
+@include('admin.scripts-part1')
+@include('admin.scripts-part2')
+@include('admin.scripts-part3')
+@include('admin.scripts-part4')
+@include('admin.scripts-part5')

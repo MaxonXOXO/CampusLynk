@@ -1,0 +1,28 @@
+{
+    "timestamp": "2026-09-21T13:43:24Z",
+    "status": "SYNTAX_ERROR",
+    "detail": "Failed to extract JSON code block",
+    "request": {
+        "protocol_version": "1.0",
+        "message_id": "msg_req_20260921_134317_b2b6780f",
+        "run_id": "run_20260921_shadow01",
+        "timestamp": "2026-09-21T13:43:17Z",
+        "sender": "orchestrator",
+        "recipient": "architect",
+        "message_type": "ARCHITECTURE_REVIEW",
+        "unit_id": "M1.1",
+        "stage": "ANALYZING",
+        "payload": {
+            "unit_title": "Audit Logging Infrastructure",
+            "objective": "Request initial shadow task assignment from Architect for M1.1.",
+            "explicit_request": "Please issue the formal TASK_DISPATCH for unit M1.1 with task_id 'SHADOW-M1.1-001'. Instruct the worker to inspect the existing M1.1 migration scope without modifying any files, and return a TASK_REPORT. Respond with a valid RESPONSE_SCHEMA JSON block wrapped in ```json ... ```.",
+            "context": {
+                "dependencies": [],
+                "allowed_files": []
+            }
+        }
+    },
+    "response": {
+        "raw": "\ufeffCAMPUSLYNK MIGRATION ORCHESTRATOR READY.\n\nSend the migration task / implementation plan from Antigravity. I\u2019ll act as the architecture + migration review layer: analyze \u2192 identify required changes \u2192 approve/modify \u2192 return the exact next instruction for Antigravi\r\n"
+    }
+}

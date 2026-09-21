@@ -1,764 +1,992 @@
 {
-  "system": {
-    "name": "CampusLynk Autonomous Migration System",
-    "version": "0.2.0",
-    "phase": "control_plane_active",
-    "updated_at": "2026-09-21T19:30:00Z"
-  },
-  "repositories": {
-    "legacy": {
-      "name": "academic-platform",
-      "owner": "MaxonXOXO",
-      "path": "d:\\CampusLynk\\legacy-academic-platform",
-      "reference_commit": "70b11740",
-      "role": "read_only_reference"
+    "system": {
+        "name": "CampusLynk Autonomous Migration System",
+        "version": "0.2.0",
+        "phase": "control_plane_active",
+        "updated_at": "2026-09-21T19:30:00Z"
     },
-    "target": {
-      "name": "CampusLynk",
-      "owner": "MaxonXOXO",
-      "path": "d:\\CampusLynk\\CampusLynk",
-      "role": "implementation_target"
-    }
-  },
-  "branch": {
-    "name": "migration-alpha",
-    "base": "main",
-    "base_commit": "efefd640076c33e84adcb18a6e787f42bed108d8",
-    "current_commit": "c1f8b5768cf30a2f1de9e45fcfa5d38a0f283c7a",
-    "status": "active"
-  },
-  "current_execution": {
-    "feature": null,
-    "unit": null,
-    "state": "IDLE",
-    "agent": null,
-    "started_at": null
-  },
-  "features": {
-    "database_schema": {
-      "id": "database_schema",
-      "title": "Database Schema and Core Models Parity",
-      "priority": "critical",
-      "status": "COMPLETED",
-      "units": ["M1.1"]
+    "repositories": {
+        "legacy": {
+            "name": "academic-platform",
+            "owner": "MaxonXOXO",
+            "path": "d:\\CampusLynk\\legacy-academic-platform",
+            "reference_commit": "70b11740",
+            "role": "read_only_reference"
+        },
+        "target": {
+            "name": "CampusLynk",
+            "owner": "MaxonXOXO",
+            "path": "d:\\CampusLynk\\CampusLynk",
+            "role": "implementation_target"
+        }
     },
-    "r21_major_project": {
-      "id": "r21_major_project",
-      "title": "R21 Major Project Virtual Classroom",
-      "priority": "critical",
-      "status": "COMPLETED",
-      "units": ["M2.1", "M2.2", "M2.3"]
+    "branch": {
+        "name": "migration-alpha",
+        "base": "main",
+        "base_commit": "efefd640076c33e84adcb18a6e787f42bed108d8",
+        "current_commit": "c1f8b5768cf30a2f1de9e45fcfa5d38a0f283c7a",
+        "status": "active"
     },
-    "r21_seminar": {
-      "id": "r21_seminar",
-      "title": "R21 Seminar Virtual Classroom",
-      "priority": "critical",
-      "status": "COMPLETED",
-      "units": ["M2.4", "M2.5"]
+    "current_execution": {
+        "feature": null,
+        "unit": null,
+        "state": "IDLE",
+        "agent": null,
+        "started_at": null
     },
-    "r21_drawing": {
-      "id": "r21_drawing",
-      "title": "R21 Drawing Hall Virtual Classroom",
-      "priority": "critical",
-      "status": "COMPLETED",
-      "units": ["M2.6", "M2.7"]
+    "features": {
+        "database_schema": {
+            "id": "database_schema",
+            "title": "Database Schema and Core Models Parity",
+            "priority": "critical",
+            "status": "COMPLETED",
+            "units": [
+                "M1.1"
+            ]
+        },
+        "r21_major_project": {
+            "id": "r21_major_project",
+            "title": "R21 Major Project Virtual Classroom",
+            "priority": "critical",
+            "status": "COMPLETED",
+            "units": [
+                "M2.1",
+                "M2.2",
+                "M2.3"
+            ]
+        },
+        "r21_seminar": {
+            "id": "r21_seminar",
+            "title": "R21 Seminar Virtual Classroom",
+            "priority": "critical",
+            "status": "COMPLETED",
+            "units": [
+                "M2.4",
+                "M2.5"
+            ]
+        },
+        "r21_drawing": {
+            "id": "r21_drawing",
+            "title": "R21 Drawing Hall Virtual Classroom",
+            "priority": "critical",
+            "status": "COMPLETED",
+            "units": [
+                "M2.6",
+                "M2.7"
+            ]
+        },
+        "role_dashboards": {
+            "id": "role_dashboards",
+            "title": "Institutional Role Dashboards Consolidation",
+            "priority": "high",
+            "status": "NOT_STARTED",
+            "units": [
+                "M9.1",
+                "M9.2",
+                "M9.3",
+                "M9.4"
+            ],
+            "state": "COMPLETED"
+        },
+        "r26_practicum": {
+            "id": "r26_practicum",
+            "title": "R26 Basic Science Practicum Classroom",
+            "priority": "critical",
+            "status": "NOT_STARTED",
+            "units": [
+                "M3.1",
+                "M3.2"
+            ]
+        },
+        "r26_theory_sync": {
+            "id": "r26_theory_sync",
+            "title": "R26 Theory Classroom Synchronization",
+            "priority": "critical",
+            "status": "NOT_STARTED",
+            "units": [
+                "M3.3"
+            ]
+        },
+        "shared_controller_methods": {
+            "id": "shared_controller_methods",
+            "title": "Restoration of Missing Shared Controller Methods",
+            "priority": "high",
+            "status": "NOT_STARTED",
+            "units": [
+                "M4.1",
+                "M4.2",
+                "M4.3"
+            ]
+        },
+        "sbte_import": {
+            "id": "sbte_import",
+            "title": "SBTE Subject Log PDF Import Engine",
+            "priority": "high",
+            "status": "NOT_STARTED",
+            "units": [
+                "M5.1"
+            ]
+        },
+        "carmie_ai": {
+            "id": "carmie_ai",
+            "title": "Carmie AI Assistant Subsystem",
+            "priority": "medium",
+            "status": "NOT_STARTED",
+            "units": [
+                "M5.2"
+            ]
+        },
+        "program_attainment": {
+            "id": "program_attainment",
+            "title": "HOD Program Attainment Engine",
+            "priority": "high",
+            "status": "NOT_STARTED",
+            "units": [
+                "M6.1"
+            ]
+        },
+        "tutor_reports": {
+            "id": "tutor_reports",
+            "title": "Tutor Progress Reports Suite",
+            "priority": "high",
+            "status": "NOT_STARTED",
+            "units": [
+                "M6.2"
+            ]
+        },
+        "print_reports_suite": {
+            "id": "print_reports_suite",
+            "title": "Centralized Print Templates & A4 Reports Suite",
+            "priority": "high",
+            "status": "NOT_STARTED",
+            "units": [
+                "M7.1"
+            ]
+        },
+        "push_notifications": {
+            "id": "push_notifications",
+            "title": "Web Push Notifications System",
+            "priority": "low",
+            "status": "NOT_STARTED",
+            "units": [
+                "M8.1"
+            ]
+        },
+        "staff_birthdays": {
+            "id": "staff_birthdays",
+            "title": "Staff Birthday Greetings System",
+            "priority": "low",
+            "status": "NOT_STARTED",
+            "units": [
+                "M8.2"
+            ]
+        },
+        "mobile_lab": {
+            "id": "mobile_lab",
+            "title": "Staff Mobile Virtual Lab",
+            "priority": "low",
+            "status": "NOT_STARTED",
+            "units": [
+                "M8.3"
+            ]
+        },
+        "lab_batch_splitting": {
+            "id": "lab_batch_splitting",
+            "title": "Lab Batch A/B Splitting",
+            "priority": "high",
+            "status": "NOT_STARTED",
+            "units": [
+                "M8.4"
+            ]
+        },
+        "video_materials": {
+            "id": "video_materials",
+            "title": "Study Materials MP4/WebM Video Upload",
+            "priority": "low",
+            "status": "NOT_STARTED",
+            "units": [
+                "M8.5"
+            ]
+        }
     },
-    "role_dashboards": {
-      "id": "role_dashboards",
-      "title": "Institutional Role Dashboards Consolidation",
-      "priority": "high",
-      "status": "NOT_STARTED",
-      "units": ["M9.1", "M9.2", "M9.3", "M9.4"]
+    "units": {
+        "M1.1": {
+            "id": "M1.1",
+            "feature": "database_schema",
+            "title": "Database Schema Migrations and Eloquent Models Parity",
+            "state": "COMPLETED",
+            "priority": "critical",
+            "dependencies": [],
+            "attempts": 1,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": "2026-09-21T19:30:00Z",
+            "completed_at": "2026-09-21T19:30:00Z",
+            "implementation_commit": "06f68cc61082081c4e598bfe6a61d6b1b6222f0d",
+            "verification_commit": "06f68cc61082081c4e598bfe6a61d6b1b6222f0d",
+            "failure_history": [],
+            "risk": "RED"
+        },
+        "M2.1": {
+            "id": "M2.1",
+            "feature": "r21_major_project",
+            "title": "R21 Major Project Backend Controller and Evaluation Endpoints",
+            "state": "COMPLETED",
+            "priority": "critical",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 1,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": "2026-09-21T20:02:00Z",
+            "completed_at": "2026-09-21T20:02:00Z",
+            "implementation_commit": "da44888c716a59a7e3f4381ce4297094d106ec40",
+            "verification_commit": "da44888c716a59a7e3f4381ce4297094d106ec40",
+            "failure_history": [],
+            "risk": "YELLOW"
+        },
+        "M2.2": {
+            "id": "M2.2",
+            "feature": "r21_major_project",
+            "title": "R21 Major Project Frontend Workspace Layout & UI Modernization",
+            "state": "COMPLETED",
+            "priority": "critical",
+            "dependencies": [
+                "M2.1"
+            ],
+            "attempts": 1,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": "2026-09-21T20:15:00Z",
+            "completed_at": "2026-09-21T20:15:00Z",
+            "implementation_commit": "66b3310dedc64a3e1067065bbc715a78846d37b5",
+            "verification_commit": "66b3310dedc64a3e1067065bbc715a78846d37b5",
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M2.3": {
+            "id": "M2.3",
+            "feature": "r21_major_project",
+            "title": "R21 Major Project Consolidated Print Report",
+            "state": "COMPLETED",
+            "priority": "critical",
+            "dependencies": [
+                "M2.2"
+            ],
+            "attempts": 1,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": "2026-09-21T20:25:00Z",
+            "completed_at": "2026-09-21T20:25:00Z",
+            "implementation_commit": "c580607b0ecda518e906c271887e224e756b2f76",
+            "verification_commit": "c580607b0ecda518e906c271887e224e756b2f76",
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M2.4": {
+            "id": "M2.4",
+            "feature": "r21_seminar",
+            "title": "R21 Seminar Controller and Presentation Rubrics Backend",
+            "state": "COMPLETED",
+            "priority": "critical",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 1,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": "2026-09-21T20:40:00Z",
+            "completed_at": "2026-09-21T20:40:00Z",
+            "implementation_commit": "e03c1809e9e31baae0836eb4531971dce546b4c4",
+            "verification_commit": "e03c1809e9e31baae0836eb4531971dce546b4c4",
+            "failure_history": [],
+            "risk": "YELLOW"
+        },
+        "M2.5": {
+            "id": "M2.5",
+            "feature": "r21_seminar",
+            "title": "R21 Seminar Workspace View and Print Summary",
+            "state": "COMPLETED",
+            "priority": "critical",
+            "dependencies": [
+                "M2.4"
+            ],
+            "attempts": 1,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": "2026-09-21T20:50:00Z",
+            "completed_at": "2026-09-21T20:50:00Z",
+            "implementation_commit": "be28d1034078edcf711b0af460715feffe96ff51",
+            "verification_commit": "be28d1034078edcf711b0af460715feffe96ff51",
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M2.6": {
+            "id": "M2.6",
+            "feature": "r21_drawing",
+            "title": "R21 Drawing Hall Controller and Sheet Evaluation Backend",
+            "state": "COMPLETED",
+            "priority": "critical",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 1,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": "2026-09-21T21:05:00Z",
+            "completed_at": "2026-09-21T21:05:00Z",
+            "implementation_commit": "1bd25cef06b4d4ed32095c9abdaa385454b289f1",
+            "verification_commit": "1bd25cef06b4d4ed32095c9abdaa385454b289f1",
+            "failure_history": [],
+            "risk": "YELLOW"
+        },
+        "M2.7": {
+            "id": "M2.7",
+            "feature": "r21_drawing",
+            "title": "R21 Drawing Hall Workspace View and 4 Print Templates",
+            "state": "COMPLETED",
+            "priority": "critical",
+            "dependencies": [
+                "M2.6"
+            ],
+            "attempts": 1,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": "2026-09-21T21:45:00Z",
+            "completed_at": "2026-09-21T21:45:00Z",
+            "implementation_commit": "c1f8b5768cf30a2f1de9e45fcfa5d38a0f283c7a",
+            "verification_commit": "c1f8b5768cf30a2f1de9e45fcfa5d38a0f283c7a",
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M3.1": {
+            "id": "M3.1",
+            "feature": "r26_practicum",
+            "title": "R26 Practicum Controller Extensions and CSV Export",
+            "state": "NOT_STARTED",
+            "priority": "critical",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "YELLOW"
+        },
+        "M3.2": {
+            "id": "M3.2",
+            "feature": "r26_practicum",
+            "title": "R26 Basic Science Practicum Workspace & Evaluator Modals",
+            "state": "NOT_STARTED",
+            "priority": "critical",
+            "dependencies": [
+                "M3.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M3.3": {
+            "id": "M3.3",
+            "feature": "r26_theory_sync",
+            "title": "R26 Theory Synchronized Features and SBTE Mark Scaling",
+            "state": "NOT_STARTED",
+            "priority": "critical",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "YELLOW"
+        },
+        "M4.1": {
+            "id": "M4.1",
+            "feature": "shared_controller_methods",
+            "title": "AttendanceController Restoration (Sessions, Deletion, Reports)",
+            "state": "NOT_STARTED",
+            "priority": "high",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "YELLOW"
+        },
+        "M4.2": {
+            "id": "M4.2",
+            "feature": "shared_controller_methods",
+            "title": "ClassroomController Restoration (ESE Marks, Attainment, A4 Print)",
+            "state": "NOT_STARTED",
+            "priority": "high",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "YELLOW"
+        },
+        "M4.3": {
+            "id": "M4.3",
+            "feature": "shared_controller_methods",
+            "title": "VirtualClassroomPracticalController Restoration",
+            "state": "NOT_STARTED",
+            "priority": "high",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "YELLOW"
+        },
+        "M5.1": {
+            "id": "M5.1",
+            "feature": "sbte_import",
+            "title": "SBTE Subject Log PDF Parser & Bulk Import Modal",
+            "state": "NOT_STARTED",
+            "priority": "high",
+            "dependencies": [
+                "M4.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "YELLOW"
+        },
+        "M5.2": {
+            "id": "M5.2",
+            "feature": "carmie_ai",
+            "title": "Carmie AI Assistant Playbook Service & Overlay UI",
+            "state": "NOT_STARTED",
+            "priority": "medium",
+            "dependencies": [],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "YELLOW"
+        },
+        "M6.1": {
+            "id": "M6.1",
+            "feature": "program_attainment",
+            "title": "HOD Program Attainment Engine & Dashboard",
+            "state": "NOT_STARTED",
+            "priority": "high",
+            "dependencies": [
+                "M1.1",
+                "M4.2"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "YELLOW"
+        },
+        "M6.2": {
+            "id": "M6.2",
+            "feature": "tutor_reports",
+            "title": "Tutor Progress Report Cards & Consolidated Print Suite",
+            "state": "NOT_STARTED",
+            "priority": "high",
+            "dependencies": [
+                "M4.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M7.1": {
+            "id": "M7.1",
+            "feature": "print_reports_suite",
+            "title": "Centralized Print Templates & A4 Reports Modernization",
+            "state": "NOT_STARTED",
+            "priority": "high",
+            "dependencies": [
+                "M2.3",
+                "M2.5",
+                "M2.7",
+                "M6.2"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M8.1": {
+            "id": "M8.1",
+            "feature": "push_notifications",
+            "title": "Web Push Notifications Controller and Prompt UI",
+            "state": "NOT_STARTED",
+            "priority": "low",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M8.2": {
+            "id": "M8.2",
+            "feature": "staff_birthdays",
+            "title": "Staff Birthday Wishes Controller and Dashboard Modal",
+            "state": "NOT_STARTED",
+            "priority": "low",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M8.3": {
+            "id": "M8.3",
+            "feature": "mobile_lab",
+            "title": "Staff Mobile Virtual Lab Modernized View",
+            "state": "NOT_STARTED",
+            "priority": "low",
+            "dependencies": [
+                "M4.3"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M8.4": {
+            "id": "M8.4",
+            "feature": "lab_batch_splitting",
+            "title": "Lab Batch A/B Splitting Modal & Evaluation Linking",
+            "state": "NOT_STARTED",
+            "priority": "high",
+            "dependencies": [
+                "M1.1",
+                "M4.3"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M8.5": {
+            "id": "M8.5",
+            "feature": "video_materials",
+            "title": "Direct MP4/WebM Video Upload & HTML5 Player",
+            "state": "NOT_STARTED",
+            "priority": "low",
+            "dependencies": [],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T17:45:00Z",
+            "updated_at": null,
+            "completed_at": null,
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M9.1": {
+            "id": "M9.1",
+            "feature": "role_dashboards",
+            "title": "Executive and Administrative Dashboards Consolidation",
+            "state": "COMPLETED",
+            "priority": "high",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T21:05:00Z",
+            "updated_at": "2026-09-21T17:25:06Z",
+            "completed_at": "2026-09-21T17:25:06Z",
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M9.2": {
+            "id": "M9.2",
+            "feature": "role_dashboards",
+            "title": "Faculty and Academic Leadership Dashboards Consolidation",
+            "state": "COMPLETED",
+            "priority": "high",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T21:05:00Z",
+            "updated_at": "2026-09-21T17:25:06Z",
+            "completed_at": "2026-09-21T17:25:06Z",
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M9.3": {
+            "id": "M9.3",
+            "feature": "role_dashboards",
+            "title": "Laboratory and Workshop Staff Dashboards Consolidation",
+            "state": "COMPLETED",
+            "priority": "high",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T21:05:00Z",
+            "updated_at": "2026-09-21T17:25:06Z",
+            "completed_at": "2026-09-21T17:25:06Z",
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        },
+        "M9.4": {
+            "id": "M9.4",
+            "feature": "role_dashboards",
+            "title": "Student and Parent Modern Responsive Portals Consolidation",
+            "state": "COMPLETED",
+            "priority": "high",
+            "dependencies": [
+                "M1.1"
+            ],
+            "attempts": 0,
+            "max_attempts": 3,
+            "created_at": "2026-09-21T21:05:00Z",
+            "updated_at": "2026-09-21T17:25:06Z",
+            "completed_at": "2026-09-21T17:25:06Z",
+            "implementation_commit": null,
+            "verification_commit": null,
+            "failure_history": [],
+            "risk": "GREEN"
+        }
     },
-    "r26_practicum": {
-      "id": "r26_practicum",
-      "title": "R26 Basic Science Practicum Classroom",
-      "priority": "critical",
-      "status": "NOT_STARTED",
-      "units": ["M3.1", "M3.2"]
+    "dependencies": {
+        "M1.1": [],
+        "M2.1": [
+            "M1.1"
+        ],
+        "M2.2": [
+            "M2.1"
+        ],
+        "M2.3": [
+            "M2.2"
+        ],
+        "M2.4": [
+            "M1.1"
+        ],
+        "M2.5": [
+            "M2.4"
+        ],
+        "M2.6": [
+            "M1.1"
+        ],
+        "M2.7": [
+            "M2.6"
+        ],
+        "M3.1": [
+            "M1.1"
+        ],
+        "M3.2": [
+            "M3.1"
+        ],
+        "M3.3": [
+            "M1.1"
+        ],
+        "M4.1": [
+            "M1.1"
+        ],
+        "M4.2": [
+            "M1.1"
+        ],
+        "M4.3": [
+            "M1.1"
+        ],
+        "M5.1": [
+            "M4.1"
+        ],
+        "M5.2": [],
+        "M6.1": [
+            "M1.1",
+            "M4.2"
+        ],
+        "M6.2": [
+            "M4.1"
+        ],
+        "M7.1": [
+            "M2.3",
+            "M2.5",
+            "M2.7",
+            "M6.2"
+        ],
+        "M8.1": [
+            "M1.1"
+        ],
+        "M8.2": [
+            "M1.1"
+        ],
+        "M8.3": [
+            "M4.3"
+        ],
+        "M8.4": [
+            "M1.1",
+            "M4.3"
+        ],
+        "M8.5": [],
+        "M9.1": [
+            "M1.1"
+        ],
+        "M9.2": [
+            "M1.1"
+        ],
+        "M9.3": [
+            "M1.1"
+        ],
+        "M9.4": [
+            "M1.1"
+        ]
     },
-    "r26_theory_sync": {
-      "id": "r26_theory_sync",
-      "title": "R26 Theory Classroom Synchronization",
-      "priority": "critical",
-      "status": "NOT_STARTED",
-      "units": ["M3.3"]
+    "history": [
+        {
+            "timestamp": "2026-09-21T17:38:29Z",
+            "unit": null,
+            "from": null,
+            "to": "bootstrap_complete",
+            "actor": "system",
+            "evidence": {
+                "commit": "cf661a5db4f554c7fefa3df7a954546b9a305d4e",
+                "branch": "migration-alpha"
+            }
+        },
+        {
+            "timestamp": "2026-09-21T19:30:00Z",
+            "unit": "M1.1",
+            "from": "VERIFIED",
+            "to": "COMPLETED",
+            "actor": "Supervisor",
+            "evidence": {
+                "commit": "06f68cc61082081c4e598bfe6a61d6b1b6222f0d",
+                "tests": 6,
+                "assertions": 17,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Unit/AuditLogTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-21T20:02:00Z",
+            "unit": "M2.1",
+            "from": "VERIFIED",
+            "to": "COMPLETED",
+            "actor": "Supervisor",
+            "evidence": {
+                "commit": "da44888c716a59a7e3f4381ce4297094d106ec40",
+                "tests": 24,
+                "assertions": 165,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/R21MajorProjectControllerTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-21T20:15:00Z",
+            "unit": "M2.2",
+            "from": "VERIFIED",
+            "to": "COMPLETED",
+            "actor": "Supervisor",
+            "evidence": {
+                "commit": "66b3310dedc64a3e1067065bbc715a78846d37b5",
+                "tests": 29,
+                "assertions": 214,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/R21MajorProjectWorkspaceViewTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-21T20:25:00Z",
+            "unit": "M2.3",
+            "from": "VERIFIED",
+            "to": "COMPLETED",
+            "actor": "Supervisor",
+            "evidence": {
+                "commit": "c580607b0ecda518e906c271887e224e756b2f76",
+                "tests": 37,
+                "assertions": 291,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/R21MajorProjectPrintReportTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-21T20:40:00Z",
+            "unit": "M2.4",
+            "from": "VERIFIED",
+            "to": "COMPLETED",
+            "actor": "Supervisor",
+            "evidence": {
+                "commit": "e03c1809e9e31baae0836eb4531971dce546b4c4",
+                "tests": 47,
+                "assertions": 350,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/R21SeminarControllerTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-21T20:50:00Z",
+            "unit": "M2.5",
+            "from": "VERIFIED",
+            "to": "COMPLETED",
+            "actor": "Supervisor",
+            "evidence": {
+                "commit": "be28d1034078edcf711b0af460715feffe96ff51",
+                "tests": 55,
+                "assertions": 416,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/R21SeminarWorkspaceViewTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-21T21:05:00Z",
+            "unit": "M2.6",
+            "from": "VERIFIED",
+            "to": "COMPLETED",
+            "actor": "Supervisor",
+            "evidence": {
+                "commit": "1bd25cef06b4d4ed32095c9abdaa385454b289f1",
+                "tests": 64,
+                "assertions": 473,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/R21DrawingControllerTest.php"
+            }
+        }
+    ],
+    "escalations": [],
+    "metrics": {
+        "units_total": 28,
+        "units_completed": 12,
+        "units_failed": 0,
+        "units_blocked": 7,
+        "total_attempts": 0,
+        "waves_total": 2,
+        "waves_completed": 0
     },
-    "shared_controller_methods": {
-      "id": "shared_controller_methods",
-      "title": "Restoration of Missing Shared Controller Methods",
-      "priority": "high",
-      "status": "NOT_STARTED",
-      "units": ["M4.1", "M4.2", "M4.3"]
+    "waves": {
+        "W1": {
+            "id": "W1",
+            "name": "Wave 1 \u2014 Role Dashboard Consolidation",
+            "risk": "GREEN",
+            "units": [
+                "M9.1",
+                "M9.2",
+                "M9.3",
+                "M9.4"
+            ],
+            "state": "VERIFIED",
+            "started_at": "2026-09-21T17:15:00Z",
+            "completed_at": null,
+            "checkpoint_commit": null,
+            "verification_summary": {
+                "status": "PASS",
+                "level_1": "22 passed, 68 assertions across 4 unit test classes",
+                "level_2": "22 passed, 68 assertions in 2.09s",
+                "level_3": "92 passed, 577 assertions in 6.55s",
+                "regressions": 0
+            }
+        },
+        "W2": {
+            "id": "W2",
+            "name": "Wave 2: carmie_ai & video_materials & r26_practicum & r26_theory_sync",
+            "risk": "YELLOW",
+            "units": [
+                "M5.2",
+                "M8.5",
+                "M3.1",
+                "M3.3"
+            ],
+            "state": "FORMED",
+            "started_at": null,
+            "completed_at": null,
+            "checkpoint_commit": null,
+            "verification_summary": null
+        }
     },
-    "sbte_import": {
-      "id": "sbte_import",
-      "title": "SBTE Subject Log PDF Import Engine",
-      "priority": "high",
-      "status": "NOT_STARTED",
-      "units": ["M5.1"]
-    },
-    "carmie_ai": {
-      "id": "carmie_ai",
-      "title": "Carmie AI Assistant Subsystem",
-      "priority": "medium",
-      "status": "NOT_STARTED",
-      "units": ["M5.2"]
-    },
-    "program_attainment": {
-      "id": "program_attainment",
-      "title": "HOD Program Attainment Engine",
-      "priority": "high",
-      "status": "NOT_STARTED",
-      "units": ["M6.1"]
-    },
-    "tutor_reports": {
-      "id": "tutor_reports",
-      "title": "Tutor Progress Reports Suite",
-      "priority": "high",
-      "status": "NOT_STARTED",
-      "units": ["M6.2"]
-    },
-    "print_reports_suite": {
-      "id": "print_reports_suite",
-      "title": "Centralized Print Templates & A4 Reports Suite",
-      "priority": "high",
-      "status": "NOT_STARTED",
-      "units": ["M7.1"]
-    },
-    "push_notifications": {
-      "id": "push_notifications",
-      "title": "Web Push Notifications System",
-      "priority": "low",
-      "status": "NOT_STARTED",
-      "units": ["M8.1"]
-    },
-    "staff_birthdays": {
-      "id": "staff_birthdays",
-      "title": "Staff Birthday Greetings System",
-      "priority": "low",
-      "status": "NOT_STARTED",
-      "units": ["M8.2"]
-    },
-    "mobile_lab": {
-      "id": "mobile_lab",
-      "title": "Staff Mobile Virtual Lab",
-      "priority": "low",
-      "status": "NOT_STARTED",
-      "units": ["M8.3"]
-    },
-    "lab_batch_splitting": {
-      "id": "lab_batch_splitting",
-      "title": "Lab Batch A/B Splitting",
-      "priority": "high",
-      "status": "NOT_STARTED",
-      "units": ["M8.4"]
-    },
-    "video_materials": {
-      "id": "video_materials",
-      "title": "Study Materials MP4/WebM Video Upload",
-      "priority": "low",
-      "status": "NOT_STARTED",
-      "units": ["M8.5"]
-    }
-  },
-  "units": {
-    "M1.1": {
-      "id": "M1.1",
-      "feature": "database_schema",
-      "title": "Database Schema Migrations and Eloquent Models Parity",
-      "state": "COMPLETED",
-      "priority": "critical",
-      "dependencies": [],
-      "attempts": 1,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": "2026-09-21T19:30:00Z",
-      "completed_at": "2026-09-21T19:30:00Z",
-      "implementation_commit": "06f68cc61082081c4e598bfe6a61d6b1b6222f0d",
-      "verification_commit": "06f68cc61082081c4e598bfe6a61d6b1b6222f0d",
-      "failure_history": []
-    },
-    "M2.1": {
-      "id": "M2.1",
-      "feature": "r21_major_project",
-      "title": "R21 Major Project Backend Controller and Evaluation Endpoints",
-      "state": "COMPLETED",
-      "priority": "critical",
-      "dependencies": ["M1.1"],
-      "attempts": 1,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": "2026-09-21T20:02:00Z",
-      "completed_at": "2026-09-21T20:02:00Z",
-      "implementation_commit": "da44888c716a59a7e3f4381ce4297094d106ec40",
-      "verification_commit": "da44888c716a59a7e3f4381ce4297094d106ec40",
-      "failure_history": []
-    },
-    "M2.2": {
-      "id": "M2.2",
-      "feature": "r21_major_project",
-      "title": "R21 Major Project Frontend Workspace Layout & UI Modernization",
-      "state": "COMPLETED",
-      "priority": "critical",
-      "dependencies": ["M2.1"],
-      "attempts": 1,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": "2026-09-21T20:15:00Z",
-      "completed_at": "2026-09-21T20:15:00Z",
-      "implementation_commit": "66b3310dedc64a3e1067065bbc715a78846d37b5",
-      "verification_commit": "66b3310dedc64a3e1067065bbc715a78846d37b5",
-      "failure_history": []
-    },
-    "M2.3": {
-      "id": "M2.3",
-      "feature": "r21_major_project",
-      "title": "R21 Major Project Consolidated Print Report",
-      "state": "COMPLETED",
-      "priority": "critical",
-      "dependencies": ["M2.2"],
-      "attempts": 1,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": "2026-09-21T20:25:00Z",
-      "completed_at": "2026-09-21T20:25:00Z",
-      "implementation_commit": "c580607b0ecda518e906c271887e224e756b2f76",
-      "verification_commit": "c580607b0ecda518e906c271887e224e756b2f76",
-      "failure_history": []
-    },
-    "M2.4": {
-      "id": "M2.4",
-      "feature": "r21_seminar",
-      "title": "R21 Seminar Controller and Presentation Rubrics Backend",
-      "state": "COMPLETED",
-      "priority": "critical",
-      "dependencies": ["M1.1"],
-      "attempts": 1,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": "2026-09-21T20:40:00Z",
-      "completed_at": "2026-09-21T20:40:00Z",
-      "implementation_commit": "e03c1809e9e31baae0836eb4531971dce546b4c4",
-      "verification_commit": "e03c1809e9e31baae0836eb4531971dce546b4c4",
-      "failure_history": []
-    },
-    "M2.5": {
-      "id": "M2.5",
-      "feature": "r21_seminar",
-      "title": "R21 Seminar Workspace View and Print Summary",
-      "state": "COMPLETED",
-      "priority": "critical",
-      "dependencies": ["M2.4"],
-      "attempts": 1,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": "2026-09-21T20:50:00Z",
-      "completed_at": "2026-09-21T20:50:00Z",
-      "implementation_commit": "be28d1034078edcf711b0af460715feffe96ff51",
-      "verification_commit": "be28d1034078edcf711b0af460715feffe96ff51",
-      "failure_history": []
-    },
-    "M2.6": {
-      "id": "M2.6",
-      "feature": "r21_drawing",
-      "title": "R21 Drawing Hall Controller and Sheet Evaluation Backend",
-      "state": "COMPLETED",
-      "priority": "critical",
-      "dependencies": ["M1.1"],
-      "attempts": 1,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": "2026-09-21T21:05:00Z",
-      "completed_at": "2026-09-21T21:05:00Z",
-      "implementation_commit": "1bd25cef06b4d4ed32095c9abdaa385454b289f1",
-      "verification_commit": "1bd25cef06b4d4ed32095c9abdaa385454b289f1",
-      "failure_history": []
-    },
-    "M2.7": {
-      "id": "M2.7",
-      "feature": "r21_drawing",
-      "title": "R21 Drawing Hall Workspace View and 4 Print Templates",
-      "state": "COMPLETED",
-      "priority": "critical",
-      "dependencies": ["M2.6"],
-      "attempts": 1,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": "2026-09-21T21:45:00Z",
-      "completed_at": "2026-09-21T21:45:00Z",
-      "implementation_commit": "c1f8b5768cf30a2f1de9e45fcfa5d38a0f283c7a",
-      "verification_commit": "c1f8b5768cf30a2f1de9e45fcfa5d38a0f283c7a",
-      "failure_history": []
-    },
-    "M3.1": {
-      "id": "M3.1",
-      "feature": "r26_practicum",
-      "title": "R26 Practicum Controller Extensions and CSV Export",
-      "state": "NOT_STARTED",
-      "priority": "critical",
-      "dependencies": ["M1.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M3.2": {
-      "id": "M3.2",
-      "feature": "r26_practicum",
-      "title": "R26 Basic Science Practicum Workspace & Evaluator Modals",
-      "state": "NOT_STARTED",
-      "priority": "critical",
-      "dependencies": ["M3.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M3.3": {
-      "id": "M3.3",
-      "feature": "r26_theory_sync",
-      "title": "R26 Theory Synchronized Features and SBTE Mark Scaling",
-      "state": "NOT_STARTED",
-      "priority": "critical",
-      "dependencies": ["M1.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M4.1": {
-      "id": "M4.1",
-      "feature": "shared_controller_methods",
-      "title": "AttendanceController Restoration (Sessions, Deletion, Reports)",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M1.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M4.2": {
-      "id": "M4.2",
-      "feature": "shared_controller_methods",
-      "title": "ClassroomController Restoration (ESE Marks, Attainment, A4 Print)",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M1.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M4.3": {
-      "id": "M4.3",
-      "feature": "shared_controller_methods",
-      "title": "VirtualClassroomPracticalController Restoration",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M1.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M5.1": {
-      "id": "M5.1",
-      "feature": "sbte_import",
-      "title": "SBTE Subject Log PDF Parser & Bulk Import Modal",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M4.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M5.2": {
-      "id": "M5.2",
-      "feature": "carmie_ai",
-      "title": "Carmie AI Assistant Playbook Service & Overlay UI",
-      "state": "NOT_STARTED",
-      "priority": "medium",
-      "dependencies": [],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M6.1": {
-      "id": "M6.1",
-      "feature": "program_attainment",
-      "title": "HOD Program Attainment Engine & Dashboard",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M1.1", "M4.2"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M6.2": {
-      "id": "M6.2",
-      "feature": "tutor_reports",
-      "title": "Tutor Progress Report Cards & Consolidated Print Suite",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M4.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M7.1": {
-      "id": "M7.1",
-      "feature": "print_reports_suite",
-      "title": "Centralized Print Templates & A4 Reports Modernization",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M2.3", "M2.5", "M2.7", "M6.2"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M8.1": {
-      "id": "M8.1",
-      "feature": "push_notifications",
-      "title": "Web Push Notifications Controller and Prompt UI",
-      "state": "NOT_STARTED",
-      "priority": "low",
-      "dependencies": ["M1.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M8.2": {
-      "id": "M8.2",
-      "feature": "staff_birthdays",
-      "title": "Staff Birthday Wishes Controller and Dashboard Modal",
-      "state": "NOT_STARTED",
-      "priority": "low",
-      "dependencies": ["M1.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M8.3": {
-      "id": "M8.3",
-      "feature": "mobile_lab",
-      "title": "Staff Mobile Virtual Lab Modernized View",
-      "state": "NOT_STARTED",
-      "priority": "low",
-      "dependencies": ["M4.3"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M8.4": {
-      "id": "M8.4",
-      "feature": "lab_batch_splitting",
-      "title": "Lab Batch A/B Splitting Modal & Evaluation Linking",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M1.1", "M4.3"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M8.5": {
-      "id": "M8.5",
-      "feature": "video_materials",
-      "title": "Direct MP4/WebM Video Upload & HTML5 Player",
-      "state": "NOT_STARTED",
-      "priority": "low",
-      "dependencies": [],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T17:45:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M9.1": {
-      "id": "M9.1",
-      "feature": "role_dashboards",
-      "title": "Executive and Administrative Dashboards Consolidation",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M1.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T21:05:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M9.2": {
-      "id": "M9.2",
-      "feature": "role_dashboards",
-      "title": "Faculty and Academic Leadership Dashboards Consolidation",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M1.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T21:05:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M9.3": {
-      "id": "M9.3",
-      "feature": "role_dashboards",
-      "title": "Laboratory and Workshop Staff Dashboards Consolidation",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M1.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T21:05:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    },
-    "M9.4": {
-      "id": "M9.4",
-      "feature": "role_dashboards",
-      "title": "Student and Parent Modern Responsive Portals Consolidation",
-      "state": "NOT_STARTED",
-      "priority": "high",
-      "dependencies": ["M1.1"],
-      "attempts": 0,
-      "max_attempts": 3,
-      "created_at": "2026-09-21T21:05:00Z",
-      "updated_at": null,
-      "completed_at": null,
-      "implementation_commit": null,
-      "verification_commit": null,
-      "failure_history": []
-    }
-  },
-  "dependencies": {
-    "M1.1": [],
-    "M2.1": ["M1.1"],
-    "M2.2": ["M2.1"],
-    "M2.3": ["M2.2"],
-    "M2.4": ["M1.1"],
-    "M2.5": ["M2.4"],
-    "M2.6": ["M1.1"],
-    "M2.7": ["M2.6"],
-    "M3.1": ["M1.1"],
-    "M3.2": ["M3.1"],
-    "M3.3": ["M1.1"],
-    "M4.1": ["M1.1"],
-    "M4.2": ["M1.1"],
-    "M4.3": ["M1.1"],
-    "M5.1": ["M4.1"],
-    "M5.2": [],
-    "M6.1": ["M1.1", "M4.2"],
-    "M6.2": ["M4.1"],
-    "M7.1": ["M2.3", "M2.5", "M2.7", "M6.2"],
-    "M8.1": ["M1.1"],
-    "M8.2": ["M1.1"],
-    "M8.3": ["M4.3"],
-    "M8.4": ["M1.1", "M4.3"],
-    "M8.5": [],
-    "M9.1": ["M1.1"],
-    "M9.2": ["M1.1"],
-    "M9.3": ["M1.1"],
-    "M9.4": ["M1.1"]
-  },
-  "history": [
-    {
-      "timestamp": "2026-09-21T17:38:29Z",
-      "unit": null,
-      "from": null,
-      "to": "bootstrap_complete",
-      "actor": "system",
-      "evidence": {
-        "commit": "cf661a5db4f554c7fefa3df7a954546b9a305d4e",
-        "branch": "migration-alpha"
-      }
-    },
-    {
-      "timestamp": "2026-09-21T19:30:00Z",
-      "unit": "M1.1",
-      "from": "VERIFIED",
-      "to": "COMPLETED",
-      "actor": "Supervisor",
-      "evidence": {
-        "commit": "06f68cc61082081c4e598bfe6a61d6b1b6222f0d",
-        "tests": 6,
-        "assertions": 17,
-        "result": "PASS",
-        "artifact": "carmel-linx-laravel/tests/Unit/AuditLogTest.php"
-      }
-    },
-    {
-      "timestamp": "2026-09-21T20:02:00Z",
-      "unit": "M2.1",
-      "from": "VERIFIED",
-      "to": "COMPLETED",
-      "actor": "Supervisor",
-      "evidence": {
-        "commit": "da44888c716a59a7e3f4381ce4297094d106ec40",
-        "tests": 24,
-        "assertions": 165,
-        "result": "PASS",
-        "artifact": "carmel-linx-laravel/tests/Feature/R21MajorProjectControllerTest.php"
-      }
-    },
-    {
-      "timestamp": "2026-09-21T20:15:00Z",
-      "unit": "M2.2",
-      "from": "VERIFIED",
-      "to": "COMPLETED",
-      "actor": "Supervisor",
-      "evidence": {
-        "commit": "66b3310dedc64a3e1067065bbc715a78846d37b5",
-        "tests": 29,
-        "assertions": 214,
-        "result": "PASS",
-        "artifact": "carmel-linx-laravel/tests/Feature/R21MajorProjectWorkspaceViewTest.php"
-      }
-    },
-    {
-      "timestamp": "2026-09-21T20:25:00Z",
-      "unit": "M2.3",
-      "from": "VERIFIED",
-      "to": "COMPLETED",
-      "actor": "Supervisor",
-      "evidence": {
-        "commit": "c580607b0ecda518e906c271887e224e756b2f76",
-        "tests": 37,
-        "assertions": 291,
-        "result": "PASS",
-        "artifact": "carmel-linx-laravel/tests/Feature/R21MajorProjectPrintReportTest.php"
-      }
-    },
-    {
-      "timestamp": "2026-09-21T20:40:00Z",
-      "unit": "M2.4",
-      "from": "VERIFIED",
-      "to": "COMPLETED",
-      "actor": "Supervisor",
-      "evidence": {
-        "commit": "e03c1809e9e31baae0836eb4531971dce546b4c4",
-        "tests": 47,
-        "assertions": 350,
-        "result": "PASS",
-        "artifact": "carmel-linx-laravel/tests/Feature/R21SeminarControllerTest.php"
-      }
-    },
-    {
-      "timestamp": "2026-09-21T20:50:00Z",
-      "unit": "M2.5",
-      "from": "VERIFIED",
-      "to": "COMPLETED",
-      "actor": "Supervisor",
-      "evidence": {
-        "commit": "be28d1034078edcf711b0af460715feffe96ff51",
-        "tests": 55,
-        "assertions": 416,
-        "result": "PASS",
-        "artifact": "carmel-linx-laravel/tests/Feature/R21SeminarWorkspaceViewTest.php"
-      }
-    },
-    {
-      "timestamp": "2026-09-21T21:05:00Z",
-      "unit": "M2.6",
-      "from": "VERIFIED",
-      "to": "COMPLETED",
-      "actor": "Supervisor",
-      "evidence": {
-        "commit": "1bd25cef06b4d4ed32095c9abdaa385454b289f1",
-        "tests": 64,
-        "assertions": 473,
-        "result": "PASS",
-        "artifact": "carmel-linx-laravel/tests/Feature/R21DrawingControllerTest.php"
-      }
-    }
-  ],
-  "escalations": [],
-  "metrics": {
-    "units_total": 28,
-    "units_completed": 7,
-    "units_failed": 0,
-    "units_blocked": 0,
-    "total_attempts": 0
-  }
+    "active_wave": null
 }

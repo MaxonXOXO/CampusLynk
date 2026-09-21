@@ -1,0 +1,92 @@
+{
+    "timestamp": "2026-09-21T16:26:28Z",
+    "status": "VALIDATED",
+    "detail": "Exchange completed and verified",
+    "request": {
+        "protocol_version": "1.0",
+        "message_id": "msg_req_20260921_162538_c47ca855",
+        "run_id": "run_20260921_01",
+        "timestamp": "2026-09-21T16:25:38Z",
+        "sender": "orchestrator",
+        "recipient": "architect",
+        "message_type": "ARCHITECTURE_REVIEW",
+        "unit_id": "M2.6",
+        "stage": "NOT_STARTED",
+        "payload": {
+            "unit_title": "R21 Drawing Hall Controller & Role Dashboards Migration Path Addition",
+            "objective": "Evaluate next unit in dependency graph (M2.6) following M2.5 completion, and evaluate user directive to add Role Dashboards migration (Principal, HOD, Lecturer, Trade Instructor, Lab Assistant, etc.) eliminating legacy duplication via <x-layouts.*> and <x-ui.*>. Issue next formal TASK_DISPATCH.",
+            "explicit_request": "Units M1.1 through M2.5 are COMPLETED and checkpointed (commit 8186c67f). User has requested adding role dashboards migration to eliminate legacy duplication. Please decide sequencing and issue formal TASK_DISPATCH conforming strictly to RESPONSE_SCHEMA.json.",
+            "context": {
+                "dependencies": [
+                    "M1.1"
+                ],
+                "allowed_files": [
+                    "docs/migration/STATE.json",
+                    "docs/migration/FEATURE_MATRIX.md"
+                ]
+            }
+        }
+    },
+    "response": {
+        "protocol_version": "1.0",
+        "message_id": "msg_resp_20260921_007_001",
+        "in_reply_to": "msg_req_20260921_162538_c47ca855",
+        "run_id": "run_20260921_01",
+        "unit_id": "M2.6",
+        "timestamp": "2026-09-21T16:25:38Z",
+        "sender": "architect",
+        "recipient": "orchestrator",
+        "decision": "TASK_DISPATCH",
+        "payload": {
+            "reason": "The role dashboards request should be incorporated into the migration roadmap now, but it should not interrupt the established dependency graph at M2.6. The correct sequencing is Option A: continue with M2.6 as the next active migration unit while registering role_dashboards as a dedicated cross-cutting feature in the control plane. This preserves deterministic progression through the R21 feature graph while ensuring the dashboard migration is formally tracked rather than becoming an informal side task. The dashboard feature must ultimately cover the identified roles, eliminate duplicated legacy shells/navigation/modals/styles through the existing faculty-shell, dashboard-layout, app-shell, and x-ui.* architecture, and be decomposed into reusable role-specific content over shared shells rather than producing one monolithic dashboard per role. M2.6 should therefore begin with a read-only architectural analysis that also evaluates where role dashboard dependencies intersect the existing graph, without prematurely implementing either feature.",
+            "state_transition": {
+                "target_state": "ANALYZING",
+                "authorized": true
+            },
+            "task_dispatch": {
+                "task_id": "M2.6-ANALYZE-001",
+                "unit_id": "M2.6",
+                "objective": "Perform a read-only architectural analysis of M2.6 R21 Drawing Hall Controller and Sheet Evaluation Backend, while establishing the control-plane placement and dependency implications of the newly authorized role_dashboards migration feature.",
+                "instructions": [
+                    "Inspect the existing migration control-plane state and feature matrix to establish the authoritative M2.6 scope, dependencies, sequencing, and current feature graph.",
+                    "Inspect the legacy R21 Drawing Hall controller, models, migrations, routes, Blade views, evaluation workflows, and print/report requirements necessary to determine backend and frontend migration scope.",
+                    "Inspect the current CampusLynk target implementation for existing Drawing-related models, controllers, services, routes, views, and reusable x-ui.* infrastructure before proposing new artifacts.",
+                    "Identify all functional parity requirements for Drawing Hall, including sheet/evaluation data, assessor workflows, marks, grading, persistence, reports, and any attainment or statutory requirements.",
+                    "Inspect existing role dashboard architecture relevant to the user's addition, including faculty-shell, dashboard-layout, app-shell, sidebar/topbar infrastructure, and the existing trade instructor and demonstrator dashboard reference implementations.",
+                    "Map the legacy dashboard duplication problem at an architectural level and identify the roles that must eventually be covered: Principal, HOD, Lecturer, Trade Instructor, Lab Assistant, Demonstrator, Tutor, Student, Parent, and any additional distinct dashboard roles discovered in the authoritative legacy feature inventory.",
+                    "Determine whether role_dashboards should be represented as one feature with reusable shared-shell subunits or multiple independent units, and identify likely dependencies on existing migration units.",
+                    "Do not implement Drawing Hall, dashboards, controllers, views, routes, models, migrations, tests, or database changes during this task.",
+                    "Do not modify application code.",
+                    "Return a TASK_REPORT only."
+                ],
+                "constraints": [
+                    "READ-ONLY ANALYSIS ONLY.",
+                    "DO NOT modify application files.",
+                    "DO NOT modify Blade views.",
+                    "DO NOT modify routes or controllers.",
+                    "DO NOT modify models, services, migrations, or database schema.",
+                    "DO NOT execute migrations or destructive database commands.",
+                    "DO NOT modify app/Models/User.php.",
+                    "DO NOT implement role dashboards in this task.",
+                    "DO NOT implement R21 Drawing Hall in this task.",
+                    "Preserve the established dependency graph; do not recommend skipping required prerequisites without evidence.",
+                    "All eventual virtual classroom/studio views MUST use <x-layouts.workspace-layout>.",
+                    "All eventual staff/faculty dashboards MUST use <x-layouts.app-shell> or <x-layouts.faculty-shell> as appropriate.",
+                    "All eventual print/report views MUST use <x-layouts.report-layout>.",
+                    "All eventual dashboard and Drawing UI MUST reuse existing <x-ui.*> components.",
+                    "No duplicate shell, navigation, modal, table, button, or design-token infrastructure may be proposed where existing components provide the capability.",
+                    "All eventual Blade views/partials remain subject to the strict sub-500-line decomposition rule.",
+                    "Return findings and recommended sequencing only; do not make repository modifications."
+                ],
+                "expected_report": "Authoritative M2.6 functional inventory; legacy-to-target parity map; required models/controllers/routes/views/services/tests; statutory Drawing evaluation and reporting requirements; existing target artifacts and reusable infrastructure; proposed M2.6 implementation slices with the first concrete implementation task and strict whitelist; role_dashboards feature architecture covering all discovered roles; legacy duplication inventory; proposed shared-shell/component strategy; role_dashboards placement in the dependency graph; dependencies between dashboards and existing/future units; risks, ambiguities, and sequencing recommendation; confirmation that the analysis made no repository or database changes.",
+                "stop_conditions": [
+                    "Stop if implementation changes are required to complete the analysis.",
+                    "Do not modify STATE.json or FEATURE_MATRIX.md during this read-only analysis task.",
+                    "Stop before implementing either M2.6 or role_dashboards.",
+                    "Do not modify application or database state.",
+                    "Stop after producing the TASK_REPORT."
+                ]
+            }
+        }
+    }
+}

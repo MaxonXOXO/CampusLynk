@@ -1,0 +1,95 @@
+{
+    "timestamp": "2026-09-21T14:21:40Z",
+    "status": "VALIDATED",
+    "detail": "Exchange completed and verified",
+    "request": {
+        "protocol_version": "1.0",
+        "message_id": "msg_req_20260921_142050_0aba9672",
+        "run_id": "run_20260921_01",
+        "timestamp": "2026-09-21T14:20:50Z",
+        "sender": "orchestrator",
+        "recipient": "architect",
+        "message_type": "IMPLEMENTATION_REVIEW",
+        "unit_id": "M2.1",
+        "stage": "READY",
+        "payload": {
+            "unit_title": "R21 Major Project Controller, AttainmentService & Routes (M2.1-IMPLEMENT-002)",
+            "objective": "Request formal TASK_DISPATCH for Slice 2 of M2.1: AttainmentService, R21VirtualClassroomMajorProjectController, route registration, and feature-level tests.",
+            "explicit_request": "Slice 1 is approved and M2.1 is in READY state. Please issue the formal TASK_DISPATCH for M2.1-IMPLEMENT-002 (Slice 2: AttainmentService, R21VirtualClassroomMajorProjectController, route registration in routes/web.php, and feature test tests/Feature/R21MajorProjectControllerTest.php). Every task must consider existing CampusLynk global shells/components/design language and avoid duplication. Return decision: 'TASK_DISPATCH' with payload.task_dispatch.",
+            "context": {
+                "dependencies": [
+                    "M1.1"
+                ],
+                "allowed_files": [
+                    "carmel-linx-laravel/app/Services/AttainmentService.php",
+                    "carmel-linx-laravel/app/Http/Controllers/R21VirtualClassroomMajorProjectController.php",
+                    "carmel-linx-laravel/routes/web.php",
+                    "carmel-linx-laravel/tests/Feature/R21MajorProjectControllerTest.php"
+                ]
+            }
+        }
+    },
+    "response": {
+        "protocol_version": "1.0",
+        "message_id": "msg_resp_20260921_001",
+        "in_reply_to": "msg_req_20260921_142050_0aba9672",
+        "run_id": "run_20260921_01",
+        "unit_id": "M2.1",
+        "timestamp": "2026-09-21T19:25:00+05:30",
+        "sender": "architect",
+        "recipient": "orchestrator",
+        "decision": "TASK_DISPATCH",
+        "payload": {
+            "reason": "Slice 1 of M2.1 has been architecturally verified and approved. The unit may now proceed to Slice 2, which ports the required AttainmentService behavior, all 11 legacy Major Project backend endpoints, authenticated route registration, and dedicated feature-level verification. The implementation must preserve current CampusLynk Laravel conventions and must derive behavior from the legacy implementation rather than inventing semantics. Any UI or view work encountered during implementation must use the established CampusLynk Master Shells and global x-ui components and must not introduce duplicated controls or styling. The worker must remain within the approved whitelist and stop rather than expanding scope if additional architectural changes are required.",
+            "state_transition": {
+                "target_state": "ANALYZING",
+                "authorized": true
+            },
+            "task_dispatch": {
+                "task_id": "M2.1-IMPLEMENT-002",
+                "unit_id": "M2.1",
+                "objective": "Implement Slice 2 of M2.1: port AttainmentService, port all 11 R21 Virtual Classroom Major Project backend endpoints into the modern CampusLynk architecture, register the required authenticated routes, and create dedicated feature tests covering endpoint validation, authentication, and attainment behavior.",
+                "instructions": [
+                    "Before editing, inspect the corresponding legacy AttainmentService and R21VirtualClassroomMajorProjectController implementations in full, including all 11 endpoint behaviors, supporting models, request expectations, route definitions, and relevant service dependencies.",
+                    "Inspect current CampusLynk service, controller, authentication, route, validation, response, and testing conventions and adapt the legacy behavior to those conventions rather than copying legacy code blindly.",
+                    "Implement app/Services/AttainmentService.php with the required service methods for ESE configuration, grade conversions, and CO-PO attainment, preserving behavior supported by the legacy implementation.",
+                    "Implement app/Http/Controllers/R21VirtualClassroomMajorProjectController.php with all 11 approved backend endpoints, using modern Laravel authentication, authorization boundaries, request validation, appropriate response/status handling, and existing CampusLynk conventions.",
+                    "Register the approved /r21/classroom/project/{subjectId}/* routes in routes/web.php under the appropriate existing authentication middleware without disturbing unrelated routes.",
+                    "Create tests/Feature/R21MajorProjectControllerTest.php covering authentication, validation, endpoint behavior, attainment calculations/service integration, and the required route/controller contract.",
+                    "Before creating any UI or view-related implementation, inspect the existing CampusLynk design system and component inventory. Virtual classroom/studio UI must use <x-layouts.workspace-layout>; staff dashboards must use <x-layouts.app-shell> or <x-layouts.faculty-shell>; print views must use <x-layouts.report-layout>.",
+                    "Reuse existing <x-ui.*> components whenever UI is required. Do not create ad-hoc buttons, custom modal systems, duplicated tables, inline replacement component systems, or duplicate SVG/icon implementations.",
+                    "Do not expand this task into M2.2 workspace UI or M2.3 print-report work unless the existing architecture proves that a dependency is strictly required. If such a dependency is required, stop and report it to ChatGPT rather than silently expanding scope.",
+                    "Use the legacy system as behavioral reference and the current CampusLynk architecture as the implementation target.",
+                    "Run focused tests, the full test suite, PHP syntax validation, and relevant route/controller validation after implementation.",
+                    "Return a structured TASK_REPORT with exact files changed, implementation summary, test commands/results, architectural/design-system compliance, issues, risks, and git status."
+                ],
+                "constraints": [
+                    "Modify only the four approved files unless ChatGPT explicitly authorizes a revised whitelist.",
+                    "Approved files: carmel-linx-laravel/app/Services/AttainmentService.php, carmel-linx-laravel/app/Http/Controllers/R21VirtualClassroomMajorProjectController.php, carmel-linx-laravel/routes/web.php, carmel-linx-laravel/tests/Feature/R21MajorProjectControllerTest.php.",
+                    "Do NOT modify app/Models/User.php.",
+                    "Do NOT modify the existing M2.1 Slice 1 migration or models.",
+                    "Do NOT modify unrelated controllers, services, models, views, layouts, components, migrations, configuration, or control-plane files.",
+                    "Do NOT modify STATE.json manually.",
+                    "Do NOT commit or push.",
+                    "Do NOT execute destructive database operations such as fresh, drop, truncate, or wipe.",
+                    "Do NOT begin M2.2, M2.3, or any other migration unit.",
+                    "Do NOT invent missing legacy behavior when the source is ambiguous; report the ambiguity instead.",
+                    "All UI implementation must comply with DESIGN_SYSTEM.md and AI_MIGRATION_RULES.md.",
+                    "Do not introduce duplicate global UI components or ad-hoc styling where an existing CampusLynk component already provides the required behavior."
+                ],
+                "expected_report": "Report the completed M2.1 Slice 2 implementation with: task_id and unit_id; every created/modified file and exact purpose; legacy behavior ported for AttainmentService and all 11 controller endpoints; route registration details; authentication/authorization and validation behavior; feature-test coverage; focused and full-suite test results; PHP syntax and route validation results; design-system and global-component compliance; any ambiguities, deviations, risks, or unresolved dependencies; and final git status/diff summary. Clearly distinguish IMPLEMENTED, VERIFIED, NOT VERIFIED, and BLOCKED evidence.",
+                "stop_conditions": [
+                    "Stop if correct implementation requires modifying a file outside the four-file whitelist.",
+                    "Stop if legacy and target behavior materially conflict and the correct architectural choice cannot be determined from existing project context.",
+                    "Stop if a required dependency is missing and resolving it would expand the approved scope.",
+                    "Stop if any test exposes an unrelated regression or broader architectural issue that cannot be safely isolated.",
+                    "Stop if the implementation would require modifying User.php, existing Slice 1 artifacts, control-plane state, or unrelated UI components.",
+                    "Stop if UI work requires a new global component rather than reuse of an existing one; report the component gap for architectural review.",
+                    "Stop if destructive database operations would be required.",
+                    "Stop after returning the TASK_REPORT.",
+                    "Do not commit, push, begin another migration unit, or independently select the next task."
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,59 @@
+{
+    "unit_id": "M1.1",
+    "simulation_status": "SIMULATED",
+    "would_modify": [],
+    "would_create": [
+        "database/migrations/2026_08_22_000001_add_suspension_fields_to_principal_scheduled_events_table.php",
+        "database/migrations/2026_08_24_000001_add_dob_to_staff_profiles_table.php",
+        "database/migrations/2026_08_24_000002_create_staff_birthday_wishes_table.php",
+        "database/migrations/2026_08_24_030000_add_remember_token_and_create_push_subscriptions.php",
+        "database/migrations/2026_09_07_140000_add_evaluation_date_to_practical_experiment_marks.php",
+        "database/migrations/2026_09_09_191438_add_lab_batch_config_to_batch_subjects.php",
+        "database/migrations/2026_09_10_000001_create_r21_drawing_tables.php",
+        "database/migrations/2026_09_10_232359_create_program_attainments_table.php",
+        "database/migrations/2026_09_12_000001_create_r21_major_project_tables.php",
+        "database/migrations/2026_09_19_030500_add_attainment_settings_to_course_files_table.php",
+        "app/Models/ProgramAttainment.php",
+        "app/Models/PushSubscription.php",
+        "app/Models/R21DrawingAttendanceEvaluation.php",
+        "app/Models/R21DrawingCourseFile.php",
+        "app/Models/R21DrawingSeriesTest.php",
+        "app/Models/R21DrawingSheetEvaluation.php",
+        "app/Models/R21MajorProjectCourseFile.php",
+        "app/Models/R21MajorProjectEvaluation.php",
+        "tests/Unit/MigrationSchemaParityTest.php"
+    ],
+    "would_delete": [],
+    "would_add_routes": [],
+    "would_add_models": [
+        "ProgramAttainment.php",
+        "PushSubscription.php",
+        "R21DrawingAttendanceEvaluation.php",
+        "R21DrawingCourseFile.php",
+        "R21DrawingSeriesTest.php",
+        "R21DrawingSheetEvaluation.php",
+        "R21MajorProjectCourseFile.php",
+        "R21MajorProjectEvaluation.php"
+    ],
+    "would_add_services": [],
+    "would_add_tests": [
+        "tests/Unit/MigrationSchemaParityTest.php"
+    ],
+    "would_add_migrations": [
+        "2026_08_22_000001_add_suspension_fields_to_principal_scheduled_events_table.php",
+        "2026_08_24_000001_add_dob_to_staff_profiles_table.php",
+        "2026_08_24_000002_create_staff_birthday_wishes_table.php",
+        "2026_08_24_030000_add_remember_token_and_create_push_subscriptions.php",
+        "2026_09_07_140000_add_evaluation_date_to_practical_experiment_marks.php",
+        "2026_09_09_191438_add_lab_batch_config_to_batch_subjects.php",
+        "2026_09_10_000001_create_r21_drawing_tables.php",
+        "2026_09_10_232359_create_program_attainments_table.php",
+        "2026_09_12_000001_create_r21_major_project_tables.php",
+        "2026_09_19_030500_add_attainment_settings_to_course_files_table.php"
+    ],
+    "estimated_scope": "~800 lines across 18 PHP files and 1 test file",
+    "scope_compliance": "PASSED (strictly within allowed_files whitelist)",
+    "risks": [
+        "Foreign key constraints in existing database must match migration definitions."
+    ]
+}

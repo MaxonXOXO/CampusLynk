@@ -1,0 +1,199 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CampusLynk Migration Protocol Request Schema",
+  "description": "Validation schema for messages sent by the Migration Orchestrator to the ChatGPT Architect/Supervisor via the bridge.",
+  "type": "object",
+  "required": [
+    "protocol_version",
+    "message_id",
+    "run_id",
+    "timestamp",
+    "sender",
+    "recipient",
+    "message_type",
+    "unit_id",
+    "stage",
+    "payload"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "message_id": {
+      "type": "string",
+      "pattern": "^msg_[a-zA-Z0-9_-]+$"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^run_[a-zA-Z0-9_-]+$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sender": {
+      "type": "string",
+      "enum": ["orchestrator"]
+    },
+    "recipient": {
+      "type": "string",
+      "enum": ["architect"]
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "ARCHITECTURE_REVIEW",
+        "IMPLEMENTATION_REVIEW",
+        "VERIFICATION_REVIEW",
+        "REPAIR_REVIEW",
+        "ESCALATION_REVIEW",
+        "FINAL_UNIT_REVIEW",
+        "TASK_REPORT"
+      ]
+    },
+    "unit_id": {
+      "type": "string",
+      "pattern": "^M\\d+\\.\\d+$"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "NOT_STARTED",
+        "ANALYZING",
+        "ANALYZED",
+        "READY",
+        "IMPLEMENTING",
+        "IMPLEMENTED",
+        "VERIFYING",
+        "VERIFIED",
+        "FAILED",
+        "REPAIRING",
+        "ESCALATED",
+        "CHECKPOINTED",
+        "COMPLETED"
+      ]
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "unit_title",
+        "objective",
+        "explicit_request",
+        "context"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "unit_title": {
+          "type": "string",
+          "minLength": 3
+        },
+        "objective": {
+          "type": "string",
+          "minLength": 10
+        },
+        "explicit_request": {
+          "type": "string",
+          "minLength": 10
+        },
+        "context": {
+          "type": "object",
+          "required": [
+            "dependencies",
+            "allowed_files"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "dependencies": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allowed_files": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "task_report": {
+              "type": "object",
+              "required": [
+                "task_id",
+                "unit_id",
+                "status",
+                "summary",
+                "changes",
+                "tests",
+                "issues",
+                "git"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "task_id": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9_.-]+$"
+                },
+                "unit_id": {
+                  "type": "string",
+                  "pattern": "^M\\d+\\.\\d+$"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["COMPLETED", "FAILED", "BLOCKED"]
+                },
+                "summary": {
+                  "type": "string"
+                },
+                "changes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "tests": {
+                  "type": "object",
+                  "additionalProperties": true
+                },
+                "issues": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "git": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              }
+            },
+            "scanner_findings": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "architecture_plan": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "implementation_report": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "verification_report": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "failure_diagnostic": {
+              "type": "object",
+              "additionalProperties": true
+            },
+            "diff_summary": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

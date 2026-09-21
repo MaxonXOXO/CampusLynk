@@ -1,0 +1,5 @@
+# CampusLynk Migration Runtime Logs
+This directory contains isolated, append-only records of communication exchanges
+between the Migration Orchestrator, the CDP Bridge, and ChatGPT.
+
+Runtime logs provide non-authoritative evidence and do NOT modify canonical STATE.json.

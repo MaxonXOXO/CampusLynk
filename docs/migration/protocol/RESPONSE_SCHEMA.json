@@ -1,0 +1,227 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CampusLynk Migration Protocol Response Schema",
+  "description": "Validation schema for messages returned by the ChatGPT Architect/Supervisor to the Migration Orchestrator via the bridge.",
+  "type": "object",
+  "required": [
+    "protocol_version",
+    "message_id",
+    "in_reply_to",
+    "run_id",
+    "unit_id",
+    "timestamp",
+    "sender",
+    "recipient",
+    "decision",
+    "payload"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "protocol_version": {
+      "type": "string",
+      "enum": ["1.0"]
+    },
+    "message_id": {
+      "type": "string",
+      "pattern": "^msg_[a-zA-Z0-9_-]+$"
+    },
+    "in_reply_to": {
+      "type": "string",
+      "pattern": "^msg_[a-zA-Z0-9_-]+$"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^run_[a-zA-Z0-9_-]+$"
+    },
+    "unit_id": {
+      "type": "string",
+      "pattern": "^M\\d+\\.\\d+$"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sender": {
+      "type": "string",
+      "enum": ["architect"]
+    },
+    "recipient": {
+      "type": "string",
+      "enum": ["orchestrator"]
+    },
+    "decision": {
+      "type": "string",
+      "enum": [
+        "PLAN_APPROVED",
+        "REVISION_REQUIRED",
+        "IMPLEMENTATION_APPROVED",
+        "VERIFICATION_APPROVED",
+        "REPAIR_REQUIRED",
+        "REPLAN_REQUIRED",
+        "ESCALATE",
+        "ABORT",
+        "TASK_DISPATCH"
+      ]
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "reason",
+        "state_transition"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 10
+        },
+        "state_transition": {
+          "type": "object",
+          "required": [
+            "target_state",
+            "authorized"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "target_state": {
+              "type": ["string", "null"],
+              "enum": [
+                "ANALYZING",
+                "ANALYZED",
+                "READY",
+                "IMPLEMENTING",
+                "IMPLEMENTED",
+                "VERIFYING",
+                "VERIFIED",
+                "FAILED",
+                "REPAIRING",
+                "ESCALATED",
+                "CHECKPOINTED",
+                "COMPLETED",
+                null
+              ]
+            },
+            "authorized": {
+              "type": "boolean"
+            }
+          }
+        },
+        "task_dispatch": {
+          "type": "object",
+          "required": [
+            "task_id",
+            "unit_id",
+            "objective",
+            "instructions",
+            "constraints",
+            "expected_report",
+            "stop_conditions"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "task_id": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9_.-]+$"
+            },
+            "unit_id": {
+              "type": "string",
+              "pattern": "^M\\d+\\.\\d+$"
+            },
+            "objective": {
+              "type": "string"
+            },
+            "instructions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "constraints": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "expected_report": {
+              "type": "string"
+            },
+            "stop_conditions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "relevant_files": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allowed_files": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "tests_required": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "git_requirements": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "required_changes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "implementation_instructions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "verification_requirements": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "risk_flags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "escalation": {
+          "type": "object",
+          "required": [
+            "issue",
+            "requires_human_decision"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "issue": {
+              "type": "string"
+            },
+            "requires_human_decision": {
+              "type": "boolean"
+            },
+            "suggested_options": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
