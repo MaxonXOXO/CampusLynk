@@ -2562,6 +2562,14 @@ Route::middleware(['web'])->group(function () {
     Route::post('/r21/classroom/project/{subjectId}/group-ese', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'saveGroupEse']);
     Route::post('/r21/classroom/project/{subjectId}/group-cia', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'saveGroupCia']);
     Route::get('/r21/classroom/project/{subjectId}/report/print', [\App\Http\Controllers\R21VirtualClassroomMajorProjectController::class, 'printReport']);
+
+    // Revision 2021 Virtual Seminar Classroom (Regulation Clause 11.2.6)
+    Route::get('/r21/classroom/seminar/{subjectId}', [\App\Http\Controllers\R21VirtualClassroomSeminarController::class, 'show']);
+    Route::post('/r21/classroom/seminar/{subjectId}/syllabus', [\App\Http\Controllers\R21VirtualClassroomSeminarController::class, 'uploadSyllabus']);
+    Route::post('/r21/classroom/seminar/{subjectId}/evaluate', [\App\Http\Controllers\R21VirtualClassroomSeminarController::class, 'saveEvaluation']);
+    Route::post('/r21/classroom/seminar/{subjectId}/schedule', [\App\Http\Controllers\R21VirtualClassroomSeminarController::class, 'updateSeminarSchedule']);
+    Route::get('/r21/classroom/seminar/{subjectId}/print', [\App\Http\Controllers\R21VirtualClassroomSeminarController::class, 'printReport']);
+    Route::get('/r21/classroom/seminar/{subjectId}/attainment-summary', [\App\Http\Controllers\R21VirtualClassroomSeminarController::class, 'getAttainmentSummary']);
 });
 
 // CampusLynk Modern V2 UI Preview Routes (Reference Implementation)

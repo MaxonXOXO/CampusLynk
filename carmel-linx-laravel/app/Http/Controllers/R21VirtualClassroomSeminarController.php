@@ -1,0 +1,906 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\AcademicMark;
+use App\Models\BatchSubject;
+use App\Models\ClassManagement;
+use App\Models\CourseFile;
+use App\Models\SeminarEvaluation;
+use App\Models\StaffProfile;
+use App\Models\Student;
+use App\Models\StudentSeminarRegistration;
+use App\Services\AttainmentService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Session;
+
+class R21VirtualClassroomSeminarController extends Controller
+{
+    /**
+     * Show R21 Seminar Virtual Classroom Workspace
+     */
+    public function show($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            if (request()->wantsJson()) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. Please log in.'], 401);
+            }
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) {
+            if (request()->wantsJson()) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.'], 404);
+            }
+            abort(404, 'Subject not found.');
+        }
+
+        // Classroom details
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        if (!$classroom && Schema::hasTable('r26_class_management')) {
+            $classroom = DB::table('r26_class_management')->where('classroom_id', $batchSubject->classroom_id)->first();
+        }
+        if (!$classroom) {
+            if (request()->wantsJson()) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Classroom association not found.'], 404);
+            }
+            abort(404, 'Classroom association not found.');
+        }
+
+        // Course File for syllabus PDF & settings
+        $courseFile = CourseFile::firstOrCreate(
+            ['batch_subject_id' => $subjectId],
+            [
+                'syllabus_pdf_path' => null,
+                'parsed_modules' => [],
+                'parsed_cos' => [],
+                'parsed_copo' => [],
+                'parsed_textbooks' => []
+            ]
+        );
+
+        // Enrolled Students Query
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no', 'academic_status']);
+
+        // Seminar Registrations (Topic, Date, Guide)
+        $seminarRegs = StudentSeminarRegistration::where('batch_subject_id', $subjectId)
+            ->with('guide')
+            ->get()
+            ->keyBy('reg_no');
+
+        // Seminar Evaluations
+        $allEvaluations = SeminarEvaluation::where('batch_subject_id', $subjectId)->get();
+        $myEvaluations = $allEvaluations->where('assessor_mobile_no', $userId)->keyBy('reg_no');
+
+        // Lab Batches from r26_student_lab_batches if available
+        $labBatches = collect();
+        if (Schema::hasTable('r26_student_lab_batches')) {
+            $labBatches = DB::table('r26_student_lab_batches')
+                ->where('batch_subject_id', $subjectId)
+                ->get()
+                ->keyBy('reg_no');
+        }
+
+        // Attendance data from student_attendance if available
+        $attendanceData = collect();
+        if (Schema::hasTable('student_attendance')) {
+            $attendanceData = DB::table('student_attendance')
+                ->where('subject_code', $batchSubject->subject_code)
+                ->get()
+                ->groupBy('reg_no');
+        }
+
+        // Department Guides
+        $deptCode = $classroom->department ?? $classroom->branch ?? '';
+        $guides = StaffProfile::where(function($q) use ($deptCode) {
+                if (!empty($deptCode)) {
+                    $q->where('branch', $deptCode);
+                }
+            })
+            ->whereIn('designation', ['HOD', 'Lecturer', 'Demonstrator', 'Workshop Superintendent', 'Assistant Professor'])
+            ->orderBy('name', 'asc')
+            ->get(['mobile_no', 'name', 'designation']);
+
+        if ($guides->isEmpty()) {
+            $guides = StaffProfile::orderBy('name', 'asc')->get(['mobile_no', 'name', 'designation']);
+        }
+
+        // Active Staff Info
+        $activeStaff = StaffProfile::where('mobile_no', $userId)->first();
+        $staffProfiles = StaffProfile::all()->keyBy('mobile_no');
+
+        // Process student results
+        $studentResults = $students->map(function ($student) use ($seminarRegs, $allEvaluations, $myEvaluations, $labBatches, $attendanceData, $staffProfiles) {
+            $regNo = $student->reg_no;
+            $reg = $seminarRegs->get($regNo);
+            $myEval = $myEvaluations->get($regNo);
+            $stAllEvals = $allEvaluations->where('reg_no', $regNo);
+            $evalCount = $stAllEvals->count();
+
+            // Averaged rubrics across all assessors
+            $avgRelevance = $evalCount > 0 ? round($stAllEvals->avg('relevance'), 2) : null;
+            $avgLiterature = $evalCount > 0 ? round($stAllEvals->avg('literature'), 2) : null;
+            $avgPresentation = $evalCount > 0 ? round($stAllEvals->avg('presentation'), 2) : null;
+            $avgInteraction = $evalCount > 0 ? round($stAllEvals->avg('interaction'), 2) : null;
+            $avgReport = $evalCount > 0 ? round($stAllEvals->avg('report'), 2) : null;
+            $avgAttendance = $evalCount > 0 ? round($stAllEvals->avg('attendance'), 2) : null;
+            $finalAvgScore = $evalCount > 0 ? round($stAllEvals->avg('total_score'), 2) : 0.0;
+
+            // Suggested Attendance mark based on student_attendance
+            $stAtt = $attendanceData->get($regNo, collect());
+            $totalAtt = $stAtt->count();
+            $present = $stAtt->whereIn('status', ['Present', 'Late'])->count();
+            $attPercentage = $totalAtt > 0 ? round(($present / $totalAtt) * 100, 1) : 100.0;
+
+            // SBTE 10% Attendance Slab (Max 7.5 M)
+            if ($attPercentage >= 90) { $suggestedAttMark = 7.5; }
+            elseif ($attPercentage >= 80) { $suggestedAttMark = 6.0; }
+            elseif ($attPercentage >= 75) { $suggestedAttMark = 4.5; }
+            elseif ($attPercentage >= 70) { $suggestedAttMark = 3.0; }
+            elseif ($attPercentage >= 65) { $suggestedAttMark = 1.5; }
+            else { $suggestedAttMark = 0.0; }
+
+            // Batch assignment
+            $batchRow = $labBatches->get($regNo);
+            $batchAssignment = $batchRow ? (string)$batchRow->lab_batch : 'Unassigned';
+            if ($batchAssignment === '1' || $batchAssignment === 'Batch 1') $batchAssignment = '1';
+            elseif ($batchAssignment === '2' || $batchAssignment === 'Batch 2') $batchAssignment = '2';
+            else $batchAssignment = 'Unassigned';
+
+            // SBTE Polytechnic Grading (out of 75 Marks)
+            $gradeData = self::calculateSbteGrade($finalAvgScore, $evalCount > 0);
+
+            // Status
+            $isCompleted = ($evalCount > 0);
+            $isScheduled = ($reg && !empty($reg->presentation_date));
+            $status = $isCompleted ? 'Completed' : ($isScheduled ? 'Scheduled' : 'Pending');
+
+            $assessorsList = $stAllEvals->map(function ($ev) use ($staffProfiles) {
+                $sp = $staffProfiles->get($ev->assessor_mobile_no);
+                return [
+                    'assessor_mobile' => $ev->assessor_mobile_no,
+                    'assessor_name' => $sp ? $sp->name : $ev->assessor_mobile_no,
+                    'designation' => $sp ? $sp->designation : 'Assessor',
+                    'relevance' => (float)$ev->relevance,
+                    'literature' => (float)$ev->literature,
+                    'presentation' => (float)$ev->presentation,
+                    'interaction' => (float)$ev->interaction,
+                    'report' => (float)$ev->report,
+                    'attendance' => (float)$ev->attendance,
+                    'total_score' => (float)$ev->total_score,
+                ];
+            })->values();
+
+            return [
+                'reg_no' => $regNo,
+                'sbte_reg_no' => $student->sbte_reg_no ?? $regNo,
+                'name' => $student->name,
+                'roll_no' => $student->roll_no,
+                'academic_status' => $student->academic_status,
+                'batch' => $batchAssignment,
+                'topic' => $reg ? $reg->topic : null,
+                'presentation_date' => $reg && $reg->presentation_date ? date('Y-m-d', strtotime($reg->presentation_date)) : null,
+                'presentation_date_formatted' => $reg && $reg->presentation_date ? date('d-m-Y', strtotime($reg->presentation_date)) : null,
+                'guide_name' => $reg && $reg->guide ? $reg->guide->name : null,
+                'guide_mobile_no' => $reg ? $reg->guide_mobile_no : null,
+                'att_percentage' => $attPercentage,
+                'suggested_att_mark' => $suggestedAttMark,
+                'my_evaluation' => $myEval ? [
+                    'relevance' => (float)$myEval->relevance,
+                    'literature' => (float)$myEval->literature,
+                    'presentation' => (float)$myEval->presentation,
+                    'interaction' => (float)$myEval->interaction,
+                    'report' => (float)$myEval->report,
+                    'attendance' => (float)$myEval->attendance,
+                    'total_score' => (float)$myEval->total_score,
+                ] : null,
+                'assessors_list' => $assessorsList,
+                'eval_count' => $evalCount,
+                'avg_relevance' => $avgRelevance,
+                'avg_literature' => $avgLiterature,
+                'avg_presentation' => $avgPresentation,
+                'avg_interaction' => $avgInteraction,
+                'avg_report' => $avgReport,
+                'avg_attendance' => $avgAttendance,
+                'final_score' => $finalAvgScore,
+                'letter_grade' => $gradeData['grade'],
+                'grade_point' => $gradeData['point'],
+                'result' => $gradeData['result'],
+                'status' => $status,
+                'is_completed' => $isCompleted
+            ];
+        });
+
+        // Statistics
+        $totalStudents = $studentResults->count();
+        $completedCount = $studentResults->where('is_completed', true)->count();
+        $pendingCount = $totalStudents - $completedCount;
+        $batch1Count = $studentResults->where('batch', '1')->count();
+        $batch2Count = $studentResults->where('batch', '2')->count();
+        $unassignedCount = $studentResults->where('batch', 'Unassigned')->count();
+        $classAvg = $completedCount > 0 ? round($studentResults->where('is_completed', true)->avg('final_score'), 2) : 0.0;
+
+        $viewData = compact(
+            'batchSubject',
+            'classroom',
+            'courseFile',
+            'students',
+            'studentResults',
+            'guides',
+            'activeStaff',
+            'totalStudents',
+            'completedCount',
+            'pendingCount',
+            'batch1Count',
+            'batch2Count',
+            'unassignedCount',
+            'classAvg'
+        );
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'status' => 'SUCCESS',
+                'data' => $viewData
+            ]);
+        }
+
+        if (view()->exists('r21_seminar.virtual_classroom_seminar')) {
+            return view('r21_seminar.virtual_classroom_seminar', $viewData);
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'data' => $viewData
+        ]);
+    }
+
+    /**
+     * Upload & Save Syllabus PDF for Seminar
+     */
+    public function uploadSyllabus(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. Please log in.'], 401);
+        }
+
+        $request->validate([
+            'syllabus_file' => 'required|mimes:pdf|max:15360'
+        ]);
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $file = $request->file('syllabus_file');
+        $filename = 'r21_seminar_syllabus_' . $subjectId . '_' . time() . '.' . $file->getClientOriginalExtension();
+        $path = $file->storeAs('syllabi', $filename, 'public');
+
+        $courseFile = CourseFile::firstOrCreate(['batch_subject_id' => $subjectId]);
+        $courseFile->syllabus_pdf_path = '/storage/' . $path;
+        $courseFile->save();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Syllabus PDF uploaded successfully.',
+            'path' => $courseFile->syllabus_pdf_path
+        ]);
+    }
+
+    /**
+     * Save / Upsert Seminar Evaluation (Clause 11.2.6 - 75 Marks Total)
+     */
+    public function saveEvaluation(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. Please log in.'], 401);
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+
+        $request->validate([
+            'reg_no' => 'required|string',
+            'relevance' => 'required|numeric|min:0|max:7.5',
+            'literature' => 'required|numeric|min:0|max:7.5',
+            'presentation' => 'required|numeric|min:0|max:37.5',
+            'interaction' => 'required|numeric|min:0|max:7.5',
+            'report' => 'required|numeric|min:0|max:7.5',
+            'attendance' => 'required|numeric|min:0|max:7.5',
+        ]);
+
+        $regNo = $request->input('reg_no');
+        $relevance = round((float)$request->input('relevance'), 2);
+        $literature = round((float)$request->input('literature'), 2);
+        $presentation = round((float)$request->input('presentation'), 2);
+        $interaction = round((float)$request->input('interaction'), 2);
+        $report = round((float)$request->input('report'), 2);
+        $attendance = round((float)$request->input('attendance'), 2);
+
+        $totalScore = round($relevance + $literature + $presentation + $interaction + $report + $attendance, 2);
+        if ($totalScore > 75.0) {
+            $totalScore = 75.0;
+        }
+
+        // Check if an assessor was selected or use current user
+        $requestedAssessor = $request->input('assessor_mobile_no');
+        if ($requestedAssessor && StaffProfile::where('mobile_no', $requestedAssessor)->exists()) {
+            $assessorMobile = $requestedAssessor;
+        } else {
+            $assessorMobile = $userId;
+            if (!StaffProfile::where('mobile_no', $assessorMobile)->exists()) {
+                $fallback = null;
+                if (Schema::hasTable('subject_staff_assignments')) {
+                    $fallback = DB::table('subject_staff_assignments')
+                        ->where('batch_subject_id', $subjectId)
+                        ->value('staff_mobile_no');
+                }
+                if (!$fallback) {
+                    $fallback = StaffProfile::value('mobile_no');
+                }
+                if ($fallback) {
+                    $assessorMobile = $fallback;
+                }
+            }
+        }
+
+        // 1. Save assessor evaluation
+        SeminarEvaluation::updateOrCreate(
+            [
+                'batch_subject_id' => $subjectId,
+                'reg_no' => $regNo,
+                'assessor_mobile_no' => $assessorMobile
+            ],
+            [
+                'relevance' => $relevance,
+                'literature' => $literature,
+                'presentation' => $presentation,
+                'interaction' => $interaction,
+                'report' => $report,
+                'attendance' => $attendance,
+                'total_score' => $totalScore
+            ]
+        );
+
+        // 2. Also update Topic, Guide and Presentation Date if provided
+        if ($request->has('topic') && !empty(trim($request->input('topic') ?? ''))) {
+            $guideMobile = trim($request->input('guide_mobile_no') ?? '');
+            if ($guideMobile === '' || !StaffProfile::where('mobile_no', $guideMobile)->exists()) {
+                $guideMobile = null;
+            }
+            StudentSeminarRegistration::updateOrCreate(
+                [
+                    'batch_subject_id' => $subjectId,
+                    'reg_no' => $regNo
+                ],
+                [
+                    'topic' => trim($request->input('topic')),
+                    'presentation_date' => $request->input('presentation_date') ?: null,
+                    'guide_mobile_no' => $guideMobile
+                ]
+            );
+        }
+
+        // 3. Compute averaged score across all assessors for this student
+        $studentAllEvals = SeminarEvaluation::where('batch_subject_id', $subjectId)
+            ->where('reg_no', $regNo)
+            ->get();
+
+        $evalCount = $studentAllEvals->count();
+        $averageScore = $evalCount > 0 ? round($studentAllEvals->avg('total_score'), 2) : $totalScore;
+
+        // 4. Upsert into AcademicMark as Continuous Internal Assessment out of 75
+        if (Schema::hasTable('syllabus_registry')) {
+            DB::table('syllabus_registry')->updateOrInsert(
+                ['subject_code' => $batchSubject->subject_code],
+                [
+                    'subject_name' => $batchSubject->subject_name,
+                    'revision_year' => 2021,
+                    'co_count' => 6,
+                    'cia_marks' => 75,
+                    'ese_marks' => 0,
+                    'credits' => 1.5,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]
+            );
+        }
+
+        AcademicMark::updateOrCreate(
+            [
+                'reg_no' => $regNo,
+                'subject_code' => $batchSubject->subject_code,
+                'category' => 'Seminar'
+            ],
+            [
+                'co_tag' => 'CO1',
+                'max_marks' => 75,
+                'marks_obtained' => $averageScore,
+                'entered_by' => $assessorMobile
+            ]
+        );
+
+        // Compute SBTE Grade
+        $gradeData = self::calculateSbteGrade($averageScore, true);
+
+        // Total completed seminars count for the subject
+        $completedStudentsCount = SeminarEvaluation::where('batch_subject_id', $subjectId)
+            ->distinct('reg_no')
+            ->count('reg_no');
+
+        $staffProfiles = StaffProfile::all()->keyBy('mobile_no');
+        $assessorsList = $studentAllEvals->map(function ($ev) use ($staffProfiles) {
+            $sp = $staffProfiles->get($ev->assessor_mobile_no);
+            return [
+                'assessor_mobile' => $ev->assessor_mobile_no,
+                'assessor_name' => $sp ? $sp->name : $ev->assessor_mobile_no,
+                'designation' => $sp ? $sp->designation : 'Assessor',
+                'relevance' => (float)$ev->relevance,
+                'literature' => (float)$ev->literature,
+                'presentation' => (float)$ev->presentation,
+                'interaction' => (float)$ev->interaction,
+                'report' => (float)$ev->report,
+                'attendance' => (float)$ev->attendance,
+                'total_score' => (float)$ev->total_score,
+            ];
+        })->values();
+
+        $updatedReg = StudentSeminarRegistration::where('batch_subject_id', $subjectId)
+            ->where('reg_no', $regNo)
+            ->with('guide')
+            ->first();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Seminar evaluation saved successfully.',
+            'data' => [
+                'reg_no' => $regNo,
+                'my_total' => $totalScore,
+                'average_score' => $averageScore,
+                'eval_count' => $evalCount,
+                'letter_grade' => $gradeData['grade'],
+                'grade_point' => $gradeData['point'],
+                'result' => $gradeData['result'],
+                'completed_count' => $completedStudentsCount,
+                'assessors_list' => $assessorsList,
+                'topic' => $updatedReg ? $updatedReg->topic : null,
+                'presentation_date' => $updatedReg && $updatedReg->presentation_date ? date('Y-m-d', strtotime($updatedReg->presentation_date)) : null,
+                'presentation_date_formatted' => $updatedReg && $updatedReg->presentation_date ? date('d-m-Y', strtotime($updatedReg->presentation_date)) : null,
+                'guide_name' => $updatedReg && $updatedReg->guide ? $updatedReg->guide->name : null,
+                'guide_mobile_no' => $updatedReg ? $updatedReg->guide_mobile_no : null,
+            ]
+        ]);
+    }
+
+    /**
+     * Update Student Seminar Schedule & Log (Topic, Date, Guide)
+     */
+    public function updateSeminarSchedule(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. Please log in.'], 401);
+        }
+
+        $request->validate([
+            'reg_no' => 'required|string',
+            'topic' => 'required|string|max:255',
+            'presentation_date' => 'nullable|date',
+            'guide_mobile_no' => 'nullable|string|max:30',
+        ]);
+
+        $regNo = $request->input('reg_no');
+        $topic = trim($request->input('topic'));
+        $presentationDate = $request->input('presentation_date');
+        $guideMobile = trim($request->input('guide_mobile_no') ?? '');
+        if ($guideMobile === '' || !StaffProfile::where('mobile_no', $guideMobile)->exists()) {
+            $guideMobile = null;
+        }
+
+        $semReg = StudentSeminarRegistration::updateOrCreate(
+            [
+                'batch_subject_id' => $subjectId,
+                'reg_no' => $regNo
+            ],
+            [
+                'topic' => $topic,
+                'presentation_date' => $presentationDate,
+                'guide_mobile_no' => $guideMobile
+            ]
+        );
+
+        $guide = StaffProfile::where('mobile_no', $guideMobile)->first();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Seminar schedule and log updated successfully.',
+            'data' => [
+                'reg_no' => $regNo,
+                'topic' => $semReg->topic,
+                'presentation_date' => $semReg->presentation_date ? date('Y-m-d', strtotime($semReg->presentation_date)) : null,
+                'presentation_date_formatted' => $semReg->presentation_date ? date('d-m-Y', strtotime($semReg->presentation_date)) : null,
+                'guide_name' => $guide ? $guide->name : '-',
+                'guide_mobile_no' => $guideMobile
+            ]
+        ]);
+    }
+
+    /**
+     * Print Consolidated Seminar Evaluation Sheet (Clause 11.2.6 - 75M)
+     */
+    public function printReport(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            if (request()->wantsJson()) {
+                return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. Please log in.'], 401);
+            }
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $reportType = $request->query('type', 'consolidated');
+        if (!in_array($reportType, ['consolidated', 'cia_submission', 'schedule'])) {
+            $reportType = 'consolidated';
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        if (!$classroom && Schema::hasTable('r26_class_management')) {
+            $classroom = DB::table('r26_class_management')->where('classroom_id', $batchSubject->classroom_id)->first();
+        }
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $allEvaluations = SeminarEvaluation::where('batch_subject_id', $subjectId)->get();
+        $seminarRegs = StudentSeminarRegistration::where('batch_subject_id', $subjectId)->with('guide')->get()->keyBy('reg_no');
+
+        // Attendance data from student_attendance
+        $attendanceData = collect();
+        if (Schema::hasTable('student_attendance')) {
+            $attendanceData = DB::table('student_attendance')
+                ->where('subject_code', $batchSubject->subject_code)
+                ->get()
+                ->groupBy('reg_no');
+        }
+
+        $reportData = $students->map(function ($student) use ($allEvaluations, $seminarRegs, $attendanceData) {
+            $regNo = $student->reg_no;
+            $reg = $seminarRegs->get($regNo);
+            $stAllEvals = $allEvaluations->where('reg_no', $regNo);
+            $evalCount = $stAllEvals->count();
+
+            // Rubrics
+            $avgRelevance = $evalCount > 0 ? round($stAllEvals->avg('relevance'), 2) : 0;
+            $avgLiterature = $evalCount > 0 ? round($stAllEvals->avg('literature'), 2) : 0;
+            $avgPresentation = $evalCount > 0 ? round($stAllEvals->avg('presentation'), 2) : 0;
+            $avgInteraction = $evalCount > 0 ? round($stAllEvals->avg('interaction'), 2) : 0;
+            $avgReport = $evalCount > 0 ? round($stAllEvals->avg('report'), 2) : 0;
+            $avgAttendance = $evalCount > 0 ? round($stAllEvals->avg('attendance'), 2) : 0;
+            $finalAvgScore = $evalCount > 0 ? round($stAllEvals->avg('total_score'), 2) : 0;
+
+            // Attendance from attendance log
+            $stAtt = $attendanceData->get($regNo, collect());
+            $totalAtt = $stAtt->count();
+            $present = $stAtt->whereIn('status', ['Present', 'Late'])->count();
+            $attPercentage = $totalAtt > 0 ? round(($present / $totalAtt) * 100, 1) : 100.0;
+
+            // Splitup components: Seminar evaluation (67.5M) + Attendance (7.5M) = 75M
+            $seminarComponent = round($avgRelevance + $avgLiterature + $avgPresentation + $avgInteraction + $avgReport, 2);
+            $attendanceComponent = round($avgAttendance, 2);
+
+            $gradeData = self::calculateSbteGrade($finalAvgScore, $evalCount > 0);
+
+            return [
+                'roll_no' => $student->roll_no,
+                'sbte_reg_no' => $student->sbte_reg_no ?? $regNo,
+                'name' => $student->name,
+                'topic' => $reg && !empty($reg->topic) ? $reg->topic : '—',
+                'presentation_date' => $reg && $reg->presentation_date ? date('d-m-Y', strtotime($reg->presentation_date)) : '—',
+                'guide_name' => $reg && $reg->guide ? $reg->guide->name : '—',
+                'att_percentage' => $attPercentage,
+                'relevance' => $avgRelevance,
+                'literature' => $avgLiterature,
+                'presentation' => $avgPresentation,
+                'interaction' => $avgInteraction,
+                'report' => $avgReport,
+                'attendance' => $avgAttendance,
+                'seminar_score' => $seminarComponent,
+                'attendance_score' => $attendanceComponent,
+                'total_score' => $finalAvgScore,
+                'score_in_words' => $evalCount > 0 ? self::numberToWords($finalAvgScore) : '—',
+                'letter_grade' => $gradeData['grade'],
+                'grade_point' => $gradeData['point'],
+                'result' => $gradeData['result'],
+                'eval_count' => $evalCount,
+                'status' => $evalCount > 0 ? 'Completed' : ($reg && !empty($reg->presentation_date) ? 'Scheduled' : 'Pending')
+            ];
+        });
+
+        // Summary Statistics
+        $completedStudents = $reportData->where('eval_count', '>', 0);
+        $completedCount = $completedStudents->count();
+        $passedCount = $completedStudents->where('result', 'Pass')->count();
+        $failedCount = $completedStudents->where('result', 'Failed')->count();
+        $passRate = $completedCount > 0 ? round(($passedCount / $completedCount) * 100, 1) : 0.0;
+        $avgScoreOverall = $completedCount > 0 ? round($completedStudents->avg('total_score'), 2) : 0.0;
+        $highestScore = $completedCount > 0 ? round($completedStudents->max('total_score'), 2) : 0.0;
+        $lowestScore = $completedCount > 0 ? round($completedStudents->min('total_score'), 2) : 0.0;
+
+        $gradeStats = [
+            'S' => $completedStudents->where('letter_grade', 'S')->count(),
+            'A' => $completedStudents->where('letter_grade', 'A')->count(),
+            'B' => $completedStudents->where('letter_grade', 'B')->count(),
+            'C' => $completedStudents->where('letter_grade', 'C')->count(),
+            'D' => $completedStudents->where('letter_grade', 'D')->count(),
+            'E' => $completedStudents->where('letter_grade', 'E')->count(),
+            'F' => $completedStudents->where('letter_grade', 'F')->count(),
+        ];
+
+        $deptCode = $classroom->department ?? $classroom->branch ?? '';
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'EEE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+            'CT' => 'Computer Engineering',
+            'AU' => 'Automobile Engineering',
+        ];
+        $fullDepartment = $branchMap[strtoupper($deptCode)] ?? $deptCode;
+
+        $viewData = [
+            'subject' => $batchSubject,
+            'classroom' => $classroom,
+            'fullDepartment' => $fullDepartment,
+            'students' => $reportData,
+            'totalStudents' => $reportData->count(),
+            'completedCount' => $completedCount,
+            'passedCount' => $passedCount,
+            'failedCount' => $failedCount,
+            'passRate' => $passRate,
+            'avgScoreOverall' => $avgScoreOverall,
+            'highestScore' => $highestScore,
+            'lowestScore' => $lowestScore,
+            'gradeStats' => $gradeStats,
+            'reportType' => $reportType,
+            'currentYear' => date('Y')
+        ];
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'status' => 'SUCCESS',
+                'data' => $viewData
+            ]);
+        }
+
+        if (view()->exists('r21_seminar.seminar_report_print')) {
+            return view('r21_seminar.seminar_report_print', $viewData);
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'data' => $viewData
+        ]);
+    }
+
+    /**
+     * SBTE Kerala Polytechnic Grading Scale (Max 75 Marks)
+     */
+    public static function calculateSbteGrade($score, $hasEvaluations = true)
+    {
+        if (!$hasEvaluations || $score === null || $score === '') {
+            return ['grade' => '-', 'point' => '-', 'result' => 'Pending'];
+        }
+
+        $s = (float)$score;
+        $pct = ($s / 75.0) * 100.0;
+
+        if ($pct >= 90.0) {
+            return ['grade' => 'S', 'point' => 10, 'result' => 'Pass'];
+        } elseif ($pct >= 80.0) {
+            return ['grade' => 'A', 'point' => 9, 'result' => 'Pass'];
+        } elseif ($pct >= 70.0) {
+            return ['grade' => 'B', 'point' => 8, 'result' => 'Pass'];
+        } elseif ($pct >= 60.0) {
+            return ['grade' => 'C', 'point' => 7, 'result' => 'Pass'];
+        } elseif ($pct >= 50.0) {
+            return ['grade' => 'D', 'point' => 6, 'result' => 'Pass'];
+        } elseif ($pct >= 40.0) {
+            return ['grade' => 'E', 'point' => 5, 'result' => 'Pass'];
+        } else {
+            return ['grade' => 'F', 'point' => 0, 'result' => 'Failed'];
+        }
+    }
+
+    /**
+     * Convert numeric marks (0 - 75.0) to words for SBTE Mark Entry Register
+     */
+    public static function numberToWords($num)
+    {
+        if ($num === null || $num === '' || !is_numeric($num)) return '—';
+        $num = round((float)$num, 2);
+
+        $ones = [
+            0 => 'Zero', 1 => 'One', 2 => 'Two', 3 => 'Three', 4 => 'Four',
+            5 => 'Five', 6 => 'Six', 7 => 'Seven', 8 => 'Eight', 9 => 'Nine',
+            10 => 'Ten', 11 => 'Eleven', 12 => 'Twelve', 13 => 'Thirteen', 14 => 'Fourteen',
+            15 => 'Fifteen', 16 => 'Sixteen', 17 => 'Seventeen', 18 => 'Eighteen', 19 => 'Nineteen'
+        ];
+        $tens = [
+            2 => 'Twenty', 3 => 'Thirty', 4 => 'Forty', 5 => 'Fifty',
+            6 => 'Sixty', 7 => 'Seventy', 8 => 'Eighty', 9 => 'Ninety'
+        ];
+
+        $parts = explode('.', (string)$num);
+        $whole = (int)$parts[0];
+        $decimal = isset($parts[1]) ? (string)$parts[1] : null;
+
+        $convertBelowHundred = function($n) use ($ones, $tens) {
+            if ($n < 20) return $ones[$n];
+            $t = (int)($n / 10);
+            $rem = $n % 10;
+            return $tens[$t] . ($rem > 0 ? ' ' . $ones[$rem] : '');
+        };
+
+        $words = '';
+        if ($whole < 100) {
+            $words = $convertBelowHundred($whole);
+        } else {
+            $words = (string)$whole;
+        }
+
+        if ($decimal !== null && $decimal !== '' && (int)$decimal > 0) {
+            $decWords = [];
+            foreach (str_split($decimal) as $d) {
+                $decWords[] = $ones[(int)$d] ?? $d;
+            }
+            $words .= ' Point ' . implode(' ', $decWords);
+        }
+
+        return $words;
+    }
+
+    /**
+     * Attainment Summary for Revision 2021 Seminar (Clause 11.2.6)
+     * Direct Attainment is 100% CIA-based (Total 75M, 67.5M Academic, Attendance excluded)
+     */
+    public function getAttainmentSummary($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized'], 401);
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $courseFile = CourseFile::firstOrCreate(['batch_subject_id' => $subjectId]);
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $allEvaluations = SeminarEvaluation::where('batch_subject_id', $subjectId)->get();
+
+        $cos = is_array($courseFile->parsed_cos) ? $courseFile->parsed_cos : (json_decode($courseFile->parsed_cos ?? '[]', true) ?: []);
+        if (empty($cos)) {
+            $cos = [
+                ['id' => 'CO1', 'description' => 'Identify contemporary engineering developments and conduct thorough literature review.'],
+                ['id' => 'CO2', 'description' => 'Synthesize technical information and deliver effective oral presentation.'],
+                ['id' => 'CO3', 'description' => 'Defend methodology, respond to technical queries and prepare standard report.']
+            ];
+        }
+
+        $settings = is_array($courseFile->attainment_settings) ? $courseFile->attainment_settings : (json_decode($courseFile->attainment_settings ?? '[]', true) ?: []);
+        $eseConfig = array_merge(AttainmentService::getDefaultEseConfig('Seminar', 'REV2021'), $settings['ese_config'] ?? []);
+
+        $targetStudentPercent = (float)($eseConfig['target_student_percent'] ?? 70.0);
+        $lvl3 = (float)($eseConfig['level3_percent'] ?? $targetStudentPercent);
+        $lvl2 = (float)($eseConfig['level2_percent'] ?? max(0, $targetStudentPercent - 10));
+        $lvl1 = (float)($eseConfig['level1_percent'] ?? max(0, $targetStudentPercent - 20));
+
+        $exitResponses = collect();
+        if (Schema::hasTable('course_exit_surveys') && Schema::hasTable('student_course_exit_responses')) {
+            $exitSurvey = DB::table('course_exit_surveys')->where('batch_subject_id', $subjectId)->first();
+            if ($exitSurvey) {
+                $exitResponses = DB::table('student_course_exit_responses')->where('exit_survey_id', $exitSurvey->id)->get();
+            }
+        }
+
+        $matrix = [];
+        $directSum = 0;
+        $indirectSum = 0;
+        $overallSum = 0;
+
+        foreach ($cos as $co) {
+            $coTag = $co['id'] ?? 'CO1';
+            $totalAssessed = 0;
+            $cieMet = 0;
+
+            foreach ($students as $stud) {
+                $regNo = $stud->reg_no ?: $stud->sbte_reg_no;
+                $stEvals = $allEvaluations->where('reg_no', $regNo);
+                if ($stEvals->count() > 0) {
+                    $totalAssessed++;
+                    // Academic CIA: Relevance (7.5) + Literature (7.5) + Presentation (37.5) + Interaction (7.5) + Report (7.5) = 67.5M Max
+                    $relevance = (float)$stEvals->avg('relevance');
+                    $literature = (float)$stEvals->avg('literature');
+                    $presentation = (float)$stEvals->avg('presentation');
+                    $interaction = (float)$stEvals->avg('interaction');
+                    $report = (float)$stEvals->avg('report');
+                    $academicScore = $relevance + $literature + $presentation + $interaction + $report;
+
+                    if ($academicScore >= (67.5 * 0.50)) { // 50% threshold
+                        $cieMet++;
+                    }
+                }
+            }
+
+            $cieMetPct = $totalAssessed > 0 ? round(($cieMet / $totalAssessed) * 100, 1) : 0.0;
+            $cieLevel = AttainmentService::calculateBatchLevel($cieMetPct, $lvl3, $lvl2, $lvl1);
+            $directAttainment = (float)$cieLevel; // 100% CIE for seminar
+
+            $coSurveyRows = $exitResponses->where('co_tag', $coTag);
+            if ($coSurveyRows->count() > 0) {
+                $indirectLevel = round((float)$coSurveyRows->avg('rating'), 2);
+            } else {
+                $indirectLevel = $directAttainment > 0 ? round($directAttainment * 0.9, 2) : 2.5;
+            }
+
+            $overallAttainment = round((0.80 * $directAttainment) + (0.20 * $indirectLevel), 2);
+
+            $matrix[] = [
+                'co_tag' => $coTag,
+                'description' => $co['description'] ?? '',
+                'cie_assessed' => $totalAssessed,
+                'cie_met_pct' => $cieMetPct,
+                'cie_level' => $cieLevel,
+                'ese_level' => 0.0,
+                'direct_attainment' => $directAttainment,
+                'indirect_attainment' => $indirectLevel,
+                'overall_attainment' => $overallAttainment
+            ];
+
+            $directSum += $directAttainment;
+            $indirectSum += $indirectLevel;
+            $overallSum += $overallAttainment;
+        }
+
+        $numCos = count($matrix);
+        $avgDirect = $numCos > 0 ? round($directSum / $numCos, 2) : 0.0;
+        $avgIndirect = $numCos > 0 ? round($indirectSum / $numCos, 2) : 0.0;
+        $avgOverall = $numCos > 0 ? round($overallSum / $numCos, 2) : 0.0;
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'data' => [
+                'subject_id' => $batchSubject->id,
+                'subject_code' => $batchSubject->subject_code,
+                'subject_name' => $batchSubject->subject_name,
+                'revision' => 'REV2021',
+                'subject_type' => 'Seminar',
+                'matrix' => $matrix,
+                'average_direct' => $avgDirect,
+                'average_indirect' => $avgIndirect,
+                'average_overall' => $avgOverall,
+                'ese_config' => $eseConfig,
+                'survey' => [
+                    'id' => isset($exitSurvey) ? ($exitSurvey->id ?? null) : null,
+                    'status' => isset($exitSurvey) ? ($exitSurvey->status ?? 'Not Initiated') : 'Not Initiated',
+                    'responded_count' => $exitResponses->groupBy('student_reg_no')->count(),
+                    'total_students' => count($students),
+                    'student_url' => isset($exitSurvey) ? url("/student/course-exit/{$exitSurvey->id}") : null,
+                    'report_url' => url("/classroom/{$subjectId}/course-exit/report"),
+                    'has_responses' => $exitResponses->count() > 0
+                ]
+            ]
+        ]);
+    }
+}
