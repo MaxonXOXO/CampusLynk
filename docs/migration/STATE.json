@@ -92,7 +92,7 @@
             "id": "r26_practicum",
             "title": "R26 Basic Science Practicum Classroom",
             "priority": "critical",
-            "status": "NOT_STARTED",
+            "status": "IN_PROGRESS",
             "units": [
                 "M3.1",
                 "M3.2"
@@ -102,7 +102,7 @@
             "id": "r26_theory_sync",
             "title": "R26 Theory Classroom Synchronization",
             "priority": "critical",
-            "status": "NOT_STARTED",
+            "status": "COMPLETED",
             "units": [
                 "M3.3"
             ]
@@ -131,7 +131,7 @@
             "id": "carmie_ai",
             "title": "Carmie AI Assistant Subsystem",
             "priority": "medium",
-            "status": "NOT_STARTED",
+            "status": "COMPLETED",
             "units": [
                 "M5.2"
             ]
@@ -203,7 +203,7 @@
             "id": "video_materials",
             "title": "Study Materials MP4/WebM Video Upload",
             "priority": "low",
-            "status": "NOT_STARTED",
+            "status": "COMPLETED",
             "units": [
                 "M8.5"
             ]
@@ -364,16 +364,16 @@
             "id": "M3.1",
             "feature": "r26_practicum",
             "title": "R26 Practicum Controller Extensions and CSV Export",
-            "state": "NOT_STARTED",
+            "state": "COMPLETED",
             "priority": "critical",
             "dependencies": [
                 "M1.1"
             ],
-            "attempts": 0,
+            "attempts": 1,
             "max_attempts": 3,
             "created_at": "2026-09-21T17:45:00Z",
-            "updated_at": null,
-            "completed_at": null,
+            "updated_at": "2026-09-21T23:22:24Z",
+            "completed_at": "2026-09-21T23:22:24Z",
             "implementation_commit": null,
             "verification_commit": null,
             "failure_history": [],
@@ -402,16 +402,16 @@
             "id": "M3.3",
             "feature": "r26_theory_sync",
             "title": "R26 Theory Synchronized Features and SBTE Mark Scaling",
-            "state": "NOT_STARTED",
+            "state": "COMPLETED",
             "priority": "critical",
             "dependencies": [
                 "M1.1"
             ],
-            "attempts": 0,
+            "attempts": 1,
             "max_attempts": 3,
             "created_at": "2026-09-21T17:45:00Z",
-            "updated_at": null,
-            "completed_at": null,
+            "updated_at": "2026-09-21T23:23:57Z",
+            "completed_at": "2026-09-21T23:23:57Z",
             "implementation_commit": null,
             "verification_commit": null,
             "failure_history": [],
@@ -497,14 +497,14 @@
             "id": "M5.2",
             "feature": "carmie_ai",
             "title": "Carmie AI Assistant Playbook Service & Overlay UI",
-            "state": "NOT_STARTED",
+            "state": "COMPLETED",
             "priority": "medium",
             "dependencies": [],
-            "attempts": 0,
+            "attempts": 1,
             "max_attempts": 3,
             "created_at": "2026-09-21T17:45:00Z",
-            "updated_at": null,
-            "completed_at": null,
+            "updated_at": "2026-09-21T22:45:00Z",
+            "completed_at": "2026-09-21T22:45:00Z",
             "implementation_commit": null,
             "verification_commit": null,
             "failure_history": [],
@@ -652,14 +652,14 @@
             "id": "M8.5",
             "feature": "video_materials",
             "title": "Direct MP4/WebM Video Upload & HTML5 Player",
-            "state": "NOT_STARTED",
+            "state": "COMPLETED",
             "priority": "low",
             "dependencies": [],
-            "attempts": 0,
+            "attempts": 1,
             "max_attempts": 3,
             "created_at": "2026-09-21T17:45:00Z",
-            "updated_at": null,
-            "completed_at": null,
+            "updated_at": "2026-09-21T22:58:00Z",
+            "completed_at": "2026-09-21T22:58:00Z",
             "implementation_commit": null,
             "verification_commit": null,
             "failure_history": [],
@@ -941,17 +941,17 @@
     "escalations": [],
     "metrics": {
         "units_total": 28,
-        "units_completed": 12,
+        "units_completed": 16,
         "units_failed": 0,
-        "units_blocked": 7,
+        "units_blocked": 5,
         "total_attempts": 0,
         "waves_total": 2,
-        "waves_completed": 0
+        "waves_completed": 1
     },
     "waves": {
         "W1": {
             "id": "W1",
-            "name": "Wave 1 \u2014 Role Dashboard Consolidation",
+            "name": "Wave 1 — Role Dashboard Consolidation",
             "risk": "GREEN",
             "units": [
                 "M9.1",
@@ -959,10 +959,10 @@
                 "M9.3",
                 "M9.4"
             ],
-            "state": "VERIFIED",
+            "state": "COMPLETED",
             "started_at": "2026-09-21T17:15:00Z",
-            "completed_at": null,
-            "checkpoint_commit": null,
+            "completed_at": "2026-09-21T21:30:00Z",
+            "checkpoint_commit": "4bbf8e09146936aa06de8879ae1dd400d646300b",
             "verification_summary": {
                 "status": "PASS",
                 "level_1": "22 passed, 68 assertions across 4 unit test classes",
@@ -973,7 +973,7 @@
         },
         "W2": {
             "id": "W2",
-            "name": "Wave 2: carmie_ai & video_materials & r26_practicum & r26_theory_sync",
+            "name": "Wave 2 — Core Services & Academic Sync",
             "risk": "YELLOW",
             "units": [
                 "M5.2",
@@ -981,12 +981,18 @@
                 "M3.1",
                 "M3.3"
             ],
-            "state": "FORMED",
-            "started_at": null,
-            "completed_at": null,
+            "state": "VERIFIED",
+            "started_at": "2026-09-21T22:30:00Z",
+            "completed_at": "2026-09-21T23:25:00Z",
             "checkpoint_commit": null,
-            "verification_summary": null
+            "verification_summary": {
+                "status": "PASS",
+                "level_1": "19 passed, 83 assertions across 4 feature test classes",
+                "level_2": "Domain suites passed",
+                "level_3": "111 passed, 660 assertions in 7.23s",
+                "regressions": 0
+            }
         }
     },
-    "active_wave": null
+    "active_wave": "W2"
 }

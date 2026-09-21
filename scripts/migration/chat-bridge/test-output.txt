@@ -1,13 +1,144 @@
-﻿JSON
-{
-  "protocol_version": "1.0",
-  "message_id": "msg_resp_20260921_184700_001",
-  "in_reply_to": "msg_req_20260921_164345_a7d37cdf",
-  "run_id": "run_20260921_01",
-  "unit_id": "M2.7",
-  "timestamp": "2026-09-21T18:47:00Z",
-  "sender": "architect",
-  "recipient": "orchestrator",
-  "decision": "PLAN_APPROVED",
-  "payload": {
-    "reason": "M2.7 Slice 2 completes the approved Drawing Hall migration scope. All four statutory print templates are reported under <x-layouts.report-layout> with the required portrait/landscape orientations, while the workspace from Slice 1 remains mounted under <x-layouts.workspace-layout>. The dedicated feature suite covers workspace and all four print responses, and the full application suite reports 70 passed tests, 509 assertions, zero failures, and
+﻿Wave 2: ARCHITECTURE_APPROVED — with execution directives
+
+The Wave 2 grouping is architecturally sound, and the dependency shape is reasonable for AUTO-RUN. I would authorize execution with these constraints:
+
+M5.2 — Carmie AI Assistant
+
+Risk: YELLOW
+
+Keep CarmiePlaybookService deterministic and local-first. No external AI/API dependency should be introduced by this unit.
+
+carmie_playbook.json is the authoritative playbook source; query normalization/search must be isolated inside the service.
+
+Query-model logging must not store sensitive user content unnecessarily.
+
+CarmieAssistantController should remain thin: validation → service → response.
+
+resources/views/components/carmie-assistant.blade.php and partials must remain <500 lines.
+
+The assistant UI must integrate into existing shells rather than introducing another dashboard/overlay framework.
+
+Reuse <x-ui.card>, <x-ui.button>, <x-ui.input>, <x-ui.icon>, <x-ui.alert>, and <x-ui.modal> where applicable.
+
+Do not duplicate chat/overlay infrastructure if an existing CampusLynk component already provides the required primitive.
+
+No autonomous code execution or unrestricted database querying from Carmie.
+
+M8.5 — Video Materials
+
+Risk: GREEN
+
+video_clip must be an additive material type; existing material types must remain behaviorally unchanged.
+
+Preserve the existing authorization/storage pipeline.
+
+MP4/WebM/OGG validation must be enforced server-side; the UI extension alone is insufficient.
+
+Preserve the 25 MB ceiling.
+
+Use the existing learning-material UI rather than creating a parallel video-material subsystem.
+
+The <video> player should be encapsulated in existing modal/component infrastructure where applicable.
+
+controlsList="nodownload" is a UI hint, not a security control; do not represent it as download prevention.
+
+No custom modal, button, or table infrastructure.
+
+M3.1 — R26 Practicum
+
+Risk: YELLOW
+
+This is the highest-risk backend restoration group because it restores eight legacy behaviors.
+
+First perform a strict parity inventory before implementing all eight methods.
+
+Do not blindly copy legacy controller methods.
+
+Establish each method's:
+
+route contract,
+
+authorization,
+
+validation,
+
+database writes/reads,
+
+print output,
+
+CSV schema,
+
+relationships with lesson plans/experiments/attendance.
+
+syncExperimentsToLessonPlans must be idempotent. Re-running synchronization must not create duplicate lesson-plan rows.
+
+exportExperimentsLogCsv must use an explicit stable column schema and deterministic ordering.
+
+Print views must use <x-layouts.report-layout>.
+
+Any legacy print view over 500 lines must be decomposed.
+
+CSV generation should remain a backend export concern; do not introduce a new UI/export framework.
+
+Preserve existing R26 data semantics rather than inventing a new experiment model.
+
+M3.3 — R26 Theory
+
+Risk: YELLOW
+
+Treat this as a synchronization/integrity unit rather than simply restoring missing UI.
+
+saveCoPoMatrix must have a clearly defined authoritative source and synchronization direction:
+CourseFile ↔ syllabus_registry must not become an uncontrolled bidirectional overwrite loop.
+
+Establish idempotent upsert semantics before implementation.
+
+Preserve existing CO/PO structure and identifiers.
+
+ESE autosave must use the existing assessment persistence contract and must not create a second marks model.
+
+SBTE scaling must remain centralized/deterministic and reuse existing attainment/mark-scaling services where available.
+
+Autosave must validate bounds server-side; client-side validation is supplementary.
+
+Preserve existing grading/marking semantics and test them against known legacy cases.
+
+Avoid modifying User.php or unrelated assessment infrastructure.
+
+Wave-level execution rules
+
+For all four units:
+
+Analyze before implementation for every YELLOW unit.
+
+AUTO-RUN does not bypass architecture checkpoints or verification gates.
+
+Each unit gets its own TASK_DISPATCH → TASK_REPORT → verification → checkpoint lifecycle.
+
+No cross-unit opportunistic refactoring.
+
+Dirty working trees must be scoped before checkpoint commits; unrelated changes must never be absorbed.
+
+Existing global shells/components are mandatory:
+
+Workspace → <x-layouts.workspace-layout>
+
+Staff dashboard → <x-layouts.app-shell> / <x-layouts.faculty-shell>
+
+Print → <x-layouts.report-layout>
+
+No raw tables/buttons/custom modals where <x-ui.*> equivalents exist.
+
+All new Blade files must remain strictly <500 lines.
+
+Legacy views/controllers are reference material, not code to copy wholesale.
+
+Every restored behavior requires regression coverage, particularly M3.1/M3.3.
+
+Recommended execution order
+
+M5.2 → M8.5 → M3.1 → M3.3
+
+This keeps the relatively contained video extension available for early execution while allowing the larger R26 restoration work to remain separately bounded and verifiable.
+
+Wave 2 is therefore ARCHITECTURE_APPROVED, subject to the directives above.

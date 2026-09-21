@@ -173,8 +173,11 @@ Route::middleware(['web'])->group(function () {
     Route::get('/api/student/pre-class-alerts', [VirtualLearningMaterialController::class, 'getStudentPreClassAlerts']);
     Route::get('/api/student/materials/pre-class-notices', [VirtualLearningMaterialController::class, 'getStudentPreClassAlerts']);
     Route::post('/api/student/materials/mark-read', [VirtualLearningMaterialController::class, 'markAlertAsRead']);
-    Route::post('/api/student/materials/{id}/read', [VirtualLearningMaterialController::class, 'markAlertAsRead']);
     Route::delete('/api/virtual-room/materials/{id}', [VirtualLearningMaterialController::class, 'deleteMaterial']);
+
+    // Carmie - Carmel-linx Intelligent Platform Assistant (Deterministic Playbook)
+    Route::post('/api/carmie/ask', [App\Http\Controllers\CarmieAssistantController::class, 'ask']);
+    Route::get('/api/carmie/suggestions', [App\Http\Controllers\CarmieAssistantController::class, 'getSuggestions']);
     
     Route::get('/dashboard/student', function (\Illuminate\Http\Request $request) {
         if (Session::get('userRole') !== 'Student') return redirect('/');
@@ -527,6 +530,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/r26/classroom/course-file/{subjectId}/upload-doc', [R26ClassroomController::class, 'uploadCourseFileDocAttachment']);
     Route::get('/r26/classroom/course-file/{subjectId}/print-pdf', [R26ClassroomController::class, 'printCourseFilePdf']);
     Route::post('/api/r26/classroom/{subjectId}/syllabus', [R26ClassroomController::class, 'uploadSyllabus']);
+    Route::post('/api/r26/classroom/{subjectId}/copo-matrix/save', [R26ClassroomController::class, 'saveCoPoMatrix']);
     Route::get('/r26/classroom/lesson-plan/print/{subjectId}', [R26ClassroomController::class, 'printLessonPlan']);
     Route::get('/r26/classroom/self-learning/print/{subjectId}', [R26ClassroomController::class, 'printSelfLearningReport']);
     Route::post('/api/r26/classroom/{subjectId}/lesson-plans/bulk-update', [R26ClassroomController::class, 'bulkUpdateLessonPlans']);
@@ -583,6 +587,13 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/r26/classroom/practicum/{subjectId}/syllabus', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'uploadSyllabus']);
     Route::post('/api/r26/classroom/practicum/{subjectId}/lesson-plan/save', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveLessonPlanRow']);
     Route::post('/api/r26/classroom/practicum/{subjectId}/lesson-plan/save-all', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveAllLessonPlans']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/lesson-plan/delete-rows', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'deleteLessonPlanRows']);
+
+    Route::post('/api/r26/classroom/practicum/{subjectId}/experiments/save', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveCustomExperimentsRoster']);
+    Route::get('/api/r26/classroom/practicum/{subjectId}/experiments-log', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'getPracticumExperimentsLogs']);
+    Route::get('/r26/classroom/practicum/{subjectId}/print-experiment-list', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printExperimentList']);
+    Route::get('/r26/classroom/practicum/{subjectId}/print-experiments-log', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printExperimentsLog']);
+    Route::get('/r26/classroom/practicum/{subjectId}/export-experiments-log-csv', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'exportExperimentsLogCsv']);
 
     Route::post('/api/r26/classroom/practicum/{subjectId}/evaluate/experiment', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveExperimentMarks']);
     Route::post('/api/r26/classroom/practicum/{subjectId}/evaluate/series-theory', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveSeriesTheoryMarks']);
@@ -595,6 +606,7 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r26/classroom/practicum/{subjectId}/print-self-learning-summary', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSelfLearningSummaryPdf']);
     Route::get('/r26/classroom/practicum/{subjectId}/attendance-report', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printAttendanceReport']);
     Route::get('/r26/classroom/practicum/{subjectId}/attendance-consolidated', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printConsolidatedAttendanceReport']);
+    Route::get('/r26/classroom/practicum/{subjectId}/attendance-log-report', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printLogAttendanceReport']);
 
 
     // Revision 2026 Practicum Series QP / Scheme / Answer Key

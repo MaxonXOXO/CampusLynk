@@ -685,7 +685,12 @@ class R26VirtualClassroomPracticumController extends Controller
         if ($batchSubject) {
             \DB::table('syllabus_registry')->updateOrInsert(
                 ['subject_code' => $batchSubject->subject_code],
-                ['co_po_mapping' => json_encode($mappings), 'updated_at' => now()]
+                [
+                    'revision_year' => 2026,
+                    'subject_name' => $batchSubject->subject_name,
+                    'co_po_mapping' => json_encode($mappings),
+                    'updated_at' => now()
+                ]
             );
         }
 
@@ -2480,6 +2485,544 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
             'labTotals',
             'assignedStaff'
         ));
+    }
+
+    /**
+     * Delete one or more lesson plan rows (accepts { ids: [1,2,3] } in JSON body).
+     */
+    public function deleteLessonPlanRows(Request $request, $subjectId)
+    {
+        $request->validate(['ids' => 'required|array']);
+
+        $ids = array_filter($request->input('ids'), fn($id) => !str_starts_with((string)$id, 'new_'));
+
+        if (empty($ids)) {
+            return response()->json(['status' => 'OK', 'message' => 'Nothing to delete.']);
+        }
+
+        LessonPlan::whereIn('id', $ids)
+            ->where('batch_subject_id', $subjectId)
+            ->delete();
+
+        return response()->json(['status' => 'SUCCESS', 'message' => count($ids) . ' row(s) deleted.']);
+    }
+
+    /**
+     * Print Official Teaching & Attendance Log Register (A4 Portrait) for Practicum Course
+     * Route: GET /r26/classroom/practicum/{subjectId}/attendance-log-report
+     */
+    public function printLogAttendanceReport($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $meta = $this->resolveClassroomMeta($subjectId, $batchSubject->classroom_id);
+        $classroom = $meta['classroom'];
+        $departmentName = $meta['departmentName'];
+        $batchName = $meta['batchName'];
+        $lecturerName = $meta['lecturerName'];
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $totalEnrolled = $students->count();
+        $studentsByReg = $students->keyBy('reg_no');
+
+        $rawLogs = DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $subjectId)
+            ->orderBy('date', 'asc')
+            ->orderBy('period', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $totalHours = $rawLogs->count();
+        $totalAttnPctSum = 0;
+
+        $logs = $rawLogs->map(function($l) use ($totalEnrolled, $studentsByReg, &$totalAttnPctSum) {
+            $presArr = json_decode($l->present_students ?? '[]', true) ?: [];
+            $absArr = json_decode($l->absent_students ?? '[]', true) ?: [];
+
+            $presCount = count($presArr);
+            $absCount = count($absArr);
+            $effectiveTotal = ($presCount + $absCount) > 0 ? ($presCount + $absCount) : $totalEnrolled;
+
+            if ($absCount === 0 && $effectiveTotal > $presCount && $presCount > 0) {
+                $absCount = max(0, $effectiveTotal - $presCount);
+            }
+
+            $attPct = $effectiveTotal > 0 ? round(($presCount / $effectiveTotal) * 100, 1) : 0;
+            $totalAttnPctSum += $attPct;
+
+            $absentDisplay = [];
+            foreach ($absArr as $rNo) {
+                if (isset($studentsByReg[$rNo])) {
+                    $absentDisplay[] = $studentsByReg[$rNo]->roll_no ?: $studentsByReg[$rNo]->name;
+                } else {
+                    $absentDisplay[] = $rNo;
+                }
+            }
+
+            $formattedDate = $l->date;
+            if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', (string)$l->date, $m)) {
+                $formattedDate = "{$m[3]}/{$m[2]}/{$m[1]}";
+            }
+
+            return (object)[
+                'id' => $l->id,
+                'date' => $l->date,
+                'formatted_date' => $formattedDate,
+                'period' => $l->period,
+                'sub_batch' => $l->sub_batch,
+                'period_label' => 'Hour ' . $l->period,
+                'topics_covered' => $l->topics_covered,
+                'present_count' => $presCount,
+                'absent_count' => $absCount,
+                'absent_display' => implode(', ', $absentDisplay),
+                'attendance_pct' => $attPct,
+            ];
+        });
+
+        $overallAvgAttn = $logs->count() > 0 ? round($totalAttnPctSum / $logs->count(), 1) : 0;
+
+        $completedTopicsCount = DB::table('lesson_plans')
+            ->where('batch_subject_id', $subjectId)
+            ->where('status', 'Completed')
+            ->count();
+
+        $totalPlannedTopics = DB::table('lesson_plans')
+            ->where('batch_subject_id', $subjectId)
+            ->count() ?: 90;
+
+        return view('r26_practicum.attendance_log_report_print', compact(
+            'batchSubject',
+            'classroom',
+            'departmentName',
+            'batchName',
+            'lecturerName',
+            'students',
+            'totalEnrolled',
+            'logs',
+            'totalHours',
+            'overallAvgAttn',
+            'completedTopicsCount',
+            'totalPlannedTopics'
+        ));
+    }
+
+    /**
+     * Save Customized Experiments Roster and Sync with Lesson Plan
+     * Route: POST /api/r26/classroom/practicum/{subjectId}/experiments/save
+     */
+    public function saveCustomExperimentsRoster(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. Please log in.'], 401);
+        }
+
+        $request->validate([
+            'experiments' => 'required|array'
+        ]);
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $practicumFile = R26PracticumCourseFile::firstOrCreate(
+            ['batch_subject_id' => $subjectId],
+            [
+                'course_title' => $batchSubject->subject_name,
+                'course_code' => $batchSubject->subject_code,
+                'type_of_course' => 'Practicum',
+                'teaching_scheme' => '3:0:3:0',
+                'contact_hours' => 90,
+                'credits' => 4.5,
+            ]
+        );
+
+        $rawExps = $request->input('experiments', []);
+        $cleanExps = [];
+
+        foreach ($rawExps as $idx => $item) {
+            $title = trim($item['title'] ?? '');
+            if ($title === '') {
+                continue;
+            }
+
+            $sessionCode = trim($item['session_code'] ?? '') ?: ('Sess ' . ($idx + 1));
+            $code = trim($item['code'] ?? ($item['experiment_no'] ?? '')) ?: ('EXP-' . sprintf('%02d', $idx + 1));
+            $coId = trim($item['co_id'] ?? 'CO1') ?: 'CO1';
+            $hours = max(1, min(12, intval($item['hours'] ?? 3)));
+
+            $cleanExps[] = [
+                'session_code' => $sessionCode,
+                'experiment_no' => $code,
+                'code' => $code,
+                'title' => $title,
+                'co_id' => $coId,
+                'hours' => $hours
+            ];
+        }
+
+        if (empty($cleanExps)) {
+            return response()->json([
+                'status' => 'ERROR',
+                'message' => 'At least one experiment with a valid title is required.'
+            ], 422);
+        }
+
+        // 1. Save updated experiments roster to R26PracticumCourseFile
+        $practicumFile->parsed_experiments = $cleanExps;
+        $practicumFile->save();
+
+        // 2. Synchronize to lesson plans (mode = 'P')
+        $this->syncExperimentsToLessonPlans($subjectId, $cleanExps);
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Experiments roster saved and synchronized with practical lesson plan successfully.',
+            'experiments' => $cleanExps
+        ]);
+    }
+
+    /**
+     * Synchronize experiments roster with practical lesson plans (mode = 'P')
+     * Idempotent: re-running does not produce duplicate rows.
+     */
+    protected function syncExperimentsToLessonPlans($subjectId, array $experiments): void
+    {
+        $practicalHourTopics = [];
+        foreach ($experiments as $exp) {
+            $eCode = $exp['code'] ?? $exp['experiment_no'] ?? 'EXP';
+            $eTitle = $exp['title'] ?? 'Practical Experiment';
+            $coId = $exp['co_id'] ?? 'CO1';
+            $eHrs = max(1, intval($exp['hours'] ?? 3));
+
+            for ($h = 1; $h <= $eHrs; $h++) {
+                $practicalHourTopics[] = [
+                    'topic' => "{$eCode}: {$eTitle} (Hour {$h}/{$eHrs})",
+                    'co_id' => $coId,
+                ];
+            }
+        }
+
+        $existingPracticalPlans = LessonPlan::where('batch_subject_id', $subjectId)
+            ->where('mode', 'P')
+            ->orderBy('day_no', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $newHoursCount = count($practicalHourTopics);
+        $existingHoursCount = $existingPracticalPlans->count();
+
+        // Update existing practical rows 1-to-1
+        for ($i = 0; $i < min($newHoursCount, $existingHoursCount); $i++) {
+            $plan = $existingPracticalPlans[$i];
+            $top = $practicalHourTopics[$i];
+
+            $plan->topic_content = $top['topic'];
+            $plan->co_id = $top['co_id'];
+            $plan->save();
+        }
+
+        // If new roster has more hours than existing practical rows, append new practical rows
+        if ($newHoursCount > $existingHoursCount) {
+            $maxDay = (int)(LessonPlan::where('batch_subject_id', $subjectId)->max('day_no') ?? 0);
+            $startDate = now()->startOfWeek();
+
+            for ($i = $existingHoursCount; $i < $newHoursCount; $i++) {
+                $top = $practicalHourTopics[$i];
+                $maxDay++;
+                $proposedDate = $startDate->copy()->addDays((int)floor(($maxDay - 1) * 1.2))->format('Y-m-d');
+
+                LessonPlan::create([
+                    'batch_subject_id' => $subjectId,
+                    'day_no' => $maxDay,
+                    'mode' => 'P',
+                    'pedagogy' => 'Practical Lab (P)',
+                    'proposed_date' => $proposedDate,
+                    'actual_date' => null,
+                    'topic_content' => $top['topic'],
+                    'co_id' => $top['co_id'],
+                    'sub_batch' => 'Batch A & B',
+                    'allocated_hours' => 1,
+                    'actual_hours' => null,
+                    'status' => 'Pending',
+                    'remarks' => 'Practical Lab Session'
+                ]);
+            }
+        } elseif ($existingHoursCount > $newHoursCount) {
+            // Buffer/reinforcement for any remaining unassigned practical hours that are pending
+            for ($i = $newHoursCount; $i < $existingHoursCount; $i++) {
+                $plan = $existingPracticalPlans[$i];
+                if ($plan->status !== 'Completed') {
+                    $plan->topic_content = "Practical Skill Practice & Reinforcement (Lab Hour " . ($i - $newHoursCount + 1) . ")";
+                    $plan->save();
+                }
+            }
+        }
+    }
+
+    /**
+     * Retrieve practical experiments attendance logs with attended students and absentee roll numbers
+     */
+    public function getPracticumExperimentsLogs($subjectId)
+    {
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $totalEnrolled = $students->count();
+        $studentsByReg = $students->keyBy('reg_no');
+
+        // Fetch logs for this batch subject
+        $rawLogs = DB::table('class_logs_attendance')
+            ->leftJoin('lesson_plans', 'class_logs_attendance.lesson_plan_id', '=', 'lesson_plans.id')
+            ->where('class_logs_attendance.batch_subject_id', $subjectId)
+            ->select('class_logs_attendance.*', 'lesson_plans.mode as lp_mode')
+            ->orderBy('class_logs_attendance.date', 'asc')
+            ->orderBy('class_logs_attendance.period', 'asc')
+            ->orderBy('class_logs_attendance.id', 'asc')
+            ->get();
+
+        // Filter practical logs
+        $practicalLogs = $rawLogs->filter(function($l) {
+            return ($l->lp_mode === 'P' || $l->lp_mode === 'SP' ||
+                    stripos((string)($l->topics_covered ?? ''), 'EXP') !== false ||
+                    stripos((string)($l->topics_covered ?? ''), 'Lab') !== false ||
+                    stripos((string)($l->topics_covered ?? ''), 'Practical') !== false ||
+                    in_array($l->sub_batch, ['A', 'B', 'Batch A', 'Batch B'], true));
+        });
+
+        $logsToUse = $practicalLogs->isNotEmpty() ? $practicalLogs : $rawLogs;
+        $totalAttnPctSum = 0;
+
+        $logs = $logsToUse->values()->map(function($l, $idx) use ($totalEnrolled, $studentsByReg, &$totalAttnPctSum) {
+            $presArr = json_decode($l->present_students ?? '[]', true) ?: [];
+            $absArr = json_decode($l->absent_students ?? '[]', true) ?: [];
+
+            $presCount = count($presArr);
+            $absCount = count($absArr);
+            $effectiveTotal = ($presCount + $absCount) > 0 ? ($presCount + $absCount) : $totalEnrolled;
+
+            if ($absCount === 0 && $effectiveTotal > $presCount && $presCount > 0) {
+                $absCount = max(0, $effectiveTotal - $presCount);
+            }
+
+            $attPct = $effectiveTotal > 0 ? round(($presCount / $effectiveTotal) * 100, 1) : 0;
+            $totalAttnPctSum += $attPct;
+
+            $absentRolls = [];
+            foreach ($absArr as $rNo) {
+                if (isset($studentsByReg[$rNo]) && !empty($studentsByReg[$rNo]->roll_no)) {
+                    $absentRolls[] = $studentsByReg[$rNo]->roll_no;
+                } else {
+                    $absentRolls[] = $rNo;
+                }
+            }
+            sort($absentRolls, SORT_NATURAL);
+
+            $attendedRolls = [];
+            foreach ($presArr as $rNo) {
+                if (isset($studentsByReg[$rNo]) && !empty($studentsByReg[$rNo]->roll_no)) {
+                    $attendedRolls[] = $studentsByReg[$rNo]->roll_no;
+                }
+            }
+            sort($attendedRolls, SORT_NATURAL);
+
+            $formattedDate = $l->date;
+            if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', (string)$l->date, $m)) {
+                $formattedDate = "{$m[3]}/{$m[2]}/{$m[1]}";
+            }
+
+            return (object)[
+                'sl_no' => $idx + 1,
+                'id' => $l->id,
+                'date' => $l->date,
+                'formatted_date' => $formattedDate,
+                'period' => $l->period,
+                'sub_batch' => $l->sub_batch ?: 'All',
+                'period_label' => 'Hour ' . $l->period,
+                'topics_covered' => $l->topics_covered ?: 'Practical Experiment Session',
+                'present_count' => $presCount,
+                'absent_count' => $absCount,
+                'total_students' => $effectiveTotal,
+                'attended_display' => $presCount . ' (' . $attPct . '%)',
+                'attended_rolls' => implode(', ', $attendedRolls),
+                'absent_display' => count($absentRolls) > 0 ? implode(', ', $absentRolls) : 'NIL',
+                'absent_rolls' => $absentRolls,
+                'attendance_pct' => $attPct,
+            ];
+        });
+
+        $avgAttnPct = $logs->count() > 0 ? round($totalAttnPctSum / $logs->count(), 1) : 0;
+
+        return [
+            'batchSubject' => $batchSubject,
+            'students' => $students,
+            'totalEnrolled' => $totalEnrolled,
+            'logs' => $logs,
+            'avgAttnPct' => $avgAttnPct
+        ];
+    }
+
+    /**
+     * Print Official Practical Experiments List (A4 Portrait)
+     * Route: GET /r26/classroom/practicum/{subjectId}/print-experiment-list
+     */
+    public function printExperimentList($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $meta = $this->resolveClassroomMeta($subjectId, $batchSubject->classroom_id);
+        $classroom = $meta['classroom'];
+        $departmentName = $meta['departmentName'];
+        $batchName = $meta['batchName'];
+        $lecturerName = $meta['lecturerName'];
+
+        $deptCode = $classroom->department ?? $classroom->branch ?? '';
+        $hod = DB::table('staff_profiles')
+            ->where(function($q) use ($deptCode) {
+                if ($deptCode) {
+                    $q->where('branch', $deptCode);
+                }
+            })
+            ->where('designation', 'HOD')
+            ->select('name', 'designation', 'mobile_no')
+            ->first();
+
+        $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->first();
+        $experiments = $practicumCourseFile->parsed_experiments ?? [];
+        if (is_string($experiments)) {
+            $experiments = json_decode($experiments, true) ?: [];
+        }
+
+        $totalPracticalHours = 0;
+        foreach ($experiments as $exp) {
+            $totalPracticalHours += floatval($exp['hours'] ?? 3);
+        }
+
+        return view('r26_practicum.experiment_list_print', compact(
+            'batchSubject',
+            'classroom',
+            'departmentName',
+            'batchName',
+            'lecturerName',
+            'hod',
+            'practicumCourseFile',
+            'experiments',
+            'totalPracticalHours'
+        ));
+    }
+
+    /**
+     * Print Practical Experiments Conducted & Attendance Log Register (A4 Portrait)
+     * Route: GET /r26/classroom/practicum/{subjectId}/print-experiments-log
+     */
+    public function printExperimentsLog($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $logData = $this->getPracticumExperimentsLogs($subjectId);
+        $batchSubject = $logData['batchSubject'];
+        $logs = $logData['logs'];
+        $totalEnrolled = $logData['totalEnrolled'];
+        $avgAttnPct = $logData['avgAttnPct'];
+
+        $meta = $this->resolveClassroomMeta($subjectId, $batchSubject->classroom_id);
+        $classroom = $meta['classroom'];
+        $departmentName = $meta['departmentName'];
+        $batchName = $meta['batchName'];
+        $lecturerName = $meta['lecturerName'];
+
+        $deptCode = $classroom->department ?? $classroom->branch ?? '';
+        $hod = DB::table('staff_profiles')
+            ->where(function($q) use ($deptCode) {
+                if ($deptCode) {
+                    $q->where('branch', $deptCode);
+                }
+            })
+            ->where('designation', 'HOD')
+            ->select('name', 'designation', 'mobile_no')
+            ->first();
+
+        return view('r26_practicum.experiments_log_print', compact(
+            'batchSubject',
+            'classroom',
+            'departmentName',
+            'batchName',
+            'lecturerName',
+            'hod',
+            'logs',
+            'totalEnrolled',
+            'avgAttnPct'
+        ));
+    }
+
+    /**
+     * Export Practical Experiments Conducted & Attendance Log as CSV
+     * Route: GET /r26/classroom/practicum/{subjectId}/export-experiments-log-csv
+     */
+    public function exportExperimentsLogCsv($subjectId)
+    {
+        $logData = $this->getPracticumExperimentsLogs($subjectId);
+        $batchSubject = $logData['batchSubject'];
+        $logs = $logData['logs'];
+        $totalEnrolled = $logData['totalEnrolled'];
+
+        $filename = 'Experiments_Log_' . ($batchSubject->subject_code ?: $subjectId) . '_' . date('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function() use ($logs, $totalEnrolled) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, [
+                'Sl No',
+                'Date',
+                'Period / Hour',
+                'Sub-Batch',
+                'Experiment / Topic Covered',
+                'Total Enrolled',
+                'Students Attended',
+                'Absent Count',
+                'Absentees Roll Nos',
+                'Attendance %'
+            ]);
+
+            foreach ($logs as $log) {
+                fputcsv($file, [
+                    $log->sl_no,
+                    $log->formatted_date,
+                    $log->period_label,
+                    $log->sub_batch,
+                    $log->topics_covered,
+                    $log->total_students ?: $totalEnrolled,
+                    $log->present_count,
+                    $log->absent_count,
+                    $log->absent_display,
+                    $log->attendance_pct . '%'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }
 

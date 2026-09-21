@@ -27,7 +27,7 @@ return new class extends Migration
             $table->text('pre_class_instruction')->nullable();
             
             // Resource Payload
-            $table->enum('material_type', ['pdf', 'video', 'image', 'document', 'link'])->default('pdf');
+            $table->enum('material_type', ['pdf', 'video', 'video_clip', 'image', 'document', 'link'])->default('pdf');
             $table->string('file_path', 500)->nullable();
             $table->string('video_url', 500)->nullable();
             

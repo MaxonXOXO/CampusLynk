@@ -2306,4 +2306,53 @@ class R26ClassroomController extends Controller
             return back()->with('error', 'Failed to generate PDF: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Save CO-PO & PSO Mapping Matrix for Theory Course File & Syllabus Registry
+     * Route: POST /api/r26/classroom/{subjectId}/copo-matrix/save
+     */
+    public function saveCoPoMatrix(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized. Please log in.'], 401);
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+
+        $mappings = $request->input('mappings') ?? $request->input('mapping') ?? $request->input('co_po_mapping') ?? [];
+
+        // 1. Update or create CourseFile record
+        $courseFile = CourseFile::firstOrCreate(
+            ['batch_subject_id' => $subjectId]
+        );
+
+        $copoPayload = $courseFile->parsed_copo ?: [];
+        if (is_string($copoPayload)) {
+            $copoPayload = json_decode($copoPayload, true) ?: [];
+        }
+        $copoPayload['mappings'] = $mappings;
+        $courseFile->parsed_copo = $copoPayload;
+        $courseFile->save();
+
+        // 2. Sync to syllabus_registry table if exists
+        if (\Illuminate\Support\Facades\Schema::hasTable('syllabus_registry')) {
+            \DB::table('syllabus_registry')->updateOrInsert(
+                ['subject_code' => $batchSubject->subject_code],
+                [
+                    'revision_year' => 2026,
+                    'subject_name' => $batchSubject->subject_name,
+                    'co_po_mapping' => json_encode($mappings),
+                    'updated_at' => now()
+                ]
+            );
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'success' => true,
+            'message' => 'Course Articulation Matrix (PO1-PO11 & PSO1-PSO3) saved successfully!',
+            'mappings' => $mappings
+        ]);
+    }
 }

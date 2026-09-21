@@ -56,7 +56,8 @@
           <label class="block text-xs font-bold text-muted mb-1">Material Type <span class="text-rose-500">*</span></label>
           <select name="material_type" id="vlm_material_type" onchange="toggleMaterialInputFields()" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-title focus:border-indigo-500 outline-none font-medium">
             <option value="pdf">PDF Document (Notes / Manual)</option>
-            <option value="video">Video Clip (YouTube / Vimeo Link)</option>
+            <option value="video_clip">🎬 Video Clip — Direct Upload (MP4 / WebM / OGG max 25 MB)</option>
+            <option value="video">Video Link (YouTube / Vimeo)</option>
             <option value="image">Diagram / Image (PNG / JPG)</option>
             <option value="document">Word Doc / Presentation</option>
             <option value="link">External Web Reference Link</option>
@@ -144,7 +145,11 @@
       <button onclick="closeVlmVideoModal()" class="text-slate-400 hover:text-white text-sm cursor-pointer">✕ Close</button>
     </div>
     <div class="aspect-video w-full rounded-xl overflow-hidden bg-black">
-      <iframe id="vlmModalIframe" class="w-full h-full border-0" allowfullscreen></iframe>
+      <iframe id="vlmModalIframe" class="w-full h-full border-0 hidden" allowfullscreen></iframe>
+      <video id="vlmModalVideo" class="w-full h-full hidden" controls controlsList="nodownload">
+        <source id="vlmModalVideoSrc" src="" type="video/mp4">
+        Your browser does not support HTML5 video.
+      </video>
     </div>
   </div>
 </div>
@@ -159,13 +164,22 @@
     const type = document.getElementById('vlm_material_type').value;
     const fileContainer = document.getElementById('vlm_file_input_container');
     const urlContainer = document.getElementById('vlm_url_input_container');
+    const fileInput = document.getElementById('vlm_file_input');
+    const fileLabel = fileContainer ? fileContainer.querySelector('label') : null;
     
     if (type === 'video' || type === 'link') {
-      fileContainer.classList.add('hidden');
-      urlContainer.classList.remove('hidden');
+      if (fileContainer) fileContainer.classList.add('hidden');
+      if (urlContainer) urlContainer.classList.remove('hidden');
+    } else if (type === 'video_clip') {
+      if (fileContainer) fileContainer.classList.remove('hidden');
+      if (urlContainer) urlContainer.classList.add('hidden');
+      if (fileInput) fileInput.setAttribute('accept', 'video/mp4,video/webm,video/ogg');
+      if (fileLabel) fileLabel.textContent = 'Upload Video Clip (MP4 / WebM / OGG — max 25 MB)';
     } else {
-      fileContainer.classList.remove('hidden');
-      urlContainer.classList.add('hidden');
+      if (fileContainer) fileContainer.classList.remove('hidden');
+      if (urlContainer) urlContainer.classList.add('hidden');
+      if (fileInput) fileInput.setAttribute('accept', '');
+      if (fileLabel) fileLabel.textContent = 'Upload File (PDF / Image / Doc up to 25MB)';
     }
   }
 
@@ -217,17 +231,21 @@
         let html = '';
         res.materials.forEach(m => {
           let typeBadge = '<span class="px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded font-bold text-xs">PDF</span>';
-          if (m.material_type === 'video') typeBadge = '<span class="px-2 py-0.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded font-bold text-xs">Video</span>';
+          if (m.material_type === 'video_clip') typeBadge = '<span class="px-2 py-0.5 bg-violet-500/10 text-violet-400 border border-violet-500/20 rounded font-bold text-xs">🎬 Clip</span>';
+          else if (m.material_type === 'video') typeBadge = '<span class="px-2 py-0.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded font-bold text-xs">Video</span>';
           else if (m.material_type === 'image') typeBadge = '<span class="px-2 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded font-bold text-xs">Image</span>';
           else if (m.material_type === 'link') typeBadge = '<span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded font-bold text-xs">Link</span>';
 
           let alertBadge = m.is_pre_class_notice ? '<span class="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded font-bold text-[10px]">⚡ Urgent Alert</span>' : '<span class="text-slate-400 text-xs">Standard</span>';
 
           let actionBtn = '';
-          if (m.file_path) {
+          const safeTitle = (m.title || '').replace(/'/g, "\\'");
+          if (m.material_type === 'video_clip' && m.file_path) {
+            actionBtn = `<button onclick="openVlmVideoModal('${safeTitle}', '${m.file_path}', 'clip')" class="px-2.5 py-1 bg-violet-600 hover:bg-violet-700 text-white rounded text-xs font-bold transition-all shadow-sm flex items-center gap-1 cursor-pointer"><span class="material-symbols-rounded text-xs">play_circle</span> Play</button>`;
+          } else if (m.file_path) {
             actionBtn = `<a href="${m.file_path}" target="_blank" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-bold border border-slate-700 transition-all">Preview File</a>`;
           } else if (m.video_url) {
-            actionBtn = `<button onclick="openVlmVideoModal('${m.title.replace(/'/g, "\\'")}', '${m.video_url}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-all shadow-sm">Watch Video</button>`;
+            actionBtn = `<button onclick="openVlmVideoModal('${safeTitle}', '${m.video_url}', 'embed')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-bold transition-all shadow-sm flex items-center gap-1 cursor-pointer"><span class="material-symbols-rounded text-xs">play_circle</span> Watch</button>`;
           }
 
           html += `
@@ -258,15 +276,39 @@
     }
   }
 
-  function openVlmVideoModal(title, url) {
-    document.getElementById('vlmModalVideoTitle').innerText = title;
-    document.getElementById('vlmModalIframe').src = url;
-    document.getElementById('vlmVideoModal').classList.remove('hidden');
+  function openVlmVideoModal(title, url, mode = 'embed') {
+    const modalTitle = document.getElementById('vlmModalVideoTitle');
+    const modalIframe = document.getElementById('vlmModalIframe');
+    const modalVideo = document.getElementById('vlmModalVideo');
+    const modalVideoSrc = document.getElementById('vlmModalVideoSrc');
+    const modal = document.getElementById('vlmVideoModal');
+
+    if (modalTitle) modalTitle.innerText = title;
+
+    if (mode === 'clip') {
+      if (modalIframe) { modalIframe.src = ''; modalIframe.classList.add('hidden'); }
+      if (modalVideoSrc) modalVideoSrc.src = url;
+      if (modalVideo) { modalVideo.load(); modalVideo.classList.remove('hidden'); }
+    } else {
+      if (modalVideo) { modalVideo.pause(); modalVideo.classList.add('hidden'); }
+      if (modalVideoSrc) modalVideoSrc.src = '';
+      if (modalIframe) { modalIframe.src = url; modalIframe.classList.remove('hidden'); }
+    }
+
+    if (modal) modal.classList.remove('hidden');
   }
 
   function closeVlmVideoModal() {
-    document.getElementById('vlmModalIframe').src = '';
-    document.getElementById('vlmVideoModal').classList.add('hidden');
+    const modalIframe = document.getElementById('vlmModalIframe');
+    const modalVideo = document.getElementById('vlmModalVideo');
+    const modalVideoSrc = document.getElementById('vlmModalVideoSrc');
+    const modal = document.getElementById('vlmVideoModal');
+
+    if (modalIframe) modalIframe.src = '';
+    if (modalVideo) { modalVideo.pause(); modalVideo.classList.add('hidden'); }
+    if (modalVideoSrc) modalVideoSrc.src = '';
+    if (modalIframe) modalIframe.classList.remove('hidden');
+    if (modal) modal.classList.add('hidden');
   }
 
   async function deleteSubjectMaterial(id) {
@@ -287,7 +329,6 @@
     }
   }
 
-  // Load materials when switching to materials tab
   document.addEventListener('DOMContentLoaded', () => {
     loadSubjectMaterials();
   });
