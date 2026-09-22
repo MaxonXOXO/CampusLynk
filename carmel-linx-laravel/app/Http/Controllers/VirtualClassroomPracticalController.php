@@ -426,7 +426,116 @@ class VirtualClassroomPracticalController extends Controller
     }
 
     /**
-     * Save complete lab batch roster idempotently without duplicating memberships.
+     * Get lab batch roster with all enrolled students and assigned batches.
+     */
+    public function getLabBatchRoster(Request $request, $subjectId)
+    {
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+
+        $students = Student::where('classroom_id', $batchSubject->classroom_id)
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'roll_no']);
+
+        $assignedBatches = R26StudentLabBatch::where('batch_subject_id', $subjectId)
+            ->pluck('lab_batch', 'reg_no')
+            ->toArray();
+
+        $roster = $students->map(function ($s) use ($assignedBatches) {
+            return [
+                'reg_no' => $s->reg_no,
+                'name' => $s->name,
+                'roll_no' => $s->roll_no,
+                'lab_batch' => $assignedBatches[$s->reg_no] ?? null,
+            ];
+        });
+
+        $batchACount = count(array_filter($assignedBatches, fn($b) => $b === 'Batch A'));
+        $batchBCount = count(array_filter($assignedBatches, fn($b) => $b === 'Batch B'));
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'total_students' => $students->count(),
+            'batch_a_count' => $batchACount,
+            'batch_b_count' => $batchBCount,
+            'unassigned_count' => $students->count() - ($batchACount + $batchBCount),
+            'roster' => $roster,
+        ]);
+    }
+
+    /**
+     * Automatically split students into Batch A and Batch B by half, roll cutoff, or alternating.
+     */
+    public function autoSplitLabBatches(Request $request, $subjectId)
+    {
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+
+        $request->validate([
+            'method' => 'required|string|in:half,cutoff,alternating',
+            'cutoff' => 'nullable|integer',
+        ]);
+
+        $method = $request->input('method');
+        $cutoff = $request->input('cutoff');
+
+        $students = Student::where('classroom_id', $batchSubject->classroom_id)
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'roll_no']);
+
+        $total = $students->count();
+        $halfCount = (int)ceil($total / 2);
+
+        $roster = [];
+        $batchACount = 0;
+        $batchBCount = 0;
+
+        DB::transaction(function () use ($students, $subjectId, $method, $cutoff, $halfCount, &$roster, &$batchACount, &$batchBCount) {
+            foreach ($students as $index => $s) {
+                $batch = 'Batch A';
+
+                if ($method === 'half') {
+                    $batch = ($index < $halfCount) ? 'Batch A' : 'Batch B';
+                } elseif ($method === 'cutoff') {
+                    $roll = is_numeric($s->roll_no) ? (int)$s->roll_no : ($index + 1);
+                    $batch = ($roll <= $cutoff) ? 'Batch A' : 'Batch B';
+                } elseif ($method === 'alternating') {
+                    $batch = ($index % 2 === 0) ? 'Batch A' : 'Batch B';
+                }
+
+                if ($batch === 'Batch A') $batchACount++;
+                else $batchBCount++;
+
+                R26StudentLabBatch::updateOrCreate(
+                    [
+                        'batch_subject_id' => $subjectId,
+                        'reg_no' => $s->reg_no,
+                    ],
+                    [
+                        'lab_batch' => $batch,
+                    ]
+                );
+
+                $roster[] = [
+                    'reg_no' => $s->reg_no,
+                    'name' => $s->name,
+                    'roll_no' => $s->roll_no,
+                    'lab_batch' => $batch,
+                ];
+            }
+        });
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => "Successfully split {$total} student(s) into Batch A ({$batchACount}) and Batch B ({$batchBCount}).",
+            'batch_a_count' => $batchACount,
+            'batch_b_count' => $batchBCount,
+            'roster' => $roster,
+        ]);
+    }
+
+    /**
+     * Save laboratory batch membership assignments for students.
      */
     public function saveLabBatchRoster(Request $request, $subjectId)
     {

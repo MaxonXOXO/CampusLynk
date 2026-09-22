@@ -160,32 +160,36 @@ if ($cdpAvailable -and $chatGptTab) {
     $stableCount = 0
 
     while (((Get-Date) - $startTime).TotalSeconds -lt $TimeoutSeconds) {
-        $pollRes = Invoke-CdpMethod -ws $ws -id ($msgId++) -method "Runtime.evaluate" -params @{ expression = $checkScript; returnByValue = $true }
-        $pollData = if ($null -ne $pollRes.result.result.value) { $pollRes.result.result.value } else { $pollRes.result.value }
+        try {
+            $pollRes = Invoke-CdpMethod -ws $ws -id ($msgId++) -method "Runtime.evaluate" -params @{ expression = $checkScript; returnByValue = $true }
+            $pollData = if ($null -ne $pollRes.result.result.value) { $pollRes.result.result.value } else { $pollRes.result.value }
 
-        if ($null -ne $pollData) {
-            if ($pollData.is_generating) {
-                $generationStarted = $true
-                $stableCount = 0
-            }
-
-            $currentText = if ($pollData.last_response) { $pollData.last_response.Trim() } else { "" }
-
-            if ($currentText -and $currentText -ne $initialResponse) {
-                if ($currentText -eq $lastText) {
-                    $stableCount++
-                } else {
+            if ($null -ne $pollData) {
+                if ($pollData.is_generating) {
+                    $generationStarted = $true
                     $stableCount = 0
-                    $lastText = $currentText
                 }
 
-                # Only break if generation is not active, and text is stable for >= 2 polls (1s)
-                if (-not $pollData.is_generating -and $stableCount -ge 2) {
-                    $finalResponse = $currentText
-                    $completed = $true
-                    break
+                $currentText = if ($pollData.last_response) { $pollData.last_response.Trim() } else { "" }
+
+                if ($currentText -and $currentText -ne $initialResponse) {
+                    if ($currentText -eq $lastText) {
+                        $stableCount++
+                    } else {
+                        $stableCount = 0
+                        $lastText = $currentText
+                    }
+
+                    # Only break if generation is not active, and text is stable for >= 2 polls (1s)
+                    if (-not $pollData.is_generating -and $stableCount -ge 2) {
+                        $finalResponse = $currentText
+                        $completed = $true
+                        break
+                    }
                 }
             }
+        } catch {
+            # Transient polling exception; wait and retry
         }
 
         Start-Sleep -Milliseconds 500

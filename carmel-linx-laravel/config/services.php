@@ -39,4 +39,10 @@ return [
         'key' => env('GEMINI_API_KEY'),
     ],
 
+    'vapid' => [
+        'subject' => env('VAPID_SUBJECT', 'mailto:admin@carmelpolytechnic.edu.in'),
+        'public_key' => env('VAPID_PUBLIC_KEY'),
+        'private_key' => env('VAPID_PRIVATE_KEY'),
+    ],
+
 ];

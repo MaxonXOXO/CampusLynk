@@ -557,6 +557,21 @@ Route::middleware(['web'])->group(function () {
     Route::get('/api/classroom/{subjectId}/attainment-data', [\App\Http\Controllers\ClassroomController::class, 'getSubjectAttainmentData']);
     Route::get('/classroom/{subjectId}/course-file/print-complete', [\App\Http\Controllers\ClassroomController::class, 'printCourseFileCompletePdf']);
 
+    // SBTE Subject Log PDF & Bulk Import (M5.1)
+    Route::post('/api/sbte-log/parse', [\App\Http\Controllers\SbteSubjectLogImportController::class, 'parse']);
+    Route::post('/classroom/{subjectId}/sbte-log/import', [\App\Http\Controllers\SbteSubjectLogImportController::class, 'import']);
+
+    // HOD Program Attainment Engine & Dashboard (M6.1)
+    Route::get('/hod/program-attainment/{classroomId}', [\App\Http\Controllers\ProgramAttainmentController::class, 'index']);
+    Route::post('/hod/program-attainment/{classroomId}/save', [\App\Http\Controllers\ProgramAttainmentController::class, 'saveConfig']);
+    Route::get('/hod/program-attainment/{classroomId}/print', [\App\Http\Controllers\ProgramAttainmentController::class, 'printReport']);
+
+    // Tutor Progress Reports Suite (M6.2)
+    Route::get('/api/tutor/progress-report', [\App\Http\Controllers\TutorController::class, 'getProgressReportData']);
+    Route::get('/tutor/progress-report/print', [\App\Http\Controllers\TutorController::class, 'printProgressReport']);
+    Route::get('/tutor/progress-report/student/{regNo}/print', [\App\Http\Controllers\TutorController::class, 'printStudentProgressCard']);
+    Route::get('/tutor/attendance/consolidated-print', [\App\Http\Controllers\TutorController::class, 'printConsolidatedAttendance']);
+
     // Revision 2026 Online Surveys control
     Route::get('/api/r26/classroom/{subjectId}/midsem-survey/status', [MidSemSurveyController::class, 'getSurveyResults']);
     Route::post('/api/r26/classroom/{subjectId}/midsem-survey/initiate', [MidSemSurveyController::class, 'initiateSurvey']);
@@ -582,6 +597,8 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r26/classroom/practical/course-file/{subjectId}', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'viewCourseFile']);
     Route::post('/api/r26/classroom/practical/course-file/{subjectId}/save-doc', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'saveCourseFileDoc']);
     Route::post('/api/r26/classroom/practical/course-file/{subjectId}/upload-doc', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'uploadCourseFileDocAttachment']);
+    Route::get('/api/classroom/practical/{subjectId}/lab-batch/roster', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'getLabBatchRoster']);
+    Route::post('/api/classroom/practical/{subjectId}/lab-batch/auto-split', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'autoSplitLabBatches']);
     Route::post('/api/classroom/practical/{subjectId}/lab-batch/roster', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'saveLabBatchRoster']);
     Route::delete('/api/classroom/practical/{subjectId}/lesson-plan/{id}', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'deletePracticalLessonPlanRow']);
     Route::get('/classroom/practical/{subjectId}/print-attendance-register', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'printPracticalAttendanceRegister']);
@@ -2638,6 +2655,20 @@ Route::middleware(['web'])->group(function () {
         session(['userId' => '2401001', 'userRole' => 'Student', 'userName' => 'Alex Johnson', 'userBranch' => 'Electronics Engineering']);
         return view('student_mock_test');
     });
+});
+
+// Web Push Notifications API
+Route::middleware(['web'])->group(function () {
+    Route::get('/api/notifications/vapid-key', [\App\Http\Controllers\PushNotificationController::class, 'getVapidPublicKey']);
+    Route::post('/api/notifications/subscribe', [\App\Http\Controllers\PushNotificationController::class, 'subscribe']);
+    Route::post('/api/notifications/broadcast', [\App\Http\Controllers\PushNotificationController::class, 'sendBroadcast']);
+});
+
+// Staff Birthday Celebration Routes
+Route::middleware(['web'])->group(function () {
+    Route::get('/api/staff/birthdays/today', [\App\Http\Controllers\StaffBirthdayController::class, 'getTodayBirthdays']);
+    Route::post('/api/staff/birthdays/wish', [\App\Http\Controllers\StaffBirthdayController::class, 'sendWish']);
+    Route::post('/api/staff/profile/update-dob', [\App\Http\Controllers\StaffBirthdayController::class, 'updateSelfDob']);
 });
 
 

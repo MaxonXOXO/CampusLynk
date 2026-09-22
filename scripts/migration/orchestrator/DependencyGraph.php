@@ -153,6 +153,10 @@ class DependencyGraph
                 continue;
             }
 
+            if (in_array($state, ['DEFERRED', 'CANCELLED'], true)) {
+                continue;
+            }
+
             if (in_array($state, ['IN_PROGRESS', 'IMPLEMENTING', 'VERIFYING', 'REPAIRING', 'ANALYZING'], true)) {
                 $inProgress[$unitId] = array_merge($unit, [
                     'topological_level' => $levels[$unitId] ?? 0

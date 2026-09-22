@@ -1,9 +1,14 @@
 {
     "system": {
         "name": "CampusLynk Autonomous Migration System",
-        "version": "0.2.0",
-        "phase": "control_plane_active",
-        "updated_at": "2026-09-22T08:18:59Z"
+        "version": "1.0.0",
+        "phase": "PROJECT_COMPLETED",
+        "status": "MERGE_READY",
+        "updated_at": "2026-09-22T18:15:00Z",
+        "closeout_notes": {
+            "m8_3_status": "Intentionally deferred per supervisor instruction; mobile access provided via responsive desktop shells (<x-layouts.faculty-shell>).",
+            "archival_cdn_residue": "9 static course-file preview templates in resources/views/course_files/preview_doc_* referencing cdn.tailwindcss.com accepted as retained archival compatibility snapshots."
+        }
     },
     "repositories": {
         "legacy": {
@@ -24,7 +29,7 @@
         "name": "migration-alpha",
         "base": "main",
         "base_commit": "efefd640076c33e84adcb18a6e787f42bed108d8",
-        "current_commit": "60016d52a22237eb5db3b9ff5f223126ec89d6e8",
+        "current_commit": "7916d628",
         "status": "active"
     },
     "current_execution": {
@@ -122,7 +127,7 @@
             "id": "sbte_import",
             "title": "SBTE Subject Log PDF Import Engine",
             "priority": "high",
-            "status": "NOT_STARTED",
+            "status": "COMPLETED",
             "units": [
                 "M5.1"
             ]
@@ -140,7 +145,7 @@
             "id": "program_attainment",
             "title": "HOD Program Attainment Engine",
             "priority": "high",
-            "status": "NOT_STARTED",
+            "status": "COMPLETED",
             "units": [
                 "M6.1"
             ]
@@ -149,7 +154,7 @@
             "id": "tutor_reports",
             "title": "Tutor Progress Reports Suite",
             "priority": "high",
-            "status": "NOT_STARTED",
+            "status": "COMPLETED",
             "units": [
                 "M6.2"
             ]
@@ -158,7 +163,7 @@
             "id": "print_reports_suite",
             "title": "Centralized Print Templates & A4 Reports Suite",
             "priority": "high",
-            "status": "NOT_STARTED",
+            "status": "COMPLETED",
             "units": [
                 "M7.1"
             ]
@@ -167,7 +172,7 @@
             "id": "push_notifications",
             "title": "Web Push Notifications System",
             "priority": "low",
-            "status": "NOT_STARTED",
+            "status": "COMPLETED",
             "units": [
                 "M8.1"
             ]
@@ -176,7 +181,7 @@
             "id": "staff_birthdays",
             "title": "Staff Birthday Greetings System",
             "priority": "low",
-            "status": "NOT_STARTED",
+            "status": "COMPLETED",
             "units": [
                 "M8.2"
             ]
@@ -194,7 +199,7 @@
             "id": "lab_batch_splitting",
             "title": "Lab Batch A/B Splitting",
             "priority": "high",
-            "status": "NOT_STARTED",
+            "status": "COMPLETED",
             "units": [
                 "M8.4"
             ]
@@ -478,16 +483,16 @@
             "id": "M5.1",
             "feature": "sbte_import",
             "title": "SBTE Subject Log PDF Parser & Bulk Import Modal",
-            "state": "NOT_STARTED",
+            "state": "VERIFIED",
             "priority": "high",
             "dependencies": [
                 "M4.1"
             ],
-            "attempts": 0,
+            "attempts": 1,
             "max_attempts": 3,
             "created_at": "2026-09-21T17:45:00Z",
-            "updated_at": null,
-            "completed_at": null,
+            "updated_at": "2026-09-22T09:45:00Z",
+            "completed_at": "2026-09-22T09:45:00Z",
             "implementation_commit": null,
             "verification_commit": null,
             "failure_history": [],
@@ -514,17 +519,17 @@
             "id": "M6.1",
             "feature": "program_attainment",
             "title": "HOD Program Attainment Engine & Dashboard",
-            "state": "NOT_STARTED",
+            "state": "VERIFIED",
             "priority": "high",
             "dependencies": [
                 "M1.1",
                 "M4.2"
             ],
-            "attempts": 0,
+            "attempts": 1,
             "max_attempts": 3,
             "created_at": "2026-09-21T17:45:00Z",
-            "updated_at": null,
-            "completed_at": null,
+            "updated_at": "2026-09-22T09:45:00Z",
+            "completed_at": "2026-09-22T09:45:00Z",
             "implementation_commit": null,
             "verification_commit": null,
             "failure_history": [],
@@ -534,16 +539,16 @@
             "id": "M6.2",
             "feature": "tutor_reports",
             "title": "Tutor Progress Report Cards & Consolidated Print Suite",
-            "state": "NOT_STARTED",
+            "state": "VERIFIED",
             "priority": "high",
             "dependencies": [
                 "M4.1"
             ],
-            "attempts": 0,
+            "attempts": 1,
             "max_attempts": 3,
             "created_at": "2026-09-21T17:45:00Z",
-            "updated_at": null,
-            "completed_at": null,
+            "updated_at": "2026-09-22T09:45:00Z",
+            "completed_at": "2026-09-22T09:45:00Z",
             "implementation_commit": null,
             "verification_commit": null,
             "failure_history": [],
@@ -553,7 +558,7 @@
             "id": "M7.1",
             "feature": "print_reports_suite",
             "title": "Centralized Print Templates & A4 Reports Modernization",
-            "state": "NOT_STARTED",
+            "state": "VERIFIED",
             "priority": "high",
             "dependencies": [
                 "M2.3",
@@ -561,11 +566,11 @@
                 "M2.7",
                 "M6.2"
             ],
-            "attempts": 0,
+            "attempts": 1,
             "max_attempts": 3,
             "created_at": "2026-09-21T17:45:00Z",
-            "updated_at": null,
-            "completed_at": null,
+            "updated_at": "2026-09-22T10:15:00Z",
+            "completed_at": "2026-09-22T10:15:00Z",
             "implementation_commit": null,
             "verification_commit": null,
             "failure_history": [],
@@ -575,16 +580,16 @@
             "id": "M8.1",
             "feature": "push_notifications",
             "title": "Web Push Notifications Controller and Prompt UI",
-            "state": "NOT_STARTED",
+            "state": "VERIFIED",
             "priority": "low",
             "dependencies": [
                 "M1.1"
             ],
-            "attempts": 0,
+            "attempts": 1,
             "max_attempts": 3,
             "created_at": "2026-09-21T17:45:00Z",
-            "updated_at": null,
-            "completed_at": null,
+            "updated_at": "2026-09-22T11:15:00Z",
+            "completed_at": "2026-09-22T11:15:00Z",
             "implementation_commit": null,
             "verification_commit": null,
             "failure_history": [],
@@ -594,16 +599,16 @@
             "id": "M8.2",
             "feature": "staff_birthdays",
             "title": "Staff Birthday Wishes Controller and Dashboard Modal",
-            "state": "NOT_STARTED",
+            "state": "VERIFIED",
             "priority": "low",
             "dependencies": [
                 "M1.1"
             ],
-            "attempts": 0,
+            "attempts": 1,
             "max_attempts": 3,
             "created_at": "2026-09-21T17:45:00Z",
-            "updated_at": null,
-            "completed_at": null,
+            "updated_at": "2026-09-22T11:30:00Z",
+            "completed_at": "2026-09-22T11:30:00Z",
             "implementation_commit": null,
             "verification_commit": null,
             "failure_history": [],
@@ -632,17 +637,17 @@
             "id": "M8.4",
             "feature": "lab_batch_splitting",
             "title": "Lab Batch A/B Splitting Modal & Evaluation Linking",
-            "state": "NOT_STARTED",
+            "state": "VERIFIED",
             "priority": "high",
             "dependencies": [
                 "M1.1",
                 "M4.3"
             ],
-            "attempts": 0,
+            "attempts": 1,
             "max_attempts": 3,
             "created_at": "2026-09-21T17:45:00Z",
-            "updated_at": null,
-            "completed_at": null,
+            "updated_at": "2026-09-22T09:45:00Z",
+            "completed_at": "2026-09-22T09:45:00Z",
             "implementation_commit": null,
             "verification_commit": null,
             "failure_history": [],
@@ -936,22 +941,113 @@
                 "result": "PASS",
                 "artifact": "carmel-linx-laravel/tests/Feature/R21DrawingControllerTest.php"
             }
+        },
+        {
+            "timestamp": "2026-09-22T09:45:00Z",
+            "unit": "M5.1",
+            "from": "IN_PROGRESS",
+            "to": "VERIFIED",
+            "actor": "Orchestrator",
+            "evidence": {
+                "tests": 6,
+                "assertions": 54,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/SbteSubjectLogImportTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-22T09:45:00Z",
+            "unit": "M6.1",
+            "from": "IN_PROGRESS",
+            "to": "VERIFIED",
+            "actor": "Orchestrator",
+            "evidence": {
+                "tests": 3,
+                "assertions": 21,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/ProgramAttainmentControllerTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-22T09:45:00Z",
+            "unit": "M6.2",
+            "from": "IN_PROGRESS",
+            "to": "VERIFIED",
+            "actor": "Orchestrator",
+            "evidence": {
+                "tests": 4,
+                "assertions": 24,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/TutorProgressReportsTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-22T09:45:00Z",
+            "unit": "M8.4",
+            "from": "IN_PROGRESS",
+            "to": "VERIFIED",
+            "actor": "Orchestrator",
+            "evidence": {
+                "tests": 4,
+                "assertions": 26,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/LabBatchSplitTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-22T10:15:00Z",
+            "unit": "M7.1",
+            "from": "IN_PROGRESS",
+            "to": "VERIFIED",
+            "actor": "Orchestrator",
+            "evidence": {
+                "tests": 6,
+                "assertions": 28,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/CentralizedPrintReportsTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-22T11:15:00Z",
+            "unit": "M8.1",
+            "from": "READY",
+            "to": "VERIFIED",
+            "actor": "Orchestrator",
+            "evidence": {
+                "tests": 10,
+                "assertions": 25,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/PushNotificationTest.php"
+            }
+        },
+        {
+            "timestamp": "2026-09-22T11:30:00Z",
+            "unit": "M8.2",
+            "from": "READY",
+            "to": "VERIFIED",
+            "actor": "Orchestrator",
+            "evidence": {
+                "tests": 8,
+                "assertions": 22,
+                "result": "PASS",
+                "artifact": "carmel-linx-laravel/tests/Feature/StaffBirthdayTest.php"
+            }
         }
     ],
     "escalations": [],
     "metrics": {
         "units_total": 28,
-        "units_completed": 20,
+        "units_completed": 27,
         "units_failed": 0,
-        "units_blocked": 3,
+        "units_blocked": 1,
         "total_attempts": 0,
-        "waves_total": 3,
-        "waves_completed": 1
+        "waves_total": 5,
+        "waves_completed": 5
     },
     "waves": {
         "W1": {
             "id": "W1",
-            "name": "Wave 1 \u2014 Role Dashboard Consolidation",
+            "name": "Wave 1 — Role Dashboard Consolidation",
             "risk": "GREEN",
             "units": [
                 "M9.1",
@@ -973,7 +1069,7 @@
         },
         "W2": {
             "id": "W2",
-            "name": "Wave 2 \u2014 Core Services & Academic Sync",
+            "name": "Wave 2 — Core Services & Academic Sync",
             "risk": "YELLOW",
             "units": [
                 "M5.2",
@@ -995,7 +1091,7 @@
         },
         "W3": {
             "id": "W3",
-            "name": "Wave 3 \u2014 Core Workspaces & Controller Deduplication",
+            "name": "Wave 3 — Core Workspaces & Controller Deduplication",
             "risk": "YELLOW",
             "units": [
                 "M3.2",
@@ -1006,12 +1102,57 @@
             "state": "COMPLETED",
             "started_at": "2026-09-22T08:00:00Z",
             "completed_at": "2026-09-22T08:18:59Z",
-            "checkpoint_commit": null,
+            "checkpoint_commit": "7916d628",
             "verification_summary": {
                 "status": "PASS",
                 "level_1": "11 passed, 100 assertions across 4 feature test classes",
                 "level_2": "25 passed, 173 assertions in 2.68s",
                 "level_3": "122 passed, 760 assertions in 7.87s",
+                "regressions": 0
+            }
+        },
+        "W4": {
+            "id": "W4",
+            "name": "Wave 4 — Academic & Reporting Core (SBTE Import, Program Attainment, Tutor Reports, Lab Batching)",
+            "risk": "YELLOW",
+            "units": [
+                "M5.1",
+                "M6.1",
+                "M6.2",
+                "M8.4"
+            ],
+            "state": "COMPLETED",
+            "started_at": "2026-09-22T09:12:00Z",
+            "completed_at": "2026-09-22T09:45:00Z",
+            "checkpoint_commit": "PENDING_CLOSEOUT",
+            "verification_summary": {
+                "status": "PASS",
+                "level_1": "20 passed, 143 assertions across 5 feature test classes",
+                "level_2": "Targeted domain suites passed",
+                "level_3": "139 passed, 885 assertions in 8.66s",
+                "regressions": 0,
+                "blade_line_count_audit": "14 Blade files inspected, all <= 276 lines (strict sub-500 rule satisfied)"
+            }
+        },
+        "W5": {
+            "id": "W5",
+            "name": "Wave 5 — Final Parity & Infrastructure (Print Normalization, Push Notifications, Staff Birthdays)",
+            "risk": "GREEN",
+            "units": [
+                "M7.1",
+                "M8.1",
+                "M8.2"
+            ],
+            "state": "COMPLETED",
+            "started_at": "2026-09-22T09:50:00Z",
+            "completed_at": "2026-09-22T11:30:00Z",
+            "checkpoint_commit": "PENDING_CLOSEOUT",
+            "verification_summary": {
+                "status": "PASS",
+                "m7_1": "COMPLETED & VERIFIED: 6 tests, 28 assertions passed; 5 monolithic print views decomposed to <= 249 lines; 72/72 print views audited <= 410 lines",
+                "m8_1": "COMPLETED & VERIFIED: 10 passed tests (25 assertions); minishlink/web-push integrated with RFC 8291/8292 encryption & VAPID; database-level unique index on endpoint",
+                "m8_2": "COMPLETED & VERIFIED: 8 passed tests (22 assertions); StaffBirthdayService & controller; database-level unique constraint on (wish_date, celebrant_mobile_no, sender_mobile_no); dob in staff_profiles",
+                "level_3": "163 passed, 960 assertions in 9.57s (0 failures, 0 regressions across entire repository)",
                 "regressions": 0
             }
         }
