@@ -9,6 +9,7 @@ use Smalot\PdfParser\Parser;
 use App\Models\BatchSubject;
 use App\Models\CourseFile;
 use App\Models\SubjectStaffAssignment;
+use App\Models\Student;
 
 class ClassroomController extends Controller
 {
@@ -3791,6 +3792,277 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
         return response()->json([
             'status' => 'SUCCESS',
             'message' => 'CO-PO & PSO Mapping Matrix saved successfully.'
+        ]);
+    }
+
+    /**
+     * Bulk update End Semester Exam (ESE) Marks and Attainment Settings with strict bounds validation.
+     */
+    public function bulkUpdateEseMarks(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+        if (!$userId || $userRole === 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 403);
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+
+        $request->validate([
+            'entry_mode' => 'nullable|string|in:marks,grades',
+            'max_marks' => 'nullable|numeric|min:1',
+            'ese_threshold_grade' => 'nullable|string|max:5',
+            'target_student_percent' => 'nullable|numeric|min:0|max:100',
+            'marks_data' => 'nullable|array',
+            'marks_data.*.reg_no' => 'required_with:marks_data|string|exists:students,reg_no',
+            'marks_data.*.marks' => 'nullable|numeric|min:0',
+            'marks_data.*.grade' => 'nullable|string|max:5',
+            'marks_data.*.is_absent' => 'nullable|boolean',
+        ]);
+
+        $entryMode = $request->input('entry_mode', 'marks');
+        $maxMarks = (float)$request->input('max_marks', 60.0);
+        $thresholdGrade = strtoupper(trim((string)$request->input('ese_threshold_grade', 'D')));
+        $targetPercent = (float)$request->input('target_student_percent', 70.0);
+
+        // Update CfCourseFile attainment settings
+        $cf = \App\Models\CfCourseFile::firstOrCreate(
+            ['batch_subject_id' => $subjectId],
+            ['academic_year' => date('Y') . '-' . (date('Y') + 1), 'status' => 'Draft']
+        );
+
+        $existingSettings = is_string($cf->attainment_settings)
+            ? json_decode($cf->attainment_settings, true) ?: []
+            : ($cf->attainment_settings ?: []);
+
+        $existingSettings['ese_config'] = [
+            'entry_mode' => $entryMode,
+            'max_marks' => $maxMarks,
+            'ese_threshold_grade' => $thresholdGrade,
+            'target_student_percent' => $targetPercent,
+            'target_threshold_percent' => 50.0,
+        ];
+        $cf->attainment_settings = json_encode($existingSettings);
+        $cf->save();
+
+        $updatedCount = 0;
+        $marksData = $request->input('marks_data', []);
+
+        if (!empty($marksData)) {
+            \DB::transaction(function () use ($marksData, $subjectId, $batchSubject, $maxMarks, $entryMode, $userId, &$updatedCount) {
+                foreach ($marksData as $entry) {
+                    $regNo = $entry['reg_no'];
+                    $isAbsent = !empty($entry['is_absent']);
+                    $marks = null;
+                    $grade = null;
+
+                    if ($isAbsent) {
+                        $grade = 'FE';
+                        $marks = 0.0;
+                    } elseif ($entryMode === 'grades') {
+                        $grade = strtoupper(trim((string)($entry['grade'] ?? '')));
+                        if (!array_key_exists($grade, \App\Services\AttainmentService::SBTE_GRADE_SCALE)) {
+                            $grade = 'F';
+                        }
+                        $marks = \App\Services\AttainmentService::gradeToMarks($grade, $maxMarks);
+                    } else {
+                        // Marks mode: bounds check
+                        $rawMarks = isset($entry['marks']) ? (float)$entry['marks'] : 0.0;
+                        if ($rawMarks > $maxMarks) {
+                            $rawMarks = $maxMarks;
+                        }
+                        if ($rawMarks < 0) {
+                            $rawMarks = 0.0;
+                        }
+                        $marks = round($rawMarks, 2);
+                        $pct = ($maxMarks > 0) ? ($marks / $maxMarks) * 100.0 : 0.0;
+                        $grade = \App\Services\AttainmentService::percentageToGrade($pct);
+                    }
+
+                    // Upsert into academic_marks (with explicit UUID for SQLite compatibility)
+                    $existingMark = \DB::table('academic_marks')
+                        ->where('reg_no', $regNo)
+                        ->where('batch_subject_id', $subjectId)
+                        ->where('category', 'ESE')
+                        ->first();
+
+                    if ($existingMark) {
+                        \DB::table('academic_marks')
+                            ->where('mark_id', $existingMark->mark_id)
+                            ->update([
+                                'subject_code' => $batchSubject->subject_code,
+                                'max_marks' => $maxMarks,
+                                'marks_obtained' => $marks,
+                                'entered_by' => $userId,
+                                'updated_at' => now(),
+                            ]);
+                    } else {
+                        \DB::table('academic_marks')->insert([
+                            'mark_id' => (string)\Illuminate\Support\Str::uuid(),
+                            'reg_no' => $regNo,
+                            'batch_subject_id' => $subjectId,
+                            'category' => 'ESE',
+                            'co_tag' => 'ESE',
+                            'subject_code' => $batchSubject->subject_code,
+                            'max_marks' => $maxMarks,
+                            'marks_obtained' => $marks,
+                            'entered_by' => $userId,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+
+                    \DB::table('student_board_grades')->updateOrInsert(
+                        [
+                            'reg_no' => $regNo,
+                            'subject_code' => $batchSubject->subject_code,
+                            'semester' => $batchSubject->semester ?: 1,
+                        ],
+                        [
+                            'grade' => $grade,
+                            'updated_at' => now(),
+                        ]
+                    );
+                    $updatedCount++;
+                }
+            });
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'ESE marks and attainment settings updated successfully.',
+            'updated_count' => $updatedCount,
+            'max_marks' => $maxMarks,
+            'entry_mode' => $entryMode,
+        ]);
+    }
+
+    /**
+     * Get subject NBA attainment data using AttainmentService without duplicating mathematics.
+     */
+    public function getSubjectAttainmentData(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+        if (!$userId || $userRole === 'Student') {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 403);
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
+
+        // Get CO-PO mappings
+        $mappings = [];
+        if ($courseFile && $courseFile->parsed_copo) {
+            $mappings = is_string($courseFile->parsed_copo) 
+                ? json_decode($courseFile->parsed_copo, true) 
+                : $courseFile->parsed_copo;
+        }
+        if (isset($mappings['mappings'])) {
+            $mappings = $mappings['mappings'];
+        }
+
+        // Fetch students and student grades from student_board_grades
+        $grades = \DB::table('student_board_grades')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->where('semester', $batchSubject->semester ?: 1)
+            ->get();
+
+        $totalStudents = $grades->count();
+
+        // Compute direct attainment per CO using AttainmentService
+        $directStats = [];
+        $indirectStats = [];
+        $combinedStats = [];
+
+        foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+            $metCount = 0;
+            foreach ($grades as $res) {
+                if (\App\Services\AttainmentService::isGradeMet($res->grade ?? null, 'D')) {
+                    $metCount++;
+                }
+            }
+
+            $metPercent = $totalStudents > 0 ? round(($metCount / $totalStudents) * 100, 1) : 0.0;
+            $level = \App\Services\AttainmentService::calculateBatchLevel($metPercent);
+
+            $directStats[$coTag] = $level;
+            $indirectStats[$coTag] = max(1, $level);
+            $combinedStats[$coTag] = round((0.8 * $directStats[$coTag]) + (0.2 * $indirectStats[$coTag]), 2);
+        }
+
+        // Compute PO attainment based on CO-PO correlation matrix
+        $poAttainments = [];
+        for ($p = 1; $p <= 11; $p++) {
+            $poName = 'PO' . $p;
+            $sumWeight = 0;
+            $sumAttainment = 0.0;
+
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+                $correlation = isset($mappings[$coTag][$poName]) && is_numeric($mappings[$coTag][$poName])
+                    ? (int)$mappings[$coTag][$poName]
+                    : 0;
+
+                if ($correlation > 0) {
+                    $sumWeight += $correlation;
+                    $sumAttainment += ($combinedStats[$coTag] * $correlation);
+                }
+            }
+
+            $poAttainments[$poName] = [
+                'value' => $sumWeight > 0 ? round($sumAttainment / $sumWeight, 2) : 0.0,
+                'weight' => $sumWeight,
+                'label' => \App\Services\AttainmentService::getLevelLabel($sumWeight > 0 ? (int)round($sumAttainment / $sumWeight) : 0),
+            ];
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'subject_id' => $subjectId,
+            'subject_code' => $batchSubject->subject_code,
+            'subject_name' => $batchSubject->subject_name,
+            'total_students' => $totalStudents,
+            'direct_attainment' => $directStats,
+            'indirect_attainment' => $indirectStats,
+            'combined_attainment' => $combinedStats,
+            'po_attainments' => $poAttainments,
+        ]);
+    }
+
+    /**
+     * Print Complete Course File Dossier Report using report layout.
+     */
+    public function printCourseFileCompletePdf(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        $userRole = Session::get('userRole');
+        if (!$userId || $userRole === 'Student') {
+            return redirect('/login')->with('error', 'Unauthorized.');
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $classroom = \App\Models\ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        if (!$classroom) {
+            $classroom = \App\Models\R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        }
+
+        $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
+        $lessonPlans = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->orderBy('day_no', 'asc')->get();
+
+        $students = Student::where('classroom_id', $batchSubject->classroom_id)
+            ->whereIn('status', ['Approved', 'APPROVED', 'approved'])
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'roll_no']);
+
+        return view('course_file_complete_print', [
+            'batchSubject' => $batchSubject,
+            'classroom' => $classroom,
+            'courseFile' => $courseFile,
+            'lessonPlans' => $lessonPlans,
+            'students' => $students,
+            'title' => 'Course File - ' . $batchSubject->subject_name . ' (' . $batchSubject->subject_code . ')',
+            'orientation' => 'portrait',
         ]);
     }
 }

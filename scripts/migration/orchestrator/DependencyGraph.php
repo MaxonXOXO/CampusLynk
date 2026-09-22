@@ -146,7 +146,7 @@ class DependencyGraph
             $state = $unit['state'] ?? 'NOT_STARTED';
             $deps = $this->dependencies[$unitId] ?? $unit['dependencies'] ?? [];
 
-            if ($state === 'COMPLETED' || $state === 'CHECKPOINTED') {
+            if (in_array($state, ['COMPLETED', 'CHECKPOINTED', 'VERIFIED'], true)) {
                 $completed[$unitId] = array_merge($unit, [
                     'topological_level' => $levels[$unitId] ?? 0
                 ]);
@@ -168,7 +168,7 @@ class DependencyGraph
                 $depState = $this->units[$depId]['state'] ?? 'NOT_STARTED';
                 if ($depState === 'FAILED') {
                     $failedDeps[] = $depId;
-                } elseif ($depState !== 'COMPLETED' && $depState !== 'CHECKPOINTED') {
+                } elseif (!in_array($depState, ['COMPLETED', 'CHECKPOINTED', 'VERIFIED'], true)) {
                     $missingDeps[] = $depId;
                 }
             }

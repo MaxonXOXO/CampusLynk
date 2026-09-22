@@ -1,32 +1,54 @@
-CampusLynk Autonomous Migration System — Wave 2 Architecture Alignment Request
+### CAMPUSLYNK MIGRATION — ARCHITECTURAL ALIGNMENT REQUEST: WAVE 3
 
-Wave ID: W2
-Units:
-- M5.2: Carmie AI Assistant Playbook Service & Overlay UI (Risk: YELLOW)
-- M8.5: Direct MP4/WebM Video Upload & HTML5 Video Player (Risk: GREEN)
-- M3.1: R26 Practicum Controller Extensions & CSV Export (Risk: YELLOW)
-- M3.3: R26 Theory Synchronized Features and SBTE Mark Scaling (Risk: YELLOW)
+**Target Wave:** Wave 3 (W3) — Core Workspaces & Controller Deduplication
+**Candidate Units:**
+1. `M3.2` — R26 Basic Science Practicum Workspace & Evaluator Modals (Risk: GREEN, Dependencies: M3.1 [Done])
+2. `M4.1` — Shared AttendanceController Restoration (Risk: YELLOW, Dependencies: M1.1 [Done])
+3. `M4.2` — Shared ClassroomController Restoration (Risk: YELLOW, Dependencies: M1.1 [Done])
+4. `M4.3` — Shared VirtualClassroomPracticalController Restoration (Risk: YELLOW, Dependencies: M1.1 [Done])
 
-Context:
-Wave 1 (Role Dashboards M9.1–M9.4) is completed, verified (92/92 tests passing), and checkpointed. The supervisor has enabled AUTO-RUN for subsequent migration waves.
+**Wave 3 Architectural Scope & Proposed Strategy:**
 
-Proposed Wave 2 Implementation Architecture:
+1. **Unit M3.2 — R26 Basic Science Practicum Workspace:**
+   - Decompose the legacy 363 KB monolithic `virtual_classroom_practicum.blade.php` into modular sub-500-line Blade partials in `resources/views/r26_practicum/partials/`:
+     - `header-stats.blade.php` (40M CIA / 60M ESE breakdown cards, progress badges)
+     - `tab-lesson-plan.blade.php` (90-hour plan, dynamic generation, row deletion)
+     - `tab-continuous-eval.blade.php` (Table 2.2 continuous experiment scoring)
+     - `tab-series-exam.blade.php` (Table 3.1 practical series test evaluation)
+     - `tab-self-learning.blade.php` (assignment & MCQ evaluation)
+     - `tab-attainment.blade.php` (direct/indirect NBA attainment matrix)
+     - `modal-experiment-eval.blade.php` (rubrics-based scoring modal)
+     - `modal-series-eval.blade.php` (series exam entry modal)
+     - `scripts.blade.php` (inline autosave, asynchronous modal submission)
+   - Mount `<x-layouts.workspace-layout>` as the top-level shell.
+   - Enforce desktop-only layout, strictly avoiding legacy mobile drawer toggles and duplicated mobile views.
+   - Strictly enforce the sub-500-line ceiling per file.
 
-1. Unit M5.2 (Carmie AI Assistant):
-   - Service: App\Services\CarmiePlaybookService loading database/data/carmie_playbook.json with local playbook search, query normalization, and query model logging.
-   - Controller: App\Http\Controllers\CarmieAssistantController with ask() and getSuggestions() endpoints.
-   - UI: Modular sub-500-line Blade partials resources/views/partials/carmie_assistant.blade.php + resources/views/components/carmie-assistant.blade.php mounted across standard dashboard/workspace layouts.
+2. **Unit M4.1 — Shared AttendanceController Restoration:**
+   - Audit and restore missing methods:
+     - `checkAttendanceSessionExists(Request $request)`
+     - `deleteClassLog(Request $request, $id)`
+     - `getTutorAttendanceSummary(Request $request, $classroomId)`
+     - `exportAttendanceRegisterCsv(Request $request, $subjectId)`
+   - Idempotent log deletion with cascade protection on `student_attendance`.
+   - Explicit CSV headers and deterministic ordering.
 
-2. Unit M8.5 (Video Materials):
-   - Controller: Update App\Http\Controllers\VirtualLearningMaterialController to accept material_type 'video_clip' with MP4/WebM/OGG validation up to 25MB, storing in storage/app/public/learning_materials/videos.
-   - UI: Update resources/views/partials/virtual_learning_hub_tab.blade.php with 'video_clip' option and HTML5 <video controls controlsList="nodownload"> modal player.
+3. **Unit M4.2 — Shared ClassroomController Restoration:**
+   - Audit and restore missing methods:
+     - `bulkUpdateEseMarks(Request $request, $subjectId)`
+     - `getSubjectAttainmentData(Request $request, $subjectId)`
+     - `printCourseFileCompletePdf(Request $request, $subjectId)`
+   - Direct integration with `AttainmentService` and `<x-layouts.report-layout>`.
 
-3. Unit M3.1 (R26 Practicum Extensions & CSV Export):
-   - Controller: Restore missing methods in App\Http\Controllers\R26VirtualClassroomPracticumController: deleteLessonPlanRows, printLogAttendanceReport, saveCustomExperimentsRoster, syncExperimentsToLessonPlans, getPracticumExperimentsLogs, printExperimentList, printExperimentsLog, exportExperimentsLogCsv.
-   - Print Templates & Routes: Standardize attendance_log_report_print, experiment_list_print, experiments_log_print under resources/views/r26_practicum/.
+4. **Unit M4.3 — Shared VirtualClassroomPracticalController Restoration:**
+   - Audit and restore missing methods:
+     - `saveLabBatchRoster(Request $request, $subjectId)`
+     - `deletePracticalLessonPlanRow(Request $request, $subjectId, $id)`
+     - `printPracticalAttendanceRegister(Request $request, $subjectId)`
+   - Integration with `<x-layouts.report-layout>`.
 
-4. Unit M3.3 (R26 Theory Synchronized Features):
-   - Controller: Restore saveCoPoMatrix in App\Http\Controllers\R26ClassroomController syncing to CourseFile and syllabus_registry.
-   - Synchronize ESE marks autosave and scaling logic.
-
-Please review and reply with ARCHITECTURE_APPROVED or provide specific architectural directives for Wave 2 execution.
+**Requested Action from Architect (ChatGPT):**
+Please review this Wave 3 scope and emit:
+1. Architectural decision: `Wave 3: ARCHITECTURE_APPROVED` or `REVISION_REQUIRED`.
+2. Execution directives and constraints for `M3.2`, `M4.1`, `M4.2`, and `M4.3`.
+3. Recommended unit execution sequence.

@@ -71,8 +71,8 @@ class AttendanceController extends Controller
 
         // Fetch students ordered by roll number, then name
         $students = Student::where('classroom_id', $batchSubject->classroom_id)
-            ->where('status', 'Approved')
-            ->orderByRaw('ISNULL(roll_no), roll_no ASC')
+            ->whereIn('status', ['Approved', 'APPROVED', 'approved'])
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
             ->orderBy('name', 'asc')
             ->get(['reg_no', 'name', 'roll_no']);
 
@@ -196,7 +196,7 @@ class AttendanceController extends Controller
         }
 
         $students = Student::where('classroom_id', $classroom->classroom_id)
-            ->orderByRaw('ISNULL(roll_no), roll_no ASC')
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
             ->orderBy('name', 'asc')
             ->get(['reg_no', 'name', 'roll_no', 'sbte_reg_no']);
 
@@ -263,8 +263,8 @@ class AttendanceController extends Controller
         // 2. Fetch Date-Wise Attendance Matrix
         $batchSubject = BatchSubject::findOrFail($batchSubjectId);
         $students = Student::where('classroom_id', $batchSubject->classroom_id)
-            ->where('status', 'Approved')
-            ->orderByRaw('ISNULL(roll_no), roll_no ASC')
+            ->whereIn('status', ['Approved', 'APPROVED', 'approved'])
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
             ->orderBy('name', 'asc')
             ->get(['reg_no', 'name', 'roll_no']);
 
@@ -313,5 +313,301 @@ class AttendanceController extends Controller
             'dates' => $dates,
             'matrix' => $matrix
         ]);
+    }
+
+    /**
+     * Check if an attendance session already exists for a subject, date, and period.
+     */
+    public function checkAttendanceSessionExists(Request $request)
+    {
+        $role = Session::get('userRole');
+        $userId = Session::get('userId');
+        if (!$role || $role === 'Student' || !$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized'], 403);
+        }
+
+        $request->validate([
+            'batch_subject_id' => 'required|exists:batch_subjects,id',
+            'date' => 'required|date',
+            'period' => 'required|integer|min:1|max:7',
+            'sub_batch' => 'nullable|string|in:Whole,1,2',
+        ]);
+
+        $subBatch = $request->input('sub_batch', 'Whole');
+
+        $exists = DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $request->batch_subject_id)
+            ->where('date', $request->date)
+            ->where('period', $request->period)
+            ->where('sub_batch', $subBatch)
+            ->first();
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'exists' => (bool)$exists,
+            'log' => $exists ? [
+                'id' => $exists->id,
+                'batch_subject_id' => $exists->batch_subject_id,
+                'date' => $exists->date,
+                'period' => $exists->period,
+                'lesson_plan_id' => $exists->lesson_plan_id,
+                'topics_covered' => $exists->topics_covered,
+                'present_count' => count(json_decode($exists->present_students ?? '[]', true) ?: []),
+                'absent_count' => count(json_decode($exists->absent_students ?? '[]', true) ?: []),
+                'recorded_by' => $exists->recorded_by,
+                'sub_batch' => $exists->sub_batch,
+            ] : null,
+        ]);
+    }
+
+    /**
+     * Delete a class log and ensure referential safety with student_attendance and lesson_plans.
+     */
+    public function deleteClassLog(Request $request, $id)
+    {
+        $role = Session::get('userRole');
+        $userId = Session::get('userId');
+        if (!$role || $role === 'Student' || !$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized'], 403);
+        }
+
+        $log = DB::table('class_logs_attendance')->where('id', $id)->first();
+        if (!$log) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Class log entry not found.'], 404);
+        }
+
+        // Authorization check: User must be the recorder, assigned staff, HOD, or Principal
+        $batchSubject = BatchSubject::find($log->batch_subject_id);
+        $isRecorder = ($log->recorded_by === $userId);
+        $isAssigned = false;
+        if ($batchSubject) {
+            $isAssigned = SubjectStaffAssignment::where('batch_subject_id', $batchSubject->id)
+                ->where('staff_mobile_no', $userId)
+                ->exists();
+        }
+        $isPrivileged = in_array($role, ['HOD', 'Principal', 'Workshop Superintendent', 'Tutor']);
+
+        if (!$isRecorder && !$isAssigned && !$isPrivileged) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized to delete this log.'], 403);
+        }
+
+        DB::transaction(function () use ($log, $id, $batchSubject) {
+            // 1. Revert lesson plan status if applicable and no other class log references it
+            if ($log->lesson_plan_id) {
+                $otherReferences = DB::table('class_logs_attendance')
+                    ->where('lesson_plan_id', $log->lesson_plan_id)
+                    ->where('id', '!=', $id)
+                    ->exists();
+
+                if (!$otherReferences) {
+                    LessonPlan::where('id', $log->lesson_plan_id)->update([
+                        'status' => 'Pending',
+                        'actual_date' => null,
+                        'actual_hours' => null,
+                    ]);
+                }
+            }
+
+            // 2. Safe cleanup of corresponding student_attendance records if they exist
+            if ($batchSubject) {
+                DB::table('student_attendance')
+                    ->where('subject_code', $batchSubject->subject_code)
+                    ->where('date', $log->date)
+                    ->when($log->lesson_plan_id, function ($q, $lpId) {
+                        return $q->where('lesson_plan_id', $lpId);
+                    })
+                    ->when($log->sub_batch && $log->sub_batch !== 'Whole', function ($q) use ($log) {
+                        return $q->where('sub_batch', $log->sub_batch);
+                    })
+                    ->delete();
+            }
+
+            // 3. Delete the class log entry
+            DB::table('class_logs_attendance')->where('id', $id)->delete();
+        });
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Class log and associated attendance deleted successfully.',
+        ]);
+    }
+
+    /**
+     * Get aggregated attendance summary for all students in a classroom across all subjects.
+     */
+    public function getTutorAttendanceSummary(Request $request, $classroomId)
+    {
+        $role = Session::get('userRole');
+        $userId = Session::get('userId');
+        if (!$role || $role === 'Student' || !$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized'], 403);
+        }
+
+        $classroom = DB::table('class_management')->where('classroom_id', $classroomId)->first();
+        if (!$classroom) {
+            $classroom = DB::table('r26_class_management')->where('classroom_id', $classroomId)->first();
+        }
+        if (!$classroom) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Classroom not found.'], 404);
+        }
+
+        // Authorization: Tutor of the class, or HOD / Principal
+        $isTutor = ($classroom->tutor_mobile_no === $userId);
+        $isPrivileged = in_array($role, ['HOD', 'Principal', 'Workshop Superintendent']);
+        if (!$isTutor && !$isPrivileged) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized access to classroom summary.'], 403);
+        }
+
+        $students = Student::where('classroom_id', $classroomId)
+            ->whereIn('status', ['Approved', 'APPROVED', 'approved'])
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'roll_no', 'adm_no']);
+
+        $batchSubjects = BatchSubject::where('classroom_id', $classroomId)->get();
+        $subjectIds = $batchSubjects->pluck('id')->toArray();
+
+        // Get all class logs for this classroom's subjects
+        $logs = DB::table('class_logs_attendance')
+            ->whereIn('batch_subject_id', $subjectIds)
+            ->get();
+
+        $totalConductedOverall = $logs->count();
+
+        $studentSummaries = [];
+        $lowAttendanceCount = 0;
+
+        foreach ($students as $s) {
+            $studentIds = array_filter([$s->reg_no, $s->adm_no]);
+            $attendedCount = 0;
+
+            foreach ($logs as $log) {
+                $pList = json_decode($log->present_students ?? '[]', true) ?: [];
+                if (!empty(array_intersect($studentIds, $pList))) {
+                    $attendedCount++;
+                }
+            }
+
+            $percentage = $totalConductedOverall > 0 
+                ? round(($attendedCount / $totalConductedOverall) * 100, 1) 
+                : 0.0;
+
+            if ($percentage < 75.0 && $totalConductedOverall > 0) {
+                $lowAttendanceCount++;
+            }
+
+            $studentSummaries[] = [
+                'reg_no' => $s->reg_no,
+                'name' => $s->name,
+                'roll_no' => $s->roll_no,
+                'total_conducted' => $totalConductedOverall,
+                'total_attended' => $attendedCount,
+                'attendance_percentage' => $percentage,
+                'is_shortage' => ($percentage < 75.0 && $totalConductedOverall > 0),
+            ];
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'classroom_id' => $classroomId,
+            'total_students' => $students->count(),
+            'total_conducted' => $totalConductedOverall,
+            'low_attendance_count' => $lowAttendanceCount,
+            'students' => $studentSummaries,
+        ]);
+    }
+
+    /**
+     * Export attendance register as CSV with deterministic ordering, stable headers, and UTF-8 encoding.
+     */
+    public function exportAttendanceRegisterCsv(Request $request, $subjectId)
+    {
+        $role = Session::get('userRole');
+        $userId = Session::get('userId');
+        if (!$role || $role === 'Student' || !$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized'], 403);
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+
+        // Fetch students ordered deterministically
+        $students = Student::where('classroom_id', $batchSubject->classroom_id)
+            ->whereIn('status', ['Approved', 'APPROVED', 'approved'])
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'roll_no', 'adm_no']);
+
+        // Fetch logs ordered deterministically by date asc, period asc, id asc
+        $logs = DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $subjectId)
+            ->orderBy('date', 'asc')
+            ->orderBy('period', 'asc')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $filename = 'attendance_register_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $batchSubject->subject_code) . '_' . date('Ymd_His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($students, $logs) {
+            $handle = fopen('php://output', 'w');
+            // Write UTF-8 BOM for Excel compatibility
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // Build Header Row
+            $headerRow = ['Roll No', 'Register No', 'Student Name'];
+            foreach ($logs as $log) {
+                $headerRow[] = $log->date . ' (P' . $log->period . ($log->sub_batch && $log->sub_batch !== 'Whole' ? ' - B' . $log->sub_batch : '') . ')';
+            }
+            $headerRow[] = 'Total Classes';
+            $headerRow[] = 'Classes Attended';
+            $headerRow[] = 'Attendance %';
+
+            fputcsv($handle, $headerRow);
+
+            $totalLogs = $logs->count();
+
+            // Build Data Rows
+            foreach ($students as $student) {
+                $studentIds = array_filter([$student->reg_no, $student->adm_no]);
+                $attendedCount = 0;
+                $row = [
+                    $student->roll_no ?? '-',
+                    $student->reg_no,
+                    $student->name,
+                ];
+
+                foreach ($logs as $log) {
+                    $pList = json_decode($log->present_students ?? '[]', true) ?: [];
+                    $aList = json_decode($log->absent_students ?? '[]', true) ?: [];
+
+                    if (!empty(array_intersect($studentIds, $pList))) {
+                        $row[] = 'P';
+                        $attendedCount++;
+                    } elseif (!empty(array_intersect($studentIds, $aList))) {
+                        $row[] = 'A';
+                    } else {
+                        $row[] = '-';
+                    }
+                }
+
+                $pct = $totalLogs > 0 ? round(($attendedCount / $totalLogs) * 100, 1) : 0.0;
+                $row[] = $totalLogs;
+                $row[] = $attendedCount;
+                $row[] = $pct . '%';
+
+                fputcsv($handle, $row);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

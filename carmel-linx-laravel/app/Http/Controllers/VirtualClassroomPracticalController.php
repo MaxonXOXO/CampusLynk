@@ -424,4 +424,145 @@ class VirtualClassroomPracticalController extends Controller
             'consolidatedScores'
         ));
     }
+
+    /**
+     * Save complete lab batch roster idempotently without duplicating memberships.
+     */
+    public function saveLabBatchRoster(Request $request, $subjectId)
+    {
+        $staff = $this->getStaff();
+        if (!$staff) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 403);
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+
+        $request->validate([
+            'roster' => 'required|array',
+            'roster.*.reg_no' => 'required|string|exists:students,reg_no',
+            'roster.*.lab_batch' => 'nullable|string|max:50',
+        ]);
+
+        $roster = $request->input('roster', []);
+        $savedCount = 0;
+
+        DB::transaction(function () use ($roster, $subjectId, &$savedCount) {
+            foreach ($roster as $entry) {
+                $regNo = $entry['reg_no'];
+                $labBatch = trim((string)($entry['lab_batch'] ?? ''));
+
+                if ($labBatch === '') {
+                    R26StudentLabBatch::where('batch_subject_id', $subjectId)
+                        ->where('reg_no', $regNo)
+                        ->delete();
+                } else {
+                    R26StudentLabBatch::updateOrCreate(
+                        [
+                            'batch_subject_id' => $subjectId,
+                            'reg_no' => $regNo,
+                        ],
+                        [
+                            'lab_batch' => $labBatch,
+                        ]
+                    );
+                    $savedCount++;
+                }
+            }
+        });
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Lab batch roster saved successfully.',
+            'saved_count' => $savedCount,
+        ]);
+    }
+
+    /**
+     * Delete a practical lesson plan row with strict ownership and subject scope verification.
+     */
+    public function deletePracticalLessonPlanRow(Request $request, $subjectId, $id)
+    {
+        $staff = $this->getStaff();
+        if (!$staff) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 403);
+        }
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+
+        $plan = \App\Models\LessonPlan::where('id', $id)
+            ->where('batch_subject_id', $subjectId)
+            ->first();
+
+        if (!$plan) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Lesson plan row not found in this subject scope.'], 404);
+        }
+
+        DB::transaction(function () use ($plan, $id) {
+            // Nullify any references in class_logs_attendance
+            DB::table('class_logs_attendance')
+                ->where('lesson_plan_id', $id)
+                ->update(['lesson_plan_id' => null]);
+
+            $plan->delete();
+        });
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Practical lesson plan row deleted successfully.',
+        ]);
+    }
+
+    /**
+     * Print Practical Attendance Register using report layout.
+     */
+    public function printPracticalAttendanceRegister(Request $request, $subjectId)
+    {
+        $batchSubject = BatchSubject::with(['classroom', 'courseFile'])->findOrFail($subjectId);
+        $classroom = $batchSubject->classroom;
+        if (!$classroom) {
+            $classroom = \App\Models\R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        }
+
+        $students = Student::where('classroom_id', $batchSubject->classroom_id)
+            ->whereIn('status', ['Approved', 'APPROVED', 'approved'])
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get();
+
+        $labBatches = R26StudentLabBatch::where('batch_subject_id', $subjectId)
+            ->get()
+            ->keyBy('reg_no');
+
+        $attendanceData = [];
+        foreach ($students as $student) {
+            $totalClasses = DB::table('student_attendance')
+                ->where('subject_code', $batchSubject->subject_code)
+                ->where('reg_no', $student->reg_no)
+                ->count();
+
+            $presentClasses = DB::table('student_attendance')
+                ->where('subject_code', $batchSubject->subject_code)
+                ->where('reg_no', $student->reg_no)
+                ->whereIn('status', ['Present', 'Late'])
+                ->count();
+
+            $pct = $totalClasses > 0 ? round(($presentClasses / $totalClasses) * 100, 1) : 100.0;
+
+            $attendanceData[$student->reg_no] = [
+                'conducted' => $totalClasses,
+                'attended' => $presentClasses,
+                'percentage' => $pct,
+            ];
+        }
+
+        return view('practical_attendance_register_print', [
+            'batchSubject' => $batchSubject,
+            'classroom' => $classroom,
+            'students' => $students,
+            'labBatches' => $labBatches,
+            'attendanceData' => $attendanceData,
+            'title' => 'Practical Attendance Register - ' . $batchSubject->subject_name,
+            'orientation' => 'portrait',
+        ]);
+    }
 }

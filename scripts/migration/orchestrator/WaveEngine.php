@@ -19,12 +19,16 @@ class WaveEngine
     private array $waves = [];
     private ?array $activeWave = null;
 
-    public function __construct(DependencyGraph $graph, RiskClassifier $classifier, array $waves = [], ?array $activeWave = null)
+    public function __construct(DependencyGraph $graph, RiskClassifier $classifier, array $waves = [], array|string|null $activeWave = null)
     {
         $this->graph = $graph;
         $this->classifier = $classifier;
         $this->waves = $waves;
-        $this->activeWave = $activeWave;
+        if (is_string($activeWave) && isset($waves[$activeWave])) {
+            $this->activeWave = $waves[$activeWave];
+        } else {
+            $this->activeWave = is_array($activeWave) ? $activeWave : null;
+        }
     }
 
     /**

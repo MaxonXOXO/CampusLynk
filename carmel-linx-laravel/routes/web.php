@@ -553,6 +553,9 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r26/classroom/{subjectId}/internals/print-cie', [R26ClassroomController::class, 'printInternalMarksheet']);
     Route::get('/r26/classroom/{subjectId}/final-results/print', [R26ClassroomController::class, 'printFinalResults']);
     Route::get('/r26/classroom/{subjectId}/nba/attainment-report', [R26ClassroomController::class, 'printAttainmentReport']);
+    Route::post('/api/classroom/{subjectId}/ese-marks/bulk-update', [\App\Http\Controllers\ClassroomController::class, 'bulkUpdateEseMarks']);
+    Route::get('/api/classroom/{subjectId}/attainment-data', [\App\Http\Controllers\ClassroomController::class, 'getSubjectAttainmentData']);
+    Route::get('/classroom/{subjectId}/course-file/print-complete', [\App\Http\Controllers\ClassroomController::class, 'printCourseFileCompletePdf']);
 
     // Revision 2026 Online Surveys control
     Route::get('/api/r26/classroom/{subjectId}/midsem-survey/status', [MidSemSurveyController::class, 'getSurveyResults']);
@@ -579,6 +582,9 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r26/classroom/practical/course-file/{subjectId}', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'viewCourseFile']);
     Route::post('/api/r26/classroom/practical/course-file/{subjectId}/save-doc', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'saveCourseFileDoc']);
     Route::post('/api/r26/classroom/practical/course-file/{subjectId}/upload-doc', [App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'uploadCourseFileDocAttachment']);
+    Route::post('/api/classroom/practical/{subjectId}/lab-batch/roster', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'saveLabBatchRoster']);
+    Route::delete('/api/classroom/practical/{subjectId}/lesson-plan/{id}', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'deletePracticalLessonPlanRow']);
+    Route::get('/classroom/practical/{subjectId}/print-attendance-register', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'printPracticalAttendanceRegister']);
 
     // Revision 2026 Practicum Virtual Classroom Management (Joint Theory + Lab)
     Route::get('/r26/classroom/practicum/{subjectId}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'show']);
@@ -1377,6 +1383,10 @@ Route::middleware(['web'])->group(function () {
     Route::get('/api/tutor/attendance/students', [App\Http\Controllers\AttendanceController::class, 'getTutorStudents']);
     Route::post('/api/tutor/attendance/roll-numbers', [App\Http\Controllers\AttendanceController::class, 'updateRollNumbers']);
     Route::get('/api/staff/attendance/subjects/{id}/reports', [App\Http\Controllers\AttendanceController::class, 'getReports']);
+    Route::post('/api/staff/attendance/check-session', [App\Http\Controllers\AttendanceController::class, 'checkAttendanceSessionExists']);
+    Route::delete('/api/staff/attendance/class-log/{id}', [App\Http\Controllers\AttendanceController::class, 'deleteClassLog']);
+    Route::get('/api/tutor/attendance/summary/{classroomId}', [App\Http\Controllers\AttendanceController::class, 'getTutorAttendanceSummary']);
+    Route::get('/staff/attendance/export-register-csv/{subjectId}', [App\Http\Controllers\AttendanceController::class, 'exportAttendanceRegisterCsv']);
 
     // SBTE Compliance Console Routes
     Route::get('/hod/sbte-audit', function () {
