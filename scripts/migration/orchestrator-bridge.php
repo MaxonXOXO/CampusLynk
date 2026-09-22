@@ -218,9 +218,9 @@ TEMPLATE;
         file_put_contents($promptFile, $prompt);
 
         $cmd = sprintf(
-            'powershell -ExecutionPolicy Bypass -Command "$msg = [System.IO.File]::ReadAllText(\'%s\', [System.Text.Encoding]::UTF8); & \'%s\' -Message $msg -TimeoutSeconds %d"',
-            addslashes($promptFile),
+            'powershell -ExecutionPolicy Bypass -File "%s" -PromptFile "%s" -TimeoutSeconds %d',
             addslashes($this->bridgeScript),
+            addslashes($promptFile),
             $timeoutSeconds
         );
 

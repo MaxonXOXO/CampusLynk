@@ -11,9 +11,14 @@
 param(
     [string]$Port = "9222",
     [string]$Message = "CampusLynk Migration Bridge Test.`n`nReply with exactly:`n`nBRIDGE_OK",
+    [string]$PromptFile = "",
     [int]$TimeoutSeconds = 45,
     [switch]$ForceWindowFallback
 )
+
+if ($PromptFile -and (Test-Path $PromptFile)) {
+    $Message = [System.IO.File]::ReadAllText($PromptFile, [System.Text.Encoding]::UTF8)
+}
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $outputFile = Join-Path $scriptDir "test-output.txt"
@@ -35,31 +40,35 @@ function Invoke-CdpMethod {
         [hashtable]$params = @{}
     )
 
-    $payload = @{
-        id = $id
-        method = $method
-        params = $params
-    } | ConvertTo-Json -Compress
+    try {
+        $payload = @{
+            id = $id
+            method = $method
+            params = $params
+        } | ConvertTo-Json -Compress
 
-    $bytes = [System.Text.Encoding]::UTF8.GetBytes($payload)
-    $segment = New-Object System.ArraySegment[byte] -ArgumentList @(,$bytes)
-    $cts = New-Object System.Threading.CancellationTokenSource(5000)
-    $ws.SendAsync($segment, [System.Net.WebSockets.WebSocketMessageType]::Text, $true, $cts.Token).Wait()
+        $bytes = [System.Text.Encoding]::UTF8.GetBytes($payload)
+        $segment = New-Object System.ArraySegment[byte] -ArgumentList @(,$bytes)
+        $cts = New-Object System.Threading.CancellationTokenSource(8000)
+        $ws.SendAsync($segment, [System.Net.WebSockets.WebSocketMessageType]::Text, $true, $cts.Token).Wait()
 
-    # Read response
-    $buffer = New-Object byte[] 65536
-    $seg = New-Object System.ArraySegment[byte] -ArgumentList @(,$buffer)
-    $ms = New-Object System.IO.MemoryStream
+        # Read response
+        $buffer = New-Object byte[] 65536
+        $seg = New-Object System.ArraySegment[byte] -ArgumentList @(,$buffer)
+        $ms = New-Object System.IO.MemoryStream
 
-    do {
-        $readCts = New-Object System.Threading.CancellationTokenSource(10000)
-        $res = $ws.ReceiveAsync($seg, $readCts.Token)
-        $res.Wait()
-        $ms.Write($buffer, 0, $res.Result.Count)
-    } while (-not $res.Result.EndOfMessage)
+        do {
+            $readCts = New-Object System.Threading.CancellationTokenSource(15000)
+            $res = $ws.ReceiveAsync($seg, $readCts.Token)
+            $res.Wait()
+            $ms.Write($buffer, 0, $res.Result.Count)
+        } while (-not $res.Result.EndOfMessage)
 
-    $responseJson = [System.Text.Encoding]::UTF8.GetString($ms.ToArray())
-    return $responseJson | ConvertFrom-Json
+        $responseJson = [System.Text.Encoding]::UTF8.GetString($ms.ToArray())
+        return $responseJson | ConvertFrom-Json
+    } catch {
+        return $null
+    }
 }
 
 # -----------------------------------------------------------------------------
@@ -107,7 +116,7 @@ if ($cdpAvailable -and $chatGptTab) {
 
     # 2.1 Send message via DOM injection into composer safely using ConvertTo-Json
     $jsonEncoded = $Message | ConvertTo-Json
-    $sendScript = '(() => { const text = ' + $jsonEncoded + '; const textarea = document.querySelector("#prompt-textarea") || document.querySelector("div[contenteditable=\"true\"]#prompt-textarea"); if (!textarea) return { error: "Composer not found" }; textarea.focus(); document.execCommand("selectAll", false, null); document.execCommand("insertText", false, text); textarea.dispatchEvent(new Event("input", { bubbles: true })); setTimeout(() => { const sendBtn = document.querySelector("button[data-testid=\"send-button\"]") || document.querySelector("button[data-testid=\"fruitjuice-send-button\"]") || document.querySelector("button[aria-label=\"Send prompt\"]"); if (sendBtn && !sendBtn.disabled) { sendBtn.click(); } }, 300); return { success: true, len: text.length }; })()'
+    $sendScript = '(() => { const text = ' + $jsonEncoded + '; const textarea = document.querySelector("#prompt-textarea") || document.querySelector("div[contenteditable=\"true\"]#prompt-textarea"); if (!textarea) return { error: "Composer not found" }; textarea.focus(); document.execCommand("selectAll", false, null); const dt = new DataTransfer(); dt.setData("text/plain", text); textarea.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true, cancelable: true })); setTimeout(() => { const sendBtn = document.querySelector("button[data-testid=\"send-button\"]") || document.querySelector("button[data-testid=\"fruitjuice-send-button\"]") || document.querySelector("button[aria-label=\"Send prompt\"]"); if (sendBtn && !sendBtn.disabled) { sendBtn.click(); } }, 400); return { success: true, len: text.length }; })()'
 
     # Capture initial response state before sending to avoid reading stale turn
     $initRes = Invoke-CdpMethod -ws $ws -id ($msgId++) -method "Runtime.evaluate" -params @{ expression = "(() => { const els = document.querySelectorAll('.markdown'); return els.length > 0 ? els[els.length - 1].innerText.trim() : ''; })()"; returnByValue = $true }
