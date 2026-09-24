@@ -537,7 +537,11 @@ class R26VirtualClassroomPracticumController extends Controller
         $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
         $seriesQps = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->get()->keyBy('series_no');
 
-        return view('r26_practicum.virtual_classroom_practicum', compact(
+        $viewName = (($subjectType['type'] ?? '') === 'basic_science')
+            ? 'r26_practicum.virtual_classroom_basic_science_practicum'
+            : 'r26_practicum.virtual_classroom_practicum';
+
+        return view($viewName, compact(
             'batchSubject',
             'classroom',
             'students',

@@ -591,9 +591,101 @@ class AuthController extends Controller
                 'ip_address' => $request->ip(),
             ]);
 
-            return response()->json(['status' => 'SUCCESS', 'message' => 'Password updated successfully!']);
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Password updated successfully!']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'ERROR', 'message' => 'Failed to update password: ' . $e->getMessage()]);
         }
     }
+
+    /**
+     * Auto Login via persistent token (for mobile app experience).
+     */
+    public function autoLoginViaToken(Request $request)
+    {
+        $token    = $request->input('token') ?? $request->cookie('carmel_remember_token') ?? $request->cookie('remember_token') ?? $request->header('X-Remember-Token');
+        $roleType = $request->input('roleType') ?? $request->cookie('carmel_remember_role') ?? $request->cookie('remember_role') ?? $request->header('X-Remember-Role');
+
+        if (empty($token)) {
+            return response()->json(['status' => 'ERROR', 'message' => 'No persistent token provided.']);
+        }
+
+        try {
+            if ($roleType === 'student') {
+                $student = Student::where('remember_token', $token)->first();
+                if ($student && strtoupper($student->status) === 'APPROVED') {
+                    Session::put([
+                        'userRole'           => 'Student',
+                        'userId'             => $student->reg_no,
+                        'userName'           => $student->name,
+                        'userBranch'         => $student->branch,
+                        'userAdmissionType'  => $student->admission_type,
+                        'userPhoto'          => $student->photo_url ?? '',
+                        'classroomId'        => $student->classroom_id,
+                        'sbteRegNo'          => $student->sbte_reg_no,
+                        'userEmail'          => $student->email,
+                        'semester'           => $student->semester,
+                    ]);
+
+                    $newToken = Str::random(60);
+                    $student->update(['remember_token' => $newToken]);
+                    \Illuminate\Support\Facades\Cookie::queue(\Illuminate\Support\Facades\Cookie::make('carmel_remember_token', $newToken, 525600 * 5, null, null, false, false));
+                    \Illuminate\Support\Facades\Cookie::queue(\Illuminate\Support\Facades\Cookie::make('carmel_remember_role', 'student', 525600 * 5, null, null, false, false));
+
+                    return response()->json([
+                        'status'       => 'SUCCESS',
+                        'role'         => 'Student',
+                        'id'           => $student->reg_no,
+                        'name'         => $student->name,
+                        'remember_token' => $newToken,
+                        'role_type'    => 'student',
+                        'route'        => '/dashboard/student'
+                    ]);
+                }
+            } else {
+                $staff = StaffProfile::where('remember_token', $token)->first();
+                if ($staff && strtoupper($staff->account_status) === 'APPROVED') {
+                    Session::put([
+                        'userRole'   => $staff->designation,
+                        'userId'     => $staff->mobile_no,
+                        'userName'   => $staff->name,
+                        'userBranch' => $staff->branch,
+                        'userPhoto'  => $staff->photo_url ?? '',
+                    ]);
+
+                    $route = '/dashboard/lecturer';
+                    if ($staff->designation === 'Super_Admin') $route = '/dashboard/superadmin';
+                    elseif ($staff->designation === 'Chairman') $route = '/dashboard/chairman';
+                    elseif ($staff->designation === 'Admin') $route = '/dashboard/admin';
+                    elseif ($staff->designation === 'Principal') $route = '/dashboard/principal';
+                    elseif ($staff->designation === 'HOD') $route = '/dashboard/hod';
+                    elseif ($staff->designation === 'Tutor') $route = '/dashboard/tutor';
+                    elseif ($staff->designation === 'Gen_Dept_Coordinator_Aided') $route = '/dashboard/general-coordinator-aided';
+                    elseif (in_array($staff->designation, ['Academic_Coordinator', 'Academic Coordinator', 'Academic_Coordinator_SF', 'Gen_Dept_Coordinator_Self_Finance'])) $route = '/dashboard/academic-coordinator';
+                    elseif ($staff->designation === 'Demonstrator') $route = '/dashboard/demonstrator';
+                    elseif ($staff->designation === 'Trade_Instructor') $route = '/dashboard/tradeinstructor';
+                    elseif ($staff->designation === 'Workshop_Superintendent') $route = '/dashboard/workshop';
+
+                    $newToken = Str::random(60);
+                    $staff->update(['remember_token' => $newToken]);
+                    \Illuminate\Support\Facades\Cookie::queue(\Illuminate\Support\Facades\Cookie::make('carmel_remember_token', $newToken, 525600 * 5, null, null, false, false));
+                    \Illuminate\Support\Facades\Cookie::queue(\Illuminate\Support\Facades\Cookie::make('carmel_remember_role', 'staff', 525600 * 5, null, null, false, false));
+
+                    return response()->json([
+                        'status'         => 'SUCCESS',
+                        'role'           => $staff->designation,
+                        'id'             => $staff->mobile_no,
+                        'name'           => $staff->name,
+                        'remember_token' => $newToken,
+                        'role_type'      => 'staff',
+                        'route'          => $route
+                    ]);
+                }
+            }
+
+            return response()->json(['status' => 'ERROR', 'message' => 'Invalid or expired session token.']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()]);
+        }
+    }
 }
+

@@ -22,6 +22,7 @@ class StaffProfile extends Model
         'password',
         'photo_url',
         'account_status',
+        'remember_token',
     ];
 
     protected $hidden = [

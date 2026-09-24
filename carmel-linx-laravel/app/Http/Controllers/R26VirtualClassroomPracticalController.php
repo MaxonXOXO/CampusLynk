@@ -634,6 +634,15 @@ class R26VirtualClassroomPracticalController extends Controller
         return response()->json(['success' => true, 'message' => 'Lesson plan saved!']);
     }
 
+    public function deleteLessonPlanRow(Request $request, $subjectId, $planId)
+    {
+        LessonPlan::where('id', $planId)
+            ->where('batch_subject_id', $subjectId)
+            ->delete();
+
+        return response()->json(['success' => true, 'status' => 'SUCCESS', 'message' => 'Row deleted successfully.']);
+    }
+
     /**
      * Save Table 2.2 Experiment Marks (Continuous Log).
      */

@@ -454,6 +454,13 @@ class R26ClassroomController extends Controller
             return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 401);
         }
 
+        $deletedIds = $request->input('deleted_ids', []);
+        if (!empty($deletedIds)) {
+            LessonPlan::whereIn('id', $deletedIds)
+                ->where('batch_subject_id', $subjectId)
+                ->delete();
+        }
+
         $rows = $request->input('rows', []);
         $updated = 0;
         foreach ($rows as $row) {

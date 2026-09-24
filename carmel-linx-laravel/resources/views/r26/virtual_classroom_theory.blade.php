@@ -266,34 +266,10 @@
             <span class="material-symbols-rounded text-base">folder_special</span>
             <span>Digital Learning Hub</span>
           </button>
-        </div>
-      </div>
-            Student Roster ({{ $students->count() }})
-          </button>
 
-          <button onclick="switchTab('series')" id="btn-series" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-100 hover:text-slate-900 cursor-pointer">
-            <span class="material-symbols-rounded text-sm">quiz</span>
-            Series Exams
-          </button>
-
-          <button onclick="switchTab('internals')" id="btn-internals" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-100 hover:text-slate-900 cursor-pointer">
-            <span class="material-symbols-rounded text-sm">assignment_turned_in</span>
-            Internal Marks
-          </button>
-
-          <button onclick="switchTab('attainment')" id="btn-attainment" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-100 hover:text-slate-900 cursor-pointer">
-            <span class="material-symbols-rounded text-sm">equalizer</span>
-            Course Attainment & Surveys
-          </button>
-
-          <button onclick="switchTab('materials')" id="btn-materials" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-100 hover:text-slate-900 cursor-pointer">
-            <span class="material-symbols-rounded text-sm">folder_special</span>
-            Study Materials & Pre-Class Hub
-          </button>
-
-          <a href="/r26/classroom/course-file/{{ $batchSubject->id }}" target="_blank" class="w-full text-left px-3 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 transition-all text-muted hover:bg-slate-100 hover:text-slate-900 cursor-pointer no-underline">
-            <span class="material-symbols-rounded text-sm">folder_open</span>
-            Course File Preparation R2026
+          <a href="/r26/classroom/course-file/{{ $batchSubject->id }}" target="_blank" class="w-full text-left px-3.5 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2.5 transition-all text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer no-underline">
+            <span class="material-symbols-rounded text-base">folder_open</span>
+            <span>Course File Preparation R2026</span>
           </a>
         </div>
 
@@ -774,6 +750,7 @@
                     <th class="p-3.5 w-36">Actual Date</th>
                     <th class="p-3.5 w-20 text-center">Hours</th>
                     <th class="p-3.5 w-32">Status</th>
+                    <th class="p-3.5 w-16 text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody id="plannerTableBody" class="divide-y divide-slate-100 text-sm font-normal">
@@ -844,10 +821,17 @@
                           <option value="Completed" {{ $lp->status == 'Completed' ? 'selected' : '' }} class="text-emerald-700 font-bold bg-white">Completed</option>
                         </select>
                       </td>
+
+                      <!-- Action: Delete -->
+                      <td class="p-2.5 text-center">
+                        <button type="button" onclick="deleteLessonPlanRow(this)" class="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition cursor-pointer shadow-2xs" title="Delete Period / Row">
+                          <span class="material-symbols-rounded text-sm block">delete</span>
+                        </button>
+                      </td>
                     </tr>
                   @empty
                     <tr>
-                      <td colspan="9" class="p-0">
+                      <td colspan="10" class="p-0">
                         <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
                           <div class="w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4 border border-indigo-100 shadow-2xs">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -894,16 +878,26 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <!-- Attendance Card -->
+              <!-- Attendance & Subject Log Card -->
               <div class="bg-panel border border-card rounded-xl p-4 space-y-2">
                 <div class="flex justify-between items-center border-b border-card pb-1.5">
-                  <span class="font-medium text-title text-xs">Attendance</span>
-                  <span class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-1.5 py-0.5 rounded font-bold">5M Max</span>
+                  <span class="font-bold text-title text-xs flex items-center gap-1.5">
+                    <span class="material-symbols-rounded text-indigo-500 text-sm">co_present</span>
+                    Attendance &amp; Subject Log
+                  </span>
+                  <span class="text-xs bg-indigo-50 text-indigo-700 border border-indigo-200 px-1.5 py-0.5 rounded font-bold font-mono">5M Max</span>
                 </div>
-                <p class="text-xs text-muted leading-relaxed">Automatically evaluated based on student class logs attendance metrics.</p>
-                <button class="w-full py-1.5 bg-blue-600 hover:bg-blue-700 text-white shadow-xs rounded-lg text-xs font-bold border border-slate-200 transition-all cursor-pointer">
-                  View Logs
-                </button>
+                <p class="text-xs text-muted leading-relaxed">Daily session attendance and syllabus topics covered. Auto-evaluates 5M CIE from Table 2.1 percentages.</p>
+                <div class="space-y-1.5 pt-1">
+                  <a href="/staff/attendance-log?subject_id={{ $batchSubject->id }}&return_to={{ urlencode('/r26/classroom/theory/' . $batchSubject->id . '?tab=cia') }}" class="w-full py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition-all cursor-pointer shadow-xs flex items-center justify-center gap-1.5 no-underline">
+                    <span class="material-symbols-rounded text-sm">co_present</span>
+                    Open Attendance &amp; Subject Log
+                  </a>
+                  <button type="button" onclick="openRosterModal()" class="w-full py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-[11px] font-medium border border-slate-200 transition-all cursor-pointer flex items-center justify-center gap-1">
+                    <span class="material-symbols-rounded text-xs">group</span>
+                    View Student Directory ({{ $students->count() }})
+                  </button>
+                </div>
               </div>
 
               <!-- Self Learning Card -->
@@ -1349,7 +1343,7 @@
                       <!-- Left: Exam Info -->
                       <div class="flex items-center gap-3">
                         <div class="px-3 py-1 rounded-lg {{ $bgColor }} {{ $textColor }} font-bold text-xs tracking-wider uppercase">
-                          {{ implode(' + ', $exam->co_tags) }}
+                          {{ is_array($exam->co_tags) ? implode(' + ', $exam->co_tags) : ($exam->co_tags ?: 'All COs') }}
                         </div>
                         <div>
                           <h5 class="font-bold text-slate-800 dark:text-slate-800 text-sm">{{ $exam->exam_name }}</h5>
@@ -1362,28 +1356,34 @@
                       <!-- Right: Status and Actions -->
                       <div class="flex flex-wrap items-center gap-3">
                         @if($exam->locked)
-                          <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-600 border border-emerald-500/20 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm">
-                            <span class="material-symbols-rounded text-xs">lock</span> Locked & Published
+                          <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 rounded-md text-xs font-semibold flex items-center gap-1.5 shadow-2xs select-none" title="Exam is locked and published to students">
+                            <span class="material-symbols-rounded text-xs">lock</span> Status: <strong class="font-bold">Locked</strong>
                           </span>
                         @else
-                          <span class="px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-600 border border-amber-500/20 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm">
-                            <span class="material-symbols-rounded text-xs">edit_note</span> Drafting Mode
+                          <span class="px-2.5 py-1 bg-amber-500/10 text-amber-700 border border-amber-500/20 rounded-md text-xs font-semibold flex items-center gap-1.5 shadow-2xs select-none" title="Drafting Mode: Questions can be freely drafted and edited; hidden from students until published">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Status: <strong class="font-bold">Draft</strong>
                           </span>
                         @endif
 
                         <div class="flex gap-2">
-                          <button onclick='openSeriesBuilderModal({{ $exam->id }}, "{{ addslashes($exam->exam_name) }}", "{{ $exam->mode }}", {{ json_encode($exam->co_tags) }}, {{ $exam->max_marks }})' class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm">
-                            <span class="material-symbols-rounded text-xs">edit_document</span> Build QP
-                          </button>
-                          <a href="/r26/classroom/series-exams/{{ $exam->id }}/print-qp" target="_blank" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-800 border border-slate-300 dark:border-slate-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                          @if($exam->locked)
+                            <button onclick='openSeriesBuilderModal({{ $exam->id }}, "{{ addslashes($exam->exam_name) }}", "{{ $exam->mode }}", {{ json_encode($exam->co_tags) }}, {{ $exam->max_marks }})' class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold transition-all border border-slate-200 cursor-pointer flex items-center gap-1 shadow-xs" title="View Question Paper">
+                              <span class="material-symbols-rounded text-xs">visibility</span> View QP
+                            </button>
+                          @else
+                            <button onclick='openSeriesBuilderModal({{ $exam->id }}, "{{ addslashes($exam->exam_name) }}", "{{ $exam->mode }}", {{ json_encode($exam->co_tags) }}, {{ $exam->max_marks }})' class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-xs" title="Open Question Paper Builder to add or edit questions">
+                              <span class="material-symbols-rounded text-xs">edit_document</span> Build QP
+                            </button>
+                          @endif
+                          <a href="/r26/classroom/series-exams/{{ $exam->id }}/print-qp" target="_blank" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm no-underline">
                             <span class="material-symbols-rounded text-xs">print</span> Print QP
                           </a>
-                          <a href="/r26/classroom/series-exams/{{ $exam->id }}/print-scheme" target="_blank" class="px-3 py-1.5 bg-slate-100 dark:bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 dark:hover:bg-slate-750 text-slate-700 dark:text-slate-800 border border-slate-300 dark:border-slate-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm">
+                          <a href="/r26/classroom/series-exams/{{ $exam->id }}/print-scheme" target="_blank" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-all flex items-center gap-1 shadow-sm no-underline">
                             <span class="material-symbols-rounded text-xs">description</span> Print Scheme
                           </a>
                           @if(!$exam->locked)
-                            <button onclick="lockAndPublishSeries({{ $exam->id }})" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-750 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm">
-                              <span class="material-symbols-rounded text-xs">publish</span> Lock & Notify
+                            <button onclick="lockAndPublishSeries({{ $exam->id }})" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm" title="Lock question paper and publish notifications to students">
+                              <span class="material-symbols-rounded text-xs">publish</span> Lock &amp; Notify
                             </button>
                           @endif
                         </div>
@@ -1528,7 +1528,10 @@
                 <p class="text-xs text-muted mt-0.5">Enter ESE marks (out of 60) below to view consolidated final scores (CIA 40M + ESE 60M = 100M total).</p>
               </div>
               <div class="flex items-center gap-2">
-                <a href="/r26/classroom/{{ $batchSubject->id }}/final-results/print" target="_blank" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm">
+                <div id="eseAutosaveBadge" class="text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-2xs">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Synced
+                </div>
+                <a href="/r26/classroom/{{ $batchSubject->id }}/final-results/print" target="_blank" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm no-underline">
                   <span class="material-symbols-rounded text-xs">print</span> Print Final Marksheet
                 </a>
                 <button onclick="saveEseMarks()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 shadow-sm">
@@ -1538,28 +1541,42 @@
             </div>
 
             <div class="border border-card rounded-xl overflow-x-auto bg-white custom-scrollbar">
-              <table class="w-full text-left border-collapse min-w-[900px]">
+              <table class="w-full text-left border-collapse min-w-[950px]">
                 <thead>
                   <tr class="bg-slate-50/70 text-xs font-bold text-muted uppercase tracking-wider border-b border-card">
                     <th class="p-3 w-[6%] text-center">Roll No</th>
-                    <th class="p-3 w-[15%]">Register No</th>
+                    <th class="p-3 w-[14%]">Register No</th>
                     <th class="p-3">Student Name</th>
-                    <th class="p-3 w-[12%] text-center">CIA Marks (40M)</th>
-                    <th class="p-3 w-[15%] text-center">ESE Marks (60M)</th>
-                    <th class="p-3 w-[12%] text-center">Total (100M)</th>
-                    <th class="p-3 w-[12%] text-center">Grade</th>
-                    <th class="p-3 w-[12%] text-center">Remark</th>
+                    <th class="p-3 w-[10%] text-center">CIA Marks (40M)</th>
+                    <th class="p-3 w-[16%] text-center">SBTE Letter Grade</th>
+                    <th class="p-3 w-[11%] text-center">ESE Marks (60M)</th>
+                    <th class="p-3 w-[10%] text-center">Total (100M)</th>
+                    <th class="p-3 w-[8%] text-center">Grade</th>
+                    <th class="p-3 w-[11%] text-center">Remark</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-card text-sm font-normal">
                   @forelse($studentCiaData as $sc)
                     <tr class="bg-card-hover transition-all font-normal student-ese-row" data-reg-no="{{ $sc['reg_no'] }}">
                       <td class="p-2.5 font-mono text-center text-title">{{ $sc['roll_no'] ?: '—' }}</td>
-                      <td class="p-2.5 font-mono text-title">{{ $sc['reg_no'] }}</td>
+                      <td class="p-2.5 font-mono text-title">{{ $sc['sbte_reg_no'] ?: $sc['reg_no'] }}</td>
                       <td class="p-2.5 text-title font-medium">{{ $sc['name'] }}</td>
                       <td class="p-2.5 text-center font-mono text-emerald-500 font-bold" data-val-cie="{{ $sc['total_cia'] }}">{{ $sc['total_cia'] }}</td>
                       <td class="p-2.5 text-center">
-                        <input type="number" step="0.5" min="0" max="60" value="{{ $sc['ese_marks'] ?? 0.0 }}" class="w-24 bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-800 text-center focus:border-indigo-500 outline-none font-normal text-xs ese-mark-input" oninput="calculateEseRow(this)">
+                        <select class="w-36 bg-slate-50 border border-slate-200 hover:border-slate-400 rounded-lg px-2 py-1 text-slate-800 text-xs font-semibold focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none ese-grade-select cursor-pointer transition-colors" onchange="calculateEseRowFromGrade(this); triggerEseAutosave();">
+                          <option value="" class="text-slate-400">-- Select Grade --</option>
+                          <option value="S" {{ ($sc['ese_grade'] ?? '') === 'S' ? 'selected' : '' }} class="text-emerald-700 font-bold">S (≥90% | Outstanding)</option>
+                          <option value="A" {{ ($sc['ese_grade'] ?? '') === 'A' ? 'selected' : '' }} class="text-blue-700 font-bold">A (80-89% | Excellent)</option>
+                          <option value="B" {{ ($sc['ese_grade'] ?? '') === 'B' ? 'selected' : '' }} class="text-cyan-700 font-bold">B (70-79% | Very Good)</option>
+                          <option value="C" {{ ($sc['ese_grade'] ?? '') === 'C' ? 'selected' : '' }} class="text-yellow-700 font-bold">C (60-69% | Good)</option>
+                          <option value="D" {{ ($sc['ese_grade'] ?? '') === 'D' ? 'selected' : '' }} class="text-amber-700 font-bold">D (50-59% | Average)</option>
+                          <option value="E" {{ ($sc['ese_grade'] ?? '') === 'E' ? 'selected' : '' }} class="text-orange-700 font-bold">E (40-49% | Pass)</option>
+                          <option value="F" {{ ($sc['ese_grade'] ?? '') === 'F' ? 'selected' : '' }} class="text-rose-700 font-bold">F (&lt;40% | Reappearance)</option>
+                          <option value="FE" {{ ($sc['ese_grade'] ?? '') === 'FE' ? 'selected' : '' }} class="text-rose-800 font-bold">FE (Absent / Withheld)</option>
+                        </select>
+                      </td>
+                      <td class="p-2.5 text-center">
+                        <input type="number" step="0.5" min="0" max="60" value="{{ $sc['ese_marks'] ?? 0.0 }}" class="w-20 bg-white border border-slate-200 rounded-lg px-2 py-0.5 text-slate-800 text-center focus:border-indigo-500 outline-none font-normal text-xs ese-mark-input" oninput="calculateEseRowFromMarks(this); triggerEseAutosave();">
                       </td>
                       <td class="p-2.5 text-center font-mono text-title font-bold" data-field="total_score">{{ $sc['grand_total'] }}</td>
                       <td class="p-2.5 text-center font-bold" data-field="grade_display">-</td>
@@ -1567,7 +1584,7 @@
                     </tr>
                   @empty
                     <tr>
-                      <td colspan="8" class="p-6 text-center text-muted italic font-normal">No student records enrolled.</td>
+                      <td colspan="9" class="p-6 text-center text-muted italic font-normal">No student records enrolled.</td>
                     </tr>
                   @endforelse
                 </tbody>
@@ -2137,6 +2154,35 @@
       });
     }
 
+    let deletedLessonPlanIds = [];
+
+    function deleteLessonPlanRow(btn) {
+      const tr = btn.closest('tr');
+      if (!tr) return;
+      const periodNo = tr.querySelector('td:first-child')?.innerText?.trim() || 'this row';
+
+      if (!confirm(`Are you sure you want to delete period ${periodNo}? This will remove it from the timeline.`)) {
+        return;
+      }
+
+      const lpId = tr.getAttribute('data-lp-id');
+      if (lpId && !lpId.startsWith('new_')) {
+        deletedLessonPlanIds.push(parseInt(lpId, 10));
+      }
+      tr.remove();
+
+      renumberLessonPlanPeriods();
+      saveLessonPlanEdits();
+    }
+
+    function renumberLessonPlanPeriods() {
+      const trs = document.querySelectorAll('#plannerTableBody tr[data-lp-id]');
+      trs.forEach((tr, index) => {
+        const periodSpan = tr.querySelector('td:first-child span');
+        if (periodSpan) periodSpan.innerText = '#' + (index + 1);
+      });
+    }
+
     function saveLessonPlanEdits() {
       const rows = [];
       const trs = document.querySelectorAll('#plannerTableBody tr');
@@ -2165,9 +2211,11 @@
       });
 
       const btn = document.getElementById('btnSavePlanner');
-      const originalText = btn.innerText;
-      btn.disabled = true;
-      btn.innerText = 'Saving...';
+      const originalText = btn ? btn.innerText : 'Save';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Saving...';
+      }
 
       fetch('/api/r26/classroom/{{ $batchSubject->id }}/lesson-plans/bulk-update', {
         method: 'POST',
@@ -2175,7 +2223,10 @@
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
-        body: JSON.stringify({ rows })
+        body: JSON.stringify({
+          rows: rows,
+          deleted_ids: deletedLessonPlanIds
+        })
       })
       .then(res => res.json())
       .then(data => {
@@ -3503,52 +3554,151 @@
       }
     }
 
-    function calculateEseRow(input) {
-      const row = input.closest('tr');
-      const cie = parseFloat(row.querySelector('[data-val-cie]').innerText) || 0;
-      const ese = parseFloat(input.value) || 0;
-      const total = cie + ese;
-      row.querySelector('[data-field="total_score"]').innerText = total.toFixed(1);
+    const SBTE_GRADE_SCALE = {
+      'S': 57.0, // 95% of 60
+      'A': 51.0, // 85% of 60
+      'B': 45.0, // 75% of 60
+      'C': 39.0, // 65% of 60
+      'D': 33.0, // 55% of 60
+      'E': 27.0, // 45% of 60
+      'F': 0.0,
+      'FE': 0.0
+    };
 
-      let grade = 'F';
-      if (total >= 90) grade = 'S';
-      else if (total >= 80) grade = 'A';
-      else if (total >= 70) grade = 'B';
-      else if (total >= 60) grade = 'C';
-      else if (total >= 50) grade = 'D';
-      else if (total >= 40) grade = 'E';
-      
-      let remark = 'FAIL';
-      if (total >= 40 && ese >= 24) {
-        remark = 'PASS';
+    function calculateEseRowFromGrade(gradeSelect) {
+      const row = gradeSelect.closest('tr');
+      const selectedGrade = gradeSelect.value.trim().toUpperCase();
+      const markInput = row.querySelector('.ese-mark-input');
+
+      if (selectedGrade in SBTE_GRADE_SCALE) {
+        markInput.value = SBTE_GRADE_SCALE[selectedGrade].toFixed(1);
+      }
+      updateEseRowTotals(row);
+    }
+
+    function calculateEseRowFromMarks(markInput) {
+      const row = markInput.closest('tr');
+      const val = parseFloat(markInput.value);
+      const gradeSelect = row.querySelector('.ese-grade-select');
+
+      if (!isNaN(val) && markInput.value.trim() !== '') {
+        const pct = (val / 60.0) * 100.0;
+        let matchedGrade = 'F';
+        if (pct >= 90) matchedGrade = 'S';
+        else if (pct >= 80) matchedGrade = 'A';
+        else if (pct >= 70) matchedGrade = 'B';
+        else if (pct >= 60) matchedGrade = 'C';
+        else if (pct >= 50) matchedGrade = 'D';
+        else if (pct >= 40) matchedGrade = 'E';
+        else matchedGrade = 'F';
+
+        if (gradeSelect) gradeSelect.value = matchedGrade;
+      }
+      updateEseRowTotals(row);
+    }
+
+    function updateEseRowTotals(row) {
+      if (!row) return;
+      const cieElem = row.querySelector('[data-val-cie]');
+      const cie = cieElem ? (parseFloat(cieElem.innerText) || 0) : 0;
+      const markInput = row.querySelector('.ese-mark-input');
+      const gradeSelect = row.querySelector('.ese-grade-select');
+      const ese = markInput ? (parseFloat(markInput.value) || 0) : 0;
+      const total = cie + ese;
+
+      const totalElem = row.querySelector('[data-field="total_score"]');
+      if (totalElem) totalElem.innerText = total.toFixed(1);
+
+      const selectedGrade = gradeSelect ? gradeSelect.value.trim().toUpperCase() : '';
+
+      // Revision 2026 Passing Norms:
+      // Minimum 40% in ESE (>= 24/60) and Total >= 40/100
+      let remark = 'REAPPEARANCE';
+      let courseGrade = 'F';
+
+      const isEsePass = (selectedGrade !== 'F' && selectedGrade !== 'FE' && ese >= 24);
+
+      if (isEsePass && total >= 40) {
+        remark = 'PASSED';
+        if (total >= 90) courseGrade = 'S';
+        else if (total >= 80) courseGrade = 'A';
+        else if (total >= 70) courseGrade = 'B';
+        else if (total >= 60) courseGrade = 'C';
+        else if (total >= 50) courseGrade = 'D';
+        else courseGrade = 'E';
       } else {
-        grade = 'F';
+        remark = (selectedGrade === 'FE') ? 'ABSENT' : 'REAPPEARANCE';
+        courseGrade = 'F';
       }
 
       const gDisp = row.querySelector('[data-field="grade_display"]');
-      gDisp.innerText = grade;
-      if (grade === 'F') {
-        gDisp.className = "p-2.5 text-center font-bold text-rose-500";
-      } else {
-        gDisp.className = "p-2.5 text-center font-bold text-emerald-600";
+      if (gDisp) {
+        gDisp.innerText = courseGrade;
+        if (courseGrade === 'F') {
+          gDisp.className = "p-2.5 text-center font-bold text-rose-500 font-mono text-xs";
+        } else {
+          gDisp.className = "p-2.5 text-center font-bold text-emerald-600 font-mono text-xs";
+        }
       }
 
       const rDisp = row.querySelector('[data-field="remark_display"]');
-      rDisp.innerText = remark;
-      if (remark === 'PASS') {
-        rDisp.className = "p-2.5 text-center font-bold text-emerald-600";
-      } else {
-        rDisp.className = "p-2.5 text-center font-bold text-rose-500";
+      if (rDisp) {
+        if (remark === 'PASSED') {
+          rDisp.innerHTML = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">PASSED</span>';
+        } else {
+          rDisp.innerHTML = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">' + remark + '</span>';
+        }
       }
     }
 
-    function saveEseMarks() {
+    function calculateEseRow(elem) {
+      if (!elem) return;
+      if (elem.classList.contains('ese-grade-select')) {
+        calculateEseRowFromGrade(elem);
+      } else if (elem.classList.contains('ese-mark-input')) {
+        calculateEseRowFromMarks(elem);
+      } else if (elem.classList.contains('student-ese-row')) {
+        updateEseRowTotals(elem);
+      } else {
+        const row = elem.closest('tr');
+        if (row) updateEseRowTotals(row);
+      }
+    }
+
+    let eseAutosaveTimer = null;
+    function triggerEseAutosave() {
+      const badge = document.getElementById('eseAutosaveBadge');
+      if (badge) {
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> Unsaved Changes';
+        badge.className = 'text-[10px] font-mono text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-2xs';
+      }
+      clearTimeout(eseAutosaveTimer);
+      eseAutosaveTimer = setTimeout(() => {
+        saveEseMarks(true);
+      }, 800);
+    }
+
+    function saveEseMarks(isAutoSave = false) {
       const marks = {};
+      const grades = {};
+
       document.querySelectorAll('.student-ese-row').forEach(row => {
         const regNo = row.getAttribute('data-reg-no');
-        const val = parseFloat(row.querySelector('.ese-mark-input').value) || 0;
-        marks[regNo] = val;
+        const markInput = row.querySelector('.ese-mark-input');
+        const gradeSelect = row.querySelector('.ese-grade-select');
+
+        const markVal = markInput ? (parseFloat(markInput.value) || 0) : 0;
+        const gradeVal = gradeSelect ? gradeSelect.value.trim().toUpperCase() : '';
+
+        marks[regNo] = markVal;
+        grades[regNo] = gradeVal;
       });
+
+      const badge = document.getElementById('eseAutosaveBadge');
+      if (badge) {
+        badge.innerHTML = '<span class="material-symbols-rounded text-xs animate-spin">progress_activity</span> Saving...';
+        badge.className = 'text-[10px] font-mono text-sky-700 bg-sky-50 border border-sky-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-2xs';
+      }
 
       fetch(`/api/r26/classroom/{{ $batchSubject->id }}/ese-marks/bulk-update`, {
         method: 'POST',
@@ -3556,14 +3706,36 @@
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
-        body: JSON.stringify({ marks: marks })
+        body: JSON.stringify({
+          marks: marks,
+          grades: grades,
+          entry_mode: 'grades'
+        })
       })
       .then(res => res.json())
       .then(data => {
         if (data.status === 'SUCCESS') {
-          alert("ESE Marks saved successfully!");
+          if (badge) {
+            badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Synced';
+            badge.className = 'text-[10px] font-mono text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-2xs';
+          }
+          if (!isAutoSave) {
+            alert("ESE Marks & SBTE Grades saved successfully!");
+          }
         } else {
-          alert("Error saving ESE Marks: " + data.message);
+          if (badge) {
+            badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Sync Error';
+            badge.className = 'text-[10px] font-mono text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-2xs';
+          }
+          if (!isAutoSave) {
+            alert("Error saving ESE Marks: " + (data.message || 'Unknown error'));
+          }
+        }
+      })
+      .catch(err => {
+        if (badge) {
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Sync Failed';
+          badge.className = 'text-[10px] font-mono text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-lg flex items-center gap-1.5 shadow-2xs';
         }
       });
     }

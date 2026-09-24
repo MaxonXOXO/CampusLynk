@@ -2671,7 +2671,64 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/staff/profile/update-dob', [\App\Http\Controllers\StaffBirthdayController::class, 'updateSelfDob']);
 });
 
+// Phase 3: Practical & Classroom Statutory Print and Management Routes
+Route::middleware(['web'])->group(function () {
+    // Virtual Classroom Practical Prints (Revision 2021)
+    Route::get('/classroom/practical/{subjectId}/series-report/print', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'printSeriesReport']);
+    Route::get('/classroom/practical/{subjectId}/final-results/print', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'printFinalResults']);
+    Route::get('/classroom/practical/{subjectId}/experiments/print', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'printExperimentsLog']);
+    Route::get('/classroom/practical/{subjectId}/student/{regNo}/print', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'printStudentReport']);
 
+    // Theory Classroom Statutory Prints
+    Route::get('/classroom/{subjectId}/final-results/print', [\App\Http\Controllers\ClassroomController::class, 'printTheoryFinalResults']);
+    Route::get('/classroom/{subjectId}/class-roster/print', [\App\Http\Controllers\ClassroomController::class, 'printTheoryClassRoster']);
+    Route::get('/classroom/{subjectId}/class-log/print', [\App\Http\Controllers\ClassroomController::class, 'printTheoryClassLog']);
 
+    // Practical Classroom Management & Sync APIs
+    Route::post('/api/classroom/{subjectId}/practical/experiment-date', [\App\Http\Controllers\ClassroomController::class, 'updatePracticalExperimentDate']);
+    Route::post('/api/classroom/{subjectId}/practical/evaluate-bulk', [\App\Http\Controllers\ClassroomController::class, 'saveBulkPracticalEvaluations']);
+    Route::post('/api/classroom/{subjectId}/practical/lesson-plans/sync-dates', [\App\Http\Controllers\ClassroomController::class, 'syncLessonPlanDatesFromLogs']);
+    Route::get('/api/classroom/{subjectId}/practical/batch-setup', [\App\Http\Controllers\AttendanceController::class, 'getLabBatchSetup']);
+    Route::post('/api/classroom/{subjectId}/practical/batch-setup', [\App\Http\Controllers\AttendanceController::class, 'saveLabBatchAssignments']);
+});
 
+// Phase 5: Reconciled Parity Routes (Mobile Auth, SF Biometrics, Attendance Logs, Theory/Practical Classroom Parity)
+Route::middleware(['web'])->group(function () {
+    // Mobile Auth & Campus Events
+    Route::post('/api/auth/auto-login', [\App\Http\Controllers\AuthController::class, 'autoLoginViaToken']);
+    Route::get('/api/campus-event/today', [\App\Http\Controllers\PrincipalScheduledEventController::class, 'getTodayCampusEvent']);
+
+    // Staff Attendance Mobile & Biometric Face Punch Routes
+    Route::get('/sf-attendance/face-punch', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'showFacePunch']);
+    Route::post('/sf-attendance/register-face', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'saveFaceRegistration']);
+    Route::post('/sf-attendance/verify-and-punch', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'verifyAndPunch']);
+    Route::get('/sf-attendance/geofence-setup', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'showGeofenceSetup']);
+    Route::get('/sf-attendance/attendance-report', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'showAttendanceReport']);
+    Route::match(['post', 'delete'], '/sf-attendance/delete-punch/{id}', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'deletePunch']);
+    Route::match(['post', 'delete'], '/sf-attendance/reset-face/{staffId}', [\App\Http\Controllers\StaffAttendanceMobileController::class, 'resetFaceRegistration']);
+
+    // Attendance Log & SBTE PDF Import Parity
+    Route::get('/api/staff/attendance/session-check', [\App\Http\Controllers\AttendanceController::class, 'checkSessionAttendance']);
+    Route::post('/api/staff/attendance/delete-log', [\App\Http\Controllers\AttendanceController::class, 'deleteAttendanceLog']);
+    Route::post('/api/staff/attendance/import-sbte-pdf', [\App\Http\Controllers\SbteSubjectLogImportController::class, 'importPdf']);
+    Route::post('/api/staff/attendance/sync-from-lesson-plan', [\App\Http\Controllers\SbteSubjectLogImportController::class, 'syncFromLessonPlan']);
+    Route::get('/api/tutor/attendance/consolidated', [\App\Http\Controllers\AttendanceController::class, 'getConsolidatedTutorAttendance']);
+    Route::get('/tutor/attendance/report/print', [\App\Http\Controllers\AttendanceController::class, 'printTutorAttendanceReport']);
+
+    // Practical Classroom Log & CIA Summary Parity
+    Route::get('/api/classroom/{subjectId}/practical/attendance-log', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'getAttendanceLog']);
+    Route::post('/api/classroom/{subjectId}/practical/cia-summary', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'saveStudentCiaSummary']);
+    Route::delete('/api/r26/classroom/practical/{subjectId}/lesson-plans/{planId}', [\App\Http\Controllers\R26VirtualClassroomPracticalController::class, 'deleteLessonPlanRow']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/lesson-plan/delete', [\App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'deleteLessonPlanRows']);
+
+    // Theory Classroom Attainment, ESE, Assignment Image & Course File Print
+    Route::get('/api/classroom/{subjectId}/ese-marks', [\App\Http\Controllers\ClassroomController::class, 'getEseMarks']);
+    Route::get('/api/classroom/{subjectId}/attainment-summary', [\App\Http\Controllers\ClassroomController::class, 'getAttainmentSummary']);
+    Route::get('/classroom/{subjectId}/attainment-report', [\App\Http\Controllers\ClassroomController::class, 'printAttainmentReport']);
+    Route::get('/classroom/{subjectId}/course-file/print', [\App\Http\Controllers\ClassroomController::class, 'printCourseFileA4']);
+    Route::post('/api/classroom/{subjectId}/upload-assignment-image', [\App\Http\Controllers\ClassroomController::class, 'uploadAssignmentImage']);
+
+    // Student Study Material Read Tracker
+    Route::post('/api/student/materials/{id}/read', [\App\Http\Controllers\VirtualLearningMaterialController::class, 'markAlertAsRead']);
+});
 

@@ -205,4 +205,100 @@ class PrincipalScheduledEventController extends Controller
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Scheduled event cancelled & deleted successfully.']);
     }
+
+    /**
+     * Get active campus event for today for staff or student dashboard.
+     */
+    public function getTodayCampusEvent(Request $request)
+    {
+        $userId   = Session::get('userId');
+        $userRole = Session::get('userRole');
+        $todayDate = date('Y-m-d');
+
+        $query = PrincipalScheduledEvent::where('is_published', true)
+            ->where(function ($q) use ($todayDate) {
+                $q->where(function ($q1) use ($todayDate) {
+                    $q1->whereNull('end_date')
+                       ->whereDate('event_date', $todayDate);
+                })->orWhere(function ($q2) use ($todayDate) {
+                    $q2->whereNotNull('end_date')
+                       ->whereDate('event_date', '<=', $todayDate)
+                       ->whereDate('end_date', '>=', $todayDate);
+                });
+            });
+
+        if (strtolower($userRole ?? '') === 'student') {
+            $student = \App\Models\Student::where('reg_no', $userId)
+                ->orWhere('adm_no', $userId)
+                ->orWhere('phone', $userId)
+                ->first();
+            $dept = $student ? ($student->branch ?? 'ALL') : Session::get('userBranch', 'ALL');
+
+            $query->where(function ($q) use ($dept) {
+                $q->where('target_audience', 'ALL_CAMPUS')
+                  ->orWhere('target_audience', 'STUDENTS_ONLY')
+                  ->orWhere(function ($q2) use ($dept) {
+                      $q2->where('target_audience', 'DEPT_SPECIFIC')
+                         ->where(function ($q3) use ($dept) {
+                             $q3->where('target_department', 'ALL')
+                                ->orWhere('target_department', $dept);
+                         });
+                  });
+            });
+        } else {
+            $staff = \App\Models\StaffProfile::where('mobile_no', $userId)->first();
+            $dept = $staff ? ($staff->department ?? 'ALL') : Session::get('userBranch', 'ALL');
+
+            $query->where(function ($q) use ($dept) {
+                $q->where('target_audience', 'ALL_CAMPUS')
+                  ->orWhere('target_audience', 'STAFF_ONLY')
+                  ->orWhere(function ($q2) use ($dept) {
+                      $q2->where('target_audience', 'DEPT_SPECIFIC')
+                         ->where(function ($q3) use ($dept) {
+                             $q3->where('target_department', 'ALL')
+                                ->orWhere('target_department', $dept);
+                         });
+                  });
+            });
+        }
+
+        $event = $query->orderBy('created_at', 'desc')->first();
+
+        $eventData = null;
+        if ($event) {
+            $formattedStartDate  = $event->event_date ? $event->event_date->format('d M Y') : '';
+            $formattedEndDate    = $event->end_date ? $event->end_date->format('d M Y') : $formattedStartDate;
+            $formattedReopenDate = $event->reopen_date ? $event->reopen_date->format('d M Y') : '';
+
+            $isMultiDay = ($event->end_date && $event->end_date->format('Y-m-d') !== $event->event_date->format('Y-m-d'));
+            
+            $dateRangeText = $isMultiDay ? "{$formattedStartDate} to {$formattedEndDate}" : $formattedStartDate;
+
+            if ($isMultiDay) {
+                $noticeText = "Regular classes suspended from {$formattedStartDate} to {$formattedEndDate}, due to {$event->title}.";
+            } else {
+                if ($event->suspension_type === 'half_day_fn') {
+                    $noticeText = "Regular classes suspended for Forenoon (FN) session on {$formattedStartDate}, due to {$event->title}.";
+                } elseif ($event->suspension_type === 'half_day_an') {
+                    $noticeText = "Regular classes suspended for Afternoon (AN) session on {$formattedStartDate}, due to {$event->title}.";
+                } else {
+                    $noticeText = "Regular classes suspended on {$formattedStartDate}, due to {$event->title}.";
+                }
+            }
+
+            $eventData = $event->toArray();
+            $eventData['formatted_start_date']  = $formattedStartDate;
+            $eventData['formatted_end_date']    = $formattedEndDate;
+            $eventData['formatted_reopen_date'] = $formattedReopenDate;
+            $eventData['date_range_text']       = $dateRangeText;
+            $eventData['notice_text']           = $noticeText;
+            $eventData['is_multi_day']          = $isMultiDay;
+        }
+
+        return response()->json([
+            'status'    => 'SUCCESS',
+            'has_event' => $event ? true : false,
+            'event'     => $eventData,
+        ]);
+    }
 }

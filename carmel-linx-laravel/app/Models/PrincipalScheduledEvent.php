@@ -32,13 +32,20 @@ class PrincipalScheduledEvent extends Model
         'scheduled_at',
         'is_published',
         'created_by',
+        'suppress_timetable',
+        'suspension_type',
+        'end_date',
+        'reopen_date',
     ];
 
     protected $casts = [
-        'is_full_day'   => 'boolean',
-        'requires_rsvp' => 'boolean',
-        'is_published'  => 'boolean',
-        'event_date'    => 'date',
-        'scheduled_at'  => 'datetime',
+        'is_full_day'        => 'boolean',
+        'requires_rsvp'      => 'boolean',
+        'is_published'       => 'boolean',
+        'suppress_timetable' => 'boolean',
+        'event_date'         => 'date',
+        'end_date'           => 'date',
+        'reopen_date'        => 'date',
+        'scheduled_at'       => 'datetime',
     ];
 }

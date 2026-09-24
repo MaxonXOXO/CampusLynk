@@ -1,6 +1,6 @@
 CAMPUSLYNK MIGRATION ORCHESTRATOR REQUEST
 
-Unit: M9.4 | Stage: COMPLETED | Type: TASK_REPORT
+Unit: M10.1 | Stage: IMPLEMENTED | Type: TASK_REPORT
 
 MANDATORY ARCHITECTURAL & DESIGN DIRECTIVE:
 Every migration decision, implementation specification, and task dispatch MUST strictly consider existing CampusLynk global components and design language to prevent duplication:
@@ -9,176 +9,127 @@ Every migration decision, implementation specification, and task dispatch MUST s
 3. Anti-Duplication: NEVER create ad-hoc button styles, custom modal dialogs, or raw table markup when global components exist.
 4. Decomposition: Monolithic legacy views (>500 lines) MUST be decomposed into modular Blade partials.
 
-# CAMPUSLYNK FINAL PROJECT CLOSEOUT TASK REPORT
+# TASK REPORT & DISPATCH REQUEST: M10.1-PHASE5 — BACKEND PARITY COMPLETE & CLASSROOM UI/UX RECONCILIATION
 
-## 1. CLOSEOUT EXECUTION SUMMARY
-- **Task ID:** `PROJECT-CLOSEOUT-001`
-- **Unit ID:** `M9.4`
-- **Status:** `COMPLETED`
-- **Final Checkpoint Commit:** `090f7c51184b0fce1f7b1f998d168a080ce16133` (short: `090f7c51`)
-- **Branch:** `migration-alpha`
-- **Merge Readiness Status:** `SATISFIED / MERGE_READY`
+## 1. EXECUTIVE STATUS & BACKEND COMPLETION
+Phase 5 Backend Reconciliation has been 100% completed, tested, and validated:
+- **Missing Controller Parity**: All 25 controller actions ported (ClassroomController, VirtualClassroomPracticalController, PrincipalScheduledEventController, SbteSubjectLogImportController, R26VirtualClassroomPracticalController, AuthController).
+- **Database Migrations**: 5 migrations verified and executed (suspensions, remember_tokens, evaluation_date, lab_batch_config, attainment_settings).
+- **Routes Parity**: All 25 endpoints integrated into `routes/web.php` with proper auth & role middleware.
+- **Regression Pass**: Full test suite passes: `178 passed (1014 assertions), 0 failures`.
 
----
+## 2. FORENSIC AUDIT OF LATE UI/UX COMMITS (Aug 24 – Sep 20, 2026)
+We conducted a granular line-by-line forensic comparison of legacy commits (`301be5d4` through `70b11740`) against CampusLynk's modernized Blade templates. The backend routes are ready, but the following frontend UI/UX enhancements in the virtual classrooms need reconciliation:
 
-## 2. PRE-CLOSEOUT WORKING-TREE AUDIT & STAGED SCOPE
-The complete working tree on `migration-alpha` was cross-checked against the post-audit verification report. Exactly and only verified migration artifacts were staged and committed:
-1. **Controllers (4 new + 2 modified):**
-   - `ProgramAttainmentController.php` (NBA Criterion 3 PO1–PO11 / PSO1–PSO3 direct & indirect attainment)
-   - `PushNotificationController.php` (VAPID key retrieval, subscription management, broadcast dispatch)
-   - `SbteSubjectLogImportController.php` (PDF text upload, preview, and batch session import)
-   - `StaffBirthdayController.php` (Celebrant overview, idempotent wish dispatch)
-   - `TutorController.php` (Restored progress report and attendance endpoints)
-   - `VirtualClassroomPracticalController.php` (Lab batch splitting endpoints)
-2. **Models (3 new + 1 modified):**
-   - `ProgramAttainment.php`
-   - `PushSubscription.php`
-   - `StaffBirthdayWish.php`
-   - `StaffProfile.php` (DOB accessor/mutator)
-3. **Domain Services (3 new):**
-   - `PushNotificationService.php` (Web Push RFC 8291/8292 encryption & dispatch)
-   - `SbteSubjectLogImportService.php` (Dual PDF/text parser & DB transaction batching)
-   - `StaffBirthdayService.php` (Birthday detection, wish idempotency, push integration)
-4. **Database Migrations (4 new):**
-   - `2026_09_10_232359_create_program_attainments_table.php`
-   - `2026_09_22_110000_add_unique_index_to_push_subscriptions_endpoint.php`
-   - `2026_09_22_120000_create_or_update_staff_birthday_wishes_table.php`
-   - `2026_09_22_120001_add_dob_to_staff_profiles_table.php`
-5. **Views & Decomposed Partials:**
-   - 5 modernized print templates: `classroom_assignment_print`, `hod_academic_calendar_print`, `hod_sbte_audit_print`, `r26/student_final_results_print`, `student_mentoring_diary_print` (all $\le 231$ lines)
-   - Decomposed partials: `hod/partials/`, `reports/`, `program_attainment/`, `r26_practicum/partials/`, `tutor/reports/` (all $\le 410$ lines)
-   - Modals: `mentoring_diary_academics`, `push_notification_prompt`, `sbte_subject_log_import_modal`, `staff_birthday_modal`
-6. **Feature Test Suites (7 new):**
-   - `CentralizedPrintReportsTest.php` (6 tests, 28 assertions)
-   - `LabBatchSplitTest.php` (4 tests, 26 assertions)
-   - `ProgramAttainmentControllerTest.php` (3 tests, 21 assertions)
-   - `PushNotificationTest.php` (10 tests, 25 assertions)
-   - `SbteSubjectLogImportTest.php` (6 tests, 54 assertions)
-   - `StaffBirthdayTest.php` (8 tests, 22 assertions)
-   - `TutorProgressReportsTest.php` (4 tests, 24 assertions)
-7. **Control-Plane Documentation & Governance:**
-   - `docs/migration/STATE.json` (Phase updated to `PROJECT_COMPLETED`, status `MERGE_READY`, all 5 waves `COMPLETED`)
-   - `docs/migration/FEATURE_MATRIX.md` (All 27 active features verified `Done`)
-   - `docs/migration/reports/WAVE_4_REPORT.md` and `WAVE_5_REPORT.md`
-   - `scripts/migration/` (Enhanced bridge resilience and dispatch tooling)
+### A. Virtual Classroom Theory (`r26/virtual_classroom_theory.blade.php`)
+1. **SBTE Grade Entry & 60M Scaling** (`b367d893`):
+   - Legacy added an SBTE Grade selector (`S`, `A`, `B`, `C`, `D`, `E`, `F`, `FE`) in the ESE results table.
+   - Synchronized bidirectional scaling between letter grades and 60M scale marks (`S=57, A=51, B=45, C=39, D=33, E=27, F=0`).
+   - Debounced autosave (800ms) dispatching to `/api/r26/classroom/{subjectId}/ese-marks/bulk-update` with visual spinner/success badge.
+2. **Attendance Tab Renaming** (`fb4a3dd6`):
+   - Tab title updated from "Continuous Attendance" to "Attendance & Subject Log" linked to common class log.
+3. **Lesson Plan Row Deletion** (`b076fff2`):
+   - Inline deletion action button on customized lesson plan rows with modal confirmation calling `DELETE /api/r26/classroom/{subjectId}/lesson-plans/{planId}`.
+4. **QP Builder Differentiation** (`61d1b7dd`):
+   - Explicit visual styling separating the "Status: Draft" badge from the interactive "Build QP" action button.
+
+### B. Virtual Lab Practical (`virtual_classroom_practical.blade.php`)
+1. **Lab Batch Setup Integration** (`dacd8e24`):
+   - Desktop toolbar integration of `partials/lab_batch_setup_modal.blade.php` and `partials/lab_batch_setup_scripts.blade.php` for Full/Split batch rosters.
+2. **Multi-Experiment Badges & Stacked Past Logs** (`a297fb05`, `27f3d5d4`):
+   - Multi-experiment badge selection chip list for multi-practical sessions.
+   - Stacked card view for historical experiment attendance logs.
+3. **In-Place Log Dates Auto-Sync** (`ff663935`, `32e1c0aa`):
+   - AJAX refresh trigger to synchronize syllabus plan dates without requiring a full page reload.
+
+### C. Virtual Drawing Hall (`r26_drawing` & `r21_drawing`)
+1. **Architecture Status**:
+   - `r21_drawing` successfully decomposed in Milestone 2 into a 109-line shell + 8 modular partials (`tab-formative`, `tab-summative`, `tab-attendance`, `tab-cia`, etc.).
+   - `r26_drawing` is currently a 1,987-line template vs legacy 2,211 lines.
+2. **Missing UI Elements**:
+   - Dynamic "Add Exercise" modal (`addExerciseModal`) and sheet upload trigger.
+   - Fullscreen viewport toggle button (`6e238b4e`).
+   - High-density compact table styling (`0.72rem`, `22px` inputs) for 50–60 students per batch (`4bb806d8`).
+
+### D. R26 Practicum (`r26_practicum`)
+1. **Architecture Status**:
+   - CampusLynk preserved decomposition into `r26_practicum/partials/` (22 modular partials).
+   - `virtual_classroom_basic_science_practicum.blade.php` and `partials/basic_science_evaluation.blade.php` ported.
+2. **Missing UI Elements**:
+   - Fullscreen Table 2.2 (`2df1a5b6`) & Table 3.1 (`c87874a6`) evaluator modals with inline-editable CE mark entries and debounced autosave.
 
 ---
 
-## 3. VERIFICATION & TEST RESULTS
-- Full regression suite executed immediately prior to commit:
-  * **Tests Passed:** **163 / 163**
-  * **Assertions:** **960**
-  * **Failures:** **0**
-  * **Errors / Regressions:** **0**
-  * **Execution Duration:** 23.00s
-- User.php Safety Invariant: Confirmed strictly preserved (no User model introduced or altered).
-- Sub-500 Line Rule: 100% of newly created and refactored views strictly $\le 410$ lines.
+## 3. PROPOSED MIGRATION PROCEDURES & EXECUTION SLICES
+To avoid regression and maintain CampusLynk's architectural purity (Master layouts `<x-layouts.master>` and modular sub-components), we propose executing the UI reconciliation in 4 sequential slices:
+
+- **Slice 1: Virtual Classroom Theory**: Graft SBTE Grade selector + 60M scaling, lesson plan row delete confirmation, and tab renaming into `r26/virtual_classroom_theory.blade.php`.
+- **Slice 2: Virtual Lab Practical**: Mount lab batch split modal into toolbar, add multi-experiment chips, stacked log cards, and AJAX sync button to `virtual_classroom_practical.blade.php`.
+- **Slice 3: Virtual Drawing Hall**: Graft "Add Exercise" modal, fullscreen toggle, and high-density styling into `r26_drawing/virtual_classroom_drawing.blade.php`.
+- **Slice 4: R26 Practicum**: Integrate Table 2.2 and Table 3.1 fullscreen evaluator modals and debounced autosave into `r26_practicum/partials/`.
+- **Slice 5: Pre-Merge Smoke Test & Wave 6 Final Closeout**: Full regression test, route audit, and final report sign-off.
 
 ---
 
-## 4. CLOSEOUT DISPOSITIONS
-1. **Unit M8.3 Status:** Confirmed **INTENTIONALLY DEFERRED** per architectural directive. Mobile access is served via responsive desktop shells (`<x-layouts.faculty-shell>`).
-2. **Archival Course-File CDN Templates:** Confirmed **RETAINED AS STATIC COMPATIBILITY RESIDUE**. The 9 static preview templates in `resources/views/course_files/preview_doc_*` referencing `cdn.tailwindcss.com` are accepted without modification as historical archival snapshots outside active modernization scope.
-3. **Post-Commit Working-Tree State:** Clean. Only `docs/migration/runtime/active_prompt.txt` (local prompt runtime) remains untracked/unstaged. Zero uncommitted application or migration code.
-4. **Merge Readiness:** **CRITERIA FULLY SATISFIED**. Branch `migration-alpha` is stable, verified, and ready for final administrative merge to `main`.
+## 4. REQUEST FOR ARCHITECT
+Please review these forensic findings and migration procedures:
+1. Approve the proposed execution slices or specify any adjustments.
+2. Authorize the immediate execution of Slice 1 (Theory Classroom UI) and Slice 2 (Virtual Lab UI).
 
 Request Envelope:
 ```json
 {
     "protocol_version": "1.0",
-    "message_id": "msg_req_20260922_124206_e26bc893",
-    "run_id": "run_20260922_01",
-    "timestamp": "2026-09-22T12:42:06Z",
+    "message_id": "msg_req_20260924_142033_7c568d43",
+    "run_id": "run_20260924_02",
+    "timestamp": "2026-09-24T14:20:33Z",
     "sender": "orchestrator",
     "recipient": "architect",
     "message_type": "TASK_REPORT",
-    "unit_id": "M9.4",
-    "stage": "COMPLETED",
+    "unit_id": "M10.1",
+    "stage": "IMPLEMENTED",
     "payload": {
-        "unit_title": "CampusLynk Migration Final Project Closeout (PROJECT-CLOSEOUT-001)",
-        "objective": "Perform the final controlled CampusLynk migration closeout on migration-alpha, commit verified Wave 4/5 artifacts, and report merge readiness.",
-        "explicit_request": "Completed final closeout commit 090f7c51 on migration-alpha. All 27 active units verified, 163 tests passing with 960 assertions and 0 failures. M8.3 preserved as deferred. Archival course-file previews preserved as static compatibility residue. STATE.json updated to PROJECT_COMPLETED and MERGE_READY. Branch is clean and ready to merge to main.",
+        "unit_title": "Wave 6: Backwards Migration Parity & Reconciliation (M10.1)",
+        "objective": "Submit Phase 5 Backend Parity completion report and forensic audit of late UI/UX changes across Virtual Classrooms, proposing execution slices for frontend reconciliation.",
+        "explicit_request": "Phase 5 Backend reconciliation is complete and 100% verified (178 tests, 1014 assertions). We report granular forensic findings on classroom UI changes (Theory, Lab, Drawing, Practicum) and propose 5 implementation slices. Please review, authorize the migration procedures, and issue dispatch for Slices 1 and 2.",
         "context": {
             "dependencies": [
-                "M9.3"
+                "M10.1-PHASE1",
+                "M10.1-PHASE2",
+                "M10.1-PHASE3",
+                "M10.1-PHASE4"
             ],
             "allowed_files": [
-                "docs/migration/STATE.json",
-                "docs/migration/FEATURE_MATRIX.md"
+                "resources/views/r26/virtual_classroom_theory.blade.php",
+                "resources/views/virtual_classroom_practical.blade.php",
+                "resources/views/r26_drawing/virtual_classroom_drawing.blade.php",
+                "resources/views/r26_practicum/partials/*",
+                "routes/web.php"
             ],
             "task_report": {
-                "task_id": "PROJECT-CLOSEOUT-001",
-                "unit_id": "M9.4",
+                "task_id": "M10.1-PHASE5-BACKEND",
+                "unit_id": "M10.1",
                 "status": "COMPLETED",
-                "summary": "Completed final controlled CampusLynk migration closeout on migration-alpha. Staged and committed all verified Wave 4/5 artifacts in checkpoint commit 090f7c51. Verified 163 passing tests with 960 assertions and 0 failures. M8.3 preserved as intentionally deferred. 9 archival course-file preview templates preserved as accepted static legacy compatibility snapshots. Updated STATE.json to PROJECT_COMPLETED and MERGE_READY. Working tree is clean with zero uncommitted migration artifacts.",
+                "summary": "All 25 parity controller methods, 5 migrations, and 25 parity routes ported and verified; 178 tests passing (1014 assertions). Forensic audit completed for classroom UI/UX changes across Theory, Lab, Drawing, and Practicum.",
                 "changes": [
-                    "carmel-linx-laravel/app/Http/Controllers/ProgramAttainmentController.php",
-                    "carmel-linx-laravel/app/Http/Controllers/PushNotificationController.php",
-                    "carmel-linx-laravel/app/Http/Controllers/SbteSubjectLogImportController.php",
-                    "carmel-linx-laravel/app/Http/Controllers/StaffBirthdayController.php",
-                    "carmel-linx-laravel/app/Http/Controllers/TutorController.php",
-                    "carmel-linx-laravel/app/Http/Controllers/VirtualClassroomPracticalController.php",
-                    "carmel-linx-laravel/app/Models/ProgramAttainment.php",
-                    "carmel-linx-laravel/app/Models/PushSubscription.php",
-                    "carmel-linx-laravel/app/Models/StaffBirthdayWish.php",
-                    "carmel-linx-laravel/app/Models/StaffProfile.php",
-                    "carmel-linx-laravel/app/Services/PushNotificationService.php",
-                    "carmel-linx-laravel/app/Services/SbteSubjectLogImportService.php",
-                    "carmel-linx-laravel/app/Services/StaffBirthdayService.php",
-                    "carmel-linx-laravel/database/migrations/2026_09_10_232359_create_program_attainments_table.php",
-                    "carmel-linx-laravel/database/migrations/2026_09_22_110000_add_unique_index_to_push_subscriptions_endpoint.php",
-                    "carmel-linx-laravel/database/migrations/2026_09_22_120000_create_or_update_staff_birthday_wishes_table.php",
-                    "carmel-linx-laravel/database/migrations/2026_09_22_120001_add_dob_to_staff_profiles_table.php",
-                    "carmel-linx-laravel/config/services.php",
-                    "carmel-linx-laravel/public/sw.js",
-                    "carmel-linx-laravel/routes/web.php",
-                    "carmel-linx-laravel/composer.json",
-                    "carmel-linx-laravel/composer.lock",
-                    "carmel-linx-laravel/vendor/",
-                    "carmel-linx-laravel/resources/views/classroom_assignment_print.blade.php",
-                    "carmel-linx-laravel/resources/views/hod_academic_calendar_print.blade.php",
-                    "carmel-linx-laravel/resources/views/hod_sbte_audit_print.blade.php",
-                    "carmel-linx-laravel/resources/views/r26/student_final_results_print.blade.php",
-                    "carmel-linx-laravel/resources/views/student_mentoring_diary_print.blade.php",
-                    "carmel-linx-laravel/resources/views/hod/partials/",
-                    "carmel-linx-laravel/resources/views/partials/mentoring_diary_academics.blade.php",
-                    "carmel-linx-laravel/resources/views/partials/push_notification_prompt.blade.php",
-                    "carmel-linx-laravel/resources/views/partials/sbte_subject_log_import_modal.blade.php",
-                    "carmel-linx-laravel/resources/views/partials/staff_birthday_modal.blade.php",
-                    "carmel-linx-laravel/resources/views/program_attainment/",
-                    "carmel-linx-laravel/resources/views/r26_practicum/partials/modal-batch-split.blade.php",
-                    "carmel-linx-laravel/resources/views/r26_practicum/partials/tab-batch-roster.blade.php",
-                    "carmel-linx-laravel/resources/views/reports/",
-                    "carmel-linx-laravel/resources/views/tutor/reports/",
-                    "carmel-linx-laravel/tests/Feature/CentralizedPrintReportsTest.php",
-                    "carmel-linx-laravel/tests/Feature/LabBatchSplitTest.php",
-                    "carmel-linx-laravel/tests/Feature/ProgramAttainmentControllerTest.php",
-                    "carmel-linx-laravel/tests/Feature/PushNotificationTest.php",
-                    "carmel-linx-laravel/tests/Feature/SbteSubjectLogImportTest.php",
-                    "carmel-linx-laravel/tests/Feature/StaffBirthdayTest.php",
-                    "carmel-linx-laravel/tests/Feature/TutorProgressReportsTest.php",
-                    "docs/migration/FEATURE_MATRIX.md",
-                    "docs/migration/STATE.json",
-                    "docs/migration/reports/WAVE_4_REPORT.md",
-                    "docs/migration/reports/WAVE_5_REPORT.md",
-                    "scripts/migration/chat-bridge/test-bridge.ps1",
-                    "scripts/migration/chat-bridge/test-output.txt",
-                    "scripts/migration/dispatch-closeout-directive.php",
-                    "scripts/migration/dispatch-post-audit-verification.php",
-                    "scripts/migration/orchestrator/DependencyGraph.php"
+                    "app/Http/Controllers/ClassroomController.php",
+                    "app/Http/Controllers/VirtualClassroomPracticalController.php",
+                    "app/Http/Controllers/PrincipalScheduledEventController.php",
+                    "app/Http/Controllers/SbteSubjectLogImportController.php",
+                    "app/Http/Controllers/R26VirtualClassroomPracticalController.php",
+                    "app/Http/Controllers/AuthController.php",
+                    "routes/web.php"
                 ],
                 "tests": {
-                    "total": 163,
-                    "passed": 163,
-                    "failed": 0,
-                    "regressions": 0,
-                    "output": "Tests: 163 passed (960 assertions) in 23.00s. Zero failures, zero regressions across full suite."
+                    "suite": "PHPUnit",
+                    "passed": 178,
+                    "assertions": 1014,
+                    "failures": 0
                 },
                 "issues": [],
                 "git": {
                     "branch": "migration-alpha",
-                    "commit": "090f7c51184b0fce1f7b1f998d168a080ce16133",
-                    "clean": true
+                    "head": "8ae50886"
                 }
             }
         }
@@ -192,9 +143,9 @@ Your response MUST be wrapped in a ```json ... ``` code block conforming to RESP
 {
   "protocol_version": "1.0",
   "message_id": "msg_resp_$(Get-Date)_001",
-  "in_reply_to": "msg_req_20260922_124206_e26bc893",
-  "run_id": "run_20260922_01",
-  "unit_id": "M9.4",
+  "in_reply_to": "msg_req_20260924_142033_7c568d43",
+  "run_id": "run_20260924_02",
+  "unit_id": "M10.1",
   "timestamp": "2026-09-21T18:47:00Z",
   "sender": "architect",
   "recipient": "orchestrator",

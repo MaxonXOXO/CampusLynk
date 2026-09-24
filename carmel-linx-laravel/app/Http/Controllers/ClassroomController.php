@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Smalot\PdfParser\Parser;
 use App\Models\BatchSubject;
 use App\Models\CourseFile;
@@ -4064,5 +4066,1410 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
             'title' => 'Course File - ' . $batchSubject->subject_name . ' (' . $batchSubject->subject_code . ')',
             'orientation' => 'portrait',
         ]);
+    }
+
+    /**
+     * Print Consolidated Final CIE & Results on A4 Landscape.
+     */
+    public function printTheoryFinalResults($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::with('classroom')->find($subjectId);
+        if (!$batchSubject) abort(404, 'Subject not found.');
+
+        $classroom = \App\Models\ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+            ?: (object)[
+                'classroom_id' => $batchSubject->classroom_id,
+                'classroom_name' => $batchSubject->classroom_id,
+                'department' => 'Engineering',
+                'branch' => 'Engineering',
+                'current_semester' => $batchSubject->semester ?? 1,
+                'batch_year' => '2021 - 2024'
+            ];
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->where('semester', $batchSubject->semester)
+            ->orderBy('roll_no', 'asc')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no', 'academic_status']);
+
+        // Fetch Academic Marks (Assignment + Summative)
+        $marks = \App\Models\AcademicMark::where('batch_subject_id', $subjectId)->get();
+
+        // Fetch Attendance Logs to compute attendance %
+        $logs = DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $subjectId)
+            ->get();
+        $totalLogs = $logs->count();
+
+        $studentRows = $students->map(function ($student) use ($marks, $logs, $totalLogs) {
+            $studMarks = $marks->where('reg_no', $student->reg_no);
+
+            // Assignment Marks (Formative)
+            $coAssign = [];
+            $assignSum = 0;
+            $assignCount = 0;
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
+                $m = $studMarks->where('category', 'Assignment')->where('co_tag', $co)->first();
+                if ($m && is_numeric($m->marks_obtained)) {
+                    $val = round((float)$m->marks_obtained, 1);
+                    $coAssign[$co] = $val;
+                    $assignSum += $val;
+                    $assignCount++;
+                } else {
+                    $coAssign[$co] = '-';
+                }
+            }
+            $assignAvg = $assignCount > 0 ? round($assignSum / 4, 1) : 0;
+
+            // Summative Written Test Marks
+            $coSummative = [];
+            $summSum = 0;
+            $summCount = 0;
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
+                $m = $studMarks->where('category', 'Summative')->where('co_tag', $co)->first();
+                if ($m && is_numeric($m->marks_obtained)) {
+                    $val = round((float)$m->marks_obtained, 1);
+                    $coSummative[$co] = $val;
+                    $summSum += $val;
+                    $summCount++;
+                } else {
+                    $coSummative[$co] = '-';
+                }
+            }
+            $summAvg = $summCount > 0 ? round($summSum / 4, 1) : 0;
+
+            // Attendance %
+            $presentCount = 0;
+            if ($totalLogs > 0) {
+                foreach ($logs as $l) {
+                    $presentList = json_decode($l->present_students ?? '[]', true) ?: [];
+                    if (in_array($student->reg_no, $presentList)) {
+                        $presentCount++;
+                    }
+                }
+                $attPercent = round(($presentCount / $totalLogs) * 100, 1);
+            } else {
+                $attPercent = 100.0;
+            }
+
+            // Attendance Marks out of 10
+            $attMarks = 0;
+            if ($attPercent >= 90) $attMarks = 10;
+            elseif ($attPercent >= 85) $attMarks = 9;
+            elseif ($attPercent >= 80) $attMarks = 8;
+            elseif ($attPercent >= 75) $attMarks = 7;
+            else $attMarks = 0;
+
+            // Total CIE out of 50 = Assignment Avg (20) + Summative Avg (20) + Attendance (10)
+            $totalCie = round($assignAvg + $summAvg + $attMarks, 1);
+            $status = ($attPercent >= 75 && $totalCie >= 20) ? 'ELIGIBLE' : ($attPercent < 75 ? 'ATTENDANCE SHORTAGE' : 'NEEDS IMPROVEMENT');
+
+            return (object)[
+                'reg_no' => $student->reg_no,
+                'roll_no' => $student->roll_no,
+                'name' => $student->name,
+                'sbte_reg_no' => $student->sbte_reg_no,
+                'co_assign' => $coAssign,
+                'assign_avg' => $assignAvg,
+                'co_summative' => $coSummative,
+                'summ_avg' => $summAvg,
+                'att_percent' => $attPercent,
+                'att_marks' => $attMarks,
+                'total_cie' => $totalCie,
+                'status' => $status
+            ];
+        });
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+        ];
+        $branchKey = strtoupper(explode('_', $batchSubject->classroom_id)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? ($classroom->department ?? 'Engineering');
+
+        $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $batchSubject->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        $lecturerName = Session::get('userName') ?? 'Faculty Member';
+
+        return view('classroom_theory_final_results_print', [
+            'subject' => $batchSubject,
+            'classroom' => $classroom,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'students' => $studentRows,
+            'totalStudents' => $students->count(),
+            'lecturerName' => $lecturerName,
+            'currentDate' => date('d-m-Y')
+        ]);
+    }
+
+    /**
+     * Print Consolidated Class Roster & Attainment Register on A4 Portrait.
+     */
+    public function printTheoryClassRoster($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::with('classroom')->find($subjectId);
+        if (!$batchSubject) abort(404, 'Subject not found.');
+
+        $classroom = \App\Models\ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+            ?: (object)[
+                'classroom_id' => $batchSubject->classroom_id,
+                'classroom_name' => $batchSubject->classroom_id,
+                'department' => 'Engineering',
+                'branch' => 'Engineering',
+                'current_semester' => $batchSubject->semester ?? 1,
+                'batch_year' => '2025 - 2028'
+            ];
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->where('semester', $batchSubject->semester)
+            ->orderBy('roll_no', 'asc')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no', 'academic_status']);
+
+        // Fetch logs for conducted hours and attendance
+        $logs = DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $subjectId)
+            ->get();
+        $totalConductedHours = $logs->count();
+
+        // Fetch direct AcademicMarks (Assignments + Summative Tests)
+        $studentRegNos = $students->pluck('reg_no')->toArray();
+        $marks = \App\Models\AcademicMark::whereIn('reg_no', $studentRegNos)
+            ->where(function($q) use ($subjectId, $batchSubject) {
+                $q->where('batch_subject_id', $subjectId)
+                  ->orWhere(function($subQ) use ($batchSubject) {
+                      $subQ->whereNull('batch_subject_id')
+                           ->where('subject_code', $batchSubject->subject_code);
+                  });
+            })
+            ->get();
+
+        // Fetch Student Attendance records
+        $studentAttendance = DB::table('student_attendance')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->whereIn('reg_no', $studentRegNos)
+            ->get()
+            ->groupBy('reg_no');
+
+        $eligibleCount = 0;
+        $shortageCount = 0;
+        $totalAttnPercentSum = 0;
+
+        $studentRows = $students->map(function ($student) use ($marks, $logs, $totalConductedHours, $studentAttendance, &$eligibleCount, &$shortageCount, &$totalAttnPercentSum) {
+            $studMarks = $marks->where('reg_no', $student->reg_no);
+
+            // Assignment Marks (CO1, CO2, CO3, CO4)
+            $assignments = [];
+            $assignTotal = 0;
+            $assignCount = 0;
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $co) {
+                $m = $studMarks->filter(function($item) use ($co) {
+                    return strcasecmp($item->category, 'Assignment') === 0 && strcasecmp($item->co_tag, $co) === 0;
+                })->first();
+                if ($m && is_numeric($m->marks_obtained)) {
+                    $val = round((float)$m->marks_obtained, 1);
+                    $assignments[$co] = $val;
+                    $assignTotal += $val;
+                    $assignCount++;
+                } else {
+                    $assignments[$co] = '-';
+                }
+            }
+
+            // Summative / Series Tests (T1, T2, T3, T4 corresponding to CO1..CO4 or Series 1..4)
+            $tests = [];
+            $testTotal = 0;
+            $testCount = 0;
+            $coMap = [
+                'T1' => ['CO1', '1', 'TEST 1', 'SERIES 1'],
+                'T2' => ['CO2', '2', 'TEST 2', 'SERIES 2'],
+                'T3' => ['CO3', '3', 'TEST 3', 'SERIES 3'],
+                'T4' => ['CO4', '4', 'TEST 4', 'SERIES 4']
+            ];
+            foreach ($coMap as $tKey => $aliases) {
+                $m = $studMarks->filter(function($item) use ($aliases) {
+                    $catMatch = in_array(strtoupper($item->category), ['SUMMATIVE', 'WRITTEN TEST', 'SERIES TEST', 'TEST']);
+                    $tagMatch = in_array(strtoupper($item->co_tag), $aliases);
+                    return $catMatch && $tagMatch;
+                })->first();
+
+                if ($m && is_numeric($m->marks_obtained)) {
+                    $val = round((float)$m->marks_obtained, 1);
+                    $tests[$tKey] = $val;
+                    $testTotal += $val;
+                    $testCount++;
+                } else {
+                    $tests[$tKey] = '-';
+                }
+            }
+
+            // Attendance calculation: calculate from logs
+            $presentHours = 0;
+            if ($totalConductedHours > 0) {
+                foreach ($logs as $l) {
+                    $presList = json_decode($l->present_students ?? '[]', true) ?: [];
+                    if (in_array($student->reg_no, $presList) || in_array($student->sbte_reg_no, $presList)) {
+                        $presentHours++;
+                    }
+                }
+            } elseif (isset($studentAttendance[$student->reg_no])) {
+                $attRecords = $studentAttendance[$student->reg_no];
+                $presentHours = $attRecords->where('status', 'Present')->count();
+            }
+
+            $absentHours = max(0, $totalConductedHours - $presentHours);
+            $attPercent = $totalConductedHours > 0 ? round(($presentHours / $totalConductedHours) * 100, 1) : 100.0;
+            $totalAttnPercentSum += $attPercent;
+
+            if ($attPercent >= 75) {
+                $eligibleCount++;
+            } else {
+                $shortageCount++;
+            }
+
+            // Attainment level based on assessments
+            $attainmentLevel = '-';
+            $allMarks = [];
+            foreach ($assignments as $k => $v) if (is_numeric($v)) $allMarks[] = ($v / 20.0) * 100.0;
+            foreach ($tests as $k => $v) if (is_numeric($v)) $allMarks[] = ($v / 20.0) * 100.0;
+
+            if (count($allMarks) > 0) {
+                $avgScore = array_sum($allMarks) / count($allMarks);
+                if ($avgScore >= 70) $attainmentLevel = 'L3';
+                elseif ($avgScore >= 60) $attainmentLevel = 'L2';
+                elseif ($avgScore >= 50) $attainmentLevel = 'L1';
+                else $attainmentLevel = 'L0';
+            }
+
+            return (object)[
+                'reg_no' => $student->reg_no,
+                'roll_no' => $student->roll_no,
+                'name' => $student->name,
+                'sbte_reg_no' => $student->sbte_reg_no,
+                'total_hours' => $totalConductedHours,
+                'present_hours' => $presentHours,
+                'absent_hours' => $absentHours,
+                'att_percent' => $attPercent,
+                'assignments' => $assignments,
+                'tests' => $tests,
+                'attainment_level' => $attainmentLevel,
+            ];
+        });
+
+        $totalStudents = $students->count();
+        $overallAvgAttn = $totalStudents > 0 ? round($totalAttnPercentSum / $totalStudents, 1) : 0;
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+        ];
+        $branchKey = strtoupper(explode('_', $batchSubject->classroom_id)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? ($classroom->department ?? 'Engineering');
+
+        $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $batchSubject->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        $lecturerName = Session::get('userName') ?? 'Faculty Member';
+
+        return view('classroom_theory_roster_print', [
+            'subject' => $batchSubject,
+            'classroom' => $classroom,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'students' => $studentRows,
+            'totalConductedHours' => $totalConductedHours,
+            'overallAvgAttn' => $overallAvgAttn,
+            'eligibleCount' => $eligibleCount,
+            'shortageCount' => $shortageCount,
+            'lecturerName' => $lecturerName,
+            'coAttainmentSummary' => [
+                'CO1' => 'Level 3 (High)',
+                'CO2' => 'Level 3 (High)',
+                'CO3' => 'Level 3 (High)',
+                'CO4' => 'Level 3 (High)',
+            ],
+            'poLevelAverage' => '2.8'
+        ]);
+    }
+
+    /**
+     * Print Official Classroom Teaching & Attendance Log Register on A4 Portrait.
+     */
+    public function printTheoryClassLog($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::with('classroom')->find($subjectId);
+        if (!$batchSubject) abort(404, 'Subject not found.');
+
+        $classroom = \App\Models\ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+            ?: (object)[
+                'classroom_id' => $batchSubject->classroom_id,
+                'classroom_name' => $batchSubject->classroom_id,
+                'department' => 'Engineering',
+                'branch' => 'Engineering',
+                'current_semester' => $batchSubject->semester ?? 1,
+                'batch_year' => '2025 - 2028'
+            ];
+
+        $totalEnrolled = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->where('semester', $batchSubject->semester)
+            ->count();
+
+        $rawLogs = DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $subjectId)
+            ->orderBy('date', 'asc')
+            ->orderBy('period', 'asc')
+            ->get();
+
+        $totalAttnPctSum = 0;
+
+        $logs = $rawLogs->map(function($l) use ($totalEnrolled, &$totalAttnPctSum) {
+            $presArr = json_decode($l->present_students ?? '[]', true) ?: [];
+            $absArr = json_decode($l->absent_students ?? '[]', true) ?: [];
+
+            $presCount = count($presArr);
+            $absCount = count($absArr);
+            $effectiveTotal = ($presCount + $absCount) > 0 ? ($presCount + $absCount) : $totalEnrolled;
+
+            if ($absCount === 0 && $effectiveTotal > $presCount && $presCount > 0) {
+                $absCount = max(0, $effectiveTotal - $presCount);
+            }
+
+            $attPct = $effectiveTotal > 0 ? round(($presCount / $effectiveTotal) * 100, 1) : 0;
+            $totalAttnPctSum += $attPct;
+
+            // Format date as DD-MM-YYYY
+            $formattedDate = $l->date;
+            if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $l->date, $m)) {
+                $formattedDate = "{$m[3]}-{$m[2]}-{$m[1]}";
+            }
+
+            return (object)[
+                'id' => $l->id,
+                'date' => $l->date,
+                'formatted_date' => $formattedDate,
+                'period' => $l->period,
+                'period_label' => 'Hour ' . $l->period,
+                'topics_covered' => $l->topics_covered,
+                'present_count' => $presCount,
+                'absent_count' => $absCount,
+                'attendance_pct' => $attPct,
+            ];
+        });
+
+        $overallAvgAttn = $logs->count() > 0 ? round($totalAttnPctSum / $logs->count(), 1) : 0;
+
+        $completedTopicsCount = DB::table('lesson_plans')
+            ->where('batch_subject_id', $subjectId)
+            ->where('status', 'Completed')
+            ->count();
+        $totalPlannedTopics = DB::table('lesson_plans')
+            ->where('batch_subject_id', $subjectId)
+            ->count() ?: 60;
+
+        $branchMap = [
+            'EL' => 'Electronics Engineering',
+            'CE' => 'Civil Engineering',
+            'ME' => 'Mechanical Engineering',
+            'EE' => 'Electrical & Electronics Engineering',
+            'CH' => 'Chemical Engineering',
+            'CS' => 'Computer Engineering',
+        ];
+        $branchKey = strtoupper(explode('_', $batchSubject->classroom_id)[0] ?? '');
+        $fullDepartment = $branchMap[$branchKey] ?? ($classroom->department ?? 'Engineering');
+
+        $cleanedBatch = preg_replace('/^[A-Z]+_/', '', $batchSubject->classroom_id);
+        $cleanedBatch = str_replace('_', ' - ', $cleanedBatch);
+
+        $lecturerName = Session::get('userName') ?? 'Faculty Member';
+
+        return view('classroom_subject_log_print', [
+            'subject' => $batchSubject,
+            'classroom' => $classroom,
+            'fullDepartment' => $fullDepartment,
+            'cleanedBatch' => $cleanedBatch,
+            'logs' => $logs,
+            'totalHours' => $logs->count(),
+            'overallAvgAttn' => $overallAvgAttn,
+            'completedTopicsCount' => $completedTopicsCount,
+            'totalPlannedTopics' => $totalPlannedTopics,
+            'lecturerName' => $lecturerName,
+            'currentDate' => date('d-m-Y')
+        ]);
+    }
+
+    /**
+     * Correct/update practical experiment conducted date and sync related attendance logs.
+     */
+    public function updatePracticalExperimentDate(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+
+        $request->validate([
+            'experiment_id'     => 'required|integer',
+            'new_date'          => 'required|date_format:Y-m-d',
+            'old_date'          => 'nullable|string',
+            'scope'             => 'nullable|string|in:universal,batch',
+            'sub_batch'         => 'nullable|string',
+            'update_attendance' => 'nullable|boolean',
+            'new_experiment_no' => 'nullable|string|max:20',
+        ]);
+
+        $expId = $request->input('experiment_id');
+        $newDate = $request->input('new_date');
+        $oldDate = $request->input('old_date');
+        $scope = $request->input('scope', 'universal'); // 'universal' or 'batch'
+        $subBatch = $request->input('sub_batch', 'Whole');
+        $updateAttendance = $request->boolean('update_attendance', true);
+        $newExpNo = $request->input('new_experiment_no');
+
+        $batchSubject = BatchSubject::findOrFail($subjectId);
+        $exp = \App\Models\PracticalExperiment::where('batch_subject_id', $subjectId)->findOrFail($expId);
+
+        $oldExpNo = $exp->experiment_no;
+
+        // 1. Update Experiment Number if modified
+        if (!empty($newExpNo) && $newExpNo !== $oldExpNo) {
+            $exp->experiment_no = $newExpNo;
+            $oldLogsForSubj = DB::table('class_logs_attendance')
+                ->where('batch_subject_id', $subjectId)
+                ->get();
+            foreach ($oldLogsForSubj as $ols) {
+                if (preg_match('/\b(?:exp|experiment|ex)\.?\s*#?\s*0*' . preg_quote($oldExpNo, '/') . '\b/i', $ols->topics_covered)) {
+                    $updatedTopic = preg_replace('/\b(?:exp|experiment|ex)\.?\s*#?\s*0*' . preg_quote($oldExpNo, '/') . '\b/i', "Exp {$newExpNo}", $ols->topics_covered);
+                    DB::table('class_logs_attendance')->where('id', $ols->id)->update([
+                        'topics_covered' => $updatedTopic,
+                        'updated_at' => now()
+                    ]);
+                }
+            }
+        }
+
+        // 2. Universal / Experiment conducted date update
+        if ($scope === 'universal' || empty($exp->conducted_date) || $exp->conducted_date === $oldDate) {
+            $exp->conducted_date = $newDate;
+        }
+        $exp->save();
+
+        // Identify students in this batch or entire classroom
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->where('status', 'Approved')
+            ->orderByRaw('CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END, roll_no ASC')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'roll_no']);
+
+        $affectedRegNos = [];
+        if ($scope === 'batch' && ($subBatch === '1' || $subBatch === '2')) {
+            $assignedBatches = \App\Models\R26StudentLabBatch::where('batch_subject_id', $subjectId)
+                ->whereIn('reg_no', $students->pluck('reg_no'))
+                ->pluck('lab_batch', 'reg_no');
+
+            if ($assignedBatches->count() > 0) {
+                $affectedRegNos = $students->filter(fn($s) => ($assignedBatches[$s->reg_no] ?? null) === (string)$subBatch)->pluck('reg_no')->toArray();
+            } elseif ($batchSubject->lab_batch_cutoff) {
+                $cutoff = (int)$batchSubject->lab_batch_cutoff;
+                if ($subBatch === '1') {
+                    $affectedRegNos = $students->filter(fn($s) => $s->roll_no !== null && (int)$s->roll_no <= $cutoff)->pluck('reg_no')->toArray();
+                } else {
+                    $affectedRegNos = $students->filter(fn($s) => $s->roll_no === null || (int)$s->roll_no > $cutoff)->pluck('reg_no')->toArray();
+                }
+            } else {
+                $totalCount = $students->count();
+                $mid = (int)ceil($totalCount / 2);
+                if ($subBatch === '1') {
+                    $affectedRegNos = $students->slice(0, $mid)->pluck('reg_no')->toArray();
+                } else {
+                    $affectedRegNos = $students->slice($mid)->pluck('reg_no')->toArray();
+                }
+            }
+        } else {
+            $affectedRegNos = $students->pluck('reg_no')->toArray();
+        }
+
+        // Update evaluation_date on practical_experiment_marks
+        $marksQuery = \App\Models\PracticalExperimentMark::where('practical_experiment_id', $exp->id)
+            ->whereIn('reg_no', $affectedRegNos);
+        if ($oldDate) {
+            $marksQuery->where(function($q) use ($oldDate) {
+                $q->where('evaluation_date', $oldDate)->orWhereNull('evaluation_date');
+            });
+        }
+        $marksQuery->update(['evaluation_date' => $newDate]);
+
+        // Update student lab attendance in class_logs_attendance if requested
+        if ($updateAttendance && !empty($affectedRegNos)) {
+            $gradedRegNos = \App\Models\PracticalExperimentMark::where('practical_experiment_id', $exp->id)
+                ->whereIn('reg_no', $affectedRegNos)
+                ->where('total_mark', '>', 0)
+                ->pluck('reg_no')
+                ->toArray();
+
+            $presentRegNos = $gradedRegNos;
+            if ($oldDate) {
+                $oldLogs = DB::table('class_logs_attendance')
+                    ->where('batch_subject_id', $subjectId)
+                    ->where('date', $oldDate)
+                    ->get();
+                foreach ($oldLogs as $ol) {
+                    $pList = json_decode($ol->present_students ?? '[]', true) ?: [];
+                    $intersect = array_intersect($pList, $affectedRegNos);
+                    if (!empty($intersect)) {
+                        $presentRegNos = array_values(array_unique(array_merge($presentRegNos, $intersect)));
+                    }
+                }
+            }
+
+            if (empty($presentRegNos)) {
+                $presentRegNos = $affectedRegNos;
+            }
+
+            $targetTopic = "Exp {$exp->experiment_no}: " . ($exp->title ?? 'Practical Session');
+            $newDateLogs = DB::table('class_logs_attendance')
+                ->where('batch_subject_id', $subjectId)
+                ->where('date', $newDate)
+                ->get();
+
+            if ($newDateLogs->isNotEmpty()) {
+                foreach ($newDateLogs as $nLog) {
+                    $pList = json_decode($nLog->present_students ?? '[]', true) ?: [];
+                    $aList = json_decode($nLog->absent_students ?? '[]', true) ?: [];
+
+                    $pList = array_values(array_unique(array_merge($pList, $presentRegNos)));
+                    $aList = array_values(array_diff($aList, $presentRegNos));
+
+                    DB::table('class_logs_attendance')->where('id', $nLog->id)->update([
+                        'present_students' => json_encode($pList),
+                        'absent_students'  => json_encode($aList),
+                        'updated_at'       => now(),
+                    ]);
+                }
+            } else {
+                foreach ([1, 2, 3] as $p) {
+                    DB::table('class_logs_attendance')->insert([
+                        'batch_subject_id' => $subjectId,
+                        'date'             => $newDate,
+                        'period'           => $p,
+                        'lesson_plan_id'   => null,
+                        'topics_covered'   => $targetTopic,
+                        'present_students' => json_encode($presentRegNos),
+                        'absent_students'  => json_encode([]),
+                        'sub_batch'        => $scope === 'batch' ? $subBatch : 'Whole',
+                        'recorded_by'      => $userId,
+                        'created_at'       => now(),
+                        'updated_at'       => now(),
+                    ]);
+                }
+            }
+
+            if ($oldDate && $oldDate !== $newDate) {
+                $oldLogs = DB::table('class_logs_attendance')
+                    ->where('batch_subject_id', $subjectId)
+                    ->where('date', $oldDate)
+                    ->get();
+
+                foreach ($oldLogs as $ol) {
+                    $t = strtolower($ol->topics_covered ?? '');
+                    $expNoStr = $exp->experiment_no;
+                    $isExclusiveToExp = preg_match('/\b(?:exp|experiment|ex)\.?\s*#?\s*0*' . preg_quote($expNoStr, '/') . '\b/i', $t)
+                        && !preg_match('/\b(?:exp|experiment|ex)\.?\s*#?\s*(?!0*' . preg_quote($expNoStr, '/') . '\b)\d+\b/i', $t);
+
+                    if ($isExclusiveToExp) {
+                        DB::table('class_logs_attendance')->where('id', $ol->id)->delete();
+                    }
+                }
+            }
+
+            if (Schema::hasTable('student_attendance')) {
+                foreach ($presentRegNos as $rNo) {
+                    DB::table('student_attendance')->updateOrInsert(
+                        [
+                            'reg_no' => $rNo,
+                            'subject_code' => $batchSubject->subject_code,
+                            'date' => $newDate,
+                        ],
+                        [
+                            'status' => 'Present',
+                            'sub_batch' => $subBatch,
+                            'updated_at' => now(),
+                        ]
+                    );
+                }
+            }
+
+            foreach ($affectedRegNos as $rNo) {
+                $this->syncPracticalMarksToSemesterTable($subjectId, $rNo);
+            }
+        }
+
+        return response()->json([
+            'status'  => 'SUCCESS',
+            'message' => "Experiment date corrected to {$newDate} successfully.",
+            'experiment' => $exp,
+        ]);
+    }
+
+    /**
+     * Save bulk practical series exam marks (Test 1 CO1&2, Test 2 CO3&4) and Board Exam Grades
+     */
+    public function saveBulkPracticalEvaluations(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
+
+        $evaluations = $request->input('evaluations', []);
+
+        foreach ($evaluations as $item) {
+            $regNo = $item['reg_no'] ?? null;
+            if (!$regNo) continue;
+
+            $s1 = isset($item['series1']) && $item['series1'] !== '' ? (float)$item['series1'] : null;
+            $s2 = isset($item['series2']) && $item['series2'] !== '' ? (float)$item['series2'] : null;
+            $boardGrade = isset($item['board_exam_grade']) ? trim($item['board_exam_grade']) : (isset($item['board_exam_marks']) ? trim($item['board_exam_marks']) : null);
+
+            if ($boardGrade !== null) {
+                \App\Models\PracticalEvaluation::updateOrCreate(
+                    ['batch_subject_id' => $subjectId, 'reg_no' => $regNo],
+                    ['assessor_mobile_no' => $userId, 'board_exam_marks' => $boardGrade]
+                );
+            }
+
+            if ($s1 !== null) {
+                $t1 = \App\Models\PracticalTest::firstOrCreate(
+                    ['batch_subject_id' => $subjectId, 'test_name' => 'Test 1'],
+                    ['questions' => []]
+                );
+                \App\Models\PracticalTestMark::updateOrCreate(
+                    ['practical_test_id' => $t1->id, 'reg_no' => $regNo, 'co_tag' => 'CO1'],
+                    ['marks_obtained' => $s1]
+                );
+                \App\Models\PracticalTestMark::updateOrCreate(
+                    ['practical_test_id' => $t1->id, 'reg_no' => $regNo, 'co_tag' => 'CO2'],
+                    ['marks_obtained' => $s1]
+                );
+            }
+
+            if ($s2 !== null) {
+                $t2 = \App\Models\PracticalTest::firstOrCreate(
+                    ['batch_subject_id' => $subjectId, 'test_name' => 'Test 2'],
+                    ['questions' => []]
+                );
+                \App\Models\PracticalTestMark::updateOrCreate(
+                    ['practical_test_id' => $t2->id, 'reg_no' => $regNo, 'co_tag' => 'CO3'],
+                    ['marks_obtained' => $s2]
+                );
+                \App\Models\PracticalTestMark::updateOrCreate(
+                    ['practical_test_id' => $t2->id, 'reg_no' => $regNo, 'co_tag' => 'CO4'],
+                    ['marks_obtained' => $s2]
+                );
+            }
+
+            $this->syncPracticalMarksToSemesterTable($subjectId, $regNo);
+        }
+
+        return response()->json(['status' => 'SUCCESS', 'message' => 'Practical series exams & board grades saved successfully.']);
+    }
+
+    /**
+     * Cross-sync lesson plan actual dates from class_logs_attendance.
+     */
+    public function syncLessonPlanDatesFromLogs(Request $request, $subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.'], 401);
+
+        $plans = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)
+            ->orderBy('day_no', 'asc')
+            ->get();
+
+        if ($plans->isEmpty()) {
+            return response()->json(['status' => 'ERROR', 'message' => 'No lesson plans found for this subject.']);
+        }
+
+        $classLogs = DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $subjectId)
+            ->whereNotNull('date')
+            ->orderBy('date', 'asc')
+            ->get(['id', 'date', 'topics_covered', 'sub_batch', 'lesson_plan_id']);
+
+        $experiments = DB::table('practical_experiments')
+            ->where('batch_subject_id', $subjectId)
+            ->whereNotNull('conducted_date')
+            ->orderBy('conducted_date', 'asc')
+            ->get();
+
+        $updatedCount = 0;
+
+        $logsByBatch = [
+            'Batch 1' => [],
+            'Batch 2' => [],
+            'All' => []
+        ];
+
+        foreach ($classLogs as $cl) {
+            $d = $cl->date;
+            if (!$d) continue;
+            $sb = strtolower(trim($cl->sub_batch ?? ''));
+            if ($sb === 'batch 1' || $sb === '1' || $sb === 'a' || $sb === 'batch a') {
+                $logsByBatch['Batch 1'][] = $cl;
+            } elseif ($sb === 'batch 2' || $sb === '2' || $sb === 'b' || $sb === 'batch b') {
+                $logsByBatch['Batch 2'][] = $cl;
+            } else {
+                $logsByBatch['All'][] = $cl;
+            }
+        }
+
+        $batchIndices = ['Batch 1' => 0, 'Batch 2' => 0, 'All' => 0];
+
+        foreach ($plans as $plan) {
+            $dateToAssign = null;
+            $bKey = ($plan->sub_batch === 'Batch 2') ? 'Batch 2' : (($plan->sub_batch === 'Batch 1') ? 'Batch 1' : 'All');
+
+            // 1. Direct lesson_plan_id match
+            $matchedLog = $classLogs->firstWhere('lesson_plan_id', $plan->id);
+            if ($matchedLog && $matchedLog->date) {
+                $dateToAssign = $matchedLog->date;
+            }
+
+            // 2. Try match from practical_experiments conducted_date
+            if (!$dateToAssign && !empty($plan->topic_content)) {
+                foreach ($experiments as $exp) {
+                    $needle = "Expt " . $exp->experiment_no;
+                    $matched = false;
+                    if (str_contains($plan->topic_content, $needle)) {
+                        $matched = true;
+                    } elseif (preg_match('/\b(?:Exp|Expt|Experiment)\.?\s*#?\s*0*' . preg_quote($exp->experiment_no, '/') . '\b/i', $plan->topic_content)) {
+                        $matched = true;
+                    } elseif (!empty($exp->title) && stripos($plan->topic_content, trim($exp->title)) !== false) {
+                        $matched = true;
+                    }
+
+                    if ($matched && !empty($exp->conducted_date)) {
+                        $dateToAssign = $exp->conducted_date;
+                        break;
+                    }
+                }
+            }
+
+            // 3. Match from logs for this batch
+            if (!$dateToAssign) {
+                $candidateLogs = !empty($logsByBatch[$bKey]) ? $logsByBatch[$bKey] : $logsByBatch['All'];
+                if ($batchIndices[$bKey] < count($candidateLogs)) {
+                    $dateToAssign = $candidateLogs[$batchIndices[$bKey]]->date;
+                    $batchIndices[$bKey]++;
+                }
+            }
+
+            if ($dateToAssign) {
+                $plan->actual_date = $dateToAssign;
+                $plan->status = 'Completed';
+                $plan->save();
+                $updatedCount++;
+            }
+        }
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => "Successfully synced {$updatedCount} actual dates from log data into the lesson plan."
+        ]);
+    }
+
+    /**
+     * Upload an assignment question image or inline base64 paste.
+     */
+    public function uploadAssignmentImage(Request $request, $subjectId)
+    {
+        // 1. Handle standard multipart file upload
+        if ($request->hasFile('image')) {
+            $request->validate([
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp,svg|max:5120',
+            ]);
+
+            $file = $request->file('image');
+            $path = '/storage/' . $file->store('assignment_images', 'public');
+
+            return response()->json([
+                'status' => 'SUCCESS',
+                'message' => 'Image uploaded successfully.',
+                'image_url' => $path
+            ]);
+        }
+
+        // 2. Handle base64 clipboard paste (e.g. data:image/png;base64,...)
+        if ($request->has('image_base64')) {
+            $base64 = $request->input('image_base64');
+            if (preg_match('/^data:image\/(\w+);base64,/', $base64, $type)) {
+                $base64Data = substr($base64, strpos($base64, ',') + 1);
+                $ext = strtolower($type[1]);
+                if (!in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'])) {
+                    $ext = 'png';
+                }
+                $decoded = base64_decode($base64Data);
+                if ($decoded === false) {
+                    return response()->json(['status' => 'ERROR', 'message' => 'Invalid image data.']);
+                }
+
+                $filename = 'assignment_images/' . uniqid('assign_img_', true) . '.' . $ext;
+                Storage::disk('public')->put($filename, $decoded);
+                $path = '/storage/' . $filename;
+
+                return response()->json([
+                    'status' => 'SUCCESS',
+                    'message' => 'Image saved successfully.',
+                    'image_url' => $path
+                ]);
+            }
+        }
+
+        return response()->json(['status' => 'ERROR', 'message' => 'No image file or data provided.'], 400);
+    }
+
+    /**
+     * Print NBA CO-PO Attainment Report for Rev 2021 Theory Classroom.
+     */
+    public function printAttainmentReport($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::with('classroom')->find($subjectId);
+        if (!$batchSubject) abort(404, 'Subject not found.');
+
+        $classroom = \App\Models\ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+            ?: (object)[
+                'classroom_id' => $batchSubject->classroom_id,
+                'classroom_name' => $batchSubject->classroom_id,
+                'department' => 'Engineering',
+                'branch' => 'Engineering',
+                'current_semester' => $batchSubject->semester ?? 1
+            ];
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->where('semester', $batchSubject->semester)
+            ->orderBy('roll_no', 'asc')
+            ->orderBy('name', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no', 'academic_status']);
+
+        // Fetch Course File & Attainment Settings
+        $courseFile = CourseFile::firstOrCreate(
+            ['batch_subject_id' => $subjectId],
+            [
+                'parsed_cos' => json_encode([
+                    ['id' => 'CO1', 'description' => 'Understand core principles.', 'duration' => 15],
+                    ['id' => 'CO2', 'description' => 'Apply theoretical methodologies.', 'duration' => 15],
+                    ['id' => 'CO3', 'description' => 'Analyze system components.', 'duration' => 15],
+                    ['id' => 'CO4', 'description' => 'Evaluate designs and applications.', 'duration' => 15]
+                ])
+            ]
+        );
+
+        $copoData = is_string($courseFile->parsed_copo_data) ? json_decode($courseFile->parsed_copo_data, true) : ($courseFile->parsed_copo_data ?: []);
+        $settings = is_string($courseFile->attainment_settings) ? json_decode($courseFile->attainment_settings, true) : ($courseFile->attainment_settings ?: []);
+        $mappings = $copoData['mappings'] ?? [];
+
+        // Direct assessment marks from academic_marks (Assignment + Summative)
+        $academicMarks = DB::table('academic_marks')
+            ->where('batch_subject_id', $subjectId)
+            ->get()
+            ->groupBy('reg_no');
+
+        // Course Exit Survey for Indirect Attainment
+        $exitSurvey = DB::table('course_exit_surveys')
+            ->where('batch_subject_id', $subjectId)
+            ->first();
+        $exitResponses = collect();
+        if ($exitSurvey) {
+            $exitResponses = DB::table('student_course_exit_responses')
+                ->where('exit_survey_id', $exitSurvey->id)
+                ->get();
+        }
+
+        $eseConfig = $settings['ese_config'] ?? [];
+        $thresholdGrade = $eseConfig['ese_threshold_grade'] ?? $eseConfig['target_grade'] ?? 'D';
+        $cieThreshold = (float)($eseConfig['cie_threshold_percent'] ?? 50.0);
+        $targetStudentPercent = (float)($eseConfig['target_student_percent'] ?? 70.0);
+        $lvl3Val = (float)($eseConfig['level3_percent'] ?? $targetStudentPercent);
+        $lvl2Val = (float)($eseConfig['level2_percent'] ?? max(0, $targetStudentPercent - 10));
+        $lvl1Val = (float)($eseConfig['level1_percent'] ?? max(0, $targetStudentPercent - 20));
+        $maxEseMarks = (float)($eseConfig['max_marks'] ?? 60.0);
+
+        $boardGrades = DB::table('student_board_grades')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->get()
+            ->keyBy('reg_no');
+
+        // Evaluate batch ESE Attainment (SBTE Kerala Scale)
+        $eseAppeared = 0;
+        $eseMet = 0;
+        foreach ($students as $stud) {
+            $regNo = $stud->reg_no ?: $stud->sbte_reg_no;
+            $studMarks = $academicMarks->get($regNo, collect());
+            $eseRecord = $studMarks->where('category', 'ESE')->first();
+            $gradeRecord = $boardGrades->get($regNo);
+
+            $markVal = $eseRecord ? (float)$eseRecord->marks_obtained : null;
+            $gradeVal = $gradeRecord ? $gradeRecord->grade : null;
+
+            if ($markVal !== null) {
+                $eseAppeared++;
+                $pct = ($markVal / ($maxEseMarks > 0 ? $maxEseMarks : 60)) * 100;
+                $calcGrade = \App\Services\AttainmentService::percentageToGrade($pct);
+                if (\App\Services\AttainmentService::isGradeMet($calcGrade, $thresholdGrade) || $pct >= (float)($eseConfig['ese_threshold_percent'] ?? 50.0)) {
+                    $eseMet++;
+                }
+            } elseif ($gradeVal !== null && strtoupper(trim($gradeVal)) !== 'FE') {
+                $eseAppeared++;
+                if (\App\Services\AttainmentService::isGradeMet($gradeVal, $thresholdGrade)) {
+                    $eseMet++;
+                }
+            }
+        }
+        $eseMetPct = $eseAppeared > 0 ? round(($eseMet / $eseAppeared) * 100, 1) : 0.0;
+        $eseLevel = \App\Services\AttainmentService::calculateBatchLevel($eseMetPct, $lvl3Val, $lvl2Val, $lvl1Val);
+
+        $directStats = [];
+        foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+            $totalAssessed = 0;
+            $totalMet = 0;
+
+            foreach ($students as $stud) {
+                $studMarks = $academicMarks->get($stud->reg_no, collect());
+                $coMarks = $studMarks->where('co_tag', $coTag);
+
+                $assignMark = $coMarks->where('category', 'Assignment')->first();
+                $summMark   = $coMarks->where('category', 'Summative')->first();
+
+                $valAssign = $assignMark ? (float)$assignMark->marks_obtained : 0.0;
+                $valSumm   = $summMark ? (float)$summMark->marks_obtained : 0.0;
+                $totalScore = $valAssign + $valSumm;
+
+                $percentage = ($totalScore / 40.0) * 100;
+                if ($percentage >= $cieThreshold) {
+                    $totalMet++;
+                }
+                $totalAssessed++;
+            }
+
+            $cieMetPercentage = $totalAssessed > 0 ? ($totalMet / $totalAssessed) * 100 : 0.0;
+            $cieLevel = \App\Services\AttainmentService::calculateBatchLevel($cieMetPercentage, $lvl3Val, $lvl2Val, $lvl1Val);
+
+            // Direct Attainment: 30% CIE + 70% ESE if ESE is evaluated, else CIE Level
+            $directLevel = $eseAppeared > 0
+                ? \App\Services\AttainmentService::calculateDirectAttainment($cieLevel, $eseLevel, 0.30, 0.70)
+                : (float)$cieLevel;
+
+            $directStats[$coTag] = [
+                'met_percent' => round($cieMetPercentage, 1),
+                'cie_level' => $cieLevel,
+                'ese_level' => $eseLevel,
+                'level' => $directLevel
+            ];
+        }
+
+        $indirectStats = [];
+        $exitResponsesCount = count($exitResponses);
+        foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+            $level = 0.0;
+            if ($exitResponsesCount > 0) {
+                if ($coTag === 'CO1') {
+                    $avg = ($exitResponses->avg('co1_q1') + $exitResponses->avg('co1_q2')) / 2;
+                } elseif ($coTag === 'CO2') {
+                    $avg = ($exitResponses->avg('co2_q3') + $exitResponses->avg('co2_q4')) / 2;
+                } elseif ($coTag === 'CO3') {
+                    $avg = ($exitResponses->avg('co3_q5') + $exitResponses->avg('co3_q6')) / 2;
+                } else {
+                    $avg = ($exitResponses->avg('co4_q7') + $exitResponses->avg('co4_q8') + $exitResponses->avg('co4_q9')) / 3;
+                }
+                $level = round($avg, 2);
+            }
+            $indirectStats[$coTag] = [
+                'level' => $level
+            ];
+        }
+
+        $coAttainments = [];
+        $combinedStats = [];
+        foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+            $directLevel = $directStats[$coTag]['level'];
+            $indirectLevel = $indirectStats[$coTag]['level'];
+            $overallLevel = \App\Services\AttainmentService::calculateOverallAttainment($directLevel, $indirectLevel, 0.80, 0.20);
+            $combinedStats[$coTag] = $overallLevel;
+
+            $nbaRating = \App\Services\AttainmentService::getLevelLabel((int)round($overallLevel));
+
+            $coAttainments[$coTag] = [
+                'direct_level' => $directLevel,
+                'indirect_level' => $indirectLevel,
+                'overall_level' => $overallLevel,
+                'rating' => $nbaRating
+            ];
+        }
+
+        $poList = ['PO1', 'PO2', 'PO3', 'PO4', 'PO5', 'PO6', 'PO7', 'PO8', 'PO9', 'PO10', 'PO11'];
+        $poAttainments = [];
+        foreach ($poList as $po) {
+            $mappedScores = [];
+            foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
+                $correlation = (int)($mappings[$coTag][$po] ?? 0);
+                if ($correlation > 0) {
+                    $mappedScores[] = $coAttainments[$coTag]['overall_level'] * ($correlation / 3);
+                }
+            }
+            $poAttainments[$po] = count($mappedScores) > 0 ? round(array_sum($mappedScores) / count($mappedScores), 2) : 0.0;
+        }
+
+        $viewName = view()->exists('r26.attainment_report_print') ? 'r26.attainment_report_print' : (view()->exists('attainment_report_print') ? 'attainment_report_print' : 'course_file_a4');
+        return view($viewName, compact('batchSubject', 'classroom', 'coAttainments', 'combinedStats', 'poAttainments', 'targetStudentPercent', 'directStats', 'indirectStats'));
+    }
+
+    /**
+     * Get End Semester Exam (ESE) Marks & Attainment Threshold Settings for Revision 2021.
+     * Supports both Marks and Letter Grades with automatic two-way conversions.
+     */
+    public function getEseMarks($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized'], 403);
+        }
+
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Subject not found'], 404);
+        }
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
+        $settings = [];
+        if ($courseFile && $courseFile->attainment_settings) {
+            $settings = is_string($courseFile->attainment_settings) 
+                ? json_decode($courseFile->attainment_settings, true) 
+                : $courseFile->attainment_settings;
+        }
+
+        $defaultConfig = \App\Services\AttainmentService::getDefaultEseConfig($batchSubject->subject_type ?? 'Theory', 'REV2021');
+        $eseConfig = array_merge($defaultConfig, $settings['ese_config'] ?? []);
+
+        $maxMarks = (float)($eseConfig['max_marks'] ?? 75.0);
+        $thresholdGrade = $eseConfig['ese_threshold_grade'] ?? 'D';
+        $targetPercent = (float)($eseConfig['ese_threshold_percent'] ?? 50.0);
+        $targetStudentPercent = (float)($eseConfig['target_student_percent'] ?? 70.0);
+        $lvl3Val = (float)($eseConfig['level3_percent'] ?? $targetStudentPercent);
+        $lvl2Val = (float)($eseConfig['level2_percent'] ?? max(0, $targetStudentPercent - 10));
+        $lvl1Val = (float)($eseConfig['level1_percent'] ?? max(0, $targetStudentPercent - 20));
+
+        $academicMarks = DB::table('academic_marks')
+            ->where('batch_subject_id', $subjectId)
+            ->where('category', 'ESE')
+            ->get()
+            ->keyBy('reg_no');
+
+        $boardGrades = DB::table('student_board_grades')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->get()
+            ->keyBy('reg_no');
+
+        $studentList = [];
+        $totalStudents = count($students);
+        $appearedCount = 0;
+        $metTargetCount = 0;
+
+        foreach ($students as $s) {
+            $regNo = $s->reg_no ?: $s->sbte_reg_no;
+            $markRecord = $academicMarks->get($regNo);
+            $gradeRecord = $boardGrades->get($regNo);
+
+            $markVal = $markRecord && is_numeric($markRecord->marks_obtained) ? (float)$markRecord->marks_obtained : null;
+            $gradeVal = $gradeRecord ? strtoupper(trim($gradeRecord->grade)) : null;
+
+            // Two-way synchronization: If mark exists but no grade, derive grade
+            if ($markVal !== null && !$gradeVal) {
+                $gradeVal = \App\Services\AttainmentService::convertMarksToGrade($markVal, $maxMarks);
+            }
+            // If grade exists but no numeric mark, derive mark
+            if ($gradeVal !== null && $markVal === null && $gradeVal !== 'FE') {
+                $markVal = \App\Services\AttainmentService::convertGradeToMarks($gradeVal, $maxMarks);
+            }
+
+            if ($markVal !== null || ($gradeVal !== null && $gradeVal !== 'FE')) {
+                $appearedCount++;
+                $isMet = false;
+                if ($gradeVal && \App\Services\AttainmentService::isGradeMet($gradeVal, $thresholdGrade)) {
+                    $isMet = true;
+                } elseif ($markVal !== null && ($markVal / ($maxMarks > 0 ? $maxMarks : 75)) * 100 >= $targetPercent) {
+                    $isMet = true;
+                }
+                if ($isMet) {
+                    $metTargetCount++;
+                }
+            }
+
+            $studentList[] = [
+                'reg_no' => $regNo,
+                'name' => $s->name,
+                'roll_no' => $s->roll_no,
+                'ese_marks' => $markVal,
+                'ese_grade' => $gradeVal,
+            ];
+        }
+
+        $metPercent = $appearedCount > 0 ? round(($metTargetCount / $appearedCount) * 100, 1) : 0.0;
+        $level = $appearedCount > 0 ? \App\Services\AttainmentService::calculateBatchLevel($metPercent, $lvl3Val, $lvl2Val, $lvl1Val) : 0;
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'config' => $eseConfig,
+            'students' => $studentList,
+            'summary' => [
+                'total_students' => $totalStudents,
+                'appeared_count' => $appearedCount,
+                'met_target_count' => $metTargetCount,
+                'met_target_percent' => $metPercent,
+                'attainment_level' => $level,
+                'attainment_level_text' => \App\Services\AttainmentService::getLevelLabel($level) . ($appearedCount > 0 ? " ({$metPercent}%)" : '')
+            ]
+        ]);
+    }
+
+    /**
+     * Compute CO direct and indirect attainment summary for Revision 2021.
+     * Computes direct (30% CIE + 70% ESE) and indirect (Course Exit Survey) attainment.
+     */
+    public function getAttainmentSummary($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized'], 403);
+        }
+
+        $batchSubject = BatchSubject::find($subjectId);
+        if (!$batchSubject) return response()->json(['status' => 'ERROR', 'message' => 'Subject not found'], 404);
+
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->orderBy('roll_no', 'asc')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
+
+        $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
+        $settings = [];
+        if ($courseFile && $courseFile->attainment_settings) {
+            $settings = is_string($courseFile->attainment_settings)
+                ? json_decode($courseFile->attainment_settings, true)
+                : $courseFile->attainment_settings;
+        }
+
+        $defaultConfig = \App\Services\AttainmentService::getDefaultEseConfig($batchSubject->subject_type ?? 'Theory', 'REV2021');
+        $eseConfig = array_merge($defaultConfig, $settings['ese_config'] ?? []);
+
+        $thresholdGrade = $eseConfig['ese_threshold_grade'] ?? 'D';
+        $cieThreshold = (float)($eseConfig['cie_threshold_percent'] ?? 50.0);
+        $targetStudentPercent = (float)($eseConfig['target_student_percent'] ?? 70.0);
+        $lvl3Val = (float)($eseConfig['level3_percent'] ?? $targetStudentPercent);
+        $lvl2Val = (float)($eseConfig['level2_percent'] ?? max(0, $targetStudentPercent - 10));
+        $lvl1Val = (float)($eseConfig['level1_percent'] ?? max(0, $targetStudentPercent - 20));
+        $maxEseMarks = (float)($eseConfig['max_marks'] ?? 75.0);
+
+        $academicMarks = DB::table('academic_marks')
+            ->where('batch_subject_id', $subjectId)
+            ->get()
+            ->groupBy('reg_no');
+
+        $boardGrades = DB::table('student_board_grades')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->get()
+            ->keyBy('reg_no');
+
+        // Evaluate batch ESE Attainment (SBTE Kerala Scale)
+        $eseAppeared = 0;
+        $eseMet = 0;
+        foreach ($students as $stud) {
+            $regNo = $stud->reg_no ?: $stud->sbte_reg_no;
+            $studMarks = $academicMarks->get($regNo, collect());
+            $eseRecord = $studMarks->where('category', 'ESE')->first();
+            $gradeRecord = $boardGrades->get($regNo);
+
+            $markVal = $eseRecord && is_numeric($eseRecord->marks_obtained) ? (float)$eseRecord->marks_obtained : null;
+            $gradeVal = $gradeRecord ? strtoupper(trim($gradeRecord->grade)) : null;
+
+            if ($markVal !== null) {
+                $eseAppeared++;
+                $pct = ($markVal / ($maxEseMarks > 0 ? $maxEseMarks : 75)) * 100;
+                $calcGrade = \App\Services\AttainmentService::percentageToGrade($pct);
+                if (\App\Services\AttainmentService::isGradeMet($calcGrade, $thresholdGrade) || $pct >= (float)($eseConfig['ese_threshold_percent'] ?? 50.0)) {
+                    $eseMet++;
+                }
+            } elseif ($gradeVal !== null && $gradeVal !== 'FE') {
+                $eseAppeared++;
+                if (\App\Services\AttainmentService::isGradeMet($gradeVal, $thresholdGrade)) {
+                    $eseMet++;
+                }
+            }
+        }
+        $eseMetPct = $eseAppeared > 0 ? round(($eseMet / $eseAppeared) * 100, 1) : 0.0;
+        $eseLevel = \App\Services\AttainmentService::calculateBatchLevel($eseMetPct, $lvl3Val, $lvl2Val, $lvl1Val);
+
+        $exitSurvey = DB::table('course_exit_surveys')
+            ->where('batch_subject_id', $subjectId)
+            ->first();
+        
+        $exitResponses = collect();
+        if ($exitSurvey) {
+            $exitResponses = DB::table('student_course_exit_responses')
+                ->where('exit_survey_id', $exitSurvey->id)
+                ->get();
+        }
+
+        $coList = ['CO1', 'CO2', 'CO3', 'CO4'];
+        $matrix = [];
+        $directSum = 0;
+        $indirectSum = 0;
+        $overallSum = 0;
+        $count = count($coList);
+
+        foreach ($coList as $coTag) {
+            $totalAssessed = 0;
+            $cieMet = 0;
+
+            foreach ($students as $stud) {
+                $regNo = $stud->reg_no ?: $stud->sbte_reg_no;
+                $studMarks = $academicMarks->get($regNo, collect());
+                $coMarks = $studMarks->where('co_tag', $coTag);
+
+                $formativeMark = $coMarks->whereIn('category', ['Assignment', 'Formative', 'Self Study: Assignment'])->first();
+                $formativeScore = $formativeMark ? (float)$formativeMark->marks_obtained : 0.0;
+
+                $summativeMark = $coMarks->whereIn('category', ['Summative', 'Series Exam', 'Series Test'])->first();
+                $summativeScore = $summativeMark ? (float)$summativeMark->marks_obtained : 0.0;
+
+                $coCieScore = $formativeScore + $summativeScore;
+                $maxCoCie = 10.0;
+
+                $totalAssessed++;
+                $pct = ($coCieScore / $maxCoCie) * 100.0;
+                if ($pct >= $cieThreshold) {
+                    $cieMet++;
+                }
+            }
+
+            $cieMetPct = $totalAssessed > 0 ? round(($cieMet / $totalAssessed) * 100, 1) : 0.0;
+            $cieLevel = \App\Services\AttainmentService::calculateBatchLevel($cieMetPct, $lvl3Val, $lvl2Val, $lvl1Val);
+
+            // Direct Attainment: 30% CIE Level + 70% ESE Level
+            $directLevel = \App\Services\AttainmentService::calculateDirectAttainment($cieLevel, $eseLevel, 0.30, 0.70);
+            $directPct = round(($directLevel / 3.0) * 100, 1);
+
+            // Indirect Attainment: Course Exit Survey (scale 1.0 - 3.0)
+            $indirectRating = 0.0;
+            if (count($exitResponses) > 0) {
+                if ($coTag === 'CO1') {
+                    $indirectRating = ($exitResponses->avg('co1_q1') + $exitResponses->avg('co1_q2')) / 2;
+                } elseif ($coTag === 'CO2') {
+                    $indirectRating = ($exitResponses->avg('co2_q3') + $exitResponses->avg('co2_q4')) / 2;
+                } elseif ($coTag === 'CO3') {
+                    $indirectRating = ($exitResponses->avg('co3_q5') + $exitResponses->avg('co3_q6')) / 2;
+                } else {
+                    $indirectRating = ($exitResponses->avg('co4_q7') + $exitResponses->avg('co4_q8') + $exitResponses->avg('co4_q9')) / 3;
+                }
+                $indirectRating = round($indirectRating, 2);
+            }
+            $indirectLevel = $indirectRating > 0 ? \App\Services\AttainmentService::calculateBatchLevel(($indirectRating / 3.0) * 100, $lvl3Val, $lvl2Val, $lvl1Val) : 0;
+            $indirectPct = round(($indirectLevel / 3.0) * 100, 1);
+
+            // Overall Attainment: 80% Direct + 20% Indirect
+            $overallLevel = \App\Services\AttainmentService::calculateOverallAttainment($directLevel, $indirectLevel, 0.80, 0.20);
+            $overallPct = round(($overallLevel / 3.0) * 100, 1);
+
+            $directSum += $directPct;
+            $indirectSum += $indirectPct;
+            $overallSum += $overallPct;
+
+            $matrix[] = [
+                'co' => $coTag,
+                'cie_met_percent' => $cieMetPct,
+                'cie_level' => $cieLevel,
+                'ese_level' => $eseLevel,
+                'direct_level' => $directLevel,
+                'direct_percent' => $directPct,
+                'indirect_rating' => $indirectRating,
+                'indirect_level' => $indirectLevel,
+                'indirect_percent' => $indirectPct,
+                'overall_level' => $overallLevel,
+                'overall_percent' => $overallPct,
+                'target_benchmark' => $targetStudentPercent,
+                'attainment_level' => "Level {$overallLevel}",
+                'attained' => $overallPct >= $targetStudentPercent,
+            ];
+        }
+
+        $directAvg = $count > 0 ? round($directSum / $count, 1) : 0.0;
+        $indirectAvg = $count > 0 ? round($indirectSum / $count, 1) : 0.0;
+        $overallAvg = $count > 0 ? round($overallSum / $count, 1) : 0.0;
+        $overallBatchLevel = \App\Services\AttainmentService::calculateBatchLevel($overallAvg, $lvl3Val, $lvl2Val, $lvl1Val);
+
+        return response()->json([
+            'status' => 'SUCCESS',
+            'summary' => [
+                'direct_attainment_percent' => $directAvg,
+                'indirect_attainment_percent' => $indirectAvg,
+                'overall_attainment_percent' => $overallAvg,
+                'overall_attainment_level' => "Level {$overallBatchLevel}",
+                'target_benchmark' => $targetStudentPercent,
+                'ese_appeared' => $eseAppeared,
+                'ese_met_percent' => $eseMetPct,
+                'ese_level' => $eseLevel,
+            ],
+            'matrix' => $matrix,
+        ]);
+    }
+
+    /**
+     * Print Rev 2021 Course File A4 document.
+     */
+    public function printCourseFileA4($subjectId)
+    {
+        $userId = Session::get('userId');
+        if (!$userId) {
+            return redirect('/')->with('error', 'Please log in to continue.');
+        }
+
+        $batchSubject = BatchSubject::with('classroom')->find($subjectId);
+        if (!$batchSubject) abort(404, 'Subject not found.');
+
+        $academicYear = '2026-2027';
+        $cf = \App\Models\CfCourseFile::firstOrCreate(
+            ['batch_subject_id' => $subjectId, 'academic_year' => $academicYear],
+            ['status' => 'Draft']
+        );
+        $cf->load(['sectionA', 'sectionB', 'sectionC', 'sectionD', 'batchSubject.classroom', 'documents']);
+
+        return view('course_file_a4', ['courseFile' => $cf]);
     }
 }

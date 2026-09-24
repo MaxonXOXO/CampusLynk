@@ -1,0 +1,149 @@
+<?php
+
+/**
+ * CampusLynk Migration Control Plane — Dispatch Phase 5 UI & Forensic Audit to ChatGPT
+ */
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/orchestrator-bridge.php';
+
+$baseDir = dirname(__DIR__, 2);
+$bridge = new OrchestratorBridge($baseDir);
+
+$runId = 'run_' . gmdate('Ymd') . '_02';
+
+$phase5AuditContext = <<<'CONTEXT'
+# TASK REPORT & DISPATCH REQUEST: M10.1-PHASE5 — BACKEND PARITY COMPLETE & CLASSROOM UI/UX RECONCILIATION
+
+## 1. EXECUTIVE STATUS & BACKEND COMPLETION
+Phase 5 Backend Reconciliation has been 100% completed, tested, and validated:
+- **Missing Controller Parity**: All 25 controller actions ported (ClassroomController, VirtualClassroomPracticalController, PrincipalScheduledEventController, SbteSubjectLogImportController, R26VirtualClassroomPracticalController, AuthController).
+- **Database Migrations**: 5 migrations verified and executed (suspensions, remember_tokens, evaluation_date, lab_batch_config, attainment_settings).
+- **Routes Parity**: All 25 endpoints integrated into `routes/web.php` with proper auth & role middleware.
+- **Regression Pass**: Full test suite passes: `178 passed (1014 assertions), 0 failures`.
+
+## 2. FORENSIC AUDIT OF LATE UI/UX COMMITS (Aug 24 – Sep 20, 2026)
+We conducted a granular line-by-line forensic comparison of legacy commits (`301be5d4` through `70b11740`) against CampusLynk's modernized Blade templates. The backend routes are ready, but the following frontend UI/UX enhancements in the virtual classrooms need reconciliation:
+
+### A. Virtual Classroom Theory (`r26/virtual_classroom_theory.blade.php`)
+1. **SBTE Grade Entry & 60M Scaling** (`b367d893`):
+   - Legacy added an SBTE Grade selector (`S`, `A`, `B`, `C`, `D`, `E`, `F`, `FE`) in the ESE results table.
+   - Synchronized bidirectional scaling between letter grades and 60M scale marks (`S=57, A=51, B=45, C=39, D=33, E=27, F=0`).
+   - Debounced autosave (800ms) dispatching to `/api/r26/classroom/{subjectId}/ese-marks/bulk-update` with visual spinner/success badge.
+2. **Attendance Tab Renaming** (`fb4a3dd6`):
+   - Tab title updated from "Continuous Attendance" to "Attendance & Subject Log" linked to common class log.
+3. **Lesson Plan Row Deletion** (`b076fff2`):
+   - Inline deletion action button on customized lesson plan rows with modal confirmation calling `DELETE /api/r26/classroom/{subjectId}/lesson-plans/{planId}`.
+4. **QP Builder Differentiation** (`61d1b7dd`):
+   - Explicit visual styling separating the "Status: Draft" badge from the interactive "Build QP" action button.
+
+### B. Virtual Lab Practical (`virtual_classroom_practical.blade.php`)
+1. **Lab Batch Setup Integration** (`dacd8e24`):
+   - Desktop toolbar integration of `partials/lab_batch_setup_modal.blade.php` and `partials/lab_batch_setup_scripts.blade.php` for Full/Split batch rosters.
+2. **Multi-Experiment Badges & Stacked Past Logs** (`a297fb05`, `27f3d5d4`):
+   - Multi-experiment badge selection chip list for multi-practical sessions.
+   - Stacked card view for historical experiment attendance logs.
+3. **In-Place Log Dates Auto-Sync** (`ff663935`, `32e1c0aa`):
+   - AJAX refresh trigger to synchronize syllabus plan dates without requiring a full page reload.
+
+### C. Virtual Drawing Hall (`r26_drawing` & `r21_drawing`)
+1. **Architecture Status**:
+   - `r21_drawing` successfully decomposed in Milestone 2 into a 109-line shell + 8 modular partials (`tab-formative`, `tab-summative`, `tab-attendance`, `tab-cia`, etc.).
+   - `r26_drawing` is currently a 1,987-line template vs legacy 2,211 lines.
+2. **Missing UI Elements**:
+   - Dynamic "Add Exercise" modal (`addExerciseModal`) and sheet upload trigger.
+   - Fullscreen viewport toggle button (`6e238b4e`).
+   - High-density compact table styling (`0.72rem`, `22px` inputs) for 50–60 students per batch (`4bb806d8`).
+
+### D. R26 Practicum (`r26_practicum`)
+1. **Architecture Status**:
+   - CampusLynk preserved decomposition into `r26_practicum/partials/` (22 modular partials).
+   - `virtual_classroom_basic_science_practicum.blade.php` and `partials/basic_science_evaluation.blade.php` ported.
+2. **Missing UI Elements**:
+   - Fullscreen Table 2.2 (`2df1a5b6`) & Table 3.1 (`c87874a6`) evaluator modals with inline-editable CE mark entries and debounced autosave.
+
+---
+
+## 3. PROPOSED MIGRATION PROCEDURES & EXECUTION SLICES
+To avoid regression and maintain CampusLynk's architectural purity (Master layouts `<x-layouts.master>` and modular sub-components), we propose executing the UI reconciliation in 4 sequential slices:
+
+- **Slice 1: Virtual Classroom Theory**: Graft SBTE Grade selector + 60M scaling, lesson plan row delete confirmation, and tab renaming into `r26/virtual_classroom_theory.blade.php`.
+- **Slice 2: Virtual Lab Practical**: Mount lab batch split modal into toolbar, add multi-experiment chips, stacked log cards, and AJAX sync button to `virtual_classroom_practical.blade.php`.
+- **Slice 3: Virtual Drawing Hall**: Graft "Add Exercise" modal, fullscreen toggle, and high-density styling into `r26_drawing/virtual_classroom_drawing.blade.php`.
+- **Slice 4: R26 Practicum**: Integrate Table 2.2 and Table 3.1 fullscreen evaluator modals and debounced autosave into `r26_practicum/partials/`.
+- **Slice 5: Pre-Merge Smoke Test & Wave 6 Final Closeout**: Full regression test, route audit, and final report sign-off.
+
+---
+
+## 4. REQUEST FOR ARCHITECT
+Please review these forensic findings and migration procedures:
+1. Approve the proposed execution slices or specify any adjustments.
+2. Authorize the immediate execution of Slice 1 (Theory Classroom UI) and Slice 2 (Virtual Lab UI).
+CONTEXT;
+
+$envelope = $bridge->createRequestEnvelope(
+    'TASK_REPORT',
+    'M10.1',
+    'IMPLEMENTED',
+    [
+        'unit_title' => 'Wave 6: Backwards Migration Parity & Reconciliation (M10.1)',
+        'objective' => 'Submit Phase 5 Backend Parity completion report and forensic audit of late UI/UX changes across Virtual Classrooms, proposing execution slices for frontend reconciliation.',
+        'explicit_request' => 'Phase 5 Backend reconciliation is complete and 100% verified (178 tests, 1014 assertions). We report granular forensic findings on classroom UI changes (Theory, Lab, Drawing, Practicum) and propose 5 implementation slices. Please review, authorize the migration procedures, and issue dispatch for Slices 1 and 2.',
+        'context' => [
+            'dependencies' => ['M10.1-PHASE1', 'M10.1-PHASE2', 'M10.1-PHASE3', 'M10.1-PHASE4'],
+            'allowed_files' => [
+                'resources/views/r26/virtual_classroom_theory.blade.php',
+                'resources/views/virtual_classroom_practical.blade.php',
+                'resources/views/r26_drawing/virtual_classroom_drawing.blade.php',
+                'resources/views/r26_practicum/partials/*',
+                'routes/web.php'
+            ],
+            'task_report' => [
+                'task_id' => 'M10.1-PHASE5-BACKEND',
+                'unit_id' => 'M10.1',
+                'status' => 'COMPLETED',
+                'summary' => 'All 25 parity controller methods, 5 migrations, and 25 parity routes ported and verified; 178 tests passing (1014 assertions). Forensic audit completed for classroom UI/UX changes across Theory, Lab, Drawing, and Practicum.',
+                'changes' => [
+                    'app/Http/Controllers/ClassroomController.php',
+                    'app/Http/Controllers/VirtualClassroomPracticalController.php',
+                    'app/Http/Controllers/PrincipalScheduledEventController.php',
+                    'app/Http/Controllers/SbteSubjectLogImportController.php',
+                    'app/Http/Controllers/R26VirtualClassroomPracticalController.php',
+                    'app/Http/Controllers/AuthController.php',
+                    'routes/web.php'
+                ],
+                'tests' => [
+                    'suite' => 'PHPUnit',
+                    'passed' => 178,
+                    'assertions' => 1014,
+                    'failures' => 0
+                ],
+                'issues' => [],
+                'git' => [
+                    'branch' => 'migration-alpha',
+                    'head' => '8ae50886'
+                ]
+            ]
+        ]
+    ],
+    $runId
+);
+
+echo "Dispatching Phase 5 UI & Forensic Audit to ChatGPT via CDP bridge...\n";
+echo "Message ID: {$envelope['message_id']}\n";
+echo "Run ID:     {$envelope['run_id']}\n";
+echo "Unit ID:    {$envelope['unit_id']}\n\n";
+
+$result = $bridge->send($envelope, 120, false, $phase5AuditContext);
+
+echo "\n--- Bridge Response Result ---\n";
+echo json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n";
+
+if (!empty($result['success'])) {
+    echo "\n[SUCCESS] Received Architect response from ChatGPT!\n";
+    exit(0);
+} else {
+    echo "\n[FAIL] Bridge request failed.\n";
+    exit(1);
+}

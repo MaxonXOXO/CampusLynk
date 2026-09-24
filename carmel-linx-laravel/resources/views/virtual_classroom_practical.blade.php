@@ -153,7 +153,22 @@
                     <span class="hidden sm:inline">Sidebar</span>
                 </button>
 
-                <a href="/classroom/practical/{{ $batchSubject->id }}/report/print" target="_blank" class="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs rounded-xl font-bold border border-emerald-200 shadow-2xs transition flex items-center gap-1.5">
+                <button type="button" onclick="openLabBatchSetupModal()" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs rounded-xl font-bold border border-indigo-200 shadow-2xs transition flex items-center gap-1.5 cursor-pointer" title="Configure Lab Batches (Full / Split A & B)">
+                    <span class="material-symbols-rounded text-sm">groups</span>
+                    <span class="hidden sm:inline">Batch Setup</span>
+                </button>
+
+                <button type="button" id="btnSyncLogDates" onclick="syncLessonPlanDatesFromLogs()" class="px-3.5 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs rounded-xl font-bold border border-sky-200 shadow-2xs transition flex items-center gap-1.5 cursor-pointer" title="Sync conducted dates from class attendance logs into lesson plan">
+                    <span class="material-symbols-rounded text-sm">sync</span>
+                    <span class="hidden sm:inline">Sync Log Dates</span>
+                </button>
+
+                <a href="/staff/attendance-log?subject_id={{ $batchSubject->id }}" class="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs rounded-xl font-bold border border-emerald-200 shadow-2xs transition flex items-center gap-1.5 no-underline" title="Open Class Attendance & Log for this subject">
+                    <span class="material-symbols-rounded text-sm">co_present</span>
+                    <span class="hidden sm:inline">Attendance &amp; Log</span>
+                </a>
+
+                <a href="/classroom/practical/{{ $batchSubject->id }}/report/print" target="_blank" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs rounded-xl font-bold border border-slate-200 shadow-2xs transition flex items-center gap-1.5">
                     <span class="material-symbols-rounded text-sm">print</span>
                     <span class="hidden sm:inline">Print CIA Report</span>
                 </a>
@@ -971,6 +986,45 @@
                 alert('Failed to save series exam marks.');
             }
         }
+
+        async function syncLessonPlanDatesFromLogs() {
+            if (!confirm('Sync actual conducted dates from completed class logs into the practical planner?')) return;
+            const btn = document.getElementById('btnSyncLogDates');
+            const originalHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="material-symbols-rounded text-sm animate-spin">progress_activity</span> <span>Syncing...</span>';
+            }
+
+            try {
+                const res = await fetch(`/api/classroom/${batchSubjectId}/practical/lesson-plans/sync-dates`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({})
+                });
+                const d = await res.json();
+                if (res.ok && (d.status === 'SUCCESS' || d.success)) {
+                    alert(d.message || 'Log dates synchronized successfully!');
+                    location.reload();
+                } else {
+                    alert('Sync failed: ' + (d.message || 'Server error'));
+                }
+            } catch(e) {
+                alert('Error syncing log dates: ' + e.message);
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
+        }
     </script>
+
+    @include('partials.lab_batch_setup_modal')
+    @include('partials.lab_batch_setup_scripts')
 </body>
 </html>
