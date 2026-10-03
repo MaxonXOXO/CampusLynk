@@ -174,8 +174,6 @@ class SbteSubjectLogImportController extends Controller
             ->where(function ($q) {
                 $q->where('status', 'Approved')->orWhere('status', 'Active');
             })
-            ->orderByRaw('ISNULL(roll_no), roll_no ASC')
-            ->orderBy('name', 'asc')
             ->get(['roll_no', 'name', 'reg_no']);
 
         if ($classroomStudents->isEmpty()) {
@@ -726,6 +724,7 @@ class SbteSubjectLogImportController extends Controller
         }
 
         $lessonPlans = LessonPlan::where('batch_subject_id', $batchSubjectId)
+            ->orderBy('day_no', 'asc')
             ->orderBy('id', 'asc')
             ->get();
 
@@ -756,61 +755,25 @@ class SbteSubjectLogImportController extends Controller
             ];
         }
 
-        // Group continuous session logs by date and sub_batch
-        $groupedSessions = [];
-        foreach ($allLogs as $log) {
-            $key = $log->date . '__' . ($log->sub_batch ?? 'Whole');
-            if (!isset($groupedSessions[$key])) {
-                $groupedSessions[$key] = [
-                    'date' => $log->date,
-                    'sub_batch' => $log->sub_batch ?? 'Whole',
-                    'log_ids' => [$log->id],
-                    'current_topic' => trim($log->topics_covered ?? ''),
-                    'current_lp_id' => $log->lesson_plan_id
-                ];
-            } else {
-                $groupedSessions[$key]['log_ids'][] = $log->id;
-            }
-        }
-
         $syncedCount = 0;
-        $sessionIndex = 0;
 
         DB::beginTransaction();
         try {
-            foreach ($groupedSessions as $session) {
-                $topic = $session['current_topic'];
-                $needsUpdate = empty($topic) || 
-                               stripos($topic, 'pending') !== false || 
-                               stripos($topic, 'to be updated') !== false ||
-                               empty($session['current_lp_id']);
+            if ($lessonPlans->isNotEmpty()) {
+                // For theory subjects, each distinct log (hour) maps to a distinct sequential lesson plan
+                foreach ($allLogs as $idx => $log) {
+                    $assignedLp = $lessonPlans->get($idx);
+                    if ($assignedLp) {
+                        $newTopic = $assignedLp->topic_content;
+                        $newLpId = $assignedLp->id;
 
-                if ($needsUpdate) {
-                    $newTopic = null;
-                    $newLpId = null;
+                        $assignedLp->status = 'Completed';
+                        $assignedLp->actual_date = $log->date;
+                        $assignedLp->actual_hours = 1;
+                        $assignedLp->save();
 
-                    if ($lessonPlans->isNotEmpty()) {
-                        $assignedLp = $lessonPlans->get($sessionIndex);
-                        if ($assignedLp) {
-                            $newTopic = $assignedLp->topic_content;
-                            $newLpId = $assignedLp->id;
-                            $assignedLp->status = 'Completed';
-                            $assignedLp->actual_date = $session['date'];
-                            $assignedLp->save();
-                        }
-                    } elseif ($practicalExperiments->isNotEmpty()) {
-                        $expIdx = $sessionIndex % $practicalExperiments->count();
-                        $assignedExp = $practicalExperiments->get($expIdx);
-                        if ($assignedExp) {
-                            $newTopic = "Exp #{$assignedExp->experiment_no}: {$assignedExp->title}";
-                            $assignedExp->conducted_date = $session['date'];
-                            $assignedExp->save();
-                        }
-                    }
-
-                    if ($newTopic) {
                         DB::table('class_logs_attendance')
-                            ->whereIn('id', $session['log_ids'])
+                            ->where('id', $log->id)
                             ->update([
                                 'topics_covered' => $newTopic,
                                 'lesson_plan_id' => $newLpId,
@@ -820,7 +783,7 @@ class SbteSubjectLogImportController extends Controller
                         if (Schema::hasTable('student_attendance')) {
                             DB::table('student_attendance')
                                 ->where('subject_code', $batchSubject->subject_code)
-                                ->where('date', $session['date'])
+                                ->where('date', $log->date)
                                 ->update([
                                     'lesson_plan_id' => $newLpId,
                                     'updated_at' => now()
@@ -831,7 +794,55 @@ class SbteSubjectLogImportController extends Controller
                     }
                 }
 
-                $sessionIndex++;
+                // Reset remaining lesson plans to Pending
+                for ($p = count($allLogs); $p < $lessonPlans->count(); $p++) {
+                    $pendingLp = $lessonPlans->get($p);
+                    if ($pendingLp) {
+                        $pendingLp->status = 'Pending';
+                        $pendingLp->actual_date = null;
+                        $pendingLp->actual_hours = null;
+                        $pendingLp->save();
+                    }
+                }
+            } else {
+                // Practical experiments grouping by date and sub_batch
+                $groupedSessions = [];
+                foreach ($allLogs as $log) {
+                    $key = $log->date . '__' . ($log->sub_batch ?? 'Whole');
+                    if (!isset($groupedSessions[$key])) {
+                        $groupedSessions[$key] = [
+                            'date' => $log->date,
+                            'sub_batch' => $log->sub_batch ?? 'Whole',
+                            'log_ids' => [$log->id],
+                            'current_topic' => trim($log->topics_covered ?? ''),
+                            'current_lp_id' => $log->lesson_plan_id
+                        ];
+                    } else {
+                        $groupedSessions[$key]['log_ids'][] = $log->id;
+                    }
+                }
+
+                $sessionIndex = 0;
+                foreach ($groupedSessions as $session) {
+                    $expIdx = $sessionIndex % $practicalExperiments->count();
+                    $assignedExp = $practicalExperiments->get($expIdx);
+                    if ($assignedExp) {
+                        $newTopic = "Exp #{$assignedExp->experiment_no}: {$assignedExp->title}";
+                        $assignedExp->conducted_date = $session['date'];
+                        $assignedExp->save();
+
+                        DB::table('class_logs_attendance')
+                            ->whereIn('id', $session['log_ids'])
+                            ->update([
+                                'topics_covered' => $newTopic,
+                                'lesson_plan_id' => null,
+                                'updated_at' => now()
+                            ]);
+
+                        $syncedCount++;
+                    }
+                    $sessionIndex++;
+                }
             }
 
             DB::commit();

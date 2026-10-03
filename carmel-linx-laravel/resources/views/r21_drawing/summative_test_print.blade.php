@@ -30,7 +30,10 @@
                 <th colspan="5" class="border border-slate-400 py-1 px-1 bg-indigo-50/60 text-indigo-900">Series Test 1 (Modules I &amp; II)</th>
                 <th colspan="5" class="border border-slate-400 py-1 px-1 bg-violet-50/60 text-violet-900">Series Test 2 (Modules III &amp; IV)</th>
                 <th rowspan="2" class="border border-slate-400 py-1 px-1.5 w-16 bg-slate-100">Avg % (100)</th>
-                <th rowspan="2" class="border border-slate-400 py-1 px-1.5 w-16 bg-indigo-100/70 font-black">Mark (20)</th>
+                @php
+                    $summativeMax = round(($courseFile->cia_marks ?: 50) * 0.40, 1);
+                @endphp
+                <th rowspan="2" class="border border-slate-400 py-1 px-1.5 w-16 bg-indigo-100/70 font-black">Mark ({{ $summativeMax }})</th>
             </tr>
             <tr class="bg-slate-50 text-[10px] text-slate-700 font-semibold text-center">
                 <!-- Test 1 Breakdown -->
@@ -66,7 +69,7 @@
                     } else {
                         $avg = 0.0;
                     }
-                    $summativeMark = round((($avg / 100.0) * 20.0) * 2) / 2;
+                    $summativeMark = round((($avg / 100.0) * $summativeMax) * 2) / 2;
                 @endphp
                 <tr class="text-center {{ $idx % 2 === 1 ? 'bg-slate-50/40' : 'bg-white' }}">
                     <td class="border border-slate-300 py-1 px-1 text-slate-500">{{ $idx + 1 }}</td>

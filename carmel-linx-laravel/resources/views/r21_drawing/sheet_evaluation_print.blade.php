@@ -23,19 +23,30 @@
     <table class="w-full text-[11px] border-collapse border border-slate-400">
         <thead>
             <tr class="bg-slate-100 text-slate-800 font-bold text-center">
-                <th class="border border-slate-400 py-1.5 px-1 w-8">#</th>
-                <th class="border border-slate-400 py-1.5 px-1.5 w-14">Roll</th>
-                <th class="border border-slate-400 py-1.5 px-2 w-24">Reg No</th>
-                <th class="border border-slate-400 py-1.5 px-2 text-left min-w-[140px]">Student Name</th>
+                <th rowspan="2" class="border border-slate-400 py-1.5 px-1 w-8">#</th>
+                <th rowspan="2" class="border border-slate-400 py-1.5 px-1.5 w-14">Roll</th>
+                <th rowspan="2" class="border border-slate-400 py-1.5 px-2 w-24">Reg No</th>
+                <th rowspan="2" class="border border-slate-400 py-1.5 px-2 text-left min-w-[140px]">Student Name</th>
                 @foreach($sheets as $sheet)
-                    <th class="border border-slate-400 py-1.5 px-1 text-center min-w-[40px]">
+                    <th colspan="2" class="border border-slate-400 py-1 px-1 text-center min-w-[64px]">
                         {{ $sheet['sheet_no'] }}
-                        <span class="block text-[9px] font-normal text-slate-500">{{ $sheet['co_id'] ?? '' }}</span>
+                        @if(!empty($sheet['co_id']))
+                            <span class="block text-[8px] font-normal text-slate-500">{{ $sheet['co_id'] }}</span>
+                        @endif
                     </th>
                 @endforeach
-                <th class="border border-slate-400 py-1.5 px-1.5 w-16 bg-blue-50/50">Avg % (100)</th>
-                <th class="border border-slate-400 py-1.5 px-1.5 w-16 bg-blue-100/60 font-black">Mark (20)</th>
-                <th class="border border-slate-400 py-1.5 px-2 w-20">Signature</th>
+                <th rowspan="2" class="border border-slate-400 py-1.5 px-1.5 w-16 bg-blue-50/50">Avg % (100)</th>
+                @php
+                    $formativeMax = round(($courseFile->cia_marks ?: 50) * 0.40, 1);
+                @endphp
+                <th rowspan="2" class="border border-slate-400 py-1.5 px-1.5 w-16 bg-blue-100/60 font-black">Mark ({{ $formativeMax }})</th>
+                <th rowspan="2" class="border border-slate-400 py-1.5 px-2 w-20">Signature</th>
+            </tr>
+            <tr class="bg-slate-50 text-slate-700 font-semibold text-[9px] text-center">
+                @foreach($sheets as $sheet)
+                    <th class="border border-slate-400 py-0.5 px-1 w-8">Tim (50)</th>
+                    <th class="border border-slate-400 py-0.5 px-1 w-8">App (50)</th>
+                @endforeach
             </tr>
         </thead>
         <tbody>
@@ -44,7 +55,7 @@
                     $stSheets = $sheetEvals->get($student->reg_no, collect());
                     $validSheets = $stSheets->where('is_absent', false);
                     $avgScore = $validSheets->count() > 0 ? round($validSheets->avg('total_score_100'), 1) : 0;
-                    $formativeMark = round((($avgScore / 100.0) * 20.0) * 2) / 2;
+                    $formativeMark = round((($avgScore / 100.0) * $formativeMax) * 2) / 2;
                 @endphp
                 <tr class="text-center {{ $idx % 2 === 1 ? 'bg-slate-50/40' : 'bg-white' }}">
                     <td class="border border-slate-300 py-1 px-1 text-slate-500">{{ $idx + 1 }}</td>
@@ -55,17 +66,17 @@
                         @php
                             $eval = $stSheets->firstWhere('sheet_no', $sheet['sheet_no']);
                         @endphp
-                        <td class="border border-slate-300 py-1 px-1 font-mono">
-                            @if($eval)
-                                @if($eval->is_absent)
-                                    <span class="text-rose-600 font-bold">ABS</span>
-                                @else
-                                    {{ round($eval->total_score_100) }}
-                                @endif
+                        @if($eval)
+                            @if($eval->is_absent)
+                                <td colspan="2" class="border border-slate-300 py-1 px-1 text-rose-600 font-bold text-center">ABS</td>
                             @else
-                                <span class="text-slate-300">-</span>
+                                <td class="border border-slate-300 py-1 px-1 font-mono text-[10px]">{{ floatval($eval->timely_completion) }}</td>
+                                <td class="border border-slate-300 py-1 px-1 font-mono text-[10px]">{{ floatval($eval->appearance_organization) }}</td>
                             @endif
-                        </td>
+                        @else
+                            <td class="border border-slate-300 py-1 px-1 text-slate-300">-</td>
+                            <td class="border border-slate-300 py-1 px-1 text-slate-300">-</td>
+                        @endif
                     @endforeach
                     <td class="border border-slate-300 py-1 px-1.5 font-bold text-blue-900 bg-blue-50/30">
                         {{ $avgScore }}
@@ -77,7 +88,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ count($sheets) + 7 }}" class="border border-slate-300 py-6 text-center text-slate-400">
+                    <td colspan="{{ (count($sheets) * 2) + 7 }}" class="border border-slate-300 py-6 text-center text-slate-400">
                         No student evaluation records found.
                     </td>
                 </tr>

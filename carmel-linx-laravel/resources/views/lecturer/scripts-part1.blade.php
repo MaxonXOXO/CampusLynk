@@ -363,7 +363,8 @@
         { id: 'exit_survey', btn: 'tabExitSurvey', content: 'courseExitSurveyContent' },
         { id: 'seminar_evaluation', btn: 'tabSeminar', content: 'seminarEvaluationContent' },
         { id: 'lab_evaluation', btn: 'tabLab', content: 'labEvaluationContent' },
-        { id: 'lab_copo', btn: 'tabLabCoPo', content: 'labCoPoMappingContent' }
+        { id: 'lab_copo', btn: 'tabLabCoPo', content: 'labCoPoMappingContent' },
+        { id: 'course_attainment', btn: 'tabCourseAttainment', content: 'courseAttainmentContent' }
       ];
 
       tabs.forEach(t => {
@@ -391,7 +392,11 @@
         }
       });
 
-      if (tabName === 'reports') {
+      if (tabName === 'planner') {
+        if (typeof window.autoResizeAllPlanTextareas === 'function') {
+          setTimeout(window.autoResizeAllPlanTextareas, 50);
+        }
+      } else if (tabName === 'reports') {
         fetchClassReports();
       } else if (tabName === 'qbank') {
         fetchQuestionBank(currentSubjectId);
@@ -405,8 +410,470 @@
         fetchPracticalEvaluations();
       } else if (tabName === 'lab_copo') {
         fetchPracticalCoPoMapping();
+      } else if (tabName === 'course_attainment') {
+        loadCourseAttainment();
       }
     }
+
+    /* --- Course Attainment & ESE Marks Evaluation (R-2021 & R-2026) --- */
+    function loadCourseAttainment() {
+      const workspace = document.getElementById('courseAttainmentWorkspace');
+      if (!workspace || !currentSubjectId) return;
+
+      workspace.innerHTML = `
+        <div class="flex flex-col items-center justify-center py-12 text-center text-slate-400">
+          <div class="w-8 h-8 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-3"></div>
+          <p class="text-sm font-bold text-slate-600">Calculating Course Attainment Metrics...</p>
+        </div>
+      `;
+
+      const isR26 = window.currentSyllabusRevision === '2026' || (window.currentVirtualRevision && window.currentVirtualRevision.includes('2026'));
+      const attainmentUrl = isR26 ? `/api/r26/classroom/${currentSubjectId}/attainment-summary` : `/api/classroom/${currentSubjectId}/attainment-summary`;
+
+      fetch(attainmentUrl)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status !== 'SUCCESS') {
+            workspace.innerHTML = `
+              <div class="p-6 text-center text-rose-600 font-bold bg-rose-50 border border-rose-200 rounded-2xl">
+                Failed to load attainment data.
+              </div>
+            `;
+            return;
+          }
+
+          const summary = data.summary || {};
+          const matrix = data.matrix || [];
+
+          let rowsHtml = matrix.map(row => {
+            const attained = row.attained;
+            const badgeBg = attained 
+              ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
+              : 'bg-rose-50 text-rose-700 border-rose-200';
+
+            return `
+              <tr class="border-b border-slate-100 hover:bg-slate-50/60 transition-premium">
+                <td class="p-3.5 font-bold text-blue-700 text-xs">${row.co}</td>
+                <td class="p-3.5 text-center text-slate-700 text-xs font-mono font-semibold">${row.direct_percent}%</td>
+                <td class="p-3.5 text-center text-slate-700 text-xs font-mono font-semibold">${row.indirect_percent}% <span class="text-[10px] text-slate-400">(${row.indirect_rating}/3)</span></td>
+                <td class="p-3.5 text-center text-emerald-700 text-xs font-bold font-mono">${row.overall_percent}%</td>
+                <td class="p-3.5 text-center text-slate-500 text-xs font-mono">${row.target_benchmark}%</td>
+                <td class="p-3.5 text-center text-slate-700 text-xs font-bold">${row.attainment_level}</td>
+                <td class="p-3.5 text-center">
+                  <span class="px-2.5 py-1 text-[11px] font-extrabold rounded-lg border ${badgeBg}">
+                    ${attained ? 'ATTAINED ✓' : 'NOT MET'}
+                  </span>
+                </td>
+              </tr>
+            `;
+          }).join('');
+
+          workspace.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs">
+                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Direct Attainment (80%)</div>
+                <div class="text-2xl font-black text-blue-700 mt-1">${summary.direct_attainment_percent}%</div>
+                <div class="text-[11px] text-slate-400 mt-1">Formative Tasks & ESE Letter Grades</div>
+              </div>
+              <div class="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs">
+                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Indirect Attainment (20%)</div>
+                <div class="text-2xl font-black text-teal-700 mt-1">${summary.indirect_attainment_percent}%</div>
+                <div class="text-[11px] text-slate-400 mt-1">Course Exit Survey Feedback</div>
+              </div>
+              <div class="bg-white border border-slate-200/80 p-5 rounded-2xl shadow-xs">
+                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Overall Attainment Level</div>
+                <div class="text-2xl font-black text-emerald-700 mt-1">${summary.overall_attainment_level} (${summary.overall_attainment_percent}%)</div>
+                <div class="text-[11px] text-emerald-600 font-bold mt-1">Target Student Benchmark: ${summary.target_benchmark}%</div>
+              </div>
+            </div>
+
+            <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-xs">
+              <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center flex-wrap gap-2">
+                <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Course Outcome Attainment Summary Matrix</h5>
+                <div class="flex items-center gap-3">
+                  <span class="text-xs text-slate-500">Target Student Benchmark: <strong class="text-emerald-700 font-mono">${summary.target_benchmark}%</strong></span>
+                  <button onclick="loadCourseAttainment()" title="Recalculate Attainment" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold transition-premium flex items-center gap-1 cursor-pointer shadow-2xs">
+                    <x-ui.icon name="refresh" class="w-3.5 h-3.5" /> Recalculate
+                  </button>
+                </div>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[700px]">
+                  <thead>
+                    <tr class="bg-slate-50/70 text-[11px] font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
+                      <th class="p-3.5">Course Outcome</th>
+                      <th class="p-3.5 text-center">Direct Attainment (80%)</th>
+                      <th class="p-3.5 text-center">Indirect Exit Survey (20%)</th>
+                      <th class="p-3.5 text-center">Overall CO Attainment</th>
+                      <th class="p-3.5 text-center">Target Benchmark</th>
+                      <th class="p-3.5 text-center">Attainment Level</th>
+                      <th class="p-3.5 text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rowsHtml}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        })
+        .catch(err => {
+          workspace.innerHTML = `
+            <div class="p-6 text-center text-rose-600 font-bold bg-rose-50 border border-rose-200 rounded-2xl">
+              Error connecting to server.
+            </div>
+          `;
+        });
+    }
+
+    function openEseMarksModal() {
+      if (!currentSubjectId) {
+        alert("Please select a subject first.");
+        return;
+      }
+      const modal = document.getElementById('modalEseMarks');
+      if (modal) modal.classList.remove('hidden');
+
+      const tbody = document.getElementById('eseMarksTableBody');
+      tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400 font-bold">Loading student records...</td></tr>';
+
+      const isR26 = window.currentSyllabusRevision === '2026' || (window.currentVirtualRevision && window.currentVirtualRevision.includes('2026'));
+      const eseApiUrl = isR26 ? `/api/r26/classroom/${currentSubjectId}/ese-marks` : `/api/classroom/${currentSubjectId}/ese-marks`;
+
+      fetch(eseApiUrl)
+        .then(res => res.json())
+        .then(data => {
+          if (data.status !== 'SUCCESS') {
+            tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-rose-600 font-bold">Failed to load ESE records.</td></tr>';
+            return;
+          }
+
+          const cfg = data.config || {};
+          const defaultMax = isR26 ? 60 : 75;
+          document.getElementById('eseEntryMode').value = cfg.entry_mode || 'dual';
+          document.getElementById('eseMaxMarks').value = cfg.max_marks || defaultMax;
+          document.getElementById('eseThresholdPercent').value = cfg.ese_threshold_percent || cfg.target_threshold_percent || 50;
+          document.getElementById('eseThresholdGrade').value = cfg.ese_threshold_grade || cfg.target_grade || 'D';
+          document.getElementById('cieThresholdPercent').value = cfg.cie_threshold_percent || 50;
+          const targetVal = cfg.target_student_percent || cfg.level3_percent || 70;
+          document.getElementById('targetStudentPercent').value = targetVal;
+          if (document.getElementById('inputLevel3Percent')) document.getElementById('inputLevel3Percent').value = cfg.level3_percent || targetVal;
+          if (document.getElementById('inputLevel2Percent')) document.getElementById('inputLevel2Percent').value = cfg.level2_percent || Math.max(0, targetVal - 10);
+          if (document.getElementById('inputLevel1Percent')) document.getElementById('inputLevel1Percent').value = cfg.level1_percent || Math.max(0, targetVal - 20);
+
+          renderEseStudentRows(data.students || [], 'dual', cfg.max_marks || defaultMax);
+          updateEseSummaryStats(data.summary);
+        })
+        .catch(err => {
+          tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-rose-600 font-bold">Error connecting to server.</td></tr>';
+        });
+    }
+
+    function closeEseMarksModal() {
+      const modal = document.getElementById('modalEseMarks');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function saveEseMarks() {
+      const isR26 = window.currentSyllabusRevision === '2026' || (window.currentVirtualRevision && window.currentVirtualRevision.includes('2026'));
+      const mode = 'dual';
+      const maxMarks = parseFloat(document.getElementById('eseMaxMarks').value || (isR26 ? 60 : 75));
+      const eseThresholdGrade = document.getElementById('eseThresholdGrade').value;
+      const eseThresholdPercent = parseFloat(document.getElementById('eseThresholdPercent').value || 50);
+      const cieThresholdPercent = parseFloat(document.getElementById('cieThresholdPercent').value || 50);
+      const targetStudentPercent = parseFloat(document.getElementById('targetStudentPercent').value || 70);
+      const level3Percent = parseFloat(document.getElementById('inputLevel3Percent')?.value || targetStudentPercent);
+      const level2Percent = parseFloat(document.getElementById('inputLevel2Percent')?.value || Math.max(0, targetStudentPercent - 10));
+      const level1Percent = parseFloat(document.getElementById('inputLevel1Percent')?.value || Math.max(0, targetStudentPercent - 20));
+
+      const gradeSelects = document.querySelectorAll('.ese-grade-select');
+      const marks = {};
+      const grades = {};
+      gradeSelects.forEach(sel => {
+        const reg = sel.getAttribute('data-reg');
+        if (reg) {
+          const markInp = document.querySelector(`.ese-mark-input[data-reg="${reg}"]`);
+          if (markInp && markInp.value.trim() !== '') {
+            marks[reg] = markInp.value.trim();
+          }
+          if (sel.value.trim() !== '') {
+            grades[reg] = sel.value.trim();
+          }
+        }
+      });
+
+      const payload = {
+        entry_mode: mode,
+        max_marks: maxMarks,
+        ese_threshold_grade: eseThresholdGrade,
+        ese_threshold_percent: eseThresholdPercent,
+        cie_threshold_percent: cieThresholdPercent,
+        target_student_percent: targetStudentPercent,
+        level3_percent: level3Percent,
+        level2_percent: level2Percent,
+        level1_percent: level1Percent,
+        marks: marks,
+        grades: grades
+      };
+
+      const saveEseApiUrl = isR26 
+        ? `/api/r26/classroom/${currentSubjectId}/ese-marks/bulk-update` 
+        : `/api/classroom/${currentSubjectId}/ese-marks/bulk-update`;
+
+      fetch(saveEseApiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message || 'Threshold settings & student evaluation records updated successfully.');
+        closeEseMarksModal();
+        loadCourseAttainment();
+      })
+      .catch(err => {
+        alert('Failed to save ESE records.');
+      });
+    }
+
+    function renderEseStudentRows(students, mode, maxMarks) {
+      const tbody = document.getElementById('eseMarksTableBody');
+      if (!Array.isArray(students) || students.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-slate-400 font-bold">No students registered in this batch.</td></tr>';
+        return;
+      }
+
+      let html = '';
+      students.forEach(s => {
+        const reg = s.reg_no || s.sbte_reg_no;
+        const markVal = s.ese_marks !== null && s.ese_marks !== undefined ? s.ese_marks : null;
+        const gradeVal = s.ese_grade ? s.ese_grade.trim().toUpperCase() : '';
+
+        const inputHtml = `
+          <div class="flex items-center justify-center gap-1.5 flex-nowrap">
+            <div class="flex items-center gap-1">
+              <input type="number" step="0.5" min="0" max="${maxMarks}" placeholder="Marks" data-reg="${reg}" class="ese-mark-input w-20 bg-white border border-slate-200 text-blue-700 font-mono font-bold text-center px-2 py-1.5 rounded-lg outline-none focus:border-blue-500 text-xs shadow-2xs" value="${markVal !== null ? markVal : ''}" onfocus="this.select()" oninput="onEseMarkChange('${reg}')" onkeydown="handleEseMarkKeyDown(event, this)">
+              <span class="text-[10px] text-slate-400 font-bold">/${maxMarks}</span>
+            </div>
+            <select data-reg="${reg}" onchange="onEseGradeChange('${reg}')" class="ese-val-input ese-grade-select bg-white border border-slate-200 text-teal-700 font-bold text-center w-36 px-2 py-1.5 rounded-lg outline-none focus:border-teal-500 cursor-pointer text-xs shadow-2xs">
+              <option value="" ${!gradeVal ? 'selected' : ''} class="text-slate-400 font-normal">-- Grade --</option>
+              <option value="S" ${gradeVal === 'S' ? 'selected' : ''}>S (90%+ | 10 GP)</option>
+              <option value="A" ${gradeVal === 'A' ? 'selected' : ''}>A (80%-89% | 9 GP)</option>
+              <option value="B" ${gradeVal === 'B' ? 'selected' : ''}>B (70%-79% | 8 GP)</option>
+              <option value="C" ${gradeVal === 'C' ? 'selected' : ''}>C (60%-69% | 7 GP)</option>
+              <option value="D" ${gradeVal === 'D' ? 'selected' : ''}>D (50%-59% | 6 GP)</option>
+              <option value="E" ${gradeVal === 'E' || gradeVal === 'P' ? 'selected' : ''}>E (40%-49% | 5 GP)</option>
+              <option value="F" ${gradeVal === 'F' ? 'selected' : ''}>F (&lt;40% Fail | 0 GP)</option>
+              <option value="FE" ${gradeVal === 'FE' ? 'selected' : ''}>FE (Absent | 0 GP)</option>
+            </select>
+          </div>
+        `;
+
+        html += `
+          <tr class="hover:bg-slate-50 transition-premium">
+            <td class="p-3 font-mono font-bold text-slate-800 text-center">${s.roll_no || '-'}</td>
+            <td class="p-3 font-mono text-slate-500">${reg || '-'}</td>
+            <td class="p-3 font-bold text-slate-900">${s.name}</td>
+            <td class="p-3 text-center">${inputHtml}</td>
+            <td class="p-3 text-center" id="status_cell_${reg}">
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-100 text-slate-600 border border-slate-200">PENDING</span>
+            </td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = html;
+      recalculateEseStats();
+    }
+
+    function updateEseSummaryStats(summary) {
+      if (!summary) return;
+      document.getElementById('statTotalStudents').innerText = summary.total_students || 0;
+      document.getElementById('statAppearedStudents').innerText = summary.appeared_count || 0;
+      document.getElementById('statMetTargetStudents').innerText = `${summary.met_target_count || 0} (${summary.met_target_percent || 0}%)`;
+      
+      const lvlEl = document.getElementById('statAttainmentLevel');
+      if (lvlEl) {
+        lvlEl.innerText = summary.attainment_level_text || (`Level ${summary.attainment_level || 0}`);
+        if (summary.level_class) {
+          lvlEl.className = `text-sm font-black ${summary.level_class}`;
+        }
+      }
+    }
+
+    function handleEseMarkKeyDown(event, inputElem) {
+      if (event.key === 'Enter' || event.key === 'Tab') {
+        event.preventDefault();
+        const currentRow = inputElem.closest('tr');
+        if (!currentRow) return;
+
+        if (event.shiftKey) {
+          const prevRow = currentRow.previousElementSibling;
+          if (prevRow) {
+            const targetInput = prevRow.querySelector('.ese-mark-input');
+            if (targetInput) {
+              targetInput.focus();
+              targetInput.select();
+            }
+          }
+        } else {
+          const nextRow = currentRow.nextElementSibling;
+          if (nextRow) {
+            const targetInput = nextRow.querySelector('.ese-mark-input');
+            if (targetInput) {
+              targetInput.focus();
+              targetInput.select();
+            }
+          }
+        }
+      }
+    }
+    window.handleEseMarkKeyDown = handleEseMarkKeyDown;
+
+    function onEseMarkChange(reg) {
+      const maxMarks = parseFloat(document.getElementById('eseMaxMarks').value || 75);
+      const markInp = document.querySelector(`.ese-mark-input[data-reg="${reg}"]`);
+      const gradeSel = document.querySelector(`.ese-grade-select[data-reg="${reg}"]`);
+      if (!markInp || !gradeSel) return;
+      const rawVal = markInp.value.trim();
+      if (rawVal === '') {
+        gradeSel.value = '';
+      } else {
+        const mark = parseFloat(rawVal);
+        if (!isNaN(mark) && maxMarks > 0) {
+          const pct = (mark / maxMarks) * 100.0;
+          let g = 'F';
+          if (pct >= 90.0) g = 'S';
+          else if (pct >= 80.0) g = 'A';
+          else if (pct >= 70.0) g = 'B';
+          else if (pct >= 60.0) g = 'C';
+          else if (pct >= 50.0) g = 'D';
+          else if (pct >= 40.0) g = 'E';
+          gradeSel.value = g;
+        }
+      }
+      recalculateEseStats();
+    }
+
+    function onEseGradeChange(reg) {
+      const maxMarks = parseFloat(document.getElementById('eseMaxMarks').value || 75);
+      const markInp = document.querySelector(`.ese-mark-input[data-reg="${reg}"]`);
+      const gradeSel = document.querySelector(`.ese-grade-select[data-reg="${reg}"]`);
+      if (!markInp || !gradeSel) return;
+      const g = gradeSel.value.trim().toUpperCase();
+      if (!g) {
+        markInp.value = '';
+      } else if (g === 'FE' || g === 'F') {
+        markInp.value = '0';
+      } else {
+        const midpoints = { 'S': 0.95, 'A': 0.85, 'B': 0.75, 'C': 0.65, 'D': 0.55, 'E': 0.45 };
+        const ratio = midpoints[g] || 0.45;
+        markInp.value = (ratio * maxMarks).toFixed(1);
+      }
+      recalculateEseStats();
+    }
+
+    function recalculateEseStats(fromTarget = false) {
+      const maxMarks = parseFloat(document.getElementById('eseMaxMarks').value || 75);
+      const eseThresholdGrade = document.getElementById('eseThresholdGrade').value || 'D';
+      const eseTargetPct = parseFloat(document.getElementById('eseThresholdPercent').value || 50);
+      const targetStudentPct = parseFloat(document.getElementById('targetStudentPercent').value || 70);
+
+      const elL3Input = document.getElementById('inputLevel3Percent');
+      const elL2Input = document.getElementById('inputLevel2Percent');
+      const elL1Input = document.getElementById('inputLevel1Percent');
+
+      if (fromTarget && elL3Input && elL2Input && elL1Input) {
+        elL3Input.value = targetStudentPct;
+        elL2Input.value = Math.max(0, targetStudentPct - 10);
+        elL1Input.value = Math.max(0, targetStudentPct - 20);
+      }
+
+      const lvl3Val = elL3Input ? parseFloat(elL3Input.value || targetStudentPct) : targetStudentPct;
+      const lvl2Val = elL2Input ? parseFloat(elL2Input.value || (targetStudentPct - 10)) : Math.max(0, targetStudentPct - 10);
+      const lvl1Val = elL1Input ? parseFloat(elL1Input.value || (targetStudentPct - 20)) : Math.max(0, targetStudentPct - 20);
+
+      // Official SBTE Kerala Polytechnic Grading Scale (10 Grade Points max)
+      const SBTE_GRADE_POINTS = {
+        'S': 10, 'A': 9, 'B': 8, 'C': 7, 'D': 6, 'E': 5, 'F': 0, 'FE': 0
+      };
+      const minRequiredPoints = SBTE_GRADE_POINTS[eseThresholdGrade] || 6;
+
+      const gradeSelects = document.querySelectorAll('.ese-grade-select');
+      const totalStudents = gradeSelects.length;
+      let appeared = 0;
+      let metTarget = 0;
+
+      gradeSelects.forEach(sel => {
+        const reg = sel.getAttribute('data-reg');
+        const val = sel.value.trim().toUpperCase();
+        const markInp = document.querySelector(`.ese-mark-input[data-reg="${reg}"]`);
+        const markVal = markInp && markInp.value.trim() !== '' ? parseFloat(markInp.value.trim()) : null;
+        const statusCell = document.getElementById(`status_cell_${reg}`);
+        
+        let isMet = false;
+        let isPending = false;
+        let isAbsent = false;
+
+        if (!val && markVal === null) {
+          isPending = true;
+        } else if (val === 'FE') {
+          isAbsent = true;
+          appeared++;
+        } else {
+          appeared++;
+          const studentPoints = SBTE_GRADE_POINTS[val] || 0;
+          const markPct = markVal !== null && maxMarks > 0 ? (markVal / maxMarks) * 100 : 0;
+          if ((studentPoints >= 5 && studentPoints >= minRequiredPoints) || markPct >= eseTargetPct) {
+            isMet = true;
+            metTarget++;
+          }
+        }
+
+        if (statusCell) {
+          if (isPending) {
+            statusCell.innerHTML = '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-100 text-slate-500 border border-slate-200">NOT ENTERED</span>';
+          } else if (isAbsent) {
+            statusCell.innerHTML = '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-50 text-amber-700 border border-amber-200">ABSENT</span>';
+          } else if (isMet) {
+            statusCell.innerHTML = '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-50 text-emerald-700 border border-emerald-200">ATTAINED ✓</span>';
+          } else {
+            statusCell.innerHTML = '<span class="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-50 text-rose-700 border border-rose-200">NOT MET</span>';
+          }
+        }
+      });
+
+      const metPercent = appeared > 0 ? ((metTarget / appeared) * 100).toFixed(1) : 0;
+      let levelText = appeared === 0 ? 'Pending Evaluation' : 'Level 0 (Nil)';
+      let levelClass = appeared === 0 ? 'text-slate-500' : 'text-rose-600';
+
+      if (appeared > 0) {
+        if (parseFloat(metPercent) >= lvl3Val) {
+          levelText = `Level 3 (High - ${metPercent}%)`;
+          levelClass = 'text-emerald-700';
+        } else if (parseFloat(metPercent) >= lvl2Val) {
+          levelText = `Level 2 (Moderate - ${metPercent}%)`;
+          levelClass = 'text-amber-700';
+        } else if (parseFloat(metPercent) >= lvl1Val) {
+          levelText = `Level 1 (Low - ${metPercent}%)`;
+          levelClass = 'text-blue-700';
+        }
+      }
+
+      updateEseSummaryStats({
+        total_students: totalStudents,
+        appeared_count: appeared,
+        met_target_count: metTarget,
+        met_target_percent: metPercent,
+        attainment_level_text: levelText,
+        level_class: levelClass
+      });
+    }
+
 
     let classReportsData = null;
     let activeReportType = 'attendance_log';
@@ -439,6 +906,15 @@
           <p class="text-sm font-bold text-slate-400">Loading survey details...</p>
         </div>
       `;
+      const attainWs = document.getElementById('courseAttainmentWorkspace');
+      if (attainWs) {
+        attainWs.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-12 text-center text-slate-400">
+            <div class="w-6 h-6 border-2 border-slate-300 border-t-blue-600 rounded-full animate-spin mb-3"></div>
+            <p class="text-xs font-bold text-slate-600">Select Course Attainment tab to calculate metrics...</p>
+          </div>
+        `;
+      }
       document.getElementById('activeSyllabusCard').classList.add('hidden');
       // Note: vcSubjectInfo is set by openClassroom immediately - don't hide it during load
       document.getElementById('parseStatusBadge').innerText = 'Syncing...';

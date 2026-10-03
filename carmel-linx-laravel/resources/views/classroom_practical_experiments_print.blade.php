@@ -1,128 +1,409 @@
-<x-layouts.report-layout 
-    title="Practical Experiments Conducted Log — {{ $batchSubject->subject_name }}" 
-    orientation="portrait" 
-    :documentNo="'SBTE-R21-' . $batchSubject->subject_code . '-EXP'">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practical Experiments Conducted Log - {{ $batchSubject->subject_name }}</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 12mm 10mm 15mm 10mm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            color: #222;
+            margin: 0 auto;
+            padding: 12px;
+            font-size: 11px;
+            line-height: 1.4;
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 18px;
+            border-bottom: 2px double #333;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            font-size: 16px;
+            margin: 0 0 4px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .header h2 {
+            font-size: 13px;
+            margin: 0 0 4px 0;
+            font-weight: 600;
+            color: #2b2b2b;
+        }
+        .header h3 {
+            font-size: 11px;
+            margin: 0;
+            color: #444;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .meta-info {
+            width: 100%;
+            margin-bottom: 16px;
+            border-collapse: collapse;
+        }
+        .meta-info td {
+            padding: 4px 6px;
+            font-size: 11px;
+        }
+        .meta-label {
+            font-weight: bold;
+            color: #444;
+            width: 18%;
+        }
+        .meta-val {
+            font-weight: 600;
+            color: #111;
+            width: 32%;
+        }
 
-    <!-- Institutional Header -->
-    <div class="text-center pb-3 border-b-2 border-slate-900 mb-4">
-        <h1 class="text-lg font-bold uppercase tracking-wider text-slate-900">Carmel Polytechnic College, Alappuzha</h1>
-        <p class="text-xs text-slate-600 font-medium">Department of {{ $fullDepartment }}</p>
-        <h2 class="text-sm font-bold uppercase mt-1 text-slate-800 underline">Practical Experiments Conducted &amp; Session Log Report (Revision 2021)</h2>
+        /* Summary Stats Cards */
+        .summary-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .summary-card {
+            flex: 1;
+            border: 1px solid #d1d5db;
+            background-color: #f9fafb;
+            border-radius: 6px;
+            padding: 8px 10px;
+            text-align: center;
+        }
+        .summary-card .num {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 2px;
+        }
+        .summary-card .lbl {
+            font-size: 9.5px;
+            color: #4b5563;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 0.4px;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 25px;
+        }
+        .report-table th, .report-table td {
+            border: 1px solid #000;
+            padding: 6px 6px;
+            font-size: 10px;
+            vertical-align: middle;
+        }
+        .report-table th {
+            background-color: #f3f4f6;
+            font-size: 9.5px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #111;
+            text-align: center;
+        }
+        .report-table td.align-center {
+            text-align: center;
+        }
+        .report-table td.align-left {
+            text-align: left;
+        }
+        .badge-co {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+        .badge-batch {
+            display: inline-block;
+            background: #f1f5f9;
+            color: #334155;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        .badge-status {
+            display: inline-block;
+            background: #dcfce7;
+            color: #166534;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 8.5px;
+            font-weight: bold;
+        }
+
+        .footer-signatures {
+            width: 100%;
+            margin-top: 40px;
+            page-break-inside: avoid;
+            border-collapse: collapse;
+        }
+        .footer-signatures td {
+            width: 33.33%;
+            text-align: center;
+            padding-top: 50px;
+            font-weight: bold;
+            font-size: 11px;
+            color: #222;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .summary-card {
+                background-color: #f9fafb !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .report-table th {
+                background-color: #f3f4f6 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .badge-co {
+                background: #e0e7ff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .badge-status {
+                background: #dcfce7 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .batch-header-row td {
+                background-color: #f1f5f9 !important;
+                color: #0f172a !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        .batch-header-row td {
+            background-color: #f8fafc;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #0f172a;
+            padding: 8px 10px;
+            border-top: 2px solid #cbd5e1;
+            border-bottom: 1.5px solid #cbd5e1;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .print-btn {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .print-btn:hover {
+            background-color: #1d4ed8;
+        }
+        .close-btn {
+            background-color: #64748b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .close-btn:hover {
+            background-color: #475569;
+        }
+    </style>
+    <!-- Google Fonts: Crimson Pro & Atkinson Hyperlegible -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Atkinson Hyperlegible', Arial, sans-serif !important;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Crimson Pro', Georgia, serif !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print action-bar">
+        <button class="print-btn" onclick="window.print()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print Report
+        </button>
+        <button class="close-btn" onclick="window.close()">Close</button>
     </div>
 
-    <!-- Meta Information Grid -->
-    <div class="grid grid-cols-2 gap-4 rounded border border-slate-300 p-3 text-xs mb-4 bg-slate-50">
-        <div class="space-y-1">
-            <div><strong>Batch / Class:</strong> <span class="font-semibold text-slate-900">{{ $cleanedBatch }}</span></div>
-            <div><strong>Course / Subject:</strong> <span class="font-semibold text-slate-900">{{ $batchSubject->subject_name }} ({{ $batchSubject->subject_code }})</span></div>
+    <div class="header">
+        <h1>Carmel Polytechnic College</h1>
+        <h2>Department of {{ $fullDepartment }}</h2>
+        <h3>Practical Experiments Conducted &amp; Session Log Report (Revision 2021)</h3>
+    </div>
+
+    <table class="meta-info">
+        <tr>
+            <td class="meta-label">Batch / Class:</td>
+            <td class="meta-val">{{ $cleanedBatch }}</td>
+            <td class="meta-label">Semester:</td>
+            <td class="meta-val">Semester {{ $batchSubject->semester ?? '-' }}</td>
+        </tr>
+        <tr>
+            <td class="meta-label">Course / Subject:</td>
+            <td class="meta-val">{{ $batchSubject->subject_name }} ({{ $batchSubject->subject_code }})</td>
+            <td class="meta-label">Report Date:</td>
+            <td class="meta-val">{{ date('d-m-Y') }}</td>
+        </tr>
+    </table>
+
+    <div class="summary-container">
+        <div class="summary-card">
+            <div class="num">{{ $conductedCount }}</div>
+            <div class="lbl">Experiments Conducted</div>
         </div>
-        <div class="space-y-1 text-right">
-            <div><strong>Semester:</strong> <span class="font-semibold text-slate-900">Semester {{ $batchSubject->semester ?? '-' }}</span></div>
-            <div><strong>Report Date:</strong> <span class="font-mono">{{ date('d-m-Y') }}</span></div>
+        <div class="summary-card">
+            <div class="num">{{ $totalExperiments }}</div>
+            <div class="lbl">Total Syllabus Experiments</div>
+        </div>
+        <div class="summary-card">
+            <div class="num">{{ $coveragePct }}%</div>
+            <div class="lbl">Syllabus Coverage</div>
+        </div>
+        <div class="summary-card">
+            <div class="num">{{ $actualLabHours }} hrs</div>
+            <div class="lbl">Actual Lab Hours Covered</div>
         </div>
     </div>
 
-    <!-- Summary KPI Cards -->
-    <div class="grid grid-cols-4 gap-3 mb-5">
-        <div class="p-2.5 rounded border border-slate-300 bg-slate-50 text-center">
-            <div class="text-base font-bold text-blue-700 font-mono">{{ $conductedCount }}</div>
-            <div class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Experiments Conducted</div>
-        </div>
-        <div class="p-2.5 rounded border border-slate-300 bg-slate-50 text-center">
-            <div class="text-base font-bold text-slate-700 font-mono">{{ $totalExperiments }}</div>
-            <div class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Total Syllabus Exps</div>
-        </div>
-        <div class="p-2.5 rounded border border-slate-300 bg-slate-50 text-center">
-            <div class="text-base font-bold text-emerald-700 font-mono">{{ $coveragePct }}%</div>
-            <div class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Syllabus Coverage</div>
-        </div>
-        <div class="p-2.5 rounded border border-slate-300 bg-slate-50 text-center">
-            <div class="text-base font-bold text-indigo-700 font-mono">{{ $actualLabHours }} hrs</div>
-            <div class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Lab Hours Covered</div>
-        </div>
-    </div>
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th style="width: 4%">Sl.</th>
+                <th style="width: 8%">Exp No</th>
+                <th style="width: 22%">Title &amp; Topics Covered</th>
+                <th style="width: 5%">CO</th>
+                <th style="width: 8%">Batch</th>
+                <th style="width: 10%">Conducted Date</th>
+                <th style="width: 10%">Hours / Periods</th>
+                <th style="width: 9%">Attendance (%)</th>
+                <th style="width: 6%">Absent</th>
+                <th style="width: 18%">Absentee Roll Nos</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php $currentBatchHeader = null; @endphp
+            @forelse($conductedDetails as $idx => $exp)
+                @php
+                    $thisBatch = $exp['batch'] ?? 'Practical Session';
+                    $formattedDate = '-';
+                    if (!empty($exp['date']) && $exp['date'] !== 'Conducted') {
+                        $ts = strtotime($exp['date']);
+                        $formattedDate = $ts ? date('d-m-Y', $ts) : $exp['date'];
+                    } elseif ($exp['date'] === 'Conducted') {
+                        $formattedDate = 'Conducted';
+                    }
+                    $abCount = $exp['absent_count'] ?? max(0, ($exp['total_count'] ?? 0) - ($exp['present_count'] ?? 0));
+                    $abRolls = $exp['absent_roll_nos'] ?? '-';
+                    $attPct = isset($exp['attendance_pct']) ? ($exp['attendance_pct'] . '%') : '-';
+                @endphp
 
-    <!-- Experiments Conducted Table -->
-    <div class="mb-6 overflow-hidden">
-        <table class="w-full border-collapse border border-slate-400 text-xs">
-            <thead>
-                <tr class="bg-slate-100 text-slate-800 font-bold uppercase text-[9.5px]">
-                    <th class="border border-slate-400 p-1.5 text-center w-8">Sl.</th>
-                    <th class="border border-slate-400 p-1.5 text-center w-14">Exp No</th>
-                    <th class="border border-slate-400 p-1.5 text-left">Title &amp; Topics Covered</th>
-                    <th class="border border-slate-400 p-1.5 text-center w-12">CO</th>
-                    <th class="border border-slate-400 p-1.5 text-center w-16">Batch</th>
-                    <th class="border border-slate-400 p-1.5 text-center w-24">Date</th>
-                    <th class="border border-slate-400 p-1.5 text-center w-20">Hours</th>
-                    <th class="border border-slate-400 p-1.5 text-center w-24">Attended</th>
-                    <th class="border border-slate-400 p-1.5 text-center w-10">Abs</th>
-                    <th class="border border-slate-400 p-1.5 text-left w-36">Absentee Rolls</th>
+                @if($currentBatchHeader !== $thisBatch)
+                    @php $currentBatchHeader = $thisBatch; @endphp
+                    <tr class="batch-header-row">
+                        <td colspan="10">
+                            {{ $thisBatch }} — Practical Experiments &amp; Conducted Log Sessions
+                        </td>
+                    </tr>
+                @endif
+                <tr>
+                    <td class="align-center" style="font-weight: bold;">{{ $idx + 1 }}</td>
+                    <td class="align-center" style="font-weight: bold; color: #1e3a8a;">{{ $exp['experiment_no'] }}</td>
+                    <td class="align-left" style="font-weight: 600; color: #111;">{{ $exp['title'] }}</td>
+                    <td class="align-center">
+                        <span class="badge-co">{{ $exp['co_tag'] ?? 'CO1' }}</span>
+                    </td>
+                    <td class="align-center">
+                        <span class="badge-batch">{{ $exp['batch'] }}</span>
+                    </td>
+                    <td class="align-center" style="font-weight: bold; font-family: monospace; font-size: 10px;">
+                        {{ $formattedDate }}
+                    </td>
+                    <td class="align-center" style="font-size: 9.5px;">
+                        {{ $exp['hours_text'] }}
+                    </td>
+                    <td class="align-center" style="font-size: 9.5px;">
+                        <span style="color: #166534; font-weight: bold;">{{ $exp['present_count'] }}</span> / {{ $exp['total_count'] }}
+                        <div style="color: #1d4ed8; font-weight: bold; font-size: 8.5px;">({{ $attPct }})</div>
+                    </td>
+                    <td class="align-center" style="font-size: 9.5px;">
+                        @if($abCount > 0)
+                            <span style="color: #dc2626; font-weight: bold;">{{ $abCount }}</span>
+                        @else
+                            <span style="color: #166534; font-weight: 600;">0</span>
+                        @endif
+                    </td>
+                    <td class="align-center" style="font-size: 9.5px;">
+                        @if(!empty($abRolls) && $abRolls !== 'None' && $abRolls !== '-')
+                            <span style="font-family: monospace; font-weight: bold; color: #b91c1c; font-size: 10px;">{{ $abRolls }}</span>
+                        @elseif($abCount > 0)
+                            <span style="font-family: monospace; color: #b91c1c;">{{ $abRolls }}</span>
+                        @else
+                            <span style="color: #6b7280; font-size: 8.5px;">None</span>
+                        @endif
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
-                @php $currentBatchHeader = null; @endphp
-                @forelse($conductedDetails as $idx => $exp)
-                    @php
-                        $thisBatch = $exp['batch'] ?? 'Practical Session';
-                        $formattedDate = '-';
-                        if (!empty($exp['date']) && $exp['date'] !== 'Conducted') {
-                            $ts = strtotime($exp['date']);
-                            $formattedDate = $ts ? date('d-m-Y', $ts) : $exp['date'];
-                        } elseif ($exp['date'] === 'Conducted') {
-                            $formattedDate = 'Conducted';
-                        }
-                        $abCount = $exp['absent_count'] ?? max(0, ($exp['total_count'] ?? 0) - ($exp['present_count'] ?? 0));
-                        $abRolls = $exp['absent_roll_nos'] ?? '-';
-                        $attPct = isset($exp['attendance_pct']) ? ($exp['attendance_pct'] . '%') : '-';
-                    @endphp
+            @empty
+                <tr>
+                    <td colspan="10" class="align-center" style="padding: 20px; color: #6b7280; font-style: italic;">
+                        No conducted practical experiments or sessions logged yet.
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 
-                    @if($currentBatchHeader !== $thisBatch)
-                        @php $currentBatchHeader = $thisBatch; @endphp
-                        <tr class="bg-slate-100 font-bold text-slate-800 text-[10px] uppercase tracking-wide">
-                            <td colspan="10" class="border border-slate-400 p-1.5 bg-slate-200">
-                                {{ $thisBatch }} — Practical Experiments &amp; Conducted Log Sessions
-                            </td>
-                        </tr>
-                    @endif
-                    <tr class="hover:bg-slate-50">
-                        <td class="border border-slate-400 p-1.5 text-center font-bold text-slate-600">{{ $idx + 1 }}</td>
-                        <td class="border border-slate-400 p-1.5 text-center font-bold font-mono text-blue-800">{{ $exp['experiment_no'] }}</td>
-                        <td class="border border-slate-400 p-1.5 font-medium text-slate-900">{{ $exp['title'] }}</td>
-                        <td class="border border-slate-400 p-1.5 text-center">
-                            <span class="px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[10px] font-bold">{{ $exp['co_tag'] ?? 'CO1' }}</span>
-                        </td>
-                        <td class="border border-slate-400 p-1.5 text-center">
-                            <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium">{{ $exp['batch'] }}</span>
-                        </td>
-                        <td class="border border-slate-400 p-1.5 text-center font-mono text-[10.5px] font-bold text-slate-800">{{ $formattedDate }}</td>
-                        <td class="border border-slate-400 p-1.5 text-center text-[10px] text-slate-600">{{ $exp['hours_text'] }}</td>
-                        <td class="border border-slate-400 p-1.5 text-center text-[10.5px]">
-                            <span class="font-bold text-emerald-800">{{ $exp['present_count'] }}</span> / {{ $exp['total_count'] }}
-                            <span class="text-blue-700 text-[9.5px] font-mono block">({{ $attPct }})</span>
-                        </td>
-                        <td class="border border-slate-400 p-1.5 text-center font-bold text-[10.5px] {{ $abCount > 0 ? 'text-rose-600' : 'text-slate-400' }}">
-                            {{ $abCount }}
-                        </td>
-                        <td class="border border-slate-400 p-1.5 font-mono text-[10px] {{ $abCount > 0 ? 'text-rose-700 font-semibold' : 'text-slate-400' }}">
-                            {{ $abRolls }}
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="10" class="border border-slate-400 p-4 text-center text-slate-500 italic">
-                            No conducted practical experiments or sessions logged yet.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+    <table class="footer-signatures">
+        <tr>
+            <td>Name &amp; Signature of Faculty In-Charge</td>
+            <td>Name &amp; Signature of Lab Coordinator</td>
+            <td>Head of Department</td>
+        </tr>
+    </table>
 
-    <!-- Institutional Signatures Footer -->
-    <div class="grid grid-cols-3 gap-6 pt-12 mt-8 text-center text-xs font-bold text-slate-800 border-t border-slate-300 page-break-inside-avoid">
-        <div>Name &amp; Signature of Faculty In-Charge</div>
-        <div>Name &amp; Signature of Lab Coordinator</div>
-        <div>Head of Department</div>
-    </div>
-
-</x-layouts.report-layout>
+</body>
+</html>

@@ -1280,6 +1280,8 @@ class R26ClassroomController extends Controller
             return response()->json(['status' => 'ERROR', 'message' => 'Subject not found.']);
         }
 
+        $this->ensureSyllabusRegistryExists($batchSubject);
+
         $entryMode = $request->input('entry_mode', 'marks');
         $maxMarks = (float)$request->input('max_marks', 60);
         $eseThresholdGrade = $request->input('ese_threshold_grade', 'D');
@@ -1405,7 +1407,7 @@ class R26ClassroomController extends Controller
         if (!$batchSubject) return response()->json(['status' => 'ERROR', 'message' => 'Subject not found']);
 
         $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
-            ->orderBy('roll_no', 'asc')
+            ->orderByRaw('ISNULL(roll_no) ASC, CAST(roll_no AS UNSIGNED) ASC, CASE WHEN admission_type = \'LET\' THEN 1 ELSE 0 END ASC, UPPER(name) ASC')
             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
 
         $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first();
@@ -1418,13 +1420,52 @@ class R26ClassroomController extends Controller
         }
 
         $eseConfig = $settings['ese_config'] ?? [];
+        $thresholdGrade = $eseConfig['ese_threshold_grade'] ?? $eseConfig['target_grade'] ?? 'D';
         $cieThreshold = (float)($eseConfig['cie_threshold_percent'] ?? 50.0);
-        $targetStudentPercent = (float)($eseConfig['target_student_percent'] ?? $eseConfig['level3_percent'] ?? 70.0);
+        $targetStudentPercent = (float)($eseConfig['target_student_percent'] ?? 70.0);
+        $lvl3Val = (float)($eseConfig['level3_percent'] ?? $targetStudentPercent);
+        $lvl2Val = (float)($eseConfig['level2_percent'] ?? max(0, $targetStudentPercent - 10));
+        $lvl1Val = (float)($eseConfig['level1_percent'] ?? max(0, $targetStudentPercent - 20));
+        $maxEseMarks = (float)($eseConfig['max_marks'] ?? 60.0);
 
         $academicMarks = \DB::table('academic_marks')
             ->where('batch_subject_id', $subjectId)
             ->get()
             ->groupBy('reg_no');
+
+        $boardGrades = \DB::table('student_board_grades')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->get()
+            ->keyBy('reg_no');
+
+        // Evaluate batch ESE Attainment (SBTE Kerala Scale)
+        $eseAppeared = 0;
+        $eseMet = 0;
+        foreach ($students as $stud) {
+            $regNo = $stud->reg_no ?: $stud->sbte_reg_no;
+            $studMarks = $academicMarks->get($regNo, collect());
+            $eseRecord = $studMarks->where('category', 'ESE')->first();
+            $gradeRecord = $boardGrades->get($regNo);
+
+            $markVal = $eseRecord ? (float)$eseRecord->marks_obtained : null;
+            $gradeVal = $gradeRecord ? $gradeRecord->grade : null;
+
+            if ($markVal !== null) {
+                $eseAppeared++;
+                $pct = ($markVal / ($maxEseMarks > 0 ? $maxEseMarks : 60)) * 100;
+                $calcGrade = \App\Services\AttainmentService::percentageToGrade($pct);
+                if (\App\Services\AttainmentService::isGradeMet($calcGrade, $thresholdGrade) || $pct >= (float)($eseConfig['ese_threshold_percent'] ?? 50.0)) {
+                    $eseMet++;
+                }
+            } elseif ($gradeVal !== null && strtoupper(trim($gradeVal)) !== 'FE') {
+                $eseAppeared++;
+                if (\App\Services\AttainmentService::isGradeMet($gradeVal, $thresholdGrade)) {
+                    $eseMet++;
+                }
+            }
+        }
+        $eseMetPct = $eseAppeared > 0 ? round(($eseMet / $eseAppeared) * 100, 1) : 0.0;
+        $eseLevel = \App\Services\AttainmentService::calculateBatchLevel($eseMetPct, $lvl3Val, $lvl2Val, $lvl1Val);
 
         $exitSurvey = \DB::table('course_exit_surveys')
             ->where('batch_subject_id', $subjectId)
@@ -1446,40 +1487,50 @@ class R26ClassroomController extends Controller
 
         foreach ($coList as $coTag) {
             $totalAssessed = 0;
-            $totalMet = 0;
+            $cieMet = 0;
 
             foreach ($students as $stud) {
                 $regNo = $stud->reg_no ?: $stud->sbte_reg_no;
                 $studMarks = $academicMarks->get($regNo, collect());
-
                 $coMarks = $studMarks->where('co_tag', $coTag);
+
                 $assignmentMark = $coMarks->where('category', 'Self Study: Assignment')->first();
                 $mcqMark        = $coMarks->where('category', 'Self Study: MCQ')->first();
                 $act3Mark       = $coMarks->where('category', 'Self Study: Act 3')->first();
                 $act4Mark       = $coMarks->where('category', 'Self Study: Act 4')->first();
                 $act5Mark       = $coMarks->where('category', 'Self Study: Act 5')->first();
 
-                $valAssignment = $assignmentMark ? (float)$assignmentMark->marks_obtained : 0.0;
-                $valMcq        = $mcqMark ? (float)$mcqMark->marks_obtained : 0.0;
-                $valAct3       = $act3Mark ? (float)$act3Mark->marks_obtained : 0.0;
-                $valAct4       = $act4Mark ? (float)$act4Mark->marks_obtained : 0.0;
-                $valAct5       = $act5Mark ? (float)$act5Mark->marks_obtained : 0.0;
+                // Self Study marks (Max 15)
+                $selfStudyScore = ($assignmentMark ? (float)$assignmentMark->marks_obtained : 0.0)
+                                + ($mcqMark ? (float)$mcqMark->marks_obtained : 0.0)
+                                + ($act3Mark ? (float)$act3Mark->marks_obtained : 0.0)
+                                + ($act4Mark ? (float)$act4Mark->marks_obtained : 0.0)
+                                + ($act5Mark ? (float)$act5Mark->marks_obtained : 0.0);
 
-                $cieScore = $valAssignment + $valMcq + $valAct3 + $valAct4 + $valAct5;
-                $eseRecord = $studMarks->where('category', 'ESE')->first();
-                $eseScore = $eseRecord ? (float)$eseRecord->marks_obtained : 0.0;
-                $eseCoScore = $eseScore / 4;
+                // Series Exam marks mapped to this CO (excluding attendance)
+                $seriesMark = $coMarks->where('category', 'Series Exam')->first()
+                    ?: $studMarks->where('category', 'Series Exam')->first();
+                $seriesScore = $seriesMark ? ((float)$seriesMark->marks_obtained / 2.0) : 0.0;
 
-                $totalScore = $cieScore + $eseCoScore;
-                $pct = ($totalScore / 30) * 100;
-                if ($pct >= $cieThreshold) {
-                    $totalMet++;
-                }
+                // Academic CIE Score (Max 25 per CO: 15 self-study + 10 series)
+                $cieScore = $selfStudyScore + $seriesScore;
+                $maxCoCie = 25.0;
+
                 $totalAssessed++;
+                $pct = ($cieScore / $maxCoCie) * 100;
+                if ($pct >= $cieThreshold) {
+                    $cieMet++;
+                }
             }
 
-            $directMetPct = $totalAssessed > 0 ? round(($totalMet / $totalAssessed) * 100, 1) : 0.0;
+            $cieMetPct = $totalAssessed > 0 ? round(($cieMet / $totalAssessed) * 100, 1) : 0.0;
+            $cieLevel = \App\Services\AttainmentService::calculateBatchLevel($cieMetPct, $lvl3Val, $lvl2Val, $lvl1Val);
 
+            // Direct Attainment: 30% CIE Level + 70% ESE Level (NBA Polytechnic criteria)
+            $directLevel = \App\Services\AttainmentService::calculateDirectAttainment($cieLevel, $eseLevel, 0.30, 0.70);
+            $directPct = round(($directLevel / 3.0) * 100, 1);
+
+            // Indirect Attainment: Course Exit Survey (scale 1.0 - 3.0)
             $indirectRating = 0.0;
             if (count($exitResponses) > 0) {
                 if ($coTag === 'CO1') {
@@ -1494,17 +1545,16 @@ class R26ClassroomController extends Controller
             }
             $indirectPct = round(($indirectRating / 3.0) * 100, 1);
 
-            $overallPct = round((0.80 * $directMetPct) + (0.20 * $indirectPct), 1);
-            $attained = $overallPct >= $cieThreshold;
+            // Overall Combined: 80% Direct + 20% Indirect
+            $overallLevel = \App\Services\AttainmentService::calculateOverallAttainment($directLevel, $indirectRating, 0.80, 0.20);
+            $overallPct = round(($overallLevel / 3.0) * 100, 1);
 
-            $levelStr = 'Level 0 (Nil)';
-            if ($directMetPct >= $targetStudentPercent) $levelStr = 'Level 3 (High)';
-            elseif ($directMetPct >= ($targetStudentPercent - 10)) $levelStr = 'Level 2 (Moderate)';
-            elseif ($directMetPct >= ($targetStudentPercent - 20)) $levelStr = 'Level 1 (Low)';
+            $levelStr = \App\Services\AttainmentService::getLevelLabel((int)round($overallLevel));
+            $attained = $overallLevel >= 1.0 && $overallPct >= $cieThreshold;
 
             $matrix[] = [
                 'co' => $coTag,
-                'direct_percent' => $directMetPct,
+                'direct_percent' => $directPct,
                 'indirect_percent' => $indirectPct,
                 'indirect_rating' => round($indirectRating, 2),
                 'overall_percent' => $overallPct,
@@ -1513,7 +1563,7 @@ class R26ClassroomController extends Controller
                 'attained' => $attained,
             ];
 
-            $directSum += $directMetPct;
+            $directSum += $directPct;
             $indirectSum += $indirectPct;
             $overallSum += $overallPct;
         }
@@ -1522,10 +1572,7 @@ class R26ClassroomController extends Controller
         $avgIndirect = $count > 0 ? round($indirectSum / $count, 1) : 0.0;
         $avgOverall = $count > 0 ? round($overallSum / $count, 1) : 0.0;
 
-        $overallLevel = 'Level 0 (Nil)';
-        if ($avgDirect >= $targetStudentPercent) $overallLevel = 'Level 3 (High)';
-        elseif ($avgDirect >= ($targetStudentPercent - 10)) $overallLevel = 'Level 2 (Moderate)';
-        elseif ($avgDirect >= ($targetStudentPercent - 20)) $overallLevel = 'Level 1 (Low)';
+        $overallLevel = \App\Services\AttainmentService::getLevelLabel((int)round(($avgOverall / 100.0) * 3.0));
 
         return response()->json([
             'status' => 'SUCCESS',
@@ -1544,6 +1591,8 @@ class R26ClassroomController extends Controller
     /**
      * Print Series Exam Question Paper.
      */
+
+    
     public function printSeriesExamQp($examId)
     {
         $exam = \App\Models\SeriesExam::find($examId);
@@ -1645,6 +1694,12 @@ class R26ClassroomController extends Controller
 
         $batchSubject = BatchSubject::find($subjectId);
         if (!$batchSubject) abort(404);
+
+        $isPractical = (str_contains(strtolower($batchSubject->subject_type ?? ''), 'lab') || str_contains(strtolower($batchSubject->subject_type ?? ''), 'practical') || str_contains(strtolower($batchSubject->subject_type ?? ''), 'drawing'));
+        if ($isPractical) {
+            return app(\App\Http\Controllers\VirtualClassroomPracticalController::class)->printInternalMarksheet($subjectId);
+        }
+
 
         $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
             ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
@@ -1814,6 +1869,12 @@ class R26ClassroomController extends Controller
 
         $batchSubject = BatchSubject::find($subjectId);
         if (!$batchSubject) abort(404);
+
+        $isPractical = (str_contains(strtolower($batchSubject->subject_type ?? ''), 'lab') || str_contains(strtolower($batchSubject->subject_type ?? ''), 'practical') || str_contains(strtolower($batchSubject->subject_type ?? ''), 'drawing'));
+        if ($isPractical) {
+            return app(\App\Http\Controllers\VirtualClassroomPracticalController::class)->printFinalResults($subjectId);
+        }
+
 
         $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
             ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
@@ -1986,21 +2047,21 @@ class R26ClassroomController extends Controller
         $batchSubject = BatchSubject::find($subjectId);
         if (!$batchSubject) abort(404);
 
-        $classroom = ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
-            ?: R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        $classroom = R26ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first()
+            ?: ClassManagement::where('classroom_id', $batchSubject->classroom_id)->first();
+        $departmentName = $this->getDepartmentName($batchSubject, $classroom);
         if (!$classroom) {
             $classroom = (object)[
                 'classroom_id' => $batchSubject->classroom_id,
                 'classroom_name' => $batchSubject->classroom_id,
-                'department' => 'Engineering',
-                'branch' => 'Engineering',
+                'department' => $departmentName,
+                'branch' => $departmentName,
                 'current_semester' => $batchSubject->semester ?? 1
             ];
         }
 
         $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
-            ->orderBy('roll_no', 'asc')
-            ->orderBy('name', 'asc')
+            ->orderByRaw('ISNULL(roll_no) ASC, CAST(roll_no AS UNSIGNED) ASC, CASE WHEN admission_type = \'LET\' THEN 1 ELSE 0 END ASC, UPPER(name) ASC')
             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no', 'academic_status']);
 
         $courseFile = CourseFile::where('batch_subject_id', $subjectId)->first()
@@ -2009,13 +2070,19 @@ class R26ClassroomController extends Controller
         $copoData = [];
         $settings = [];
         if ($courseFile) {
-            $copoData = is_string($courseFile->parsed_copo_data) ? json_decode($courseFile->parsed_copo_data, true) : ($courseFile->parsed_copo_data ?: []);
+            $rawCopo = $courseFile->parsed_copo ?? $courseFile->parsed_copo_data ?? [];
+            $copoData = is_string($rawCopo) ? json_decode($rawCopo, true) : ($rawCopo ?: []);
             $settings = is_string($courseFile->attainment_settings) ? json_decode($courseFile->attainment_settings, true) : ($courseFile->attainment_settings ?: []);
         }
         $mappings = $copoData['mappings'] ?? [];
 
         // Let's get direct assessment marks
         $academicMarks = \DB::table('academic_marks')
+            ->where('batch_subject_id', $subjectId)
+            ->get()
+            ->groupBy('reg_no');
+
+        $practicumSeriesTheory = \DB::table('r26_practicum_series_theory')
             ->where('batch_subject_id', $subjectId)
             ->get()
             ->groupBy('reg_no');
@@ -2032,17 +2099,56 @@ class R26ClassroomController extends Controller
                 ->get();
         }
         $eseConfig = $settings['ese_config'] ?? [];
-
+        $thresholdGrade = $eseConfig['ese_threshold_grade'] ?? $eseConfig['target_grade'] ?? 'D';
         $cieThreshold = (float)($eseConfig['cie_threshold_percent'] ?? 50.0);
-        $targetStudentPercent = (float)($eseConfig['target_student_percent'] ?? $eseConfig['level3_percent'] ?? 70.0);
+        $targetStudentPercent = (float)($eseConfig['target_student_percent'] ?? 70.0);
+        $lvl3Val = (float)($eseConfig['level3_percent'] ?? $targetStudentPercent);
+        $lvl2Val = (float)($eseConfig['level2_percent'] ?? max(0, $targetStudentPercent - 10));
+        $lvl1Val = (float)($eseConfig['level1_percent'] ?? max(0, $targetStudentPercent - 20));
+        $maxEseMarks = (float)($eseConfig['max_marks'] ?? 60.0);
+
+        $boardGrades = \DB::table('student_board_grades')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->get()
+            ->keyBy('reg_no');
+
+        // Evaluate batch ESE Attainment (SBTE Kerala Scale)
+        $eseAppeared = 0;
+        $eseMet = 0;
+        foreach ($students as $stud) {
+            $regNo = $stud->reg_no ?: $stud->sbte_reg_no;
+            $studMarks = $academicMarks->get($regNo, collect());
+            $eseRecord = $studMarks->where('category', 'ESE')->first();
+            $gradeRecord = $boardGrades->get($regNo);
+
+            $markVal = $eseRecord ? (float)$eseRecord->marks_obtained : null;
+            $gradeVal = $gradeRecord ? $gradeRecord->grade : null;
+
+            if ($markVal !== null) {
+                $eseAppeared++;
+                $pct = ($markVal / ($maxEseMarks > 0 ? $maxEseMarks : 60)) * 100;
+                $calcGrade = \App\Services\AttainmentService::percentageToGrade($pct);
+                if (\App\Services\AttainmentService::isGradeMet($calcGrade, $thresholdGrade) || $pct >= (float)($eseConfig['ese_threshold_percent'] ?? 50.0)) {
+                    $eseMet++;
+                }
+            } elseif ($gradeVal !== null && strtoupper(trim($gradeVal)) !== 'FE') {
+                $eseAppeared++;
+                if (\App\Services\AttainmentService::isGradeMet($gradeVal, $thresholdGrade)) {
+                    $eseMet++;
+                }
+            }
+        }
+        $eseMetPct = $eseAppeared > 0 ? round(($eseMet / $eseAppeared) * 100, 1) : 0.0;
+        $eseLevel = \App\Services\AttainmentService::calculateBatchLevel($eseMetPct, $lvl3Val, $lvl2Val, $lvl1Val);
         
         $directStats = [];
         foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
             $totalAssessed = 0;
-            $totalMet = 0;
+            $cieMet = 0;
             
             foreach ($students as $stud) {
-                $studMarks = $academicMarks->get($stud->reg_no, collect());
+                $regNo = $stud->reg_no ?: $stud->sbte_reg_no;
+                $studMarks = $academicMarks->get($regNo, collect());
                 
                 $coMarks = $studMarks->where('co_tag', $coTag);
                 $assignmentMark = $coMarks->where('category', 'Self Study: Assignment')->first();
@@ -2051,37 +2157,51 @@ class R26ClassroomController extends Controller
                 $act4Mark       = $coMarks->where('category', 'Self Study: Act 4')->first();
                 $act5Mark       = $coMarks->where('category', 'Self Study: Act 5')->first();
                 
-                $valAssignment = $assignmentMark ? (float)$assignmentMark->marks_obtained : 0.0;
-                $valMcq        = $mcqMark ? (float)$mcqMark->marks_obtained : 0.0;
-                $valAct3       = $act3Mark ? (float)$act3Mark->marks_obtained : 0.0;
-                $valAct4       = $act4Mark ? (float)$act4Mark->marks_obtained : 0.0;
-                $valAct5       = $act5Mark ? (float)$act5Mark->marks_obtained : 0.0;
+                $selfStudyScore = ($assignmentMark ? (float)$assignmentMark->marks_obtained : 0.0)
+                                + ($mcqMark ? (float)$mcqMark->marks_obtained : 0.0)
+                                + ($act3Mark ? (float)$act3Mark->marks_obtained : 0.0)
+                                + ($act4Mark ? (float)$act4Mark->marks_obtained : 0.0)
+                                + ($act5Mark ? (float)$act5Mark->marks_obtained : 0.0);
                 
-                $cieScore = $valAssignment + $valMcq + $valAct3 + $valAct4 + $valAct5;
-                
-                $eseRecord = $studMarks->where('category', 'ESE')->first();
-                $eseScore = $eseRecord ? (float)$eseRecord->marks_obtained : 0.0;
-                $eseCoScore = $eseScore / 4; 
-                
-                $totalScore = $cieScore + $eseCoScore; 
-                
-                $percentage = ($totalScore / 30) * 100;
-                if ($percentage >= $cieThreshold) {
-                    $totalMet++;
+                // Series Exam marks mapped to this CO (excluding attendance)
+                $seriesMark = $coMarks->where('category', 'Series Exam')->first()
+                    ?: $studMarks->where('category', 'Series Exam')->first();
+                $seriesScore = $seriesMark ? ((float)$seriesMark->marks_obtained / 2.0) : 0.0;
+                if ($seriesScore == 0.0 && $practicumSeriesTheory->has($regNo)) {
+                    $coSeriesMap = [
+                        'CO1' => ['Series 1', 'CO1'],
+                        'CO2' => ['Series 2', 'CO2'],
+                        'CO3' => ['Series 3', 'CO3'],
+                        'CO4' => ['Series 4', 'CO4'],
+                    ];
+                    $tags = $coSeriesMap[$coTag] ?? [$coTag];
+                    $pRec = $practicumSeriesTheory->get($regNo, collect())->whereIn('series_no', $tags)->first();
+                    $seriesScore = $pRec ? (float)$pRec->total_score_50 : 0.0;
                 }
+                
+                $cieScore = $selfStudyScore + $seriesScore;
+                $maxCoCie = 25.0;
+                
                 $totalAssessed++;
+                $pct = ($cieScore / $maxCoCie) * 100;
+                if ($pct >= $cieThreshold) {
+                    $cieMet++;
+                }
             }
             
-            $metPercentage = $totalAssessed > 0 ? ($totalMet / $totalAssessed) * 100 : 0.0;
+            $cieMetPercentage = $totalAssessed > 0 ? ($cieMet / $totalAssessed) * 100 : 0.0;
+            $cieLevel = \App\Services\AttainmentService::calculateBatchLevel($cieMetPercentage, $lvl3Val, $lvl2Val, $lvl1Val);
             
-            $level = 0;
-            if ($metPercentage >= $targetStudentPercent) $level = 3;
-            elseif ($metPercentage >= ($targetStudentPercent - 10)) $level = 2;
-            elseif ($metPercentage >= ($targetStudentPercent - 20)) $level = 1;
+            // Direct Attainment: 30% CIE + 70% ESE (or CIE level if ESE not yet conducted)
+            $directLevel = $eseAppeared > 0
+                ? \App\Services\AttainmentService::calculateDirectAttainment($cieLevel, $eseLevel, 0.30, 0.70)
+                : (float)$cieLevel;
             
             $directStats[$coTag] = [
-                'met_percent' => round($metPercentage, 1),
-                'level' => $level
+                'met_percent' => round($cieMetPercentage, 1),
+                'cie_level' => $cieLevel,
+                'ese_level' => $eseLevel,
+                'level' => $directLevel
             ];
         }
 
@@ -2134,8 +2254,10 @@ class R26ClassroomController extends Controller
             ];
         }
 
-        return view('r26.attainment_report_print', compact('batchSubject', 'classroom', 'directStats', 'indirectStats', 'combinedStats', 'poAttainments', 'mappings'));
+        return view('r26.attainment_report_print', compact('batchSubject', 'classroom', 'directStats', 'indirectStats', 'combinedStats', 'poAttainments', 'mappings', 'departmentName', 'eseConfig'));
     }
+
+    
 
     public function viewCourseFile($subjectId)
     {
@@ -2362,4 +2484,30 @@ class R26ClassroomController extends Controller
             'mappings' => $mappings
         ]);
     }
+
+    protected function ensureSyllabusRegistryExists($batchSubject)
+    {
+        if (!$batchSubject || empty($batchSubject->subject_code)) {
+            return;
+        }
+
+        $exists = \DB::table('syllabus_registry')
+            ->where('subject_code', $batchSubject->subject_code)
+            ->exists();
+
+        if (!$exists) {
+            \DB::table('syllabus_registry')->insert([
+                'subject_code' => $batchSubject->subject_code,
+                'revision_year' => 2026,
+                'subject_name' => $batchSubject->subject_name ?? $batchSubject->subject_code,
+                'co_count' => 4,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Resolve exact full department name for a batchSubject and/or classroom.
+     */
 }

@@ -24,43 +24,65 @@
 
     <!-- Course Exit Survey Control Card -->
     <x-ui.card>
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="space-y-1">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-white uppercase tracking-wider">Course Exit Survey</span>
-                    <x-ui.badge variant="info" id="surveyStatusBadge">Indirect Metric (20%)</x-ui.badge>
+        <div class="space-y-3">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-white uppercase tracking-wider">Course Exit Survey</span>
+                        <x-ui.badge variant="info" id="surveyStatusBadge">Indirect Metric (20%)</x-ui.badge>
+                    </div>
+                    <p class="text-xs text-slate-400 max-w-xl">
+                        Collect student feedback on course outcomes. The survey score directly feeds the 20% indirect attainment component required for NBA compliance.
+                    </p>
                 </div>
-                <p class="text-xs text-slate-400 max-w-xl">
-                    Collect student feedback on course outcomes. The survey score directly feeds the 20% indirect attainment component required for NBA compliance.
-                </p>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <x-ui.button 
+                        variant="secondary" 
+                        size="sm" 
+                        icon="link"
+                        id="btnCopySurveyLink"
+                        onclick="copySurveyLink()"
+                        title="Copy student survey submission URL">
+                        <span class="ml-1.5">Copy Link</span>
+                    </x-ui.button>
+                    <x-ui.button 
+                        variant="primary" 
+                        size="sm" 
+                        icon="play"
+                        id="btnOpenExitSurvey"
+                        onclick="initiateExitSurvey()">
+                        <span class="ml-1.5">Initiate Survey</span>
+                    </x-ui.button>
+                    <x-ui.button 
+                        variant="danger" 
+                        size="sm" 
+                        icon="stop-circle"
+                        id="btnCloseExitSurvey"
+                        class="hidden"
+                        onclick="closeExitSurvey()">
+                        <span class="ml-1.5">Close Survey</span>
+                    </x-ui.button>
+                    <a id="btnTestSurveyLink" href="#" target="_blank" class="hidden text-xs text-blue-400 hover:underline flex items-center gap-1 font-semibold ml-2">
+                        <span>Preview Survey</span>
+                        <x-ui.icon name="external-link" class="w-3.5 h-3.5" />
+                    </a>
+                </div>
             </div>
-            <div class="flex items-center gap-2 flex-wrap">
-                <x-ui.button 
-                    variant="secondary" 
-                    size="sm" 
-                    icon="link"
-                    id="btnCopySurveyLink"
-                    onclick="copySurveyLink()"
-                    title="Copy student survey submission URL">
-                    <span class="ml-1.5">Copy Link</span>
-                </x-ui.button>
-                <x-ui.button 
-                    variant="primary" 
-                    size="sm" 
-                    icon="play"
-                    id="btnInitiateSurvey"
-                    onclick="initiateExitSurvey()">
-                    <span class="ml-1.5">Initiate Survey</span>
-                </x-ui.button>
-                <x-ui.button 
-                    variant="danger" 
-                    size="sm" 
-                    icon="stop-circle"
-                    id="btnCloseSurvey"
-                    class="hidden"
-                    onclick="closeExitSurvey()">
-                    <span class="ml-1.5">Close Survey</span>
-                </x-ui.button>
+
+            <!-- Survey Progress & URL Bar -->
+            <div class="pt-2 border-t border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                <div class="flex items-center gap-2 flex-grow max-w-md">
+                    <span class="text-slate-400 text-[11px] shrink-0">Student Link:</span>
+                    <input type="text" id="surveyUrlInput" readonly value="Initiate survey to generate student link" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-[11px] text-slate-300 font-mono">
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <div class="text-[11px] text-slate-400">
+                        Responses: <strong id="surveyResponseStat" class="text-white">0 / {{ count($studentResults) }} Submitted</strong> (<span id="surveyResponsePct" class="text-emerald-400 font-semibold">0%</span>)
+                    </div>
+                    <div class="w-24 bg-slate-800 rounded-full h-2 overflow-hidden">
+                        <div id="surveyProgressBar" class="bg-emerald-500 h-full rounded-full transition-all" style="width: 0%;"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </x-ui.card>

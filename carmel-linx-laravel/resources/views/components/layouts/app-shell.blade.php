@@ -51,6 +51,9 @@
         </main>
     </div>
 
+    <!-- Global AI Assistant (Carmie) -->
+    <x-carmie-assistant />
+
     <script>
         requestAnimationFrame(function() {
             document.body.classList.remove('sidebar-preload');

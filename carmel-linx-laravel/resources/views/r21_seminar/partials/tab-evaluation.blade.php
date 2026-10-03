@@ -54,6 +54,7 @@
     <x-ui.table :headers="['Roll', 'Reg No', 'Student Name', 'Batch', 'Seminar Topic & Guide', 'Rel (7.5)', 'Lit (7.5)', 'Pres (37.5)', 'Disc (7.5)', 'Rep (7.5)', 'Att (7.5)', 'My Score', 'Comm Avg', 'Grade', 'Action']">
         @forelse($studentResults as $st)
             <tr class="student-row hover:bg-slate-800/40 transition" 
+                id="row-eval-{{ $st['reg_no'] }}"
                 data-reg="{{ $st['reg_no'] }}" 
                 data-name="{{ strtolower($st['name']) }}" 
                 data-roll="{{ $st['roll_no'] }}" 
@@ -77,10 +78,11 @@
                 </td>
                 <td class="py-3 px-3 text-xs max-w-[220px]">
                     @if(!empty($st['topic']))
-                        <div class="font-medium text-slate-200 truncate" title="{{ $st['topic'] }}">{{ $st['topic'] }}</div>
-                        <div class="text-[11px] text-slate-400 mt-0.5">Guide: {{ $st['guide_name'] ?? 'Unassigned' }}</div>
+                        <div class="font-medium text-slate-200 truncate col-row-topic" title="{{ $st['topic'] }}">{{ $st['topic'] }}</div>
+                        <div class="text-[11px] text-slate-400 mt-0.5 col-row-guide">Guide: {{ $st['guide_name'] ?? 'Unassigned' }}</div>
                     @else
-                        <span class="text-slate-500 italic">Topic not registered</span>
+                        <span class="text-slate-500 italic col-row-topic">Topic not registered</span>
+                        <div class="text-[11px] text-slate-400 mt-0.5 col-row-guide hidden"></div>
                     @endif
                 </td>
                 <td class="text-center font-mono text-xs text-slate-300 py-3 px-2 rubric-val-rel-{{ $st['reg_no'] }}">{{ $st['avg_relevance'] ?? '—' }}</td>
@@ -91,12 +93,12 @@
                 <td class="text-center font-mono text-xs text-slate-300 py-3 px-2 rubric-val-att-{{ $st['reg_no'] }}">{{ $st['avg_attendance'] ?? '—' }}</td>
                 
                 <!-- My Score -->
-                <td class="text-center font-mono text-xs font-bold text-slate-200 py-3 px-2 my-score-{{ $st['reg_no'] }}">
+                <td class="text-center font-mono text-xs font-bold text-slate-200 py-3 px-2 col-my-score my-score-{{ $st['reg_no'] }}">
                     {{ isset($st['my_evaluation']) ? number_format($st['my_evaluation']['total_score'], 1) : '—' }}
                 </td>
 
                 <!-- Committee Average Score (Clickable for breakdown) -->
-                <td class="text-center py-3 px-2">
+                <td class="text-center py-3 px-2 col-final-score">
                     @if($st['eval_count'] > 0)
                         <button type="button" 
                                 onclick="openBreakdownModal('{{ $st['reg_no'] }}')" 
@@ -110,7 +112,7 @@
                 </td>
 
                 <!-- SBTE Grade -->
-                <td class="text-center py-3 px-2 grade-cell-{{ $st['reg_no'] }}">
+                <td class="text-center py-3 px-2 col-grade grade-cell-{{ $st['reg_no'] }}">
                     @if($st['is_completed'])
                         @if($st['letter_grade'] === 'S' || $st['letter_grade'] === 'A')
                             <x-ui.badge variant="success">{{ $st['letter_grade'] }}</x-ui.badge>

@@ -192,7 +192,7 @@
         if (statusEl) statusEl.innerHTML = '<span class="text-blue-600">Saving...</span>';
 
         try {
-            const resp = await fetch(`/r21/classroom/drawing/${window.r21DrawingConfig.batchSubjectId}/save-sheet-marks`, {
+            const resp = await fetch(`/r21/classroom/drawing/${window.r21DrawingConfig.batchSubjectId}/sheets/save`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -363,7 +363,7 @@
         if (statusEl) statusEl.innerHTML = '<span class="text-indigo-600">Saving...</span>';
 
         try {
-            const resp = await fetch(`/r21/classroom/drawing/${window.r21DrawingConfig.batchSubjectId}/save-series-test`, {
+            const resp = await fetch(`/r21/classroom/drawing/${window.r21DrawingConfig.batchSubjectId}/tests/save`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -422,7 +422,7 @@
         });
 
         try {
-            const resp = await fetch(`/r21/classroom/drawing/${window.r21DrawingConfig.batchSubjectId}/save-attendance`, {
+            const resp = await fetch(`/r21/classroom/drawing/${window.r21DrawingConfig.batchSubjectId}/attendance/save`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

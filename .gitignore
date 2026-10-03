@@ -15,3 +15,11 @@ scratch/
 .system_generated/
 .phpunit.result.cache
 carmel-linx-laravel/.phpunit.result.cache
+
+# Agent & skill tooling
+.agents/
+carmel-linx-laravel/.agents/
+skills-lock.json
+
+# Local audit reports
+carmel-linx-laravel/public/audit_report_*

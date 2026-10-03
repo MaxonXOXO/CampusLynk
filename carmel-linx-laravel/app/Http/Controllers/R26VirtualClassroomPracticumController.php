@@ -15,6 +15,8 @@ use App\Models\R26PracticumExperimentEvaluation;
 use App\Models\R26PracticumSeriesTheory;
 use App\Models\R26PracticumSeriesPractical;
 use App\Models\R26PracticumEseMark;
+use App\Models\CourseFile;
+use App\Services\AttainmentService;
 
 class R26VirtualClassroomPracticumController extends Controller
 {
@@ -45,11 +47,16 @@ class R26VirtualClassroomPracticumController extends Controller
 
         // Enrolled Students Query
         $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
-            ->orderBy('roll_no', 'asc')
-            ->orderBy('name', 'asc')
             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no', 'academic_status']);
 
         // Fetch or Create Practicum Course File Record
+        $isBasicScienceSubject = str_contains(strtolower($batchSubject->subject_type ?? ''), 'basic science')
+            || str_contains(strtolower($batchSubject->subject_name ?? ''), 'chemistry')
+            || str_contains(strtolower($batchSubject->subject_name ?? ''), 'physics')
+            || str_contains(strtoupper($batchSubject->subject_code ?? ''), '2003')
+            || str_contains(strtoupper($batchSubject->subject_code ?? ''), '2002')
+            || str_contains(strtoupper($batchSubject->subject_code ?? ''), '2001');
+
         $practicumCourseFile = R26PracticumCourseFile::firstOrCreate(
             ['batch_subject_id' => $subjectId],
             [
@@ -62,7 +69,7 @@ class R26VirtualClassroomPracticumController extends Controller
                 'contact_hours' => 90,
                 'credits' => 4.5,
                 'cie_marks' => 40,
-                'ese_marks' => 100, // 100 for standard practicum (60 theory + 40 practical)
+                'ese_marks' => $isBasicScienceSubject ? 60 : 100, // 60 for Basic Science, 100 for Program Core Practicum (60 theory + 40 practical)
                 'parsed_cos' => [
                     ['id' => 'CO1', 'description' => 'Demonstrate basic concepts, electrical quantities, signal types, and electronic measuring instruments.', 'cognitive_level' => 'Apply'],
                     ['id' => 'CO2', 'description' => 'Construct and analyze basic electronic circuits using passive electronic components.', 'cognitive_level' => 'Apply'],
@@ -238,6 +245,8 @@ class R26VirtualClassroomPracticumController extends Controller
             $slStudentSplitup[$rNo] = $split;
         }
 
+        $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
+
         // Map Students and Compute Consolidated CIA & ESE Scores
         $studentResults = $students->map(function ($student) use (
             $attendanceData,
@@ -248,9 +257,11 @@ class R26VirtualClassroomPracticumController extends Controller
             $slAcademicMarks,
             $slSubmissions,
             $practicumCourseFile,
-            $batchSubject
+            $batchSubject,
+            $subjectType
         ) {
             $regNo = $student->reg_no;
+            $isBasicScience = (($subjectType['type'] ?? '') === 'basic_science');
 
             // 1. Attendance Marks (Table 2.1 - Max 5)
             $stAtt = $attendanceData->get($regNo, collect());
@@ -277,36 +288,118 @@ class R26VirtualClassroomPracticumController extends Controller
             $stSlMarks = $slAcademicMarks->get($regNo, collect());
             if ($stSlMarks->count() > 0) {
                 $slScoreRaw = $stSlMarks->avg('marks_obtained') ?: 0.00;
-                $slMarks = round((($slScoreRaw / 15.0) * 5.0) * 2) / 2;
+                $maxPossible = $stSlMarks->avg('max_marks') ?: 10.0;
+                if ($maxPossible <= 0) $maxPossible = 10.0;
+                $slMarks = round((($slScoreRaw / $maxPossible) * 5.0) * 2) / 2;
             } else {
                 $stSub = $slSubmissions->get($regNo, collect());
                 $slScoreRaw = $stSub->avg('score') ?: 0.00;
                 $slMarks = round((($slScoreRaw / 10.0) * 5.0) * 2) / 2;
             }
             if ($slMarks > 5.0) $slMarks = 5.0;
+            $slScoreRaw10 = ($slMarks / 5.0) * 10.0;
 
             // 3. Continuous Practical Evaluation (Max 10 CIA Marks)
             $stExps = $experimentEvals->get($regNo, collect());
             $avgExpScore50 = $stExps->avg('total_score_50') ?: 0.00;
             $continuousEvalMarks = round((($avgExpScore50 / 50.0) * 10.0) * 2) / 2;
 
-            // 4. Theory Series Exam Marks (4 CO 1-Hour Tests: CO1, CO2, CO3, CO4 - Max 10 CIA Marks)
+            // 4. Theory Series Exam Marks (Max 10 CIA Marks)
             $stStEvals = $seriesTheoryEvals->get($regNo, collect());
-            $st1 = $stStEvals->whereIn('series_no', ['Series 1', 'CO1'])->first();
-            $st2 = $stStEvals->whereIn('series_no', ['Series 2', 'CO2'])->first();
-            $st3 = $stStEvals->whereIn('series_no', ['Series 3', 'CO3'])->first();
-            $st4 = $stStEvals->whereIn('series_no', ['Series 4', 'CO4'])->first();
-            $st1Score = $st1 ? $st1->total_score_50 : 0.00;
-            $st2Score = $st2 ? $st2->total_score_50 : 0.00;
-            $st3Score = $st3 ? $st3->total_score_50 : 0.00;
-            $st4Score = $st4 ? $st4->total_score_50 : 0.00;
-            $avgTheorySeries50 = ($st1Score + $st2Score + $st3Score + $st4Score) / 4.0;
-            $seriesTheoryMarks = round((($avgTheorySeries50 / 50.0) * 10.0) * 2) / 2;
+            if ($isBasicScience) {
+                // Basic Science: 4 Modular / CO Tests (CO1, CO2, CO3, CO4 - 25M each)
+                // Series 1 (CA4: CO1 + CO2 - Max 50), Series 2 (CA5: CO3 + CO4 - Max 50)
+                $st1 = $stStEvals->whereIn('series_no', ['Series 1', 'CO1'])->first();
+                $st2 = $stStEvals->whereIn('series_no', ['Series 2', 'CO2'])->first();
+                $st3 = $stStEvals->whereIn('series_no', ['Series 3', 'CO3'])->first();
+                $st4 = $stStEvals->whereIn('series_no', ['Series 4', 'CO4'])->first();
+
+                // Check legacy CA4 / CA5 if Series 1/2 were entered directly as combined
+                if (!$st1 && !$st2) {
+                    $legacyCa4 = $stStEvals->whereIn('series_no', ['CA4'])->first();
+                    if ($legacyCa4) {
+                        $half = round(((float)$legacyCa4->total_score_50) / 2.0, 2);
+                        $co1Score = $half;
+                        $co2Score = $half;
+                    } else {
+                        $co1Score = 0.00;
+                        $co2Score = 0.00;
+                    }
+                } else {
+                    $co1Score = $st1 ? (float)$st1->total_score_50 : 0.00;
+                    $co2Score = $st2 ? (float)$st2->total_score_50 : 0.00;
+                }
+
+                if (!$st3 && !$st4) {
+                    $legacyCa5 = $stStEvals->whereIn('series_no', ['CA5'])->first();
+                    if ($legacyCa5) {
+                        $half = round(((float)$legacyCa5->total_score_50) / 2.0, 2);
+                        $co3Score = $half;
+                        $co4Score = $half;
+                    } else {
+                        $co3Score = 0.00;
+                        $co4Score = 0.00;
+                    }
+                } else {
+                    $co3Score = $st3 ? (float)$st3->total_score_50 : 0.00;
+                    $co4Score = $st4 ? (float)$st4->total_score_50 : 0.00;
+                }
+
+                $series1Total = min(50.0, $co1Score + $co2Score);
+                $series2Total = min(50.0, $co3Score + $co4Score);
+
+                $avgTheorySeries50 = ($series1Total + $series2Total) / 2.0;
+                $seriesTheoryMarks = round((($avgTheorySeries50 / 50.0) * 10.0) * 2) / 2;
+            } else {
+                // Program Core: 4 CO Tests (CO1, CO2, CO3, CO4 - 25M each)
+                // Series 1 (CA4: CO1 + CO2 - Max 50), Series 2 (CA5: CO3 + CO4 - Max 50)
+                $st1 = $stStEvals->whereIn('series_no', ['Series 1', 'CO1'])->first();
+                $st2 = $stStEvals->whereIn('series_no', ['Series 2', 'CO2'])->first();
+                $st3 = $stStEvals->whereIn('series_no', ['Series 3', 'CO3'])->first();
+                $st4 = $stStEvals->whereIn('series_no', ['Series 4', 'CO4'])->first();
+
+                // Check legacy CA4 / CA5 if Series 1/2 were entered directly as combined
+                if (!$st1 && !$st2) {
+                    $legacyCa4 = $stStEvals->whereIn('series_no', ['CA4'])->first();
+                    if ($legacyCa4) {
+                        $half = round(((float)$legacyCa4->total_score_50) / 2.0, 2);
+                        $co1Score = $half;
+                        $co2Score = $half;
+                    } else {
+                        $co1Score = 0.00;
+                        $co2Score = 0.00;
+                    }
+                } else {
+                    $co1Score = $st1 ? (float)$st1->total_score_50 : 0.00;
+                    $co2Score = $st2 ? (float)$st2->total_score_50 : 0.00;
+                }
+
+                if (!$st3 && !$st4) {
+                    $legacyCa5 = $stStEvals->whereIn('series_no', ['CA5'])->first();
+                    if ($legacyCa5) {
+                        $half = round(((float)$legacyCa5->total_score_50) / 2.0, 2);
+                        $co3Score = $half;
+                        $co4Score = $half;
+                    } else {
+                        $co3Score = 0.00;
+                        $co4Score = 0.00;
+                    }
+                } else {
+                    $co3Score = $st3 ? (float)$st3->total_score_50 : 0.00;
+                    $co4Score = $st4 ? (float)$st4->total_score_50 : 0.00;
+                }
+
+                $series1Total = min(50.0, $co1Score + $co2Score);
+                $series2Total = min(50.0, $co3Score + $co4Score);
+
+                $avgTheorySeries50 = ($series1Total + $series2Total) / 2.0;
+                $seriesTheoryMarks = round((($avgTheorySeries50 / 50.0) * 10.0) * 2) / 2;
+            }
 
             // 5. Practical Series Exam Marks (2 Tests: Test 1 CO1+CO2 & Test 2 CO3+CO4 - Max 10 CIA Marks)
             $stSpEvals = $seriesPracticalEvals->get($regNo, collect());
-            $sp1 = $stSpEvals->whereIn('series_no', ['Series 1', 'Test 1 (CO1+CO2)'])->first();
-            $sp2 = $stSpEvals->whereIn('series_no', ['Series 2', 'Test 2 (CO3+CO4)'])->first();
+            $sp1 = $stSpEvals->whereIn('series_no', ['Series 1', 'Test 1 (CO1+CO2)', 'Test 1', 'CA2'])->first();
+            $sp2 = $stSpEvals->whereIn('series_no', ['Series 2', 'Test 2 (CO3+CO4)', 'Test 2', 'CA3'])->first();
             $sp1Score = $sp1 ? $sp1->total_score_40 : 0.00;
             $sp2Score = $sp2 ? $sp2->total_score_40 : 0.00;
             $avgPracticalSeries40 = ($sp1Score + $sp2Score) / 2.0;
@@ -342,19 +435,33 @@ class R26VirtualClassroomPracticumController extends Controller
                 $eseTheory = floatval($stEse->ese_theory_marks);
             }
 
-            $esePractical = $stEse ? floatval($stEse->ese_practical_marks) : 0.00;
-            $totalEse = $eseTheory + $esePractical;
+            if ($isBasicScience) {
+                $esePractical = 0.00; // Practical ESE is internal only (0 Marks)
+                $totalEse = $eseTheory;
+                $maxEse = 60;
+                $totalCourseMarks = $totalCiaMarks + $totalEse;
+                $maxCourseMarks = 100; // 40 CIA + 60 ESE
 
-            $maxEse = $practicumCourseFile->ese_marks; // 100 or 60
-            $totalCourseMarks = $totalCiaMarks + $totalEse;
-            $maxCourseMarks = 40 + $maxEse; // 140 or 100
+                // Pass Criteria Check:
+                // 1. Min 40% in ESE Theory = 24 / 60 (or S, A, B, C, D, E, P grade)
+                // 2. Min 40% in Total Combined = 40 / 100
+                $passTheoryEse = ($eseTheory >= 24.0 || (in_array(strtoupper(trim($eseTheoryGrade ?? '')), ['S','A','B','C','D','E','P'])));
+                $passCombined = ($totalCourseMarks >= 40.0);
+                $isPassed = ($passTheoryEse && $passCombined);
+            } else {
+                $esePractical = $stEse ? floatval($stEse->ese_practical_marks) : 0.00;
+                $totalEse = $eseTheory + $esePractical;
+                $maxEse = $practicumCourseFile->ese_marks; // 100 or 60
+                $totalCourseMarks = $totalCiaMarks + $totalEse;
+                $maxCourseMarks = 40 + $maxEse; // 140 or 100
 
-            // Pass Criteria Check:
-            // 1. Min 40% in ESE Theory = 24 / 60 (or S, A, B, C, D, P grade)
-            // 2. Min 40% in Total Combined = 56 / 140 (or 40 / 100)
-            $passTheoryEse = ($eseTheory >= 24.0 || (in_array(strtoupper(trim($eseTheoryGrade ?? '')), ['S','A','B','C','D','P'])));
-            $passCombined = ($totalCourseMarks >= ($maxCourseMarks * 0.40));
-            $isPassed = ($passTheoryEse && $passCombined);
+                // Pass Criteria Check:
+                // 1. Min 40% in ESE Theory = 24 / 60 (or S, A, B, C, D, E, P grade)
+                // 2. Min 40% in Total Combined = 56 / 140 (or 40 / 100)
+                $passTheoryEse = ($eseTheory >= 24.0 || (in_array(strtoupper(trim($eseTheoryGrade ?? '')), ['S','A','B','C','D','E','P'])));
+                $passCombined = ($totalCourseMarks >= ($maxCourseMarks * 0.40));
+                $isPassed = ($passTheoryEse && $passCombined);
+            }
 
             return [
                 'reg_no' => $student->reg_no,
@@ -363,8 +470,16 @@ class R26VirtualClassroomPracticumController extends Controller
                 'roll_no' => $student->roll_no,
                 'att_percentage' => $attPercentage,
                 'att_marks' => $attMarks,
+                'sl_raw_score' => $slScoreRaw10,
                 'sl_marks' => $slMarks,
                 'continuous_eval_marks' => $continuousEvalMarks,
+                'co1_theory_mark' => $co1Score,
+                'co2_theory_mark' => $co2Score,
+                'co3_theory_mark' => $co3Score,
+                'co4_theory_mark' => $co4Score,
+                'series1_theory_total' => $series1Total,
+                'series2_theory_total' => $series2Total,
+                'series_theory_avg' => $avgTheorySeries50,
                 'series_theory_marks' => $seriesTheoryMarks,
                 'series_practical_marks' => $seriesPracticalMarks,
                 'total_cia_marks' => $totalCiaMarks,
@@ -461,13 +576,43 @@ class R26VirtualClassroomPracticumController extends Controller
                 ->get();
         }
 
+        $cf = CourseFile::where('batch_subject_id', $subjectId)->first();
+        $settings = [];
+        if ($cf && $cf->attainment_settings) {
+            $settings = is_string($cf->attainment_settings) ? json_decode($cf->attainment_settings, true) : $cf->attainment_settings;
+        }
+        $eseConfig = $settings['ese_config'] ?? [];
+        $cieThreshold = (float)($eseConfig['cie_threshold_percent'] ?? 50.0);
+        $targetStudentPercent = (float)($eseConfig['target_student_percent'] ?? 70.0);
+        $lvl3Val = (float)($eseConfig['level3_percent'] ?? $targetStudentPercent);
+        $lvl2Val = (float)($eseConfig['level2_percent'] ?? max(0, $targetStudentPercent - 10));
+        $lvl1Val = (float)($eseConfig['level1_percent'] ?? max(0, $targetStudentPercent - 20));
+
         foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
-            $attainedCount = $studentResults->filter(function($s) {
-                return $s['total_course_marks'] >= ($s['max_course_marks'] * 0.55);
+            $coKey = strtolower($coTag) . '_theory_mark';
+
+            // Check if specific CO marks have been recorded
+            $hasSpecificCoMarks = $studentResults->contains(function($s) use ($coKey) {
+                return isset($s[$coKey]) && (float)$s[$coKey] > 0;
+            });
+
+            $attainedCount = $studentResults->filter(function($s) use ($cieThreshold, $coKey, $hasSpecificCoMarks) {
+                if ($hasSpecificCoMarks) {
+                    $coScore = (float)($s[$coKey] ?? 0);
+                    $pct = ($coScore / 25.0) * 100.0;
+                    return $pct >= $cieThreshold;
+                }
+
+                // Strictly exclude attendance marks from academic attainment calculation
+                $academicCia = max(0, ($s['total_cia_marks'] ?? 0) - ($s['att_marks'] ?? 0));
+                $academicScore = $academicCia + ($s['total_ese'] ?? 0);
+                $maxAcademicMarks = max(1, ($s['max_course_marks'] ?? 100) - 5.0); // subtract 5M attendance
+                $pct = ($academicScore / $maxAcademicMarks) * 100;
+                return $pct >= $cieThreshold;
             })->count();
 
             $percentage = ($attainedCount / $totalStudents) * 100;
-            $directLevel = ($percentage >= 70) ? 3.0 : (($percentage >= 60) ? 2.0 : (($percentage >= 50) ? 1.0 : 0.0));
+            $directLevel = (float)AttainmentService::calculateBatchLevel($percentage, $lvl3Val, $lvl2Val, $lvl1Val);
             
             $directStats[$coTag] = [
                 'count' => $attainedCount,
@@ -491,7 +636,7 @@ class R26VirtualClassroomPracticumController extends Controller
                     $indirectAvg = ($exitSurveyResponses->avg('co4_q7') + $exitSurveyResponses->avg('co4_q8') + $exitSurveyResponses->avg('co4_q9')) / 3;
                 }
                 $indirectPct = ($indirectAvg / 3.0) * 100;
-                $indirectLevel = ($indirectPct >= 70) ? 3.0 : (($indirectPct >= 60) ? 2.0 : (($indirectPct >= 50) ? 1.0 : 0.0));
+                $indirectLevel = (float)AttainmentService::calculateBatchLevel($indirectPct, $lvl3Val, $lvl2Val, $lvl1Val);
             }
 
             $rating = ($indirectPct >= 70) ? 'High' : (($indirectPct >= 60) ? 'Medium' : (($indirectPct >= 50) ? 'Low' : 'Nil'));
@@ -503,7 +648,7 @@ class R26VirtualClassroomPracticumController extends Controller
                 'rating' => $rating
             ];
 
-            $combinedLevel = round((0.80 * $directLevel) + (0.20 * $indirectLevel), 2);
+            $combinedLevel = AttainmentService::calculateOverallAttainment($directLevel, $indirectLevel);
             $combinedStats[$coTag] = $combinedLevel;
         }
 
@@ -537,7 +682,7 @@ class R26VirtualClassroomPracticumController extends Controller
         $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
         $seriesQps = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->get()->keyBy('series_no');
 
-        $viewName = (($subjectType['type'] ?? '') === 'basic_science')
+        $viewName = ($subjectType['type'] === 'basic_science')
             ? 'r26_practicum.virtual_classroom_basic_science_practicum'
             : 'r26_practicum.virtual_classroom_practicum';
 
@@ -561,6 +706,7 @@ class R26VirtualClassroomPracticumController extends Controller
             'indirectStats',
             'combinedStats',
             'poAttainments',
+            'slAcademicMarks',
             'slStudentSplitup',
             'slConfigs',
             'subjectType',
@@ -689,12 +835,7 @@ class R26VirtualClassroomPracticumController extends Controller
         if ($batchSubject) {
             \DB::table('syllabus_registry')->updateOrInsert(
                 ['subject_code' => $batchSubject->subject_code],
-                [
-                    'revision_year' => 2026,
-                    'subject_name' => $batchSubject->subject_name,
-                    'co_po_mapping' => json_encode($mappings),
-                    'updated_at' => now()
-                ]
+                ['co_po_mapping' => json_encode($mappings), 'updated_at' => now()]
             );
         }
 
@@ -882,7 +1023,6 @@ class R26VirtualClassroomPracticumController extends Controller
         $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->firstOrFail();
         
         $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
-            ->orderBy('roll_no', 'asc')
             ->get();
 
         $attendanceData = DB::table('student_attendance')->where('subject_code', $batchSubject->subject_code)->get()->groupBy('reg_no');
@@ -910,9 +1050,17 @@ class R26VirtualClassroomPracticumController extends Controller
             $continuousEvalMarks = round((($avgExpScore50 / 50.0) * 10.0) * 2) / 2;
 
             $stStEvals = $seriesTheoryEvals->get($regNo, collect());
-            $st1 = $stStEvals->where('series_no', 'Series 1')->first();
-            $st2 = $stStEvals->where('series_no', 'Series 2')->first();
-            $avgTheorySeries50 = (($st1 ? $st1->total_score_50 : 0) + ($st2 ? $st2->total_score_50 : 0)) / 2.0;
+            $st1 = $stStEvals->whereIn('series_no', ['Series 1', 'CO1'])->first();
+            $st2 = $stStEvals->whereIn('series_no', ['Series 2', 'CO2'])->first();
+            $st3 = $stStEvals->whereIn('series_no', ['Series 3', 'CO3'])->first();
+            $st4 = $stStEvals->whereIn('series_no', ['Series 4', 'CO4'])->first();
+            $co1Score = $st1 ? (float)$st1->total_score_50 : 0.00;
+            $co2Score = $st2 ? (float)$st2->total_score_50 : 0.00;
+            $co3Score = $st3 ? (float)$st3->total_score_50 : 0.00;
+            $co4Score = $st4 ? (float)$st4->total_score_50 : 0.00;
+            $series1Total = min(50.0, $co1Score + $co2Score);
+            $series2Total = min(50.0, $co3Score + $co4Score);
+            $avgTheorySeries50 = ($series1Total + $series2Total) / 2.0;
             $seriesTheoryMarks = round((($avgTheorySeries50 / 50.0) * 10.0) * 2) / 2;
 
             $stSpEvals = $seriesPracticalEvals->get($regNo, collect());
@@ -1319,6 +1467,34 @@ class R26VirtualClassroomPracticumController extends Controller
     }
 
     /**
+     * Parse date string into Y-m-d format for database storage.
+     * Supports dd/mm/yyyy, dd-mm-yyyy, and YYYY-MM-DD.
+     */
+    protected function parseDateForStorage($value)
+    {
+        if (empty($value)) {
+            return null;
+        }
+        $value = trim((string)$value);
+        if ($value === '' || $value === '-' || strtolower($value) === 'null') {
+            return null;
+        }
+        // Check dd/mm/yyyy or dd-mm-yyyy
+        if (preg_match('/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/', $value, $matches)) {
+            return sprintf('%04d-%02d-%02d', $matches[3], $matches[2], $matches[1]);
+        }
+        // Check YYYY-MM-DD
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            return $value;
+        }
+        try {
+            return \Carbon\Carbon::parse($value)->format('Y-m-d');
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
      * Save/Edit Single Lesson Plan Row
      */
     public function saveLessonPlanRow(Request $request, $subjectId)
@@ -1326,8 +1502,8 @@ class R26VirtualClassroomPracticumController extends Controller
         $request->validate([
             'plan_id' => 'required|integer',
             'topic_content' => 'required|string',
-            'proposed_date' => 'nullable|date',
-            'actual_date' => 'nullable|date',
+            'proposed_date' => 'nullable',
+            'actual_date' => 'nullable',
             'co_id' => 'required|string',
             'sub_batch' => 'nullable|string',
             'mode' => 'required|string',
@@ -1338,22 +1514,25 @@ class R26VirtualClassroomPracticumController extends Controller
             ->where('batch_subject_id', $subjectId)
             ->firstOrFail();
 
+        $propDate = $this->parseDateForStorage($request->input('proposed_date'));
+        $actDate = $this->parseDateForStorage($request->input('actual_date'));
+
         $plan->update([
             'topic_content' => $request->input('topic_content'),
-            'proposed_date' => $request->input('proposed_date'),
-            'actual_date' => $request->input('actual_date'),
+            'proposed_date' => $propDate,
+            'actual_date' => $actDate,
             'co_id' => $request->input('co_id'),
             'sub_batch' => $request->input('sub_batch'),
             'mode' => $request->input('mode'),
             'remarks' => $request->input('remarks'),
-            'status' => $request->input('status', 'Completed')
+            'status' => $actDate ? 'Completed' : 'Pending'
         ]);
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Lesson plan topic updated successfully!']);
     }
 
     /**
-     * Bulk Save All Lesson Plan Rows
+     * Bulk Save All Lesson Plan Rows (handles in-between insertions & existing edits)
      */
     public function saveAllLessonPlans(Request $request, $subjectId)
     {
@@ -1363,59 +1542,141 @@ class R26VirtualClassroomPracticumController extends Controller
 
         $plansData = $request->input('plans');
 
-        foreach ($plansData as $item) {
-            if (!isset($item['id'])) continue;
-            
-            $pedagogy = $item['pedagogy'] ?? ($item['mode'] ?? 'Lecture (L)');
-            $mode = 'L';
-            if (stripos($pedagogy, 'Practical') !== false || stripos($pedagogy, 'Lab') !== false) {
-                $mode = 'P';
-            } elseif (stripos($pedagogy, 'Series Exam') !== false || stripos($pedagogy, 'ST') !== false) {
-                $mode = 'ST';
-            } elseif (stripos($pedagogy, 'SP') !== false) {
-                $mode = 'SP';
-            }
+        DB::transaction(function () use ($plansData, $subjectId) {
+            // Step 1: Update all existing rows
+            foreach ($plansData as $item) {
+                if (!isset($item['id'])) continue;
+                if (str_starts_with((string)$item['id'], 'new_')) continue;
 
-            $topicText = trim($item['topic_content'] ?? '');
-
-            if (str_starts_with((string)$item['id'], 'new_')) {
-                // If new row added with no text entered, never save or calculate that row
-                if ($topicText === '') {
-                    continue;
+                $pedagogy = $item['pedagogy'] ?? ($item['mode'] ?? 'Lecture (L)');
+                $mode = 'L';
+                if (stripos($pedagogy, 'Practical') !== false || stripos($pedagogy, 'Lab') !== false) {
+                    $mode = 'P';
+                } elseif (stripos($pedagogy, 'Series Exam') !== false || stripos($pedagogy, 'ST') !== false) {
+                    $mode = 'ST';
+                } elseif (stripos($pedagogy, 'SP') !== false) {
+                    $mode = 'SP';
                 }
 
-                $maxDay = LessonPlan::where('batch_subject_id', $subjectId)->max('day_no') ?? 0;
-                LessonPlan::create([
-                    'batch_subject_id' => $subjectId,
-                    'day_no' => $maxDay + 1,
-                    'topic_content' => $topicText,
-                    'proposed_date' => !empty($item['proposed_date']) ? $item['proposed_date'] : null,
-                    'actual_date' => !empty($item['actual_date']) ? $item['actual_date'] : null,
-                    'co_id' => $item['co_id'] ?? 'CO1',
-                    'sub_batch' => $item['sub_batch'] ?? 'ALL',
-                    'pedagogy' => $pedagogy,
-                    'mode' => $mode,
-                    'remarks' => $item['remarks'] ?? '',
-                    'status' => !empty($item['actual_date']) ? 'Completed' : 'Pending'
-                ]);
-            } else {
+                $topicText = trim($item['topic_content'] ?? '');
+                $propDate = $this->parseDateForStorage($item['proposed_date'] ?? null);
+                $actDate = $this->parseDateForStorage($item['actual_date'] ?? null);
+
                 LessonPlan::where('id', $item['id'])
                     ->where('batch_subject_id', $subjectId)
                     ->update([
                         'topic_content' => $topicText,
-                        'proposed_date' => !empty($item['proposed_date']) ? $item['proposed_date'] : null,
-                        'actual_date' => !empty($item['actual_date']) ? $item['actual_date'] : null,
+                        'proposed_date' => $propDate,
+                        'actual_date' => $actDate,
                         'co_id' => $item['co_id'] ?? 'CO1',
                         'sub_batch' => $item['sub_batch'] ?? '',
                         'pedagogy' => $pedagogy,
                         'mode' => $mode,
                         'remarks' => $item['remarks'] ?? '',
-                        'status' => !empty($item['actual_date']) ? 'Completed' : 'Pending'
+                        'status' => $actDate ? 'Completed' : 'Pending'
                     ]);
             }
-        }
+
+            // Step 2: Insert new rows (in the order they appear in the DOM)
+            $createdNewMap = [];
+
+            foreach ($plansData as $item) {
+                if (!isset($item['id'])) continue;
+                if (!str_starts_with((string)$item['id'], 'new_')) continue;
+
+                $topicText = trim($item['topic_content'] ?? '');
+                // If new row added with no text entered, never save that row
+                if ($topicText === '') {
+                    continue;
+                }
+
+                $pedagogy = $item['pedagogy'] ?? ($item['mode'] ?? 'Lecture (L)');
+                $mode = 'L';
+                if (stripos($pedagogy, 'Practical') !== false || stripos($pedagogy, 'Lab') !== false) {
+                    $mode = 'P';
+                } elseif (stripos($pedagogy, 'Series Exam') !== false || stripos($pedagogy, 'ST') !== false) {
+                    $mode = 'ST';
+                } elseif (stripos($pedagogy, 'SP') !== false) {
+                    $mode = 'SP';
+                }
+
+                $propDate = $this->parseDateForStorage($item['proposed_date'] ?? null);
+                $actDate = $this->parseDateForStorage($item['actual_date'] ?? null);
+
+                $prevId = $item['prev_id'] ?? null;
+                $newDayNo = null;
+
+                if ($prevId && !str_starts_with((string)$prevId, 'new_')) {
+                    $prevPlan = LessonPlan::where('batch_subject_id', $subjectId)->find($prevId);
+                    if ($prevPlan) {
+                        $newDayNo = $prevPlan->day_no + 1;
+                    }
+                } elseif ($prevId && isset($createdNewMap[$prevId])) {
+                    $newDayNo = $createdNewMap[$prevId] + 1;
+                }
+
+                if ($newDayNo === null) {
+                    if ($prevId === null && LessonPlan::where('batch_subject_id', $subjectId)->exists()) {
+                        $newDayNo = 1;
+                    } else {
+                        $maxDay = LessonPlan::where('batch_subject_id', $subjectId)->max('day_no') ?? 0;
+                        $newDayNo = $maxDay + 1;
+                    }
+                }
+
+                $hoursCount = ($mode === 'P' || $mode === 'SP') ? 3 : 1;
+
+                // Shift existing rows >= $newDayNo by $hoursCount so space is made cleanly
+                LessonPlan::where('batch_subject_id', $subjectId)
+                    ->where('day_no', '>=', $newDayNo)
+                    ->increment('day_no', $hoursCount);
+
+                $lastDayAssigned = $newDayNo;
+                for ($h = 0; $h < $hoursCount; $h++) {
+                    $curDay = $newDayNo + $h;
+                    $hourSuffix = ($hoursCount > 1) ? ' (Hour ' . ($h + 1) . '/' . $hoursCount . ')' : '';
+                    LessonPlan::create([
+                        'batch_subject_id' => $subjectId,
+                        'day_no' => $curDay,
+                        'topic_content' => $topicText . $hourSuffix,
+                        'proposed_date' => $propDate,
+                        'actual_date' => $actDate,
+                        'co_id' => $item['co_id'] ?? 'CO1',
+                        'sub_batch' => $item['sub_batch'] ?? (($mode === 'P' || $mode === 'SP') ? 'Batch A & B' : 'ALL'),
+                        'allocated_hours' => 1,
+                        'pedagogy' => $pedagogy,
+                        'mode' => $mode,
+                        'remarks' => $item['remarks'] ?? '',
+                        'status' => $actDate ? 'Completed' : 'Pending'
+                    ]);
+                    $lastDayAssigned = $curDay;
+                }
+
+                $createdNewMap[$item['id']] = $lastDayAssigned;
+            }
+        });
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'All lesson plan rows saved successfully!']);
+    }
+
+    /**
+     * Delete one or more lesson plan rows (accepts { ids: [1,2,3] } in JSON body).
+     */
+    public function deleteLessonPlanRows(Request $request, $subjectId)
+    {
+        $request->validate(['ids' => 'required|array']);
+
+        $ids = array_filter($request->input('ids'), fn($id) => !str_starts_with((string)$id, 'new_'));
+
+        if (empty($ids)) {
+            return response()->json(['status' => 'OK', 'message' => 'Nothing to delete.']);
+        }
+
+        LessonPlan::whereIn('id', $ids)
+            ->where('batch_subject_id', $subjectId)
+            ->delete();
+
+        return response()->json(['status' => 'SUCCESS', 'message' => count($ids) . ' row(s) deleted.']);
     }
 
     /**
@@ -1464,7 +1725,9 @@ class R26VirtualClassroomPracticumController extends Controller
     private function resolveSubjectType($practicumCourseFile, $batchSubject)
     {
         $title = strtolower(($practicumCourseFile ? $practicumCourseFile->course_title : '') . ' ' . ($batchSubject ? $batchSubject->subject_name : ''));
-        
+        $code = strtoupper(($practicumCourseFile ? $practicumCourseFile->course_code : '') . ' ' . ($batchSubject ? $batchSubject->subject_code : ''));
+        $subType = strtolower($batchSubject->subject_type ?? '');
+
         if (str_contains($title, 'design') || str_contains($title, 'drawing') || str_contains($title, 'cad') || str_contains($title, 'drafting')) {
             $ese = $practicumCourseFile->ese_marks ?? 60;
             return [
@@ -1475,15 +1738,15 @@ class R26VirtualClassroomPracticumController extends Controller
             ];
         }
 
-        $ese = $practicumCourseFile->ese_marks ?? 100;
-        if ($ese >= 100) {
-            return [
-                'type' => 'program_core',
-                'label' => '💻 Program Core - ESE 100M',
-                'pattern' => 'table_4_1_standard',
-                'ese_marks' => 100
-            ];
-        } else {
+        $isBasicScience = str_contains($subType, 'basic science') 
+            || str_contains($title, 'chemistry') 
+            || str_contains($title, 'physics') 
+            || str_contains($code, '2003') 
+            || str_contains($code, '2002') 
+            || str_contains($code, '2001') 
+            || (($practicumCourseFile->ese_marks ?? 100) <= 60);
+
+        if ($isBasicScience) {
             return [
                 'type' => 'basic_science',
                 'label' => '🔬 Basic Science - ESE 60M',
@@ -1491,6 +1754,13 @@ class R26VirtualClassroomPracticumController extends Controller
                 'ese_marks' => 60
             ];
         }
+
+        return [
+            'type' => 'program_core',
+            'label' => '💻 Program Core - ESE 100M',
+            'pattern' => 'table_4_1_standard',
+            'ese_marks' => 100
+        ];
     }
 
     /**
@@ -1637,7 +1907,7 @@ class R26VirtualClassroomPracticumController extends Controller
                             'subject_code' => $batchSubject->subject_code,
                             'category' => 'Self Study: ' . $actName,
                             'co_tag' => $coTag,
-                            'max_marks' => 15,
+                            'max_marks' => 10,
                             'marks_obtained' => $score,
                             'entered_by' => $enteredBy,
                             'created_at' => now(),
@@ -1667,7 +1937,8 @@ class R26VirtualClassroomPracticumController extends Controller
         $lecturerName = $meta['lecturerName'];
 
         $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->firstOrFail();
-        $students = Student::where('classroom_id', $batchSubject->classroom_id)->orderBy('roll_no', 'asc')->get();
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->get();
 
         $assignedStaff = DB::table('subject_staff_assignments')
             ->join('staff_profiles', 'subject_staff_assignments.staff_mobile_no', '=', 'staff_profiles.mobile_no')
@@ -1727,7 +1998,8 @@ class R26VirtualClassroomPracticumController extends Controller
         $lecturerName = $meta['lecturerName'];
 
         $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->firstOrFail();
-        $students = Student::where('classroom_id', $batchSubject->classroom_id)->orderBy('roll_no', 'asc')->get();
+        $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
+            ->get();
 
         $assignedStaff = DB::table('subject_staff_assignments')
             ->join('staff_profiles', 'subject_staff_assignments.staff_mobile_no', '=', 'staff_profiles.mobile_no')
@@ -1745,7 +2017,7 @@ class R26VirtualClassroomPracticumController extends Controller
             $regNo = $student->reg_no;
             $stSlMarks = $slAcademicMarks->get($regNo, collect());
             $slScoreRaw = $stSlMarks->count() > 0 ? ($stSlMarks->avg('marks_obtained') ?: 0.00) : 0.00;
-            $slMarks = round(($slScoreRaw / 15.0) * 5.0, 2);
+            $slMarks = round(($slScoreRaw / 10.0) * 5.0, 2);
 
             $coScores = ['CO1' => 0.0, 'CO2' => 0.0, 'CO3' => 0.0, 'CO4' => 0.0];
             foreach (['CO1', 'CO2', 'CO3', 'CO4'] as $coTag) {
@@ -1777,22 +2049,28 @@ class R26VirtualClassroomPracticumController extends Controller
             $batchSubject = BatchSubject::findOrFail($subjectId);
             $practicumFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->first();
             $subjectType = $this->resolveSubjectType($practicumFile, $batchSubject);
-            $patternType = $subjectType['pattern'];
+            $requestedCo = $request->input('co_tag');
+            $requestedPattern = $request->input('pattern_type');
 
-            $coTag = match($seriesNo) {
-                'Series 1', 'CO1' => 'CO1',
-                'Series 2', 'CO2' => 'CO2',
-                'Series 3', 'CO3' => 'CO3',
-                'Series 4', 'CO4' => 'CO4',
-                'Practical Series 1', 'Test 1 (CO1+CO2)' => 'CO1+CO2',
-                'Practical Series 2', 'Test 2 (CO3+CO4)' => 'CO3+CO4',
-                default => 'CO1'
-            };
-
-            $isPractical = (strpos($seriesNo, 'Practical') !== false || strpos($seriesNo, 'Test 1') !== false || strpos($seriesNo, 'Test 2') !== false);
+            $patternType = $subjectType['pattern'] ?? 'table_4_1_standard';
+            $isPractical = (str_contains($seriesNo, 'Practical') || $requestedPattern === 'practical_series');
             if ($isPractical) {
                 $patternType = 'practical_series';
+            } elseif (!empty($requestedPattern)) {
+                $patternType = $requestedPattern;
             }
+
+            $coTag = $requestedCo ?: match($seriesNo) {
+                'Series 1', 'CO1', 'Test 1', 'Test 1 (CO1)' => 'CO1',
+                'Series 2', 'CO2', 'Test 2', 'Test 2 (CO2)' => 'CO2',
+                'Series 3', 'CO3', 'Test 3', 'Test 3 (CO3)' => 'CO3',
+                'Series 4', 'CO4', 'Test 4', 'Test 4 (CO4)' => 'CO4',
+                'Series Exam 1 (CA4)', 'Series 1 (CA4)', 'Series 1 (CO1+CO2)', 'CA4' => 'CO1+CO2',
+                'Series Exam 2 (CA5)', 'Series 2 (CA5)', 'Series 2 (CO3+CO4)', 'CA5' => 'CO3+CO4',
+                'Practical Series 1' => 'CO1+CO2',
+                'Practical Series 2' => 'CO3+CO4',
+                default => 'CO1'
+            };
 
             // ── Try question bank first ────────────────────────────────────
             $bankGrouped = \App\Models\R26QuestionBank::getForSubjectCo(
@@ -1844,16 +2122,23 @@ class R26VirtualClassroomPracticumController extends Controller
                         'CO1' => ['I', '1'],
                         'CO2' => ['II', '2'],
                         'CO3' => ['III', '3'],
-                        'CO4' => ['IV', '4']
+                        'CO4' => ['IV', '4'],
+                        'CO1+CO2' => ['I', '1', 'II', '2'],
+                        'CO3+CO4' => ['III', '3', 'IV', '4']
                     ];
                     $targetIds = $moduleIdMap[$coTag] ?? [];
+                    $combinedTitles = [];
+                    $combinedContents = [];
                     foreach ($parsedModules as $mod) {
                         $mId = strval($mod['module_id'] ?? $mod['id'] ?? '');
                         if (in_array($mId, $targetIds)) {
-                            $moduleTitle = $mod['title'] ?? '';
-                            $moduleContent = $mod['content'] ?? '';
-                            break;
+                            if (!empty($mod['title'])) $combinedTitles[] = $mod['title'];
+                            if (!empty($mod['content'])) $combinedContents[] = $mod['content'];
                         }
+                    }
+                    if (!empty($combinedTitles)) {
+                        $moduleTitle = implode(' & ', $combinedTitles);
+                        $moduleContent = implode('; ', $combinedContents);
                     }
                 }
 
@@ -2054,7 +2339,35 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
                                     ['q_no' => '8(b)', 'text' => "OR: Formulate design equations and draw detailed cross-sectional assembly views for {$topics[1]}.", 'marks' => 10, 'co' => $coTag, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Formulated equations (4M) + cross-section layout (4M) + labelling (2M)", 'answer_key' => "Assembled sectional views, labels, and mathematical design for {$topics[1]}."],
                                 ]
                             ];
+                        } elseif (str_contains($coTag, '+')) {
+                            // 50 Marks Combined Series Exam (CA4: Mod I & II or CA5: Mod III & IV)
+                            $coA = ($coTag === 'CO3+CO4') ? 'CO3' : 'CO1';
+                            $coB = ($coTag === 'CO3+CO4') ? 'CO4' : 'CO2';
+
+                            $qpData = [
+                                'part_a' => [
+                                    ['q_no' => '1', 'text' => "Define the fundamental concept and primary function of {$topics[0]}.", 'marks' => 1, 'co' => $coA, 'bloom' => 'Remember', 'scheme_key' => "Correct definition or function = 1M", 'answer_key' => "Standard definition of {$topics[0]} as per the syllabus."],
+                                    ['q_no' => '2', 'text' => "State the standard unit, formula, or law governing {$topics[1]}.", 'marks' => 1, 'co' => $coA, 'bloom' => 'Remember', 'scheme_key' => "Correct law, unit or formula = 1M", 'answer_key' => "Governing law / formula / SI unit for {$topics[1]}."],
+                                    ['q_no' => '3', 'text' => "State the core working principle and operational criterion of {$topics[2]}.", 'marks' => 1, 'co' => $coB, 'bloom' => 'Remember', 'scheme_key' => "Core principle stated = 1M", 'answer_key' => "Basic operating principle of {$topics[2]}."],
+                                    ['q_no' => '4', 'text' => "Identify the primary application domain and significance of {$topics[3]}.", 'marks' => 1, 'co' => $coB, 'bloom' => 'Remember', 'scheme_key' => "Application domain identified = 1M", 'answer_key' => "Primary engineering application of {$topics[3]}."],
+                                ],
+                                'part_b' => [
+                                    ['q_no' => '5', 'text' => "Explain the working mechanism of {$topics[0]} using a neat schematic diagram.", 'marks' => 3, 'co' => $coA, 'bloom' => 'Understand', 'scheme_key' => "Explanation (2M) + diagram (1M)", 'answer_key' => "Schematic representation and process explanation for {$topics[0]}."],
+                                    ['q_no' => '6', 'text' => "Distinguish between the key characteristics of {$topics[1]} and standard alternatives.", 'marks' => 3, 'co' => $coA, 'bloom' => 'Understand', 'scheme_key' => "Comparison points listed (3M)", 'answer_key' => "At least 3 valid comparison points for {$topics[1]}."],
+                                    ['q_no' => '7', 'text' => "Derive the mathematical expression or setup equation for {$topics[2]} response.", 'marks' => 3, 'co' => $coA, 'bloom' => 'Apply', 'scheme_key' => "Derivation setup (1M) + step-by-step derivation (2M)", 'answer_key' => "Analytical derivation leading to standard expression for {$topics[2]}."],
+                                    ['q_no' => '8', 'text' => "Describe the functional setup and measurement technique for {$topics[3]}.", 'marks' => 3, 'co' => $coB, 'bloom' => 'Understand', 'scheme_key' => "Setup description (2M) + measurement procedure (1M)", 'answer_key' => "Detailed procedural steps and measurement techniques for {$topics[3]}."],
+                                    ['q_no' => '9', 'text' => "Apply governing equations to determine key parameters of {$topics[4]}.", 'marks' => 3, 'co' => $coB, 'bloom' => 'Apply', 'scheme_key' => "Formula setup (1M) + parameter determination (2M)", 'answer_key' => "Quantitative calculation and parameter values for {$topics[4]}."],
+                                    ['q_no' => '10', 'text' => "Analyze the effects of environmental and operational variations on {$topics[5]}.", 'marks' => 3, 'co' => $coB, 'bloom' => 'Understand', 'scheme_key' => "Analysis of variations (2M) + impact factors (1M)", 'answer_key' => "Operational impacts and behavioral shifts in {$topics[5]}."],
+                                ],
+                                'part_c' => [
+                                    ['q_no' => '11(a)', 'text' => "Design and analyze a complete system for {$topics[6]} to satisfy given technical requirements.", 'marks' => 7, 'co' => $coA, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "System setup (2M) + calculations (3M) + diagram (2M)", 'answer_key' => "Complete layout, design specifications, and schematic diagram for {$topics[6]}."],
+                                    ['q_no' => '11(b)', 'text' => "OR: Evaluate the performance parameters and construct detailed working equations for {$topics[0]}.", 'marks' => 7, 'co' => $coA, 'bloom' => 'Analyze', 'choice_group' => 'Set 1', 'scheme_key' => "Parameters list (2M) + working equations (3M) + validation (2M)", 'answer_key' => "Performance validation and mathematical models for {$topics[0]}."],
+                                    ['q_no' => '12(a)', 'text' => "Formulate and solve the engineering implementation problem for {$topics[7]} with complete working.", 'marks' => 7, 'co' => $coB, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Problem setup (2M) + step-by-step solution (4M) + results (1M)", 'answer_key' => "Full design solution, steps, and final results for {$topics[7]} application."],
+                                    ['q_no' => '12(b)', 'text' => "OR: Conduct comprehensive theoretical analysis and comparative evaluation of {$topics[2]}.", 'marks' => 7, 'co' => $coB, 'bloom' => 'Analyze', 'choice_group' => 'Set 2', 'scheme_key' => "Theoretical analysis (3M) + evaluation matrix (3M) + conclusion (1M)", 'answer_key' => "Comparative study, performance curves, and analytical synthesis for {$topics[2]}."],
+                                ]
+                            ];
                         } else {
+                            // Standard 25 Marks Single CO Test (Table 4.1)
                             $qpData = [
                                 'part_a' => [
                                     ['q_no' => '1', 'text' => "Define the fundamental concept and primary function of {$topics[0]}.", 'marks' => 1, 'co' => $coTag, 'bloom' => 'Remember', 'scheme_key' => "Correct definition or function = 1M", 'answer_key' => "Standard definition of {$topics[0]} as per the syllabus."],
@@ -2188,17 +2501,128 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
     }
 
     /**
+     * Reset / Delete Series Exam Question Paper for a given series.
+     * Note: This strictly clears only the QP document record; it does NOT affect student evaluation marks, attendance, or lesson plans.
+     */
+    public function resetSeriesQp(Request $request, $subjectId, $seriesNo)
+    {
+        try {
+            $seriesNo = str_replace('+', ' ', urldecode($seriesNo));
+            $deleted = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)
+                ->where('series_no', $seriesNo)
+                ->delete();
+
+            return response()->json([
+                'status' => 'SUCCESS',
+                'message' => "Question paper for '{$seriesNo}' has been reset successfully. You can now generate a new question paper.",
+                'deleted' => $deleted
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['status' => 'ERROR', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Resolve existing QP record, check common aliases, or auto-generate on-the-fly.
+     * Prevents 404 ModelNotFoundException when printing question papers, schemes, or answer keys.
+     */
+    private function resolveOrGenerateQpRecord($batchSubject, $practicumCourseFile, $subjectId, $seriesNo)
+    {
+        $cleanSeriesNo = trim(str_replace('+', ' ', urldecode($seriesNo)));
+
+        // 1. Direct match
+        $qpRecord = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)
+            ->where('series_no', $cleanSeriesNo)
+            ->first();
+
+        if ($qpRecord) {
+            return $qpRecord;
+        }
+
+        // 2. Check aliases
+        $aliasMap = [
+            'Series 1' => ['Series 1', 'Test 1', 'Test 1 (CO1)', 'Series Exam 1 (CA4)', 'Series 1 (CA4)', 'CO1'],
+            'Test 1' => ['Series 1', 'Test 1', 'Test 1 (CO1)', 'Series Exam 1 (CA4)', 'Series 1 (CA4)', 'CO1'],
+            'Test 1 (CO1)' => ['Series 1', 'Test 1', 'Test 1 (CO1)', 'Series Exam 1 (CA4)', 'Series 1 (CA4)', 'CO1'],
+            'Series Exam 1 (CA4)' => ['Series Exam 1 (CA4)', 'Series 1 (CA4)', 'Series 1', 'Test 1', 'Test 1 (CO1)'],
+            'Series 1 (CA4)' => ['Series Exam 1 (CA4)', 'Series 1 (CA4)', 'Series 1', 'Test 1', 'Test 1 (CO1)'],
+
+            'Series 2' => ['Series 2', 'Test 2', 'Test 2 (CO2)', 'Series Exam 2 (CA5)', 'Series 2 (CA5)', 'CO2'],
+            'Test 2' => ['Series 2', 'Test 2', 'Test 2 (CO2)', 'Series Exam 2 (CA5)', 'Series 2 (CA5)', 'CO2'],
+            'Test 2 (CO2)' => ['Series 2', 'Test 2', 'Test 2 (CO2)', 'Series Exam 2 (CA5)', 'Series 2 (CA5)', 'CO2'],
+            'Series Exam 2 (CA5)' => ['Series Exam 2 (CA5)', 'Series 2 (CA5)', 'Series 2', 'Test 2', 'Test 2 (CO2)'],
+            'Series 2 (CA5)' => ['Series Exam 2 (CA5)', 'Series 2 (CA5)', 'Series 2', 'Test 2', 'Test 2 (CO2)'],
+
+            'Series 3' => ['Series 3', 'Test 3', 'Test 3 (CO3)', 'CO3'],
+            'Test 3' => ['Series 3', 'Test 3', 'Test 3 (CO3)', 'CO3'],
+            'Test 3 (CO3)' => ['Series 3', 'Test 3', 'Test 3 (CO3)', 'CO3'],
+
+            'Series 4' => ['Series 4', 'Test 4', 'Test 4 (CO4)', 'CO4'],
+            'Test 4' => ['Series 4', 'Test 4', 'Test 4 (CO4)', 'CO4'],
+            'Test 4 (CO4)' => ['Series 4', 'Test 4', 'Test 4 (CO4)', 'CO4'],
+
+            'Practical Series 1' => ['Practical Series 1', 'Series 1', 'Test 1'],
+            'Practical Series 2' => ['Practical Series 2', 'Series 2', 'Test 2'],
+        ];
+
+        $aliases = $aliasMap[$cleanSeriesNo] ?? [$cleanSeriesNo];
+        $qpRecord = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)
+            ->whereIn('series_no', $aliases)
+            ->first();
+
+        if ($qpRecord) {
+            return $qpRecord;
+        }
+
+        // 3. Fallback: Auto-generate via generateSeriesQp and persist to DB
+        $req = new Request();
+        $resp = $this->generateSeriesQp($req, $subjectId, $cleanSeriesNo);
+        $respData = $resp->getData(true);
+        $qpData = $respData['qp_data'] ?? [];
+        $coTag = $respData['co_tag'] ?? 'CO1';
+        $patternType = $respData['pattern_type'] ?? 'table_4_1_standard';
+
+        $maxMarks = ($patternType === 'practical_series') ? 40 : (($patternType === 'table_4_2_design') ? 50 : (str_contains($coTag, '+') ? 50 : 25));
+        $duration = ($patternType === 'practical_series' || str_contains($coTag, '+') || str_contains($coTag, ',')) ? 120 : 60;
+
+        $userId = Session::get('userId');
+
+        return \App\Models\R26SeriesExamQp::create([
+            'batch_subject_id' => $subjectId,
+            'series_no'        => $cleanSeriesNo,
+            'co_tag'           => $coTag,
+            'pattern_type'     => $patternType,
+            'max_marks'        => $maxMarks,
+            'duration_minutes' => $duration,
+            'qp_data'          => $qpData,
+            'scheme_data'      => $qpData,
+            'answer_key'       => $qpData,
+            'status'           => 'auto_generated',
+            'created_by'       => $userId,
+        ]);
+    }
+
+    /**
      * Print Series Question Paper PDF View
      */
     public function printSeriesQpPdf($subjectId, $seriesNo)
     {
         $batchSubject = BatchSubject::findOrFail($subjectId);
         $meta = $this->resolveClassroomMeta($subjectId, $batchSubject->classroom_id);
-        $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->firstOrFail();
-        $seriesNo = str_replace('+', ' ', urldecode($seriesNo));
-        $qpRecord = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->where('series_no', $seriesNo)->firstOrFail();
+        $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$practicumCourseFile) {
+            $practicumCourseFile = new R26PracticumCourseFile(['batch_subject_id' => $subjectId]);
+        }
+        $cleanSeriesNo = trim(str_replace('+', ' ', urldecode($seriesNo)));
+        $qpRecord = $this->resolveOrGenerateQpRecord($batchSubject, $practicumCourseFile, $subjectId, $cleanSeriesNo);
         $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
-        return view('r26_practicum.series_qp_print', array_merge($meta, compact('batchSubject', 'practicumCourseFile', 'qpRecord', 'seriesNo', 'subjectType')));
+        return view('r26_practicum.series_qp_print', array_merge($meta, [
+            'batchSubject' => $batchSubject,
+            'practicumCourseFile' => $practicumCourseFile,
+            'qpRecord' => $qpRecord,
+            'seriesNo' => $cleanSeriesNo,
+            'subjectType' => $subjectType
+        ]));
     }
 
     /**
@@ -2208,11 +2632,20 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
     {
         $batchSubject = BatchSubject::findOrFail($subjectId);
         $meta = $this->resolveClassroomMeta($subjectId, $batchSubject->classroom_id);
-        $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->firstOrFail();
-        $seriesNo = str_replace('+', ' ', urldecode($seriesNo));
-        $qpRecord = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->where('series_no', $seriesNo)->firstOrFail();
+        $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$practicumCourseFile) {
+            $practicumCourseFile = new R26PracticumCourseFile(['batch_subject_id' => $subjectId]);
+        }
+        $cleanSeriesNo = trim(str_replace('+', ' ', urldecode($seriesNo)));
+        $qpRecord = $this->resolveOrGenerateQpRecord($batchSubject, $practicumCourseFile, $subjectId, $cleanSeriesNo);
         $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
-        return view('r26_practicum.series_scheme_print', array_merge($meta, compact('batchSubject', 'practicumCourseFile', 'qpRecord', 'seriesNo', 'subjectType')));
+        return view('r26_practicum.series_scheme_print', array_merge($meta, [
+            'batchSubject' => $batchSubject,
+            'practicumCourseFile' => $practicumCourseFile,
+            'qpRecord' => $qpRecord,
+            'seriesNo' => $cleanSeriesNo,
+            'subjectType' => $subjectType
+        ]));
     }
 
     /**
@@ -2222,11 +2655,20 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
     {
         $batchSubject = BatchSubject::findOrFail($subjectId);
         $meta = $this->resolveClassroomMeta($subjectId, $batchSubject->classroom_id);
-        $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->firstOrFail();
-        $seriesNo = str_replace('+', ' ', urldecode($seriesNo));
-        $qpRecord = \App\Models\R26SeriesExamQp::where('batch_subject_id', $subjectId)->where('series_no', $seriesNo)->firstOrFail();
+        $practicumCourseFile = R26PracticumCourseFile::where('batch_subject_id', $subjectId)->first();
+        if (!$practicumCourseFile) {
+            $practicumCourseFile = new R26PracticumCourseFile(['batch_subject_id' => $subjectId]);
+        }
+        $cleanSeriesNo = trim(str_replace('+', ' ', urldecode($seriesNo)));
+        $qpRecord = $this->resolveOrGenerateQpRecord($batchSubject, $practicumCourseFile, $subjectId, $cleanSeriesNo);
         $subjectType = $this->resolveSubjectType($practicumCourseFile, $batchSubject);
-        return view('r26_practicum.series_answer_key_print', array_merge($meta, compact('batchSubject', 'practicumCourseFile', 'qpRecord', 'seriesNo', 'subjectType')));
+        return view('r26_practicum.series_answer_key_print', array_merge($meta, [
+            'batchSubject' => $batchSubject,
+            'practicumCourseFile' => $practicumCourseFile,
+            'qpRecord' => $qpRecord,
+            'seriesNo' => $cleanSeriesNo,
+            'subjectType' => $subjectType
+        ]));
     }
 
     /**
@@ -2240,6 +2682,7 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
             case 'B': return 45.00; // 75%
             case 'C': return 39.00; // 65%
             case 'D': return 33.00; // 55%
+            case 'E': return 27.00; // 45% (Satisfactory)
             case 'P': return 27.00; // 45% (Pass)
             case 'F': return 0.00;  // Fail
             case 'FE': return 0.00;
@@ -2267,8 +2710,6 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         }
 
         $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
-            ->orderBy('roll_no', 'asc')
-            ->orderBy('name', 'asc')
             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
 
         $practicumCourseFile = \App\Models\R26PracticumCourseFile::where('batch_subject_id', $subjectId)->first();
@@ -2395,8 +2836,6 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         }
 
         $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
-            ->orderBy('roll_no', 'asc')
-            ->orderBy('name', 'asc')
             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
 
         $practicumCourseFile = \App\Models\R26PracticumCourseFile::where('batch_subject_id', $subjectId)->first();
@@ -2431,6 +2870,13 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         // Group attendance by lesson_plan_id
         $attByPlan = $allAttendance->groupBy('lesson_plan_id');
 
+        // Fetch class_logs_attendance in addition to student_attendance
+        $classLogs = DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $subjectId)
+            ->get();
+
+        $accountedPlanIds = [];
+
         // Build Theory Totals: [reg_no => ['present' => 0, 'total' => 0]]
         $theoryTotals = [];
         foreach ($students as $st) {
@@ -2438,6 +2884,9 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         }
         foreach ($theoryPlans as $plan) {
             $planAtt = $attByPlan->get($plan->id, collect());
+            if ($planAtt->isNotEmpty()) {
+                $accountedPlanIds[$plan->id] = true;
+            }
             $planAttByReg = $planAtt->keyBy('reg_no');
             foreach ($students as $st) {
                 $rec = $planAttByReg->get($st->reg_no);
@@ -2458,6 +2907,9 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         }
         foreach ($labPlans as $plan) {
             $planAtt = $attByPlan->get($plan->id, collect());
+            if ($planAtt->isNotEmpty()) {
+                $accountedPlanIds[$plan->id] = true;
+            }
             $planAttByReg = $planAtt->keyBy('reg_no');
             foreach ($students as $st) {
                 $rec = $planAttByReg->get($st->reg_no);
@@ -2466,6 +2918,59 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
                     $labTotals[$st->reg_no]['total']++;
                     if (in_array($status, ['Present', 'Late'])) {
                         $labTotals[$st->reg_no]['present']++;
+                    }
+                }
+            }
+        }
+
+        // Merge any class_logs_attendance entries not already captured via student_attendance
+        $labPlanIds = $labPlans->pluck('id')->flip();
+        $theoryPlanIds = $theoryPlans->pluck('id')->flip();
+
+        foreach ($classLogs as $log) {
+            if ($log->lesson_plan_id && isset($accountedPlanIds[$log->lesson_plan_id])) {
+                continue; // Already counted from student_attendance
+            }
+
+            $presArr = json_decode($log->present_students ?? '[]', true) ?: [];
+            $absArr = json_decode($log->absent_students ?? '[]', true) ?: [];
+
+            if (empty($presArr) && empty($absArr)) {
+                continue;
+            }
+
+            $presMap = array_flip($presArr);
+            $absMap = array_flip($absArr);
+
+            $isLabLog = false;
+            if ($log->lesson_plan_id && isset($labPlanIds[$log->lesson_plan_id])) {
+                $isLabLog = true;
+            } elseif ($log->lesson_plan_id && isset($theoryPlanIds[$log->lesson_plan_id])) {
+                $isLabLog = false;
+            } else {
+                $subB = strtolower(trim((string)($log->sub_batch ?? '')));
+                $topic = strtolower((string)($log->topics_covered ?? ''));
+                if (in_array($subB, ['1', '2', 'batch 1', 'batch 2', 'batch a', 'batch b', 'b1', 'b2']) ||
+                    str_contains($topic, 'lab') || str_contains($topic, 'exp') || str_contains($topic, 'practical')) {
+                    $isLabLog = true;
+                }
+            }
+
+            foreach ($students as $st) {
+                $r = $st->reg_no;
+                if (isset($presMap[$r])) {
+                    if ($isLabLog) {
+                        $labTotals[$r]['total']++;
+                        $labTotals[$r]['present']++;
+                    } else {
+                        $theoryTotals[$r]['total']++;
+                        $theoryTotals[$r]['present']++;
+                    }
+                } elseif (isset($absMap[$r])) {
+                    if ($isLabLog) {
+                        $labTotals[$r]['total']++;
+                    } else {
+                        $theoryTotals[$r]['total']++;
                     }
                 }
             }
@@ -2492,26 +2997,6 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
     }
 
     /**
-     * Delete one or more lesson plan rows (accepts { ids: [1,2,3] } in JSON body).
-     */
-    public function deleteLessonPlanRows(Request $request, $subjectId)
-    {
-        $request->validate(['ids' => 'required|array']);
-
-        $ids = array_filter($request->input('ids'), fn($id) => !str_starts_with((string)$id, 'new_'));
-
-        if (empty($ids)) {
-            return response()->json(['status' => 'OK', 'message' => 'Nothing to delete.']);
-        }
-
-        LessonPlan::whereIn('id', $ids)
-            ->where('batch_subject_id', $subjectId)
-            ->delete();
-
-        return response()->json(['status' => 'SUCCESS', 'message' => count($ids) . ' row(s) deleted.']);
-    }
-
-    /**
      * Print Official Teaching & Attendance Log Register (A4 Portrait) for Practicum Course
      * Route: GET /r26/classroom/practicum/{subjectId}/attendance-log-report
      */
@@ -2530,7 +3015,6 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         $lecturerName = $meta['lecturerName'];
 
         $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
-            ->orderBy('roll_no', 'asc')
             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
 
         $totalEnrolled = $students->count();
@@ -2571,7 +3055,7 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
             }
 
             $formattedDate = $l->date;
-            if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', (string)$l->date, $m)) {
+            if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $l->date, $m)) {
                 $formattedDate = "{$m[3]}/{$m[2]}/{$m[1]}";
             }
 
@@ -2692,9 +3176,8 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
 
     /**
      * Synchronize experiments roster with practical lesson plans (mode = 'P')
-     * Idempotent: re-running does not produce duplicate rows.
      */
-    protected function syncExperimentsToLessonPlans($subjectId, array $experiments): void
+    protected function syncExperimentsToLessonPlans($subjectId, array $experiments)
     {
         $practicalHourTopics = [];
         foreach ($experiments as $exp) {
@@ -2732,13 +3215,13 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
 
         // If new roster has more hours than existing practical rows, append new practical rows
         if ($newHoursCount > $existingHoursCount) {
-            $maxDay = (int)(LessonPlan::where('batch_subject_id', $subjectId)->max('day_no') ?? 0);
+            $maxDay = LessonPlan::where('batch_subject_id', $subjectId)->max('day_no') ?? 0;
             $startDate = now()->startOfWeek();
 
             for ($i = $existingHoursCount; $i < $newHoursCount; $i++) {
                 $top = $practicalHourTopics[$i];
                 $maxDay++;
-                $proposedDate = $startDate->copy()->addDays((int)floor(($maxDay - 1) * 1.2))->format('Y-m-d');
+                $proposedDate = $startDate->copy()->addDays(floor(($maxDay - 1) * 1.2))->format('Y-m-d');
 
                 LessonPlan::create([
                     'batch_subject_id' => $subjectId,
@@ -2775,7 +3258,6 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
     {
         $batchSubject = BatchSubject::findOrFail($subjectId);
         $students = Student::getClassroomStudentsQuery($batchSubject->classroom_id)
-            ->orderBy('roll_no', 'asc')
             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
 
         $totalEnrolled = $students->count();
@@ -2794,10 +3276,10 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
         // Filter practical logs
         $practicalLogs = $rawLogs->filter(function($l) {
             return ($l->lp_mode === 'P' || $l->lp_mode === 'SP' ||
-                    stripos((string)($l->topics_covered ?? ''), 'EXP') !== false ||
-                    stripos((string)($l->topics_covered ?? ''), 'Lab') !== false ||
-                    stripos((string)($l->topics_covered ?? ''), 'Practical') !== false ||
-                    in_array($l->sub_batch, ['A', 'B', 'Batch A', 'Batch B'], true));
+                    stripos($l->topics_covered ?? '', 'EXP') !== false ||
+                    stripos($l->topics_covered ?? '', 'Lab') !== false ||
+                    stripos($l->topics_covered ?? '', 'Practical') !== false ||
+                    in_array($l->sub_batch, ['A', 'B', 'Batch A', 'Batch B']));
         });
 
         $logsToUse = $practicalLogs->isNotEmpty() ? $practicalLogs : $rawLogs;
@@ -2837,7 +3319,7 @@ Return ONLY a valid JSON object matching the exact schema (do not include markdo
             sort($attendedRolls, SORT_NATURAL);
 
             $formattedDate = $l->date;
-            if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', (string)$l->date, $m)) {
+            if (preg_match('/^(\d{4})-(\d{2})-(\d{2})/', $l->date, $m)) {
                 $formattedDate = "{$m[3]}/{$m[2]}/{$m[1]}";
             }
 

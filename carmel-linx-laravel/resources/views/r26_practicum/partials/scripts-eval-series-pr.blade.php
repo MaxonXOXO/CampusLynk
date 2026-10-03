@@ -5,6 +5,17 @@
             loadSeriesPrStudent(selectStudent.value);
         }
     }
+
+    function openSeriesPrModal(regNo) {
+        openSeriesPracticalModal();
+        if (regNo) {
+            const selectStudent = document.getElementById('series-pr-student-select');
+            if (selectStudent) {
+                selectStudent.value = regNo;
+                loadSeriesPrStudent(regNo);
+            }
+        }
+    }
  
     function closeSeriesPracticalModal() {
         document.getElementById('series-practical-modal').classList.add('hidden');

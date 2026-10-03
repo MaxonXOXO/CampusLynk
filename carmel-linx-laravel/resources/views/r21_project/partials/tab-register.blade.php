@@ -5,7 +5,7 @@
             <div class="relative w-full max-w-xs">
                 <input 
                     type="text" 
-                    id="searchRegisterInput" 
+                    id="filterInput" 
                     placeholder="Search by name, reg no, or roll..." 
                     onkeyup="filterTable('mainMarksheetTable', this.value)"
                     class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-500"

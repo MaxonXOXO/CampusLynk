@@ -1017,16 +1017,37 @@ Syllabus text:
         $updated = 0;
         foreach ($rows as $row) {
             $id = $row['id'] ?? null;
-            if (!$id) continue;
-            $plan = \App\Models\LessonPlan::where('id', $id)
-                ->where('batch_subject_id', $subjectId)
-                ->first();
+            if ($id && is_numeric($id)) {
+                $plan = \App\Models\LessonPlan::where('id', $id)
+                    ->where('batch_subject_id', $subjectId)
+                    ->first();
+            } else {
+                $plan = new \App\Models\LessonPlan();
+                $plan->batch_subject_id = $subjectId;
+                $maxDayNo = \App\Models\LessonPlan::where('batch_subject_id', $subjectId)->max('day_no') ?? 0;
+                $plan->day_no = isset($row['day_no']) ? (int)$row['day_no'] : ($maxDayNo + 1);
+            }
             if (!$plan) continue;
 
-            $plan->topic_content  = $row['topic_content']  ?? $plan->topic_content;
-            $plan->proposed_date  = $row['proposed_date']  ?? $plan->proposed_date;
-            $plan->pedagogy       = $row['pedagogy']        ?? $plan->pedagogy;
-            $plan->remarks        = $row['remarks']         ?? $plan->remarks;
+            if (array_key_exists('co_id', $row)) {
+                $plan->co_id = (!empty($row['co_id']) && $row['co_id'] !== '--') ? $row['co_id'] : null;
+            }
+            if (isset($row['topic_content']))  $plan->topic_content  = $row['topic_content'];
+            if (array_key_exists('proposed_date', $row)) {
+                $plan->proposed_date  = !empty($row['proposed_date']) ? $row['proposed_date'] : null;
+            }
+            if (array_key_exists('actual_date', $row)) {
+                $plan->actual_date    = !empty($row['actual_date']) ? $row['actual_date'] : null;
+                if (!empty($plan->actual_date) && ($plan->status === 'Pending' || empty($plan->status))) {
+                    $plan->status = 'Completed';
+                }
+            }
+            if (isset($row['allocated_hours'])) {
+                $plan->allocated_hours = (int)($row['allocated_hours'] ?: 1);
+            }
+            if (isset($row['pedagogy']))       $plan->pedagogy       = $row['pedagogy'] ?: 'Lecture';
+            if (isset($row['remarks']))        $plan->remarks        = $row['remarks'] ?? '';
+            if (isset($row['day_no']))         $plan->day_no         = (int)$row['day_no'];
             $plan->save();
             $updated++;
         }
@@ -1641,7 +1662,20 @@ Syllabus text:
                 continue;
             }
 
-            if ($mark['marks_obtained'] === '' || $mark['marks_obtained'] === null) {
+            $coTag = $mark['co_tag'];
+            $marksObtained = $mark['marks_obtained'] ?? null;
+
+            if ($marksObtained === '' || $marksObtained === null) {
+                \App\Models\AcademicMark::where('reg_no', $mark['reg_no'])
+                    ->where('co_tag', $coTag)
+                    ->where('category', 'Assignment')
+                    ->where(function($q) use ($subjectId, $batchSubject) {
+                        $q->where('batch_subject_id', $subjectId)
+                          ->orWhere(function($subQ) use ($batchSubject) {
+                              $subQ->where('subject_code', $batchSubject->subject_code);
+                          });
+                    })
+                    ->delete();
                 continue;
             }
 
@@ -1650,12 +1684,12 @@ Syllabus text:
                     'reg_no' => $mark['reg_no'],
                     'batch_subject_id' => $subjectId,
                     'category' => 'Assignment',
-                    'co_tag' => $mark['co_tag']
+                    'co_tag' => $coTag
                 ],
                 [
                     'subject_code' => $batchSubject->subject_code,
                     'max_marks' => 20,
-                    'marks_obtained' => $mark['marks_obtained']
+                    'marks_obtained' => $marksObtained
                 ]
             );
 
@@ -1898,8 +1932,28 @@ Syllabus text:
         $summativeTests = $courseFile->summative_manual_tests ?? [];
         
         foreach ($marksData as $mark) {
+            if (!isset($mark['reg_no']) || !isset($mark['co_tag'])) {
+                continue;
+            }
+
             $coTag = $mark['co_tag'];
-            $maxMarks = isset($summativeTests[$coTag]) ? $summativeTests[$coTag]['total_marks'] : 50;
+            $marksObtained = $mark['marks_obtained'] ?? null;
+
+            if ($marksObtained === '' || $marksObtained === null) {
+                \App\Models\AcademicMark::where('reg_no', $mark['reg_no'])
+                    ->where('co_tag', $coTag)
+                    ->whereIn('category', ['Written Test', 'Summative', 'Series Test'])
+                    ->where(function($q) use ($subjectId, $batchSubject) {
+                        $q->where('batch_subject_id', $subjectId)
+                          ->orWhere(function($subQ) use ($batchSubject) {
+                              $subQ->where('subject_code', $batchSubject->subject_code);
+                          });
+                    })
+                    ->delete();
+                continue;
+            }
+
+            $maxMarks = isset($summativeTests[$coTag]['total_marks']) ? $summativeTests[$coTag]['total_marks'] : (isset($summativeTests[$coTag]) && is_numeric($summativeTests[$coTag]) ? $summativeTests[$coTag] : 50);
 
             \App\Models\AcademicMark::updateOrCreate(
                 [
@@ -1911,7 +1965,7 @@ Syllabus text:
                 [
                     'subject_code' => $batchSubject->subject_code,
                     'max_marks' => $maxMarks,
-                    'marks_obtained' => $mark['marks_obtained']
+                    'marks_obtained' => $marksObtained
                 ]
             );
         }
@@ -2965,8 +3019,6 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
 
         $students = \App\Models\Student::getClassroomStudentsQuery($batchSubject->classroom_id)
             ->where('status', 'Approved')
-            ->orderByRaw('ISNULL(roll_no), roll_no ASC')
-            ->orderBy('name', 'asc')
             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
 
         $experiments = \App\Models\PracticalExperiment::where('batch_subject_id', $subjectId)->get();
@@ -3204,11 +3256,14 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
     public function getPracticalEvaluations(Request $request, $subjectId)
     {
         $batchSubject = \App\Models\BatchSubject::findOrFail($subjectId);
+
+        // Synchronize conducted experiments with class logs and genuine marks
+        \App\Http\Controllers\AttendanceController::syncPracticalExperimentsWithLogs($subjectId);
+
         $students = \App\Models\Student::getClassroomStudentsQuery($batchSubject->classroom_id)
             ->where('status', 'Approved')
-            ->orderByRaw('ISNULL(roll_no), roll_no ASC')
-            ->orderBy('name', 'asc')
-            ->get(['reg_no', 'name', 'roll_no']);
+            ->orderByRaw('ISNULL(roll_no) ASC, CAST(roll_no AS UNSIGNED) ASC, CASE WHEN admission_type = \'LET\' THEN 1 ELSE 0 END ASC, UPPER(name) ASC')
+            ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
 
         $experiments = \App\Models\PracticalExperiment::where('batch_subject_id', $subjectId)
             ->orderByRaw('CAST(experiment_no AS UNSIGNED) ASC, experiment_no ASC')
@@ -3226,54 +3281,404 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
         $testIds = $tests->pluck('id')->toArray();
         $testMarks = \App\Models\PracticalTestMark::whereIn('practical_test_id', $testIds)->get();
 
-        $data = $students->map(function ($student) use ($batchSubject, $experiments, $experimentMarks, $evaluations, $tests, $testMarks) {
+        // Fetch class logs attendance for dynamic percentage & hours
+        $classLogs = \DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $batchSubject->id)
+            ->orderBy('date', 'asc')
+            ->orderBy('period', 'asc')
+            ->get(['id', 'date', 'period', 'sub_batch', 'topics_covered', 'lesson_plan_id', 'present_students', 'absent_students']);
+
+        // Normalize student attendance slots and actual engaged hours
+        $studentPresentSlots = [];    // [reg_no => [slotKey => true]]
+        $studentScheduledSlots = [];  // [reg_no => [slotKey => true]]
+        $actualSlotKeys = [];         // unique slots for the batch
+
+        foreach ($classLogs as $log) {
+            $slotKey = $log->date . '_P' . $log->period;
+            $batchSlotKey = $slotKey . '_' . ($log->sub_batch ?? 'Whole');
+            $actualSlotKeys[$batchSlotKey] = true;
+
+            $pList = json_decode($log->present_students ?? '[]', true);
+            $aList = json_decode($log->absent_students ?? '[]', true);
+            if (is_array($pList)) {
+                foreach ($pList as $rNo) {
+                    $studentPresentSlots[$rNo][$slotKey] = true;
+                    $studentScheduledSlots[$rNo][$slotKey] = true;
+                }
+            }
+            if (is_array($aList)) {
+                foreach ($aList as $rNo) {
+                    $studentScheduledSlots[$rNo][$slotKey] = true;
+                }
+            }
+        }
+
+        $totalAttendanceClasses = count($actualSlotKeys);
+        $actualHoursConducted = count(array_unique(array_map(fn($l) => $l->date . '_P' . $l->period, $classLogs->toArray())));
+
+        $assignedBatches = \App\Models\R26StudentLabBatch::where('batch_subject_id', $subjectId)
+            ->whereIn('reg_no', $students->pluck('reg_no'))
+            ->pluck('lab_batch', 'reg_no');
+        $studentRollMap = $students->pluck('roll_no', 'reg_no');
+
+        // Build detailed conducted experiments list from class logs & practical experiment marks
+        $conductedDetails = [];
+        $recordedExpMap = [];
+
+        // Group class logs by (date, sub_batch, topics_covered)
+        $groupedLogs = $classLogs->groupBy(function($l) {
+            return $l->date . '###' . ($l->sub_batch ?? 'Whole') . '###' . trim($l->topics_covered ?? '');
+        });
+
+        $logSessions = [];
+        foreach ($groupedLogs as $groupKey => $logs) {
+            $first = $logs->first();
+            $topic = trim($first->topics_covered ?? '');
+            if (!$topic && !$first->lesson_plan_id) continue;
+
+            $date = $first->date;
+            $subBatchVal = $first->sub_batch ?? 'Whole';
+            $batchLabel = ($subBatchVal === '1' || $subBatchVal === 1) ? 'Batch 1' : (($subBatchVal === '2' || $subBatchVal === 2) ? 'Batch 2' : 'Whole Class');
+            $periods = $logs->pluck('period')->unique()->sort()->values()->all();
+            $hoursCount = count($periods);
+            $periodStr = $hoursCount > 0 ? implode(', ', array_map(fn($p) => 'P' . $p, $periods)) : 'Session';
+            $hoursText = "{$hoursCount} " . ($hoursCount === 1 ? 'hr' : 'hrs') . " ({$periodStr})";
+            $pList = json_decode($first->present_students ?? '[]', true) ?: [];
+            $aList = json_decode($first->absent_students ?? '[]', true) ?: [];
+            $totalInLog = count($pList) + count($aList);
+            $presentCount = count($pList);
+            $absentCount = count($aList);
+
+            $absentRolls = collect($aList)->map(fn($r) => $studentRollMap->get($r))->filter(fn($r) => $r !== null)->sort()->values()->all();
+            $absentRollsStr = !empty($absentRolls) ? implode(', ', $absentRolls) : ($presentCount > 0 ? 'None' : '-');
+
+            $logSessions[] = [
+                'date' => $date,
+                'sub_batch' => $subBatchVal,
+                'batch_label' => $batchLabel,
+                'periods' => $periods,
+                'hours_count' => $hoursCount,
+                'hours_text' => $hoursText,
+                'topic' => $topic,
+                'lesson_plan_id' => $first->lesson_plan_id,
+                'present_count' => $presentCount,
+                'absent_count'  => $absentCount,
+                'absent_roll_nos' => $absentRollsStr,
+                'total_count' => $totalInLog > 0 ? $totalInLog : $students->count(),
+                'attendance_pct' => $totalInLog > 0 ? round(($presentCount / $totalInLog) * 100, 1) : 100.0,
+            ];
+        }
+
+        $conductedDetails = [];
+
+        if ($experiments->isEmpty()) {
+            // If no syllabus experiments are defined in DB, each class log defines an experiment
+            foreach ($logSessions as $idx => $s) {
+                $conductedDetails[] = [
+                    'experiment_id' => null,
+                    'experiment_no' => 'Exp ' . ($idx + 1),
+                    'title'         => $s['topic'] ?: 'Practical Session',
+                    'co_tag'        => 'CO1',
+                    'date'          => $s['date'],
+                    'periods'       => $s['periods'],
+                    'hours_count'   => $s['hours_count'],
+                    'hours_text'    => $s['hours_text'],
+                    'batch'         => $s['batch_label'],
+                    'sub_batch'     => $s['sub_batch'],
+                    'present_count' => $s['present_count'],
+                    'absent_count'  => $s['absent_count'],
+                    'absent_roll_nos' => $s['absent_roll_nos'],
+                    'total_count'   => $s['total_count'],
+                    'attendance_pct'=> $s['attendance_pct'],
+                ];
+            }
+        } else {
+            // When syllabus experiments exist: match each conducted/graded experiment with its log sessions for EACH batch
+            foreach ($experiments as $exp) {
+                $hasMarks = $experimentMarks->where('practical_experiment_id', $exp->id)->where('total_mark', '>', 0)->count() > 0;
+                $expNo = trim((string)$exp->experiment_no);
+                $expTitle = strtolower(trim((string)($exp->title ?? '')));
+
+                $matchingSessions = [];
+
+                foreach ($logSessions as $s) {
+                    $t = trim((string)($s['topic'] ?? ''));
+                    if (empty($t)) continue;
+
+                    $matches = false;
+                    // Match experiment number e.g. "Exp 10", "Experiment 10", "Expt 10"
+                    if (preg_match('/\b(?:exp|experiment|ex|expt)\.?\s*#?\s*0*' . preg_quote($expNo, '/') . '\b/i', $t)) {
+                        $matches = true;
+                    } elseif (preg_match('/\b(?:exp|experiment|ex|expt|experiments|expts)s?\.?\s*#?([0-9\s,&-]+)/i', $t, $mList)) {
+                        $nums = preg_split('/[\s,&-]+/', $mList[1]);
+                        if (in_array($expNo, array_map('trim', $nums))) {
+                            $matches = true;
+                        }
+                    } elseif (!empty($expTitle) && strlen($expTitle) >= 6) {
+                        $tLower = strtolower($t);
+                        if (str_contains($tLower, $expTitle) || (strlen($tLower) >= 6 && str_contains($expTitle, $tLower))) {
+                            $matches = true;
+                        }
+                    }
+
+                    if ($matches) {
+                        $matchingSessions[] = $s;
+                    }
+                }
+
+                // If no session matched by topic, but experiment has marks/date, look by date
+                if (empty($matchingSessions) && ($hasMarks || !empty($exp->conducted_date))) {
+                    $dateMatches = !empty($exp->conducted_date) ? collect($logSessions)->where('date', $exp->conducted_date)->all() : [];
+                    if (!empty($dateMatches)) {
+                        $matchingSessions = array_values($dateMatches);
+                    }
+                }
+
+                if (!empty($matchingSessions)) {
+                    foreach ($matchingSessions as $mSession) {
+                        $conductedDetails[] = [
+                            'experiment_id' => $exp->id,
+                            'experiment_no' => 'Exp ' . $exp->experiment_no,
+                            'title'         => $exp->title,
+                            'co_tag'        => $exp->co_tag ?? 'CO1',
+                            'date'          => $mSession['date'],
+                            'periods'       => $mSession['periods'],
+                            'hours_count'   => $mSession['hours_count'],
+                            'hours_text'    => $mSession['hours_text'],
+                            'batch'         => $mSession['batch_label'],
+                            'sub_batch'     => $mSession['sub_batch'],
+                            'present_count' => $mSession['present_count'],
+                            'absent_count'  => $mSession['absent_count'],
+                            'absent_roll_nos' => $mSession['absent_roll_nos'],
+                            'total_count'   => $mSession['total_count'],
+                            'attendance_pct'=> $mSession['attendance_pct'],
+                        ];
+                    }
+                } elseif ($hasMarks || !empty($exp->conducted_date)) {
+                    $gradedCount = $experimentMarks->where('practical_experiment_id', $exp->id)->where('total_mark', '>', 0)->count();
+                    $conductedDetails[] = [
+                        'experiment_id' => $exp->id,
+                        'experiment_no' => 'Exp ' . $exp->experiment_no,
+                        'title'         => $exp->title,
+                        'co_tag'        => $exp->co_tag ?? 'CO1',
+                        'date'          => $exp->conducted_date ?: 'Conducted',
+                        'periods'       => [1, 2, 3],
+                        'hours_count'   => 3,
+                        'hours_text'    => '3 hrs (Lab)',
+                        'batch'         => 'Whole Class',
+                        'sub_batch'     => 'Whole',
+                        'present_count' => $gradedCount,
+                        'absent_count'  => max(0, $students->count() - $gradedCount),
+                        'absent_roll_nos' => '-',
+                        'total_count'   => $students->count(),
+                        'attendance_pct'=> $students->count() > 0 ? round(($gradedCount / $students->count()) * 100, 1) : 100.0,
+                    ];
+                }
+            }
+        }
+
+        // Order completed experiments: Batch 1 in initial rows, then Batch 2, then Whole Class / others
+        usort($conductedDetails, function($a, $b) {
+            $batchRank = function($item) {
+                $sb = (string)($item['sub_batch'] ?? '');
+                $b = strtolower((string)($item['batch'] ?? ''));
+                if ($sb === '1' || str_contains($b, 'batch 1') || $b === 'b1') return 1;
+                if ($sb === '2' || str_contains($b, 'batch 2') || $b === 'b2') return 2;
+                return 3;
+            };
+            $rA = $batchRank($a);
+            $rB = $batchRank($b);
+            if ($rA !== $rB) return $rA <=> $rB;
+
+            preg_match('/\d+/', (string)($a['experiment_no'] ?? ''), $mA);
+            preg_match('/\d+/', (string)($b['experiment_no'] ?? ''), $mB);
+            $numA = isset($mA[0]) ? (int)$mA[0] : 0;
+            $numB = isset($mB[0]) ? (int)$mB[0] : 0;
+            if ($numA !== $numB) return $numA <=> $numB;
+
+            return strcmp((string)($a['date'] ?? ''), (string)($b['date'] ?? ''));
+        });
+
+        // Count of conducted experiments (do not club batch 1 + batch 2; count distinct completed experiments)
+        $conductedExperimentsCount = $experiments->isEmpty()
+            ? count($conductedDetails)
+            : collect($conductedDetails)->pluck('experiment_id')->filter()->unique()->count();
+
+        // Pre-build index of matching class logs for each experiment
+        $expMatchingLogs = [];
+        foreach ($experiments as $exp) {
+            $expNo = trim((string)$exp->experiment_no);
+            $expTitle = strtolower(trim((string)($exp->title ?? '')));
+            $hasMarks = $experimentMarks->where('practical_experiment_id', $exp->id)->where('total_mark', '>', 0)->count() > 0;
+            $expMatchingLogs[$exp->id] = $classLogs->filter(function($l) use ($expNo, $expTitle, $exp, $hasMarks) {
+                $t = trim((string)($l->topics_covered ?? ''));
+                if (preg_match('/\b(?:exp|experiment|ex|expt)\.?\s*#?\s*0*' . preg_quote($expNo, '/') . '\b/i', $t)) return true;
+                if (preg_match('/\b(?:exp|experiment|ex|expt|experiments|expts)s?\.?\s*#?([0-9\s,&-]+)/i', $t, $mList)) {
+                    $nums = preg_split('/[\s,&-]+/', $mList[1]);
+                    if (in_array($expNo, array_map('trim', $nums))) return true;
+                }
+                if (!empty($expTitle) && strlen($expTitle) >= 6) {
+                    $tLower = strtolower($t);
+                    if (str_contains($tLower, $expTitle) || (strlen($tLower) >= 6 && str_contains($expTitle, $tLower))) return true;
+                }
+                // Only match on date if experiment actually has graded marks (> 0) and matches conducted_date
+                if ($hasMarks && !empty($exp->conducted_date) && $l->date === $exp->conducted_date) return true;
+                return false;
+            });
+        }
+
+        $data = $students->map(function ($student, $sIdx) use ($batchSubject, $experiments, $experimentMarks, $evaluations, $tests, $testMarks, $totalAttendanceClasses, $studentPresentSlots, $studentScheduledSlots, $conductedExperimentsCount, $classLogs, $expMatchingLogs, $assignedBatches) {
             $regNo = $student->reg_no;
 
-            // Compute dynamic attendance percentage & suggested mark
-            $totalAttendance = \DB::table('student_attendance')
-                ->where('reg_no', $regNo)
-                ->where('subject_code', $batchSubject->subject_code)
-                ->count();
-            if ($totalAttendance > 0) {
-                $present = \DB::table('student_attendance')
-                    ->where('reg_no', $regNo)
-                    ->where('subject_code', $batchSubject->subject_code)
-                    ->whereIn('status', ['Present', 'Late'])
-                    ->count();
-                $attendancePercentage = ($present / $totalAttendance) * 100;
+            $labBatch = null;
+            if (isset($assignedBatches[$regNo])) {
+                $labBatch = (string)$assignedBatches[$regNo];
+            } elseif ($batchSubject->lab_batch_cutoff && $student->roll_no !== null) {
+                $labBatch = ((int)$student->roll_no <= (int)$batchSubject->lab_batch_cutoff) ? '1' : '2';
+            } elseif ($batchSubject->lab_batch_mode === 'full') {
+                $labBatch = '1';
+            } else {
+                $mid = (int)ceil($students->count() / 2);
+                $labBatch = ($sIdx < $mid) ? '1' : '2';
+            }
+
+            // Compute dynamic attendance percentage & R2021 slab mark (out of 15) using actual unique slots
+            $presentClasses = isset($studentPresentSlots[$regNo]) ? count($studentPresentSlots[$regNo]) : 0;
+            $scheduledClasses = isset($studentScheduledSlots[$regNo]) ? count($studentScheduledSlots[$regNo]) : 0;
+            $totalForStudent = $scheduledClasses > 0 ? $scheduledClasses : $totalAttendanceClasses;
+            if ($totalForStudent > 0) {
+                $attendancePercentage = ($presentClasses / $totalForStudent) * 100;
             } else {
                 $attendancePercentage = 100.00;
             }
-            $suggestedAttendanceMarks = round(($attendancePercentage / 100) * 15, 2);
+
+            // Attendance mark out of 15 based on actual conducted & attended classes (R2021)
+            $calculatedAttendanceMarks = \App\Services\AttainmentService::calculateR21AttendanceMark($attendancePercentage, 15.0);
 
             // Consolidated eval
             $eval = $evaluations->where('reg_no', $regNo)->first();
             $microProject = $eval ? (float)$eval->micro_project : 0.00;
             $openEndedTopic = $eval ? $eval->open_ended_topic : '';
-            $attendanceMarks = $eval ? (float)$eval->attendance_marks : $suggestedAttendanceMarks;
-            $boardExam = $eval ? ($eval->board_exam_marks !== null ? (float)$eval->board_exam_marks : null) : null;
-
-            // Graded experiments list & average calculation
-            $studentExpMarks = [];
-            $sumExpMarks = 0;
-            $countExpMarks = 0;
-            foreach ($experiments as $exp) {
-                $mark = $experimentMarks->where('practical_experiment_id', $exp->id)->where('reg_no', $regNo)->first();
-                $studentExpMarks[$exp->id] = $mark ? [
-                    'prerequisites' => (float)$mark->prerequisites,
-                    'work_done' => (float)$mark->work_done,
-                    'result' => (float)$mark->result,
-                    'rough_record' => (float)$mark->rough_record,
-                    'fair_record' => (float)$mark->fair_record,
-                    'total' => (float)$mark->total_mark,
-                ] : null;
-
-                if ($mark) {
-                    $sumExpMarks += (float)$mark->total_mark;
-                    $countExpMarks++;
+            // If faculty explicitly entered a mark > 0, use it; otherwise use the calculated proportional mark!
+            $attendanceMarks = ($eval && $eval->attendance_marks !== null && (float)$eval->attendance_marks > 0)
+                ? (float)$eval->attendance_marks
+                : $calculatedAttendanceMarks;
+            $boardExam = $eval ? ($eval->board_exam_marks !== null ? $eval->board_exam_marks : null) : null;
+            if ($boardExam === null && \Schema::hasTable('student_board_grades')) {
+                $bgRow = \DB::table('student_board_grades')->where('reg_no', $regNo)->where('subject_code', $batchSubject->subject_code)->first();
+                if ($bgRow) {
+                    $boardExam = $bgRow->grade;
                 }
             }
-            $avgLabWork = $countExpMarks > 0 ? round($sumExpMarks / $countExpMarks, 2) : 0.00;
+
+            // Graded/attended experiments list & average calculation
+            $studentExpMarks = [];
+            $sumExpMarks = 0;
+            $sumRough = 0;
+            $sumFair = 0;
+            $sumObsPrep = 0;
+            $sumProcPunct = 0;
+            $sumViva = 0;
+            $attendedExperimentsCount = 0;
+
+            foreach ($experiments as $exp) {
+                $mark = $experimentMarks->where('practical_experiment_id', $exp->id)->where('reg_no', $regNo)->first();
+                $hasScore = $mark && (
+                    (float)$mark->total_mark > 0 ||
+                    (float)$mark->rough_record > 0 ||
+                    (float)$mark->fair_record > 0 ||
+                    (float)$mark->prerequisites > 0 ||
+                    (float)$mark->work_done > 0 ||
+                    (float)$mark->result > 0
+                );
+
+                // Determine experiment date for this student
+                $studentExpDate = ($mark && !empty($mark->evaluation_date)) ? (string)$mark->evaluation_date : null;
+                $isAttended = false;
+
+                if ($studentExpDate) {
+                    $isAttended = true;
+                } else {
+                    // Check if student was present in any class log matching this experiment
+                    $matchingLogs = $expMatchingLogs[$exp->id] ?? collect();
+                    foreach ($matchingLogs as $mLog) {
+                        $pList = json_decode($mLog->present_students ?? '[]', true) ?: [];
+                        if (in_array($regNo, $pList)) {
+                            $studentExpDate = (string)$mLog->date;
+                            $isAttended = true;
+                            break;
+                        }
+                    }
+
+                    // If still no date found, check experiment conducted date
+                    if (!$studentExpDate && $exp->conducted_date) {
+                        $studentExpDate = (string)$exp->conducted_date;
+                        // Check if student attended on this conducted date
+                        $sameDateLogs = $classLogs->where('date', $studentExpDate);
+                        foreach ($sameDateLogs as $sdLog) {
+                            $pList = json_decode($sdLog->present_students ?? '[]', true) ?: [];
+                            if (in_array($regNo, $pList)) {
+                                $isAttended = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if ($hasScore) {
+                    $isAttended = true;
+                }
+
+                $studentExpMarks[$exp->id] = [
+                    'prerequisites' => $hasScore ? (float)$mark->prerequisites : null,
+                    'prerequisite' => $hasScore ? (float)$mark->prerequisites : null,
+                    'obs_prep' => $hasScore ? (float)$mark->prerequisites : null,
+                    'work_done' => $hasScore ? (float)$mark->work_done : null,
+                    'execution' => $hasScore ? (float)$mark->work_done : null,
+                    'proc_punct' => $hasScore ? (float)$mark->work_done : null,
+                    'result' => $hasScore ? (float)$mark->result : null,
+                    'viva_voce' => $hasScore ? (float)$mark->result : null,
+                    'rough_record' => $hasScore ? (float)$mark->rough_record : null,
+                    'fair_record' => $hasScore ? (float)$mark->fair_record : null,
+                    'total' => $hasScore ? (float)$mark->total_mark : null,
+                    'date' => $studentExpDate ?: '',
+                    'evaluation_date' => $studentExpDate ?: '',
+                    'is_attended' => (bool)$isAttended,
+                ];
+
+                if ($hasScore) {
+                    $sumExpMarks += (float)$mark->total_mark;
+                    $sumRough += (float)$mark->rough_record;
+                    $sumFair += (float)$mark->fair_record;
+                    $sumObsPrep += (float)$mark->prerequisites;
+                    $sumProcPunct += (float)$mark->work_done;
+                    $sumViva += (float)$mark->result;
+                    $attendedExperimentsCount++;
+                }
+            }
+
+            // Average across conducted/completed experiments (Max 37.5: Rough 5, Fair 7.5, Obs 7.5, Proc 7.5, Viva 10)
+            $totalCompletedExps = ($conductedExperimentsCount > 0) ? $conductedExperimentsCount : ($experiments->count() > 0 ? $experiments->count() : 1);
+            $totalDivisor = max($totalCompletedExps, $attendedExperimentsCount, 1);
+
+            $avgRoughRecord = round($sumRough / $totalDivisor, 2);
+            $avgFairRecord  = round($sumFair / $totalDivisor, 2);
+            $avgObsPrep     = round($sumObsPrep / $totalDivisor, 2);
+            $avgProcPunct   = round($sumProcPunct / $totalDivisor, 2);
+            $avgVivaVoce    = round($sumViva / $totalDivisor, 2);
+            $calculatedSplitAvg = round($avgRoughRecord + $avgFairRecord + $avgObsPrep + $avgProcPunct + $avgVivaVoce, 2);
+
+            $directLabWork = ($eval && $eval->lab_work_marks !== null && $eval->lab_work_marks !== '') ? (float)$eval->lab_work_marks : null;
+            $hasDirectLabWork = ($directLabWork !== null);
+            $avgLabWork = $hasDirectLabWork ? $directLabWork : $calculatedSplitAvg;
+
+            if ($hasDirectLabWork && $sumRough == 0 && $sumFair == 0 && $sumObsPrep == 0 && $sumProcPunct == 0 && $sumViva == 0 && $avgLabWork > 0) {
+                $avgRoughRecord = round($avgLabWork * (5.0 / 37.5), 2);
+                $avgFairRecord  = round($avgLabWork * (7.5 / 37.5), 2);
+                $avgObsPrep     = round($avgLabWork * (7.5 / 37.5), 2);
+                $avgProcPunct   = round($avgLabWork * (7.5 / 37.5), 2);
+                $avgVivaVoce    = round($avgLabWork - ($avgRoughRecord + $avgFairRecord + $avgObsPrep + $avgProcPunct), 2);
+            }
 
             // Practical tests marks per CO
             $t1 = $tests->where('test_name', 'Test 1')->first();
@@ -3286,36 +3691,67 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
 
             $scoreT1 = ($t1Co1 ? (float)$t1Co1->marks_obtained : 0.0) + ($t1Co2 ? (float)$t1Co2->marks_obtained : 0.0);
             $scoreT2 = ($t2Co3 ? (float)$t2Co3->marks_obtained : 0.0) + ($t2Co4 ? (float)$t2Co4->marks_obtained : 0.0);
-            $avgTests = round(($scoreT1 + $scoreT2) / 2, 2);
+
+            // Safeguard against legacy duplicate marks exceeding 15
+            if ($scoreT1 > 15.0 && $t1Co1 && $t1Co2 && (float)$t1Co1->marks_obtained == (float)$t1Co2->marks_obtained) {
+                $scoreT1 = (float)$t1Co1->marks_obtained;
+            }
+            if ($scoreT2 > 15.0 && $t2Co3 && $t2Co4 && (float)$t2Co3->marks_obtained == (float)$t2Co4->marks_obtained) {
+                $scoreT2 = (float)$t2Co3->marks_obtained;
+            }
+
+            $hasT1 = ($t1Co1 !== null || $t1Co2 !== null);
+            $hasT2 = ($t2Co3 !== null || $t2Co4 !== null);
+            $avgTests = ($hasT1 || $hasT2) ? round(($scoreT1 + $scoreT2) / (($hasT1 && $hasT2) ? 2 : 1), 2) : 0.0;
 
             // Total CIA (75) = Tests Avg [15] + Lab Work Avg [37.5] + Micro Project [7.5] + Attendance Marks [15]
-            $totalInternal = round($avgTests + $avgLabWork + $microProject + $attendanceMarks, 2);
+            $totalInternal = (float)round($avgTests + $avgLabWork + $microProject + $attendanceMarks);
 
             return [
                 'reg_no' => $regNo,
                 'name' => $student->name,
                 'roll_no' => $student->roll_no,
+                'lab_batch' => $labBatch,
+                'sbte_reg_no' => $student->sbte_reg_no ?? $regNo,
                 'attendance_percentage' => round($attendancePercentage, 2),
-                'suggested_attendance_marks' => $suggestedAttendanceMarks,
+                'suggested_attendance_marks' => $calculatedAttendanceMarks,
                 'attendance_marks' => $attendanceMarks,
+                'total_classes' => $totalForStudent,
+                'present_classes' => $presentClasses,
+                'attended_experiments_count' => $attendedExperimentsCount,
+                'conducted_experiments_count' => $conductedExperimentsCount,
+                'total_experiments_count' => count($experiments),
                 'micro_project' => $microProject,
+                'open_ended' => $microProject,
                 'open_ended_topic' => $openEndedTopic,
                 'board_exam_marks' => $boardExam,
                 'experiments_marks' => $studentExpMarks,
+                'lab_work_marks' => $directLabWork,
+                'is_direct_lab_work' => $hasDirectLabWork,
+                'calculated_split_avg' => $calculatedSplitAvg,
+                'avg_rough_record' => $avgRoughRecord,
+                'avg_fair_record' => $avgFairRecord,
+                'avg_obs_prep' => $avgObsPrep,
+                'avg_proc_punct' => $avgProcPunct,
+                'avg_viva_voce' => $avgVivaVoce,
                 'avg_lab_work' => $avgLabWork,
                 'tests' => [
                     'Test 1' => [
                         'CO1' => $t1Co1 ? (float)$t1Co1->marks_obtained : 0.0,
                         'CO2' => $t1Co2 ? (float)$t1Co2->marks_obtained : 0.0,
-                        'total' => $scoreT1
+                        'total' => $hasT1 ? $scoreT1 : 0.0
                     ],
                     'Test 2' => [
                         'CO3' => $t2Co3 ? (float)$t2Co3->marks_obtained : 0.0,
                         'CO4' => $t2Co4 ? (float)$t2Co4->marks_obtained : 0.0,
-                        'total' => $scoreT2
+                        'total' => $hasT2 ? $scoreT2 : 0.0
                     ],
                     'average' => $avgTests
                 ],
+                'practical_test1' => $hasT1 ? $scoreT1 : null,
+                'practical_test2' => $hasT2 ? $scoreT2 : null,
+                'series1_score' => $hasT1 ? $scoreT1 : null,
+                'series2_score' => $hasT2 ? $scoreT2 : null,
                 'total_internal' => $totalInternal
             ];
         });
@@ -3324,6 +3760,15 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
             'status' => 'SUCCESS',
             'students' => $data,
             'experiments' => $experiments,
+            'conducted_experiments_count' => $conductedExperimentsCount,
+            'conducted_experiments_details' => $conductedDetails,
+            'total_experiments_count' => count($experiments),
+            'actual_hours_conducted' => $actualHoursConducted,
+            'lab_batch_config' => [
+                'mode' => $batchSubject->lab_batch_mode ?? 'split',
+                'cutoff' => $batchSubject->lab_batch_cutoff,
+                'is_configured' => $assignedBatches->count() > 0 || !empty($batchSubject->lab_batch_cutoff) || $batchSubject->lab_batch_mode === 'full',
+            ],
             'tests' => $tests->map(function($t) {
                 return [
                     'id' => $t->id,
@@ -3337,56 +3782,68 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
     /**
      * Save practical student evaluation (experiment-wise or overall components)
      */
-    public function savePracticalEvaluation(Request $request, $subjectId)
+
+public function savePracticalEvaluation(Request $request, $subjectId)
     {
         $userId = Session::get('userId');
         if (!$userId) return response()->json(['status' => 'ERROR', 'message' => 'Unauthorized.']);
 
         $request->validate([
             'reg_no' => 'required|string',
-            'micro_project' => 'required|numeric|min:0|max:7.5',
+            'lab_work_marks' => 'nullable|numeric|min:0|max:37.5',
+            'micro_project' => 'nullable|numeric|min:0|max:7.5',
             'open_ended_project_topic' => 'nullable|string|max:255',
-            'attendance_marks' => 'required|numeric|min:0|max:15',
-            'board_exam_marks' => 'nullable|numeric|min:0|max:50',
+            'attendance_marks' => 'nullable|numeric|min:0|max:15',
+            'board_exam_marks' => 'nullable|string|max:50',
             'tests' => 'nullable|array',
             'experiments' => 'nullable|array'
         ]);
 
         $regNo = $request->input('reg_no');
 
-        // Save consolidated evaluation
-        \App\Models\PracticalEvaluation::updateOrCreate(
-            [
-                'batch_subject_id' => $subjectId,
-                'reg_no' => $regNo
-            ],
-            [
-                'assessor_mobile_no' => $userId,
-                'micro_project' => $request->input('micro_project'),
-                'open_ended_topic' => $request->input('open_ended_project_topic'),
-                'attendance_marks' => $request->input('attendance_marks'),
-                'board_exam_marks' => $request->input('board_exam_marks')
-            ]
-        );
+        // Save consolidated evaluation selectively
+        $eval = \App\Models\PracticalEvaluation::firstOrNew([
+            'batch_subject_id' => $subjectId,
+            'reg_no' => $regNo
+        ]);
+
+        $eval->assessor_mobile_no = $userId;
+        if ($request->has('lab_work_marks')) {
+            $lw = $request->input('lab_work_marks');
+            $eval->lab_work_marks = ($lw !== '' && $lw !== null) ? min(37.5, max(0, (float)$lw)) : null;
+        }
+        if ($request->has('micro_project') && $request->input('micro_project') !== null) {
+            $eval->micro_project = $request->input('micro_project');
+        }
+        if ($request->has('open_ended_project_topic')) {
+            $eval->open_ended_topic = $request->input('open_ended_project_topic');
+        }
+        if ($request->has('attendance_marks') && $request->input('attendance_marks') !== null) {
+            $eval->attendance_marks = $request->input('attendance_marks');
+        }
+        if ($request->has('board_exam_marks')) {
+            $eval->board_exam_marks = $request->input('board_exam_marks');
+        }
+        $eval->save();
 
         // Save experiment-wise marks if provided
         if ($request->has('experiments')) {
             $experimentsData = $request->input('experiments');
+            $batchSubject = \App\Models\BatchSubject::findOrFail($subjectId);
+
             foreach ($experimentsData as $expId => $val) {
-                $prerequisites = isset($val['prerequisite']) && $val['prerequisite'] !== '' ? (float)$val['prerequisite'] : 0;
-                $work_done = isset($val['execution']) && $val['execution'] !== '' ? (float)$val['execution'] : 0;
-                $result = isset($val['output']) && $val['output'] !== '' ? (float)$val['output'] : 0;
+                $prerequisites = isset($val['prerequisite']) && $val['prerequisite'] !== '' ? (float)$val['prerequisite'] : (isset($val['prerequisites']) && $val['prerequisites'] !== '' ? (float)$val['prerequisites'] : (isset($val['obs_prep']) && $val['obs_prep'] !== '' ? (float)$val['obs_prep'] : 0));
+                $work_done = isset($val['execution']) && $val['execution'] !== '' ? (float)$val['execution'] : (isset($val['work_done']) && $val['work_done'] !== '' ? (float)$val['work_done'] : (isset($val['proc_punct']) && $val['proc_punct'] !== '' ? (float)$val['proc_punct'] : 0));
+                $result = isset($val['viva_voce']) && $val['viva_voce'] !== '' ? (float)$val['viva_voce'] : (isset($val['output']) && $val['output'] !== '' ? (float)$val['output'] : (isset($val['result']) && $val['result'] !== '' ? (float)$val['result'] : 0));
                 $rough_record = isset($val['rough_record']) && $val['rough_record'] !== '' ? (float)$val['rough_record'] : 0;
                 $fair_record = isset($val['fair_record']) && $val['fair_record'] !== '' ? (float)$val['fair_record'] : 0;
 
                 $totalExpMark = $prerequisites + $work_done + $result + $rough_record + $fair_record;
+                $evalDate = !empty($val['date']) ? $val['date'] : (!empty($val['evaluation_date']) ? $val['evaluation_date'] : null);
 
-                \App\Models\PracticalExperimentMark::updateOrCreate(
-                    [
-                        'practical_experiment_id' => $expId,
-                        'reg_no' => $regNo
-                    ],
-                    [
+                // Only save if at least one component has a mark > 0, or if date is provided
+                if ($totalExpMark > 0 || $evalDate) {
+                    $markFields = [
                         'assessor_mobile_no' => $userId,
                         'prerequisites' => $prerequisites,
                         'work_done' => $work_done,
@@ -3394,8 +3851,33 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
                         'rough_record' => $rough_record,
                         'fair_record' => $fair_record,
                         'total_mark' => $totalExpMark
-                    ]
-                );
+                    ];
+                    if ($evalDate) {
+                        $markFields['evaluation_date'] = $evalDate;
+                    }
+
+                    \App\Models\PracticalExperimentMark::updateOrCreate(
+                        [
+                            'practical_experiment_id' => $expId,
+                            'reg_no' => $regNo
+                        ],
+                        $markFields
+                    );
+
+                    $expRecord = \App\Models\PracticalExperiment::find($expId);
+                    if ($expRecord) {
+                        // Only set conducted_date if there are genuine marks awarded (> 0)
+                        if ($totalExpMark > 0 && $evalDate && empty($expRecord->conducted_date)) {
+                            $expRecord->conducted_date = $evalDate;
+                            $expRecord->save();
+                        }
+
+                        // Update attendance for this student on this date ONLY if genuine marks awarded
+                        if ($totalExpMark > 0 && $evalDate) {
+                            $this->updateStudentAttendanceForExperiment($batchSubject, $expRecord, $regNo, $evalDate, $userId);
+                        }
+                    }
+                }
             }
         }
 
@@ -3427,11 +3909,113 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
             }
         }
 
+        // Reconcile conducted dates and clean up orphaned zero-mark placeholders
+        \App\Http\Controllers\AttendanceController::syncPracticalExperimentsWithLogs($subjectId);
+
         // Perform overall semester marks synchronization
         $this->syncPracticalMarksToSemesterTable($subjectId, $regNo);
 
         return response()->json(['status' => 'SUCCESS', 'message' => 'Practical evaluation saved successfully.']);
     }
+
+    /**
+     * Universal or batch-wise date correction for an experiment and automatic student attendance sync
+     */
+
+private function updateStudentAttendanceForExperiment($batchSubject, $expRecord, $regNo, $evalDate, $userId)
+    {
+        // 1. Check existing class logs for this subject on this date
+        $existingLogs = \DB::table('class_logs_attendance')
+            ->where('batch_subject_id', $batchSubject->id)
+            ->where('date', $evalDate)
+            ->get();
+
+        if ($existingLogs->isNotEmpty()) {
+            // Find logs where student is already listed (in present or absent)
+            $studentLogs = $existingLogs->filter(function($l) use ($regNo) {
+                $p = json_decode($l->present_students ?? '[]', true) ?: [];
+                $a = json_decode($l->absent_students ?? '[]', true) ?: [];
+                return in_array($regNo, $p) || in_array($regNo, $a);
+            });
+
+            // If student not found in any log on that date, match by experiment topic or update all logs on that date
+            if ($studentLogs->isEmpty()) {
+                $expNo = $expRecord->experiment_no;
+                $expTitle = strtolower(trim($expRecord->title ?? ''));
+                $matchingTopicLogs = $existingLogs->filter(function($l) use ($expNo, $expTitle) {
+                    $t = strtolower($l->topics_covered ?? '');
+                    if (preg_match('/\b(?:exp|experiment|ex)\.?\s*#?\s*0*' . preg_quote($expNo, '/') . '\b/i', $t)) return true;
+                    if (!empty($expTitle) && (str_contains($t, $expTitle) || str_contains($expTitle, $t))) return true;
+                    return false;
+                });
+                $studentLogs = $matchingTopicLogs->isNotEmpty() ? $matchingTopicLogs : $existingLogs;
+            }
+
+            foreach ($studentLogs as $log) {
+                $pList = json_decode($log->present_students ?? '[]', true) ?: [];
+                $aList = json_decode($log->absent_students ?? '[]', true) ?: [];
+
+                $modified = false;
+                if (in_array($regNo, $aList)) {
+                    $aList = array_values(array_filter($aList, fn($r) => $r !== $regNo));
+                    $modified = true;
+                }
+                if (!in_array($regNo, $pList)) {
+                    $pList[] = $regNo;
+                    $modified = true;
+                }
+
+                if ($modified) {
+                    \DB::table('class_logs_attendance')
+                        ->where('id', $log->id)
+                        ->update([
+                            'present_students' => json_encode($pList),
+                            'absent_students' => json_encode($aList),
+                            'updated_at' => now(),
+                        ]);
+                }
+            }
+        } else {
+            // No class log exists on this date yet: create continuous 3 hours (P1, P2, P3)
+            $topic = "Exp {$expRecord->experiment_no}: " . ($expRecord->title ?? 'Practical Session');
+            $periods = [1, 2, 3];
+            foreach ($periods as $p) {
+                \DB::table('class_logs_attendance')->insert([
+                    'batch_subject_id' => $batchSubject->id,
+                    'date' => $evalDate,
+                    'period' => $p,
+                    'lesson_plan_id' => null,
+                    'topics_covered' => $topic,
+                    'present_students' => json_encode([$regNo]),
+                    'absent_students' => json_encode([]),
+                    'sub_batch' => 'Whole',
+                    'recorded_by' => $userId,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        // 2. Also update student_attendance table if exists
+        if (\Schema::hasTable('student_attendance')) {
+            \DB::table('student_attendance')->updateOrInsert(
+                [
+                    'reg_no' => $regNo,
+                    'subject_code' => $batchSubject->subject_code,
+                    'date' => $evalDate,
+                ],
+                [
+                    'status' => 'Present',
+                    'sub_batch' => 'Whole',
+                    'updated_at' => now(),
+                ]
+            );
+        }
+    }
+
+    /**
+     * Helper: Sync calculated practical scores to student_semester_marks table
+     */
 
     /**
      * Save practical test config questions
@@ -3720,8 +4304,6 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
 
         $students = \App\Models\Student::getClassroomStudentsQuery($batchSubject->classroom_id)
             ->where('status', 'Approved')
-            ->orderByRaw('ISNULL(roll_no), roll_no ASC')
-            ->orderBy('name', 'asc')
             ->get(['reg_no', 'name', 'sbte_reg_no', 'roll_no']);
 
         $experiments = \App\Models\PracticalExperiment::where('batch_subject_id', $subjectId)
@@ -4995,7 +5577,12 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
 
         // Direct assessment marks from academic_marks (Assignment + Summative)
         $academicMarks = DB::table('academic_marks')
-            ->where('batch_subject_id', $subjectId)
+            ->where(function($q) use ($subjectId, $batchSubject) {
+                $q->where('batch_subject_id', $subjectId)
+                  ->orWhere(function($subQ) use ($batchSubject) {
+                      $subQ->where('subject_code', $batchSubject->subject_code);
+                  });
+            })
             ->get()
             ->groupBy('reg_no');
 
@@ -5062,8 +5649,8 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
                 $studMarks = $academicMarks->get($stud->reg_no, collect());
                 $coMarks = $studMarks->where('co_tag', $coTag);
 
-                $assignMark = $coMarks->where('category', 'Assignment')->first();
-                $summMark   = $coMarks->where('category', 'Summative')->first();
+                $assignMark = $coMarks->where('category', 'Assignment')->sortByDesc('updated_at')->first();
+                $summMark   = $coMarks->whereIn('category', ['Summative', 'Written Test', 'Series Exam', 'Series Test'])->sortByDesc('updated_at')->first();
 
                 $valAssign = $assignMark ? (float)$assignMark->marks_obtained : 0.0;
                 $valSumm   = $summMark ? (float)$summMark->marks_obtained : 0.0;
@@ -5298,7 +5885,12 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
         $maxEseMarks = (float)($eseConfig['max_marks'] ?? 75.0);
 
         $academicMarks = DB::table('academic_marks')
-            ->where('batch_subject_id', $subjectId)
+            ->where(function($q) use ($subjectId, $batchSubject) {
+                $q->where('batch_subject_id', $subjectId)
+                  ->orWhere(function($subQ) use ($batchSubject) {
+                      $subQ->where('subject_code', $batchSubject->subject_code);
+                  });
+            })
             ->get()
             ->groupBy('reg_no');
 
@@ -5363,10 +5955,10 @@ Do not wrap it in markdown or add extra text. Return ONLY the raw JSON.";
                 $studMarks = $academicMarks->get($regNo, collect());
                 $coMarks = $studMarks->where('co_tag', $coTag);
 
-                $formativeMark = $coMarks->whereIn('category', ['Assignment', 'Formative', 'Self Study: Assignment'])->first();
+                $formativeMark = $coMarks->whereIn('category', ['Assignment', 'Formative', 'Self Study: Assignment'])->sortByDesc('updated_at')->first();
                 $formativeScore = $formativeMark ? (float)$formativeMark->marks_obtained : 0.0;
 
-                $summativeMark = $coMarks->whereIn('category', ['Summative', 'Series Exam', 'Series Test'])->first();
+                $summativeMark = $coMarks->whereIn('category', ['Summative', 'Written Test', 'Series Exam', 'Series Test'])->sortByDesc('updated_at')->first();
                 $summativeScore = $summativeMark ? (float)$summativeMark->marks_obtained : 0.0;
 
                 $coCieScore = $formativeScore + $summativeScore;

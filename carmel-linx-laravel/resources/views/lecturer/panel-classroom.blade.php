@@ -105,12 +105,18 @@
              <button onclick="toggleClassroomTab('exit_survey')" id="tabExitSurvey" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
                <x-ui.icon name="check_circle" class="w-4 h-4" /> Course Exit Survey
              </button>
+             <button onclick="toggleClassroomTab('course_attainment')" id="tabCourseAttainment" class="classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
+               <x-ui.icon name="insights" class="w-4 h-4" /> Course Attainment
+             </button>
              <button onclick="toggleClassroomTab('seminar_evaluation')" id="tabSeminar" class="hidden classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
                <x-ui.icon name="co_present" class="w-4 h-4" /> Seminar Evaluation
              </button>
              <button onclick="toggleClassroomTab('lab_evaluation')" id="tabLab" class="hidden classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
                <x-ui.icon name="science" class="w-4 h-4" /> Lab Evaluation
              </button>
+              <button onclick="toggleClassroomTab('lab_copo')" id="tabLabCoPo" class="hidden classroom-tab-btn flex items-center gap-1.5 text-slate-600 hover:bg-slate-50 border border-transparent cursor-pointer">
+                <x-ui.icon name="account_tree" class="w-4 h-4" /> Lab CO-PO Mapping
+              </button>
          </div>
 
         <!-- Parsed Data View (Full Width) -->
@@ -231,6 +237,25 @@
               <!-- Main Workspace for Exit Survey -->
               <div id="exitSurveyWorkspace" class="space-y-6">
                 <!-- Rendered dynamically (Initiate Screen / Live Panel / Results Panel) -->
+              </div>
+            </div>
+
+            <!-- Course Attainment Panel (Direct & Indirect CO Attainment) -->
+            <div id="courseAttainmentContent" class="hidden flex-col h-full overflow-y-auto pr-2 pb-10 space-y-6">
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
+                <div>
+                  <h4 class="text-sm font-bold text-slate-800">Course Attainment Analysis (R-2021)</h4>
+                  <p class="text-sm text-slate-400 mt-1">Direct (Formative & Summative) and Indirect (Exit Survey) Course Outcome (CO) attainment matrix and target benchmarks.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="openEseMarksModal()" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-premium flex items-center gap-1.5 cursor-pointer shadow-xs">
+                    <x-ui.icon name="edit_note" class="w-4 h-4" /> Enter / Update ESE Marks
+                  </button>
+                </div>
+              </div>
+
+              <div id="courseAttainmentWorkspace" class="space-y-6">
+                <!-- Rendered dynamically -->
               </div>
             </div>
 

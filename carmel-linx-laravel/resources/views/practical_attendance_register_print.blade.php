@@ -1,6 +1,6 @@
 <x-layouts.report-layout 
-    :title="$title" 
-    :orientation="$orientation" 
+    :title="$title ?? 'Practical Attendance Register'" 
+    :orientation="$orientation ?? 'portrait'" 
     :documentNo="'PAR-' . $batchSubject->subject_code . '-' . ($classroom->current_semester ?? 'S' . $batchSubject->semester)">
 
     <div class="space-y-6">
@@ -39,7 +39,7 @@
                     @forelse($students as $s)
                         @php
                             $att = $attendanceData[$s->reg_no] ?? ['conducted' => 0, 'attended' => 0, 'percentage' => 100.0];
-                            $batchName = $labBatches[$s->reg_no]->lab_batch ?? 'Whole';
+                            $batchName = is_object($labBatches[$s->reg_no] ?? null) ? $labBatches[$s->reg_no]->lab_batch : ($labBatches[$s->reg_no] ?? ($studentAttendance[$s->reg_no]['batch'] ?? 'Whole'));
                         @endphp
                         <tr>
                             <td class="border border-slate-300 p-1.5 text-center">{{ $s->roll_no ?? '-' }}</td>

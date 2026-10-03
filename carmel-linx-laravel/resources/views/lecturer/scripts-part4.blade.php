@@ -121,20 +121,42 @@
         `;
       }
 
-      if (copo && Object.keys(copo).length > 0) {
-        let copoList = Object.keys(copo).map(coKey => {
-            let mapping = copo[coKey];
+            if ((copo && Object.keys(copo).length > 0) || (cos && cos.length > 0)) {
+        let copoData = copo || {};
+        let coKeys = Object.keys(copoData).length > 0 ? Object.keys(copoData) : (cos || []).map(c => c.id || ('CO' + (c.co_id || '1')));
+        if (coKeys.length === 0) coKeys = ['CO1', 'CO2', 'CO3', 'CO4'];
+
+        let copoList = coKeys.map((coKey, coIdx) => {
+            let mapping = copoData[coKey] || {};
             let poCells = '';
             for(let i = 1; i <= 12; i++) {
-                let val = mapping['PO' + i] || '-';
-                let cellClass = 'text-slate-400 font-normal';
-                if (val == '3') cellClass = 'font-bold text-emerald-700 bg-emerald-50/60';
-                else if (val == '2') cellClass = 'font-bold text-blue-700 bg-blue-50/60';
-                else if (val == '1') cellClass = 'font-semibold text-slate-700 bg-slate-50';
-                poCells += `<td class="p-2.5 text-center font-mono text-sm ${cellClass}">${val}</td>`;
+                let rawVal = mapping['PO' + i];
+                let val = (rawVal !== undefined && rawVal !== null && rawVal !== '') ? String(rawVal).trim() : '-';
+                let inputClass = 'text-slate-400 bg-white border-slate-200';
+                if (val === '3') inputClass = 'font-bold text-emerald-700 bg-emerald-50 border-emerald-300';
+                else if (val === '2') inputClass = 'font-bold text-blue-700 bg-blue-50 border-blue-300';
+                else if (val === '1') inputClass = 'font-semibold text-slate-700 bg-slate-50 border-slate-300';
+                
+                let displayVal = val === '-' ? '' : val;
+
+                poCells += `
+                  <td class="p-2 text-center">
+                    <input type="text"
+                      maxlength="1"
+                      value="${displayVal}"
+                      placeholder="-"
+                      data-co="${coKey}"
+                      data-po="PO${i}"
+                      data-row="${coIdx}"
+                      data-col="${i}"
+                      class="copo-matrix-cell w-10 h-8 text-center font-mono text-sm rounded-lg border outline-none transition-all shadow-2xs focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 ${inputClass}"
+                      oninput="handleTheoryCopoInput(this)"
+                      onkeydown="handleTheoryCopoKeyNav(event, this)">
+                  </td>
+                `;
             }
             return `
-              <tr class="hover:bg-slate-50/80 transition-all">
+              <tr class="hover:bg-slate-50/80 transition-all border-b border-slate-100 last:border-0">
                 <td class="p-3 text-left font-bold text-blue-700 pl-4 font-mono">${coKey}</td>
                 ${poCells}
               </tr>
@@ -143,14 +165,14 @@
         
         let poHeaders = '';
         for(let i=1; i<=12; i++) {
-            poHeaders += `<th class="p-2.5 text-center font-mono text-xs">PO${i}</th>`;
+            poHeaders += `<th class="p-2.5 text-center font-mono text-xs text-slate-600">PO${i}</th>`;
         }
 
         html += `
           <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs mb-5 space-y-4">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-              <div class="flex items-center gap-2">
-                <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-sm font-bold border border-indigo-200/80">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center text-sm font-bold border border-indigo-200/80 shadow-2xs">
                   <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
                 </span>
                 <div>
@@ -158,14 +180,19 @@
                   <p class="text-xs text-slate-500">Mapping correlation: 3 = High, 2 = Medium, 1 = Low</p>
                 </div>
               </div>
-              <div class="flex items-center gap-3 text-xs font-medium text-slate-600">
-                <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold flex items-center justify-center text-[10px]">3</span> High</span>
-                <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-blue-100 text-blue-800 border border-blue-300 font-bold flex items-center justify-center text-[10px]">2</span> Med</span>
-                <span class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-slate-100 text-slate-700 border border-slate-300 font-bold flex items-center justify-center text-[10px]">1</span> Low</span>
+              <div class="flex items-center gap-3 flex-wrap">
+                <div class="flex items-center gap-2.5 text-xs font-medium text-slate-600">
+                  <span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold flex items-center justify-center text-[10px]">3</span> High</span>
+                  <span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-blue-100 text-blue-800 border border-blue-300 font-bold flex items-center justify-center text-[10px]">2</span> Med</span>
+                  <span class="flex items-center gap-1.5"><span class="w-4 h-4 rounded bg-slate-100 text-slate-700 border border-slate-300 font-bold flex items-center justify-center text-[10px]">1</span> Low</span>
+                </div>
+                <button onclick="saveTheoryCoPoMatrix()" id="btnSaveTheoryCopo" class="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Matrix
+                </button>
               </div>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-center border-collapse text-sm">
+                <table class="w-full text-center border-collapse text-sm min-w-[700px]">
                   <thead>
                     <tr class="bg-slate-50 text-slate-700 font-bold text-xs uppercase border-b border-slate-200">
                       <th class="p-3 text-left pl-4 w-20">CO</th>

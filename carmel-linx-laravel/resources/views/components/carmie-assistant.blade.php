@@ -44,7 +44,11 @@
 
       <!-- Carmie Face Avatar (Visible when closed) -->
       <div id="carmieFabAvatar" class="relative z-10 w-full h-full p-0.5 transition-transform duration-300 group-hover:scale-105 flex items-center justify-center">
-        <svg viewBox="0 0 100 100" class="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <img src="{{ asset('carmie_icon.png') }}" 
+             alt="Carmie" 
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+             class="w-full h-full object-cover rounded-full select-none pointer-events-none">
+        <svg viewBox="0 0 100 100" class="w-full h-full select-none hidden" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="50" cy="50" r="48" fill="url(#carmieAvatarBgGrad)"/>
           <path d="M22 96 C24 80 34 75 44 77 L50 82 L56 77 C66 75 76 80 78 96 Z" fill="#3730a3"/>
           <path d="M44 77 C40 82 46 87 50 82 C54 87 60 82 56 77 Z" fill="#ffffff"/>
@@ -55,21 +59,16 @@
           <circle cx="63" cy="57" r="4.5" fill="#f43f5e" opacity="0.35"/>
           <path d="M37 49 Q41.5 45.5 45 49.5" stroke="#24100c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
           <path d="M55 49.5 Q58.5 45.5 63 49" stroke="#24100c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-          <path d="M36 43 Q41 39.5 45 42" stroke="#4a2018" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-          <path d="M55 42 Q59 39.5 64 43" stroke="#4a2018" stroke-width="1.8" stroke-linecap="round" fill="none"/>
           <circle cx="50" cy="53.5" r="1.2" fill="#e29d82"/>
           <path d="M43.5 59 Q50 66.5 56.5 59" stroke="#e11d48" stroke-width="2.2" stroke-linecap="round" fill="#ffffff"/>
-          <rect x="33" y="44" width="13.5" height="10" rx="3.5" stroke="#fbbf24" stroke-width="1.6" fill="rgba(255,255,255,0.2)"/>
-          <rect x="53.5" y="44" width="13.5" height="10" rx="3.5" stroke="#fbbf24" stroke-width="1.6" fill="rgba(255,255,255,0.2)"/>
-          <path d="M46.5 48 L53.5 48" stroke="#fbbf24" stroke-width="1.6"/>
-          <path d="M29 44 C29 30 37 21 50 21 C63 21 71 30 71 44 C67 37 60 33 53 34 C44 35 38 41 33 42 C30 42 29 43 29 44 Z" fill="url(#carmieHairGrad)"/>
           <circle cx="66" cy="32" r="3.2" fill="#fb7185"/>
-          <circle cx="66" cy="32" r="1.3" fill="#fef08a"/>
         </svg>
       </div>
 
       <!-- Close Icon (Visible when open) -->
-      <span id="carmieFabClose" class="hidden material-symbols-rounded text-2xl relative z-10 text-white">close</span>
+      <span id="carmieFabClose" class="hidden text-white relative z-10 flex items-center justify-center">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </span>
 
       <!-- Online Dot Indicator -->
       <span class="absolute top-1 right-1 w-3.5 h-3.5 bg-emerald-400 border-2 border-slate-900 rounded-full z-20 shadow-xs"></span>
@@ -78,33 +77,22 @@
 
   <!-- CHAT DRAWER / WINDOW -->
   <div id="carmieChatModal" 
-       class="hidden fixed bottom-6 right-6 sm:bottom-24 sm:right-6 z-[10000] w-[calc(100vw-32px)] sm:w-[410px] h-[580px] max-h-[calc(100vh-100px)] bg-slate-900/95 border border-slate-700/80 rounded-3xl shadow-2xl shadow-black/80 flex flex-col overflow-hidden backdrop-blur-xl transition-all duration-300 font-sans">
+       class="hidden fixed bottom-6 right-6 sm:bottom-24 sm:right-6 z-[10000] w-[calc(100vw-32px)] sm:w-[420px] h-[580px] max-h-[calc(100vh-100px)] bg-slate-900/95 border border-slate-700/80 rounded-3xl shadow-2xl shadow-black/80 flex flex-col overflow-hidden backdrop-blur-xl transition-all duration-300 font-sans">
     
     <!-- HEADER -->
     <div class="px-4 py-3.5 bg-slate-950/80 border-b border-slate-800 flex items-center justify-between shrink-0">
       <div class="flex items-center gap-3">
         <div class="relative w-11 h-11 rounded-2xl overflow-hidden shadow-md border border-rose-400/40 shrink-0 bg-slate-900 flex items-center justify-center p-0.5">
-          <svg viewBox="0 0 100 100" class="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <img src="{{ asset('carmie_icon.png') }}" 
+               alt="Carmie" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+               class="w-full h-full object-cover rounded-xl select-none">
+          <svg viewBox="0 0 100 100" class="w-full h-full select-none hidden" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="50" r="48" fill="url(#carmieAvatarBgGrad)"/>
             <path d="M22 96 C24 80 34 75 44 77 L50 82 L56 77 C66 75 76 80 78 96 Z" fill="#3730a3"/>
-            <path d="M44 77 C40 82 46 87 50 82 C54 87 60 82 56 77 Z" fill="#ffffff"/>
             <rect x="44" y="66" width="12" height="13" rx="4" fill="#fcd5c0"/>
-            <path d="M27 48 C23 60 25 76 30 83 C34 79 38 74 40 70 C60 70 62 74 70 83 C75 76 77 60 73 48 C70 32 30 32 27 48 Z" fill="url(#carmieHairGrad)"/>
             <ellipse cx="50" cy="52" rx="19" ry="21" fill="url(#carmieSkinGrad)"/>
-            <circle cx="37" cy="57" r="4.5" fill="#f43f5e" opacity="0.35"/>
-            <circle cx="63" cy="57" r="4.5" fill="#f43f5e" opacity="0.35"/>
-            <path d="M37 49 Q41.5 45.5 45 49.5" stroke="#24100c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M55 49.5 Q58.5 45.5 63 49" stroke="#24100c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M36 43 Q41 39.5 45 42" stroke="#4a2018" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            <path d="M55 42 Q59 39.5 64 43" stroke="#4a2018" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            <circle cx="50" cy="53.5" r="1.2" fill="#e29d82"/>
             <path d="M43.5 59 Q50 66.5 56.5 59" stroke="#e11d48" stroke-width="2.2" stroke-linecap="round" fill="#ffffff"/>
-            <rect x="33" y="44" width="13.5" height="10" rx="3.5" stroke="#fbbf24" stroke-width="1.6" fill="rgba(255,255,255,0.2)"/>
-            <rect x="53.5" y="44" width="13.5" height="10" rx="3.5" stroke="#fbbf24" stroke-width="1.6" fill="rgba(255,255,255,0.2)"/>
-            <path d="M46.5 48 L53.5 48" stroke="#fbbf24" stroke-width="1.6"/>
-            <path d="M29 44 C29 30 37 21 50 21 C63 21 71 30 71 44 C67 37 60 33 53 34 C44 35 38 41 33 42 C30 42 29 43 29 44 Z" fill="url(#carmieHairGrad)"/>
-            <circle cx="66" cy="32" r="3.2" fill="#fb7185"/>
-            <circle cx="66" cy="32" r="1.3" fill="#fef08a"/>
           </svg>
           <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 border-2 border-slate-900 rounded-full z-20"></span>
         </div>
@@ -113,7 +101,7 @@
             <h3 class="font-extrabold text-sm text-white tracking-tight">Carmie</h3>
             <span class="text-xs">🌸</span>
             <span id="carmieEngineBadge" class="text-[9.5px] font-mono font-bold px-1.5 py-0.2 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30">
-              Campus Mentor
+              Campus AI Mentor
             </span>
           </div>
           <p class="text-[11px] text-slate-400 leading-tight">Carmel-linx Academic Companion</p>
@@ -121,11 +109,11 @@
       </div>
 
       <div class="flex items-center gap-1 text-slate-400">
-        <button type="button" onclick="clearCarmieHistory()" title="Clear conversation" class="p-1.5 hover:text-slate-200 hover:bg-slate-800/80 rounded-xl transition cursor-pointer">
-          <span class="material-symbols-rounded text-lg">delete_sweep</span>
+        <button type="button" onclick="clearCarmieHistory()" title="Clear conversation" class="p-2 hover:text-slate-200 hover:bg-slate-800/80 rounded-xl transition cursor-pointer flex items-center justify-center">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
         </button>
-        <button type="button" onclick="toggleCarmieChat()" title="Close Carmie" class="p-1.5 hover:text-slate-200 hover:bg-slate-800/80 rounded-xl transition cursor-pointer">
-          <span class="material-symbols-rounded text-lg">close</span>
+        <button type="button" onclick="toggleCarmieChat()" title="Close Carmie" class="p-2 hover:text-slate-200 hover:bg-slate-800/80 rounded-xl transition cursor-pointer flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
     </div>
@@ -142,7 +130,7 @@
         <span>📙</span><span>Rev 2026</span>
       </button>
       <button type="button" onclick="setCarmieCategory('attainment')" id="carmieTab_attainment" class="carmie-cat-tab px-2.5 py-1 text-[10.5px] font-bold rounded-lg transition-all text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 flex items-center gap-1 cursor-pointer shrink-0">
-        <span>📊</span><span>Attainment</span>
+        <span>📊</span><span>Attainment &amp; NBA</span>
       </button>
     </div>
 
@@ -151,39 +139,23 @@
     </div>
 
     <!-- CHAT MESSAGES SCROLL AREA -->
-    <div id="carmieMessages" class="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs select-text">
+    <div id="carmieMessages" class="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs select-text overscroll-contain">
       <!-- Default Welcome Message -->
       <div class="flex items-start gap-2.5">
-        <div class="w-7 h-7 rounded-full overflow-hidden shrink-0 shadow-sm border border-rose-400/40 bg-slate-900 p-0.5">
-          <svg viewBox="0 0 100 100" class="w-full h-full select-none" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="48" fill="url(#carmieAvatarBgGrad)"/>
-            <path d="M22 96 C24 80 34 75 44 77 L50 82 L56 77 C66 75 76 80 78 96 Z" fill="#3730a3"/>
-            <path d="M44 77 C40 82 46 87 50 82 C54 87 60 82 56 77 Z" fill="#ffffff"/>
-            <rect x="44" y="66" width="12" height="13" rx="4" fill="#fcd5c0"/>
-            <path d="M27 48 C23 60 25 76 30 83 C34 79 38 74 40 70 C60 70 62 74 70 83 C75 76 77 60 73 48 C70 32 30 32 27 48 Z" fill="url(#carmieHairGrad)"/>
-            <ellipse cx="50" cy="52" rx="19" ry="21" fill="url(#carmieSkinGrad)"/>
-            <circle cx="37" cy="57" r="4.5" fill="#f43f5e" opacity="0.35"/>
-            <circle cx="63" cy="57" r="4.5" fill="#f43f5e" opacity="0.35"/>
-            <path d="M37 49 Q41.5 45.5 45 49.5" stroke="#24100c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M55 49.5 Q58.5 45.5 63 49" stroke="#24100c" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-            <path d="M36 43 Q41 39.5 45 42" stroke="#4a2018" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            <path d="M55 42 Q59 39.5 64 43" stroke="#4a2018" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-            <circle cx="50" cy="53.5" r="1.2" fill="#e29d82"/>
-            <path d="M43.5 59 Q50 66.5 56.5 59" stroke="#e11d48" stroke-width="2.2" stroke-linecap="round" fill="#ffffff"/>
-            <rect x="33" y="44" width="13.5" height="10" rx="3.5" stroke="#fbbf24" stroke-width="1.6" fill="rgba(255,255,255,0.2)"/>
-            <rect x="53.5" y="44" width="13.5" height="10" rx="3.5" stroke="#fbbf24" stroke-width="1.6" fill="rgba(255,255,255,0.2)"/>
-            <path d="M46.5 48 L53.5 48" stroke="#fbbf24" stroke-width="1.6"/>
-            <path d="M29 44 C29 30 37 21 50 21 C63 21 71 30 71 44 C67 37 60 33 53 34 C44 35 38 41 33 42 C30 42 29 43 29 44 Z" fill="url(#carmieHairGrad)"/>
-            <circle cx="66" cy="32" r="3.2" fill="#fb7185"/>
-            <circle cx="66" cy="32" r="1.3" fill="#fef08a"/>
-          </svg>
+        <div class="w-8 h-8 rounded-xl overflow-hidden shrink-0 shadow-sm border border-rose-400/40 bg-slate-900 p-0.5 flex items-center justify-center">
+          <img src="{{ asset('carmie_icon.png') }}" 
+               alt="Carmie" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+               class="w-full h-full object-cover rounded-lg select-none">
+          <i data-lucide="bot" class="w-4 h-4 text-rose-400 hidden"></i>
         </div>
         <div class="max-w-[85%] bg-slate-800/80 border border-slate-700/80 rounded-2xl rounded-tl-sm p-3 text-slate-200 leading-relaxed space-y-1.5 shadow-sm">
-          <p>Hi! I'm <strong>Carmie</strong>, your Carmel-linx academic companion! 🌸</p>
+          <p class="font-bold text-white">Hi! I'm <strong>Carmie</strong>, your Carmel-linx academic companion! 🌸</p>
           <p class="text-slate-300 text-[11.5px]">
-            Ask me anytime you're stuck or need help with assignments, CO-PO matrices, attendance, marks, or reports.
+            Ask me anytime you're stuck or need help with classrooms, lesson plans, CO-PO matrices, attendance, CAD drawing rubrics, marks, or reports.
           </p>
-          <p class="text-slate-400 text-[10.5px] italic pt-1 border-t border-slate-700/60">
+          <p class="text-slate-400 text-[10.5px] italic pt-1 border-t border-slate-700/60 flex items-center gap-1">
+            <i data-lucide="sparkles" class="w-3 h-3 text-amber-400"></i>
             Click any suggestion chip above or type your question below!
           </p>
         </div>
@@ -192,7 +164,7 @@
 
     <!-- TYPING INDICATOR -->
     <div id="carmieTypingIndicator" class="hidden px-4 py-2 bg-slate-950/40 text-slate-400 text-xs flex items-center gap-2 shrink-0">
-      <span class="material-symbols-rounded text-sm animate-spin text-rose-400">autorenew</span>
+      <div class="w-3.5 h-3.5 border-2 border-rose-400 border-t-transparent rounded-full animate-spin"></div>
       <span class="text-[11px] font-medium text-rose-200">Carmie is preparing your answer... 🌸</span>
     </div>
 
@@ -200,13 +172,14 @@
     <form id="carmieForm" onsubmit="handleCarmieSubmit(event)" class="p-3 bg-slate-950/90 border-t border-slate-800 flex items-center gap-2 shrink-0">
       <input type="text"
              id="carmieInput"
-             placeholder="Ask Carmie a question..."
+             placeholder="Ask Carmie anything about classrooms, marks, rubrics..."
              autocomplete="off"
              class="flex-1 bg-slate-900 border border-slate-700/80 hover:border-slate-600 focus:border-rose-500 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none transition-colors shadow-inner">
       <button type="submit" 
               id="carmieSubmitBtn"
+              title="Send Message"
               class="w-10 h-10 rounded-xl bg-gradient-to-r from-rose-600 via-purple-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer shrink-0 disabled:opacity-50">
-        <span class="material-symbols-rounded text-lg">send</span>
+        <i data-lucide="send" class="w-4 h-4"></i>
       </button>
     </form>
   </div>

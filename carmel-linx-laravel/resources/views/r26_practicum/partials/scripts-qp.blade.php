@@ -114,6 +114,39 @@
         if (keyMarks) keyMarks.innerText = val + 'M';
     }
  
+    async function printFromQpModal(docType) {
+        if (!_currentSeries) {
+            alert('Please open a series test first.');
+            return;
+        }
+        if (_draftQp && Object.keys(_draftQp).length > 0) {
+            try {
+                await fetch(`/api/r26/classroom/practicum/${SUBJECT_ID}/series-qp/save/${encodeURIComponent(_currentSeries)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                    body: JSON.stringify({
+                        co_tag: _currentCo,
+                        pattern_type: _currentPattern,
+                        qp_data: _draftQp,
+                        scheme_data: _draftQp,
+                        answer_key: _draftQp,
+                    })
+                });
+            } catch (e) {
+                console.warn('Auto-save before print error:', e);
+            }
+        }
+        const url = `/r26/classroom/practicum/${SUBJECT_ID}/series-qp/print-${docType}/${encodeURIComponent(_currentSeries)}`;
+        window.open(url, '_blank');
+    }
+
+    function resetCurrentModalDraft() {
+        if (confirm("Reset current draft questions back to blank template? Any unsaved edits will be discarded.")) {
+            _draftQp = buildEmptyQpTemplate(_currentPattern, _currentCo);
+            renderQpEditor(_draftQp, _currentPattern);
+        }
+    }
+
     function renderQpEditor(qpData, pattern) {
         const container = document.getElementById('qp-editor-body');
         const parts = pattern === 'practical_series'

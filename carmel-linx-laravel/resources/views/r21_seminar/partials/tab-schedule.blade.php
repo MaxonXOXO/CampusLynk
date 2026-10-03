@@ -20,11 +20,11 @@
     <!-- Schedule Table -->
     <x-ui.table :headers="['Roll', 'Reg No', 'Student Name', 'Presentation Date', 'Approved Seminar Topic', 'Faculty Guide', 'Status', 'Action']">
         @forelse($studentResults as $st)
-            <tr class="hover:bg-slate-800/40 transition">
+            <tr id="row-sched-{{ $st['reg_no'] }}" class="hover:bg-slate-800/40 transition">
                 <td class="text-center font-mono text-slate-400 py-3.5 px-4">{{ $st['roll_no'] ?? '—' }}</td>
                 <td class="font-mono text-xs font-medium text-slate-300 py-3.5 px-4">{{ $st['sbte_reg_no'] ?? $st['reg_no'] }}</td>
                 <td class="py-3.5 px-4 font-semibold text-white">{{ $st['name'] }}</td>
-                <td class="py-3.5 px-4 text-xs font-mono text-slate-300 sched-date-{{ $st['reg_no'] }}">
+                <td class="py-3.5 px-4 text-xs font-mono text-slate-300 col-sched-date sched-date-{{ $st['reg_no'] }}">
                     @if(!empty($st['presentation_date_formatted']))
                         <div class="flex items-center gap-1.5 text-sky-400">
                             <x-ui.icon name="calendar" class="w-3.5 h-3.5" />
@@ -34,13 +34,13 @@
                         <span class="text-slate-500 italic">Not scheduled</span>
                     @endif
                 </td>
-                <td class="py-3.5 px-4 text-xs text-slate-200 max-w-xs sched-topic-{{ $st['reg_no'] }}">
+                <td class="py-3.5 px-4 text-xs text-slate-200 max-w-xs col-sched-topic sched-topic-{{ $st['reg_no'] }}">
                     {{ $st['topic'] ?? '—' }}
                 </td>
-                <td class="py-3.5 px-4 text-xs text-slate-300 sched-guide-{{ $st['reg_no'] }}">
+                <td class="py-3.5 px-4 text-xs text-slate-300 col-sched-guide sched-guide-{{ $st['reg_no'] }}">
                     {{ $st['guide_name'] ?? '—' }}
                 </td>
-                <td class="text-center py-3.5 px-4 sched-status-{{ $st['reg_no'] }}">
+                <td class="text-center py-3.5 px-4 col-sched-status sched-status-{{ $st['reg_no'] }}">
                     @if($st['is_completed'])
                         <x-ui.badge variant="success">Completed</x-ui.badge>
                     @elseif(!empty($st['presentation_date']))

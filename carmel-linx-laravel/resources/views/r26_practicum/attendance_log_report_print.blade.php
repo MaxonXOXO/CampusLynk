@@ -1,113 +1,416 @@
-<x-layouts.report-layout 
-    title="Teaching & Attendance Log Register — {{ $batchSubject->subject_name }}"
-    documentNo="DOC-R26-P-ATTN-LOG"
-    orientation="portrait"
->
-    <!-- Header -->
-    <div class="text-center border-b-2 border-slate-800 pb-3 mb-4">
-        <h1 class="text-xl font-bold uppercase tracking-wide text-slate-900">Carmel Polytechnic College, Alappuzha</h1>
-        <h2 class="text-sm font-semibold text-slate-700 mt-1">Teaching & Attendance Log Register — Revision 2026 Practicum</h2>
-        <p class="text-xs text-slate-500 mt-0.5">Affiliated to SBTE Kerala | Approved by AICTE, New Delhi</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Teaching & Attendance Log Register - {{ $batchSubject->subject_code }}</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 10mm 8mm 10mm 8mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #0f172a;
+            margin: 0 auto;
+            padding: 4px;
+            font-size: 10px;
+            line-height: 1.35;
+            max-width: 194mm;
+            background: #fff;
+        }
+
+        .no-print {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-print {
+            background: #1e3a8a;
+            color: #fff;
+        }
+
+        .btn-back {
+            background: #0284c7;
+            color: #fff;
+        }
+
+        .btn-close {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #1e3a8a;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+
+        .college-name {
+            font-size: 15px;
+            font-weight: 900;
+            color: #1e3a8a;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .college-sub {
+            font-size: 10px;
+            font-weight: 600;
+            color: #475569;
+            margin-top: 1px;
+        }
+
+        .report-badge {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            padding: 2px 14px;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+            font-size: 9.5px;
+        }
+
+        .meta-table td {
+            padding: 3px 6px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .meta-table .lbl {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #334155;
+            width: 14%;
+        }
+
+        .meta-table .val {
+            color: #0f172a;
+            font-weight: 600;
+            width: 36%;
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 9px;
+        }
+
+        .log-table th,
+        .log-table td {
+            border: 1px solid #64748b;
+            padding: 4px 5px;
+            vertical-align: middle;
+        }
+
+        .log-table thead {
+            display: table-header-group;
+        }
+
+        .log-table tr {
+            page-break-inside: avoid;
+        }
+
+        .log-table th {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 8.5px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .log-table tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .font-mono {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+        }
+
+        .summary-card {
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            padding: 6px 10px;
+            margin-bottom: 12px;
+            border-radius: 4px;
+            page-break-inside: avoid;
+        }
+
+        .summary-title {
+            font-size: 9.5px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #1e3a8a;
+            margin-bottom: 4px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 2px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            font-size: 8.5px;
+        }
+
+        .stat-box {
+            background: #fff;
+            padding: 4px 6px;
+            border: 1px solid #e2e8f0;
+            border-radius: 3px;
+            text-align: center;
+        }
+
+        .stat-box .val {
+            font-size: 11px;
+            font-weight: 800;
+            color: #1e3a8a;
+        }
+
+        .stat-box .desc {
+            color: #64748b;
+            font-size: 7.5px;
+            text-transform: uppercase;
+        }
+
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 24px;
+            padding-top: 10px;
+            page-break-inside: avoid;
+        }
+
+        .sig-block {
+            text-align: center;
+            width: 28%;
+            font-size: 9px;
+        }
+
+        .sig-line {
+            border-top: 1px dashed #334155;
+            margin-bottom: 4px;
+            height: 1px;
+        }
+
+        .sig-name {
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .sig-title {
+            font-size: 8px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+    <script>
+    function goBackToClassroom() {
+        if (window.opener && !window.opener.closed) {
+            window.close();
+        } else if (document.referrer && document.referrer.length > 0) {
+            window.location.href = document.referrer;
+        } else {
+            window.location.href = "{{ url('/r26/classroom/practicum/' . $batchSubject->id) }}";
+        }
+    }
+    </script>
+    <!-- Google Fonts: Crimson Pro & Atkinson Hyperlegible -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Atkinson Hyperlegible', Arial, sans-serif !important;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Crimson Pro', Georgia, serif !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Print Controls -->
+    <div class="no-print">
+        <button onclick="goBackToClassroom()" class="btn btn-back">&#8592; Back to Classroom</button>
+        <button onclick="window.print()" class="btn btn-print">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print A4 Log Register
+        </button>
+        <button onclick="window.close()" class="btn btn-close">Close</button>
     </div>
 
-    <!-- Metadata Grid -->
-    <div class="grid grid-cols-3 gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs mb-4">
-        <div>
-            <span class="text-slate-500 block font-medium">Subject:</span>
-            <span class="font-bold text-slate-900">{{ $batchSubject->subject_name }} ({{ $batchSubject->subject_code }})</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Class / Semester:</span>
-            <span class="font-bold text-slate-900">{{ $batchName ?? 'Batch' }} &bull; Sem {{ $classroom->current_semester ?? $batchSubject->semester ?? '1' }}</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Department:</span>
-            <span class="font-bold text-slate-900">{{ $departmentName ?? 'Engineering' }}</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Faculty In-Charge:</span>
-            <span class="font-bold text-slate-900">{{ $lecturerName ?? 'Faculty' }}</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Total Enrolled:</span>
-            <span class="font-bold text-slate-900">{{ $totalEnrolled }} Students</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Overall Average Attn:</span>
-            <span class="font-bold {{ $overallAvgAttn >= 75 ? 'text-emerald-700' : 'text-rose-700' }}">{{ $overallAvgAttn }}%</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Planned / Completed Topics:</span>
-            <span class="font-bold text-slate-900">{{ $completedTopicsCount }} / {{ $totalPlannedTopics }} Hours</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Sessions Logged:</span>
-            <span class="font-bold text-slate-900">{{ $totalHours }} Sessions</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Generated On:</span>
-            <span class="font-bold text-slate-900">{{ date('d M Y, h:i A') }}</span>
+    <!-- College Header -->
+    <div class="header">
+        <div class="college-name">Carmel Polytechnic College, Alappuzha</div>
+        <div class="college-sub">Government Aided Polytechnic College • Approved by AICTE • Affiliated to SBTE Kerala</div>
+        <div class="report-badge">Official Teaching &amp; Attendance Log Register — Revision 2026 Practicum</div>
+    </div>
+
+    <!-- Meta Details Grid -->
+    <table class="meta-table">
+        <tr>
+            <td class="lbl">Department:</td>
+            <td class="val">{{ $departmentName }}</td>
+            <td class="lbl">Semester &amp; Batch:</td>
+            <td class="val">Semester {{ $batchSubject->semester }} ({{ $batchName }})</td>
+        </tr>
+        <tr>
+            <td class="lbl">Course:</td>
+            <td class="val"><strong>{{ $batchSubject->subject_code }}</strong> - {{ $batchSubject->subject_name }}</td>
+            <td class="lbl">Faculty In-Charge:</td>
+            <td class="val">{{ $lecturerName }}</td>
+        </tr>
+        <tr>
+            <td class="lbl">Sessions Recorded:</td>
+            <td class="val"><strong>{{ $logs->count() }}</strong> Logs ({{ $totalHours }} Conducted Hours)</td>
+            <td class="lbl">Enrolled Students:</td>
+            <td class="val"><strong>{{ $totalEnrolled }}</strong> Students</td>
+        </tr>
+        <tr>
+            <td class="lbl">Date Generated:</td>
+            <td class="val"><strong>{{ date('d/m/Y') }}</strong></td>
+            <td class="lbl">Academic Scheme:</td>
+            <td class="val">Curriculum Revision 2026 Practicum</td>
+        </tr>
+    </table>
+
+    <!-- Log Table -->
+    <table class="log-table">
+        <thead>
+            <tr>
+                <th style="width: 25px;">Sl</th>
+                <th style="width: 58px;">Date</th>
+                <th style="width: 44px;">Period</th>
+                <th style="width: 44px;">Batch</th>
+                <th>Syllabus Topic Covered / Log Entry</th>
+                <th style="width: 32px;">Pres</th>
+                <th style="width: 32px;">Abs</th>
+                <th style="width: 90px;">Absent Roll(s)</th>
+                <th style="width: 42px;">Attn %</th>
+                <th style="width: 35px;">Sign</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($logs as $idx => $log)
+            <tr>
+                <td class="text-center" style="font-weight: 700;">{{ $idx + 1 }}</td>
+                <td class="text-center font-mono">{{ $log->formatted_date }}</td>
+                <td class="text-center font-mono" style="color: #475569;">{{ $log->period_label }}</td>
+                <td class="text-center font-mono" style="font-size: 8px;">{{ $log->sub_batch ?: 'All' }}</td>
+                <td>{{ $log->topics_covered ?: 'Practicum curriculum session' }}</td>
+                <td class="text-center" style="font-weight: 700; color: #047857;">{{ $log->present_count }}</td>
+                <td class="text-center" style="color: #b91c1c;">{{ $log->absent_count }}</td>
+                <td class="text-center font-mono" style="font-size: 8px; color: #b91c1c;">{{ $log->absent_display ?: '—' }}</td>
+                <td class="text-center" style="font-weight: 700; color: {{ $log->attendance_pct < 75 ? '#b91c1c' : '#047857' }};">
+                    {{ number_format($log->attendance_pct, 1) }}%
+                </td>
+                <td class="text-center" style="color: #64748b; font-size: 8px;">✓</td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="10" class="text-center" style="padding: 16px; color: #64748b;">
+                    No class logs recorded yet for this practicum course.
+                </td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    <!-- Summary Statistics Card -->
+    <div class="summary-card">
+        <div class="summary-title">Class Log &amp; Coverage Summary</div>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="val">{{ $logs->count() }}</div>
+                <div class="desc">Sessions Recorded</div>
+            </div>
+            <div class="stat-box">
+                <div class="val">{{ $totalHours }}</div>
+                <div class="desc">Total Hours Conducted</div>
+            </div>
+            <div class="stat-box">
+                <div class="val">{{ number_format($overallAvgAttn, 1) }}%</div>
+                <div class="desc">Cumulative Attendance</div>
+            </div>
+            <div class="stat-box">
+                <div class="val">{{ $completedTopicsCount }} / {{ $totalPlannedTopics }}</div>
+                <div class="desc">Syllabus Progress</div>
+            </div>
         </div>
     </div>
 
-    <!-- Attendance Log Table -->
-    <div class="overflow-x-auto mb-6">
-        <table class="w-full text-left border-collapse text-[11px]">
-            <thead>
-                <tr class="bg-slate-800 text-white font-semibold">
-                    <th class="border border-slate-700 px-2 py-1.5 text-center w-8">#</th>
-                    <th class="border border-slate-700 px-2 py-1.5 w-20 text-center">Date</th>
-                    <th class="border border-slate-700 px-2 py-1.5 w-16 text-center">Period</th>
-                    <th class="border border-slate-700 px-2 py-1.5 w-16 text-center">Sub-Batch</th>
-                    <th class="border border-slate-700 px-2 py-1.5">Topics Covered / Activity</th>
-                    <th class="border border-slate-700 px-2 py-1.5 text-center w-12">Present</th>
-                    <th class="border border-slate-700 px-2 py-1.5 text-center w-12">Absent</th>
-                    <th class="border border-slate-700 px-2 py-1.5">Absentees (Roll Nos)</th>
-                    <th class="border border-slate-700 px-2 py-1.5 text-center w-14">Attn %</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($logs as $index => $log)
-                <tr class="{{ $index % 2 === 0 ? 'bg-white' : 'bg-slate-50' }} hover:bg-slate-100/80">
-                    <td class="border border-slate-200 px-2 py-1 text-center font-medium text-slate-600">{{ $index + 1 }}</td>
-                    <td class="border border-slate-200 px-2 py-1 text-center whitespace-nowrap">{{ $log->formatted_date }}</td>
-                    <td class="border border-slate-200 px-2 py-1 text-center">{{ $log->period_label ?? ('Hour ' . $log->period) }}</td>
-                    <td class="border border-slate-200 px-2 py-1 text-center font-mono">{{ $log->sub_batch ?: 'All' }}</td>
-                    <td class="border border-slate-200 px-2 py-1 font-medium text-slate-800">{{ $log->topics_covered }}</td>
-                    <td class="border border-slate-200 px-2 py-1 text-center font-semibold text-emerald-700">{{ $log->present_count }}</td>
-                    <td class="border border-slate-200 px-2 py-1 text-center font-semibold {{ $log->absent_count > 0 ? 'text-rose-600' : 'text-slate-400' }}">{{ $log->absent_count }}</td>
-                    <td class="border border-slate-200 px-2 py-1 text-xs text-rose-700 font-mono">{{ $log->absent_display ?: 'NIL' }}</td>
-                    <td class="border border-slate-200 px-2 py-1 text-center font-bold {{ $log->attendance_pct >= 75 ? 'text-emerald-700' : 'text-rose-600' }}">
-                        {{ $log->attendance_pct }}%
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="9" class="border border-slate-200 px-4 py-8 text-center text-slate-400 italic">
-                        No teaching and attendance logs have been recorded for this Practicum course yet.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <!-- Official Signatures Row -->
+    <div class="signatures">
+        <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="sig-name">{{ $lecturerName }}</div>
+            <div class="sig-title">Faculty In-Charge</div>
+        </div>
+        <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="sig-name">Head of Department</div>
+            <div class="sig-title">{{ $departmentName }}</div>
+        </div>
+        <div class="sig-block">
+            <div class="sig-line"></div>
+            <div class="sig-name">Principal</div>
+            <div class="sig-title">Carmel Polytechnic College</div>
+        </div>
     </div>
 
-    <!-- Signatures -->
-    <div class="grid grid-cols-3 gap-8 mt-12 pt-4 border-t border-slate-300 text-center text-xs">
-        <div>
-            <div class="border-b border-slate-400 h-10 mb-2"></div>
-            <p class="font-bold text-slate-900">{{ $lecturerName ?? 'Faculty In-Charge' }}</p>
-            <p class="text-slate-500 text-[10px]">Lecturer / Course Coordinator</p>
-        </div>
-        <div>
-            <div class="border-b border-slate-400 h-10 mb-2"></div>
-            <p class="font-bold text-slate-900">Head of Department</p>
-            <p class="text-slate-500 text-[10px]">{{ $departmentName ?? 'Department' }}</p>
-        </div>
-        <div>
-            <div class="border-b border-slate-400 h-10 mb-2"></div>
-            <p class="font-bold text-slate-900">Principal</p>
-            <p class="text-slate-500 text-[10px]">Carmel Polytechnic College</p>
-        </div>
-    </div>
-</x-layouts.report-layout>
+</body>
+</html>

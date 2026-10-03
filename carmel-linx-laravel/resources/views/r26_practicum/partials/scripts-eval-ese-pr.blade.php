@@ -6,6 +6,12 @@
             }
         }
 
+        function openEseModalForStudent(regNo) {
+            const sel = document.getElementById('ese-student-select');
+            if (sel) sel.value = regNo;
+            openEsePracticalModal();
+        }
+
         function closeEsePracticalModal() {
             document.getElementById('ese-practical-modal').classList.add('hidden');
         }
@@ -17,6 +23,119 @@
             { key: 'viva', label: 'Viva-Voce Examination', max: 8 },
             { key: 'record', label: 'Record & Logbook', max: 4 }
         ];
+
+        const eseAutoSaveTimers = {};
+
+        function triggerDebouncedEseAutoSave(regNo) {
+            if (eseAutoSaveTimers[regNo]) {
+                clearTimeout(eseAutoSaveTimers[regNo]);
+            }
+            showEseAutoSaveIndicator('saving');
+            eseAutoSaveTimers[regNo] = setTimeout(() => {
+                saveSingleEseStudentMarks(regNo);
+            }, 750);
+        }
+
+        function showEseAutoSaveIndicator(status) {
+            let indicator = document.getElementById('ese-autosave-indicator');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.id = 'ese-autosave-indicator';
+                document.body.appendChild(indicator);
+            }
+
+            if (status === 'saving') {
+                indicator.className = 'fixed bottom-4 right-4 z-50 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg transition-all flex items-center gap-1.5 bg-slate-900 text-amber-300 border border-amber-500/40 opacity-100';
+                indicator.innerHTML = '<span class="inline-block animate-spin">⏳</span> Saving practical ESE marks...';
+            } else if (status === 'saved') {
+                indicator.className = 'fixed bottom-4 right-4 z-50 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg transition-all flex items-center gap-1.5 bg-slate-900 text-blue-400 border border-blue-500/40 opacity-100';
+                indicator.innerHTML = '<span>✓</span> Practical ESE Auto-saved';
+                setTimeout(() => {
+                    if (indicator) indicator.classList.replace('opacity-100', 'opacity-0');
+                }, 2000);
+            } else if (status === 'error') {
+                indicator.className = 'fixed bottom-4 right-4 z-50 px-3 py-1.5 rounded-lg text-xs font-bold shadow-lg transition-all flex items-center gap-1.5 bg-rose-950 text-rose-300 border border-rose-500/40 opacity-100';
+                indicator.innerHTML = '<span>⚠️</span> Auto-save error';
+                setTimeout(() => {
+                    if (indicator) indicator.classList.replace('opacity-100', 'opacity-0');
+                }, 3000);
+            }
+        }
+
+        function saveSingleEseStudentMarks(regNo) {
+            const state = eseSplitupState[regNo];
+            if (!state) return;
+
+            const totalScore = state.is_absent ? 0 : ((state.writeup || 0) + (state.setup || 0) + (state.result || 0) + (state.viva || 0) + (state.record || 0));
+            const bsId = {{ $batchSubject->id }};
+
+            fetch(`/api/r26/classroom/practicum/${bsId}/evaluate/ese`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    marks_data: [{
+                        reg_no: regNo,
+                        ese_practical_marks: totalScore,
+                        practical_absent: !!state.is_absent
+                    }]
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'SUCCESS') {
+                    showEseAutoSaveIndicator('saved');
+                } else {
+                    showEseAutoSaveIndicator('error');
+                }
+            })
+            .catch(err => {
+                showEseAutoSaveIndicator('error');
+            });
+        }
+
+        function syncToEseTable(regNo, key, val) {
+            const tableInput = document.getElementById(`ese-input-${regNo}-${key}`);
+            if (tableInput) tableInput.value = parseFloat(val).toFixed(1);
+            syncAllToEseTableRow(regNo);
+        }
+
+        function syncAllToEseTableRow(regNo) {
+            const data = eseSplitupState[regNo] || {};
+            const total = data.is_absent ? 0 : ((data.writeup || 0) + (data.setup || 0) + (data.result || 0) + (data.viva || 0) + (data.record || 0));
+
+            const elW = document.getElementById(`ese-input-${regNo}-writeup`);
+            if (elW) elW.value = (data.writeup || 0).toFixed(1);
+            const elS = document.getElementById(`ese-input-${regNo}-setup`);
+            if (elS) elS.value = (data.setup || 0).toFixed(1);
+            const elR = document.getElementById(`ese-input-${regNo}-result`);
+            if (elR) elR.value = (data.result || 0).toFixed(1);
+            const elV = document.getElementById(`ese-input-${regNo}-viva`);
+            if (elV) elV.value = (data.viva || 0).toFixed(1);
+            const elRec = document.getElementById(`ese-input-${regNo}-record`);
+            if (elRec) elRec.value = (data.record || 0).toFixed(1);
+
+            const elTot = document.getElementById(`ese-total-input-${regNo}`);
+            if (elTot) elTot.value = total.toFixed(1);
+
+            const pct = (total / 40.0) * 100.0;
+            let grade = 'F';
+            let gClass = 'text-rose-600 bg-rose-50 border-rose-200';
+            if (pct >= 90) { grade = 'S'; gClass = 'text-emerald-700 bg-emerald-50 border-emerald-200'; }
+            else if (pct >= 80) { grade = 'A'; gClass = 'text-blue-700 bg-blue-50 border-blue-200'; }
+            else if (pct >= 70) { grade = 'B'; gClass = 'text-indigo-700 bg-indigo-50 border-indigo-200'; }
+            else if (pct >= 60) { grade = 'C'; gClass = 'text-purple-700 bg-purple-50 border-purple-200'; }
+            else if (pct >= 50) { grade = 'D'; gClass = 'text-amber-700 bg-amber-50 border-amber-200'; }
+            else if (pct >= 40) { grade = 'E'; gClass = 'text-orange-700 bg-orange-50 border-orange-200'; }
+
+            const grEl = document.getElementById(`ese-grade-badge-${regNo}`);
+            if (grEl) {
+                grEl.innerText = grade;
+                grEl.className = `px-2.5 py-0.5 rounded-full border text-xs font-bold ${gClass}`;
+            }
+        }
 
         function loadEseStudent(regNo) {
             const container = document.getElementById('ese-sliders-container');
@@ -61,6 +180,8 @@
             if (badge) badge.innerText = `${num.toFixed(1)} / ${maxVal}.0`;
 
             calculateEseLiveTotal(regNo);
+            syncToEseTable(regNo, key, num);
+            triggerDebouncedEseAutoSave(regNo);
         }
 
         function stepEseSlider(regNo, key, delta, maxVal) {

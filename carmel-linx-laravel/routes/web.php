@@ -635,6 +635,7 @@ Route::middleware(['web'])->group(function () {
     // Revision 2026 Practicum Series QP / Scheme / Answer Key
     Route::post('/api/r26/classroom/practicum/{subjectId}/series-qp/generate/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'generateSeriesQp']);
     Route::post('/api/r26/classroom/practicum/{subjectId}/series-qp/save/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'saveSeriesQp']);
+    Route::post('/api/r26/classroom/practicum/{subjectId}/series-qp/reset/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'resetSeriesQp']);
     Route::get('/r26/classroom/practicum/{subjectId}/series-qp/print-qp/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSeriesQpPdf']);
     Route::get('/r26/classroom/practicum/{subjectId}/series-qp/print-scheme/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSeriesSchemePdf']);
     Route::get('/r26/classroom/practicum/{subjectId}/series-qp/print-key/{seriesNo}', [App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'printSeriesAnswerKeyPdf']);
@@ -2618,8 +2619,11 @@ Route::middleware(['web'])->group(function () {
     Route::get('/r21/classroom/drawing/{subjectId}', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'show']);
     Route::post('/r21/classroom/drawing/{subjectId}/syllabus', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'uploadSyllabus']);
     Route::post('/r21/classroom/drawing/{subjectId}/sheets/save', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'saveSheetMarks']);
+    Route::post('/r21/classroom/drawing/{subjectId}/save-sheet-marks', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'saveSheetMarks']);
     Route::post('/r21/classroom/drawing/{subjectId}/tests/save', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'saveSeriesTestMarks']);
+    Route::post('/r21/classroom/drawing/{subjectId}/save-series-test', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'saveSeriesTestMarks']);
     Route::post('/r21/classroom/drawing/{subjectId}/attendance/save', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'saveAttendanceMarks']);
+    Route::post('/r21/classroom/drawing/{subjectId}/save-attendance', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'saveAttendanceMarks']);
     Route::get('/r21/classroom/drawing/{subjectId}/print/sheets', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'printFormativeRegister']);
     Route::get('/r21/classroom/drawing/{subjectId}/print/tests', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'printSummativeRegister']);
     Route::get('/r21/classroom/drawing/{subjectId}/print/cia', [\App\Http\Controllers\R21VirtualClassroomDrawingController::class, 'printConsolidatedCia']);
@@ -2657,11 +2661,13 @@ Route::middleware(['web'])->group(function () {
     });
 });
 
-// Web Push Notifications API
+// Web Push & In-App Notifications API
 Route::middleware(['web'])->group(function () {
     Route::get('/api/notifications/vapid-key', [\App\Http\Controllers\PushNotificationController::class, 'getVapidPublicKey']);
     Route::post('/api/notifications/subscribe', [\App\Http\Controllers\PushNotificationController::class, 'subscribe']);
     Route::post('/api/notifications/broadcast', [\App\Http\Controllers\PushNotificationController::class, 'sendBroadcast']);
+    Route::get('/api/notifications/feed', [\App\Http\Controllers\PushNotificationController::class, 'getNotificationFeed']);
+    Route::post('/api/notifications/mark-read', [\App\Http\Controllers\PushNotificationController::class, 'markNotificationRead']);
 });
 
 // Staff Birthday Celebration Routes
@@ -2688,6 +2694,8 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/classroom/{subjectId}/practical/experiment-date', [\App\Http\Controllers\ClassroomController::class, 'updatePracticalExperimentDate']);
     Route::post('/api/classroom/{subjectId}/practical/evaluate-bulk', [\App\Http\Controllers\ClassroomController::class, 'saveBulkPracticalEvaluations']);
     Route::post('/api/classroom/{subjectId}/practical/lesson-plans/sync-dates', [\App\Http\Controllers\ClassroomController::class, 'syncLessonPlanDatesFromLogs']);
+    Route::post('/api/classroom/{subjectId}/lesson-plans/sync-dates', [\App\Http\Controllers\ClassroomController::class, 'syncLessonPlanDatesFromLogs']);
+    Route::post('/api/classroom/{subjectId}/lesson-plans/{planId}/delete', [\App\Http\Controllers\ClassroomController::class, 'deleteLessonPlanRow']);
     Route::get('/api/classroom/{subjectId}/practical/batch-setup', [\App\Http\Controllers\AttendanceController::class, 'getLabBatchSetup']);
     Route::post('/api/classroom/{subjectId}/practical/batch-setup', [\App\Http\Controllers\AttendanceController::class, 'saveLabBatchAssignments']);
 });
@@ -2714,6 +2722,7 @@ Route::middleware(['web'])->group(function () {
     Route::post('/api/staff/attendance/sync-from-lesson-plan', [\App\Http\Controllers\SbteSubjectLogImportController::class, 'syncFromLessonPlan']);
     Route::get('/api/tutor/attendance/consolidated', [\App\Http\Controllers\AttendanceController::class, 'getConsolidatedTutorAttendance']);
     Route::get('/tutor/attendance/report/print', [\App\Http\Controllers\AttendanceController::class, 'printTutorAttendanceReport']);
+    Route::get('/tutor/attendance/student/{regNo}/print', [\App\Http\Controllers\AttendanceController::class, 'printStudentAttendanceReport']);
 
     // Practical Classroom Log & CIA Summary Parity
     Route::get('/api/classroom/{subjectId}/practical/attendance-log', [\App\Http\Controllers\VirtualClassroomPracticalController::class, 'getAttendanceLog']);
@@ -2730,5 +2739,17 @@ Route::middleware(['web'])->group(function () {
 
     // Student Study Material Read Tracker
     Route::post('/api/student/materials/{id}/read', [\App\Http\Controllers\VirtualLearningMaterialController::class, 'markAlertAsRead']);
+
+    // Staff Mobile Virtual Lab (R2021 Dedicated Mobile Evaluation)
+    Route::get('/staff/mobile/virtual-lab/{subjectId}', [\App\Http\Controllers\StaffMobileVirtualLabController::class, 'show']);
+
+    // R26 Practicum Question Paper Reset
+    Route::post('/api/r26/classroom/practicum/{subjectId}/series-qp/reset/{seriesNo}', [\App\Http\Controllers\R26VirtualClassroomPracticumController::class, 'resetSeriesQp']);
+
+    // R26 Health & Physical Syllabus View
+    Route::get('/r26/classroom/health-physical/{subjectId}/syllabus/view', [\App\Http\Controllers\R26VirtualClassroomHealthPhysicalController::class, 'viewSyllabus']);
+
+    // Online Test Questions Preview
+    Route::post('/api/classroom/{subjectId}/preview-online-test-questions', [\App\Http\Controllers\TestEngineController::class, 'previewOnlineTestQuestions']);
 });
 

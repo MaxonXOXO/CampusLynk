@@ -1,123 +1,375 @@
-<x-layouts.report-layout 
-    title="List of Practical Experiments — {{ $batchSubject->subject_name }}"
-    documentNo="DOC-R26-P-EXP-LIST"
-    orientation="portrait"
->
-    <!-- Header -->
-    <div class="text-center border-b-2 border-slate-800 pb-3 mb-4">
-        <h1 class="text-xl font-bold uppercase tracking-wide text-slate-900">Carmel Polytechnic College, Alappuzha</h1>
-        <h2 class="text-sm font-semibold text-slate-700 mt-1">List of Practical Experiments & Competency Roster — Revision 2026 Practicum</h2>
-        <p class="text-xs text-slate-500 mt-0.5">Affiliated to SBTE Kerala | Approved by AICTE, New Delhi</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practical Experiments List - {{ $batchSubject->subject_code }}</title>
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 12mm 10mm 12mm 10mm;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #0f172a;
+            margin: 0 auto;
+            padding: 4px;
+            font-size: 10px;
+            line-height: 1.35;
+            max-width: 194mm;
+            background: #fff;
+        }
+
+        .no-print {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-print {
+            background: #047857;
+            color: #fff;
+        }
+
+        .btn-back {
+            background: #0284c7;
+            color: #fff;
+        }
+
+        .btn-close {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #047857;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+        }
+
+        .college-name {
+            font-size: 15px;
+            font-weight: 900;
+            color: #1e3a8a;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .college-sub {
+            font-size: 10px;
+            font-weight: 600;
+            color: #475569;
+            margin-top: 1px;
+        }
+
+        .report-badge {
+            display: inline-block;
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #047857;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            padding: 2px 14px;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+
+        .meta-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 9.5px;
+        }
+
+        .meta-table td {
+            padding: 3px 6px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .meta-table .lbl {
+            background: #f8fafc;
+            font-weight: 700;
+            color: #334155;
+            width: 15%;
+        }
+
+        .meta-table .val {
+            color: #0f172a;
+            font-weight: 600;
+            width: 35%;
+        }
+
+        .exp-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+            font-size: 9.5px;
+        }
+
+        .exp-table th,
+        .exp-table td {
+            border: 1px solid #64748b;
+            padding: 5px 6px;
+            vertical-align: middle;
+        }
+
+        .exp-table thead {
+            display: table-header-group;
+        }
+
+        .exp-table tr {
+            page-break-inside: avoid;
+        }
+
+        .exp-table th {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 9px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .exp-table tr:nth-child(even) td {
+            background-color: #f8fafc;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .font-mono {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 600;
+        }
+
+        .co-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: #e0f2fe;
+            color: #0369a1;
+            font-weight: 700;
+            font-size: 9px;
+            border: 1px solid #bae6fd;
+        }
+
+        .sig-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 10px;
+            page-break-inside: avoid;
+        }
+
+        .sig-box {
+            text-align: center;
+            border-top: 1px solid #475569;
+            padding-top: 6px;
+        }
+
+        .sig-name {
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .sig-title {
+            font-size: 8.5px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .footer-note {
+            margin-top: 14px;
+            padding: 6px 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 8.5px;
+            color: #475569;
+            line-height: 1.4;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                padding: 0;
+            }
+        }
+    </style>
+    <script>
+    function goBackToClassroom() {
+        if (window.opener && !window.opener.closed) {
+            window.close();
+        } else if (document.referrer && document.referrer.length > 0) {
+            window.location.href = document.referrer;
+        } else {
+            window.location.href = "{{ url('/r26/classroom/practicum/' . $batchSubject->id . '?mode=lab&tab=roster') }}";
+        }
+    }
+    </script>
+    <!-- Google Fonts: Crimson Pro & Atkinson Hyperlegible -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Atkinson Hyperlegible', Arial, sans-serif !important;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Crimson Pro', Georgia, serif !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Print Controls -->
+    <div class="no-print">
+        <button onclick="goBackToClassroom()" class="btn btn-back">&#8592; Back to Classroom</button>
+        <button onclick="window.print()" class="btn btn-print">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print Experiment List (A4)
+        </button>
+        <button onclick="window.close()" class="btn btn-close">Close</button>
     </div>
 
-    <!-- Metadata Grid -->
-    <div class="grid grid-cols-3 gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs mb-4">
-        <div>
-            <span class="text-slate-500 block font-medium">Course Title:</span>
-            <span class="font-bold text-slate-900">{{ $batchSubject->subject_name }}</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Course Code:</span>
-            <span class="font-bold text-slate-900 font-mono">{{ $batchSubject->subject_code }}</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Teaching Scheme:</span>
-            <span class="font-bold text-slate-900">{{ $practicumCourseFile->teaching_scheme ?? '3:0:3:0' }} &bull; 4.5 Credits</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Department:</span>
-            <span class="font-bold text-slate-900">{{ $departmentName ?? 'Engineering' }}</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Batch / Semester:</span>
-            <span class="font-bold text-slate-900">{{ $batchName ?? 'Batch' }} &bull; Sem {{ $classroom->current_semester ?? $batchSubject->semester ?? '1' }}</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Faculty In-Charge:</span>
-            <span class="font-bold text-slate-900">{{ $lecturerName ?? 'Faculty' }}</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Total Experiments:</span>
-            <span class="font-bold text-slate-900">{{ count($experiments) }} Prescribed</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Allocated Practical Hours:</span>
-            <span class="font-bold text-blue-700">{{ $totalPracticalHours }} Hours (Lab Component)</span>
-        </div>
-        <div>
-            <span class="text-slate-500 block font-medium">Generated On:</span>
-            <span class="font-bold text-slate-900">{{ date('d M Y, h:i A') }}</span>
-        </div>
+    <!-- College Header -->
+    <div class="header">
+        <div class="college-name">Carmel Polytechnic College, Alappuzha</div>
+        <div class="college-sub">Government Aided Polytechnic College • Approved by AICTE • Affiliated to SBTE Kerala</div>
+        <div class="report-badge">List of Practical Experiments &amp; Lab Sessions — Revision 2026 Practicum</div>
     </div>
+
+    <!-- Meta Details Grid -->
+    <table class="meta-table">
+        <tr>
+            <td class="lbl">Department:</td>
+            <td class="val">{{ $departmentName }}</td>
+            <td class="lbl">Semester &amp; Batch:</td>
+            <td class="val">Semester {{ $batchSubject->semester }} ({{ $batchName }})</td>
+        </tr>
+        <tr>
+            <td class="lbl">Course:</td>
+            <td class="val"><strong>{{ $batchSubject->subject_code }}</strong> - {{ $batchSubject->subject_name }}</td>
+            <td class="lbl">Faculty In-Charge:</td>
+            <td class="val">{{ $lecturerName }}</td>
+        </tr>
+        <tr>
+            <td class="lbl">Total Experiments:</td>
+            <td class="val"><strong>{{ count($experiments) }}</strong> Experiments Configured</td>
+            <td class="lbl">Practical Hours:</td>
+            <td class="val"><strong>{{ $totalPracticalHours }}</strong> Allocated Lab Hours</td>
+        </tr>
+        <tr>
+            <td class="lbl">Date Generated:</td>
+            <td class="val"><strong>{{ date('d/m/Y') }}</strong></td>
+            <td class="lbl">Academic Scheme:</td>
+            <td class="val">Curriculum Revision 2026 Practicum</td>
+        </tr>
+    </table>
 
     <!-- Experiments Table -->
-    <div class="overflow-x-auto mb-6">
-        <table class="w-full text-left border-collapse text-xs">
-            <thead>
-                <tr class="bg-slate-800 text-white font-semibold">
-                    <th class="border border-slate-700 px-3 py-2 text-center w-12">#</th>
-                    <th class="border border-slate-700 px-3 py-2 w-24 text-center">Exp Code</th>
-                    <th class="border border-slate-700 px-3 py-2 w-24 text-center">Session</th>
-                    <th class="border border-slate-700 px-3 py-2">Practical Experiment Title & Core Skill Description</th>
-                    <th class="border border-slate-700 px-3 py-2 text-center w-20">Mapped CO</th>
-                    <th class="border border-slate-700 px-3 py-2 text-center w-20">Hours</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($experiments as $idx => $exp)
-                <tr class="{{ $idx % 2 === 0 ? 'bg-white' : 'bg-slate-50' }} hover:bg-slate-100/80">
-                    <td class="border border-slate-200 px-3 py-2 text-center font-medium text-slate-600">{{ $idx + 1 }}</td>
-                    <td class="border border-slate-200 px-3 py-2 text-center font-mono font-semibold text-blue-800">
-                        {{ $exp['code'] ?? ($exp['experiment_no'] ?? ('EXP-' . sprintf('%02d', $idx + 1))) }}
-                    </td>
-                    <td class="border border-slate-200 px-3 py-2 text-center text-slate-700">
-                        {{ $exp['session_code'] ?? ('Sess ' . ($idx + 1)) }}
-                    </td>
-                    <td class="border border-slate-200 px-3 py-2 font-medium text-slate-900">
-                        {{ $exp['title'] ?? 'Practical Experiment' }}
-                    </td>
-                    <td class="border border-slate-200 px-3 py-2 text-center">
-                        <span class="inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-bold text-[10px]">
-                            {{ $exp['co_id'] ?? 'CO1' }}
-                        </span>
-                    </td>
-                    <td class="border border-slate-200 px-3 py-2 text-center font-bold text-slate-800">
-                        {{ $exp['hours'] ?? 3 }} Hrs
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="border border-slate-200 px-4 py-8 text-center text-slate-400 italic">
-                        No experiments roster has been defined or uploaded in the Practicum Course File.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-            <tfoot>
-                <tr class="bg-slate-100 font-bold text-slate-900">
-                    <td colspan="5" class="border border-slate-300 px-3 py-2 text-right">Total Practical Hours Allocated:</td>
-                    <td class="border border-slate-300 px-3 py-2 text-center text-blue-800">{{ $totalPracticalHours }} Hrs</td>
-                </tr>
-            </tfoot>
-        </table>
+    <table class="exp-table">
+        <thead>
+            <tr>
+                <th style="width: 30px;">Sl</th>
+                <th style="width: 75px;">Session Code</th>
+                <th style="width: 75px;">Code</th>
+                <th>Experiment Title / Description</th>
+                <th style="width: 65px;">Mapped CO</th>
+                <th style="width: 75px;">Duration</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($experiments as $idx => $exp)
+            <tr>
+                <td class="text-center" style="font-weight: 700;">{{ $idx + 1 }}</td>
+                <td class="text-center font-mono" style="color: #047857; font-weight: 700;">
+                    {{ $exp['session_code'] ?? ('Sess ' . ($idx + 1)) }}
+                </td>
+                <td class="text-center font-mono" style="color: #0284c7; font-weight: 700;">
+                    {{ $exp['code'] ?? ($exp['experiment_no'] ?? ('EXP-' . sprintf('%02d', $idx + 1))) }}
+                </td>
+                <td style="font-weight: 600; color: #1e293b;">
+                    {{ $exp['title'] ?? 'Experiment' }}
+                </td>
+                <td class="text-center">
+                    <span class="co-badge">{{ $exp['co_id'] ?? 'CO1' }}</span>
+                </td>
+                <td class="text-center font-mono" style="font-weight: 700;">
+                    {{ $exp['hours'] ?? 3 }} Hours
+                </td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="6" class="text-center" style="padding: 16px; color: #64748b;">
+                    No experiments configured for this practicum course yet.
+                </td>
+            </tr>
+            @endforelse
+        </tbody>
+        @if(count($experiments) > 0)
+        <tfoot>
+            <tr style="background-color: #f1f5f9; font-weight: 800;">
+                <td colspan="3" class="text-center">TOTAL SUMMARY</td>
+                <td>{{ count($experiments) }} Lab Experiments / Practicum Modules</td>
+                <td class="text-center">CO1 - CO4</td>
+                <td class="text-center font-mono">{{ $totalPracticalHours }} Hours</td>
+            </tr>
+        </tfoot>
+        @endif
+    </table>
+
+    <div class="footer-note">
+        <strong>Curricular Compliance:</strong> Practical experiments are structured into modular lab sessions under SBTE Revision 2026 guidelines. Continuous evaluation (CE) marks out of 10 marks are mapped from rubric evaluations across these experiments.
     </div>
 
-    <!-- Signatures -->
-    <div class="grid grid-cols-3 gap-8 mt-12 pt-4 border-t border-slate-300 text-center text-xs">
-        <div>
-            <div class="border-b border-slate-400 h-10 mb-2"></div>
-            <p class="font-bold text-slate-900">{{ $lecturerName ?? 'Faculty In-Charge' }}</p>
-            <p class="text-slate-500 text-[10px]">Lecturer / Course Coordinator</p>
+    <!-- Signatures Grid -->
+    <div class="sig-grid">
+        <div class="sig-box">
+            <div class="sig-name">{{ $lecturerName }}</div>
+            <div class="sig-title">Faculty In-Charge</div>
         </div>
-        <div>
-            <div class="border-b border-slate-400 h-10 mb-2"></div>
-            <p class="font-bold text-slate-900">{{ $hod->name ?? 'Head of Department' }}</p>
-            <p class="text-slate-500 text-[10px]">{{ $departmentName ?? 'Department' }}</p>
+        <div class="sig-box">
+            <div class="sig-name">&nbsp;</div>
+            <div class="sig-title">Lab / Workshop Superintendent</div>
         </div>
-        <div>
-            <div class="border-b border-slate-400 h-10 mb-2"></div>
-            <p class="font-bold text-slate-900">Principal</p>
-            <p class="text-slate-500 text-[10px]">Carmel Polytechnic College</p>
+        <div class="sig-box">
+            <div class="sig-name">{{ $hod->name ?? 'Head of Department' }}</div>
+            <div class="sig-title">Head of Department (HOD)</div>
         </div>
     </div>
-</x-layouts.report-layout>
+
+</body>
+</html>

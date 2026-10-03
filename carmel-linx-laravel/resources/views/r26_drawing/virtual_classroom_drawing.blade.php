@@ -1983,5 +1983,6 @@
             }
         }
     </script>
+    <x-carmie-assistant />
 </body>
 </html>

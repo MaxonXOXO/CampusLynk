@@ -207,7 +207,7 @@
       'CO6': 'bg-cyan-50 text-cyan-700 border-cyan-200',
     };
 
-    function renderCoursePlanner(lessonPlans) {
+        function renderCoursePlanner(lessonPlans) {
       const container = document.getElementById('coursePlannerContent');
       if (!container) return;
 
@@ -244,7 +244,7 @@
       }
 
       // ── Populated state ──────────────────────────────────────────────────────
-      let totalHours = lessonPlans.reduce((sum, lp) => sum + (lp.allocated_hours || 0), 0);
+      let totalHours = lessonPlans.reduce((sum, lp) => sum + (parseInt(lp.allocated_hours) || 1), 0);
       let testDays   = lessonPlans.filter(lp => (lp.pedagogy || '').toLowerCase() === 'test').length;
       let lectureDays = lessonPlans.length - testDays;
       let proposedVal = window.currentProposedTotalHours || 60;
@@ -259,7 +259,7 @@
         <div class="flex flex-wrap justify-between items-center gap-3 mb-4 pb-3 border-b border-slate-200">
           <div>
             <h4 class="text-sm font-bold text-slate-800">Lesson Planner</h4>
-            <p class="text-xs text-slate-500 mt-0.5">${lectureDays} lecture days · ${testDays} test days · ${totalHours} total hours (Syllabus Proposed: ${proposedVal} hours) · Click any topic to edit inline</p>
+            <p id="plannerSubtitle" class="text-xs text-slate-500 mt-0.5">${lectureDays} lecture days · ${testDays} test days · ${totalHours} total hours (Syllabus Proposed: ${proposedVal} hours) · Auto-growing content textareas</p>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
             ${practicalRegenBtn}
@@ -269,10 +269,13 @@
             <button onclick="saveLessonPlanChanges()" id="btnSavePlan" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs">
               <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> Save Changes
             </button>
-            <button onclick="saveLessonPlanAsTemplate()" id="btnSavePlanTemplate" class="px-3 py-1.5 bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Save as reusable template for other batches with the same subject">
+            <button onclick="syncDatesFromLogData()" id="btnSyncDates" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Cross-sync actual conducted dates from class attendance logs">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg> Sync Dates from Log Data
+            </button>
+            <button onclick="saveLessonPlanAsTemplate()" id="btnSavePlanTemplate" class="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Save as reusable template for other batches with the same subject">
               <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/><line x1="12" x2="12" y1="7" y2="13"/><line x1="9" x2="15" y1="10" y2="10"/></svg> Save as Template
             </button>
-            <button onclick="loadLessonPlanTemplate()" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Load previously saved template">
+            <button onclick="loadLessonPlanTemplate()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Load previously saved template">
               <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg> Load Template
             </button>
             <a href="/classroom/${currentSubjectId}/lesson-plan/print" target="_blank" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-premium cursor-pointer flex items-center gap-1 shadow-xs" title="Print Lesson Plan (A4)">
@@ -283,65 +286,87 @@
 
         <div class="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-xs">
           <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse min-w-[900px]" id="lessonPlanTable">
+            <table class="w-full text-left border-collapse min-w-[1050px]" id="lessonPlanTable">
               <thead>
-                <tr class="bg-slate-50 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200">
+                <tr class="bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
                   <th class="p-3 w-10 text-center">#</th>
-                  <th class="p-3 w-8 text-center">CO</th>
-                  <th class="p-3">Topic / Content <span class="text-slate-600 normal-case font-normal">(editable)</span></th>
-                  <th class="p-3 w-32">Proposed Date</th>
-                  <th class="p-3 w-32">Actual Date</th>
-                  <th class="p-3 w-24 text-center">Hrs</th>
-                  <th class="p-3 w-28">Pedagogy</th>
+                  <th class="p-3 w-24 text-center">CO</th>
+                  <th class="p-3">Topic / Content <span class="text-slate-400 normal-case font-normal">(auto-grow)</span></th>
+                  <th class="p-3 w-36 text-center">Proposed Date</th>
+                  <th class="p-3 w-36 text-center">Actual Date</th>
+                  <th class="p-3 w-20 text-center">Hrs</th>
+                  <th class="p-3 w-28 text-center">Pedagogy</th>
                   <th class="p-3 w-36">Remarks</th>
+                  <th class="p-3 w-12 text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
       `;
 
+      const coOptionsList = ['CO1', 'CO2', 'CO3', 'CO4', 'CO5', 'CO6', '--'];
+
       lessonPlans.forEach((lp, index) => {
-        let co        = lp.co_id || '';
-        let coColor   = CO_COLORS[co] || 'bg-slate-100 text-slate-700 border-slate-200';
-        let coBadge   = co ? `<span class="px-1.5 py-0.5 rounded border text-[10px] font-bold ${coColor}">${co}</span>` : `<span class="text-slate-700 text-[10px]">—</span>`;
+        let co        = lp.co_id || '--';
         let proposed  = lp.proposed_date || '';
+        let actual    = lp.actual_date || '';
         let pedagogy  = lp.pedagogy || 'Lecture';
         let remarks   = (lp.remarks || '').replace(/"/g, '&quot;');
         let topic     = (lp.topic_content || '').replace(/"/g, '&quot;');
         let dayNo     = lp.day_no || (index + 1);
-        let isTest    = pedagogy.toLowerCase() === 'test';
+        let isTest    = (pedagogy || '').toLowerCase() === 'test';
         let rowBg     = isTest ? 'bg-slate-100/90 border-b border-slate-200 hover:bg-slate-100' : 'bg-white border-b border-slate-100 hover:bg-slate-50/80';
-        let actual    = lp.actual_date
-          ? `<span class="text-emerald-400 font-mono text-[10px]">${lp.actual_date}</span>`
-          : `<span class="text-slate-700 text-[10px]">—</span>`;
+
+        let coSelectOptions = coOptionsList.map(opt => `<option value="${opt}" ${co === opt ? 'selected' : ''}>${opt}</option>`).join('');
+
+        let pedagogyOptions = ['Lecture', 'Test', 'Lab', 'Demo', 'Tutorial', 'Assignment', 'Revision', 'Group Discussion', 'Seminar'].map(ped => {
+          return `<option value="${ped}" ${pedagogy.toLowerCase() === ped.toLowerCase() ? 'selected' : ''}>${ped}</option>`;
+        }).join('');
 
         html += `
           <tr class="border-b ${rowBg} last:border-0 hover:bg-slate-50/80 transition-colors" data-lp-id="${lp.id}">
-            <td class="p-2 text-center text-xs font-bold text-slate-700">${dayNo}</td>
-            <td class="p-2 text-center">${coBadge}</td>
+            <td class="p-2 text-center text-xs font-bold text-slate-700" data-field="day_no">${dayNo}</td>
+            <td class="p-2 text-center">
+              <select data-field="co_id" class="w-full bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-2 py-1.5 text-xs font-bold text-blue-700 outline-none transition-all cursor-pointer shadow-2xs" onchange="markPlanDirty(${lp.id})">
+                ${coSelectOptions}
+              </select>
+            </td>
             <td class="p-2">
-              <input type="text" value="${topic}" data-field="topic"
-                class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2.5 py-1.5 text-slate-900 font-medium text-xs shadow-2xs outline-none transition-all placeholder:text-slate-400"
+              <textarea data-field="topic" rows="1"
+                class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2.5 py-2 text-slate-900 font-medium text-xs shadow-2xs outline-none transition-all placeholder:text-slate-400 resize-none overflow-hidden min-h-[38px] box-border leading-relaxed"
+                style="min-height: 38px;"
                 placeholder="Enter topic..."
-                onchange="markPlanDirty(${lp.id})">
+                oninput="autoResizeTopicTextarea(this); markPlanDirty(${lp.id})">${topic}</textarea>
             </td>
             <td class="p-2">
               <input type="date" value="${proposed}" data-field="proposed_date"
                 class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2 py-1.5 text-slate-800 text-xs font-mono shadow-2xs outline-none transition-all"
                 onchange="markPlanDirty(${lp.id}); autoSavePlanRow(${lp.id}, this.closest('tr'))">
             </td>
-            <td class="p-2 text-center">${actual}</td>
-            <td class="p-2 text-center text-xs font-bold font-mono text-slate-700">${lp.allocated_hours || 1}</td>
             <td class="p-2">
-              <input type="text" value="${pedagogy}" data-field="pedagogy"
-                class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2.5 py-1.5 text-slate-800 text-xs shadow-2xs outline-none transition-all placeholder:text-slate-400"
-                placeholder="Lecture, Demo, Lab..."
-                onchange="markPlanDirty(${lp.id})">
+              <input type="date" value="${actual}" data-field="actual_date"
+                class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg px-2 py-1.5 text-emerald-700 font-bold text-xs font-mono shadow-2xs outline-none transition-all"
+                onchange="markPlanDirty(${lp.id}); autoSavePlanRow(${lp.id}, this.closest('tr'))">
+            </td>
+            <td class="p-2 text-center">
+              <input type="number" min="1" max="10" value="${lp.allocated_hours || 1}" data-field="allocated_hours"
+                class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2 py-1.5 text-slate-900 text-center font-mono font-bold text-xs shadow-2xs outline-none transition-all"
+                onchange="markPlanDirty(${lp.id}); recalculatePlanHours()">
+            </td>
+            <td class="p-2">
+              <select data-field="pedagogy" class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2 py-1.5 text-slate-800 text-xs shadow-2xs outline-none transition-all cursor-pointer" onchange="markPlanDirty(${lp.id})">
+                ${pedagogyOptions}
+              </select>
             </td>
             <td class="p-2">
               <input type="text" value="${remarks}" data-field="remarks"
                 class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2.5 py-1.5 text-slate-800 text-xs shadow-2xs outline-none transition-all placeholder:text-slate-400"
                 placeholder="Add remarks..."
                 onchange="markPlanDirty(${lp.id})">
+            </td>
+            <td class="p-2 text-center">
+              <button type="button" onclick="deleteLessonPlanRow(${lp.id}, this)" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded-lg transition-colors cursor-pointer" title="Delete Row">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              </button>
             </td>
           </tr>
         `;
@@ -350,6 +375,23 @@
       html += `
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <!-- Bottom Controls Bar (Add Row & Save Options) -->
+        <div class="flex flex-wrap items-center justify-between gap-4 mt-4 pt-2">
+          <div>
+            <button type="button" onclick="addLessonPlanRow()" class="px-4 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-slate-900 border border-slate-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
+              <svg class="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg> Add Row
+            </button>
+          </div>
+          <div class="flex items-center gap-3">
+            <button type="button" onclick="saveLessonPlanChanges()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save
+            </button>
+            <button type="button" onclick="saveLessonPlanChanges()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Save Now
+            </button>
           </div>
         </div>
 
@@ -363,6 +405,221 @@
       `;
 
       container.innerHTML = html;
+      // Auto-size all textareas only if container is currently visible
+      const plannerContainer = document.getElementById('coursePlannerContent');
+      if (plannerContainer && !plannerContainer.classList.contains('hidden') && plannerContainer.offsetParent !== null) {
+        setTimeout(autoResizeAllPlanTextareas, 50);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Topic Auto-Resize & Sizing Helpers
+    // -------------------------------------------------------------
+    function autoResizeTopicTextarea(ta) {
+      if (!ta) return;
+      if (ta.offsetParent === null) {
+        // Element is in a hidden tab container - clear any forced height so it falls back to min-height
+        ta.style.height = '';
+        return;
+      }
+      ta.style.height = 'auto';
+      const targetHeight = Math.max(38, ta.scrollHeight);
+      ta.style.height = targetHeight + 'px';
+    }
+    window.autoResizeTopicTextarea = autoResizeTopicTextarea;
+
+    function autoResizeAllPlanTextareas() {
+      const container = document.getElementById('coursePlannerContent');
+      if (!container || container.classList.contains('hidden') || container.offsetParent === null) {
+        return;
+      }
+      const textareas = container.querySelectorAll('textarea[data-field="topic"]');
+      textareas.forEach(ta => {
+        autoResizeTopicTextarea(ta);
+      });
+    }
+    window.autoResizeAllPlanTextareas = autoResizeAllPlanTextareas;
+
+    window.addEventListener('resize', () => {
+      if (typeof window.autoResizeAllPlanTextareas === 'function') {
+        window.autoResizeAllPlanTextareas();
+      }
+    });
+
+    // -------------------------------------------------------------
+    // Lesson Plan Helpers: Add Row, Delete Row, Sync Dates, Live Recalc
+    // -------------------------------------------------------------
+    let _tempNewRowCounter = 1;
+
+    function addLessonPlanRow() {
+      const tbody = document.querySelector('#lessonPlanTable tbody');
+      if (!tbody) return;
+
+      const currentRows = tbody.querySelectorAll('tr[data-lp-id]');
+      const dayNo = currentRows.length + 1;
+      const tempId = 'new_' + (_tempNewRowCounter++);
+
+      const tr = document.createElement('tr');
+      tr.className = "border-b bg-white border-slate-100 hover:bg-slate-50/80 transition-colors";
+      tr.setAttribute('data-lp-id', tempId);
+
+      const coOptionsList = ['CO1', 'CO2', 'CO3', 'CO4', 'CO5', 'CO6', '--'];
+      let coSelectOptions = coOptionsList.map(opt => `<option value="${opt}" ${opt === 'CO1' ? 'selected' : ''}>${opt}</option>`).join('');
+
+      let pedagogyOptions = ['Lecture', 'Test', 'Lab', 'Demo', 'Tutorial', 'Assignment', 'Revision', 'Group Discussion', 'Seminar'].map(ped => {
+        return `<option value="${ped}" ${ped === 'Lecture' ? 'selected' : ''}>${ped}</option>`;
+      }).join('');
+
+      tr.innerHTML = `
+        <td class="p-2 text-center text-xs font-bold text-slate-700" data-field="day_no">${dayNo}</td>
+        <td class="p-2 text-center">
+          <select data-field="co_id" class="w-full bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-2 py-1.5 text-xs font-bold text-blue-700 outline-none transition-all cursor-pointer shadow-2xs" onchange="markPlanDirty('${tempId}')">
+            ${coSelectOptions}
+          </select>
+        </td>
+        <td class="p-2">
+          <textarea data-field="topic" rows="1"
+            class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2.5 py-2 text-slate-900 font-medium text-xs shadow-2xs outline-none transition-all placeholder:text-slate-400 resize-none overflow-hidden min-h-[38px] box-border leading-relaxed"
+            style="min-height: 38px;"
+            placeholder="Enter topic..."
+            oninput="autoResizeTopicTextarea(this); markPlanDirty('${tempId}')"></textarea>
+        </td>
+        <td class="p-2">
+          <input type="date" value="" data-field="proposed_date"
+            class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2 py-1.5 text-slate-800 text-xs font-mono shadow-2xs outline-none transition-all"
+            onchange="markPlanDirty('${tempId}')">
+        </td>
+        <td class="p-2">
+          <input type="date" value="" data-field="actual_date"
+            class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 rounded-lg px-2 py-1.5 text-emerald-700 font-bold text-xs font-mono shadow-2xs outline-none transition-all"
+            onchange="markPlanDirty('${tempId}')">
+        </td>
+        <td class="p-2 text-center">
+          <input type="number" min="1" max="10" value="1" data-field="allocated_hours"
+            class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2 py-1.5 text-slate-900 text-center font-mono font-bold text-xs shadow-2xs outline-none transition-all"
+            onchange="markPlanDirty('${tempId}'); recalculatePlanHours()">
+        </td>
+        <td class="p-2">
+          <select data-field="pedagogy" class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2 py-1.5 text-slate-800 text-xs shadow-2xs outline-none transition-all cursor-pointer" onchange="markPlanDirty('${tempId}')">
+            ${pedagogyOptions}
+          </select>
+        </td>
+        <td class="p-2">
+          <input type="text" value="" data-field="remarks"
+            class="w-full bg-white border border-slate-200 hover:border-slate-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg px-2.5 py-1.5 text-slate-800 text-xs shadow-2xs outline-none transition-all placeholder:text-slate-400"
+            placeholder="Add remarks..."
+            onchange="markPlanDirty('${tempId}')">
+        </td>
+        <td class="p-2 text-center">
+          <button type="button" onclick="deleteLessonPlanRow('${tempId}', this)" class="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded-lg transition-colors cursor-pointer" title="Delete Row">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+      const newTa = tr.querySelector('textarea[data-field="topic"]');
+      if (newTa) {
+        autoResizeTopicTextarea(newTa);
+        newTa.focus();
+      }
+      markPlanDirty(tempId);
+      recalculatePlanHours();
+    }
+
+    function deleteLessonPlanRow(lpId, btn) {
+      if (!confirm('Are you sure you want to delete this lesson plan row?')) return;
+      const row = btn.closest('tr');
+
+      if (String(lpId).startsWith('new_') || !lpId || isNaN(lpId)) {
+        if (row) row.remove();
+        recalculatePlanHours();
+        renumberPlanRows();
+        return;
+      }
+
+      fetch(`/api/classroom/${currentSubjectId}/lesson-plans/${lpId}`, {
+        method: 'DELETE',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+      })
+      .then(res => res.json())
+      .then(d => {
+        if (d.status === 'SUCCESS') {
+          if (row) row.remove();
+          recalculatePlanHours();
+          renumberPlanRows();
+        } else {
+          alert(d.message || 'Failed to delete row.');
+        }
+      })
+      .catch(err => {
+        alert('Error deleting row: ' + err.message);
+      });
+    }
+
+    function renumberPlanRows() {
+      const rows = document.querySelectorAll('#lessonPlanTable tbody tr[data-lp-id]');
+      rows.forEach((r, idx) => {
+        const dayCell = r.querySelector('[data-field="day_no"]');
+        if (dayCell) dayCell.innerText = idx + 1;
+      });
+    }
+
+    function recalculatePlanHours() {
+      const rows = document.querySelectorAll('#lessonPlanTable tbody tr[data-lp-id]');
+      let totalHrs = 0;
+      let testDays = 0;
+
+      rows.forEach(r => {
+        const hrs = parseInt(r.querySelector('[data-field="allocated_hours"]')?.value || 1);
+        totalHrs += (isNaN(hrs) ? 1 : hrs);
+        const ped = (r.querySelector('[data-field="pedagogy"]')?.value || '').toLowerCase();
+        if (ped === 'test') testDays++;
+      });
+
+      let lectureDays = rows.length - testDays;
+      let proposedVal = window.currentProposedTotalHours || 60;
+
+      const sub = document.getElementById('plannerSubtitle');
+      if (sub) {
+        sub.innerText = `${lectureDays} lecture days · ${testDays} test days · ${totalHrs} total hours (Syllabus Proposed: ${proposedVal} hours) · Auto-growing content textareas`;
+      }
+    }
+
+    function syncDatesFromLogData() {
+      const btn = document.getElementById('btnSyncDates');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<svg class="w-4 h-4 animate-spin inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Syncing...`;
+      }
+
+      fetch(`/api/classroom/${currentSubjectId}/lesson-plans/sync-dates`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+      })
+      .then(res => res.json())
+      .then(d => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg> Sync Dates from Log Data`;
+        }
+        alert(d.message || 'Synced dates successfully.');
+        loadCourseDetails(currentSubjectId).then(() => {
+          toggleClassroomTab('planner');
+        });
+      })
+      .catch(err => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg> Sync Dates from Log Data`;
+        }
+        alert('Sync failed: ' + err.message);
+      });
     }
 
     // Track which rows have been edited
@@ -393,10 +650,15 @@
         row = document.querySelector(`#lessonPlanTable tr[data-lp-id="${lpId}"]`);
         if (!row) return null;
       }
+      const rawId = isNaN(parseInt(lpId)) ? null : parseInt(lpId);
       return {
-        id:            lpId,
+        id:            rawId,
+        day_no:        parseInt(row.querySelector('[data-field="day_no"]')?.innerText || 1),
+        co_id:         row.querySelector('[data-field="co_id"]')?.value          || null,
         topic_content: row.querySelector('[data-field="topic"]')?.value          || '',
         proposed_date: row.querySelector('[data-field="proposed_date"]')?.value  || null,
+        actual_date:   row.querySelector('[data-field="actual_date"]')?.value    || null,
+        allocated_hours: parseInt(row.querySelector('[data-field="allocated_hours"]')?.value || 1),
         pedagogy:      row.querySelector('[data-field="pedagogy"]')?.value        || 'Lecture',
         remarks:       row.querySelector('[data-field="remarks"]')?.value         || '',
       };
@@ -406,12 +668,12 @@
       const btn = document.getElementById('btnSavePlan');
       const rows = [];
       document.querySelectorAll('#lessonPlanTable tbody tr[data-lp-id]').forEach(row => {
-        const lpId = parseInt(row.getAttribute('data-lp-id'));
+        const lpId = row.getAttribute('data-lp-id');
         const data = collectPlanRow(lpId, row);
         if (data) rows.push(data);
       });
       if (rows.length === 0) { alert('Nothing to save.'); return; }
-      if (btn) { btn.disabled = true; btn.innerHTML = '<svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Saving...'; }
+      if (btn) { btn.disabled = true; btn.innerHTML = '<svg class="w-4 h-4 inline-block animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Saving...'; }
 
       fetch(`/api/classroom/${currentSubjectId}/lesson-plans/bulk-update`, {
         method: 'POST',
@@ -422,8 +684,16 @@
           window._dirtyPlanRows.clear();
           const bar = document.getElementById('planSaveStatusBar');
           if (bar) { bar.classList.add('hidden'); bar.classList.remove('flex'); }
-          if (btn) btn.innerHTML = '<svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Saved!';
+          if (btn) btn.innerHTML = '<svg class="w-4 h-4 inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg> Saved!';
           setTimeout(() => { if (btn) { btn.disabled = false; btn.innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> Save Changes'; } }, 2500);
+
+          // If there were temporary newly added rows, reload course details so they get permanent IDs
+          const hasNewRows = rows.some(r => r.id === null);
+          if (hasNewRows) {
+            loadCourseDetails(currentSubjectId).then(() => {
+              toggleClassroomTab('planner');
+            });
+          }
         } else {
           alert(d.message || 'Save failed.');
           if (btn) { btn.disabled = false; btn.innerHTML = '<svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"/><path d="M7 3v4a1 1 0 0 0 1 1h7"/></svg> Save Changes'; }

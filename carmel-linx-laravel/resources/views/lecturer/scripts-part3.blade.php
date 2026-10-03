@@ -349,7 +349,8 @@
           let qText = typeof q === 'object' ? q.question : q;
           let bt = typeof q === 'object' ? q.bt_level : 'Understand';
           let marksVal = typeof q === 'object' ? q.marks : 5;
-          addManualQuestionField(qText, bt, marksVal);
+          let img = typeof q === 'object' ? (q.image_url || q.diagram_url || '') : '';
+          addManualQuestionField(qText, bt, marksVal, img);
         });
       }
 
@@ -366,21 +367,42 @@
       modal.classList.add('hidden');
     }
 
-    function addManualQuestionField(question = '', btLevel = 'Understand', marks = 5) {
+    function addManualQuestionField(question = '', btLevel = 'Understand', marks = 5, imageUrl = '') {
       const container = document.getElementById('editQuestionsFieldsContainer');
       const div = document.createElement('div');
       div.className = "p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3 relative question-field-row shadow-2xs";
       
       div.innerHTML = `
         <div class="flex justify-between items-center">
-          <span class="text-xs font-bold text-slate-700 uppercase tracking-wide">Question</span>
-          <button type="button" onclick="this.closest('.question-field-row').remove(); updateEditQuestionsTotalMarks();" class="text-rose-500 hover:text-rose-700 cursor-pointer transition-colors">
-            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-800 uppercase tracking-wide">Question Description</span>
+            <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-200">LaTeX Math ($...$) Enabled</span>
+          </div>
+          <button type="button" onclick="this.closest('.question-field-row').remove(); updateEditQuestionsTotalMarks();" class="text-rose-500 hover:text-rose-700 cursor-pointer transition-colors p-1" title="Delete Question">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
           </button>
         </div>
         <div>
-          <textarea class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs resize-y q-text" rows="2" placeholder="Type question description..." required>${question}</textarea>
+          <textarea class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-slate-900 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 shadow-2xs resize-y q-text" rows="3" placeholder="Type question description..." onpaste="handleQuestionTextareaPaste(event, this)" required>${question}</textarea>
         </div>
+
+        <!-- Diagram / Image Attachment Section -->
+        <div class="q-diagram-section bg-white border border-dashed border-slate-300 rounded-xl p-3 flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <label class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-bold cursor-pointer transition flex items-center gap-1.5 shadow-2xs">
+              <svg class="w-4 h-4 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+              <span>Attach Diagram / Image</span>
+              <input type="file" accept="image/*" class="hidden q-img-input" onchange="uploadQuestionDiagram(this)">
+            </label>
+            <span class="text-[11px] text-slate-400">or press <b>Ctrl+V</b> in the box to paste screenshot</span>
+          </div>
+          <div class="q-img-preview-box ${imageUrl ? '' : 'hidden'} flex items-center gap-3 p-2 bg-slate-50 rounded-lg border border-slate-200">
+            <img src="${imageUrl || ''}" class="h-16 w-auto rounded object-contain border border-slate-200 q-preview-img">
+            <input type="hidden" class="q-img-url" value="${imageUrl || ''}">
+            <button type="button" onclick="removeQuestionDiagram(this)" class="text-xs text-rose-500 hover:text-rose-700 font-bold ml-auto cursor-pointer">Remove Image</button>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="text-xs font-bold text-slate-600 uppercase block mb-1">BT Level</label>
@@ -388,6 +410,8 @@
               <option value="Remember" ${btLevel === 'Remember' ? 'selected' : ''}>Remember</option>
               <option value="Understand" ${btLevel === 'Understand' ? 'selected' : ''}>Understand</option>
               <option value="Apply" ${btLevel === 'Apply' ? 'selected' : ''}>Apply</option>
+              <option value="Analyse" ${btLevel === 'Analyse' ? 'selected' : ''}>Analyse</option>
+              <option value="Evaluate" ${btLevel === 'Evaluate' ? 'selected' : ''}>Evaluate</option>
             </select>
           </div>
           <div>
@@ -398,6 +422,67 @@
       `;
       container.appendChild(div);
       updateEditQuestionsTotalMarks();
+    }
+
+    function handleQuestionTextareaPaste(e, textarea) {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (let item of items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          const row = textarea.closest('.question-field-row');
+          if (row) {
+            uploadQuestionImageFile(file, row);
+          }
+        }
+      }
+    }
+
+    function uploadQuestionDiagram(fileInput) {
+      if (!fileInput.files || fileInput.files.length === 0) return;
+      const file = fileInput.files[0];
+      const row = fileInput.closest('.question-field-row');
+      uploadQuestionImageFile(file, row);
+    }
+
+    function uploadQuestionImageFile(file, row) {
+      if (!file || !row) return;
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const previewBox = row.querySelector('.q-img-preview-box');
+      const previewImg = row.querySelector('.q-preview-img');
+      const urlInput = row.querySelector('.q-img-url');
+
+      fetch(`/api/classroom/${currentEditSubjectId}/upload-assignment-image`, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
+        body: formData
+      })
+      .then(res => res.json())
+      .then(d => {
+        if (d.status === 'SUCCESS' && d.url) {
+          previewImg.src = d.url;
+          urlInput.value = d.url;
+          previewBox.classList.remove('hidden');
+        } else {
+          alert(d.message || 'Image upload failed.');
+        }
+      })
+      .catch(err => {
+        alert('Upload failed: ' + err.message);
+      });
+    }
+
+    function removeQuestionDiagram(btn) {
+      const row = btn.closest('.question-field-row');
+      if (row) {
+        const previewBox = row.querySelector('.q-img-preview-box');
+        const previewImg = row.querySelector('.q-preview-img');
+        const urlInput = row.querySelector('.q-img-url');
+        previewImg.src = '';
+        urlInput.value = '';
+        previewBox.classList.add('hidden');
+      }
     }
 
     function updateEditQuestionsTotalMarks() {
@@ -418,12 +503,15 @@
         const text = row.querySelector('.q-text').value.trim();
         const bt = row.querySelector('.q-bt').value;
         const marks = parseInt(row.querySelector('.q-marks').value || 0);
+        const imgUrl = row.querySelector('.q-img-url')?.value || null;
         
         if (text) {
           questions.push({
             question: text,
             bt_level: bt,
-            marks: marks
+            marks: marks,
+            image_url: imgUrl,
+            diagram_url: imgUrl
           });
           totalMarks += marks;
         }

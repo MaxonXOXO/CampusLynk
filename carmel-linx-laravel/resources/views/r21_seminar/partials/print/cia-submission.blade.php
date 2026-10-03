@@ -18,7 +18,8 @@
                 <th class="py-2.5 px-3 border-r border-slate-400">Total in Words</th>
                 <th class="py-2.5 px-2 text-center border-r border-slate-400 w-14">Grade</th>
                 <th class="py-2.5 px-2 text-center border-r border-slate-400 w-12">Point</th>
-                <th class="py-2.5 px-2 text-center w-16">Result</th>
+                <th class="py-2.5 px-2 text-center border-r border-slate-400 w-16">Result</th>
+                <th class="py-2.5 px-2 text-center w-24">Signature</th>
             </tr>
         </thead>
         <tbody class="divide-y divide-slate-300">
@@ -41,13 +42,14 @@
                     </td>
                     <td class="text-center font-bold py-2 px-2 border-r border-slate-300">{{ $st['letter_grade'] }}</td>
                     <td class="text-center font-mono py-2 px-2 border-r border-slate-300">{{ $st['grade_point'] }}</td>
-                    <td class="text-center font-semibold text-xs py-2 px-2 {{ $st['result'] === 'Pass' ? 'text-emerald-700' : ($st['result'] === 'Failed' ? 'text-rose-700' : 'text-slate-400') }}">
+                    <td class="text-center font-semibold text-xs py-2 px-2 border-r border-slate-300 {{ $st['result'] === 'Pass' ? 'text-emerald-700' : ($st['result'] === 'Failed' ? 'text-rose-700' : 'text-slate-400') }}">
                         {{ $st['result'] }}
                     </td>
+                    <td class="text-center py-2 px-2 text-slate-300"></td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="10" class="py-4 text-center text-slate-500">No student marks available.</td>
+                    <td colspan="11" class="py-4 text-center text-slate-500">No student marks available.</td>
                 </tr>
             @endforelse
         </tbody>

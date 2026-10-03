@@ -1,2 +1,2 @@
-<!-- Carmie Assistant Widget Partial (Backward Compatibility Wrapper) -->
+{{-- Forward to modernized global Carmie AI Assistant component --}}
 <x-carmie-assistant />

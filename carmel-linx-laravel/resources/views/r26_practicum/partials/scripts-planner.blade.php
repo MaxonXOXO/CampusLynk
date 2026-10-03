@@ -317,6 +317,94 @@
                     <input type="hidden" id="lp-batch-${planId}" value="All Students">
                 `;
             }
+        function insertLessonPlanRowAfter(targetRowId, defaultMode) {
+            const targetTr = document.getElementById(targetRowId);
+            if (!targetTr) return;
+
+            const tbody = targetTr.closest('tbody');
+            if (!tbody) return;
+
+            const isLab = defaultMode === 'P' || targetTr.closest('#lab-subcontent-planner') !== null;
+            const mode = isLab ? 'P' : 'L';
+            const newId = 'new_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+
+            const targetPlanId = targetTr.getAttribute('data-plan-id');
+            const targetCo = document.getElementById('lp-co-' + targetPlanId)?.value || 'CO1';
+            const targetPropDate = document.getElementById('lp-prop-' + targetPlanId)?.value || '';
+
+            const tr = document.createElement('tr');
+            tr.id = `lp-row-${newId}`;
+            tr.setAttribute('data-plan-id', newId);
+            tr.setAttribute('data-co', targetCo);
+            tr.setAttribute('data-status', 'Pending');
+            tr.className = `${isLab ? 'lab-planner-row' : 'theory-planner-row'} hover:bg-slate-50/70 transition-colors bg-sky-50/30 border-l-4 border-sky-500`;
+
+            tr.innerHTML = `
+                <td class="p-3 font-mono font-bold text-center text-slate-900 text-sm">
+                    <span class="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200 font-bold text-[11px]">NEW</span>
+                </td>
+                <td class="p-2.5">
+                    <select id="lp-pedagogy-${newId}" onchange="onPedagogyChange('${newId}', this.value)" class="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 rounded-xl px-2.5 py-2 text-sm font-medium transition-all outline-none cursor-pointer ${mode === 'P' ? 'text-emerald-700' : 'text-blue-700'}">
+                        <option value="Lecture (L)" ${mode === 'L' ? 'selected' : ''}>Lecture (L)</option>
+                        <option value="Practical Lab (P)" ${mode === 'P' ? 'selected' : ''}>Practical Lab (P)</option>
+                        <option value="Theory Series Exam (ST)">Theory Series Exam (ST)</option>
+                        <option value="Practical Series Exam (SP)">Practical Series Exam (SP)</option>
+                        <option value="PPT Presentation">PPT Presentation</option>
+                        <option value="Demonstration">Demonstration</option>
+                        <option value="Group Activity">Group Activity</option>
+                    </select>
+                </td>
+                <td class="p-2.5">
+                    <input type="date" id="lp-prop-${newId}" value="${targetPropDate}" class="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 rounded-xl px-2.5 py-2 text-slate-800 text-sm font-mono transition-all outline-none">
+                </td>
+                <td class="p-2.5">
+                    <input type="date" id="lp-act-${newId}" value="" onchange="${isLab ? `onLabActualDateChange('${newId}', this.value)` : `onTheoryActualDateChange('${newId}', this.value)`}" class="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 rounded-xl px-2.5 py-2 text-slate-800 text-sm font-mono transition-all outline-none">
+                </td>
+                <td class="p-2.5">
+                    <textarea id="lp-topic-${newId}" rows="2" placeholder="Enter lesson topic description..." class="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 rounded-xl px-3 py-2 text-slate-900 text-sm font-normal transition-all outline-none resize-y leading-snug"></textarea>
+                </td>
+                <td class="p-2.5 text-center">
+                    <select id="lp-co-${newId}" class="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-indigo-500 rounded-xl px-2 py-1.5 font-mono text-xs font-bold text-slate-700 outline-none cursor-pointer">
+                        <option value="CO1" ${targetCo === 'CO1' ? 'selected' : ''}>CO1</option>
+                        <option value="CO2" ${targetCo === 'CO2' ? 'selected' : ''}>CO2</option>
+                        <option value="CO3" ${targetCo === 'CO3' ? 'selected' : ''}>CO3</option>
+                        <option value="CO4" ${targetCo === 'CO4' ? 'selected' : ''}>CO4</option>
+                        <option value="CO5" ${targetCo === 'CO5' ? 'selected' : ''}>CO5</option>
+                        <option value="CO6" ${targetCo === 'CO6' ? 'selected' : ''}>CO6</option>
+                    </select>
+                </td>
+                <td id="lp-batch-td-${newId}" class="p-2.5 text-center">
+                    <select id="lp-batch-${newId}" class="w-full bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-indigo-500 rounded-xl px-2 py-1.5 font-mono text-xs text-emerald-700 outline-none cursor-pointer text-center">
+                        <option value="ALL" ${mode === 'L' ? 'selected' : ''}>ALL</option>
+                        <option value="Batch A & B" ${mode === 'P' ? 'selected' : ''}>Batch A & B</option>
+                        <option value="Batch A">Batch A</option>
+                        <option value="Batch B">Batch B</option>
+                    </select>
+                </td>
+                <td id="lp-hours-td-${newId}" class="p-2.5 text-center font-normal">
+                    <span class="px-2.5 py-1 rounded-lg ${mode === 'P' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/80' : 'bg-blue-50 text-blue-700 border border-blue-200/80'} text-xs font-bold">${mode === 'P' ? '3 Hours' : '1 Hour'}</span>
+                </td>
+                <td id="lp-status-td-${newId}" class="p-2.5 text-center">
+                    <span id="lp-status-pill-${newId}" class="px-2.5 py-1 rounded-full text-xs font-bold border shadow-2xs bg-amber-50 text-amber-700 border-amber-200/80">Pending</span>
+                </td>
+                <td class="p-2.5">
+                    <div class="flex items-center gap-1.5">
+                        <input type="text" id="lp-remarks-${newId}" value="" placeholder="Status/Remarks" class="flex-1 bg-slate-50/70 hover:bg-white focus:bg-white border border-slate-200/90 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 rounded-xl px-3 py-2 text-slate-800 text-sm font-normal transition-all outline-none">
+                        <button type="button" onclick="removeLessonPlanRow('lp-row-${newId}')" title="Remove row" class="w-8 h-8 flex items-center justify-center rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-600 transition-all text-sm font-bold cursor-pointer shrink-0">&times;</button>
+                    </div>
+                </td>
+            `;
+
+            targetTr.after(tr);
+            const topicTextarea = document.getElementById('lp-topic-' + newId);
+            if (topicTextarea) {
+                topicTextarea.focus();
+            }
+        }
+
+        function removeLessonPlanRow(rowId) {
+            const tr = document.getElementById(rowId);
+            if (tr) tr.remove();
         }
 
     // =====================================================================

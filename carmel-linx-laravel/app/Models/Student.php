@@ -85,6 +85,18 @@ class Student extends Model
         return $this->hasMany(AcademicMark::class, 'reg_no', 'reg_no');
     }
 
+    /**
+     * Scope to order students universally by roll number ascending, then LET last, then name ascending.
+     */
+    public function scopeOrderByRollOrName($query)
+    {
+        $driver = $query->getConnection()->getDriverName();
+        if ($driver === 'sqlite') {
+            return $query->orderByRaw("CASE WHEN roll_no IS NULL THEN 1 ELSE 0 END ASC, CAST(roll_no AS INTEGER) ASC, CASE WHEN admission_type = 'LET' THEN 1 ELSE 0 END ASC, UPPER(name) ASC");
+        }
+        return $query->orderByRaw("ISNULL(roll_no) ASC, CAST(roll_no AS UNSIGNED) ASC, CASE WHEN admission_type = 'LET' THEN 1 ELSE 0 END ASC, UPPER(name) ASC");
+    }
+
     public static function getClassroomStudentsQuery($classroomId)
     {
         if (str_ends_with($classroomId, '_LET')) {
@@ -93,8 +105,9 @@ class Student extends Model
                 ->where(function($q) {
                     $q->where('reg_no', 'like', '%L')
                       ->orWhere('sbte_reg_no', 'like', '%L');
-                });
+                })
+                ->orderByRollOrName();
         }
-        return self::where('classroom_id', $classroomId);
+        return self::where('classroom_id', $classroomId)->orderByRollOrName();
     }
 }
